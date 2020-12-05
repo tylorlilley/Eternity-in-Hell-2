@@ -1,5 +1,5 @@
 event_inherited();
 
 death_sound = snd_crunch;
-spawn_timer = 0;
+spawn_timer = 3+irandom(3);
 

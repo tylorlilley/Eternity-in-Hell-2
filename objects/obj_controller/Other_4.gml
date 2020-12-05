@@ -50,6 +50,11 @@ if (!current_room.visited) {
     if (!current_room.has_collectables || current_room.collectables_collected) {
         with obj_collectable instance_destroy();
     }
+	
+	// Remove lit status from room if it should't exist
+	if (current_room.lit && instance_number(obj_lantern) == 0) {
+		current_room.lit = false;
+	}
     
     // Mark room as one that has been visited at some point during this game
     current_room.visited = true;

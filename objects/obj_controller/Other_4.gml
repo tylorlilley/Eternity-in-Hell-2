@@ -52,8 +52,9 @@ if (!current_room.visited) {
     }
 	
 	// Remove lit status from room if it should't exist
-	if (current_room.lit && instance_number(obj_lantern) == 0) {
-		current_room.lit = false;
+	if (current_room.lit) { 
+		if (instance_number(obj_lantern) == 0) { current_room.lit = false; }
+		else { with obj_lantern { obj_lantern_light(true); } }
 	}
     
     // Mark room as one that has been visited at some point during this game

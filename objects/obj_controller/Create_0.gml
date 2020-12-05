@@ -48,52 +48,54 @@ with obj_room {
     obj_room_destroy_room_lists();
 }
 
-// Lock Random Exits
-with obj_room {
-    for(var i = 0; i < 4; i++) {
-        if exits[i] && (irandom(global.controller.LOCKED_DOOR_PROBABILITY) == 0) { 
-            obj_room_create_locked_exit(i);
-        }
-    }
-}
+current_room = get_random_instance(obj_room);
 
-// Begin Game in Random Room that has no key in it
-do {
-    current_room = get_random_instance(obj_room);
-}
-until (!current_room.has_key);
+//// Lock Random Exits
+//with obj_room {
+//    for(var i = 0; i < 4; i++) {
+//        if exits[i] && (irandom(global.controller.LOCKED_DOOR_PROBABILITY) == 0) { 
+//            obj_room_create_locked_exit(i);
+//        }
+//    }
+//}
 
-// Walk the Map and tweak it until map is possible
-var empty_list = ds_list_create();
+//// Begin Game in Random Room that has no key in it
+//do {
+//    current_room = get_random_instance(obj_room);
+//}
+//until (!current_room.has_key);
 
-var list_of_all_keyless_rooms = ds_list_create();
-with (obj_room) {
-    if (!exits[4] && !has_key && id != global.controller.current_room) { ds_list_add(list_of_all_keyless_rooms, id); }
-}
+//// Walk the Map and tweak it until map is possible
+//var empty_list = ds_list_create();
 
-var list_of_all_locked_exits = ds_list_create();
-with (obj_exit) {
-    ds_list_add(list_of_all_locked_exits, id);
-}
+//var list_of_all_keyless_rooms = ds_list_create();
+//with (obj_room) {
+//    if (!exits[4] && !has_key && id != global.controller.current_room) { ds_list_add(list_of_all_keyless_rooms, id); }
+//}
 
-while (!obj_controller_can_reach_all_rooms(empty_list)) {
-    ds_list_clear(empty_list);
-    // Add an additional key somewhere
-    if (ds_list_size(list_of_all_keyless_rooms) > 0) {
-        ds_list_shuffle(list_of_all_keyless_rooms);
-        var room_to_add_key_to = ds_list_find_value(list_of_all_keyless_rooms, 0);
-        room_to_add_key_to.has_key = true;
-    }
-    else {
-        // Start removing locks on doors
-        ds_list_shuffle(list_of_all_locked_exits);
-        var locked_exit_to_destroy = ds_list_find_value(list_of_all_locked_exits, 0);
-        with locked_exit_to_destroy { obj_exit_unlock(); instance_destroy(); }
-    }
-}
-ds_list_destroy(empty_list);
-ds_list_destroy(list_of_all_keyless_rooms);
-ds_list_destroy(list_of_all_locked_exits);
+//var list_of_all_locked_exits = ds_list_create();
+//with (obj_exit) {
+//    ds_list_add(list_of_all_locked_exits, id);
+//}
+
+//while (!obj_controller_can_reach_all_rooms(empty_list)) {
+//    ds_list_clear(empty_list);
+//    // Add an additional key somewhere
+//    if (ds_list_size(list_of_all_keyless_rooms) > 0) {
+//        ds_list_shuffle(list_of_all_keyless_rooms);
+//        var room_to_add_key_to = ds_list_find_value(list_of_all_keyless_rooms, 0);
+//        room_to_add_key_to.has_key = true;
+//    }
+//    else {
+//        // Start removing locks on doors
+//        ds_list_shuffle(list_of_all_locked_exits);
+//        var locked_exit_to_destroy = ds_list_find_value(list_of_all_locked_exits, 0);
+//        with locked_exit_to_destroy { obj_exit_unlock(); instance_destroy(); }
+//    }
+//}
+//ds_list_destroy(empty_list);
+//ds_list_destroy(list_of_all_keyless_rooms);
+//ds_list_destroy(list_of_all_locked_exits);
 
 // Create player object and change room to current room's referenced room
 global.player = instance_create(0, 0, obj_player);

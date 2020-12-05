@@ -7,8 +7,8 @@ function obj_room_draw(argument0, argument1) {
 	    // Draw Room, fading it based on its distance to the current room. Make it blink if it is the current room
 	    var room_image_alpha = 1-(distance_to_current_room/global.controller.MAX_MAP_DRAW_DISTANCE);
 	    if (global.controller.current_room.id == id && global.controller.number_of_frames_since_game_began mod 2 == 0) { room_image_alpha /= 2; }
-	    //if (lit) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 1, 1, 0, c_red, room_image_alpha/2); }
-		draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, c_white, room_image_alpha);
+		room_color = lit ? c_red : c_white
+		draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, room_color, room_image_alpha);
 
 	    // Draw Room's Exits
 	    for (var i = 0; i < 4; i++) {

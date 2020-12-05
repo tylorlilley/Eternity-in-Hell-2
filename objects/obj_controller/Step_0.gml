@@ -1,0 +1,16 @@
+if (!game_has_been_lost() && !game_has_been_won()) {
+    // Play map Sound Effects
+    if keyboard_check_pressed(vk_space) { sound_play(snd_pickup); }
+    if keyboard_check_released(vk_space) { sound_play(snd_putdown); }
+    if keyboard_check(vk_space) { points -= 1/room_speed; }
+    
+    // Update per frame values
+    points -= 1/room_speed;
+    if (game_has_been_lost()) { sound_play(snd_lose); }
+    fuzz_value = -24 + irandom(50);
+    number_of_frames_since_game_began += 1;
+    __background_set_colour( make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(points/INITIAL_SCORE), 8), 1)), 20, 20) );
+}
+else if (game_has_been_lost()) { points = 0; }
+
+

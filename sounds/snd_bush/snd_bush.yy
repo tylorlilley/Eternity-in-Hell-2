@@ -1,0 +1,23 @@
+{
+  "compression": 0,
+  "volume": 0.28,
+  "preload": true,
+  "bitRate": 192,
+  "sampleRate": 44100,
+  "type": 0,
+  "bitDepth": 1,
+  "audioGroupId": {
+    "name": "audiogroup_default",
+    "path": "audiogroups/audiogroup_default",
+  },
+  "soundFile": "snd_bush",
+  "duration": 0.722959,
+  "parent": {
+    "name": "Sounds",
+    "path": "folders/Sounds.yy",
+  },
+  "resourceVersion": "1.0",
+  "name": "snd_bush",
+  "tags": [],
+  "resourceType": "GMSound",
+}

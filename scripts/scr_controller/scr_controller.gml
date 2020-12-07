@@ -38,6 +38,7 @@ function obj_controller_initialize() {
 	PLAYER_LIGHT_RANGE = 6;
 
 	// Initialize score constants and variables
+	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 0.2;
 	MAX_TORCH_TIME_TO_REMAIN_LIT = 1*60 // minutes * 60 = total seconds for torch to remain lit
 	INITIAL_SCORE = 1+(15*60); // minutes * 60 = total seconds for game to run
 	points = INITIAL_SCORE;
@@ -70,6 +71,14 @@ function transition_to_room(dir) {
 	// Play transition sound
 	if (dir == 4) { audio_play_sound( snd_stairs, 10, false ); }
 	else { audio_play_sound( snd_move, 10, false ); }
+	
+	// Reposition player
+	switch (dir) {
+		case 0: { y = room_height-8; break; }
+		case 1: { x = 8; break; }
+		case 2: { y = 8; break; }
+		case 3: { x = room_width-8; break; }
+	}
 
 	// Change Rooms
 	global.controller.entered_from_stairs = (dir == 4);

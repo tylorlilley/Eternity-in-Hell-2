@@ -98,6 +98,6 @@ current_room = get_random_instance(obj_room);
 //ds_list_destroy(list_of_all_locked_exits);
 
 // Create player object and change room to current room's referenced room
+entered_from_stairs = true;
 global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
-

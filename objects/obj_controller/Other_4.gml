@@ -1,19 +1,12 @@
-with obj_room { distance_to_current_room = 9999; }
-with current_room { obj_room_calculate_distance_to_current(0); }
-
+var stairs_spot = instance_find(obj_stairs_spot, 0);
+ 
+// First Time Setup	
 if (!current_room.visited) {    
     // Flip game object positions as necesarry
     if (current_room.flip_horizontal) { obj_room_flip_horizontally(); }
     if (current_room.flip_vertical) { obj_room_flip_vertically(); }
     
-    // Change player position if necessarry
-    var stairs_spot = instance_find(obj_stairs_spot, 0);
     
-    if entered_from_stairs {
-        global.player.x = stairs_spot.x;
-        global.player.y = stairs_spot.y;
-        entered_from_stairs = false;
-    }
     
     // Create stairs for room if they should exist
     if (current_room.exits[4]) {
@@ -49,7 +42,7 @@ if (!current_room.visited) {
         with obj_collectable instance_destroy();
     }
 	
-	// Remove lit status from room if it should't exist
+	// Remove lit status from room if it shouldn't exist
 	if (current_room.lit) { 
 		if (instance_number(obj_lantern) == 0) { current_room.lit = false; }
 		else { with obj_lantern { obj_lantern_light(true); } }
@@ -58,4 +51,18 @@ if (!current_room.visited) {
     // Mark room as one that has been visited at some point during this game
     current_room.visited = true;
 }
+
+// Every Time Setup
+with obj_room { distance_to_current_room = 9999; }
+with current_room { obj_room_calculate_distance_to_current(0); }
+
+// Change position if necessary
+if entered_from_stairs {
+    global.player.x = stairs_spot.x
+	global.player.y = stairs_spot.y
+}
+
+// Add a small pause when entering a room
+global.player.pause_movement = game_get_speed(gamespeed_fps) * FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
+
 

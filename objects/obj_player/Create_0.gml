@@ -9,4 +9,5 @@ carried_item = instance_create_depth(x, y, -1, obj_torch);
 carried_item.carried = true;
 with carried_item { obj_torch_light(); }
 image_speed = 0;
+pause_movement = 0;
 

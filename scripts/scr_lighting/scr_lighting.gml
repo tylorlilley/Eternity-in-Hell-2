@@ -12,7 +12,7 @@ function obj_game_object_get_relative_light_intensity(instance_to_light, maximum
 	var relative_intensity = (maximum_intensity-(lighting_intensity/lighting_distance));
 	if (relative_intensity <= 0) { relative_intensity = 0; }
 
-	return relative_intensity 
+	return relative_intensity;
 }
 
 /// @function									obj_game_object_calculate_lighting(maximum_intensity);

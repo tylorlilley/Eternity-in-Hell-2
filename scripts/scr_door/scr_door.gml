@@ -2,7 +2,7 @@
 function obj_door_open() {
 	image_index = 1;
 
-	sound_play(snd_open);
+	audio_play_sound( snd_open, 10, false );
 
 	with closed { instance_destroy(); }
 	closed = noone;

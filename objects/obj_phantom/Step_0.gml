@@ -5,16 +5,16 @@ else if (spawn_timer == 0) {
     if (!obj_game_object_is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
     if (obj_game_object_can_move_in_direction(dir, true)) { obj_game_object_move_in_direction(dir); }
     
-    if (irandom(2) == 0) { visible = true; sound_play(snd_flicker); }
+    if (irandom(2) == 0) { visible = true; audio_play_sound( snd_flicker, 10, false ); }
     else { visible = false; }
     
     if (!lethal) { 
-        sound_play(snd_static); 
+        audio_play_sound( snd_static, 10, false );
         lethal = true;
     }
 }
 
-if (global.controller.current_room.lit) { instance_destroy(); sound_play(snd_impact); }
+if (global.controller.current_room.lit) { instance_destroy(); audio_play_sound( snd_impact, 10, false ); }
 
 event_inherited();
 

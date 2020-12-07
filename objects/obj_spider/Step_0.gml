@@ -16,7 +16,7 @@ if lethal {
     
     if (attacking && obj_game_object_can_move_in_direction(dir, false)) { 
         if !screeched {
-            sound_play(snd_lose); 
+            audio_play_sound( snd_lose, 10, false ); 
             screeched = 1; 
         }
         else if screeched < 4 {

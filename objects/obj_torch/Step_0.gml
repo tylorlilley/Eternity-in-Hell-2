@@ -1,7 +1,7 @@
 if (time_to_remain_lit > 0) { time_to_remain_lit -= 1/room_speed; }
 else if (!time_to_remain_lit && image_speed > 0) {
     // Put out torch
-    sound_play(snd_extinguish);
+    audio_play_sound( snd_extinguish, 10, false );
     image_speed = 0;
     image_index = 1;
     with light_source { instance_destroy(); }

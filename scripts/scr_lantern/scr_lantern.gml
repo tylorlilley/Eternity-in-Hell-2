@@ -7,7 +7,7 @@ function obj_lantern_light(room_start) {
 	light_source.lighting_range = global.controller.LANTERN_LIGHT_RANGE;
 
 	if (!room_start) {
-	    sound_play(snd_torchlight); 
+	    audio_play_sound( snd_torchlight, 10, false );
     
 	    var last_lantern = true;
 	    with obj_lantern { if (!light_source) { last_lantern = false; } }

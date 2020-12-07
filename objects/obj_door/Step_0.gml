@@ -9,7 +9,7 @@ if closed {
        ((instance_at_coordinates(global.player.x_prev-16, global.player.y_prev, self) && keyboard_check_pressed(vk_left))) ||
        ((instance_at_coordinates(global.player.x_prev+16, global.player.y_prev, self) && keyboard_check_pressed(vk_right)))) ||
        instance_place(x, y, obj_player) {
-           if (locked && global.controller.collected_keys <= 0) { sound_play(snd_locked); }
+           if (locked && global.controller.collected_keys <= 0) { audio_play_sound( snd_locked, 10, false ); }
            else { obj_door_open(); }
     }
 }

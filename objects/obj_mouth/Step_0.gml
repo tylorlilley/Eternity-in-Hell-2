@@ -7,7 +7,7 @@ if (lethal) {
     if (distance_to_instance(global.player) < 40 && !visible) ||
        (distance_to_instance(global.player) >= 40 && visible) { 
         visible = !visible;
-        sound_play(snd_squelch);
+        audio_play_sound( snd_squelch, 10, false );
     }
 }
 else { visible = false; }

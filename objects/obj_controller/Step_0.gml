@@ -1,7 +1,7 @@
 if (!game_has_been_lost() && !game_has_been_won()) {
     // Play map Sound Effects
-    if keyboard_check_pressed(vk_space) { sound_play(snd_pickup); }
-    if keyboard_check_released(vk_space) { sound_play(snd_putdown); }
+    if keyboard_check_pressed(vk_space) { audio_play_sound( snd_pickup, 10, false ); }
+    if keyboard_check_released(vk_space) { audio_play_sound( snd_putdown, 10, false ); }
     if keyboard_check(vk_space) { points -= 1/room_speed; }
     
     // Update per frame values

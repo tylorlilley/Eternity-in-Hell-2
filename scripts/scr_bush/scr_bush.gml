@@ -2,5 +2,5 @@
 function obj_bush_rustle() {
 	image_xscale *= -1;
 	occupied = !occupied;
-	sound_play(snd_bush);
+	audio_play_sound( snd_bush, 10, false );
 }

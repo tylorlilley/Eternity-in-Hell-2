@@ -1,6 +1,6 @@
 /// @function  							obj_eyes_teleport_near_player();
 function obj_eyes_teleport_near_player() {
-	sound_play(snd_flicker);
+	audio_play_sound( snd_flicker, 10, false );
 
 	do {
 	    var x_pos = (8*irandom(4));

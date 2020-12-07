@@ -12,6 +12,9 @@ function obj_controller_initialize() {
 	// Set draw depth for all layers to 0
 	layer_force_draw_depth(true,0);	
 	
+	// Set the global game speed
+	game_set_speed(10, gamespeed_fps);
+	
 	// Set up global shortcut references
 	global.controller = self;
 	global.player = noone;

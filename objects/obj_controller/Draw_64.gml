@@ -5,6 +5,10 @@ var is_looking_at_map = keyboard_check(vk_space);
 
 if (has_won || has_lost || is_looking_at_map) {
     // Draw background over entire screen
+	lay_id = layer_get_id("Background");
+	back_id = layer_background_get_id(lay_id);
+	layer_background_blend(back_id, $009900);
+	
     draw_set_color(__background_get_colour( ));
     draw_rectangle(0, 0, room_width, room_height, false);
 
@@ -42,7 +46,7 @@ if (has_won || has_lost || is_looking_at_map) {
     }
 
     // Draw time and score
-    var time_in_seconds = (number_of_frames_since_game_began/room_speed);
+    var time_in_seconds = (number_of_frames_since_game_began/game_get_speed(gamespeed_fps));
     draw_text(hud_x_pos, room_height-20, string_hash_to_newline("Time Elapsed: "+string(floor(time_in_seconds/(60)))+":"+zero_padded_string(floor(time_in_seconds mod 60), 2)));
     if (has_won || has_lost) { draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Score: "+zero_padded_string(floor(points*rooms_with_collectables), 4))); }
 }

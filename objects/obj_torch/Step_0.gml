@@ -1,4 +1,4 @@
-if (time_to_remain_lit > 0) { time_to_remain_lit -= 1/room_speed; }
+if (time_to_remain_lit > 0) { time_to_remain_lit -= 1/game_get_speed(gamespeed_fps); }
 else if (!time_to_remain_lit && image_speed > 0) {
     // Put out torch
     audio_play_sound( snd_extinguish, 10, false );

@@ -7,6 +7,6 @@ else if (x > room_width/2) { dir = 3; }
 //image_angle = dir * 90;
 
 locked = false;
-closed = instance_create(x, y, obj_solid);
+closed = instance_create_depth(x, y, 0, obj_solid);
 closed.visible = false;
 

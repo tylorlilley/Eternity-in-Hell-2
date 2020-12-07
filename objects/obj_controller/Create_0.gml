@@ -4,7 +4,7 @@ obj_controller_initialize();
 
 // Generate Initial Room with Four Exits
 var uninitialized_rooms = ds_list_create(); // Used by functions called add_random_exit and initialized_room
-current_room = instance_create(0,0,obj_room);
+current_room = instance_create_depth(0,0,0,obj_room);
 current_room.exits = array(true, true, true, true, false);
 with current_room { obj_room_initialize(uninitialized_rooms); }
 ds_list_pop_random_value(uninitialized_rooms);
@@ -98,6 +98,6 @@ current_room = get_random_instance(obj_room);
 //ds_list_destroy(list_of_all_locked_exits);
 
 // Create player object and change room to current room's referenced room
-global.player = instance_create(0, 0, obj_player);
+global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
 

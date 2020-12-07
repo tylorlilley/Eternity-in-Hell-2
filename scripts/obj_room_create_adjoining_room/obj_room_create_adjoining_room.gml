@@ -13,7 +13,7 @@ function obj_room_create_adjoining_room(argument0, argument1) {
 	    case 3: { x_offset = -16; break; }
 	}
 
-	var new_room = instance_create(x+x_offset, y+y_offset, obj_room);
+	var new_room = instance_create_depth(x+x_offset, y+y_offset, 0, obj_room);
 	obj_room_link_adjoining_room(new_room, dir);
 	ds_list_add(list_of_rooms, new_room);
 

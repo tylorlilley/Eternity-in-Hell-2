@@ -6,7 +6,7 @@ function obj_torch_light() {
 
 	sound_play(snd_torchlight);
 
-	light_source = instance_create(x, y, obj_light_source);
+	light_source = instance_create_depth(x, y, 0, obj_light_source);
 	light_source.lighting_range = global.controller.TORCH_LIGHT_RANGE;
 	light_source.persistent = true;
 

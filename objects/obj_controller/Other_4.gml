@@ -19,12 +19,12 @@ if (!current_room.visited) {
     
     // Create stairs for room if they should exist
     if (current_room.exits[4]) {
-        instance_create(stairs_spot.x, stairs_spot.y, obj_stairs)
+        instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_stairs)
     }
     
     // Create key for room if it should exist
     if (current_room.has_key) {
-        instance_create(stairs_spot.x, stairs_spot.y, obj_key)
+        instance_create_depth(stairs_spot.x, stairs_spot.y, 0, obj_key)
     }
     
     // Create locked exits if they should exist
@@ -40,7 +40,7 @@ if (!current_room.visited) {
         
         var exit_to_create_door_for = current_room.locked_exits[i];
         if (exit_to_create_door_for) {   
-            if !door { door = instance_create(x_pos, y_pos, obj_door); }
+            if !door { door = instance_create_depth(x_pos, y_pos, 0, obj_door); }
             door.door_for_exit = exit_to_create_door_for;
             door.locked = exit_to_create_door_for.locked;
         }

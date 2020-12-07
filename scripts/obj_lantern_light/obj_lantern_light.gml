@@ -4,7 +4,7 @@ function obj_lantern_light(argument0) {
 
 	image_speed = 1; 
 	
-	light_source = instance_create(x, y, obj_light_source);
+	light_source = instance_create_depth(x, y, 0, obj_light_source);
 	light_source.lighting_range = global.controller.LANTERN_LIGHT_RANGE;
 
 	if (!room_start) {

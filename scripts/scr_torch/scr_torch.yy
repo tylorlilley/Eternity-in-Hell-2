@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "other obj Functions",
-    "path": "folders/Scripts/other obj Functions.yy",
+    "name": "Object Scripts",
+    "path": "folders/Scripts/Object Scripts.yy",
   },
   "resourceVersion": "1.0",
-  "name": "obj_bush_rustle",
+  "name": "scr_torch",
   "tags": [],
   "resourceType": "GMScript",
 }

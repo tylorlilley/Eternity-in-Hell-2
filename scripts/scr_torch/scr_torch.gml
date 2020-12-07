@@ -12,8 +12,4 @@ function obj_torch_light() {
 
 	time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
 
-
-
-
-
 }

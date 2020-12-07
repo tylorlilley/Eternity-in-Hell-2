@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "obj_room Functions",
-    "path": "folders/Scripts/obj_room Functions.yy",
+    "name": "Object Scripts",
+    "path": "folders/Scripts/Object Scripts.yy",
   },
   "resourceVersion": "1.0",
-  "name": "obj_room_create_adjoining_room",
+  "name": "scr_lantern",
   "tags": [],
   "resourceType": "GMScript",
 }

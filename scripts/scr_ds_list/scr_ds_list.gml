@@ -1,5 +1,5 @@
 /// @function								ds_list_pop_random_value(list_id);
-/// @param		{ds_list} list_id			The list from which to pop a random value
+/// @param		{index} list_id				The list from which to pop a random value
 function ds_list_pop_random_value(list_id) {
 	// This takes a random value from this list by shuffling it and deletes that value
 	// from the list and returns it, as long as the list has at least one value
@@ -15,8 +15,8 @@ function ds_list_pop_random_value(list_id) {
 }
 
 /// @function								ds_list_combine(list_id, source_id);
-/// @param		{ds_list}	list_id			List to add the values to
-/// @param		{ds_list}	source_id		List to take the values being added from
+/// @param		{index}	list_id				List to add the values to
+/// @param		{index}	source_id			List to take the values being added from
 function ds_list_combine(list_id, source_id) {
 	// This takes each value from the second list, and if it is not already present 
 	// in the first list, adds it to the first list.
@@ -30,7 +30,7 @@ function ds_list_combine(list_id, source_id) {
 }
 
 /// @function								ds_list_contains(list_id, value_to_find);
-/// @param		{ds_list}	list_id			List to check for the value in
+/// @param		{index}		list_id			List to check for the value in
 /// @param		{value}		source_id		Value to check to see if the list contains
 function ds_list_contains(list_id, value_to_find) {
 	// This returns whether the list contains a given value

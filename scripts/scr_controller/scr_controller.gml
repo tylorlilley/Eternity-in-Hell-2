@@ -1,4 +1,13 @@
-/// @description  obj_controller_initialize
+// global values used to represent the four cardinal directions and the "direction" of coming to/from the stairs
+enum directions {
+	up,
+	right,
+	down,
+	left,
+	stairs
+}
+
+/// @function								obj_controller_initialize();
 function obj_controller_initialize() {
 	// Set draw depth for all layers to 0
 	layer_force_draw_depth(true,0);	
@@ -41,7 +50,27 @@ function obj_controller_initialize() {
 
 	// initialize room setup values
 	entered_from_stairs = true;
+}
 
+/// @function								game_has_been_won();
+function game_has_been_won() {
+	return (global.controller.rooms_with_collectables_collected >= global.controller.rooms_with_collectables);
+}
 
+/// @function								game_has_been_lost();
+function game_has_been_lost() {
+	return (floor(global.controller.points) <= 0);
+}
 
+/// @function								transition_to_room(dir);
+/// @param		{direction} dir				The direction in which the player is moving when leaving the current room
+function transition_to_room(dir) {
+	// Play transition sound
+	if (dir == 4) { audio_play_sound( snd_stairs, 10, false ); }
+	else { audio_play_sound( snd_move, 10, false ); }
+
+	// Change Rooms
+	global.controller.entered_from_stairs = (dir == 4);
+	global.controller.current_room = global.controller.current_room.adj_rooms[dir]; 
+	room_goto(global.controller.current_room.room_reference);
 }

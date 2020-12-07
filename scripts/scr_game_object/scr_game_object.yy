@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "instance Functions",
-    "path": "folders/Scripts/Utility/instance Functions.yy",
+    "name": "Utility",
+    "path": "folders/Scripts/Utility.yy",
   },
   "resourceVersion": "1.0",
-  "name": "get_random_instance",
+  "name": "scr_game_object",
   "tags": [],
   "resourceType": "GMScript",
 }

@@ -1,8 +1,8 @@
 /// @function								get_scaling_amount(minimum, maximum, numerator, denominator);
-/// @param		{integer}	minimum			The minimum value the scaling amount can be
-/// @param		{integer}	maximum			The maximum value the scaling amount can be
-/// @param		{integer}	numerator		The numerator of the scaling amount to be added to the minimum
-/// @param		{integer}	denominator		The denominator of the scaling amount to be added to the minimum
+/// @param		{real}	minimum				The minimum value the scaling amount can be
+/// @param		{real}	maximum				The maximum value the scaling amount can be
+/// @param		{real}	numerator			The numerator of the scaling amount to be added to the minimum
+/// @param		{real}	denominator			The denominator of the scaling amount to be added to the minimum
 function get_scaling_amount(minimum, maximum, numerator, denominator) {
 	var fraction = numerator/denominator;
 	var variable_portion = maximum - minimum;
@@ -11,8 +11,8 @@ function get_scaling_amount(minimum, maximum, numerator, denominator) {
 }
 
 /// @function								zero_padded_string(value_to_pad, target_length);
-/// @param		{integer} value_to_pad		The value to pad with zeros
-/// @param		{integer} target_legnth		The desired length of the padded string
+/// @param		{real} value_to_pad			The value to pad with zeros
+/// @param		{real} target_legnth		The desired length of the padded string
 function zero_padded_string(value_to_pad, target_length) {
 	var padded_value = string(value_to_pad)
 	
@@ -39,3 +39,19 @@ function array() {
 	
 	return arr;
 }
+
+/// @function								instance_at_coordinates(x_pos, y_pos, instance);
+/// @param		{real}  x_pos				The x value to check against the instance's x value
+/// @param		{real}  y_pos				The y value to check against the instance's y value
+/// @param		{index} instance			The instance whos positional coordinates are being checked
+function instance_at_coordinates(x_pos, y_pos, instance) {
+	return (instance.x == x_pos && instance.y == y_pos)
+}
+
+/// @function								get_random_instance(obj_index);
+/// @param		{index} obj_index			The type of object to get a random existing instance of
+function get_random_instance(obj_index) {
+	// Gets a random instance of the given object index
+	return instance_find(obj_index, irandom(instance_number(obj_index) - 1));
+}
+

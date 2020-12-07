@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Game Flow",
-    "path": "folders/Scripts/Game Flow.yy",
+    "name": "obj_controller Functions",
+    "path": "folders/Scripts/obj_controller Functions.yy",
   },
   "resourceVersion": "1.0",
-  "name": "transition_to_room",
+  "name": "scr_random_map_generation",
   "tags": [],
   "resourceType": "GMScript",
 }

@@ -50,7 +50,7 @@ function obj_room_assign_room() {
 }
 
 /// @function								obj_room_duplicate_room_from_list(list);
-/// @param		{ds_list} list				List of rooms to duplicate one of at random
+/// @param		{index} list				List of rooms to duplicate one of at random
 function obj_room_duplicate_room_from_list(list) {
 	ds_list_shuffle(list);
 	var chosen_room = ds_list_find_value(list, 0);

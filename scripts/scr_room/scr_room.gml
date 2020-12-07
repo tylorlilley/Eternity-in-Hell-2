@@ -1,5 +1,5 @@
 /// @function								obj_room_initialize(list_of_rooms);
-/// @param	{ds_list}	list_of_rooms		The list of available rooms
+/// @param	{index}	list_of_rooms			The list of available rooms
 function obj_room_initialize(list_of_rooms) {
 
 	// Randomly decide if room will have collectables, stairs, or keys
@@ -61,7 +61,7 @@ function obj_room_get_adjacent(dir) {
 
 /// @function								obj_room_create_adjoining_room(dir, list_of_rooms);
 ///	@param		{direction}	dir				The direction from this room in which to create the adjoining room
-/// @param		{ds_list}	list_of_rooms	The list of all created rooms
+/// @param		{index}		list_of_rooms	The list of all created rooms
 function obj_room_create_adjoining_room(dir, list_of_rooms) {
 
 	var x_offset = 0
@@ -84,7 +84,7 @@ function obj_room_create_adjoining_room(dir, list_of_rooms) {
 }
 
 /// @function								obj_room_link_adjoining_room(adjoining_room, dir);
-/// @param		{obj_room}	adjoining_room	The adjacent room to link to this one via a new exit
+/// @param		{index}		adjoining_room	The adjacent room to link to this one via a new exit
 /// @param		{direction}	dir				The direction from this room in which the adjoining room lies
 function obj_room_link_adjoining_room(adjoining_room, dir) {
 	adj_rooms[dir] = adjoining_room;
@@ -98,7 +98,7 @@ function obj_room_link_adjoining_room(adjoining_room, dir) {
 
 /// @function									obj_room_add_random_exit(must_create_new, list_of_rooms);
 /// @param		{boolean}	must_create_new		Whether or not an exit must be created as a result of this method
-/// @param		{ds_list}	list_of_rooms		The list of all created rooms
+/// @param		{index}		list_of_rooms		The list of all created rooms
 function obj_room_add_random_exit(must_create_new, list_of_rooms) {
 
 	if (obj_room_count_exits() > 3 || (must_create_new && obj_room_count_adjacent_rooms() > 3)) { 
@@ -178,7 +178,7 @@ function obj_room_flip_vertically() {
 }
 
 /// @function								obj_room_calculate_distance_to_current(distance)
-/// @param		{integer}	distance		The number of rooms away from this room the current room is
+/// @param		{real}	distance			The number of rooms away from this room the current room is
 function obj_room_calculate_distance_to_current(distance) {
 
 	if (distance < distance_to_current_room) { distance_to_current_room = distance; }
@@ -190,8 +190,8 @@ function obj_room_calculate_distance_to_current(distance) {
 }
 
 /// @function								  obj_room_draw(x_pos, y_pos)
-/// @param		{integer}	x_pos			  The x position to draw this room at
-/// @param		{integer}	y_pos			  The y position to draw this room at
+/// @param		{real}	x_pos				The x position to draw this room at
+/// @param		{real}	y_pos				The y position to draw this room at
 function obj_room_draw(x_pos, y_pos) {
 
 	// Only draw the room if the room has been visited at least once, or game is in test mode

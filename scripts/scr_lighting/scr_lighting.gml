@@ -2,7 +2,7 @@
 /// @param		{index} instance_to_light		The instance being lit up by the calling instance
 /// @param		{real} maximum_intensity		The maximum brightness to be returned for the instance the calling instance is lighting up
 function obj_game_object_get_relative_light_intensity(instance_to_light, maximum_intensity) {
-	var flicker = floor(global.controller.fuzz_value / 25);
+	var flicker = floor(flicker_value / 25);
 	var distance_away = distance_to_instance(instance_to_light);
 
 	var lighting_intensity = floor(distance_away/global.controller.DIMMING_RATE);

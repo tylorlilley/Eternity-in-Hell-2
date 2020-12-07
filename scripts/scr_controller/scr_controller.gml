@@ -28,7 +28,7 @@ function obj_controller_initialize() {
 	// Initialize map drawing constants
 	MINIMUM_NUMBER_OF_ROOMS = 30;
 	LOCKED_DOOR_PROBABILITY = 15;
-	TEST_MODE = true;
+	TEST_MODE = false;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables
@@ -36,7 +36,6 @@ function obj_controller_initialize() {
 	LANTERN_LIGHT_RANGE = 14;
 	TORCH_LIGHT_RANGE = 11;
 	PLAYER_LIGHT_RANGE = 6;
-	fuzz_value = 0;
 
 	// Initialize score constants and variables
 	MAX_TORCH_TIME_TO_REMAIN_LIT = 1*60 // minutes * 60 = total seconds for torch to remain lit

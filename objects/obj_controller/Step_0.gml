@@ -7,7 +7,6 @@ if (!game_has_been_lost() && !game_has_been_won()) {
     // Update per frame values
     points -= 1/game_get_speed(gamespeed_fps);
     if (game_has_been_lost()) { audio_play_sound( snd_lose, 10, false ); }
-    fuzz_value = -24 + irandom(50);
     number_of_frames_since_game_began += 1;
     __background_set_colour( make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(points/INITIAL_SCORE), 8), 1)), 20, 20) );
 }

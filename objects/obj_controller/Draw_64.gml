@@ -5,10 +5,6 @@ var is_looking_at_map = keyboard_check(vk_space);
 
 if (has_won || has_lost || is_looking_at_map) {
     // Draw background over entire screen
-	lay_id = layer_get_id("Background");
-	back_id = layer_background_get_id(lay_id);
-	layer_background_blend(back_id, $009900);
-	
     draw_set_color(__background_get_colour( ));
     draw_rectangle(0, 0, room_width, room_height, false);
 

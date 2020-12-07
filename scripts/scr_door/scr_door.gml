@@ -1,6 +1,5 @@
-/// @description  obj_door_open
+/// @function  							obj_door_open();
 function obj_door_open() {
-
 	image_index = 1;
 
 	sound_play(snd_open);
@@ -12,7 +11,4 @@ function obj_door_open() {
 	    global.controller.collected_keys -= 1;
 	    door_for_exit.locked = false;
 	}
-
-
-
 }

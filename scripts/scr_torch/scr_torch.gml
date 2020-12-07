@@ -1,6 +1,5 @@
-/// @description  obj_torch_light
+/// @function  							obj_torch_light();
 function obj_torch_light() {
-
 	image_index = 0;
 	image_speed = 1;
 
@@ -11,5 +10,4 @@ function obj_torch_light() {
 	light_source.persistent = true;
 
 	time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
-
 }

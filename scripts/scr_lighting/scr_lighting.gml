@@ -26,5 +26,5 @@ function obj_game_object_calculate_lighting(maximum_intensity) {
 	}
 
 	if greatest_lighting_intensity > maximum_intensity { greatest_lighting_intensity = maximum_intensity; }
-	image_blend = merge_color(__background_get_colour( ), c_white, greatest_lighting_intensity);
+	image_blend = merge_color(global.controller.bg_color, c_white, greatest_lighting_intensity);
 }

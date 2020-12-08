@@ -7,7 +7,6 @@ if (!current_room.visited) {
     if (current_room.flip_vertical) { obj_room_flip_vertically(); }
     
     
-    
     // Create stairs for room if they should exist
     if (current_room.exits[4]) {
         instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_stairs)
@@ -53,6 +52,8 @@ if (!current_room.visited) {
 }
 
 // Every Time Setup
+background_id = layer_background_get_id(layer_get_id("Background"));
+layer_background_blend( background_id, make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(points/INITIAL_SCORE), 8), 1)), 20, 20) );
 with obj_room { distance_to_current_room = 9999; }
 with current_room { obj_room_calculate_distance_to_current(0); }
 
@@ -64,5 +65,3 @@ if entered_from_stairs {
 
 // Add a small pause when entering a room
 global.player.pause_movement = game_get_speed(gamespeed_fps) * FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
-
-

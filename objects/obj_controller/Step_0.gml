@@ -7,8 +7,11 @@ if (!game_has_been_lost() && !game_has_been_won()) {
     // Update per frame values
     points -= 1/game_get_speed(gamespeed_fps);
     if (game_has_been_lost()) { audio_play_sound( snd_lose, 10, false ); }
-    number_of_frames_since_game_began += 1;
-    __background_set_colour( make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(points/INITIAL_SCORE), 8), 1)), 20, 20) );
+    number_of_frames_since_game_began += 1
+	
+	// Update background
+	bg_color = make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(points/INITIAL_SCORE), 8), 1)), 20, 20);
+	layer_background_blend( background_id,  bg_color );
 }
 else if (game_has_been_lost()) { points = 0; }
 

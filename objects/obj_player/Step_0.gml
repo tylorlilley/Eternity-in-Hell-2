@@ -23,7 +23,6 @@ if (!dead && !game_has_been_won() && !game_has_been_lost()) {
 	else {
 	    // Move player in chosen direction if possible
 	    if (obj_game_object_can_move_in_direction(dir, false)) { 
-			view_visible[0] = false;
 	        obj_game_object_move_in_direction(dir); 
 	        image_index += 1;
 	        if (image_index > 1) { image_index = 0; }

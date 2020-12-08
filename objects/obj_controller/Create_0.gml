@@ -101,3 +101,4 @@ current_room = get_random_instance(obj_room);
 entered_from_stairs = true;
 global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
+

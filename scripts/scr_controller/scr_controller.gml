@@ -74,10 +74,10 @@ function transition_to_room(dir) {
 	
 	// Reposition player
 	switch (dir) {
-		case 0: { y = room_height-8; break; }
-		case 1: { x = 8; break; }
-		case 2: { y = 8; break; }
-		case 3: { x = room_width-8; break; }
+		case 0: { global.player.y = room_height-8; break; }
+		case 1: { global.player.x = 8; break; }
+		case 2: { global.player.y = 8; break; }
+		case 3: { global.player.x = room_width-8; break; }
 	}
 
 	// Change Rooms

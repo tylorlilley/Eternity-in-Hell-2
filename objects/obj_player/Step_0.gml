@@ -23,6 +23,7 @@ if (!dead && !game_has_been_won() && !game_has_been_lost()) {
 	else {
 	    // Move player in chosen direction if possible
 	    if (obj_game_object_can_move_in_direction(dir, false)) { 
+			view_visible[0] = false;
 	        obj_game_object_move_in_direction(dir); 
 	        image_index += 1;
 	        if (image_index > 1) { image_index = 0; }
@@ -31,12 +32,12 @@ if (!dead && !game_has_been_won() && !game_has_been_lost()) {
     
     // Transition to new room depending on player position
     var stairs = instance_place(x, y, obj_stairs);
-    if x < 0 { transition_to_room(3); }
+	if (stairs && stairs.active && instance_at_coordinates(x, y, stairs)) { transition_to_room(4); }
+    else if x < 0 { transition_to_room(3); }
     else if x > room_width { transition_to_room(1); }
     else if y < 0 { transition_to_room(0); }
     else if y > room_height { transition_to_room(2); }
-    else if (stairs && stairs.active && instance_at_coordinates(x, y, stairs)) { transition_to_room(4); }
-    
+
     // Move carried item to current position
     obj_game_object_set_instance_to_same_position(carried_item);
 }

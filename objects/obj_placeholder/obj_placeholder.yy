@@ -1,20 +1,14 @@
 {
-  "spriteId": {
-    "name": "spr_key",
-    "path": "sprites/spr_key/spr_key.yy",
-  },
+  "spriteId": null,
   "solid": false,
   "visible": false,
   "spriteMaskId": null,
   "persistent": false,
-  "parentObjectId": {
-    "name": "obj_placeholder",
-    "path": "objects/obj_placeholder/obj_placeholder.yy",
-  },
+  "parentObjectId": null,
   "physicsObject": false,
   "physicsSensor": false,
-  "physicsShape": 0,
-  "physicsGroup": 0,
+  "physicsShape": 1,
+  "physicsGroup": 1,
   "physicsDensity": 0.5,
   "physicsRestitution": 0.1,
   "physicsLinearDamping": 0.1,
@@ -31,7 +25,7 @@
     "path": "folders/Objects.yy",
   },
   "resourceVersion": "1.0",
-  "name": "obj_key_spot",
+  "name": "obj_placeholder",
   "tags": [],
   "resourceType": "GMObject",
 }

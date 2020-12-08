@@ -168,12 +168,18 @@ function obj_room_flip_horizontally() {
 	with obj_game_object {
 	    if (object_index != obj_player) { x = room_width - x; }
 	}
+	with obj_placeholder {
+		x = room_width - x;
+	}
 }
 
 /// @function				obj_room_flip_vertically();
 function obj_room_flip_vertically() {
 	with obj_game_object {
 	    if (object_index != obj_player) { y = room_height - y; }
+	}
+	with obj_placeholder {
+		y = room_height - y;
 	}
 }
 
@@ -206,7 +212,7 @@ function obj_room_draw(x_pos, y_pos) {
 	    for (var i = 0; i < 4; i++) {
 	        // Change the color of just the locked exits if the game is in test mode
 	        if (global.controller.TEST_MODE && locked_exits[i]) { draw_set_color(c_red); }
-	        else { draw_set_color(__background_get_colour( )); }
+	        else { draw_set_color(global.controller.bg_color); }
         
 	        var x_offset = 0;
 	        var y_offset = 0;
@@ -221,7 +227,7 @@ function obj_room_draw(x_pos, y_pos) {
 	        if exits[i] draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, x_size, y_size, 0, draw_get_color(), 1);
 	    }
 	    // Draw Room's Stairs
-	    draw_set_color(__background_get_colour( ));
+	    draw_set_color(global.controller.bg_color);
 	    if exits[4] draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.125, 0.125, 0, draw_get_color(), 1);
 	    // Draw Room's Keys if game is in test mode
 	    if (global.controller.TEST_MODE && has_key) { draw_set_color(c_red); draw_sprite_ext(spr_box, 0, x_pos-4, y_pos-4, 0.125, 0.125, 0, draw_get_color(), 1); }

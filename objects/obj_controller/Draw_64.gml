@@ -5,7 +5,7 @@ var is_looking_at_map = keyboard_check(vk_space);
 
 if (has_won || has_lost || is_looking_at_map) {
     // Draw background over entire screen
-    draw_set_color(__background_get_colour( ));
+    draw_set_color(global.controller.bg_color);
     draw_rectangle(0, 0, room_width, room_height, false);
 
     // Draw map of rooms if applicable
@@ -16,7 +16,7 @@ if (has_won || has_lost || is_looking_at_map) {
             obj_room_draw(room_width/2, (room_height/2)-8);
         }
 
-        draw_set_color(__background_get_colour( ));
+        draw_set_color(global.controller.bg_color);
         draw_rectangle(0, 0, room_width, 24, false);
         draw_rectangle(0, room_height-40, room_width, room_height, false);
 

@@ -8,8 +8,8 @@
   "spriteMaskId": null,
   "persistent": false,
   "parentObjectId": {
-    "name": "obj_game_object",
-    "path": "objects/obj_game_object/obj_game_object.yy",
+    "name": "obj_placeholder",
+    "path": "objects/obj_placeholder/obj_placeholder.yy",
   },
   "physicsObject": false,
   "physicsSensor": false,

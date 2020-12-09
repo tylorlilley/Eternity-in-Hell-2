@@ -190,8 +190,8 @@
     "PhysicsWorldPixToMetres": 0.1,
   },
   "parent": {
-    "name": "Not Left",
-    "path": "folders/Rooms/Three Exits/Not Left.yy",
+    "name": "Three Exits",
+    "path": "folders/Rooms/Three Exits.yy",
   },
   "resourceVersion": "1.0",
   "name": "rm_not_left_4",

@@ -344,8 +344,8 @@
     "PhysicsWorldPixToMetres": 0.1,
   },
   "parent": {
-    "name": "Vertical Exits",
-    "path": "folders/Rooms/Vertical Exits.yy",
+    "name": "Two Exits",
+    "path": "folders/Rooms/Two Exits.yy",
   },
   "resourceVersion": "1.0",
   "name": "rm_up_and_down_6",

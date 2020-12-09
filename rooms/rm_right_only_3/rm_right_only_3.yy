@@ -230,8 +230,8 @@
     "PhysicsWorldPixToMetres": 0.1,
   },
   "parent": {
-    "name": "Up Only",
-    "path": "folders/Rooms/One Exit/Up Only.yy",
+    "name": "One Exit",
+    "path": "folders/Rooms/One Exit.yy",
   },
   "resourceVersion": "1.0",
   "name": "rm_right_only_3",

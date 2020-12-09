@@ -5,6 +5,7 @@ if (!current_room.visited) {
     // Flip game object positions as necesarry
     if (current_room.flip_horizontal) { obj_room_flip_horizontally(); }
     if (current_room.flip_vertical) { obj_room_flip_vertically(); }
+    if (current_room.rotate != -1) { obj_room_rotate(current_room.rotate); }
     
     
     // Create stairs for room if they should exist

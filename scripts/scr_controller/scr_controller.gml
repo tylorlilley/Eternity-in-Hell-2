@@ -85,3 +85,46 @@ function transition_to_room(dir) {
 	global.controller.current_room = global.controller.current_room.adj_rooms[dir]; 
 	room_goto(global.controller.current_room.room_reference);
 }
+
+/// @function					obj_room_flip_horizontally();
+function obj_room_flip_horizontally() {
+	with obj_game_object {
+	    if (object_index != obj_player) { x = room_width - x; }
+	}
+	with obj_placeholder {
+		x = room_width - x;
+	}
+}
+
+/// @function				obj_room_flip_vertically();
+function obj_room_flip_vertically() {
+	with obj_game_object {
+	    if (object_index != obj_player) { y = room_height - y; }
+	}
+	with obj_placeholder {
+		y = room_height - y;
+	}
+}
+
+/// @function									obj_room_rotate(direction_to_face);
+/// @param		{direction}	direction_to_face	The direction in which the room should face once rotated
+function obj_room_rotate(direction_to_face) {
+	var angle = direction_to_face * 90;
+	
+	with obj_game_object {
+	    if (object_index != obj_player) { 
+			var x_prev = x - room_width/2;
+			var y_prev = y - room_height/2;
+			
+			x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
+			y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
+		}
+	}
+	with obj_placeholder {
+		var x_prev = x - room_width/2;
+		var y_prev = y - room_height/2;
+			
+		x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
+		y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
+	}
+}

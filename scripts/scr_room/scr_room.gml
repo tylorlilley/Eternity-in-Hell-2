@@ -162,27 +162,6 @@ function obj_room_count_adjacent_rooms() {
 	return number_of_rooms;
 }
 
-
-/// @function					obj_room_flip_horizontally();
-function obj_room_flip_horizontally() {
-	with obj_game_object {
-	    if (object_index != obj_player) { x = room_width - x; }
-	}
-	with obj_placeholder {
-		x = room_width - x;
-	}
-}
-
-/// @function				obj_room_flip_vertically();
-function obj_room_flip_vertically() {
-	with obj_game_object {
-	    if (object_index != obj_player) { y = room_height - y; }
-	}
-	with obj_placeholder {
-		y = room_height - y;
-	}
-}
-
 /// @function								obj_room_calculate_distance_to_current(distance)
 /// @param		{real}	distance			The number of rooms away from this room the current room is
 function obj_room_calculate_distance_to_current(distance) {

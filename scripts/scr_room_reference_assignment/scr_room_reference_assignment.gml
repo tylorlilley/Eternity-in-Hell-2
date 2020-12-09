@@ -1,9 +1,7 @@
 /// @function								obj_room_create_room_lists();
 function obj_room_create_room_lists() {
-	exit_only_up_rooms = ds_list_create(); 
-	ds_list_add(exit_only_up_rooms, rm_up_only_1, rm_up_only_2, rm_up_only_3, rm_up_only_4, rm_up_only_5, rm_up_only_6);
-	exit_only_right_rooms = ds_list_create(); 
-	ds_list_add(exit_only_right_rooms, rm_right_only_1, rm_right_only_2, rm_right_only_3, rm_right_only_4, rm_right_only_5, rm_right_only_6);
+	exit_only_one_rooms = ds_list_create(); 
+	ds_list_add(exit_only_one_rooms, rm_up_only_1, rm_up_only_2, rm_up_only_3, rm_up_only_4, rm_up_only_5, rm_up_only_6, rm_right_only_1, rm_right_only_2, rm_right_only_3, rm_right_only_4, rm_right_only_5, rm_right_only_6);
 	exit_angled_rooms = ds_list_create();
 	ds_list_add(exit_angled_rooms, rm_angled_1, rm_angled_2, rm_angled_3, rm_angled_4, rm_angled_5, rm_angled_6, rm_angled_7, rm_angled_8, rm_angled_9, rm_angled_10, rm_angled_11, rm_angled_12);
 	exit_up_and_down_rooms = ds_list_create(); 
@@ -26,11 +24,12 @@ function obj_room_assign_room() {
 
 	switch (number_of_exits) {
 	    case 1:
-	        if (exits[0]) { flip_horizontal = rand1; flip_vertical = false; return obj_room_duplicate_room_from_list(exit_only_up_rooms); }
-	        else if (exits[1]) { flip_horizontal = false; flip_vertical = rand1; return obj_room_duplicate_room_from_list(exit_only_right_rooms); }
-	        else if (exits[2]) { flip_horizontal = rand1; flip_vertical = true; return obj_room_duplicate_room_from_list(exit_only_up_rooms); }
-	        else { flip_horizontal = true; flip_vertical = rand1; return obj_room_duplicate_room_from_list(exit_only_right_rooms); }
-	    case 2:
+			flip_horizontal = rand1;
+			flip_vertical = false;
+			for (var i = 0; i < 4; i+= 1) {
+				if (exits[i]) { rotate = i; return obj_room_duplicate_room_from_list(exit_only_one_rooms); }
+			}
+		case 2:
 	        if (exits[0] && exits[1]) { flip_horizontal = false; flip_vertical = false; return obj_room_duplicate_room_from_list(exit_angled_rooms); }
 	        else if (exits[0] && exits[2]) { flip_horizontal = rand1; flip_vertical = rand2; return obj_room_duplicate_room_from_list(exit_up_and_down_rooms); }
 	        else if (exits[0] && exits[3]) {  flip_horizontal = true; flip_vertical = false; return obj_room_duplicate_room_from_list(exit_angled_rooms); }
@@ -63,8 +62,7 @@ function obj_room_duplicate_room_from_list(list) {
 
 /// @function								obj_room_destroy_room_lists();
 function obj_room_destroy_room_lists() {
-	ds_list_destroy(exit_only_up_rooms);
-	ds_list_destroy(exit_only_right_rooms);
+	ds_list_destroy(exit_only_one_rooms);
 	ds_list_destroy(exit_angled_rooms);
 	ds_list_destroy(exit_up_and_down_rooms);
 	ds_list_destroy(exit_right_and_left_rooms);

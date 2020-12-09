@@ -5,6 +5,7 @@ distance_to_current_room = 9999;
 visited = false;
 flip_horizontal = false;
 flip_vertical = false;
+rotate = noone;
 has_key = false;
 has_collectables = false;
 collectables_collected = false;

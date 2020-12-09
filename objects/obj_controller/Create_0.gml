@@ -42,11 +42,12 @@ for (var i = 0; i < ds_list_size(rooms_with_stairs_spot); i += 2) {
 ds_list_destroy(rooms_with_stairs_spot);
 
 // Assign a room reference from possible rooms for each room
+create_room_lists();
 with obj_room {
-    obj_room_create_room_lists();
-    room_reference = obj_room_assign_room();
-    obj_room_destroy_room_lists();
+    room_reference = get_room_from_room_lists();
+	show_debug_message(room_reference);
 }
+destroy_room_lists();
 
 current_room = get_random_instance(obj_room);
 

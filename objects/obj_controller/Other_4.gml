@@ -3,9 +3,9 @@ var stairs_spot = instance_find(obj_stairs_spot, 0);
 // First Time Setup	
 if (!current_room.visited) {    
     // Flip game object positions as necesarry
-    if (current_room.flip_horizontal) { obj_room_flip_horizontally(); }
-    if (current_room.flip_vertical) { obj_room_flip_vertically(); }
-    if (current_room.rotate != -1) { obj_room_rotate(current_room.rotate); }
+    if (current_room.flip_horizontal) { flip_room_contents_horizontally(); }
+    if (current_room.flip_vertical) { flip_room_contents_vertically(); }
+    if (current_room.rotate != -1) { rotate_room_contents_around_room_center(current_room.rotate); }
 	with obj_game_object { 
 		image_angle = 0;
 	}

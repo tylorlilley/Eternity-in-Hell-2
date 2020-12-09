@@ -1,6 +1,6 @@
 // Initialize global values
 randomize();
-obj_controller_initialize();
+initialize_game_variables();
 
 // Generate Initial Room with Four Exits
 var uninitialized_rooms = ds_list_create(); // Used by functions called add_random_exit and initialized_room

@@ -7,8 +7,8 @@ enum directions {
 	stairs
 }
 
-/// @function								obj_controller_initialize();
-function obj_controller_initialize() {
+/// @function								initialize_game_variables();
+function initialize_game_variables() {
 	// Set draw depth for all layers to 0
 	layer_force_draw_depth(true,0);	
 	
@@ -86,8 +86,8 @@ function transition_to_room(dir) {
 	room_goto(global.controller.current_room.room_reference);
 }
 
-/// @function					obj_room_flip_horizontally();
-function obj_room_flip_horizontally() {
+/// @function					flip_room_contents_horizontally();
+function flip_room_contents_horizontally() {
 	with obj_game_object {
 	    if (object_index != obj_player) { x = room_width - x; }
 	}
@@ -96,8 +96,8 @@ function obj_room_flip_horizontally() {
 	}
 }
 
-/// @function				obj_room_flip_vertically();
-function obj_room_flip_vertically() {
+/// @function				flip_room_contents_vertically();
+function flip_room_contents_vertically() {
 	with obj_game_object {
 	    if (object_index != obj_player) { y = room_height - y; }
 	}
@@ -106,9 +106,9 @@ function obj_room_flip_vertically() {
 	}
 }
 
-/// @function									obj_room_rotate(direction_to_face);
+/// @function									rotate_room_contents_around_room_center(direction_to_face);
 /// @param		{direction}	direction_to_face	The direction in which the room should face once rotated
-function obj_room_rotate(direction_to_face) {
+function rotate_room_contents_around_room_center(direction_to_face) {
 	var angle = direction_to_face * 90;
 	
 	with obj_game_object {

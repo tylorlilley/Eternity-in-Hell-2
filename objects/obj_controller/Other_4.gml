@@ -13,7 +13,6 @@ if (!current_room.visited) {
 		image_angle = 0;
 	}
     
-    
     // Create stairs for room if they should exist
     if (current_room.exits[4]) {
         instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_stairs)

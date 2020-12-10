@@ -51,8 +51,10 @@ function initialize_game_variables() {
 	rooms_with_collectables_collected = 0;
 	collected_keys = 0;
 
-	// initialize room setup values
+	// initialize room transition values
 	entered_from_stairs = true;
+	blackout = noone;
+	transition = false;
 }
 
 /// @function								game_has_been_won();
@@ -81,9 +83,7 @@ function transition_to_room(dir) {
 	}
 
 	// Change Rooms
-	global.controller.entered_from_stairs = (dir == 4);
-	global.controller.current_room = global.controller.current_room.adj_rooms[dir]; 
-	room_goto(global.controller.current_room.room_reference);
+	global.controller.blackout = dir;
 }
 
 /// @function					flip_room_contents_horizontally();

@@ -3,6 +3,11 @@ var has_won = game_has_been_won();
 var has_lost = game_has_been_lost();
 var is_looking_at_map = keyboard_check(vk_space);
 
+if (blackout) {
+	// Draw background over entire screen
+	draw_set_color(global.controller.bg_color);
+	draw_rectangle(0, 0, room_width, room_height, false);
+}
 if (has_won || has_lost || is_looking_at_map) {
     // Draw background over entire screen
     draw_set_color(global.controller.bg_color);

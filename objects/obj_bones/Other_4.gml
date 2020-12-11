@@ -1,0 +1,1 @@
+trap = (irandom(60) == 0);

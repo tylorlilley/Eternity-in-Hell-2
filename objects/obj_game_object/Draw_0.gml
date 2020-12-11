@@ -16,4 +16,3 @@ if (sprite_index) {
         }
     }
 }
-

@@ -1,4 +1,4 @@
-// Initialize global values
+// Initialize global values\
 randomize();
 clear_inputs_for_next_frame();
 initialize_game_variables();

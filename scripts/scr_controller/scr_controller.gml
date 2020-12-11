@@ -39,13 +39,10 @@ function initialize_game_variables() {
 	PLAYER_LIGHT_RANGE = 6;
 
 	// Initialize score constants and variables
-	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 0.2;
+	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
 	MAX_TORCH_TIME_TO_REMAIN_LIT = 1*60 // minutes * 60 = total seconds for torch to remain lit
 	INITIAL_SCORE = 1+(15*60); // minutes * 60 = total seconds for game to run
 	points = INITIAL_SCORE;
-
-	// Initialize controller values
-	number_of_frames_since_game_began = 0;
 
 	// initialize game state values
 	rooms_with_collectables = 0;
@@ -53,9 +50,12 @@ function initialize_game_variables() {
 	collected_keys = 0;
 
 	// initialize room transition values
+	bg_color = make_color_rgb(20, 20, 20);
+	number_of_frames_since_game_began = 0;
 	entered_from_stairs = true;
-	blackout = noone;
-	transition = false;
+	blackout = false;
+	transition = noone;
+	clear_inputs_for_next_frame();
 }
 
 /// @function								game_has_been_won();
@@ -68,23 +68,31 @@ function game_has_been_lost() {
 	return (floor(global.controller.points) <= 0);
 }
 
-/// @function								transition_to_room(dir);
-/// @param		{direction} dir				The direction in which the player is moving when leaving the current room
-function transition_to_room(dir) {
+/// @function								transition_to_room();
+function transition_to_room() {
+	// Set room transition variables
+	entered_from_stairs = (transition == 4);
+	current_room = current_room.adj_rooms[transition]; 
+			
 	// Play transition sound
-	if (dir == 4) { audio_play_sound( snd_stairs, 10, false ); }
+	if (transition == 4) { audio_play_sound( snd_stairs, 10, false ); }
 	else { audio_play_sound( snd_move, 10, false ); }
 	
 	// Reposition player
-	switch (dir) {
+	switch (transition) {
 		case 0: { global.player.y = room_height-8; break; }
 		case 1: { global.player.x = 8; break; }
 		case 2: { global.player.y = 8; break; }
 		case 3: { global.player.x = room_width-8; break; }
 	}
-
-	// Change Rooms
-	global.controller.blackout = dir;
+	
+	// Move carried item to current position
+	with obj_player { obj_game_object_set_instance_to_same_position(carried_item); }
+	
+	// Change room
+	room_goto(current_room.room_reference);
+	blackout = false;
+	transition = noone;
 }
 
 /// @function					flip_room_contents_horizontally();
@@ -114,18 +122,75 @@ function rotate_room_contents_around_room_center(direction_to_face) {
 	
 	with obj_game_object {
 	    if (object_index != obj_player) { 
+			image_angle = 0;
 			var x_prev = x - room_width/2;
 			var y_prev = y - room_height/2;
 			
 			x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
 			y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
+			if (!place_snapped(8, 8)) { move_snap(8, 8); }
 		}
 	}
 	with obj_placeholder {
+		image_angle = 0;
 		var x_prev = x - room_width/2;
 		var y_prev = y - room_height/2;
 			
 		x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
 		y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
+		if (!place_snapped(8, 8)) { move_snap(8, 8); }
 	}
+}
+
+/// @function								process_this_frame();
+function process_this_frame() {
+	return (!global.controller.transition && global.controller.number_of_frames_since_game_began % 6 == 0);
+}
+
+/// @function								get_inputs_for_next_frame();
+function get_inputs_for_next_frame() {
+	key_up = key_up || keyboard_check(vk_up);
+	key_down = key_down || keyboard_check(vk_down);
+	key_left = key_left || keyboard_check(vk_left);
+	key_right = key_right || keyboard_check(vk_right);
+	key_space = key_space|| keyboard_check(vk_space);
+	key_enter = key_enter|| keyboard_check(vk_enter);
+	
+	key_up_pressed = key_up_pressed || keyboard_check_pressed(vk_up);
+	key_down_pressed = key_down_pressed || keyboard_check_pressed(vk_down);
+	key_left_pressed = key_left_pressed || keyboard_check_pressed(vk_left);
+	key_right_pressed = key_right_pressed || keyboard_check_pressed(vk_right);
+	key_space_pressed = key_space_pressed || keyboard_check_pressed(vk_space);
+	key_enter_pressed = key_enter_pressed || keyboard_check_pressed(vk_enter);
+	
+	key_up_released = key_up_released || keyboard_check_released(vk_up);
+	key_down_released = key_down_released || keyboard_check_released(vk_down);
+	key_left_released = key_left_released || keyboard_check_released(vk_left);
+	key_right_released = key_right_released || keyboard_check_released(vk_right);	
+	key_space_released = key_space_released || keyboard_check_released(vk_space);
+	key_enter_released = key_enter_released || keyboard_check_released(vk_enter);
+}
+
+/// @function								clear_inputs_for_next_frame();
+function clear_inputs_for_next_frame() {
+	key_up = false;
+	key_down = false;
+	key_left = false;
+	key_right = false;
+	key_space = false;
+	key_enter = false;
+	
+	key_up_pressed = false;
+	key_down_pressed = false;
+	key_left_pressed = false;
+	key_right_pressed = false;
+	key_space_pressed = false;
+	key_enter_pressed = false;
+	
+	key_up_released = false;
+	key_down_released = false;
+	key_left_released = false;
+	key_right_released = false;
+	key_space_released = false;
+	key_enter_released = false;
 }

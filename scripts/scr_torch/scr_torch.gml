@@ -1,7 +1,7 @@
 /// @function  							obj_torch_light();
 function obj_torch_light() {
 	image_index = 0;
-	image_speed = 1;
+	image_speed = 1/6;
 
 	audio_play_sound( snd_torchlight, 10, false );
 

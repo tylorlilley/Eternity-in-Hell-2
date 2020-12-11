@@ -7,7 +7,13 @@ y_prev = y;
 dead = false;
 carried_item = instance_create_depth(x, y, -1, obj_torch);
 carried_item.carried = true;
+carried_item.persistent = true;
 with carried_item { obj_torch_light(); }
 image_speed = 0;
 pause_movement = 0;
+
+key_up = false;
+key_down = false;
+key_left = false;
+key_right = false;
 

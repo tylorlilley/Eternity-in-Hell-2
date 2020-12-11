@@ -1,9 +1,9 @@
 draw_set_font(ft_hud);
 var has_won = game_has_been_won();
 var has_lost = game_has_been_lost();
-var is_looking_at_map = keyboard_check(vk_space);
+var is_looking_at_map = key_space;
 
-if (blackout) {
+if (transition) {
 	// Draw background over entire screen
 	draw_set_color(global.controller.bg_color);
 	draw_rectangle(0, 0, room_width, room_height, false);
@@ -18,7 +18,7 @@ if (has_won || has_lost || is_looking_at_map) {
         // Draw each visited room
         with obj_room { drawn = false; }
         with current_room {
-            obj_room_draw(room_width/2, (room_height/2)-8);
+            obj_room_draw(room_width/2, (room_height/2));
         }
 
         draw_set_color(global.controller.bg_color);

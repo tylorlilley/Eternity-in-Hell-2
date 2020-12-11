@@ -26,6 +26,7 @@
   "eventList": [
     {"isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,"parent":{"name":"obj_eyes","path":"objects/obj_eyes/obj_eyes.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
     {"isDnD":false,"eventNum":0,"eventType":3,"collisionObjectId":null,"parent":{"name":"obj_eyes","path":"objects/obj_eyes/obj_eyes.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
+    {"isDnD":false,"eventNum":4,"eventType":7,"collisionObjectId":null,"parent":{"name":"obj_eyes","path":"objects/obj_eyes/obj_eyes.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
   ],
   "properties": [],
   "overriddenProperties": [],

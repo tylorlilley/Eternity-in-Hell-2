@@ -3,8 +3,8 @@ function obj_eyes_teleport_near_player() {
 	audio_play_sound( snd_flicker, 10, false );
 
 	do {
-	    var x_pos = (8*irandom(4));
-	    var y_pos = (8*irandom(4));
+	    var x_pos = (8*irandom(3));
+	    var y_pos = (8*irandom(3));
 	    if (irandom(1) == 0) { x_pos *= -1; }
 	    if (irandom(1) == 0) { y_pos *= -1; }
 	    x = global.player.x + x_pos;

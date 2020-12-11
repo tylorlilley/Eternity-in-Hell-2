@@ -1,20 +1,21 @@
-if (spawn_timer > 0) { spawn_timer -= 1;  }
-else if (spawn_timer == 0) {
-    // Move in a random direction, and turn toward player if that direction is away from player.
-    var dir = irandom(4);
-    if (!obj_game_object_is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
-    if (obj_game_object_can_move_in_direction(dir, true)) { obj_game_object_move_in_direction(dir); }
+if (process_this_frame()) {
+	if (spawn_timer > 0) { spawn_timer -= 1;  }
+	else if (spawn_timer == 0) {
+	    // Move in a random direction, and turn toward player if that direction is away from player.
+	    var dir = irandom(4);
+	    if (!obj_game_object_is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
+	    if (obj_game_object_can_move_in_direction(dir, true)) { obj_game_object_move_in_direction(dir); }
     
-    if (irandom(2) == 0) { visible = true; audio_play_sound( snd_flicker, 10, false ); }
-    else { visible = false; }
+	    if (irandom(2) == 0) { visible = true; audio_play_sound( snd_flicker, 10, false ); }
+	    //else { visible = false; }
     
-    if (!lethal) { 
-        audio_play_sound( snd_static, 10, false );
-        lethal = true;
-    }
+	    if (!lethal) { 
+	        audio_play_sound_for_object_only_once( snd_static );
+	        lethal = true;
+	    }
+	}
+
+	if (global.controller.current_room.lit) { audio_play_sound_for_object_only_once( snd_impact ); instance_destroy(); }
+
+	event_inherited();
 }
-
-if (global.controller.current_room.lit) { instance_destroy(); audio_play_sound( snd_impact, 10, false ); }
-
-event_inherited();
-

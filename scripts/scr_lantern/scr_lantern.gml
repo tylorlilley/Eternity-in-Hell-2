@@ -1,7 +1,7 @@
 /// @function  							obj_lantrern_light(room_start);
 ///	@param		{boolean}	room_start	Whether or not this is being lit by the game upon room initialization
 function obj_lantern_light(room_start) {
-	image_speed = 1; 
+	image_speed = 1/6; 
 	
 	light_source = instance_create_depth(x, y, 0, obj_light_source);
 	light_source.lighting_range = global.controller.LANTERN_LIGHT_RANGE;

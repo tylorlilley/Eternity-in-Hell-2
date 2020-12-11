@@ -52,7 +52,7 @@ if (!current_room.visited) {
 		if (instance_number(obj_lantern) == 0) { current_room.lit = false; }
 		else { with obj_lantern { obj_lantern_light(true); } }
 	}
-    
+	
     // Mark room as one that has been visited at some point during this game
     current_room.visited = true;
 }
@@ -69,5 +69,11 @@ if entered_from_stairs {
 	global.player.y = stairs_spot.y
 }
 
+// Move carried item to current position
+with obj_player { obj_game_object_set_instance_to_same_position(carried_item); }
+
 // Add a small pause when entering a room
-global.player.pause_movement = game_get_speed(gamespeed_fps) * FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
+global.player.pause_movement = FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
+
+// Set initial lighting to darkness
+with obj_game_object { image_blend = global.controller.bg_color; }

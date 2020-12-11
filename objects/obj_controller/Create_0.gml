@@ -1,5 +1,6 @@
 // Initialize global values
 randomize();
+clear_inputs_for_next_frame();
 initialize_game_variables();
 
 // Generate Initial Room with Four Exits
@@ -45,11 +46,10 @@ ds_list_destroy(rooms_with_stairs_spot);
 create_room_lists();
 with obj_room {
     room_reference = get_room_from_room_lists();
-	show_debug_message(room_reference);
 }
 destroy_room_lists();
 
-//current_room = get_random_instance(obj_room);
+current_room = get_random_instance(obj_room);
 
 //// Lock Random Exits
 //with obj_room {

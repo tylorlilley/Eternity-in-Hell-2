@@ -13,7 +13,8 @@ function initialize_game_variables() {
 	layer_force_draw_depth(true,0);	
 	
 	// Set the global game speed
-	game_set_speed(10, gamespeed_fps);
+	game_set_speed(60, gamespeed_fps);
+	gc_enable(false);
 	
 	// Set up global shortcut references
 	global.controller = self;

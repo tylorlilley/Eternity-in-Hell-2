@@ -7,7 +7,7 @@ var uninitialized_rooms = ds_list_create(); // Used by functions called add_rand
 current_room = instance_create_depth(0,0,0,obj_room);
 current_room.exits = array(true, true, true, true, false);
 with current_room { obj_room_initialize(uninitialized_rooms); }
-ds_list_pop_random_value(uninitialized_rooms);
+//ds_list_pop_random_value(uninitialized_rooms);
 
 // Generate More Rooms until minimum number is met.
 while (instance_number(obj_room) < MINIMUM_NUMBER_OF_ROOMS) {
@@ -49,7 +49,7 @@ with obj_room {
 }
 destroy_room_lists();
 
-current_room = get_random_instance(obj_room);
+//current_room = get_random_instance(obj_room);
 
 //// Lock Random Exits
 //with obj_room {

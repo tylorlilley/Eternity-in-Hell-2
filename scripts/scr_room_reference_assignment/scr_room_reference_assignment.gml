@@ -25,7 +25,7 @@ function get_room_from_room_lists() {
 			flip_horizontal = rand1;
 			flip_vertical = false;
 			for (var i = 0; i < 4; i+= 1) {
-				if (exits[i]) { rotate = i; }
+				if (exits[i]) { rotate = i; break; }
 			}
 			break;
 		case 2:
@@ -42,7 +42,7 @@ function get_room_from_room_lists() {
 			flip_horizontal = false;
 			flip_vertical = rand1;
 			for (var i = 0; i < 4; i+= 1) {
-				if (!exits[i]) { rotate = (i+1 > 4) ? 0 : i+1; }
+				if (!exits[i]) { rotate = (i+1 > 4) ? 0 : i+1; break; }
 			}
 			break;
 	    case 4:

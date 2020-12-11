@@ -12,15 +12,15 @@ if (!game_has_been_lost() && !game_has_been_won()) {
 	// Update background
 	bg_color = make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(points/INITIAL_SCORE), 8), 1)), 20, 20);
 	layer_background_blend( background_id,  bg_color );
+
+	// Handle room transition blackout to get around macOS drawing bug
+	if (blackout != noone && !transition) { transition = true; }
+	else if (blackout != noone && transition) {
+		entered_from_stairs = (blackout == 4);
+		current_room = global.controller.current_room.adj_rooms[blackout]; 
+		room_goto(current_room.room_reference);
+		blackout = noone;
+		transition = false;
+	}
 }
 else if (game_has_been_lost()) { points = 0; }
-
-// Handle room transition blackout to get around macOS drawing bug
-if (blackout && !transition) { transition = true; }
-else if (blackout && transition) {
-	entered_from_stairs = (blackout == 4);
-	current_room = global.controller.current_room.adj_rooms[blackout]; 
-	room_goto(current_room.room_reference);
-	blackout = noone;
-	transition = false;
-}

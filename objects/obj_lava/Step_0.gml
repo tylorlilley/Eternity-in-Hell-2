@@ -5,8 +5,8 @@ if (process_this_frame()) {
 
 	// Randomize visual
 	image_angle = irandom(3)*90;
-	if (irandom(0) == 0) image_xscale *= -1;
-	if (irandom(0) == 0) image_yscale *= -1;
+	if (get_random_chance_out_of(2)) { image_xscale *= -1; }
+	if (get_random_chance_out_of(2)) { image_yscale *= -1; }
 
 	/*
 	if (irandom(8)) {

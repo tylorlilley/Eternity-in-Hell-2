@@ -5,8 +5,8 @@ function obj_eyes_teleport_near_player() {
 	do {
 	    var x_pos = (8*irandom(3));
 	    var y_pos = (8*irandom(3));
-	    if (irandom(1) == 0) { x_pos *= -1; }
-	    if (irandom(1) == 0) { y_pos *= -1; }
+	    if (get_random_chance_out_of(2)) { x_pos *= -1; }
+	    if (get_random_chance_out_of(2)) { y_pos *= -1; }
 	    x = global.player.x + x_pos;
 	    y = global.player.y + y_pos;
 	}

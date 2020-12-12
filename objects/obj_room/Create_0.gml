@@ -9,7 +9,7 @@ rotate = noone;
 has_key = false;
 has_collectables = false;
 collectables_collected = false;
-lit = (irandom(4) == 0);
+lit = get_random_chance_out_of(5);
 
 // Initialize room topography information
 exits = array( false, false, false, false, false );

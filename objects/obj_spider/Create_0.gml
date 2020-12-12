@@ -1,6 +1,6 @@
 event_inherited();
 
-lethal = (irandom(1) == 0);
+lethal = get_random_chance_out_of(2);
 death_sound = snd_crunch;
 attacking = false;
 screeched = 0;

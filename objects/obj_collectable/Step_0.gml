@@ -15,7 +15,7 @@ if (process_this_frame()) {
 	if moving { 
 	    var dir = irandom(3);
 	    if (obj_game_object_is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
-	    if (irandom(2) == 0) { dir = 4; }
+	    if (get_random_chance_out_of(3)) { dir = 4; }
 	    if (obj_game_object_can_move_in_direction(dir, false)) { obj_game_object_move_in_direction(dir); }
 	}
 

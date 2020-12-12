@@ -15,8 +15,8 @@ function create_room_lists() {
 /// @function								get_room_from_room_lists();
 function get_room_from_room_lists() {
 	var number_of_exits = obj_room_count_exits()
-	var rand1 = (irandom(1) == 0);
-	var rand2 = (irandom(1) == 0);
+	var rand1 = get_random_chance_out_of(2);
+	var rand2 = get_random_chance_out_of(2);
 	var room_list = noone;
 
 	switch (number_of_exits) {
@@ -31,7 +31,7 @@ function get_room_from_room_lists() {
 		case 2:
 			room_list = global.rooms_with_two_perpendicular_exits; 
 	        if (exits[0] && exits[2]) { flip_horizontal = rand1; flip_vertical = rand2; room_list = global.rooms_with_two_opposite_exits; }
-	        else if (exits[1] && exits[3]) { flip_horizontal = rand1; flip_vertical = rand2; rotate = (irandom(1) == 0) ? 1 : 3; room_list = global.rooms_with_two_opposite_exits; }
+	        else if (exits[1] && exits[3]) { flip_horizontal = rand1; flip_vertical = rand2; rotate = (get_random_chance_out_of(2)) ? 1 : 3; room_list = global.rooms_with_two_opposite_exits; }
 	        else if (exits[0] && exits[1]) { flip_horizontal = false; flip_vertical = false; }
 	        else if (exits[0] && exits[3]) { flip_horizontal = true; flip_vertical = false; }
 	        else if (exits[1] && exits[2]) { flip_horizontal = false; flip_vertical = true; }

@@ -1,1 +1,1 @@
-trap = (irandom(60) == 0);
+trap = (get_random_chance_out_of(60));

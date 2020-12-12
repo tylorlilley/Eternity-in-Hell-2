@@ -1,6 +1,6 @@
 event_inherited();
 
-lethal = (irandom(1) == 0);
+lethal = get_random_chance_out_of(2);
 if global.controller.entered_from_stairs { lethal = false; }
 
 attacking = false;

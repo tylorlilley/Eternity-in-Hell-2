@@ -31,8 +31,8 @@
   "properties": [],
   "overriddenProperties": [],
   "parent": {
-    "name": "Objects",
-    "path": "folders/Objects.yy",
+    "name": "Tiles",
+    "path": "folders/Objects/Tiles.yy",
   },
   "resourceVersion": "1.0",
   "name": "obj_bones",

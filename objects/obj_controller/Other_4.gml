@@ -42,9 +42,9 @@ if (!current_room.visited) {
         }
     }
     
-    // Remove collectables from room if they shouldn't exist
-    if (!current_room.has_collectables || current_room.collectables_collected) {
-        with obj_collectable instance_destroy();
+    // Create collectables in room if they should exist
+    if (current_room.has_collectables && !current_room.collectables_collected) {
+        with obj_collectable_spot { instance_create_depth(x, y, 0, obj_collectable); instance_destroy(); }
     }
 	
 	// Remove lit status from room if it shouldn't exist

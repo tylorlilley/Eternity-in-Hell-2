@@ -4,13 +4,13 @@ if (process_this_frame()) {
 	if lethal {
 	    if (!attacking && !global.player.dead) {
 	        if (global.player.x == x) {
-	            if (global.player.y > y) { dir = 2; }
-	            else { dir = 0; }
+	            if (global.player.y > y) { dir = directions.down; }
+	            else { dir = directions.up; }
 	            attacking = true;
 	        }
 	        else if (global.player.y == y) {
-	            if (global.player.x > x) { dir = 1; }
-	            else { dir = 3; }
+	            if (global.player.x > x) { dir = directions.right; }
+	            else { dir = directions.left; }
 	            attacking = true;
 	        }
 	    }

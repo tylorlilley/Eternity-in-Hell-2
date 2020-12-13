@@ -80,14 +80,14 @@ function transition_to_room() {
 	
 	// Reposition player
 	switch (transition) {
-		case 0: { global.player.y = room_height-8; break; }
-		case 1: { global.player.x = 8; break; }
-		case 2: { global.player.y = 8; break; }
-		case 3: { global.player.x = room_width-8; break; }
+		case directions.up: { global.player.y = room_height-8; break; }
+		case directions.right: { global.player.x = 8; break; }
+		case directions.down: { global.player.y = 8; break; }
+		case directions.left: { global.player.x = room_width-8; break; }
 	}
 	
 	// Move carried item to current position
-	with obj_player { obj_game_object_set_instance_to_same_position(carried_item); }
+	with obj_player { set_instance_to_same_position(carried_item); }
 	
 	// Change room
 	room_goto(current_room.room_reference);

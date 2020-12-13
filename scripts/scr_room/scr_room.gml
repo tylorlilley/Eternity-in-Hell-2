@@ -48,10 +48,10 @@ function get_adjacent_room(dir) {
 
 	switch (dir)
 	{
-	    case 0: { y_pos = -16; break; }
-	    case 1: { x_pos = 16; break; }
-	    case 2: { y_pos = 16; break; }
-	    case 3: { x_pos = -16; break; }
+	    case directions.up: { y_pos = -16; break; }
+	    case directions.right: { x_pos = 16; break; }
+	    case directions.down: { y_pos = 16; break; }
+	    case directions.left: { x_pos = -16; break; }
 	}
 
 	return instance_position(x+x_pos, y+y_pos, obj_room);
@@ -66,10 +66,10 @@ function create_adjoining_room(dir, list_of_rooms) {
 
 	switch(dir)
 	{
-	    case 0: { y_offset = -16; break; }
-	    case 1: { x_offset = 16; break; }
-	    case 2: { y_offset = 16; break; }
-	    case 3: { x_offset = -16; break; }
+	    case directions.up: { y_offset = -16; break; }
+	    case directions.right: { x_offset = 16; break; }
+	    case directions.down: { y_offset = 16; break; }
+	    case directions.left: { x_offset = -16; break; }
 	}
 
 	var new_room = instance_create_depth(x+x_offset, y+y_offset, 0, obj_room);

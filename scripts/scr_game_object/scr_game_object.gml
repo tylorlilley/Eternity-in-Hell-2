@@ -18,10 +18,10 @@ function instance_at_coordinates(x_pos, y_pos, instance) {
 /// @function								is_direction_toward_player(dir);
 /// @param		{direction} dir				The direction from the calling instance to check whether the player is in or not
 function is_direction_toward_player(dir) {
-	return ((y > global.player.y && dir == 0) ||
-	        (x < global.player.x && dir == 1) ||
-	        (y < global.player.y && dir == 2) ||
-	        (x > global.player.x && dir == 3));
+	return ((y > global.player.y && dir == directions.up) ||
+	        (x < global.player.x && dir == directions.right) ||
+	        (y < global.player.y && dir == directions.down) ||
+	        (x > global.player.x && dir == directions.left));
 }
 
 /// @function								turn_to_face_player();
@@ -47,14 +47,14 @@ function teleport_near_player() {
 
 
 /// @function								can_move_in_direction(dir, ignore_solid);
-/// @param		{direction}					The direction to check whether the calling instance can move in
+/// @param		{direction}	dir				The direction to check whether the calling instance can move in
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 function can_move_in_direction(dir, ignore_solid) {
 	return (!global.controller.key_space && 
-	    (dir == 0 && (ignore_solid || !instance_place(x, y-8, obj_solid)) && (object_index == obj_player || y-8 > 0)) ||
-	    (dir == 2 && (ignore_solid || !instance_place(x, y+8, obj_solid)) && (object_index == obj_player || y+8 < room_height)) ||
-	    (dir == 3 && (ignore_solid || !instance_place(x-8, y, obj_solid)) && (object_index == obj_player || x-8 > 0)) ||
-	    (dir == 1 && (ignore_solid || !instance_place(x+8, y, obj_solid)) && (object_index == obj_player || x+8 < room_width)));
+	    (dir == directions.up && (ignore_solid || !instance_place(x, y-8, obj_solid)) && (object_index == obj_player || y-8 > 0)) ||
+	    (dir == directions.down && (ignore_solid || !instance_place(x, y+8, obj_solid)) && (object_index == obj_player || y+8 < room_height)) ||
+	    (dir == directions.left && (ignore_solid || !instance_place(x-8, y, obj_solid)) && (object_index == obj_player || x-8 > 0)) ||
+	    (dir == directions.right && (ignore_solid || !instance_place(x+8, y, obj_solid)) && (object_index == obj_player || x+8 < room_width)));
 }
 
 
@@ -63,10 +63,10 @@ function can_move_in_direction(dir, ignore_solid) {
 function move_in_direction(dir) {
 	audio_play_sound( snd_walk, 10, false );
 	
-	if (dir == 0) { y -= 8; } 
-	if (dir == 1) { x += 8; image_xscale = -1; }
-	if (dir == 2) { y += 8; }
-	if (dir == 3) { x -= 8; image_xscale = 1; }
+	if (dir == directions.up) { y -= 8; } 
+	if (dir == directions.right) { x += 8; image_xscale = -1; }
+	if (dir == directions.down) { y += 8; }
+	if (dir == directions.left) { x -= 8; image_xscale = 1; }
 }
 
 

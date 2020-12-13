@@ -7,6 +7,14 @@ function distance_to_instance(instance) {
 	return sqrt((sqr(instance.x - x) + sqr(instance.y - y)));
 }
 
+/// @function								instance_at_coordinates(x_pos, y_pos, instance);
+/// @param		{real}  x_pos				The x value to check against the instance's x value
+/// @param		{real}  y_pos				The y value to check against the instance's y value
+/// @param		{index} instance			The instance whos positional coordinates are being checked
+function instance_at_coordinates(x_pos, y_pos, instance) {
+	return (instance.x == x_pos && instance.y == y_pos)
+}
+
 /// @function								is_direction_toward_player(dir);
 /// @param		{direction} dir				The direction from the calling instance to check whether the player is in or not
 function is_direction_toward_player(dir) {

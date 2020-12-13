@@ -40,14 +40,6 @@ function array() {
 	return arr;
 }
 
-/// @function								instance_at_coordinates(x_pos, y_pos, instance);
-/// @param		{real}  x_pos				The x value to check against the instance's x value
-/// @param		{real}  y_pos				The y value to check against the instance's y value
-/// @param		{index} instance			The instance whos positional coordinates are being checked
-function instance_at_coordinates(x_pos, y_pos, instance) {
-	return (instance.x == x_pos && instance.y == y_pos)
-}
-
 /// @function								get_random_instance(obj_index);
 /// @param		{index} obj_index			The type of object to get a random existing instance of
 function get_random_instance(obj_index) {

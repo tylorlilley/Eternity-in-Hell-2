@@ -4,7 +4,7 @@ if (process_this_frame()) {
 	    // Move in a random direction, and turn toward player if that direction is away from player.
 	    var dir = irandom(4);
 	    if (!is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
-	    if (can_move_in_direction(dir, true)) { move_in_direction(dir); }
+	    if (can_move_in_direction(dir, true, true)) { move_in_direction(dir); }
     
 	    if (get_random_chance_out_of(2)) { visible = true; audio_play_sound( snd_flicker, 10, false ); }
 	    //else { visible = false; }

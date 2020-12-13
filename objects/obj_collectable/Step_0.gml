@@ -16,7 +16,7 @@ if (process_this_frame()) {
 	    var dir = irandom(3);
 	    if (is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
 	    if (get_random_chance_out_of(3)) { dir = 4; }
-	    if (can_move_in_direction(dir, false)) { move_in_direction(dir); }
+	    if (can_move_in_direction(dir, false, false)) { move_in_direction(dir); }
 	}
 
 	event_inherited();

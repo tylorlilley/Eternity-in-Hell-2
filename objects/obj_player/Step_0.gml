@@ -17,7 +17,7 @@ if (process_this_frame()) {
 		if (pause_movement > 0) { pause_movement -= 1; }
 		else {
 		    // Move player in chosen direction if possible
-		    if (can_move_in_direction(dir, false)) { 
+		    if (can_move_in_direction(dir, false, true)) { 
 		        move_in_direction(dir); 
 		        image_index += 1;
 		        if (image_index > 1) { image_index = 0; }

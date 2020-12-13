@@ -27,5 +27,5 @@ if (number_of_frames_since_game_began % 6 == 0) {
 	clear_inputs_for_next_frame();
 }
 
-number_of_frames_since_game_began += 1
+if (!game_has_been_lost() && !game_has_been_won()) { number_of_frames_since_game_began += 1; }
 get_inputs_for_next_frame();

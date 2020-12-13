@@ -1,0 +1,13 @@
+
+restructure inheritance and parent objects
+
+fix rooms to add back key spots
+fix key and lock generation
+
+make game yyc compatible
+
+fix frame skip on room transition - due to bug: can't :)
+fix random crashes?? (maybe due to this bug: In Game: Some projects crash silently when changing rooms if garbage collector is enabled)
+- (tried turning off garbage collector - we'll see what else this breaks)
+
+Is this a thing: Building Projects: Xcode 12 breaks iOS/tvOS builds (There is also a guide for fixing 2.3.0 in the FAQs list below!]

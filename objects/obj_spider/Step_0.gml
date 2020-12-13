@@ -15,7 +15,7 @@ if (process_this_frame()) {
 	        }
 	    }
     
-	    if (attacking && can_move_in_direction(dir, false)) { 
+	    if (attacking && can_move_in_direction(dir, false, true)) { 
 	        if !screeched {
 	            audio_play_sound( snd_lose, 10, false ); 
 	            screeched = 1; 
@@ -24,8 +24,8 @@ if (process_this_frame()) {
 	            screeched += 1;
 	        }
 	        else {
-	            if (can_move_in_direction(dir, false)) { move_in_direction(dir); }
-	            if (can_move_in_direction(dir, false)) { move_in_direction(dir); }
+	            if (can_move_in_direction(dir, false, true)) { move_in_direction(dir); }
+	            if (can_move_in_direction(dir, false, true)) { move_in_direction(dir); }
 	            if (global.controller.number_of_frames_since_game_began mod 12 == 0) { image_xscale *= -1; }
 	        }
 	    }

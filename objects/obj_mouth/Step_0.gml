@@ -1,7 +1,7 @@
 if (process_this_frame()) {
 	event_inherited();
 
-	obj_game_object_turn_to_face_player();
+	turn_to_face_player();
 
 	// Disapear and Reappear based on proximity to the player
 	if (lethal) {

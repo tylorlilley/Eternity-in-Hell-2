@@ -7,19 +7,19 @@ initialize_game_variables();
 var uninitialized_rooms = ds_list_create(); // Used by functions called add_random_exit and initialized_room
 current_room = instance_create_depth(0,0,0,obj_room);
 current_room.exits = array(true, true, true, true, false);
-with current_room { obj_room_initialize(uninitialized_rooms); }
+with current_room { initialize_room(uninitialized_rooms); }
 //ds_list_pop_random_value(uninitialized_rooms);
 
 // Generate More Rooms until minimum number is met.
 while (instance_number(obj_room) < MINIMUM_NUMBER_OF_ROOMS) {
     var random_room = get_random_instance(obj_room);
-    with random_room { obj_room_add_random_exit(true, uninitialized_rooms); }
+    with random_room { add_random_exit(true, uninitialized_rooms); }
 }
 
 // Generate and initialize rooms until all rooms have been initialized
 while (ds_list_size(uninitialized_rooms) > 0) {
     var random_uninitialized_room = ds_list_pop_random_value(uninitialized_rooms);
-    with random_uninitialized_room { obj_room_initialize(uninitialized_rooms); }
+    with random_uninitialized_room { initialize_room(uninitialized_rooms); }
 }
 ds_list_destroy(uninitialized_rooms);
 
@@ -55,7 +55,7 @@ current_room = get_random_instance(obj_room);
 //with obj_room {
 //    for(var i = 0; i < 4; i++) {
 //        if exits[i] && (irandom(global.controller.LOCKED_DOOR_PROBABILITY) == 0) { 
-//            obj_room_create_locked_exit(i);
+//            create_locked_exit(i);
 //        }
 //    }
 //}
@@ -79,7 +79,7 @@ current_room = get_random_instance(obj_room);
 //    ds_list_add(list_of_all_locked_exits, id);
 //}
 
-//while (!obj_controller_can_reach_all_rooms(empty_list)) {
+//while (!can_reach_all_rooms(empty_list)) {
 //    ds_list_clear(empty_list);
 //    // Add an additional key somewhere
 //    if (ds_list_size(list_of_all_keyless_rooms) > 0) {
@@ -91,7 +91,7 @@ current_room = get_random_instance(obj_room);
 //        // Start removing locks on doors
 //        ds_list_shuffle(list_of_all_locked_exits);
 //        var locked_exit_to_destroy = ds_list_find_value(list_of_all_locked_exits, 0);
-//        with locked_exit_to_destroy { obj_exit_unlock(); instance_destroy(); }
+//        with locked_exit_to_destroy { unlock_exit(); instance_destroy(); }
 //    }
 //}
 //ds_list_destroy(empty_list);

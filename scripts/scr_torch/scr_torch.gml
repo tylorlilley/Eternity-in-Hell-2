@@ -1,5 +1,5 @@
-/// @function  							obj_torch_light();
-function obj_torch_light() {
+/// @function  							light_torch();
+function light_torch() {
 	image_index = 0;
 	image_speed = 1/6;
 

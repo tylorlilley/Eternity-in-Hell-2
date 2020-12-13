@@ -1,10 +1,10 @@
 /// @function										obj_controller_can_reach_all_rooms(list_of_unlocked_exits);
 /// @param		{index} list_of_unlocked_exits		The list of all the unlocked exits generated so far
-function obj_controller_can_reach_all_rooms(list_of_unlocked_exits) {
+function can_reach_all_rooms(list_of_unlocked_exits) {
 	// walk the map once with original list of unlocked exits to get list values of current state of map
 	var array_of_returned_lists;
 	with current_room {
-	   array_of_returned_lists = obj_controller_walk_the_map(0, list_of_unlocked_exits, ds_list_create(), ds_list_create(), ds_list_create());
+	   array_of_returned_lists = walk_the_map(0, list_of_unlocked_exits, ds_list_create(), ds_list_create(), ds_list_create());
 	}
 	var list_of_visited_rooms = array_of_returned_lists[0];
 	var list_of_unlockable_exits = array_of_returned_lists[1];
@@ -25,14 +25,14 @@ function obj_controller_can_reach_all_rooms(list_of_unlocked_exits) {
 	    // Otherwise, it is a success
 	    if (remaining_keys >= ds_list_size(list_of_unlockable_exits)) {
 	        ds_list_combine(list_of_unlocked_exits, list_of_unlockable_exits);
-	        visited_all_rooms = obj_controller_can_reach_all_rooms(list_of_unlocked_exits);
+	        visited_all_rooms = can_reach_all_rooms(list_of_unlocked_exits);
 	    }
 	    else {
 	        for (var i = 0; i < ds_list_size(list_of_unlockable_exits); i++) {
 	            ds_list_copy(list_of_unlocked_exits, original_list_of_unlocked_exits);
 	            var newly_unlocked_exit = ds_list_find_value(list_of_unlockable_exits, i);
 	            ds_list_add(list_of_unlocked_exits, newly_unlocked_exit);
-	            if !obj_controller_can_reach_all_rooms(list_of_unlocked_exits) { visited_all_rooms = false; break; }
+	            if !can_reach_all_rooms(list_of_unlocked_exits) { visited_all_rooms = false; break; }
 	        }
 	    }
 	}
@@ -53,7 +53,7 @@ function obj_controller_can_reach_all_rooms(list_of_unlocked_exits) {
 /// @param		{index}		list_of_unlockable_exits			The list of every locked exit reached so far on this walk
 /// @param		{index}		list_of_available_rooms_with_keys	The list of every room with a key visited so far on this walk
 
-function obj_controller_walk_the_map(iteration, list_of_unlocked_exits, list_of_visited_rooms, list_of_unlockable_exits, list_of_available_rooms_with_keys) {
+function walk_the_map(iteration, list_of_unlocked_exits, list_of_visited_rooms, list_of_unlockable_exits, list_of_available_rooms_with_keys) {
 
 	//if iteration > global.controller.MAX_MAP_DRAW_DISTANCE { return false; } // This is used for testing to short circuit out of the recursion after a certain number of iterations
 	//if (iteration < distance_to_current_room) { distance_to_current_room = iteration; }
@@ -82,7 +82,7 @@ function obj_controller_walk_the_map(iteration, list_of_unlocked_exits, list_of_
 	    // Otherwise, walk the adjoining room in this direction if one exists and it hasn't yet been walked
 	    else if (!ds_list_contains(list_of_visited_rooms, adj_rooms[i])) {
 	        with adj_rooms[i] { 
-	            var array_of_returned_lists = obj_controller_walk_the_map(iteration+1, list_of_unlocked_exits, list_of_visited_rooms, list_of_unlockable_exits, list_of_available_rooms_with_keys);
+	            var array_of_returned_lists = walk_the_map(iteration+1, list_of_unlocked_exits, list_of_visited_rooms, list_of_unlockable_exits, list_of_available_rooms_with_keys);
 	            ds_list_combine(list_of_visited_rooms, array_of_returned_lists[0]); 
 	            ds_list_combine(list_of_unlockable_exits, array_of_returned_lists[1]); 
 	            ds_list_combine(list_of_available_rooms_with_keys, array_of_returned_lists[2]); 

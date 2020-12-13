@@ -18,7 +18,7 @@ if (has_won || has_lost || is_looking_at_map) {
         // Draw each visited room
         with obj_room { drawn = false; }
         with current_room {
-            obj_room_draw(room_width/2, (room_height/2));
+            draw_room(room_width/2, (room_height/2));
         }
 
         draw_set_color(global.controller.bg_color);

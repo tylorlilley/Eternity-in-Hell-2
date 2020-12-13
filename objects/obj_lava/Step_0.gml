@@ -1,7 +1,7 @@
 if (process_this_frame()) {
 	event_inherited();
 
-	obj_game_object_calculate_lighting(0.5);
+	calculate_lighting(0.5);
 
 	// Randomize visual
 	image_angle = irandom(3)*90;

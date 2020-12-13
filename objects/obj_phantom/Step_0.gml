@@ -3,8 +3,8 @@ if (process_this_frame()) {
 	else if (spawn_timer == 0) {
 	    // Move in a random direction, and turn toward player if that direction is away from player.
 	    var dir = irandom(4);
-	    if (!obj_game_object_is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
-	    if (obj_game_object_can_move_in_direction(dir, true)) { obj_game_object_move_in_direction(dir); }
+	    if (!is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
+	    if (can_move_in_direction(dir, true)) { move_in_direction(dir); }
     
 	    if (get_random_chance_out_of(2)) { visible = true; audio_play_sound( snd_flicker, 10, false ); }
 	    //else { visible = false; }

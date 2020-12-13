@@ -14,7 +14,7 @@ function create_room_lists() {
 
 /// @function								get_room_from_room_lists();
 function get_room_from_room_lists() {
-	var number_of_exits = obj_room_count_exits()
+	var number_of_exits = count_exits()
 	var rand1 = get_random_chance_out_of(2);
 	var rand2 = get_random_chance_out_of(2);
 	var room_list = noone;

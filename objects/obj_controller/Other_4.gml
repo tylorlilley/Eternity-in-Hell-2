@@ -50,7 +50,7 @@ if (!current_room.visited) {
 	// Remove lit status from room if it shouldn't exist
 	if (current_room.lit) { 
 		if (instance_number(obj_lantern) == 0) { current_room.lit = false; }
-		else { with obj_lantern { obj_lantern_light(true); } }
+		else { with obj_lantern { light_lantern(true); } }
 	}
 	
     // Mark room as one that has been visited at some point during this game
@@ -61,7 +61,7 @@ if (!current_room.visited) {
 background_id = layer_background_get_id(layer_get_id("Background"));
 layer_background_blend( background_id, make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(points/INITIAL_SCORE), 8), 1)), 20, 20) );
 with obj_room { distance_to_current_room = 9999; }
-with current_room { obj_room_calculate_distance_to_current(0); }
+with current_room { calculate_distance_to_current(0); }
 
 // Change position if necessary
 if entered_from_stairs {
@@ -70,7 +70,7 @@ if entered_from_stairs {
 }
 
 // Move carried item to current position
-with obj_player { obj_game_object_set_instance_to_same_position(carried_item); }
+with obj_player { set_instance_to_same_position(carried_item); }
 
 // Add a small pause when entering a room
 global.player.pause_movement = FRAMES_TO_WAIT_UPON_ENTERING_ROOM;

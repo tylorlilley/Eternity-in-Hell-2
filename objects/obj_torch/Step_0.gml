@@ -8,7 +8,7 @@ if (process_this_frame()) {
 	    with light_source { instance_destroy(); }
 	}
 
-	obj_game_object_set_instance_to_same_position(light_source);
+	set_instance_to_same_position(light_source);
 
 	event_inherited();
 }

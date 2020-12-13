@@ -1,5 +1,5 @@
-/// @function  							obj_door_open();
-function obj_door_open() {
+/// @function  							open_door();
+function open_door() {
 	image_index = 1;
 
 	audio_play_sound( snd_open, 10, false );
@@ -15,9 +15,9 @@ function obj_door_open() {
 	close_behind = false;
 }
 
-/// @function							obj_door_close();
+/// @function							close_door();
 ///	@param		{boolean}	room_start	Whether or not this is being lit by the game upon room initialization
-function obj_door_close(room_start) {
+function close_door(room_start) {
 	image_index = 0;
 	
 	if !room_start { audio_play_sound( snd_open, 10, false ); }

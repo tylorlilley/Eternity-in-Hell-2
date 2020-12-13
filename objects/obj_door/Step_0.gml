@@ -10,12 +10,12 @@ if (process_this_frame()) {
 	       (instance_at_coordinates(global.player.x_prev+16, global.player.y_prev, self) && global.controller.key_right_pressed) ||
 	       instance_place(x, y, obj_player)) {
 	           if (locked && global.controller.collected_keys <= 0) { audio_play_sound( snd_locked, 10, false ); }
-	           else { obj_door_open(); }
+	           else { open_door(); }
 	    }
 	}
 	else {
 		if (close_behind && !instance_place(x, y, global.player)) {
-			obj_door_close(false);
+			close_door(false);
 		}
 		else if (!close_behind && instance_place(x, y, global.player)) {
 			close_behind = true;

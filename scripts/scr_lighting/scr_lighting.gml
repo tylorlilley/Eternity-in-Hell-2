@@ -1,7 +1,7 @@
-/// @function									obj_game_object_get_relative_light_intensity(instance_to_light, maximum_intensity);
+/// @function									get_relative_light_intensity(instance_to_light, maximum_intensity);
 /// @param		{index} instance_to_light		The instance being lit up by the calling instance
 /// @param		{real} maximum_intensity		The maximum brightness to be returned for the instance the calling instance is lighting up
-function obj_game_object_get_relative_light_intensity(instance_to_light, maximum_intensity) {
+function get_relative_light_intensity(instance_to_light, maximum_intensity) {
 	var flicker = floor(flicker_value / 25);
 	var distance_away = distance_to_instance(instance_to_light);
 
@@ -15,13 +15,13 @@ function obj_game_object_get_relative_light_intensity(instance_to_light, maximum
 	return relative_intensity;
 }
 
-/// @function									obj_game_object_calculate_lighting(maximum_intensity);
+/// @function									calculate_lighting(maximum_intensity);
 /// @param		{real} maximum_intensity		The maximum brightness that can be set for the calling instance
-function obj_game_object_calculate_lighting(maximum_intensity) {
+function calculate_lighting(maximum_intensity) {
 	var greatest_lighting_intensity = 0;
 
 	with obj_light_source {
-	    var lighting_intensity = obj_game_object_get_relative_light_intensity(other, maximum_intensity);
+	    var lighting_intensity = get_relative_light_intensity(other, maximum_intensity);
 	    if (lighting_intensity > greatest_lighting_intensity) { greatest_lighting_intensity = lighting_intensity; }
 	}
 

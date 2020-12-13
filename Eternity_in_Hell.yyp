@@ -52,7 +52,6 @@
     {"id":{"name":"scr_lantern","path":"scripts/scr_lantern/scr_lantern.yy",},"order":3,},
     {"id":{"name":"scr_bush","path":"scripts/scr_bush/scr_bush.yy",},"order":4,},
     {"id":{"name":"scr_door","path":"scripts/scr_door/scr_door.yy",},"order":5,},
-    {"id":{"name":"scr_eyes","path":"scripts/scr_eyes/scr_eyes.yy",},"order":6,},
     {"id":{"name":"scr_exit","path":"scripts/scr_exit/scr_exit.yy",},"order":7,},
     {"id":{"name":"scr_room_reference_assignment","path":"scripts/scr_room_reference_assignment/scr_room_reference_assignment.yy",},"order":0,},
     {"id":{"name":"ft_hud","path":"fonts/ft_hud/ft_hud.yy",},"order":1,},

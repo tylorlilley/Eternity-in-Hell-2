@@ -10,9 +10,12 @@ if (sprite_index) {
         
         var bush = instance_position(x+x_pos,y+y_pos, obj_bush);
         var solid_obj = instance_position(x+x_pos,y+y_pos, obj_solid);
-        if  (bush && bush.visible && bush.id != self.id) ||
-            (solid_obj && solid_obj.visible && solid_obj.id != self.id) {
-            draw_sprite_ext(spr_box, 0, x+x_pos, y+y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1);
+        if (bush && bush.visible && bush.id != self.id) {
+			if (bush.depth <= depth) { draw_sprite_ext(spr_box, 0, x+x_pos, y+y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1); }
+			// TODO: Draw box over bush else { draw_sprite_ext(spr_box, 0, x+x_pos, y+y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1);}
+		}
+        if (solid_obj && solid_obj.visible && solid_obj.id != self.id) {
+            if (!bush || bush.id != self.id) { draw_sprite_ext(spr_box, 0, x+x_pos, y+y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1); }
         }
     }
 }

@@ -174,7 +174,7 @@ function draw_room(x_pos, y_pos) {
 	if (global.controller.TEST_MODE || visited) {
 	    // Draw Room, fading it based on its distance to the current room. Make it blink if it is the current room
 	    var room_image_alpha = 1-(distance_to_current_room/global.controller.MAX_MAP_DRAW_DISTANCE);
-	    if (global.controller.current_room.id == id && global.controller.number_of_frames_since_game_began mod 12 == 0) { room_image_alpha /= 2; }
+	    if (global.controller.current_room.id == id && global.controller.number_of_frames_since_game_began mod 12 <= 5) { room_image_alpha /= 2; }
 		room_color = lit ? c_red : c_white
 		draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, room_color, room_image_alpha);
 

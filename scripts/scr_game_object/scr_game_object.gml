@@ -60,7 +60,7 @@ function can_move_in_direction(dir, ignore_solid, ignore_death) {
 
 
 /// @function								move_in_direction(dir);
-/// @param		{direction}					The direction in which to move the calling instance
+/// @param		{direction} dir				The direction in which to move the calling instance
 function move_in_direction(dir) {
 	audio_play_sound( snd_walk, 10, false );
 	
@@ -86,3 +86,25 @@ function set_instance_to_same_position(instance) {
 function audio_play_sound_for_object_only_once(sound_to_play) {
 	if ((instance_number(object_index) > 0) && instance_find(object_index, 0).id == id) { audio_play_sound( sound_to_play, 10, false ); }
 }
+
+/// @function								pushed_against_by_player(key_pressed_only);
+function pushed_against_by_player(key_pressed_only) {
+	if (instance_at_coordinates(global.player.x_prev, global.player.y_prev-16, self) && (global.controller.key_up_pressed || (!key_pressed_only && global.controller.key_up))) { return directions.up; }
+	else if (instance_at_coordinates(global.player.x_prev, global.player.y_prev+16, self) && (global.controller.key_down_pressed || (!key_pressed_only && global.controller.key_down))) { return directions.down; }
+	else if (instance_at_coordinates(global.player.x_prev-16, global.player.y_prev, self) && (global.controller.key_left_pressed || (!key_pressed_only && global.controller.key_left))) { return directions.left; }
+	else if (instance_at_coordinates(global.player.x_prev+16, global.player.y_prev, self) && (global.controller.key_right_pressed || (!key_pressed_only && global.controller.key_right))) { return directions.right; }
+	else { return noone; }
+}
+
+/// @function								rotate_sprite_to_random_angle();
+function rotate_sprite_to_random_angle() {
+	image_angle = irandom(3) * 90;
+}
+
+/// @function								flip_sprite_at_random();
+/// @param		{boolean} flip_vertical		Whether or not to also randomly flip the sprite vertically
+function flip_sprite_at_random(flip_vertical) {
+	image_xscale = get_random_chance_out_of(2) ? 1 : -1;
+	if (flip_vertical) { image_yscale = get_random_chance_out_of(2) ? 1 : -1; }
+}
+

@@ -1,13 +1,14 @@
 if (process_this_frame()) {
 	event_inherited();
 
-	calculate_lighting(0.5);
+	calculate_lighting(1);
 
 	// Randomize visual
-	image_angle = irandom(3)*90;
-	if (get_random_chance_out_of(2)) { image_xscale *= -1; }
-	if (get_random_chance_out_of(2)) { image_yscale *= -1; }
-
+	rotate_sprite_to_random_angle();
+	flip_sprite_at_random(true);
+	
+	if (instance_number(death_box) < 1) { instance_destroy(); }
+	
 	/*
 	if (irandom(8)) {
 	    lighting_range += -1 + irandom(2);

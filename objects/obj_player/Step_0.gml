@@ -17,11 +17,7 @@ if (process_this_frame()) {
 		if (pause_movement > 0) { pause_movement -= 1; }
 		else {
 		    // Move player in chosen direction if possible
-		    if (can_move_in_direction(dir, false, true)) { 
-		        move_in_direction(dir); 
-		        image_index += 1;
-		        if (image_index > 1) { image_index = 0; }
-		    }
+		    if (can_move_in_direction(dir, false, true)) { move_player(dir); }
 		}
     
 	    // Transition to new room depending on player position
@@ -31,9 +27,6 @@ if (process_this_frame()) {
 	    else if x > room_width { global.controller.transition = directions.right; }
 	    else if y < 0 { global.controller.transition = directions.up; }
 	    else if y > room_height { global.controller.transition = directions.down; }
-
-	    // Move carried item to current position
-	    set_instance_to_same_position(carried_item);
 	}
 	else if dead image_index = 2;
 

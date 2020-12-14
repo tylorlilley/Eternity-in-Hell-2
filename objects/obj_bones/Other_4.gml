@@ -1,1 +1,1 @@
-trap = (get_random_chance_out_of(60));
+trap = (get_random_chance_out_of(30));

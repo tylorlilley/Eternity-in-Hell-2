@@ -1,2 +1,1 @@
-/// @description Insert description here
-// You can write your code in this editor
+set_instance_to_same_position(light_source);

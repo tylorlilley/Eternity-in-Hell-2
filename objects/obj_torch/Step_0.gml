@@ -8,7 +8,5 @@ if (process_this_frame()) {
 	    with light_source { instance_destroy(); }
 	}
 
-	set_instance_to_same_position(light_source);
-
 	event_inherited();
 }

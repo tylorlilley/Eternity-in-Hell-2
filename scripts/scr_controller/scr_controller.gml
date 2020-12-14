@@ -128,7 +128,7 @@ function rotate_room_contents_around_room_center(direction_to_face) {
 			
 			x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
 			y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
-			if (!place_snapped(8, 8)) { move_snap(8, 8); }
+			if (!place_snapped(4, 4)) { move_snap(4, 4); }
 		}
 	}
 	with obj_placeholder {
@@ -138,7 +138,7 @@ function rotate_room_contents_around_room_center(direction_to_face) {
 			
 		x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
 		y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
-		if (!place_snapped(8, 8)) { move_snap(8, 8); }
+		if (!place_snapped(4, 4)) { move_snap(4, 4); }
 	}
 }
 

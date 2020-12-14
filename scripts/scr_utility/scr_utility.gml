@@ -52,3 +52,17 @@ function get_random_instance(obj_index) {
 function get_random_chance_out_of(denominator) {
 	return (irandom(denominator-1) == 0);
 }
+
+/// @function								get_quadrant_x_pos(quadrant_number);
+/// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
+function get_quadrant_x_pos(quadrant_number) {
+    if (quadrant_number mod 2 == 0) { return x-4; }
+	else { return x+4; }
+}
+
+/// @function								get_quadrant_y_pos(quadrant_number);
+/// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
+function get_quadrant_y_pos(quadrant_number) {
+    if (quadrant_number < 2) { return y-4; }
+	else { return y+4; }
+}

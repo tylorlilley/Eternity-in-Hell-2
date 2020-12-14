@@ -8,17 +8,28 @@ if (process_this_frame()) {
 	else if global.controller.key_left && !global.controller.key_right && (global.controller.key_left_pressed || !global.controller.key_left_released) { dir = directions.left; }
 	else if global.controller.key_right && !global.controller.key_left && (global.controller.key_right_pressed || !global.controller.key_right_released) { dir = directions.right; }
 		
-	if (pushed_against_by_player(false) == dir && can_move_in_direction(dir, false, true)) { 
+	if (pushed_against_by_player(true) == dir && can_move_in_direction(dir, false, true)) { 
 		audio_play_sound(snd_thud, 10, false);
 		move_in_direction(dir); 
 		move_player(dir);
 	}
 	
-	// Destroy self and lava when pushed into it
-	var death = instance_place(x, y, obj_death);
-	if (death && instance_at_coordinates(x, y, death)) {
-		if death.consume_block { instance_destroy(); }
-		if death.consumed_by_block { with death { instance_destroy(); } audio_play_sound(death.death_sound, 10, false); }
+	// Destroy self and/or enemy when pushed onto an enemy
+	var enemy = instance_place(x, y, obj_enemy);
+	if (enemy && instance_at_coordinates(x, y, enemy)) {
+		if enemy.consume_block { instance_destroy(); }
+		if enemy.consumed_by_block { with enemy { instance_destroy(); } audio_play_sound(enemy.death_sound, 10, false); }
 	}
 	
+	// Destroy self and parts of lava if pushed onto lava
+	var lava_at_quadrant = get_presence_at_each_quadrant(obj_lava);
+	if (lava_at_quadrant[0] && lava_at_quadrant[1] && lava_at_quadrant[2] && lava_at_quadrant[3]) {
+		for (var i = 0; i <= 3; i++) {
+			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+			
+			with lava_at_quadrant[i] { destroy_lava_at_position(x_pos, y_pos); }
+	    }
+		instance_destroy();
+		audio_play_sound(snd_extinguish, 10, false);
+	}
 }

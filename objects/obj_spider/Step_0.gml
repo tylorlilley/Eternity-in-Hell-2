@@ -20,7 +20,7 @@ if (process_this_frame()) {
 	            audio_play_sound( snd_lose, 10, false ); 
 	            screeched = 1; 
 	        }
-	        else if screeched < 3 {
+	        else if screeched < 4 {
 	            screeched += 1;
 	        }
 	        else {

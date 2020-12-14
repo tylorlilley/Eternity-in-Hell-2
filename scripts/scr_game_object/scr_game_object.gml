@@ -12,7 +12,7 @@ function distance_to_instance(instance) {
 /// @param		{real}  y_pos				The y value to check against the instance's y value
 /// @param		{index} instance			The instance whos positional coordinates are being checked
 function instance_at_coordinates(x_pos, y_pos, instance) {
-	return (instance.x == x_pos && instance.y == y_pos)
+	return (instance && (instance.x == x_pos && instance.y == y_pos))
 }
 
 /// @function								is_direction_toward_player(dir);
@@ -108,3 +108,15 @@ function flip_sprite_at_random(flip_vertical) {
 	if (flip_vertical) { image_yscale = get_random_chance_out_of(2) ? 1 : -1; }
 }
 
+/// @function								get_presence_at_each_quadrant(obj_index);
+///	@param		{index} obj_index			The object type to check the presence of in each quadrant
+function get_presence_at_each_quadrant(obj_index) {
+	var presence_at_quadrant = array(noone, noone, noone, noone);
+	
+	for (var i = 0; i <= 3; i+= 1;) {
+        var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+       presence_at_quadrant[i] = instance_position(x_pos, y_pos, obj_index);
+    }
+	
+	return presence_at_quadrant;
+}

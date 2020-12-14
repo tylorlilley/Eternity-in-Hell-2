@@ -29,8 +29,8 @@
   "properties": [],
   "overriddenProperties": [],
   "parent": {
-    "name": "Tiles",
-    "path": "folders/Objects/Tiles.yy",
+    "name": "Placeholders",
+    "path": "folders/Objects/Placeholders.yy",
   },
   "resourceVersion": "1.0",
   "name": "obj_block_spot",

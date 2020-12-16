@@ -6,8 +6,8 @@ if (process_this_frame()) {
 	    if (!is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
 	    if (can_move_in_direction(dir, true, true)) { move_in_direction(dir); }
     
-	    if (get_random_chance_out_of(2)) { visible = true; audio_play_sound( snd_flicker, 10, false ); }
-	    //else { visible = false; }
+	    if (get_random_chance_out_of(2)) { visible = !global.player.dead; audio_play_sound( snd_flicker, 10, false ); }
+	    else { visible = false; }
     
 	    if (!lethal) { 
 	        audio_play_sound_for_object_only_once( snd_static );

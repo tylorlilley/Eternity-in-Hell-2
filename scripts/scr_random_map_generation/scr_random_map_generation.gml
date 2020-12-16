@@ -94,56 +94,58 @@
 //	return array(list_of_visited_rooms, list_of_unlockable_exits, list_of_available_rooms_with_keys);
 //}
 
-function walk_the_map_using_keys() {
-	var unlocked_exits = ds_list_create();
+/// @function									is_current_map_possible();
+function is_current_map_possible() {
+	var unlocked_exit_lists_to_verify = ds_list_create();
+	var map_is_possible = true;
 	
-	var walk_results = walk_the_map(unlocked_exits);
-	var visited_all_rooms = walk_results[0], keys_collected = walk_results[1], locked_exits_encountered = walk_results[2];
+	// Start with a blank list of no locked exits and try verifying that
+	ds_list_add(unlocked_exit_lists_to_verify, ds_list_create());
 	
-	while(!visited_all_rooms) {
-		if (keys_collected >= ds_list_size(locked_exits_encountered)) { 
-			// If you have collected more keys than there are locked exits, you can unlock all exits and visit all rooms.
-			visited_all_rooms = true;
-			break; 
-		}
-		//else if (keys_collected >= 1) {
-		//	// We need to make sure that we can visit all rooms no matter which order we unlock each encountered locked exit.
-		//	keys_collected -= 1;
-		//	visited_all_rooms = true;
-		//	for(var i = 0; i < ds_list_size(locked_exits_encountered); i += 1;) {
-		//		var current_exit_to_unlock = ds_list_find_value(locked_exits_encountered, i);
-		//		// TODO: Walk the room with this exit unlocked
-		//		// if this walk fails { visited_all_rooms = false; }
-		//	}
-		//}
-		else {
-			// Walking this map is impossible.
-			break;
-		}
+	// Verify each remaining list to verify is possible or map is impossible
+	do {
+		var current_unlocked_list = ds_list_pop_random_value(unlocked_exit_lists_to_verify);
 		
-		// Walk the room again
-		walk_results = walk_the_map(unlocked_exits);
-		visited_all_rooms = walk_results[0]; 
-		keys_collected = walk_results[1];
-		ds_list_destroy(locked_exits_encountered);
-		locked_exits_encountered = walk_results[2];
+		if (map_is_possible) {
+			// Walk the map with the current unlocked list and set up variables based on how the walk went
+			var current_walk_results = walk_the_map(current_unlocked_list);
+			var visited_all_rooms = current_walk_results[0], keys_collected = current_walk_results[1], locked_exits_encountered = current_walk_results[2];
+			var keys_spent = ds_list_size(current_unlocked_list);
+			var keys_remaining = keys_collected - keys_spent;
+		
+			if (visited_all_rooms || keys_remaining >= ds_list_size(locked_exits_encountered)) { 
+				// This walk is successful
+			}
+			else if (keys_remaining > 0) {
+				// This walk could be successful if a walk through every currently available locked exit is successful.
+				for (var i = 0; i < ds_list_size(locked_exits_encountered); i += 1;) {
+					var new_unlocked_list_to_verify = ds_list_create();
+					ds_list_copy(new_unlocked_list_to_verify, current_unlocked_list);
+					ds_list_add(new_unlocked_list_to_verify, ds_list_find_value(locked_exits_encountered, i));
+					ds_list_add(unlocked_exit_lists_to_verify, new_unlocked_list_to_verify);
+				}
+			}
+			else {
+				// Walking this map is impossible.
+				map_is_possible = false;
+			}
+				
+			ds_list_destroy(locked_exits_encountered);
+		}
+			
+		ds_list_destroy(current_unlocked_list);
+		
+		// Cut off caluculations if it is becoming too complex
+		if (ds_list_size(unlocked_exit_lists_to_verify) > 256) { map_is_possible = false; }
+		show_debug_message(ds_list_size(unlocked_exit_lists_to_verify));
 	}
+	until (ds_list_size(unlocked_exit_lists_to_verify) == 0)
 	
-	ds_list_destroy(locked_exits_encountered);
-	ds_list_destroy(unlocked_exits);
-	
-	return visited_all_rooms;
+	return map_is_possible;
 }
 
-function walk_through_room(visited_rooms, exits_to_walk_through) {
-	// Add this room to the list of visited rooms
-	ds_list_add(visited_rooms, id);
-	// Add each of this room's cardinal exits to the list of exits to try walking through at some point
-	for (var i = 0; i <= 3; i += 1;) {
-		ds_list_add(exits_to_walk_through, array(id, i));
-	}
-}
-
+/// @function									walk_the_map(unlocked_exits);
+/// @param		{index} unlocked_exits			The list of exits that have been unlocked by the player on this walk of the map.
 function walk_the_map(unlocked_exits) {
 	var visited_rooms = ds_list_create(), exits_to_walk_through = ds_list_create(), locked_exits = ds_list_create();
 	var keys_found = 0;
@@ -179,4 +181,16 @@ function walk_the_map(unlocked_exits) {
 	ds_list_destroy(visited_rooms);
 	ds_list_destroy(exits_to_walk_through);
 	return array(visited_all_rooms, keys_found, locked_exits);
+}
+
+/// @function									walk_through_room(visited_rooms, exits_to_walk_through);
+/// @param		{index} visited_rooms			The list of rooms that have been visited on this walk of the map.
+/// @param		{index} exits_to_walk_through	The list of exits that need to be walked through to finish this walk of the map.
+function walk_through_room(visited_rooms, exits_to_walk_through) {
+	// Add this room to the list of visited rooms
+	ds_list_add(visited_rooms, id);
+	// Add each of this room's cardinal exits to the list of exits to try walking through at some point
+	for (var i = 0; i <= 3; i += 1;) {
+		ds_list_add(exits_to_walk_through, array(id, i));
+	}
 }

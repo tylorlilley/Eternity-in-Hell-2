@@ -72,15 +72,33 @@ with (obj_exit) {
 }
 
 // Walk the Map and tweak it until map is possible
-var visited_all_rooms = walk_the_map_using_keys();
+show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
+show_debug_message("NUMBER LOCKED DOORS: "+string(ds_list_size(locked_exits)));
+var visited_all_rooms = is_current_map_possible();
 while (!visited_all_rooms) {
+	var number_of_keys = instance_number(obj_room) - (ds_list_size(keyless_rooms)+1);
+	var number_of_locked_exits = ds_list_size(locked_exits);
+	
+	//// Remove one of the locked exits if there are way too many
+	//if (ds_list_size(locked_exits) >= LOCKED_DOOR_PROBABILITY*2) {
+    //    with ds_list_pop_random_value(locked_exits) { unlock_exit(); instance_destroy(); }
+			
+	//	show_debug_message("NUMBER OF LOCKS -1");
+	//}
     // Add an additional key somewhere
-    if (ds_list_size(keyless_rooms) > 0) {
+    if (ds_list_size(keyless_rooms) > 0 && (ds_list_size(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
         ds_list_pop_random_value(keyless_rooms).has_key = true;
+		
+		show_debug_message("NUMBER OF KEYS +1");
     }
-    // Start removing locks on doors
+    // Remove one of the locked doors and reset all rooms to have no keys
     else if (ds_list_size(locked_exits) > 0) {
         with ds_list_pop_random_value(locked_exits) { unlock_exit(); instance_destroy(); }
+		with (obj_room) {
+		    if (has_key) { has_key = false; ds_list_add(keyless_rooms, id); }
+		}
+		
+		show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
     }
 	// Should never need to reach this clause
 	else {
@@ -88,9 +106,11 @@ while (!visited_all_rooms) {
 		break;
 	}
 	
-	visited_all_rooms = walk_the_map_using_keys();
+	visited_all_rooms = is_current_map_possible();
 }
 show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
+show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
+show_debug_message("NUMBER LOCKED DOORS: "+string(ds_list_size(locked_exits)));
 
 // Destroy the lists used for lock generation
 ds_list_destroy(keyless_rooms);

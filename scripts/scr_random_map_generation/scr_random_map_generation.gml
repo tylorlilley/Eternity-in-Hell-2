@@ -136,7 +136,7 @@ function is_current_map_possible() {
 		ds_list_destroy(current_unlocked_list);
 		
 		// Cut off caluculations if it is becoming too complex
-		if (ds_list_size(unlocked_exit_lists_to_verify) > 256) { map_is_possible = false; }
+		if (ds_list_size(unlocked_exit_lists_to_verify) > 999) { map_is_possible = false; }
 		show_debug_message(ds_list_size(unlocked_exit_lists_to_verify));
 	}
 	until (ds_list_size(unlocked_exit_lists_to_verify) == 0)
@@ -160,8 +160,8 @@ function walk_the_map(unlocked_exits) {
 		var chosen_exit = ds_list_pop_random_value(exits_to_walk_through);
 		var chosen_room = chosen_exit[0], chosen_dir = chosen_exit[1], target_room = chosen_room.adj_rooms[chosen_dir];
 		
-		// If exit exists in this direction for this room and the adjoining room hasn't been visited yet
-		if (chosen_room.exits[chosen_dir] && target_room && !ds_list_contains(visited_rooms, target_room.id)) {
+		// If the adjoining room hasn't been visited yet
+		if (!ds_list_contains(visited_rooms, target_room.id)) {
 			// If the exit in the chosen direction from the chosen room is not locked or is but is in the given list of unlocked_exits
 			if (!chosen_room.locked_exits[chosen_dir] || ds_list_contains(unlocked_exits, chosen_room.locked_exits[chosen_dir].id)) {
 				// Walk through the target room
@@ -189,8 +189,8 @@ function walk_the_map(unlocked_exits) {
 function walk_through_room(visited_rooms, exits_to_walk_through) {
 	// Add this room to the list of visited rooms
 	ds_list_add(visited_rooms, id);
-	// Add each of this room's cardinal exits to the list of exits to try walking through at some point
-	for (var i = 0; i <= 3; i += 1;) {
-		ds_list_add(exits_to_walk_through, array(id, i));
+	// Add each of this room's exsiting exits to the list of exits to try walking through at some point
+	for (var i = 0; i <= 4; i += 1;) {
+		if (exits[i] && adj_rooms[i]) { ds_list_add(exits_to_walk_through, array(id, i)); }
 	}
 }

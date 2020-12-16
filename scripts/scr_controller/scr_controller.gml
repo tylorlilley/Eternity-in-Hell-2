@@ -25,6 +25,7 @@ function initialize_game_variables() {
 	HAS_STAIRS_PROBABILITY = 20;
 	HAS_COLLECTABLE_PROBABILITY = 30;
 	HAS_KEY_PROBABILITY = 0;
+	HAS_ITEM_PROBABILITY = 10;
 
 	// Initialize map drawing constants
 	MAX_WALKING_DEPTH = 666;
@@ -42,14 +43,13 @@ function initialize_game_variables() {
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
-	MAX_TORCH_TIME_TO_REMAIN_LIT = 1*30 // minutes * 60 = total seconds for torch to remain lit
+	MAX_TORCH_TIME_TO_REMAIN_LIT = 1*60 // minutes * 60 = total seconds for torch to remain lit
 	INITIAL_SCORE = 6+(15*60); // minutes * 60 = total seconds for game to run
 	points = INITIAL_SCORE;
 
 	// initialize game state values
 	rooms_with_collectables = 0;
 	rooms_with_collectables_collected = 0;
-	collected_keys = 0;
 
 	// initialize room transition values
 	bg_color = make_color_rgb(20, 20, 20);
@@ -87,14 +87,14 @@ function transition_to_room() {
 	
 	// Reposition player
 	switch (transition) {
-		case directions.up: { global.player.y = room_height-8; break; }
-		case directions.right: { global.player.x = 8; break; }
-		case directions.down: { global.player.y = 8; break; }
-		case directions.left: { global.player.x = room_width-8; break; }
+		case directions.up: { global.player.y = room_height-8; global.player.x = room_width/2; break; }
+		case directions.right: { global.player.x = 8; global.player.y = room_height/2; break; }
+		case directions.down: { global.player.y = 8; global.player.x = room_width/2; break; }
+		case directions.left: { global.player.x = room_width-8; global.player.y = room_height/2; break; }
 	}
 	
-	// Move carried item to current position
-	with obj_player { set_instance_to_same_position(carried_item); }
+	// Move player to current position
+	move_player(4);
 	
 	// Change room
 	room_goto(current_room.room_reference);
@@ -162,6 +162,8 @@ function get_inputs_for_next_frame() {
 	key_right = key_right || keyboard_check(vk_right);
 	key_space = key_space|| keyboard_check(vk_space);
 	key_enter = key_enter|| keyboard_check(vk_enter);
+	key_z = key_z || keyboard_check(ord("Z"));
+	key_x = key_x || keyboard_check(ord("X"));
 	
 	key_up_pressed = key_up_pressed || keyboard_check_pressed(vk_up);
 	key_down_pressed = key_down_pressed || keyboard_check_pressed(vk_down);
@@ -169,6 +171,8 @@ function get_inputs_for_next_frame() {
 	key_right_pressed = key_right_pressed || keyboard_check_pressed(vk_right);
 	key_space_pressed = key_space_pressed || keyboard_check_pressed(vk_space);
 	key_enter_pressed = key_enter_pressed || keyboard_check_pressed(vk_enter);
+	key_z_pressed  = key_z_pressed || keyboard_check_pressed (ord("Z"));
+	key_x_pressed  = key_x_pressed || keyboard_check_pressed (ord("X"));
 	
 	key_up_released = key_up_released || keyboard_check_released(vk_up);
 	key_down_released = key_down_released || keyboard_check_released(vk_down);
@@ -176,6 +180,8 @@ function get_inputs_for_next_frame() {
 	key_right_released = key_right_released || keyboard_check_released(vk_right);	
 	key_space_released = key_space_released || keyboard_check_released(vk_space);
 	key_enter_released = key_enter_released || keyboard_check_released(vk_enter);
+	key_z_released = key_z_released || keyboard_check(ord("Z"));
+	key_x_released = key_x_released || keyboard_check(ord("X"));
 }
 
 /// @function								clear_inputs_for_next_frame();
@@ -186,6 +192,8 @@ function clear_inputs_for_next_frame() {
 	key_right = false;
 	key_space = false;
 	key_enter = false;
+	key_z = false;
+	key_x = false;
 	
 	key_up_pressed = false;
 	key_down_pressed = false;
@@ -193,6 +201,8 @@ function clear_inputs_for_next_frame() {
 	key_right_pressed = false;
 	key_space_pressed = false;
 	key_enter_pressed = false;
+	key_z_pressed = false;
+	key_x_pressed = false;
 	
 	key_up_released = false;
 	key_down_released = false;
@@ -200,4 +210,6 @@ function clear_inputs_for_next_frame() {
 	key_right_released = false;
 	key_space_released = false;
 	key_enter_released = false;
+	key_z_released = false;
+	key_x_released = false;
 }

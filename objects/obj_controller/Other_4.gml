@@ -37,6 +37,13 @@ if (!current_room.visited) {
         instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_stairs)
     }
 	
+	// Create item in room if it should exist
+	if (current_room.has_item) {
+		var item_type = obj_torch;
+		if (get_random_chance_out_of(2)) { item_type = obj_sword; }
+        instance_create_depth(stairs_spot.x, stairs_spot.y, 5, item_type)
+	}
+	
 	// Create key in room if it should exist
 	if (current_room.has_key) {
 		if (!current_room.exits[4] && get_random_chance_out_of(3)) { instance_create_depth(stairs_spot.x, stairs_spot.y, 0, obj_key); }
@@ -71,8 +78,8 @@ if entered_from_stairs {
 	global.player.y = stairs_spot.y
 }
 
-// Move carried item to current position
-with obj_player { set_instance_to_same_position(carried_item); }
+// Move character into position
+move_player(4);
 
 // Add a small pause when entering a room
 global.player.pause_movement = FRAMES_TO_WAIT_UPON_ENTERING_ROOM;

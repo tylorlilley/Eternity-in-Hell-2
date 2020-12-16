@@ -6,11 +6,6 @@ function open_door() {
 
 	with closed { instance_destroy(); }
 	closed = noone;
-
-	if (locked) { 
-	    global.controller.collected_keys -= 1;
-	    door_for_exit.locked = false;
-	}
 	
 	close_behind = false;
 }

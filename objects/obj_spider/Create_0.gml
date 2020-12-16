@@ -1,5 +1,6 @@
 event_inherited();
 
+killable_by_sword = true;
 consume_block = false
 consumed_by_block = true;
 lethal = get_random_chance_out_of(2);

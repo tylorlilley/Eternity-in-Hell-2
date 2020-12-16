@@ -8,6 +8,7 @@ flip_vertical = false;
 rotate = noone;
 has_key = false;
 has_collectables = false;
+has_item = false;
 collectables_collected = false;
 lit = get_random_chance_out_of(5);
 

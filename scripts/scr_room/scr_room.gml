@@ -4,6 +4,7 @@ function initialize_room(list_of_rooms) {
 	// Randomly decide if room will have collectables, stairs, or keys
 	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY) { has_key = true; }
 	if (irandom(100) < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; }
+	else if (irandom(100) < global.controller.HAS_ITEM_PROBABILITY) { has_item = true; }
 	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { 
 	    has_collectables = true; 
 	    global.controller.rooms_with_collectables += 1; 

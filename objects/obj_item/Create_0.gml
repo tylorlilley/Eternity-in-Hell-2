@@ -1,3 +1,4 @@
 event_inherited();
 
-carried = false;
+draw_y_offset = 0;
+carried = noone;

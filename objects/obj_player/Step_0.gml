@@ -12,13 +12,25 @@ if (process_this_frame()) {
 	    else if global.controller.key_down && !global.controller.key_up && (global.controller.key_down_pressed || !global.controller.key_down_released) { dir = directions.down; }
 	    else if global.controller.key_left && !global.controller.key_right && (global.controller.key_left_pressed || !global.controller.key_left_released) { dir = directions.left; }
 	    else if global.controller.key_right && !global.controller.key_left && (global.controller.key_right_pressed || !global.controller.key_right_released) { dir = directions.right; }
-    
+		
 		// Handle movement pause
 		if (pause_movement > 0) { pause_movement -= 1; }
 		else {
+			// Handle inventory management
+			if (global.controller.key_z_pressed && image_xscale == 1) ||
+			   (global.controller.key_x_pressed && image_xscale == -1) { 
+					pick_up_or_drop_item(directions.left)
+			}
+			if (global.controller.key_z_pressed && image_xscale == -1) ||
+			   (global.controller.key_x_pressed && image_xscale == 1) { 
+					pick_up_or_drop_item(directions.right)
+			}
+			
 		    // Move player in chosen direction if possible
 		    if (can_move_in_direction(dir, false, true)) { move_player(dir); }
 		}
+		
+		
     
 	    // Transition to new room depending on player position
 	    var stairs = instance_place(x, y, obj_stairs);

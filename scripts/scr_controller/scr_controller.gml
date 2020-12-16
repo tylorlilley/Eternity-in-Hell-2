@@ -28,8 +28,8 @@ function initialize_game_variables() {
 
 	// Initialize map drawing constants
 	MINIMUM_NUMBER_OF_ROOMS = 30;
-	LOCKED_DOOR_PROBABILITY = 15;
-	TEST_MODE = false;
+	LOCKED_DOOR_PROBABILITY = 16;
+	TEST_MODE = true;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables

@@ -34,6 +34,6 @@ function ds_list_combine(list_id, source_id) {
 /// @param		{value}		source_id		Value to check to see if the list contains
 function ds_list_contains(list_id, value_to_find) {
 	// This returns whether the list contains a given value
-	return (ds_list_find_index(list_id, value_to_find) != -1)
+	return (ds_list_find_index(list_id, value_to_find) != -1);
 }
 

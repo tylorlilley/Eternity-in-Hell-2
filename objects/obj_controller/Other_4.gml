@@ -13,16 +13,6 @@ if (!current_room.visited) {
 		image_angle = 0;
 	}
     
-    // Create stairs for room if they should exist
-    if (current_room.exits[4]) {
-        instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_stairs)
-    }
-    
-    // Create key for room if it should exist
-    if (current_room.has_key) {
-        instance_create_depth(stairs_spot.x, stairs_spot.y, 0, obj_key)
-    }
-    
     // Create locked exits if they should exist
     for (var i = 0; i < 4; i++) {
         var x_pos = 0;
@@ -41,10 +31,22 @@ if (!current_room.visited) {
             door.locked = exit_to_create_door_for.locked;
         }
     }
+	
+	// Create stairs for room if they should exist
+    if (current_room.exits[4]) {
+        instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_stairs)
+    }
+	
+	// Create key in room if it should exist
+	if (current_room.has_key) {
+		if (!current_room.exits[4] && get_random_chance_out_of(3)) { instance_create_depth(stairs_spot.x, stairs_spot.y, 0, obj_key); }
+		else { with get_random_instance(obj_collectable_spot) { instance_create_depth(x, y, 0, obj_key); instance_destroy(); } }
+	}
     
     // Create collectables in room if they should exist
     if (current_room.has_collectables && !current_room.collectables_collected) {
         with obj_collectable_spot { instance_create_depth(x, y, 0, obj_collectable); instance_destroy(); }
+		if (instance_number(obj_collectable) == 0) { current_room.collectables_collected = true; }
     }
 	
 	// Remove lit status from room if it shouldn't exist

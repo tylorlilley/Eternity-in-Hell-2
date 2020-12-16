@@ -31,8 +31,8 @@ if (has_won || has_lost || is_looking_at_map) {
         draw_text(4, 4, string_hash_to_newline("Progress: "));
         draw_rectangle(80, 10, (room_width-4), 19, true);
         if (rooms_with_collectables_collected > 0) { draw_rectangle(80, 10, get_scaling_amount(80, (room_width-4), rooms_with_collectables_collected, rooms_with_collectables), 18, false); }
-        //draw_sprite(spr_key, 0, 12, 32);
-        //draw_text(24, 24, string_hash_to_newline("x "+string(collected_keys)));
+        draw_sprite(spr_key, 0, 12, 32);
+        draw_text(24, 24, string_hash_to_newline("x "+string(collected_keys)));
     }
 
     // Draw a message if applicable

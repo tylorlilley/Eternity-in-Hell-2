@@ -49,51 +49,80 @@ with obj_room {
 }
 destroy_room_lists();
 
-current_room = get_random_instance(obj_room);
+// Lock Random Exits
+with obj_room {
+    for(var i = 0; i <= 3; i+= 1;) {
+        if (exits[i] && get_random_chance_out_of(global.controller.LOCKED_DOOR_PROBABILITY)) { 
+            create_locked_exit(i);
+        }
+    }
+}
 
-//// Lock Random Exits
-//with obj_room {
-//    for(var i = 0; i < 4; i++) {
-//        if exits[i] && (irandom(global.controller.LOCKED_DOOR_PROBABILITY) == 0) { 
-//            create_locked_exit(i);
-//        }
-//    }
-//}
+// Begin Game in Random Room that has no stairs in it
+do { current_room = get_random_instance(obj_room); }
+until (!current_room.has_key && !current_room.exits[4]);
 
-//// Begin Game in Random Room that has no key in it
-//do {
-//    current_room = get_random_instance(obj_room);
+// Set up lists used to walk the map
+var keyless_rooms = ds_list_create(), locked_exits = ds_list_create();
+with (obj_room) {
+    if (!has_key && id != global.controller.current_room) { ds_list_add(keyless_rooms, id); }
+}
+with (obj_exit) {
+    if (locked) { ds_list_add(locked_exits, id); }
+}
+
+// Walk the Map and tweak it until map is possible
+var visited_all_rooms = walk_the_map_using_keys();
+while (!visited_all_rooms) {
+    // Add an additional key somewhere
+    if (ds_list_size(keyless_rooms) > 0) {
+        ds_list_pop_random_value(keyless_rooms).has_key = true;
+    }
+    // Start removing locks on doors
+    else if (ds_list_size(locked_exits) > 0) {
+        with ds_list_pop_random_value(locked_exits) { unlock_exit(); instance_destroy(); }
+    }
+	// Should never need to reach this clause
+	else {
+		show_debug_message("WARNING: lock generation screwed up.");
+		break;
+	}
+	
+	visited_all_rooms = walk_the_map_using_keys();
+}
+show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
+
+// Destroy the lists used for lock generation
+ds_list_destroy(keyless_rooms);
+ds_list_destroy(locked_exits);
+
+//// Set up lists used to walk the map
+//var empty_list = ds_list_create(), list_of_all_keyless_rooms = ds_list_create(), list_of_all_locked_exits = ds_list_create();
+//with (obj_room) {
+//    if (!has_key && id != global.controller.current_room) { ds_list_add(list_of_all_keyless_rooms, id); }
 //}
-//until (!current_room.has_key);
+//with (obj_exit) {
+//    if (locked) { ds_list_add(list_of_all_locked_exits, id); }
+//}
 
 //// Walk the Map and tweak it until map is possible
-//var empty_list = ds_list_create();
-
-//var list_of_all_keyless_rooms = ds_list_create();
-//with (obj_room) {
-//    if (!exits[4] && !has_key && id != global.controller.current_room) { ds_list_add(list_of_all_keyless_rooms, id); }
-//}
-
-//var list_of_all_locked_exits = ds_list_create();
-//with (obj_exit) {
-//    ds_list_add(list_of_all_locked_exits, id);
-//}
-
 //while (!can_reach_all_rooms(empty_list)) {
 //    ds_list_clear(empty_list);
 //    // Add an additional key somewhere
 //    if (ds_list_size(list_of_all_keyless_rooms) > 0) {
-//        ds_list_shuffle(list_of_all_keyless_rooms);
-//        var room_to_add_key_to = ds_list_find_value(list_of_all_keyless_rooms, 0);
-//        room_to_add_key_to.has_key = true;
+//        ds_list_pop_random_value(list_of_all_keyless_rooms).has_key = true;
 //    }
-//    else {
-//        // Start removing locks on doors
-//        ds_list_shuffle(list_of_all_locked_exits);
-//        var locked_exit_to_destroy = ds_list_find_value(list_of_all_locked_exits, 0);
-//        with locked_exit_to_destroy { unlock_exit(); instance_destroy(); }
+//    // Start removing locks on doors
+//    else if (ds_list_size(list_of_all_locked_exits) > 0) {
+//        with ds_list_pop_random_value(list_of_all_locked_exits) { unlock_exit(); instance_destroy(); }
 //    }
+//	// Should never need to reach this clause
+//	else {
+//		show_debug_message("WARNING: lock generation screwed up.");
+//		break;
+//	}
 //}
+//// Destroy the lists used for lock generation
 //ds_list_destroy(empty_list);
 //ds_list_destroy(list_of_all_keyless_rooms);
 //ds_list_destroy(list_of_all_locked_exits);

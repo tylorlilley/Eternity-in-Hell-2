@@ -4,7 +4,7 @@ if (process_this_frame()) {
 	}
 
 	// Make sprite flicker and infrequently switch to another image
-	visible = (global.controller.number_of_frames_since_game_began mod 12 == 0);
+	visible = (global.controller.number_of_frames_since_game_began mod (global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING * 2) == 0);
 	image_index = (get_random_chance_out_of(16));
 	turn_to_face_player();
 

@@ -26,7 +26,7 @@ if (process_this_frame()) {
 	        else {
 	            if (can_move_in_direction(dir, false, true)) { move_in_direction(dir); }
 	            if (can_move_in_direction(dir, false, true)) { move_in_direction(dir); }
-	            if (global.controller.number_of_frames_since_game_began mod 12 == 0) { image_xscale *= -1; }
+	            if (global.controller.number_of_frames_since_game_began mod (global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING * 2) == 0) { image_xscale *= -1; }
 	        }
 	    }
 	    else { attacking = false; screeched = 0; }

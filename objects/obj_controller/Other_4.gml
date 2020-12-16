@@ -61,7 +61,7 @@ if (!current_room.visited) {
 
 // Every Time Setup
 background_id = layer_background_get_id(layer_get_id("Background"));
-layer_background_blend( background_id, make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(points/INITIAL_SCORE), 8), 1)), 20, 20) );
+layer_background_blend( background_id, bg_color);
 with obj_room { distance_to_current_room = 9999; }
 with current_room { calculate_distance_to_current(0); }
 

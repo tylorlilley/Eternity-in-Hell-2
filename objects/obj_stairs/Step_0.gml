@@ -1,4 +1,4 @@
-if (global.controller.number_of_frames_since_game_began % 6 == 0) {
+if (process_this_frame()) {
 	event_inherited();
 
 	if (!active) { active = !instance_place(x, y, global.player); }

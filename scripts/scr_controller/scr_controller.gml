@@ -27,6 +27,7 @@ function initialize_game_variables() {
 	HAS_KEY_PROBABILITY = 0;
 
 	// Initialize map drawing constants
+	MAX_WALKING_DEPTH = 666;
 	MINIMUM_NUMBER_OF_ROOMS = 32;
 	LOCKED_DOOR_PROBABILITY = 6;
 	TEST_MODE = false;
@@ -39,9 +40,10 @@ function initialize_game_variables() {
 	PLAYER_LIGHT_RANGE = 6;
 
 	// Initialize score constants and variables
+	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
 	MAX_TORCH_TIME_TO_REMAIN_LIT = 1*60 // minutes * 60 = total seconds for torch to remain lit
-	INITIAL_SCORE = 1+(15*60); // minutes * 60 = total seconds for game to run
+	INITIAL_SCORE = 6+(15*60); // minutes * 60 = total seconds for game to run
 	points = INITIAL_SCORE;
 
 	// initialize game state values
@@ -65,6 +67,11 @@ function game_has_been_won() {
 
 /// @function								game_has_been_lost();
 function game_has_been_lost() {
+	return (global.player.dead || game_has_timed_out());
+}
+
+/// @function								game_has_timed_out();
+function game_has_timed_out() {
 	return (floor(global.controller.points) <= 0);
 }
 
@@ -144,7 +151,7 @@ function rotate_room_contents_around_room_center(direction_to_face) {
 
 /// @function								process_this_frame();
 function process_this_frame() {
-	return (!global.controller.transition && global.controller.number_of_frames_since_game_began % 6 == 0);
+	return (!global.controller.transition && global.controller.number_of_frames_since_game_began % global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
 }
 
 /// @function								get_inputs_for_next_frame();

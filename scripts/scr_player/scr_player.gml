@@ -49,8 +49,6 @@ function get_carried_item_of_type(obj_index) {
 /// @param		{index} obj_index			The type of item to create in hand
 function create_item_in_hand(dir, obj_index)	{
 	var new_item = instance_create_depth(global.player.x, global.player.y, -5, obj_index)
-	with instance_create_depth(global.player.x, global.player.y, -5, obj_index){
-		pick_up_item(dir, false);
-	}
+	with new_item { pick_up_item(dir, false); }
 	return new_item;
 }

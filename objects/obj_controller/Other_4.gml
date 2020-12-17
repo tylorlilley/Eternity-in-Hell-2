@@ -40,14 +40,15 @@ if (!current_room.visited) {
 	// Create item in room if it should exist
 	if (current_room.has_item) {
 		var item_type = obj_torch;
-		if (get_random_chance_out_of(2)) { item_type = obj_sword; }
+		if (get_random_chance_out_of(4)) { item_type = obj_sword; }
+		else if (get_random_chance_out_of(4)) { item_type = obj_map; }
         var chest = instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_chest)
         chest.contents = item_type;
 	}
 	
 	// Create key in room if it should exist
 	if (current_room.has_key) {
-		if (!current_room.exits[4] && get_random_chance_out_of(3)) { 
+		if (!current_room.exits[4] && !current_room.has_item && !get_random_chance_out_of(3)) { 
 			var chest = instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_chest); 
 			chest.contents = obj_key;
 		}
@@ -80,7 +81,7 @@ with current_room { calculate_distance_to_current(0); }
 if entered_from_stairs {
     global.player.x = stairs_spot.x
 	global.player.y = stairs_spot.y
-	if first_room { instance_create_depth(global.player.x, global.player.y, 4, obj_cross); }
+	if first_room { instance_create_depth(global.player.x, global.player.y, 4, obj_cross); first_room = false; }
 }
 
 // Move character into position

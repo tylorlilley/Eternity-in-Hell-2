@@ -32,7 +32,7 @@ function interact_with_torches() {
 		if (light_source && torch) {
 		    with torch {
 		        if (time_to_remain_lit == 0) { light_torch(); }
-		        else { time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT; }
+		        else { time_to_remain_lit = other.time_to_remain_lit; }
 		    }
 		}
 	}

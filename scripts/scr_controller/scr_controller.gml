@@ -31,7 +31,7 @@ function initialize_game_variables() {
 	MAX_WALKING_DEPTH = 666;
 	MINIMUM_NUMBER_OF_ROOMS = 32;
 	LOCKED_DOOR_PROBABILITY = 6;
-	TEST_MODE = true;
+	TEST_MODE = false;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables

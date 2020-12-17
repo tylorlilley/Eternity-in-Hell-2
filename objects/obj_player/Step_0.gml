@@ -32,15 +32,15 @@ if (process_this_frame()) {
 		
 		// Increase lighting range if carrying two torches
 		if (carried_items[directions.right] && carried_items[directions.right].object_index == obj_torch && carried_items[directions.right].light_source  &&
-			carried_items[directions.right] && carried_items[directions.left].object_index == obj_torch && carried_items[directions.left].light_source) { 
+			carried_items[directions.left] && carried_items[directions.left].object_index == obj_torch && carried_items[directions.left].light_source) { 
 			lighting_range = global.controller.PLAYER_LIGHT_RANGE;
 			is_flickering_light_source = false;
-			if (lighting_range < carried_items[directions.left].light_source.lighting_range+2) { 
-				lightning_range = carried_items[directions.left].light_source.lighting_range+2;
+			if (lighting_range < carried_items[directions.right].light_source.lighting_range+3) { 
+				lighting_range = carried_items[directions.right].light_source.lighting_range+3;
 				is_flickering_light_source = true;
 			}
-			if (lighting_range < carried_items[directions.left].light_source.lighting_range+2) { 
-				lightning_range = carried_items[directions.left].light_source.lighting_range+2;
+			if (lighting_range < carried_items[directions.left].light_source.lighting_range+3) { 
+				lighting_range = carried_items[directions.left].light_source.lighting_range+3;
 				is_flickering_light_source = true;
 			}
 		}

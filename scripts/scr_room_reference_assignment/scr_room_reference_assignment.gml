@@ -64,7 +64,7 @@ function duplicate_room_from_list(list) {
 	var new_room = room_duplicate(chosen_room);
 	room_set_persistent(new_room, true);
 	
-	return room_duplicate(new_room);
+	return room_duplicate(rm_three_exits_13);
 }
 
 /// @function								destroy_room_lists();

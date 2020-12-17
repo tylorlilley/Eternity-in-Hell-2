@@ -17,8 +17,8 @@ function pick_up_item(dir, item_existed) {
 	global.player.carried_items[dir] = id;
 	carried = dir;
 	persistent = true;
-	image_xscale = global.player.image_xscale;
 	depth = -10;
+	image_xscale = global.player.image_xscale;
 }
 
 /// @function								drop_item();
@@ -31,4 +31,5 @@ function drop_item(dir) {
 	y = global.player.y;
 	audio_play_sound(snd_pickup, 10, false);
 	depth = 2;
+	image_xscale = (dir == directions.left) ? image_xscale : -image_xscale;
 }

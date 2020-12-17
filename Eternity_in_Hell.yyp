@@ -2,6 +2,7 @@
   "resources": [
     {"id":{"name":"rm_one_exit_13","path":"rooms/rm_one_exit_13/rm_one_exit_13.yy",},"order":12,},
     {"id":{"name":"spr_box","path":"sprites/spr_box/spr_box.yy",},"order":1,},
+    {"id":{"name":"spr_map","path":"sprites/spr_map/spr_map.yy",},"order":46,},
     {"id":{"name":"spr_stairs","path":"sprites/spr_stairs/spr_stairs.yy",},"order":3,},
     {"id":{"name":"spr_wall","path":"sprites/spr_wall/spr_wall.yy",},"order":5,},
     {"id":{"name":"scr_utility","path":"scripts/scr_utility/scr_utility.yy",},"order":1,},
@@ -13,6 +14,7 @@
     {"id":{"name":"spr_chest","path":"sprites/spr_chest/spr_chest.yy",},"order":45,},
     {"id":{"name":"scr_random_map_generation","path":"scripts/scr_random_map_generation/scr_random_map_generation.yy",},"order":5,},
     {"id":{"name":"spr_lantern","path":"sprites/spr_lantern/spr_lantern.yy",},"order":17,},
+    {"id":{"name":"obj_map","path":"objects/obj_map/obj_map.yy",},"order":11,},
     {"id":{"name":"spr_door","path":"sprites/spr_door/spr_door.yy",},"order":19,},
     {"id":{"name":"spr_skeleton","path":"sprites/spr_skeleton/spr_skeleton.yy",},"order":21,},
     {"id":{"name":"spr_lava","path":"sprites/spr_lava/spr_lava.yy",},"order":23,},

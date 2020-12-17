@@ -172,36 +172,47 @@ function calculate_distance_to_current(distance) {
 function draw_room(x_pos, y_pos) {
 
 	// Only draw the room if the room has been visited at least once, or game is in test mode
-	if (global.controller.TEST_MODE || visited) {
-	    // Draw Room, fading it based on its distance to the current room. Make it blink if it is the current room
-	    var room_image_alpha = 1-(distance_to_current_room/global.controller.MAX_MAP_DRAW_DISTANCE);
-	    if (global.controller.current_room.id == id && global.controller.number_of_frames_since_game_began mod 12 <= 5) { room_image_alpha /= 2; }
-		room_color = lit ? c_red : c_white
-		draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, room_color, room_image_alpha);
+	var show_detailed_map = global.controller.TEST_MODE || get_carried_item_of_type(obj_map);
+	if (show_detailed_map || visited) {
+		// Set up colors to draw this room with
+		var bg_color = global.controller.bg_color;
+		var fade_amount = global.controller.MAX_MAP_DRAW_DISTANCE - distance_to_current_room;
+		var color_value = get_scaling_amount(20, 255, fade_amount, global.controller.MAX_MAP_DRAW_DISTANCE);
+		var white_color = make_color_rgb(color_value, color_value, color_value);
+		var red_color = make_color_rgb(color_value, 20, 20);
+		
+	    // Draw Room on Map
+		var room_color = lit ? red_color : white_color;
+		var inverse_color = lit ? white_color : red_color;
+	    //var room_image_alpha = 1-(distance_to_current_room/global.controller.MAX_MAP_DRAW_DISTANCE);
+	    if (global.controller.current_room.id == id && global.controller.number_of_frames_since_game_began mod 12 <= 5) { room_color = bg_color; }
+		draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, room_color, 1);
 
-	    // Draw Room's Exits
-	    for (var i = 0; i < 4; i++) {
-	        // Change the color of just the locked exits if the game is in test mode
-	        if (global.controller.TEST_MODE && locked_exits[i]) { draw_set_color(c_red); }
-	        else { draw_set_color(global.controller.bg_color); }
-        
-	        var x_offset = 0;
-	        var y_offset = 0;
-	        var x_size = 0.25;
-	        var y_size = 0.25;
-        
-	        if (i == 0) { y_offset = -8; y_size += 0.125; } 
-	        if (i == 1) { x_offset = 8; x_size += 0.125; } 
-	        if (i == 2) { y_offset = 8; y_size += 0.125; } 
-	        if (i == 3) { x_offset = -8; x_size += 0.125; } 
+	    // Draw Room's Exits on Map
+		for (var i = 0; i < 4; i++) {
+			var exit_color = (show_detailed_map && locked_exits[i]) ? inverse_color : bg_color
+		    var x_offset = 0, y_offset = 0, x_size = 0.25, y_size = 0.25;
+				
+			switch i {
+				case 0: { y_offset = -8; y_size += 0.125; break; } 
+				case 1: { x_offset = 8; x_size += 0.125; break; } 
+				case 2: { y_offset = 8; y_size += 0.125; break; } 
+				case 3: { x_offset = -8; x_size += 0.125; break; } 
+			}
 
-	        if exits[i] draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, x_size, y_size, 0, draw_get_color(), 1);
-	    }
+		    if (exits[i]) { draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, x_size, y_size, 0, exit_color, 1); }
+		}
+		
 	    // Draw Room's Stairs
-	    draw_set_color(global.controller.bg_color);
-	    if exits[4] draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.125, 0.125, 0, draw_get_color(), 1);
+		var stair_color = bg_color;
+	    if (exits[4]) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.125, 0.125, 0, stair_color, 1); }
+		
 	    // Draw Room's Keys if game is in test mode
-	    if (global.controller.TEST_MODE && has_key) { draw_set_color(c_red); draw_sprite_ext(spr_box, 0, x_pos-4, y_pos-4, 0.125, 0.125, 0, draw_get_color(), 1); }
+	    if (show_detailed_map && has_key) { 
+			var x_offset = get_quadrant_x_pos(rotate)-x, y_offset = get_quadrant_y_pos(rotate)-y;
+			var key_color = inverse_color;
+			draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, 0.125, 0.125, 0, key_color, 1); 
+		}
     
 	    // Draw distance information if testing
 	    if (global.controller.TEST_MODE) {

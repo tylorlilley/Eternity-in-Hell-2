@@ -1,7 +1,7 @@
 block = instance_create_depth(x, y, -5, obj_block);
 block.starting_spot = self;
 
-if get_random_chance_out_of(16) {
+if get_random_chance_out_of(32) {
 	var item = noone;
 	switch irandom(5) {
 		case 0: { item = obj_sword; break; }

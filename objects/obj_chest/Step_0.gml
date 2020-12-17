@@ -1,0 +1,25 @@
+if (process_this_frame()) {
+	event_inherited();
+	
+	if closed {
+		var push_direction = pushed_against_by_player(true);
+		if (push_direction != noone) {
+			// Set up which inventory slots are available
+			var free_hands = ds_list_create();
+			for (var i = 1; i <= 3; i += 2;) {
+				if (!global.player.carried_items[i]) { 
+					ds_list_add(free_hands, i); 
+				}
+			}
+			// Try to open the chest
+			if (!contents && ds_list_size(free_hands) == 0) { audio_play_sound( snd_locked, 10, false ); }
+			else { 
+				closed = false;
+				image_index = 1;
+				if (contents) { create_item_in_hand(ds_list_pop_random_value(free_hands), contents) }
+			}
+			
+			ds_list_destroy(free_hands);
+		}
+	}
+}

@@ -11,3 +11,32 @@ function light_torch() {
 
 	time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
 }
+
+
+/// @function							interact_with_torches();
+function interact_with_torches() {
+	var lit_by_torch = false, torches = ds_list_create();
+	instance_place_list(x, y, obj_torch, torches, false);
+	
+	// Cycle through each torches on this place
+	while (ds_list_size(torches) > 0) {
+		var torch = ds_list_pop_random_value(torches);
+		
+		if (!instance_at_coordinates(x, y, torch)) { torch = noone; }
+	
+		// Light the calling instance if this is a lit torch
+		if (!light_source && torch && torch.light_source && !lit_by_torch) {
+		    lit_by_torch = true;
+		}
+		// Light the torch if it is an unlit torch and the calling instance is lit
+		if (light_source && torch) {
+		    with torch {
+		        if (time_to_remain_lit == 0) { light_torch(); }
+		        else { time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT; }
+		    }
+		}
+	}
+	
+	ds_list_destroy(torches);
+	return lit_by_torch;
+}

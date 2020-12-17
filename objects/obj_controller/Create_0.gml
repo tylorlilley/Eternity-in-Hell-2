@@ -61,6 +61,7 @@ with obj_room {
 // Begin Game in Random Room that has no stairs in it
 do { current_room = get_random_instance(obj_room); }
 until (!current_room.has_key && !current_room.exits[4]);
+current_room.has_item = false;
 
 // Set up lists used to walk the map
 var keyless_rooms = ds_list_create(), locked_exits = ds_list_create();
@@ -148,7 +149,6 @@ ds_list_destroy(locked_exits);
 //ds_list_destroy(list_of_all_locked_exits);
 
 // Create player object and change room to current room's referenced room
-entered_from_stairs = true;
 global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
 

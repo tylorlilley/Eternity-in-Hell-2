@@ -30,7 +30,24 @@ if (process_this_frame()) {
 		    if (can_move_in_direction(dir, false, true)) { move_player(dir); }
 		}
 		
-		
+		// Increase lighting range if carrying two torches
+		if (carried_items[directions.right] && carried_items[directions.right].object_index == obj_torch && carried_items[directions.right].light_source  &&
+			carried_items[directions.right] && carried_items[directions.left].object_index == obj_torch && carried_items[directions.left].light_source) { 
+			lighting_range = global.controller.PLAYER_LIGHT_RANGE;
+			is_flickering_light_source = false;
+			if (lighting_range < carried_items[directions.left].light_source.lighting_range+2) { 
+				lightning_range = carried_items[directions.left].light_source.lighting_range+2;
+				is_flickering_light_source = true;
+			}
+			if (lighting_range < carried_items[directions.left].light_source.lighting_range+2) { 
+				lightning_range = carried_items[directions.left].light_source.lighting_range+2;
+				is_flickering_light_source = true;
+			}
+		}
+		else {
+			lighting_range = global.controller.PLAYER_LIGHT_RANGE;
+			is_flickering_light_source = false;
+		}
     
 	    // Transition to new room depending on player position
 	    var stairs = instance_place(x, y, obj_stairs);

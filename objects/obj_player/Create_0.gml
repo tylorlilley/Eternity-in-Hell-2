@@ -1,7 +1,7 @@
 global.player = id;
 depth = -10;
-lighting_range = global.controller.PLAYER_LIGHT_RANGE;
 flicker_value = 0;
+lighting_range = global.controller.PLAYER_LIGHT_RANGE;
 is_flickering_light_source = false;
 x_prev = x;
 y_prev = y;
@@ -11,7 +11,4 @@ pause_movement = 0;
 
 // Create initial carried torch
 carried_items = array(noone, noone, noone, noone, noone);
-with instance_create_depth(x, y, -1, obj_torch) {
-	pick_up_item(directions.left);
-	light_torch();
-}
+with create_item_in_hand(directions.left, obj_torch); { light_torch(); }

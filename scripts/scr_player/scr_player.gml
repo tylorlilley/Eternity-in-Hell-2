@@ -25,7 +25,7 @@ function pick_up_or_drop_item(dir) {
 		while (ds_list_size(dropped_items) > 0) {
 			var dropped_item = ds_list_pop_random_value(dropped_items);
 			if (dropped_item && !dropped_item.carried && instance_at_coordinates(x, y, dropped_item)) {
-				with dropped_item { pick_up_item(dir); ds_list_destroy(dropped_items); return true; }
+				with dropped_item { pick_up_item(dir, true); ds_list_destroy(dropped_items); return true; }
 			}
 		}
 		ds_list_destroy(dropped_items);
@@ -33,11 +33,24 @@ function pick_up_or_drop_item(dir) {
 	}
 }
 
+/// @function								get_carried_item_of_type(dir);
+/// @param		{index} obj_index			The object type to check the carried items for
 function get_carried_item_of_type(obj_index) {
 	var carried_item = noone;
 	for (var i = 0; i <= 4; i += 1;) {
-		var carried_item = global.player.carried_items[i];
-		if (carried_item && carried_item.object_index == obj_index) { carried_key = carried_item; break; }
+		var current_item = global.player.carried_items[i];
+		if (current_item && current_item.object_index == obj_index) { carried_item = current_item; break; }
 	}
 	return carried_item;
+}
+
+/// @function								create_item_in_hand(dir);
+/// @param		{direction} dir				The directional slot to pick up or drop an item into or from
+/// @param		{index} obj_index			The type of item to create in hand
+function create_item_in_hand(dir, obj_index)	{
+	var new_item = instance_create_depth(global.player.x, global.player.y, -5, obj_index)
+	with instance_create_depth(global.player.x, global.player.y, -5, obj_index){
+		pick_up_item(dir, false);
+	}
+	return new_item;
 }

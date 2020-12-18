@@ -70,7 +70,7 @@ function walk_the_map(unlocked_exits) {
 			if (!chosen_room.locked_exits[chosen_dir] || ds_list_contains(unlocked_exits, chosen_room.locked_exits[chosen_dir].id)) {
 				// Walk through the target room
 				if (target_room.has_key) { keys_found += 1; }
-				//if (target_room.has_special_key) { keys_found = 9999; }
+				if (target_room.has_special_key) { keys_found = 9999; }
 				with target_room { walk_through_room(visited_rooms, exits_to_walk_through); }
 			}
 			// If the exit in the chosen direction from the chosen room is locked

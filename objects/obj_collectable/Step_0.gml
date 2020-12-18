@@ -4,7 +4,7 @@ if (process_this_frame()) {
 	        // You are collecting the final collectable in the room
 	        global.controller.current_room.collectables_collected = true;
 	        global.controller.rooms_with_collectables_collected += 1;
-	        if (game_has_been_won()) { audio_play_sound( snd_win, 10, false ); }
+	        if (game_progress_has_been_completed()) { audio_play_sound( snd_win, 10, false ); }
 	    }
 	    instance_destroy();
 	    audio_play_sound( snd_mana, 10, false );

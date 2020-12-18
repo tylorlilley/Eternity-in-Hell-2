@@ -6,6 +6,7 @@
 function generate_chest(x_pos, y_pos, obj_index, is_special) {
         var chest = instance_create_depth(x_pos, y_pos, 5, obj_chest)
         chest.contents = obj_index;
+		show_debug_message(obj_index);
 		chest.special = (is_special && !ds_list_contains(global.controller.spawned_special_items, obj_index));
 		return chest;
 }

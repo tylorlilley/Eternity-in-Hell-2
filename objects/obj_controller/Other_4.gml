@@ -37,28 +37,41 @@ if (!current_room.visited) {
         instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_stairs)
     }
 	
+	// Create cross for room if it should exist {
+	if (current_room.has_cross) { 
+		instance_create_depth(stairs_spot.x, stairs_spot.y, 4, obj_cross);
+		//instance_create_depth(stairs_spot.x, stairs_spot.y-32, 5, obj_encased_heart);
+		generate_chest(stairs_spot.x, stairs_spot.y, obj_map, get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
+	}
+	
 	// Create item in room if it should exist
 	if (current_room.has_item) {
 		if (current_room.has_heart) {
 			instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_encased_heart);
 		}
 		else {
-			var item_type = obj_torch;
-			if (get_random_chance_out_of(4)) { item_type = obj_sword; }
-			else if (get_random_chance_out_of(4)) { item_type = obj_map; }
-			else if (get_random_chance_out_of(4)) { item_type = obj_rosary; }
+			var item_type = noone, rand = irandom(5);
+			switch rand {
+				case 0:
+				case 1: { item_type = obj_torch; break; }
+				case 2: { item_type = obj_rosary; break; }
+				case 3: { item_type = obj_map; break; }
+				case 4: { item_type = obj_sword; break; }
+			}
+			
 			generate_chest(stairs_spot.x, stairs_spot.y, item_type, get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
 		}
 	}
 	
 	// Create key in room if it should exist
 	if (current_room.has_key) {
-		if (!current_room.exits[4] && !current_room.has_item && !get_random_chance_out_of(3)) { 	
+		if (!current_room.exits[4] && !current_room.has_item && !current_room.has_cross && !get_random_chance_out_of(3)) { 	
 			generate_chest(stairs_spot.x, stairs_spot.y, obj_key, current_room.has_special_key);
 		}
 		else { 
-			with get_random_instance(obj_collectable_spot) { 
-				with instance_create_depth(x, y, 4, obj_key) {
+			with get_random_instance(obj_collectable_spot) {
+				var new_key = instance_create_depth(x, y, 4, obj_key);
+				with new_key {
 					if (global.controller.current_room.has_special_key) { make_item_special(); }
 				}
 				instance_destroy(); 
@@ -92,7 +105,6 @@ with current_room { calculate_distance_to_current(0); }
 if entered_from_stairs {
     global.player.x = stairs_spot.x
 	global.player.y = stairs_spot.y
-	if first_room { instance_create_depth(global.player.x, global.player.y, 4, obj_cross); first_room = false; }
 }
 
 // Move character into position

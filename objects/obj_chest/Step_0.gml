@@ -26,5 +26,9 @@ if (process_this_frame()) {
 			
 			ds_list_destroy(free_hands);
 		}
+		else if (!contents) { 
+			closed = false;
+			image_index = 1;
+		}
 	}
 }

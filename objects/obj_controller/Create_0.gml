@@ -1,5 +1,8 @@
 // Initialize global values\
 randomize();
+//random_set_seed(181256969); // impossible locked key
+//random_set_seed(1003439283); // impossible locked key
+//random_set_seed(2037714886); // impossible locked key
 clear_inputs_for_next_frame();
 initialize_game_variables();
 
@@ -179,5 +182,6 @@ ds_list_destroy(locked_exits);
 
 // Create player object and change room to current room's referenced room
 global.player = instance_create_depth(0, 0, -10, obj_player);
+current_room.has_cross = true;
 room_goto(current_room.room_reference);
 

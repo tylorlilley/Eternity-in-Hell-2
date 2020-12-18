@@ -1,6 +1,5 @@
 /// @description Insert description here
 // You can write your code in this editor
-event_inherited();
 
-flip_sprite_at_random(false);
-image_speed = 0;
+// Inherit the parent event
+event_inherited();

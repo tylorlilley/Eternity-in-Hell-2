@@ -7,6 +7,7 @@ flip_horizontal = false;
 flip_vertical = false;
 rotate = noone;
 has_heart = false;
+has_cross = false;
 has_key = false;
 has_special_key = false;
 has_collectables = false;

@@ -219,8 +219,16 @@ function draw_room(x_pos, y_pos) {
 		
 		// Draw collectables if the map is special
 		var collectable_color = inverse_color;
-	    if (show_collectables && blink_frame && has_collectables && !collectables_collected) { 
-			draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
+	    if (show_collectables) { 
+			if (blink_frame && has_collectables && !collectables_collected) {
+				draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
+			}
+			if (!blink_frame && has_heart) {
+				draw_sprite_ext(spr_map_heart, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
+			}
+			if (!blink_frame && has_cross) {
+				draw_sprite_ext(spr_map_cross, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
+			}
 		}
     
 	    // Draw distance information if testing

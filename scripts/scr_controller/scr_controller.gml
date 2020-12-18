@@ -25,14 +25,14 @@ function initialize_game_variables() {
 	HAS_STAIRS_PROBABILITY = 20;
 	HAS_COLLECTABLE_PROBABILITY = 30;
 	HAS_KEY_PROBABILITY = 0;
-	HAS_ITEM_PROBABILITY = 20;
+	HAS_ITEM_PROBABILITY = 100;//20;
 	SPECIAL_ITEM_PROBABILITY = 16;
 
 	// Initialize map drawing constants
 	MAX_WALKING_DEPTH = 666;
 	MINIMUM_NUMBER_OF_ROOMS = 32;
 	LOCKED_DOOR_PROBABILITY = 6;
-	TEST_MODE = true;
+	TEST_MODE = false;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables
@@ -58,7 +58,6 @@ function initialize_game_variables() {
 	bg_color = make_color_rgb(20, 20, 20);
 	number_of_frames_since_game_began = 0;
 	entered_from_stairs = true;
-	first_room = true;
 	blackout = false;
 	transition = noone;
 	clear_inputs_for_next_frame();

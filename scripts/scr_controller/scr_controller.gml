@@ -32,7 +32,7 @@ function initialize_game_variables() {
 	MAX_WALKING_DEPTH = 666;
 	MINIMUM_NUMBER_OF_ROOMS = 32;
 	LOCKED_DOOR_PROBABILITY = 6;
-	TEST_MODE = false;
+	TEST_MODE = true;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables
@@ -52,6 +52,7 @@ function initialize_game_variables() {
 	rooms_with_collectables = 0;
 	rooms_with_collectables_collected = 0;
 	spawned_special_items = ds_list_create();
+	game_won = false;
 
 	// initialize room transition values
 	bg_color = make_color_rgb(20, 20, 20);
@@ -65,7 +66,7 @@ function initialize_game_variables() {
 
 /// @function								game_has_been_won();
 function game_has_been_won() {
-	return (global.controller.rooms_with_collectables_collected >= global.controller.rooms_with_collectables);
+	return (global.controller.game_won);
 }
 
 /// @function								game_has_been_lost();
@@ -76,6 +77,11 @@ function game_has_been_lost() {
 /// @function								game_has_timed_out();
 function game_has_timed_out() {
 	return (floor(global.controller.points) <= 0);
+}
+
+/// @function								game_has_timed_out();
+function game_progress_has_been_completed() {
+	return (global.controller.rooms_with_collectables_collected >= global.controller.rooms_with_collectables);
 }
 
 /// @function								transition_to_room();

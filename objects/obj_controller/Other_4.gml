@@ -39,26 +39,31 @@ if (!current_room.visited) {
 	
 	// Create item in room if it should exist
 	if (current_room.has_item) {
-		var item_type = obj_torch;
-		if (get_random_chance_out_of(4)) { item_type = obj_sword; }
-		else if (get_random_chance_out_of(4)) { item_type = obj_map; }
-		else if (get_random_chance_out_of(4)) { item_type = obj_rosary; }
-        var chest = instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_chest)
-        chest.contents = item_type;
-		
-		if (!ds_list_contains(spawned_special_items, item_type) && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) {
-			chest.special = true;
-			ds_list_add(spawned_special_items, item_type);
+		if (current_room.has_heart) {
+			instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_encased_heart);
+		}
+		else {
+			var item_type = obj_torch;
+			if (get_random_chance_out_of(4)) { item_type = obj_sword; }
+			else if (get_random_chance_out_of(4)) { item_type = obj_map; }
+			else if (get_random_chance_out_of(4)) { item_type = obj_rosary; }
+			generate_chest(stairs_spot.x, stairs_spot.y, item_type, get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
 		}
 	}
 	
 	// Create key in room if it should exist
 	if (current_room.has_key) {
-		if (!current_room.exits[4] && !current_room.has_item && !get_random_chance_out_of(3)) { 
-			var chest = instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_chest); 
-			chest.contents = obj_key;
+		if (!current_room.exits[4] && !current_room.has_item && !get_random_chance_out_of(3)) { 	
+			generate_chest(stairs_spot.x, stairs_spot.y, obj_key, current_room.has_special_key);
 		}
-		else { with get_random_instance(obj_collectable_spot) { instance_create_depth(x, y, 0, obj_key); instance_destroy(); } }
+		else { 
+			with get_random_instance(obj_collectable_spot) { 
+				with instance_create_depth(x, y, 4, obj_key) {
+					if (global.controller.current_room.has_special_key) { make_item_special(); }
+				}
+				instance_destroy(); 
+			} 
+		}
 	}
     
     // Create collectables in room if they should exist

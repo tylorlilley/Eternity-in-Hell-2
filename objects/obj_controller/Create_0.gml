@@ -60,17 +60,44 @@ with obj_room {
 
 // Begin Game in Random Room that has no stairs in it
 do { current_room = get_random_instance(obj_room); }
-until (!current_room.has_key && !current_room.exits[4]);
-current_room.has_item = false;
+until (!current_room.has_key && !current_room.exits[4] && !current_room.has_item);
+with current_room { calculate_distance_to_current(0); }
 
 // Set up lists used to walk the map
-var keyless_rooms = ds_list_create(), locked_exits = ds_list_create();
+var locked_exits = ds_list_create(), key_rooms = ds_list_create(), keyless_rooms = ds_list_create(), farthest_rooms = ds_list_create();
 with (obj_room) {
+	// Determine if room could be the room the heart is in
+	if (!exits[4]) {
+		if (ds_list_size(farthest_rooms) == 0) { ds_list_add(farthest_rooms, id); }
+		else {
+			var distance = ds_list_find_value(farthest_rooms, 0).distance_to_current_room;
+			if (distance_to_current_room == distance) {
+				ds_list_add(farthest_rooms, id);
+			}
+			else if (distance_to_current_room > distance){
+				ds_list_clear(farthest_rooms);
+				ds_list_add(farthest_rooms, id);
+			}
+		}
+	}
+	// Determine if room has a key or not
     if (!has_key && id != global.controller.current_room) { ds_list_add(keyless_rooms, id); }
+	else { ds_list_add(key_rooms, id); }
 }
+// Create heart in farthest room
+with ds_list_pop_random_value(farthest_rooms) {
+	has_heart = true;
+	has_item = true;
+	for (var i = 0; i <= 3; i += 1;) {
+		if (exits[i]) { create_locked_exit(i); }
+	}
+}
+// Create list of locked exits
 with (obj_exit) {
     if (locked) { ds_list_add(locked_exits, id); }
 }
+// Mark random key room as room with special key
+with ds_list_pop_random_value(key_rooms) { if (get_random_chance_out_of(4)) { has_special_key = true; } }
 
 // Walk the Map and tweak it until map is possible
 show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
@@ -115,6 +142,8 @@ show_debug_message("NUMBER LOCKED DOORS: "+string(ds_list_size(locked_exits)));
 
 // Destroy the lists used for lock generation
 ds_list_destroy(keyless_rooms);
+ds_list_destroy(key_rooms);
+ds_list_destroy(farthest_rooms);
 ds_list_destroy(locked_exits);
 
 //// Set up lists used to walk the map

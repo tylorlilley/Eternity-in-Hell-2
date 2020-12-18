@@ -158,7 +158,6 @@ function count_adjacent_rooms() {
 /// @function								calculate_distance_to_current(distance)
 /// @param		{real}	distance			The number of rooms away from this room the current room is
 function calculate_distance_to_current(distance) {
-
 	if (distance < distance_to_current_room) { distance_to_current_room = distance; }
 	for (var i = 0; i < 4; i++) {
 	    if (adj_rooms[i]) {
@@ -179,9 +178,9 @@ function draw_room(x_pos, y_pos) {
 	if (show_detailed_map || visited) {
 		// Set up colors to draw this room with
 		var bg_color = global.controller.bg_color;
-		//var bg_value = floor(get_scaling_amount(20, 255, floor(power(1-(points/INITIAL_SCORE), 8), 8), 1));
+		//var bg_value = floor(get_scaling_amount(20, 255, floor(power(1-(global.controller.points/global.controller.INITIAL_SCORE), 8)), 1));
 		var fade_amount = global.controller.MAX_MAP_DRAW_DISTANCE - distance_to_current_room;
-		var color_value = floor(get_scaling_amount(20, 255, fade_amount, global.controller.MAX_MAP_DRAW_DISTANCE))//*bg_value;
+		var color_value = floor(get_scaling_amount(20, 255, fade_amount, global.controller.MAX_MAP_DRAW_DISTANCE));//*bg_value;
 		var white_color = make_color_rgb(color_value, color_value, color_value);
 		var red_color = make_color_rgb(color_value, 20, 20);
 		var blink_frame = global.controller.number_of_frames_since_game_began mod 12 <= 5;
@@ -225,12 +224,12 @@ function draw_room(x_pos, y_pos) {
 		}
     
 	    // Draw distance information if testing
-	    if (global.controller.TEST_MODE) {
-	        draw_set_color(c_lime);
-	        draw_set_halign(fa_center);
-	        draw_set_valign(fa_middle);
-	        if (distance_to_current_room < 9999) { draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_to_current_room))); }
-	    }
+	    //if (global.controller.TEST_MODE) {
+	    //    draw_set_color(c_lime);
+	    //    draw_set_halign(fa_center);
+	    //    draw_set_valign(fa_middle);
+	    //    if (distance_to_current_room < 9999) { draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_to_current_room))); }
+	    //}
 	}
 
 	// Mark the room as having been drawn, then draw each of its applicable neighbors

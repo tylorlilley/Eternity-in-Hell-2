@@ -64,7 +64,7 @@
     "eventStubScript": null,
     "parent": {"name":"spr_collectable","path":"sprites/spr_collectable/spr_collectable.yy",},
     "resourceVersion": "1.3",
-    "name": "spr_collectable",
+    "name": "",
     "tags": [],
     "resourceType": "GMSequence",
   },

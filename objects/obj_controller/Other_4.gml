@@ -41,7 +41,7 @@ if (!current_room.visited) {
 	if (current_room.has_cross) { 
 		instance_create_depth(stairs_spot.x, stairs_spot.y, 4, obj_cross);
 		//instance_create_depth(stairs_spot.x, stairs_spot.y-32, 5, obj_encased_heart);
-		generate_chest(stairs_spot.x, stairs_spot.y, obj_map, get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
+		generate_chest(stairs_spot.x, stairs_spot.y-32, obj_map, get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
 	}
 	
 	// Create item in room if it should exist

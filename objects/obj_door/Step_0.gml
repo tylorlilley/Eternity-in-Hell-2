@@ -6,14 +6,14 @@ if (process_this_frame()) {
 		var push_direction = pushed_against_by_player(true);
 		if (push_direction != noone || instance_place(x, y, obj_player)) {
 			var carried_key = get_carried_item_of_type(obj_key);
-		    if (locked && !carried_key) { audio_play_sound( snd_locked, 10, false ); }
+		    if (locked && !carried_key && !instance_place(x, y, obj_player)) { audio_play_sound( snd_locked, 10, false ); }
 		    else { 
 				open_door(); 
 				move_player(push_direction); 
 				if locked {
 					with door_for_exit {
-						with room_1 { locked_exits[room_1_dir] = false; }
-						with room_2 { locked_exits[room_2_dir] = false; }
+						with room_1 { locked_exits[other.room_1_dir] = noone; }
+						with room_2 { locked_exits[other.room_2_dir] = noone; }
 						locked = false;
 					}
 					locked = false;

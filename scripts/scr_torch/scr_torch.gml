@@ -30,7 +30,7 @@ function interact_with_torches() {
 		    lit_by_torch = true;
 		}
 		// Light the torch if it is an unlit torch and the calling instance is lit
-		if (light_source && torch) {
+		if ((light_source || lit_by_torch) && torch) {
 		    with torch {
 		        if (time_to_remain_lit == 0) { light_torch(); }
 		        else { time_to_remain_lit = other.time_to_remain_lit; }

@@ -13,6 +13,7 @@ function convert_to_multiple_death_boxes() {
 		death_boxes[i].death_sound = snd_torchlight;
 		death_boxes[i].image_xscale = 0.5;
 		death_boxes[i].image_yscale = 0.5;
+		death_boxes[i].stopped_by_special_rosary = true;
 	}
 }
 

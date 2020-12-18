@@ -42,8 +42,14 @@ if (!current_room.visited) {
 		var item_type = obj_torch;
 		if (get_random_chance_out_of(4)) { item_type = obj_sword; }
 		else if (get_random_chance_out_of(4)) { item_type = obj_map; }
+		else if (get_random_chance_out_of(4)) { item_type = obj_rosary; }
         var chest = instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_chest)
         chest.contents = item_type;
+		
+		if (!ds_list_contains(spawned_special_items, item_type) && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) {
+			chest.special = true;
+			ds_list_add(spawned_special_items, item_type);
+		}
 	}
 	
 	// Create key in room if it should exist

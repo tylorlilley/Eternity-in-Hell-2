@@ -1,7 +1,7 @@
 {
   "spriteId": {
-    "name": "spr_stairs",
-    "path": "sprites/spr_stairs/spr_stairs.yy",
+    "name": "spr_highlight",
+    "path": "sprites/spr_highlight/spr_highlight.yy",
   },
   "solid": false,
   "visible": true,

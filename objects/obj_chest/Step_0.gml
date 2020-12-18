@@ -19,7 +19,8 @@ if (process_this_frame()) {
 				if (contents) { 
 					audio_play_sound(snd_open, 10, false);
 					audio_play_sound(snd_pickup, 10, false);
-					create_item_in_hand(ds_list_pop_random_value(free_hands), contents) 
+					var new_item = create_item_in_hand(ds_list_pop_random_value(free_hands), contents);
+					if (special) { with new_item { make_item_special(); } }
 				}
 			}
 			

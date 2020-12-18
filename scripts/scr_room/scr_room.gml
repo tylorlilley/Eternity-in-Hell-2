@@ -3,8 +3,9 @@
 function initialize_room(list_of_rooms) {
 	// Randomly decide if room will have collectables, stairs, or keys
 	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY) { has_key = true; }
-	if (irandom(100) < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; }
-	else if (irandom(100) < global.controller.HAS_ITEM_PROBABILITY) { has_item = true; }
+	var stairs_spot_inclusion = irandom(100);
+	if (stairs_spot_inclusion < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; }
+	else if (stairs_spot_inclusion < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { has_item = true; }
 	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { 
 	    has_collectables = true; 
 	    global.controller.rooms_with_collectables += 1; 
@@ -172,20 +173,23 @@ function calculate_distance_to_current(distance) {
 function draw_room(x_pos, y_pos) {
 
 	// Only draw the room if the room has been visited at least once, or game is in test mode
-	var show_detailed_map = global.controller.TEST_MODE || get_carried_item_of_type(obj_map);
+	var carried_map = get_carried_item_of_type(obj_map);
+	var show_detailed_map = global.controller.TEST_MODE || carried_map;
+	var show_collectables = global.controller.TEST_MODE || (carried_map && carried_map.special);
 	if (show_detailed_map || visited) {
 		// Set up colors to draw this room with
 		var bg_color = global.controller.bg_color;
+		//var bg_value = floor(get_scaling_amount(20, 255, floor(power(1-(points/INITIAL_SCORE), 8), 8), 1));
 		var fade_amount = global.controller.MAX_MAP_DRAW_DISTANCE - distance_to_current_room;
-		var color_value = get_scaling_amount(20, 255, fade_amount, global.controller.MAX_MAP_DRAW_DISTANCE);
+		var color_value = floor(get_scaling_amount(20, 255, fade_amount, global.controller.MAX_MAP_DRAW_DISTANCE))//*bg_value;
 		var white_color = make_color_rgb(color_value, color_value, color_value);
 		var red_color = make_color_rgb(color_value, 20, 20);
+		var blink_frame = global.controller.number_of_frames_since_game_began mod 12 <= 5;
 		
 	    // Draw Room on Map
 		var room_color = lit ? red_color : white_color;
 		var inverse_color = lit ? white_color : red_color;
-	    //var room_image_alpha = 1-(distance_to_current_room/global.controller.MAX_MAP_DRAW_DISTANCE);
-	    if (global.controller.current_room.id == id && global.controller.number_of_frames_since_game_began mod 12 <= 5) { room_color = bg_color; }
+	    if (global.controller.current_room.id == id && blink_frame) { room_color = bg_color; }
 		draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, room_color, 1);
 
 	    // Draw Room's Exits on Map
@@ -212,6 +216,12 @@ function draw_room(x_pos, y_pos) {
 			var x_offset = get_quadrant_x_pos(rotate)-x, y_offset = get_quadrant_y_pos(rotate)-y;
 			var key_color = inverse_color;
 			draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, 0.125, 0.125, 0, key_color, 1); 
+		}
+		
+		// Draw collectables if the map is special
+		var collectable_color = inverse_color;
+	    if (show_collectables && blink_frame && has_collectables && !collectables_collected) { 
+			draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
 		}
     
 	    // Draw distance information if testing

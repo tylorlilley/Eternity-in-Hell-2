@@ -8,6 +8,7 @@ function light_torch() {
 	light_source = instance_create_depth(x, y, 0, obj_light_source);
 	light_source.lighting_range = global.controller.TORCH_LIGHT_RANGE;
 	light_source.persistent = true;
+	if (special) { light_source.lighting_range += global.controller.TORCH_LIGHT_RANGE; }
 
 	time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
 }

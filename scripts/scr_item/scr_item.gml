@@ -33,3 +33,11 @@ function drop_item(dir) {
 	depth = 2;
 	image_xscale = (dir == directions.left) ? image_xscale : -image_xscale;
 }
+
+/// @function								make_item_special();
+function make_item_special() {
+	special = true;
+	image_index = 1;
+	if (object_index == obj_torch) { sprite_index = spr_special_torch; }
+	ds_list_add(global.controller.spawned_special_items, object_index);
+}

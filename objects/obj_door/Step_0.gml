@@ -14,7 +14,7 @@ if (process_this_frame()) {
 					door_for_exit.locked = false;
 					locked = false;
 					audio_play_sound(snd_mana, 10, false);
-					with carried_key { instance_destroy(); }
+					with carried_key { if (!special) { instance_destroy(); } }
 				}
 			}
 		}

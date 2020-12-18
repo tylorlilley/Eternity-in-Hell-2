@@ -26,6 +26,7 @@ function initialize_game_variables() {
 	HAS_COLLECTABLE_PROBABILITY = 30;
 	HAS_KEY_PROBABILITY = 0;
 	HAS_ITEM_PROBABILITY = 20;
+	SPECIAL_ITEM_PROBABILITY = 16;
 
 	// Initialize map drawing constants
 	MAX_WALKING_DEPTH = 666;
@@ -50,6 +51,7 @@ function initialize_game_variables() {
 	// initialize game state values
 	rooms_with_collectables = 0;
 	rooms_with_collectables_collected = 0;
+	spawned_special_items = ds_list_create();
 
 	// initialize room transition values
 	bg_color = make_color_rgb(20, 20, 20);

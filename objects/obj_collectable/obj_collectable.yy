@@ -1,7 +1,7 @@
 {
   "spriteId": {
-    "name": "spr_collectable",
-    "path": "sprites/spr_collectable/spr_collectable.yy",
+    "name": "spr_highlight",
+    "path": "sprites/spr_highlight/spr_highlight.yy",
   },
   "solid": false,
   "visible": true,

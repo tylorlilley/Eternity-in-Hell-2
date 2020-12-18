@@ -39,7 +39,11 @@ function get_carried_item_of_type(obj_index) {
 	var carried_item = noone;
 	for (var i = 0; i <= 4; i += 1;) {
 		var current_item = global.player.carried_items[i];
-		if (current_item && current_item.object_index == obj_index) { carried_item = current_item; break; }
+		if (current_item && current_item.object_index == obj_index) { 
+			if (!carried_item || (current_item.special && !carried_item.special)) {
+				carried_item = current_item;
+			}
+		}
 	}
 	return carried_item;
 }

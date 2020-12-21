@@ -18,12 +18,17 @@ Is this a thing: Building Projects: Xcode 12 breaks iOS/tvOS builds (There is al
 
 BUG FIXES
 Make sure no rooms have doors on edges
+Carrying two torches makes them always stay lit
 Torches make extingush sound when lit by other torches
 Map colors don't blend with bg appropriately
 Check that doors are created in both rooms when joined by a locked exit
 Torch should still burn down when not carried
 Crush enemies if they are completely under two different solids
-white square on lava?
+white square on lava when walking into it and dying?
+Better keep track of what items have been spawned and when to spawn a red one
+Refactor player with torches and ighthing holding things
+Remove lit room scoloring different on map
+3367961002 with target_number_of_rooms = 1
 
 NEW FEATURES
 Worm man runs straight and turns at walls

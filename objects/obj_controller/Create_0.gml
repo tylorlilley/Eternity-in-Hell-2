@@ -12,7 +12,7 @@ with current_room { initialize_room(uninitialized_rooms); }
 
 // Generate More Rooms until minimum number is met.
 var target_number_of_rooms = MINIMUM_NUMBER_OF_ROOMS + irandom(ADDITIONAL_ROOMS);
-while (instance_number(obj_room) < 1) {
+while (instance_number(obj_room) < target_number_of_rooms) {
     var random_room = get_random_instance(obj_room);
     with random_room { add_random_exit(true, uninitialized_rooms); }
 }

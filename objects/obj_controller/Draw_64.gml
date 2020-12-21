@@ -44,13 +44,13 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 
 	    // Draw final score and game seed
 		draw_text(hud_x_pos, room_height-40, string_hash_to_newline("Game Seed: "+string(random_get_seed())));
-		var percentage_of_collectables_collected = floor(rooms_with_collectables_collected/rooms_with_collectables);
-		var percentage_of_time_remaining = floor(time_remaining / time_provided);
+		var percentage_of_collectables_collected = floor(100*(rooms_with_collectables_collected/rooms_with_collectables));
+		var percentage_of_time_remaining = floor(100*(time_remaining / time_provided));
 		var bonus_for_winning_game = game_won ? 100 : 0;
 		var total_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining)/3;
 	    if (has_won || has_lost) { 
 			draw_text(hud_x_pos, room_height-160, string_hash_to_newline("Collected: "+string(percentage_of_collectables_collected)+"%")); 
-			draw_text(hud_x_pos, room_height-144, string_hash_to_newline("Time Left: "+string(percentage_of_time_remaining+"%")); 
+			draw_text(hud_x_pos, room_height-144, string_hash_to_newline("Time Left: "+string(percentage_of_time_remaining)+"%")); 
 			draw_text(hud_x_pos, room_height-128, string_hash_to_newline("Victory: "+string(bonus_for_winning_game)+"%")); 
 			draw_text(hud_x_pos, room_height-96, string_hash_to_newline("Total Score: "+string(total_score)+"%")); 
 		}

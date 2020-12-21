@@ -1,8 +1,0 @@
-restructure inheritance and parent objects
-
-make game yyc compatible
-
-fix random crashes?? (maybe due to this bug: In Game: Some projects crash silently when changing rooms if garbage collector is enabled)
-- (tried turning off garbage collector - we'll see what else this breaks)
-
-Is this a thing: Building Projects: Xcode 12 breaks iOS/tvOS builds (There is also a guide for fixing 2.3.0 in the FAQs list below!]

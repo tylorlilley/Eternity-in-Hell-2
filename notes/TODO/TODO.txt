@@ -1,0 +1,22 @@
+BUG FIXES
+
+2794973601 // keys already opened chest (not map?)
+2585055493 // wiggle under column?????
+random_set_seed(181256969); // impossible locked key
+random_set_seed(1003439283); // impossible locked key
+random_set_seed(2037714886); // impossible locked key
+Make sure no rooms have doors on edges
+Torches make extingush sound when lit by other torches
+Map colors don't blend with bg appropriately
+Check that doors are created in both rooms when joined by a locked exit
+Torch should still burn down when not carried
+Revamp time/progress system and send to new room on win and loss 
+
+
+
+NEW FEATURES
+
+Worm man runs straight and turns at walls
+"Blind Monster" That moves toward whatever makes a sound
+Stationary Monster that spits projectile?
+Sometimes spawn a block on top of stairs if you didn't enter from stairs

@@ -194,7 +194,7 @@
     {"id":{"name":"rm_two_opposite_exits_10","path":"rooms/rm_two_opposite_exits_10/rm_two_opposite_exits_10.yy",},"order":9,},
     {"id":{"name":"rm_two_opposite_exits_11","path":"rooms/rm_two_opposite_exits_11/rm_two_opposite_exits_11.yy",},"order":10,},
     {"id":{"name":"rm_two_opposite_exits_12","path":"rooms/rm_two_opposite_exits_12/rm_two_opposite_exits_12.yy",},"order":11,},
-    {"id":{"name":"notes","path":"notes/notes/notes.yy",},"order":1,},
+    {"id":{"name":"TODO","path":"notes/TODO/TODO.yy",},"order":1,},
     {"id":{"name":"compatibility_report_051220_1529562956","path":"notes/compatibility_report_051220_1529562956/compatibility_report_051220_1529562956.yy",},"order":3,},
   ],
   "Options": [

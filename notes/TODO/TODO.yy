@@ -4,7 +4,7 @@
     "path": "folders/Notes.yy",
   },
   "resourceVersion": "1.1",
-  "name": "notes",
+  "name": "TODO",
   "tags": [],
   "resourceType": "GMNotes",
 }

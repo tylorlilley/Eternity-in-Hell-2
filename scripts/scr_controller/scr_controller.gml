@@ -45,7 +45,7 @@ function initialize_game_variables() {
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
 	MAX_TORCH_TIME_TO_REMAIN_LIT = 1*60 // minutes * 60 = total seconds for torch to remain lit
-	INITIAL_SCORE = 6+(15*60); // minutes * 60 = total seconds for game to run
+	INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run
 	points = INITIAL_SCORE;
 
 	// initialize game state values

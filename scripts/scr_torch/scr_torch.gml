@@ -23,7 +23,7 @@ function interact_with_torches() {
 	while (ds_list_size(torches) > 0) {
 		var torch = ds_list_pop_random_value(torches);
 		
-		if (!instance_at_coordinates(x, y, torch)) { torch = noone; }
+		if (!instance_at_coordinates(x, y, torch) || torch.id == id) { torch = noone; }
 	
 		// Light the calling instance if this is a lit torch
 		if (!light_source && torch && torch.light_source && !lit_by_torch) {

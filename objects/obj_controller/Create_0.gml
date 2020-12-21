@@ -1,8 +1,5 @@
-// Initialize global values\
+// Initialize global values
 randomize();
-//random_set_seed(181256969); // impossible locked key
-//random_set_seed(1003439283); // impossible locked key
-//random_set_seed(2037714886); // impossible locked key
 clear_inputs_for_next_frame();
 initialize_game_variables();
 
@@ -14,7 +11,8 @@ with current_room { initialize_room(uninitialized_rooms); }
 //ds_list_pop_random_value(uninitialized_rooms);
 
 // Generate More Rooms until minimum number is met.
-while (instance_number(obj_room) < MINIMUM_NUMBER_OF_ROOMS) {
+var target_number_of_rooms = MINIMUM_NUMBER_OF_ROOMS + irandom(ADDITIONAL_ROOMS);
+while (instance_number(obj_room) < target_number_of_rooms) {
     var random_room = get_random_instance(obj_room);
     with random_room { add_random_exit(true, uninitialized_rooms); }
 }
@@ -149,39 +147,12 @@ ds_list_destroy(key_rooms);
 ds_list_destroy(farthest_rooms);
 ds_list_destroy(locked_exits);
 
-//// Set up lists used to walk the map
-//var empty_list = ds_list_create(), list_of_all_keyless_rooms = ds_list_create(), list_of_all_locked_exits = ds_list_create();
-//with (obj_room) {
-//    if (!has_key && id != global.controller.current_room) { ds_list_add(list_of_all_keyless_rooms, id); }
-//}
-//with (obj_exit) {
-//    if (locked) { ds_list_add(list_of_all_locked_exits, id); }
-//}
-
-//// Walk the Map and tweak it until map is possible
-//while (!can_reach_all_rooms(empty_list)) {
-//    ds_list_clear(empty_list);
-//    // Add an additional key somewhere
-//    if (ds_list_size(list_of_all_keyless_rooms) > 0) {
-//        ds_list_pop_random_value(list_of_all_keyless_rooms).has_key = true;
-//    }
-//    // Start removing locks on doors
-//    else if (ds_list_size(list_of_all_locked_exits) > 0) {
-//        with ds_list_pop_random_value(list_of_all_locked_exits) { unlock_exit(); instance_destroy(); }
-//    }
-//	// Should never need to reach this clause
-//	else {
-//		show_debug_message("WARNING: lock generation screwed up.");
-//		break;
-//	}
-//}
-//// Destroy the lists used for lock generation
-//ds_list_destroy(empty_list);
-//ds_list_destroy(list_of_all_keyless_rooms);
-//ds_list_destroy(list_of_all_locked_exits);
+// Set up point and time related variables
+time_provided = (instance_number(obj_room) * TIME_PROVIDED_PER_ROOM) + (instance_number(obj_exit) * TIME_PROVIEDED_PER_LOCK);
+time_remaining = time_provided;
 
 // Create player object and change room to current room's referenced room
-global.player = instance_create_depth(0, 0, -10, obj_player);
 current_room.has_cross = true;
+global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
 

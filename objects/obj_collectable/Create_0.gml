@@ -1,5 +1,5 @@
 event_inherited();
 
-image_speed = global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING/game_get_speed(gamespeed_fps);
+image_speed = one_unit_of_game_time();
 moving = get_random_chance_out_of(8);
 sprite_index = spr_collectable;

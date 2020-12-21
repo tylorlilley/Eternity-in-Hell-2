@@ -1,12 +1,13 @@
 draw_set_font(ft_hud);
 var has_won = game_has_been_won();
-var has_lost = game_has_timed_out();
+var has_lost = game_has_been_lost();
+var has_timed_out = game_has_timed_out();
 var is_looking_at_map = key_space;
 
 
-if (transition || has_won || has_lost || is_looking_at_map) {
+if (transition || has_won || has_timed_out || is_looking_at_map) {
 	// Draw background over entire screen
-	draw_set_color(global.controller.bg_color);
+	draw_set_color(bg_color);
 	draw_rectangle(0, 0, room_width, room_height, false);
 
     // Draw map of rooms if applicable
@@ -17,34 +18,48 @@ if (transition || has_won || has_lost || is_looking_at_map) {
             draw_room(room_width/2, (room_height/2));
         }
 
-        draw_set_color(global.controller.bg_color);
+        draw_set_color(bg_color);
         draw_rectangle(0, 0, room_width, 24, false);
         draw_rectangle(0, room_height-40, room_width, room_height, false);
 
         // Draw progress bar
         draw_set_color(c_white);
         draw_set_halign(fa_left);
-        draw_text(4, 4, string_hash_to_newline("Progress: "));
-        draw_rectangle(80, 10, (room_width-4), 19, true);
-        if (rooms_with_collectables_collected > 0) { draw_rectangle(80, 10, get_scaling_amount(80, (room_width-4), rooms_with_collectables_collected, rooms_with_collectables), 18, false); }
+        draw_text(4, 4, string_hash_to_newline("Collected: "));
+        draw_rectangle(84, 6, (room_width-4), 19, true);
+        if (rooms_with_collectables_collected > 0) { draw_rectangle(84, 6, get_scaling_amount(84, (room_width-4), rooms_with_collectables_collected, rooms_with_collectables), 18, false); }
     }
 	
+	// Draw elapsed time
 	if (!transition) {
-	    // Draw a message if applicable
+		var time_elapsed = (time_provided - time_remaining) / 2; // Time variables are per frame, 10 fps means we multiply by 10 to get seconds
+	    draw_text(4, room_height-16, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
+	}
+	
+	if (room == rm_finish) {
+	    // Draw a winning or losing message
 	    var hud_x_pos = 4
 	    if (has_won || has_lost) {
 	        draw_set_halign(fa_center);
 	        var message;
 	        if has_won { draw_set_color(c_white); message = "YOU WIN!" }
 	        if has_lost { draw_set_color(c_white); message = "YOU LOSE!" }
-	        draw_text(room_width/2, (room_height/2)-8, string_hash_to_newline(message));
+	        draw_text(room_width/2, room_height-208, string_hash_to_newline(message));
 	        hud_x_pos = room_width/2;
 	    }
 
-	    // Draw time and score
-	    var time_in_seconds = (number_of_frames_since_game_began/game_get_speed(gamespeed_fps));
-	    draw_text(hud_x_pos, room_height-20, string_hash_to_newline("Time Elapsed: "+string(floor(time_in_seconds/(60)))+":"+zero_padded_string(floor(time_in_seconds mod 60), 2)));
-	    if (has_won || has_lost) { draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Score: "+zero_padded_string(floor(points*rooms_with_collectables), 4))); }
+	    // Draw final score and game seed
+		draw_text(hud_x_pos, room_height-32, string_hash_to_newline("Game Seed: "+string(random_get_seed())));
+		var percentage_of_collectables_collected = floor(rooms_with_collectables_collected/rooms_with_collectables);
+		var percentage_of_provided_time_spent = floor((time_provided - time_remaining) / time_provided);
+		var bonus_for_winning_game = game_won ? 100 : 0;
+		var total_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + (100-percentage_of_provided_time_spent))/3;
+	    if (has_won || has_lost) { 
+			draw_text(hud_x_pos, room_height-160, string_hash_to_newline("Collected: "+string(percentage_of_collectables_collected)+"%")); 
+			draw_text(hud_x_pos, room_height-144, string_hash_to_newline("Speed: "+string((100-percentage_of_provided_time_spent))+"%")); 
+			draw_text(hud_x_pos, room_height-128, string_hash_to_newline("Victory: "+string(bonus_for_winning_game)+"%")); 
+			draw_text(hud_x_pos, room_height-96, string_hash_to_newline("Total Score: "+string(total_score)+"%")); 
+		}
 	}
 }
 

@@ -22,10 +22,12 @@ Torches make extingush sound when lit by other torches
 Map colors don't blend with bg appropriately
 Check that doors are created in both rooms when joined by a locked exit
 Torch should still burn down when not carried
-Revamp time/progress system and send to new room on win and closure_sub_reason 
+Crush enemies if they are completely under two different solids
+white square on lava?
 
 NEW FEATURES
 Worm man runs straight and turns at walls
 "Blind Monster" That moves toward whatever makes a sound
 Stationary Monster that spits projectile?
 Sometimes spawn a block on top of stairs if you didn't enter from stairs
+Make keys and items not fight for space on top of stairs

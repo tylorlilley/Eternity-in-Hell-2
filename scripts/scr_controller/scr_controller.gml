@@ -29,10 +29,11 @@ function initialize_game_variables() {
 	SPECIAL_ITEM_PROBABILITY = 16;
 
 	// Initialize map drawing constants
+	TEST_MODE = false;
 	MAX_WALKING_DEPTH = 666;
 	MINIMUM_NUMBER_OF_ROOMS = 32;
+	ADDITIONAL_ROOMS = 16;
 	LOCKED_DOOR_PROBABILITY = 6;
-	TEST_MODE = false;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables
@@ -44,15 +45,19 @@ function initialize_game_variables() {
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
-	MAX_TORCH_TIME_TO_REMAIN_LIT = 1*60 // minutes * 60 = total seconds for torch to remain lit
-	INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run
-	points = INITIAL_SCORE;
+	MAX_TORCH_TIME_TO_REMAIN_LIT = 60; // minutes * 60 = total seconds for torch to remain lit
+	TIME_PROVIDED_PER_ROOM = 40;
+	TIME_PROVIEDED_PER_LOCK = 20;
+	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run
+	time_remaining = 1;
+	time_provided = 1;
 
 	// initialize game state values
 	rooms_with_collectables = 0;
 	rooms_with_collectables_collected = 0;
 	spawned_special_items = ds_list_create();
 	game_won = false;
+	death_timer = 0;
 
 	// initialize room transition values
 	bg_color = make_color_rgb(20, 20, 20);
@@ -61,6 +66,11 @@ function initialize_game_variables() {
 	blackout = false;
 	transition = noone;
 	clear_inputs_for_next_frame();
+}
+
+/// @function								one_unit_of_game_time();
+function one_unit_of_game_time() {
+	return (global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING/game_get_speed(gamespeed_fps));
 }
 
 /// @function								game_has_been_won();
@@ -75,7 +85,7 @@ function game_has_been_lost() {
 
 /// @function								game_has_timed_out();
 function game_has_timed_out() {
-	return (floor(global.controller.points) <= 0);
+	return (ceil(global.controller.time_remaining) <= 0 || (global.player.dead && global.controller.death_timer == 0));
 }
 
 /// @function								game_has_timed_out();

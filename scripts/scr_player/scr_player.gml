@@ -18,7 +18,7 @@ function move_player(dir) {
 /// @function								pick_up_or_drop_item(dir);
 /// @param		{direction} dir				The directional slot to pick up or drop an item into or from
 function pick_up_or_drop_item(dir) {
-	if (carried_items[dir]) { with carried_items[dir] { drop_item(dir); } }
+	if (carried_items[dir]) { with carried_items[dir] { drop_item(dir, true); } }
 	else {
 		var dropped_items = ds_list_create();
 		instance_place_list(x, y, obj_item, dropped_items, false);
@@ -55,4 +55,16 @@ function create_item_in_hand(dir, obj_index)	{
 	var new_item = instance_create_depth(global.player.x, global.player.y, -5, obj_index)
 	with new_item { pick_up_item(dir, false); }
 	return new_item;
+}
+
+/// @function								kill_player();
+function kill_player() {
+	// Drop all carried items
+	for (var i = 1; i <= 3; i += 2;) {
+		if (global.player.carried_items[i]) { with global.player.carried_items[i] { drop_item(i, false); } }
+	}
+	// Set variables to mark death
+	global.player.dead = true;
+	global.controller.death_timer = 40;
+	audio_play_sound( snd_lose, 10, false );
 }

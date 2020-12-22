@@ -18,7 +18,7 @@ if (process_this_frame()) {
 	var enemy = instance_place(x, y, obj_enemy);
 	if (enemy && instance_at_coordinates(x, y, enemy)) {
 		if enemy.consume_block { instance_destroy(); }
-		if enemy.consumed_by_block { with enemy { instance_destroy(); } audio_play_sound(enemy.death_sound, 10, false); }
+		if enemy.consumed_by_block { with enemy { kill_enemy(); } }
 	}
 	
 	// Destroy self and parts of lava if pushed onto lava

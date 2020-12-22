@@ -12,23 +12,24 @@ fix random crashes?? (maybe due to this bug: In Game: Some projects crash silent
 
 Is this a thing: Building Projects: Xcode 12 breaks iOS/tvOS builds (There is also a guide for fixing 2.3.0 in the FAQs list below!]
 
-2794973601 // keys already opened chest (not maap?)
-
+2794973601 // keys already opened chest (not map?)
+3367961002 with target_number_of_rooms = 1
 2585055493 // wiggle under column?????0'
 
 BUG FIXES
 Make sure no rooms have doors on edges
+Check that doors are created in both rooms when joined by a locked exit
+
 Carrying two torches makes them always stay lit
 Torches make extingush sound when lit by other torches
-Map colors don't blend with bg appropriately
-Check that doors are created in both rooms when joined by a locked exit
 Torch should still burn down when not carried
-Crush enemies if they are completely under two different solids
-white square on lava when walking into it and dying?
+Map colors don't blend with bg appropriately
+
 Better keep track of what items have been spawned and when to spawn a red one
-Refactor player with torches and ighthing holding things
+Refactor player with torches and lighthing holding things
+
 Remove lit room scoloring different on map
-3367961002 with target_number_of_rooms = 1
+
 
 NEW FEATURES
 Worm man runs straight and turns at walls

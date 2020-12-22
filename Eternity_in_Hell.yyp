@@ -16,6 +16,7 @@
     {"id":{"name":"spr_sword","path":"sprites/spr_sword/spr_sword.yy",},"order":27,},
     {"id":{"name":"spr_chest","path":"sprites/spr_chest/spr_chest.yy",},"order":23,},
     {"id":{"name":"scr_random_map_generation","path":"scripts/scr_random_map_generation/scr_random_map_generation.yy",},"order":5,},
+    {"id":{"name":"scr_enemy","path":"scripts/scr_enemy/scr_enemy.yy",},"order":11,},
     {"id":{"name":"spr_lantern","path":"sprites/spr_lantern/spr_lantern.yy",},"order":10,},
     {"id":{"name":"obj_map","path":"objects/obj_map/obj_map.yy",},"order":11,},
     {"id":{"name":"spr_door","path":"sprites/spr_door/spr_door.yy",},"order":11,},

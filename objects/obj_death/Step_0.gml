@@ -21,7 +21,6 @@ if (process_this_frame()) {
 			if (!stopped_by_special_rosary || !carried_rosary || (carried_rosary && !carried_rosary.special)) {
 				kill_player();
 				audio_play_sound( death_sound, 10, false );
-				visible = true;
 			}
 		}
 	}

@@ -5,12 +5,19 @@ BUG FIXES
 random_set_seed(181256969); // impossible locked key
 random_set_seed(1003439283); // impossible locked key
 random_set_seed(2037714886); // impossible locked key
+
 Make sure no rooms have doors on edges
-Torches make extingush sound when lit by other torches
-Map colors don't blend with bg appropriately
 Check that doors are created in both rooms when joined by a locked exit
+
+Carrying two torches makes them always stay lit
+Torches make extinguish sound when lit by other torches
 Torch should still burn down when not carried
-Revamp time/progress system and send to new room on win and loss 
+Map colors don't blend with bg appropriately
+
+Better keep track of what items have been spawned and when to spawn a red one
+Refactor player with torches and lighthing holding things
+
+Remove lit rooms coloring different on map
 
 
 

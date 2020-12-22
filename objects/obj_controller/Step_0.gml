@@ -1,6 +1,3 @@
-// Increment number of processed frames
-number_of_frames_since_game_began += 1;
-
 // If this frame should be processed
 if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	if (!game_has_been_lost() && !game_has_been_won()) {
@@ -34,6 +31,9 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	// ALL CODE CHECKING FOR KEYS DURING THIS FRAME MUST HAPPEN BEFORE THIS POINT
 	clear_inputs_for_next_frame();
 }
+
+// Increment number of processed frames
+number_of_frames_since_game_began += 1;
 
 // Record inputs that happen between frames to apply to the next frame
 get_inputs_for_next_frame();

@@ -12,12 +12,11 @@ Check that doors are created in both rooms when joined by a locked exit
 Carrying two torches makes them always stay lit
 Torches make extinguish sound when lit by other torches
 Torch should still burn down when not carried
-Map colors don't blend with bg appropriately
 
 Better keep track of what items have been spawned and when to spawn a red one
 Refactor player with torches and lighthing holding things
 
-Remove lit rooms coloring different on map
+Remove lit rooms coloring different on map?
 
 
 

@@ -177,13 +177,12 @@ function draw_room(x_pos, y_pos) {
 	var show_collectables = global.controller.TEST_MODE || (carried_map && carried_map.special);
 	if (show_detailed_map || visited) {
 		// Set up colors to draw this room with
-		var bg_color = global.controller.bg_color;
-		//var bg_value = floor(get_scaling_amount(20, 255, floor(power(1-(global.controller.points/global.controller.INITIAL_SCORE), 8)), 1));
-		var fade_amount = global.controller.MAX_MAP_DRAW_DISTANCE - distance_to_current_room;
-		var color_value = floor(get_scaling_amount(20, 255, fade_amount, global.controller.MAX_MAP_DRAW_DISTANCE));//*bg_value;
-		var white_color = make_color_rgb(color_value, color_value, color_value);
-		var red_color = make_color_rgb(color_value, 20, 20);
+		var fade_amount = distance_to_current_room / global.controller.MAX_MAP_DRAW_DISTANCE;
 		var blink_frame = global.controller.number_of_frames_since_game_began mod 12 <= 5;
+		var bg_color = global.controller.bg_color;
+		var white_color = merge_color(c_white, bg_color, fade_amount);
+		var red_color = merge_color(c_red, bg_color, fade_amount);
+		
 		
 	    // Draw Room on Map
 		var room_color = lit ? red_color : white_color;
@@ -193,9 +192,9 @@ function draw_room(x_pos, y_pos) {
 
 	    // Draw Room's Exits on Map
 		for (var i = 0; i < 4; i++) {
-			var exit_color = (show_detailed_map && locked_exits[i]) ? inverse_color : bg_color
-		    var x_offset = 0, y_offset = 0, x_size = 0.25, y_size = 0.25;
-				
+			var x_offset = 0, y_offset = 0, x_size = 0.25, y_size = 0.25, exit_color = bg_color;
+			if (show_detailed_map && blink_frame && locked_exits[i]) { exit_color = red_color; }
+
 			switch i {
 				case 0: { y_offset = -8; y_size += 0.125; break; } 
 				case 1: { x_offset = 8; x_size += 0.125; break; } 

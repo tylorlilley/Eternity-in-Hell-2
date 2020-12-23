@@ -186,7 +186,6 @@
     {"id":{"name":"spr_sword_in_ground","path":"sprites/spr_sword_in_ground/spr_sword_in_ground.yy",},"order":15,},
     {"id":{"name":"obj_rosary","path":"objects/obj_rosary/obj_rosary.yy",},"order":13,},
     {"id":{"name":"rm_four_exits_10","path":"rooms/rm_four_exits_10/rm_four_exits_10.yy",},"order":19,},
-    {"id":{"name":"scr_chest","path":"scripts/scr_chest/scr_chest.yy",},"order":10,},
     {"id":{"name":"rm_four_exits_11","path":"rooms/rm_four_exits_11/rm_four_exits_11.yy",},"order":21,},
     {"id":{"name":"rm_four_exits_12","path":"rooms/rm_four_exits_12/rm_four_exits_12.yy",},"order":23,},
     {"id":{"name":"rm_two_opposite_exits_7","path":"rooms/rm_two_opposite_exits_7/rm_two_opposite_exits_7.yy",},"order":6,},

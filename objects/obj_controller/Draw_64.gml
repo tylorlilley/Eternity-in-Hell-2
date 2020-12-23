@@ -64,6 +64,6 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 if (TEST_MODE) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
-	draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+";");
+	draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; i? "+string(current_room.item_type));
 }
 

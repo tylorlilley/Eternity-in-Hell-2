@@ -6,14 +6,15 @@ visited = false;
 flip_horizontal = false;
 flip_vertical = false;
 rotate = noone;
-has_heart = false;
-has_cross = false;
-has_key = false;
-has_special_key = false;
-has_collectables = false;
-has_item = false;
-collectables_collected = false;
 lit = get_random_chance_out_of(5);
+
+// Room content values
+has_key = false;
+has_special_item = false;
+has_collectables = false;
+collectables_collected = false;
+stairs_spot_obj = noone;
+item_type = noone;
 
 // Initialize room topography information
 exits = array( false, false, false, false, false );

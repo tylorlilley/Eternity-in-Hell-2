@@ -1,5 +1,6 @@
 // Initialize global values
-randomize();
+randomize()
+//random_set_seed(2775969425
 clear_inputs_for_next_frame();
 initialize_game_variables();
 
@@ -61,7 +62,7 @@ with obj_room {
 
 // Begin Game in Random Room that has no stairs in it
 do { current_room = get_random_instance(obj_room); }
-until (!current_room.has_key && !current_room.exits[4] && !current_room.has_item);
+until (!current_room.stairs_spot_obj);
 with current_room { calculate_distance_to_current(0); }
 
 // Set up lists used to walk the map
@@ -87,8 +88,7 @@ with (obj_room) {
 }
 // Create heart in farthest room
 with ds_list_pop_random_value(farthest_rooms) {
-	has_heart = true;
-	has_item = true;
+	stairs_spot_obj = obj_encased_heart;
 	for (var i = 0; i <= 3; i += 1;) {
 		if (exits[i]) { create_locked_exit(i); }
 	}
@@ -98,7 +98,7 @@ with (obj_exit) {
     if (locked) { ds_list_add(locked_exits, id); }
 }
 // Mark random key room as room with special key
-with ds_list_pop_random_value(key_rooms) { if (get_random_chance_out_of(4)) { has_special_key = true; } }
+with ds_list_pop_random_value(key_rooms) { if (get_random_chance_out_of(4)) { has_special_item = true; } }
 
 // Walk the Map and tweak it until map is possible
 show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
@@ -110,7 +110,7 @@ while (!visited_all_rooms) {
 	
 	//// Remove one of the locked exits if there are way too many
 	//if (ds_list_size(locked_exits) >= LOCKED_DOOR_PROBABILITY*2) {
-    //    with ds_list_pop_random_value(locked_exits) { unlock_exit(); instance_destroy(); }
+    //    with ds_list_pop_random_value(locked_exits) { remove_exit(); }
 			
 	//	show_debug_message("NUMBER OF LOCKS -1");
 	//}
@@ -122,7 +122,7 @@ while (!visited_all_rooms) {
     }
     // Remove one of the locked doors and reset all rooms to have no keys
     else if (ds_list_size(locked_exits) > 0) {
-        with ds_list_pop_random_value(locked_exits) { unlock_exit(); instance_destroy(); }
+        with ds_list_pop_random_value(locked_exits) { remove_exit(); }
 		with (obj_room) {
 		    if (has_key) { has_key = false; ds_list_add(keyless_rooms, id); }
 		}
@@ -152,7 +152,7 @@ time_provided = (instance_number(obj_room) * TIME_PROVIDED_PER_ROOM) + (instance
 time_remaining = time_provided;
 
 // Create player object and change room to current room's referenced room
-current_room.has_cross = true;
+current_room.stairs_spot_obj = obj_cross;
 global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
 

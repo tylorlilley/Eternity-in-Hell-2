@@ -32,53 +32,27 @@ if (room != rm_finish) {
 	            door.locked = exit_to_create_door_for.locked;
 	        }
 	    }
-	
-		// Create stairs for room if they should exist
-	    if (current_room.exits[4]) {
-	        instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_stairs)
-	    }
-	
-		// Create cross for room if it should exist {
-		if (current_room.has_cross) { 
-			instance_create_depth(stairs_spot.x, stairs_spot.y, 4, obj_cross);
-			//instance_create_depth(stairs_spot.x, stairs_spot.y-32, 5, obj_encased_heart);
-			//generate_chest(stairs_spot.x, stairs_spot.y-32, obj_map, get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
-		}
-	
-		// Create item in room if it should exist
-		if (current_room.has_item) {
-			if (current_room.has_heart) {
-				instance_create_depth(stairs_spot.x, stairs_spot.y, 5, obj_encased_heart);
-			}
-			else {
-				var item_type = noone, rand = irandom(5);
-				switch rand {
-					case 0:
-					case 1: { item_type = obj_torch; break; }
-					case 2: { item_type = obj_rosary; break; }
-					case 3: { item_type = obj_map; break; }
-					case 4: { item_type = obj_sword; break; }
-				}
-			
-				generate_chest(stairs_spot.x, stairs_spot.y, item_type, get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
-			}
-		}
-	
+		
 		// Create key in room if it should exist
 		if (current_room.has_key) {
-			if (!current_room.exits[4] && !current_room.has_item && !current_room.has_cross && !get_random_chance_out_of(3)) { 	
-				generate_chest(stairs_spot.x, stairs_spot.y, obj_key, current_room.has_special_key);
+			if (!current_room.stairs_spot_obj && get_random_chance_out_of(3)) { 	
+				current_room.item_type = obj_key;
+				current_room.stairs_spot_obj = obj_chest
 			}
 			else { 
 				with get_random_instance(obj_collectable_spot) {
 					var new_key = instance_create_depth(x, y, 4, obj_key);
-					with new_key {
-						if (global.controller.current_room.has_special_key) { make_item_special(); }
-					}
-					instance_destroy(); 
+					with new_key { if (global.controller.current_room.has_special_item) { make_item_special(); } }
+					instance_destroy();
+					if (instance_number(obj_collectable_spot) == 0) { current_room.has_collectables = false; rooms_with_collectables -= 1; }
 				} 
 			}
 		}
+	
+		// Create room's stairs_spot object
+	    if (current_room.stairs_spot_obj) {
+	        instance_create_depth(stairs_spot.x, stairs_spot.y, 5, current_room.stairs_spot_obj);
+	    }
     
 	    // Create collectables in room if they should exist
 	    if (current_room.has_collectables && !current_room.collectables_collected) {

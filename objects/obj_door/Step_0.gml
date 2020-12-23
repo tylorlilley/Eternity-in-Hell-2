@@ -11,11 +11,7 @@ if (process_this_frame()) {
 				open_door(); 
 				move_player(push_direction); 
 				if locked {
-					with door_for_exit {
-						with room_1 { locked_exits[other.room_1_dir] = noone; }
-						with room_2 { locked_exits[other.room_2_dir] = noone; }
-						locked = false;
-					}
+					with door_for_exit { unlock_exit(); }
 					locked = false;
 					audio_play_sound(snd_mana, 10, false);
 					with carried_key { if (!special) { instance_destroy(); } }

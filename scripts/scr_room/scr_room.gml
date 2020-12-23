@@ -1,11 +1,9 @@
-/// @function								initialize(list_of_rooms);
+/// @function								initialize_room(list_of_rooms);
 /// @param	{index}	list_of_rooms			The list of available rooms
 function initialize_room(list_of_rooms) {
 	// Randomly decide if room will have collectables, stairs, or keys
 	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY) { has_key = true; }
-	var stairs_spot_inclusion = irandom(100);
-	if (stairs_spot_inclusion < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; }
-	else if (stairs_spot_inclusion < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { has_item = true; }
+
 	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { 
 	    has_collectables = true; 
 	    global.controller.rooms_with_collectables += 1; 
@@ -19,7 +17,25 @@ function initialize_room(list_of_rooms) {
 	    target_number_of_exits += 1;
 	}
 	until (rand <= 0);
+	
+	// Randomly decide if room will have collectables, stairs, keys, items, etc
+	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY) { has_key = true; }
+	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; global.controller.rooms_with_collectables += 1; }
+	rand = irandom(100);
+	if (rand < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; stairs_spot_obj = obj_stairs; }
+	else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { 
+		stairs_spot_obj = obj_chest;
+		if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
 
+		var rand = irandom(5);
+		switch rand {
+			case 0:
+			case 1: { item_type = obj_torch; break; }
+			case 2: { item_type = obj_rosary; break; }
+			case 3: { item_type = obj_map; break; }
+			case 4: { item_type = obj_sword; break; }
+		}
+	}
 	// Take care of exits that must exist based on adjacent rooms and decrement number of exits accordingly
 	for (var i = 0; i < 4; i++) {
 	    if (adj_rooms[i]) { 
@@ -222,10 +238,10 @@ function draw_room(x_pos, y_pos) {
 			if (blink_frame && has_collectables && !collectables_collected) {
 				draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
 			}
-			if (!blink_frame && has_heart) {
+			if (!blink_frame && stairs_spot_obj == obj_encased_heart) {
 				draw_sprite_ext(spr_map_heart, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
 			}
-			if (!blink_frame && has_cross) {
+			if (!blink_frame && stairs_spot_obj == obj_cross) {
 				draw_sprite_ext(spr_map_cross, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
 			}
 		}

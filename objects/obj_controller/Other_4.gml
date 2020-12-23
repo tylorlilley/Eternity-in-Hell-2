@@ -1,6 +1,7 @@
 if (room != rm_finish) {
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
- 
+	audio_stop_sound( snd_dread );
+	
 	// First Time Setup	
 	if (!current_room.visited) {    
 	    // Flip game object positions as necesarry
@@ -43,8 +44,11 @@ if (room != rm_finish) {
 				with get_random_instance(obj_collectable_spot) {
 					var new_key = instance_create_depth(x, y, 4, obj_key);
 					with new_key { if (global.controller.current_room.has_special_item) { make_item_special(); } }
+					if (instance_number(obj_collectable_spot) <= 1) { 
+						global.controller.current_room.has_collectables = false; 
+						global.controller.rooms_with_collectables -= 1; 
+					}
 					instance_destroy();
-					if (instance_number(obj_collectable_spot) == 0) { current_room.has_collectables = false; rooms_with_collectables -= 1; }
 				} 
 			}
 		}

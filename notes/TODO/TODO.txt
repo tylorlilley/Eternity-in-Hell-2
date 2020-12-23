@@ -13,11 +13,19 @@ Carrying two torches makes them always stay lit
 Torches make extinguish sound when lit by other torches
 Torch should still burn down when not carried
 
+spiders see through walls
+
 Better keep track of what items have been spawned and when to spawn a red one
 Refactor player with torches and lighthing holding things
 
 Remove lit rooms coloring different on map?
 
+Remove room variable collectables collected variable
+Remove controller variable rooms_with_collectables
+Add room items to lists of rooms
+
+Check placement of bones
+fix chests spawning with no contents
 
 
 NEW FEATURES

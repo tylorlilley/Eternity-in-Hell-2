@@ -2,7 +2,7 @@ draw_set_font(ft_hud);
 var has_won = game_has_been_won();
 var has_lost = game_has_been_lost();
 var has_timed_out = game_has_timed_out();
-var is_looking_at_map = key_space;
+var is_looking_at_map = key_space && !has_lost;
 
 
 if (transition || has_won || has_timed_out || is_looking_at_map) {

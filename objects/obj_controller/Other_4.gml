@@ -1,6 +1,6 @@
 if (room != rm_finish) {
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
-	audio_stop_sound( snd_dread );
+	if (instance_number(obj_phantom) == 0) { audio_stop_sound( snd_dread ); }
 	
 	// First Time Setup	
 	if (!current_room.visited) {    

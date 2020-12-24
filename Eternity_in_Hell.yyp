@@ -73,7 +73,6 @@
     {"id":{"name":"spr_player_right_hand","path":"sprites/spr_player_right_hand/spr_player_right_hand.yy",},"order":5,},
     {"id":{"name":"rm_three_exits_14","path":"rooms/rm_three_exits_14/rm_three_exits_14.yy",},"order":13,},
     {"id":{"name":"scr_torch","path":"scripts/scr_torch/scr_torch.yy",},"order":2,},
-    {"id":{"name":"scr_lantern","path":"scripts/scr_lantern/scr_lantern.yy",},"order":3,},
     {"id":{"name":"scr_bush","path":"scripts/scr_bush/scr_bush.yy",},"order":4,},
     {"id":{"name":"scr_door","path":"scripts/scr_door/scr_door.yy",},"order":5,},
     {"id":{"name":"rm_four_exits_14","path":"rooms/rm_four_exits_14/rm_four_exits_14.yy",},"order":25,},

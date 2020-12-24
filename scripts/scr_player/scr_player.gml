@@ -24,7 +24,7 @@ function pick_up_or_drop_item(dir) {
 		instance_place_list(x, y, obj_item, dropped_items, false);
 		while (ds_list_size(dropped_items) > 0) {
 			var dropped_item = ds_list_pop_random_value(dropped_items);
-			if (dropped_item && !dropped_item.carried && instance_at_coordinates(x, y, dropped_item)) {
+			if (dropped_item && !dropped_item.carried && dropped_item.can_pick_up && instance_at_coordinates(x, y, dropped_item)) {
 				with dropped_item { pick_up_item(dir, true); ds_list_destroy(dropped_items); return true; }
 			}
 		}

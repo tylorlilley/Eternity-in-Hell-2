@@ -37,6 +37,9 @@ function drop_item(dir, play_sound) {
 function make_item_special() {
 	special = true;
 	image_index = 1;
-	if (object_index == obj_torch) { sprite_index = spr_special_torch; }
+	if (object_index == obj_torch) { 
+		lighting_range = global.controller.TORCH_LIGHT_RANGE*2;
+		sprite_index = spr_special_torch; 
+	}
 	ds_list_add(global.controller.spawned_special_items, object_index);
 }

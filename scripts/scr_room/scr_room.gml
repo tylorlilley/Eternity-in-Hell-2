@@ -209,7 +209,7 @@ function draw_room(x_pos, y_pos) {
 	    // Draw Room's Exits on Map
 		for (var i = 0; i < 4; i++) {
 			var x_offset = 0, y_offset = 0, x_size = 0.25, y_size = 0.25, exit_color = bg_color;
-			if (show_detailed_map && blink_frame && locked_exits[i]) { exit_color = red_color; }
+			if (show_detailed_map && blink_frame && locked_exits[i] && locked_exits[i].locked) { exit_color = red_color; }
 
 			switch i {
 				case 0: { y_offset = -8; y_size += 0.125; break; } 

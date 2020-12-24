@@ -30,7 +30,7 @@ function initialize_game_variables() {
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
-	MAX_WALKING_DEPTH = 666;
+	MAX_WALKING_DEPTH = 255;
 	MINIMUM_NUMBER_OF_ROOMS = 32;
 	ADDITIONAL_ROOMS = 16;
 	LOCKED_DOOR_PROBABILITY = 6;

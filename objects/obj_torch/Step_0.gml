@@ -1,19 +1,5 @@
-if (process_this_frame()) {
-	if (carried) {
-		if (time_to_remain_lit > 0) { 
-			if (!special) { time_to_remain_lit -= one_unit_of_game_time(); }
-			if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(global.controller.PLAYER_LIGHT_RANGE+1, global.controller.TORCH_LIGHT_RANGE, time_to_remain_lit, global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT)); }
-		}
-		else if (!time_to_remain_lit && image_speed > 0) {
-		    // Put out torch
-		    audio_play_sound( snd_extinguish, 10, false );
-		    image_speed = 0;
-		    image_index = 1;
-		    with light_source { instance_destroy(); }
-			light_source = noone;
-		}
-	}
-	else { if (interact_with_torches()) { light_torch(); } }
-
+if (process_this_frame()) {	
+	interact_with_other_torches();
+	
 	event_inherited();
 }

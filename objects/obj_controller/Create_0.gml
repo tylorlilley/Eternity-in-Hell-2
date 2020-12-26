@@ -151,11 +151,11 @@ if (ds_list_size(rooms_with_torch) > 0) { with ds_list_pop_random_value(rooms_wi
 if (ds_list_size(rooms_with_sword) > 0) { with ds_list_pop_random_value(rooms_with_sword) { has_special_item = true; } }
 if (ds_list_size(rooms_with_rosary) > 0) { with ds_list_pop_random_value(rooms_with_rosary) { has_special_item = true; } }
 if (ds_list_size(rooms_with_map) > 0) { with ds_list_pop_random_value(rooms_with_map) { has_special_item = true; } }
-//ds_list_destroy(rooms_with_key);
-//ds_list_destroy(rooms_with_torch);
-//ds_list_destroy(rooms_with_sword);
-//ds_list_destroy(rooms_with_rosary);
-//ds_list_destroy(rooms_with_map);
+ds_list_destroy(rooms_with_key);
+ds_list_destroy(rooms_with_torch);
+ds_list_destroy(rooms_with_sword);
+ds_list_destroy(rooms_with_rosary);
+ds_list_destroy(rooms_with_map);
 
 
 // Set up point and time related variables

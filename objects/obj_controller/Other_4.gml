@@ -44,10 +44,6 @@ if (room != rm_finish) {
 				with get_random_instance(obj_collectable_spot) {
 					var new_key = instance_create_depth(x, y, 4, obj_key);
 					with new_key { if (global.controller.current_room.has_special_item) { make_item_special(); } }
-					if (instance_number(obj_collectable_spot) <= 1) { 
-						global.controller.current_room.has_collectables = false; 
-						global.controller.rooms_with_collectables -= 1; 
-					}
 					instance_destroy();
 				} 
 			}
@@ -59,9 +55,13 @@ if (room != rm_finish) {
 	    }
     
 	    // Create collectables in room if they should exist
-	    if (current_room.has_collectables && !current_room.collectables_collected) {
+	    if (current_room.has_collectables) {
 	        with obj_collectable_spot { instance_create_depth(x, y, 0, obj_collectable); instance_destroy(); }
-			if (instance_number(obj_collectable) == 0) { current_room.collectables_collected = true; }
+			if (instance_number(obj_collectable) == 0) { 
+				// This should never happen if every room has 2+ collectable spots
+				current_room.has_collectables = false;
+				ds_list_delete(rooms_with_collectables, ds_list_find_index(rooms_with_collectables, current_room.id));
+			}
 	    }
 	
 		// Remove lit status from room if it shouldn't exist

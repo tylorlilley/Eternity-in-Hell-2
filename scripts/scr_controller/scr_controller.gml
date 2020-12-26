@@ -17,23 +17,23 @@ function initialize_game_variables() {
 	gc_enable(false);
 	
 	// Set up global shortcut references
-	global.controller = self;
+	global.controller = id;
 	global.player = noone;
 
 	// Initialize room probability constants
 	NUMBER_OF_EXITS_PROBABILITIES = array(10, 80, 10, 0);
+	LOCKED_DOOR_PROBABILITY = 6;
 	HAS_STAIRS_PROBABILITY = 20;
 	HAS_COLLECTABLE_PROBABILITY = 30;
 	HAS_KEY_PROBABILITY = 0;
 	HAS_ITEM_PROBABILITY = 20;
-	SPECIAL_ITEM_PROBABILITY = 16;
+	SPECIAL_ITEM_PROBABILITY = 8;
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
 	MAX_WALKING_DEPTH = 255;
 	MINIMUM_NUMBER_OF_ROOMS = 32;
 	ADDITIONAL_ROOMS = 16;
-	LOCKED_DOOR_PROBABILITY = 6;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables
@@ -51,11 +51,19 @@ function initialize_game_variables() {
 	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run
 	time_remaining = 1;
 	time_provided = 1;
+	
+	// initialize room list values
+	rooms_with_collectables = ds_list_create();
+	rooms_with_torch = ds_list_create();
+	rooms_with_key = ds_list_create();
+	rooms_with_sword = ds_list_create();
+	rooms_with_map = ds_list_create();
+	rooms_with_rosary = ds_list_create();
 
 	// initialize game state values
-	rooms_with_collectables = 0;
-	rooms_with_collectables_collected = 0;
-	spawned_special_items = ds_list_create();
+	total_number_of_rooms_with_collectables = 0;
+	//rooms_with_collectables_collected = 0;
+	//spawned_special_items = ds_list_create();
 	game_won = false;
 	death_timer = 0;
 
@@ -90,7 +98,7 @@ function game_has_timed_out() {
 
 /// @function								game_has_timed_out();
 function game_progress_has_been_completed() {
-	return (global.controller.rooms_with_collectables_collected >= global.controller.rooms_with_collectables);
+	return (ds_list_size(global.controller.rooms_with_collectables) == 0);
 }
 
 /// @function								transition_to_room();

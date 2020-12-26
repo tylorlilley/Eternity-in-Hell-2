@@ -1,3 +1,4 @@
+
 // Initialize global values
 randomize()
 //random_set_seed(2775969425
@@ -146,6 +147,20 @@ ds_list_destroy(keyless_rooms);
 ds_list_destroy(key_rooms);
 ds_list_destroy(farthest_rooms);
 ds_list_destroy(locked_exits);
+
+//Randomly spawn a special item for each item type
+total_number_of_rooms_with_collectables = ds_list_size(rooms_with_collectables);
+if (ds_list_size(rooms_with_key) > 0) { with ds_list_pop_random_value(rooms_with_key) { has_special_item = true; } }
+if (ds_list_size(rooms_with_torch) > 0) { with ds_list_pop_random_value(rooms_with_torch) { has_special_item = true; } }
+if (ds_list_size(rooms_with_sword) > 0) { with ds_list_pop_random_value(rooms_with_sword) { has_special_item = true; } }
+if (ds_list_size(rooms_with_rosary) > 0) { with ds_list_pop_random_value(rooms_with_rosary) { has_special_item = true; } }
+if (ds_list_size(rooms_with_map) > 0) { with ds_list_pop_random_value(rooms_with_map) { has_special_item = true; } }
+//ds_list_destroy(rooms_with_key);
+//ds_list_destroy(rooms_with_torch);
+//ds_list_destroy(rooms_with_sword);
+//ds_list_destroy(rooms_with_rosary);
+//ds_list_destroy(rooms_with_map);
+
 
 // Set up point and time related variables
 time_provided = (instance_number(obj_room) * TIME_PROVIDED_PER_ROOM) + (instance_number(obj_exit) * TIME_PROVIEDED_PER_LOCK);

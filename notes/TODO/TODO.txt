@@ -8,13 +8,13 @@ random_set_seed(2037714886); // impossible locked key
 
 BUGFIXES
 Crash when entering stairs???
-fix chests spawning with no contents
 Check rooms to make sure no rooms have doors on edges
 Check rooms to make sure placement of bones is fair
+Check rooms to make sure locked doors on edges are always accessible (fix block room)
+Check rooms to make sure they all have 2+ collectable spots
+rooms_with_key list is always size zero?
 
 REFACTORS
-Remove room variable collectables collected variable
-Remove controller variable rooms_with_collectables
 Refactor player with torches and lighthing holding things
 
 ENHANCEMENTS
@@ -31,3 +31,5 @@ Worm man runs straight and turns at walls
 "Blind Monster" That moves toward whatever makes a sound
 Stationary Monster that spits projectile?
 Sometimes spawn a block on top of stairs if you didn't enter from stairs - requires checking stairs spot in each room
+
+3313073792

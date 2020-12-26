@@ -1,14 +1,24 @@
 /// @function								initialize_room(list_of_rooms);
 /// @param	{index}	list_of_rooms			The list of available rooms
 function initialize_room(list_of_rooms) {
-	// Randomly decide if room will have collectables, stairs, or keys
-	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY) { has_key = true; }
+	// Randomly decide if room will have collectables, stairs, keys, items, etc
+	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY) { has_key = true; ds_list_add(global.controller.rooms_with_key, id); }
+	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; ds_list_add(global.controller.rooms_with_collectables, id); }
+	rand = irandom(100);
+	if (rand < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; stairs_spot_obj = obj_stairs; }
+	else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { 
+		stairs_spot_obj = obj_chest;
+		if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
 
-	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { 
-	    has_collectables = true; 
-	    global.controller.rooms_with_collectables += 1; 
+		var rand = irandom(3);
+		switch rand {
+			case 0: { item_type = obj_rosary; ds_list_add(global.controller.rooms_with_rosary, id); break; }
+			case 1: { item_type = obj_map; ds_list_add(global.controller.rooms_with_map, id); break; }
+			case 2: { item_type = obj_sword; ds_list_add(global.controller.rooms_with_sword, id); break; }
+			default: { item_type = obj_torch; ds_list_add(global.controller.rooms_with_torch, id); break; }
+		}
 	}
-
+	
 	// Randomly determine the number of exits this room should have based on probability weighting
 	var target_number_of_exits = 0;
 	var rand = irandom(100)-instance_number(obj_room); // subtract number of rooms in order to drive generation toward an end eventually
@@ -18,24 +28,6 @@ function initialize_room(list_of_rooms) {
 	}
 	until (rand <= 0);
 	
-	// Randomly decide if room will have collectables, stairs, keys, items, etc
-	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY) { has_key = true; }
-	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; global.controller.rooms_with_collectables += 1; }
-	rand = irandom(100);
-	if (rand < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; stairs_spot_obj = obj_stairs; }
-	else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { 
-		stairs_spot_obj = obj_chest;
-		if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
-
-		var rand = irandom(5);
-		switch rand {
-			case 0:
-			case 1: { item_type = obj_torch; break; }
-			case 2: { item_type = obj_rosary; break; }
-			case 3: { item_type = obj_map; break; }
-			case 4: { item_type = obj_sword; break; }
-		}
-	}
 	// Take care of exits that must exist based on adjacent rooms and decrement number of exits accordingly
 	for (var i = 0; i < 4; i++) {
 	    if (adj_rooms[i]) { 
@@ -235,7 +227,7 @@ function draw_room(x_pos, y_pos) {
 		// Draw collectables if the map is special
 		var collectable_color = inverse_color;
 	    if (show_collectables) { 
-			if (blink_frame && has_collectables && !collectables_collected) {
+			if (blink_frame && has_collectables) {
 				draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
 			}
 			if (!blink_frame && stairs_spot_obj == obj_encased_heart) {

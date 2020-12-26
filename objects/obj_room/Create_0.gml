@@ -12,7 +12,6 @@ lit = get_random_chance_out_of(5);
 has_key = false;
 has_special_item = false;
 has_collectables = false;
-collectables_collected = false;
 stairs_spot_obj = noone;
 item_type = noone;
 

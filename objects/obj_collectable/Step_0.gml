@@ -2,9 +2,11 @@ if (process_this_frame()) {
 	if (instance_at_coordinates(x, y, global.player)) {
 	    if (instance_number(obj_collectable) == 1) {
 	        // You are collecting the final collectable in the room
-	        global.controller.current_room.collectables_collected = true;
-	        global.controller.rooms_with_collectables_collected += 1;
-	        if (game_progress_has_been_completed()) { audio_play_sound( snd_win, 10, false ); }
+			with global.controller {
+				current_room.has_collectables = false;
+				ds_list_delete(rooms_with_collectables, ds_list_find_index(rooms_with_collectables, current_room.id));
+				if (game_progress_has_been_completed()) { audio_play_sound( snd_win, 10, false ); }
+			}
 	    }
 	    instance_destroy();
 	    audio_play_sound( snd_mana, 10, false );

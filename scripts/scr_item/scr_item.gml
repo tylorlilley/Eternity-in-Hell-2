@@ -41,5 +41,4 @@ function make_item_special() {
 		lighting_range = global.controller.TORCH_LIGHT_RANGE*2;
 		sprite_index = spr_special_torch; 
 	}
-	ds_list_add(global.controller.spawned_special_items, object_index);
 }

@@ -13,19 +13,20 @@ Check rooms to make sure placement of bones is fair
 Check rooms to make sure locked doors on edges are always accessible (fix block room)
 Check rooms to make sure they all have 2+ collectable spots
 rooms_with_key list is always size zero?
+Determine if keys ever spawn
+special torch from chest spawned with wrong image_index
 
 REFACTORS
 Refactor player with torches and lighthing holding things
 
 ENHANCEMENTS
-Better keep track of what items have been spawned and when to spawn a red one
-Add room items to lists of rooms
-always spawn red items somwhere?
 Update has_key status for rooms to make maps accurate
 Make spiders not see through walls
 Remove lit rooms coloring different on map?
 
 NEW FEATURES
+Portcullis door opened with button
+Zelda style doors that close and you have to push block or light torch to open
 Greedy monster that runs toward held items drop items to distract
 Worm man runs straight and turns at walls
 "Blind Monster" That moves toward whatever makes a sound

@@ -27,7 +27,7 @@ function initialize_game_variables() {
 	HAS_COLLECTABLE_PROBABILITY = 30;
 	HAS_KEY_PROBABILITY = 0;
 	HAS_ITEM_PROBABILITY = 20;
-	SPECIAL_ITEM_PROBABILITY = 8;
+	SPECIAL_ITEM_PROBABILITY = 4;
 
 	// Initialize map drawing constants
 	TEST_MODE = false;

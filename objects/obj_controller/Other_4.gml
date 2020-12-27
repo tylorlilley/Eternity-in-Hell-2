@@ -43,7 +43,7 @@ if (room != rm_finish) {
 			else { 
 				with get_random_instance(obj_collectable_spot) {
 					var new_key = instance_create_depth(x, y, 4, obj_key);
-					with new_key { if (global.controller.current_room.has_special_item) { make_item_special(); } }
+					with new_key { if (global.controller.current_room.item_type == noone && global.controller.current_room.has_special_item) { make_item_special(); } }
 					instance_destroy();
 				} 
 			}

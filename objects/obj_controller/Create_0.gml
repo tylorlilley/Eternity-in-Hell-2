@@ -146,11 +146,11 @@ ds_list_destroy(locked_exits);
 
 //Randomly spawn a special item for each item type
 total_number_of_rooms_with_collectables = ds_list_size(rooms_with_collectables);
-if (ds_list_size(rooms_with_key) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_key) { has_special_item = true; } }
-if (ds_list_size(rooms_with_torch) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_torch) { has_special_item = true; } }
-if (ds_list_size(rooms_with_sword) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_sword) { has_special_item = true; } }
-if (ds_list_size(rooms_with_rosary) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_rosary) { has_special_item = true; } }
-if (ds_list_size(rooms_with_map) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_map) { has_special_item = true; } }
+if (ds_list_size(rooms_with_key) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_key) { has_special_item = true; show_debug_message("RED KEY"); } }
+if (ds_list_size(rooms_with_torch) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_torch) { has_special_item = true; show_debug_message("RED TORCH"); } }
+if (ds_list_size(rooms_with_sword) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_sword) { has_special_item = true; show_debug_message("RED SWORD"); } }
+if (ds_list_size(rooms_with_rosary) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_rosary) { has_special_item = true; show_debug_message("RED ROSARY"); } }
+if (ds_list_size(rooms_with_map) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_map) { has_special_item = true; show_debug_message("RED MAP"); } }
 ds_list_destroy(rooms_with_key);
 ds_list_destroy(rooms_with_torch);
 ds_list_destroy(rooms_with_sword);
@@ -166,4 +166,5 @@ time_remaining = time_provided;
 current_room.stairs_spot_obj = obj_cross;
 global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
+show_debug_message("SEED: "+string(random_get_seed())); 
 

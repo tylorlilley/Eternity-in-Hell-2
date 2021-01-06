@@ -3,9 +3,7 @@ if (process_this_frame()) {
 
 	if lethal {
 		// Turn to face the player and begin Screeching if player is in view
-	    if (state != SCREECHING && !global.player.dead) {
-			try_to_see_player();
-	    }
+		try_to_see_player();
 		
 		// Determine course of action based on state
 		if (state == SCREECHING) {

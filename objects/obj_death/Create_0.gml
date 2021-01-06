@@ -1,6 +1,6 @@
 event_inherited();
 
-stopped_by_rosary = false;
+corporeal = true;
 stopped_by_special_rosary = false;
 killable_by_sword = false;
 consume_block = false;

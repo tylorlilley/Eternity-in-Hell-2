@@ -58,6 +58,25 @@ function can_move_in_direction(dir, ignore_solid, ignore_death) {
 	    (dir == directions.right && (ignore_death || !instance_place(x+8, y, obj_death))&& (ignore_solid || !instance_place(x+8, y, obj_solid)) && (object_index == obj_player || x+8 < room_width))));
 }
 
+/// @function								can_move_in_direction_and_reach(dir, ignore_solid);
+/// @param		{direction}	dir				The direction to check whether the calling instance can move in
+/// @param		{index}	target_instance		The instance we are trying to reach by moving in this direction
+/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
+function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ignore_death) {
+	var original_x = x, original_y = y, can_reach_target = false;
+	
+	while(can_move_in_direction(dir, ignore_solid, ignore_death) && !can_reach_target) {
+		move_in_direction(dir);
+		if (instance_at_coordinates(x, y, target_instance)) { can_reach_target = true; }
+	}
+	
+	x = original_x;
+	y = original_y;
+	
+	return can_reach_target;
+}
+
 
 /// @function								move_in_direction(dir);
 /// @param		{direction} dir				The direction in which to move the calling instance

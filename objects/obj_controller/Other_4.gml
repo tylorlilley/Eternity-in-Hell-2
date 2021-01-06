@@ -8,11 +8,13 @@ if (room != rm_finish) {
 	    if (current_room.flip_horizontal) { flip_room_contents_horizontally(); }
 	    if (current_room.flip_vertical) { flip_room_contents_vertically(); }
 	    if (current_room.rotate != -1) { rotate_room_contents_around_room_center(current_room.rotate); }
-		with obj_game_object { 
-			image_angle = 0;
-		}
-		with obj_placeholder { 
-			image_angle = 0;
+		with obj_game_object { image_angle = 0; }
+		with obj_placeholder { image_angle = 0; }
+		
+		// Update enemies in room to reflect new x, y position as initial position
+		with (obj_enemy) {
+			initial_x = x;
+			initial_y = y;
 		}
     
 	    // Create locked exits if they should exist
@@ -91,6 +93,17 @@ if (room != rm_finish) {
 
 	// Add a small pause when entering a room
 	global.player.pause_movement = FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
+	
+	// Randomly place mouth enemies
+	with (obj_mouth) {
+		do {
+			x = irandom(room_width/8);
+			y = irandom(room_height/8);
+		}
+		until (!instance_position(x, y, obj_solid) && 
+			   !instance_place(x, y, obj_death) && 
+			   distance_to_instance(global.player) >= MOUTH_DISTANCE);
+	}
 
 	// Set initial lighting to darkness
 	with obj_game_object { image_blend = global.controller.bg_color; }

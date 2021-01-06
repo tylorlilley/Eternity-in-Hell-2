@@ -5,10 +5,9 @@ if (process_this_frame()) {
 	    var dir = irandom(4);
 	    if (!is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
 	    if (can_move_in_direction(dir, true, true)) { move_in_direction(dir); }
-    
-	    if (get_random_chance_out_of(2)) { visible = !global.player.dead; audio_play_sound( snd_flicker, 10, false ); }
-	    else { visible = false; }
-    
+	    if (get_random_chance_out_of(2)) { audio_play_sound( snd_flicker, 10, false ); }
+		
+		// Become lethal if time is up and it is not lethal yet
 	    if (!lethal) { 
 	        audio_play_sound_for_object_only_once( snd_static );
 	        lethal = true;

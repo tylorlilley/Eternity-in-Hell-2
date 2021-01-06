@@ -5,8 +5,8 @@ if (process_this_frame()) {
 
 	// Disapear and Reappear based on proximity to the player
 	if (lethal) {
-	    if (distance_to_instance(global.player) < 40 && !visible) ||
-	       (distance_to_instance(global.player) >= 40 && visible) { 
+	    if (distance_to_instance(global.player) < MOUTH_DISTANCE && !visible) ||
+	       (distance_to_instance(global.player) >= MOUTH_DISTANCE && visible) { 
 	        visible = !visible;
 	        audio_play_sound( snd_squelch, 10, false );
 	    }

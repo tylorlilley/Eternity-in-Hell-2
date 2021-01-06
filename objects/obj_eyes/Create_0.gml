@@ -1,6 +1,6 @@
 event_inherited();
 
-stopped_by_rosary = true;
+corporeal = false;
 death_sound = snd_crunch;
 image_speed = 0;
 

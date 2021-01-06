@@ -6,3 +6,4 @@ consumed_by_block = true;
 death_sound = snd_crunch;
 visible = false;
 
+MOUTH_DISTANCE = 40;

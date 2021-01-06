@@ -99,8 +99,8 @@ with (obj_exit) {
 }
 
 // Walk the Map and tweak it until map is possible
-show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
-show_debug_message("NUMBER LOCKED DOORS: "+string(ds_list_size(locked_exits)));
+//show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
+//show_debug_message("NUMBER LOCKED DOORS: "+string(ds_list_size(locked_exits)));
 var visited_all_rooms = is_current_map_possible();
 while (!visited_all_rooms) {
 	var number_of_keys = instance_number(obj_room) - (ds_list_size(keyless_rooms)+1);
@@ -116,7 +116,7 @@ while (!visited_all_rooms) {
     if (ds_list_size(keyless_rooms) > 0 && (ds_list_size(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
         ds_list_pop_random_value(keyless_rooms).has_key = true;
 		
-		show_debug_message("NUMBER OF KEYS +1");
+		//show_debug_message("NUMBER OF KEYS +1");
     }
     // Remove one of the locked doors and reset all rooms to have no keys
     else if (ds_list_size(locked_exits) > 0) {
@@ -125,11 +125,11 @@ while (!visited_all_rooms) {
 		    if (has_key) { has_key = false; ds_list_add(keyless_rooms, id); }
 		}
 		
-		show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
+		//show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
     }
 	// Should never need to reach this clause
 	else {
-		show_debug_message("WARNING: lock generation screwed up.");
+		//show_debug_message("WARNING: lock generation screwed up.");
 		break;
 	}
 	

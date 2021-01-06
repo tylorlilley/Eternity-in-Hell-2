@@ -1,4 +1,4 @@
-BUG FIXES
+BUGFIXES
 
 2794973601 // keys already opened chest (not map?)
 2585055493 // wiggle under column?????
@@ -13,22 +13,17 @@ Check rooms to make sure placement of bones is fair
 Check rooms to make sure locked doors on edges are always accessible (fix block room)
 Check rooms to make sure they all have 2+ collectable spots
 rooms_with_key list is always size zero?
-Determine if keys ever spawn
+Determine if red keys ever spawn
 special torch from chest spawned with wrong image_index
-Spider/skeleton/other monsters dieing randomly when entering room?
-deactivated/non-lethal spider and phantom not rotating with the rest of the room when flipped/rotated
+FIXED? - Spider/skeleton/other monsters dieing randomly when entering room?
+FIXED? - deactivated/non-lethal spider and phantom not rotating with the rest of the room when flipped/rotated
 
 REFACTORS
 Refactor player with torches and lighthing holding things
-Make bones not raise as a trap if they are under a solid block
-Make an is_phantasmal boolean responsible for whether something is blinking and interacts with rosary and sword
 
 ENHANCEMENTS
 Update has_key status for rooms to make maps accurate
-Make spiders not see through walls
 Remove lit rooms coloring different on map?
-Make mouth placement in rooms truly random
-Make spiders change direction if they see you while running
 
 NEW FEATURES
 Portcullis door opened with button

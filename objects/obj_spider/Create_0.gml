@@ -5,7 +5,9 @@ consume_block = false
 consumed_by_block = true;
 lethal = get_random_chance_out_of(2);
 death_sound = snd_crunch;
-attacking = false;
-screeched = 0;
-dir = -1;
 
+WAITING = 0;
+SCREECHING = 1;
+ATTACKING = 2;
+state = WAITING;
+dir = -1;

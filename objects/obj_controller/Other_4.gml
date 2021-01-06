@@ -97,8 +97,8 @@ if (room != rm_finish) {
 	// Randomly place mouth enemies
 	with (obj_mouth) {
 		do {
-			x = irandom(room_width/8);
-			y = irandom(room_height/8);
+			x = irandom(room_width/8)*8;
+			y = irandom(room_height/8)*8;
 		}
 		until (!instance_position(x, y, obj_solid) && 
 			   !instance_place(x, y, obj_death) && 

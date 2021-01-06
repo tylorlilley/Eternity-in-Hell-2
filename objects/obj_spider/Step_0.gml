@@ -4,22 +4,7 @@ if (process_this_frame()) {
 	if lethal {
 		// Turn to face the player and begin Screeching if player is in view
 	    if (state != SCREECHING && !global.player.dead) {
-			var new_dir = noone;
-	        if (global.player.x == x) {
-	            if (global.player.y > y) { new_dir = directions.down; }
-	            else { new_dir = directions.up; }
-	        }
-	        else if (global.player.y == y) {
-	            if (global.player.x > x) { new_dir = directions.right; }
-	            else { new_dir = directions.left; }
-	        }
-			
-			if (new_dir && new_dir != dir && can_move_in_direction_and_reach(new_dir, global.player, false, true)) {
-				dir = new_dir;
-				state = SCREECHING;
-				screech_timer = 4;
-				audio_play_sound( snd_lose, 10, false ); 
-			}
+			try_to_see_player();
 	    }
 		
 		// Determine course of action based on state
@@ -27,11 +12,12 @@ if (process_this_frame()) {
 			if (screech_timer > 0) { screech_timer -= 1; }
 			else { state = ATTACKING; }
 		}
-	    else if (state == ATTACKING && can_move_in_direction(dir, false, true)) { 
-	        if (can_move_in_direction(dir, false, true)) { move_in_direction(dir); }
-	        if (can_move_in_direction(dir, false, true)) { move_in_direction(dir); }
+	    else if (state == ATTACKING && can_move_in_direction(dir, false, true)) {
 			if (global.controller.number_of_frames_since_game_began mod (global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING * 2) == 0) { image_xscale *= -1; }
-	    }
+	        if (can_move_in_direction(dir, false, true)) { move_in_direction(dir); }
+			try_to_see_player();
+	        if (state == ATTACKING && can_move_in_direction(dir, false, true)) { move_in_direction(dir); }
+		 }
 	    else { 
 			state = WAITING;
 			dir = -1;

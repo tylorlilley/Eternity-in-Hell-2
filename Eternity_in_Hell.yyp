@@ -55,6 +55,7 @@
     {"id":{"name":"snd_win","path":"sounds/snd_win/snd_win.yy",},"order":25,},
     {"id":{"name":"snd_walk","path":"sounds/snd_walk/snd_walk.yy",},"order":27,},
     {"id":{"name":"snd_bush","path":"sounds/snd_bush/snd_bush.yy",},"order":29,},
+    {"id":{"name":"scr_spider","path":"scripts/scr_spider/scr_spider.yy",},"order":12,},
     {"id":{"name":"spr_heart","path":"sprites/spr_heart/spr_heart.yy",},"order":35,},
     {"id":{"name":"snd_thud","path":"sounds/snd_thud/snd_thud.yy",},"order":31,},
     {"id":{"name":"snd_whisper","path":"sounds/snd_whisper/snd_whisper.yy",},"order":33,},

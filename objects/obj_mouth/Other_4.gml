@@ -9,4 +9,5 @@
 
 event_inherited();
 audio_play_sound_for_object_only_once(snd_squelch);
+teleport_to_empty_space();
 //lethal = !get_random_chance_out_of(4);

@@ -71,6 +71,9 @@ if (room != rm_finish) {
 			if (instance_number(obj_lantern) == 0) { current_room.lit = false; }
 			else { with obj_lantern { light_torch(noone, false); } }
 		}
+		
+		// Teleport mouth to empty space
+		with (obj_mouth) { teleport_to_empty_space(); }
 	
 	    // Mark room as one that has been visited at some point during this game
 	    current_room.visited = true;
@@ -93,17 +96,6 @@ if (room != rm_finish) {
 
 	// Add a small pause when entering a room
 	global.player.pause_movement = FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
-	
-	// Randomly place mouth enemies
-	with (obj_mouth) {
-		do {
-			x = irandom(room_width/8)*8;
-			y = irandom(room_height/8)*8;
-		}
-		until (!instance_position(x, y, obj_solid) && 
-			   !instance_place(x, y, obj_death) && 
-			   distance_to_instance(global.player) >= MOUTH_DISTANCE);
-	}
 
 	// Set initial lighting to darkness
 	with obj_game_object { image_blend = global.controller.bg_color; }

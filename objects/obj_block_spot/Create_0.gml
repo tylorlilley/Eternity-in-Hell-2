@@ -1,5 +1,4 @@
 // Sometimes spawn something under block
-show_debug_message(global.controller.current_room.room_reference);
 if get_random_chance_out_of(32) {
 	var item = noone;
 	switch irandom(12) {

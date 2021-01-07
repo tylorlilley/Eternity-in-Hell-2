@@ -97,6 +97,13 @@ with ds_list_pop_random_value(farthest_rooms) {
 with (obj_exit) {
     if (locked) { ds_list_add(locked_exits, id); }
 }
+// Randomly spawn a special item for each item type
+total_number_of_rooms_with_collectables = ds_list_size(rooms_with_collectables);
+if (ds_list_size(rooms_with_key) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_key) { has_special_item = true; show_debug_message("RED KEY"); } }
+if (ds_list_size(rooms_with_torch) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_torch) { has_special_item = true; show_debug_message("RED TORCH"); } }
+if (ds_list_size(rooms_with_sword) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_sword) { has_special_item = true; show_debug_message("RED SWORD"); } }
+if (ds_list_size(rooms_with_rosary) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_rosary) { has_special_item = true; show_debug_message("RED ROSARY"); } }
+if (ds_list_size(rooms_with_map) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_map) { has_special_item = true; show_debug_message("RED MAP"); } }
 
 // Walk the Map and tweak it until map is possible
 //show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
@@ -114,8 +121,9 @@ while (!visited_all_rooms) {
 	//}
     // Add an additional key somewhere
     if (ds_list_size(keyless_rooms) > 0 && (ds_list_size(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
-        ds_list_pop_random_value(keyless_rooms).has_key = true;
-		
+        var room_to_add_key_to = ds_list_pop_random_value(keyless_rooms);
+		room_to_add_key_to.has_key = true;
+		ds_list_add(rooms_with_key, room_to_add_key_to.id);
 		//show_debug_message("NUMBER OF KEYS +1");
     }
     // Remove one of the locked doors and reset all rooms to have no keys
@@ -124,7 +132,7 @@ while (!visited_all_rooms) {
 		with (obj_room) {
 		    if (has_key) { has_key = false; ds_list_add(keyless_rooms, id); }
 		}
-		
+		ds_list_clear(rooms_with_key);
 		//show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
     }
 	// Should never need to reach this clause
@@ -135,7 +143,7 @@ while (!visited_all_rooms) {
 	
 	visited_all_rooms = is_current_map_possible();
 }
-show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
+//show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
 show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
 show_debug_message("NUMBER LOCKED DOORS: "+string(ds_list_size(locked_exits)));
 
@@ -144,19 +152,12 @@ ds_list_destroy(keyless_rooms);
 ds_list_destroy(farthest_rooms);
 ds_list_destroy(locked_exits);
 
-//Randomly spawn a special item for each item type
-total_number_of_rooms_with_collectables = ds_list_size(rooms_with_collectables);
-if (ds_list_size(rooms_with_key) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_key) { has_special_item = true; show_debug_message("RED KEY"); } }
-if (ds_list_size(rooms_with_torch) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_torch) { has_special_item = true; show_debug_message("RED TORCH"); } }
-if (ds_list_size(rooms_with_sword) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_sword) { has_special_item = true; show_debug_message("RED SWORD"); } }
-if (ds_list_size(rooms_with_rosary) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_rosary) { has_special_item = true; show_debug_message("RED ROSARY"); } }
-if (ds_list_size(rooms_with_map) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with ds_list_pop_random_value(rooms_with_map) { has_special_item = true; show_debug_message("RED MAP"); } }
-ds_list_destroy(rooms_with_key);
-ds_list_destroy(rooms_with_torch);
-ds_list_destroy(rooms_with_sword);
-ds_list_destroy(rooms_with_rosary);
-ds_list_destroy(rooms_with_map);
-
+// Destroy the lists used for special item generation
+//ds_list_destroy(rooms_with_key);
+//ds_list_destroy(rooms_with_torch);
+//ds_list_destroy(rooms_with_sword);
+//ds_list_destroy(rooms_with_rosary);
+//ds_list_destroy(rooms_with_map);
 
 // Set up point and time related variables
 time_provided = (instance_number(obj_room) * TIME_PROVIDED_PER_ROOM) + (instance_number(obj_exit) * TIME_PROVIEDED_PER_LOCK);

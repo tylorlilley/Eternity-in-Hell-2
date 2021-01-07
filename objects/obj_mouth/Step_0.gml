@@ -9,7 +9,7 @@ if (process_this_frame()) {
 	       (distance_to_instance(global.player) >= MOUTH_DISTANCE && visible) { 
 	        visible = !visible;
 	        audio_play_sound( snd_squelch, 10, false );
-			teleport_to_empty_space();
+			if (!visible) { teleport_to_empty_space(); }
 	    }
 	}
 	else { visible = false; }

@@ -16,7 +16,7 @@ function initialize_room(list_of_rooms) {
 			default: { item_type = obj_torch; ds_list_add(global.controller.rooms_with_torch, id); break; }
 		}
 	}
-		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY) { if (!item_type == noone) { ds_list_add(global.controller.rooms_with_key, id); } }
+	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; ds_list_add(global.controller.rooms_with_key, id); }
 	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; ds_list_add(global.controller.rooms_with_collectables, id); }
 	
 	// Randomly determine the number of exits this room should have based on probability weighting

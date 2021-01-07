@@ -60,7 +60,7 @@ function get_room_from_room_lists() {
 /// @param		{index} list				List of rooms to duplicate one of at random
 function duplicate_room_from_list(list) {
 	ds_list_shuffle(list);
-	var chosen_room = ds_list_find_value(list, 0);
+	var chosen_room = rm_one_exit_15; //ds_list_find_value(list, 0);
 	var new_room = room_duplicate(chosen_room);
 	room_set_persistent(new_room, true);
 	

@@ -48,6 +48,7 @@ function initialize_game_variables() {
 	MAX_TORCH_TIME_TO_REMAIN_LIT = 60; // minutes * 60 = total seconds for torch to remain lit
 	TIME_PROVIDED_PER_ROOM = 30;
 	TIME_PROVIEDED_PER_LOCK = 10;
+	TOTAL_COMPLETION_AMOUNT = 4;
 	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run
 	time_remaining = 1;
 	time_provided = 1;
@@ -64,8 +65,8 @@ function initialize_game_variables() {
 	total_number_of_rooms_with_collectables = 0;
 	//rooms_with_collectables_collected = 0;
 	//spawned_special_items = ds_list_create();
-	game_won = false;
 	death_timer = 0;
+	completion_amount = 0;
 
 	// initialize room transition values
 	bg_color = make_color_rgb(20, 20, 20);
@@ -83,7 +84,7 @@ function one_unit_of_game_time() {
 
 /// @function								game_has_been_won();
 function game_has_been_won() {
-	return (global.controller.game_won);
+	return (global.controller.completion_amount >= global.controller.TOTAL_COMPLETION_AMOUNT);
 }
 
 /// @function								game_has_been_lost();

@@ -18,6 +18,11 @@ function pick_up_item(dir, play_sound) {
 	persistent = true;
 	depth = -10;
 	image_xscale = global.player.image_xscale;
+	if (!has_been_carried) {
+		has_been_carried = true;
+		if (object_index == obj_key) { global.controller.current_room.has_key = false; }
+		else if (object_index == obj_heart) { global.controller.completion_amount += 1; }
+	}
 }
 
 /// @function								drop_item();
@@ -38,6 +43,7 @@ function make_item_special() {
 	special = true;
 	image_index = 1;
 	if (object_index == obj_torch) { 
+		image_index = 0;
 		lighting_range = global.controller.TORCH_LIGHT_RANGE*2;
 		sprite_index = spr_special_torch; 
 	}

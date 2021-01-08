@@ -5,7 +5,10 @@ if (process_this_frame()) {
 			with global.controller {
 				current_room.has_collectables = false;
 				ds_list_delete(rooms_with_collectables, ds_list_find_index(rooms_with_collectables, current_room.id));
-				if (game_progress_has_been_completed()) { audio_play_sound( snd_win, 10, false ); }
+				if (game_progress_has_been_completed()) { 
+					audio_play_sound( snd_win, 10, false ); 
+					global.controller.completion_amount += 1;
+				}
 			}
 	    }
 	    instance_destroy();
@@ -18,7 +21,7 @@ if (process_this_frame()) {
 	    var dir = irandom(3);
 	    if (is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
 	    if (get_random_chance_out_of(3)) { dir = 4; }
-	    if (can_move_in_direction(dir, false, false)) { move_in_direction(dir); }
+	    if (can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); }
 	}
 
 	event_inherited();

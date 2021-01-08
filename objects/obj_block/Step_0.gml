@@ -10,7 +10,7 @@ if (process_this_frame()) {
 		
 	if (pushed_against_by_player(true) == dir && can_move_in_direction(dir, false, true)) { 
 		audio_play_sound(snd_thud, 10, false);
-		move_in_direction(dir); 
+		move_in_direction(dir, false); 
 		move_player(dir);
 	}
 	

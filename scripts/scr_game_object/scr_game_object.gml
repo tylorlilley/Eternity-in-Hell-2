@@ -67,7 +67,7 @@ function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ign
 	var original_x = x, original_y = y, can_reach_target = false;
 	
 	while(can_move_in_direction(dir, ignore_solid, ignore_death) && !can_reach_target) {
-		move_in_direction(dir);
+		move_in_direction(dir, false);
 		if (instance_at_coordinates(x, y, target_instance)) { can_reach_target = true; }
 	}
 	
@@ -80,8 +80,9 @@ function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ign
 
 /// @function								move_in_direction(dir);
 /// @param		{direction} dir				The direction in which to move the calling instance
-function move_in_direction(dir) {
-	audio_play_sound( snd_walk, 10, false );
+/// @param		{boolean} play_sound		Whether or not to play a movement sound
+function move_in_direction(dir, play_sound) {
+	if (play_sound) { audio_play_sound( snd_walk, 10, false ); }
 	
 	if (dir == directions.up) { y -= 8; } 
 	if (dir == directions.right) { x += 8; image_xscale = -1; }

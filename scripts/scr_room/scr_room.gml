@@ -191,6 +191,11 @@ function draw_room(x_pos, y_pos) {
 		var white_color = merge_color(c_white, bg_color, fade_amount);
 		var red_color = merge_color(c_red, bg_color, fade_amount);
 		
+		// Darken the colors of unvisited rooms on the map
+		if (!visited) {
+			white_color = merge_color(white_color, bg_color, 0.5);
+			red_color = merge_color(red_color, bg_color, 0.5);
+		}
 		
 	    // Draw Room on Map
 		var room_color = lit ? red_color : white_color;

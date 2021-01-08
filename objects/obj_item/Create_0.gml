@@ -5,3 +5,4 @@ special = false;
 draw_y_offset = 0;
 carried = noone;
 can_pick_up = true;
+has_been_carried = false;

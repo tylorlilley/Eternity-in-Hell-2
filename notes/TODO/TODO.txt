@@ -8,15 +8,11 @@ random_set_seed(2037714886); // impossible locked key
 
 BUGFIXES
 Crash when entering stairs???
-special torch from chest spawned with wrong image_index
-FIXED? - Spider/skeleton/other monsters dieing randomly when entering room?
-FIXED? - deactivated/non-lethal spider and phantom not rotating with the rest of the room when flipped/rotated
 
 REFACTORS
 Refactor player with torches and lighting holding things
 
 ENHANCEMENTS
-Update has_key status for rooms to make maps accurate
 Make map show if room has key OR chest instead of just if a key spawned there?
 Remove lit rooms coloring different on map?
 

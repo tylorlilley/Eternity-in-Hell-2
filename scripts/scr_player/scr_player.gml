@@ -6,7 +6,7 @@ function move_player(dir) {
 		if (dir != directions.stairs) {
 			image_index += 1;
 			if (image_index > 1) { image_index = 0; }
-			move_in_direction(dir);
+			move_in_direction(dir, true);
 		}
 		// Move carried items
 		for (var i = 0; i <= 4; i += 1;) {

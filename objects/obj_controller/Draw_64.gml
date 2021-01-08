@@ -49,7 +49,7 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 		draw_text(hud_x_pos, room_height-40, string_hash_to_newline("Game Seed: "+string(random_get_seed())));
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
 		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
-		var bonus_for_winning_game = game_won ? 100 : 0;
+		var bonus_for_winning_game = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
 		var total_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining)/3;
 	    if (has_won || has_lost) { 
 			draw_text(hud_x_pos, room_height-160, string_hash_to_newline("Collected: "+string(percentage_of_collectables_collected)+"%")); 

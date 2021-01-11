@@ -7,7 +7,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
     
 	    // Update per frame values
 	    time_remaining -= one_unit_of_game_time();
-	    if key_space { time_remaining -= one_unit_of_game_time(); }
+	    //if key_space { time_remaining -= one_unit_of_game_time(); }
 	    if (game_has_timed_out()) { time_remaining = 0; audio_play_sound( snd_lose, 10, false ); }
 		
 		// Handle room transition blackout to get around macOS drawing bug

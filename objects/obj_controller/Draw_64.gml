@@ -62,6 +62,10 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 	// Draw elapsed time
 	var time_elapsed = (time_provided - time_remaining);
 	draw_text(hud_x_pos, room_height-20, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
+
+	// Draw game version
+	draw_set_halign(fa_right);
+	draw_text(room_width-4, room_height-20,"ver." + GM_version); 
 }
 
 if (TEST_MODE) { 

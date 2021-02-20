@@ -1,7 +1,7 @@
 {
   "option_mac_display_name": "EIH",
   "option_mac_app_id": "EIH",
-  "option_mac_version": "1.0.0.0",
+  "option_mac_version": "0.2.0",
   "option_mac_output_dir": "~/GameMaker-Studio/Eternity_in_Hell",
   "option_mac_team_id": "",
   "option_mac_signing_identity": "",

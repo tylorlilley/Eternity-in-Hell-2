@@ -10,7 +10,7 @@ enum directions {
 /// @function								initialize_game_variables();
 function initialize_game_variables() {
 	// Set draw depth for all layers to 0
-	layer_force_draw_depth(true,0);	
+	layer_force_draw_depth(true,0);
 	
 	// Set the global game speed
 	game_set_speed(60, gamespeed_fps);

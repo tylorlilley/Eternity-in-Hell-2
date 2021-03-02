@@ -31,6 +31,20 @@ function opposite_dir(dir) {
 	else { return (dir+2) mod 4; }
 }
 
+/// @function								dir_turn_right(dir);
+/// @param		{direction}	dir				The direction to return the direction to the right of
+function dir_turn_right(dir) {
+	if (dir < 0 || dir > 3) { return -1; }
+	else { return (dir+1) mod 4; }
+}
+
+/// @function								dir_turn_left(dir);
+/// @param		{direction}	dir				The direction to return the direction to the left of
+function dir_turn_left(dir) {
+	if (dir < 0 || dir > 3) { return -1; }
+	else { return (dir-1) mod 4; }
+}
+
 /// @function								array(...);
 function array() {
 	// Creates an array with the value of each argument given at the positions in the order given

@@ -22,6 +22,4 @@ if (process_this_frame()) {
 			kill_enemy();
 		}
 	}
-	
-	
 }

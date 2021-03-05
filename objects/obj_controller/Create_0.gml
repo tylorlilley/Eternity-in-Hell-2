@@ -34,6 +34,7 @@ with (obj_room) {
 ds_list_shuffle(rooms_with_stairs_spot);
 if (ds_list_size(rooms_with_stairs_spot) mod 2 != 0) {
     var odd_room_out = ds_list_find_value(rooms_with_stairs_spot, 0);
+	odd_room_out.stairs_spot_obj = noone;
     odd_room_out.exits[4] = false;
     ds_list_delete(rooms_with_stairs_spot, 0);
 }

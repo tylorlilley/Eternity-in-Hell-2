@@ -13,8 +13,8 @@ if (room != rm_finish) {
 		
 		// Update enemies in room to reflect new x, y position as initial position
 		with (obj_enemy) {
-			initial_x = x;
-			initial_y = y;
+			xstart = x;
+			ystart = y;
 		}
     
 	    // Create locked exits if they should exist

@@ -11,6 +11,7 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 	draw_rectangle(0, 0, room_width, room_height, false);
 
     // Draw map of rooms if applicable
+	var hud_x_pos = 4;
     if (is_looking_at_map && !has_won && !has_lost && !transition) {
         // Draw each visited room
         with obj_room { drawn = false; }
@@ -31,9 +32,17 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
         if (collectables_collected > 0) { 
 			draw_rectangle(84, 6, get_scaling_amount(84, (room_width-4), collectables_collected, total_number_of_rooms_with_collectables), 18, false); 
 		}
+		
+		// Draw elapsed time
+		var time_elapsed = (time_provided - time_remaining);
+		draw_text(hud_x_pos, room_height-20, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
+
+		// Draw game version
+		draw_set_halign(fa_right);
+		draw_text(room_width-4, room_height-20,"ver." + GM_version); 
+		draw_set_halign(fa_left);
     }
 	
-	var hud_x_pos = 4
 	if (room == rm_finish) {
 	    // Draw a winning or losing message
 	    if (has_won || has_lost) {
@@ -45,8 +54,11 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 	        hud_x_pos = room_width/2;
 	    }
 
-	    // Draw final score and game seed
-		draw_text(hud_x_pos, room_height-40, string_hash_to_newline("Game Seed: "+string(random_get_seed())));
+		// Draw final score and game seed and game version
+		draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
+		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+string(random_get_seed())));	// Draw elapsed time
+		var time_elapsed = (time_provided - time_remaining);
+		draw_text(hud_x_pos, room_height-80, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
 		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
 		var bonus_for_winning_game = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
@@ -58,10 +70,6 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 			draw_text(hud_x_pos, room_height-96, string_hash_to_newline("Total Score: "+string(total_score)+"%")); 
 		}
 	}
-	
-	// Draw elapsed time
-	var time_elapsed = (time_provided - time_remaining);
-	draw_text(hud_x_pos, room_height-20, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
 }
 
 if (TEST_MODE) { 

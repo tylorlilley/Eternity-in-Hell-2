@@ -1,3 +1,4 @@
+show_debug_message("Entered room:"+string(room));
 if (room != rm_finish) {
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
 	if (instance_number(obj_phantom) == 0) { audio_stop_sound( snd_dread ); }

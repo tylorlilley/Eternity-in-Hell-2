@@ -1,4 +1,3 @@
-
 // Initialize global values
 randomize()
 //random_set_seed(2775969425
@@ -35,6 +34,7 @@ ds_list_shuffle(rooms_with_stairs_spot);
 if (ds_list_size(rooms_with_stairs_spot) mod 2 != 0) {
     var odd_room_out = ds_list_find_value(rooms_with_stairs_spot, 0);
     odd_room_out.exits[4] = false;
+	odd_room_out.stairs_spot_obj = noone;
     ds_list_delete(rooms_with_stairs_spot, 0);
 }
 for (var i = 0; i < ds_list_size(rooms_with_stairs_spot); i += 2) {

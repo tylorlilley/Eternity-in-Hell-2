@@ -159,6 +159,7 @@
     {"id":{"name":"rm_two_perpendicular_exits_4","path":"rooms/rm_two_perpendicular_exits_4/rm_two_perpendicular_exits_4.yy",},"order":3,},
     {"id":{"name":"rm_two_perpendicular_exits_5","path":"rooms/rm_two_perpendicular_exits_5/rm_two_perpendicular_exits_5.yy",},"order":4,},
     {"id":{"name":"rm_two_perpendicular_exits_14","path":"rooms/rm_two_perpendicular_exits_14/rm_two_perpendicular_exits_14.yy",},"order":13,},
+    {"id":{"name":"rm_three_exits_16","path":"rooms/rm_three_exits_16/rm_three_exits_16.yy",},"order":15,},
     {"id":{"name":"rm_two_perpendicular_exits_6","path":"rooms/rm_two_perpendicular_exits_6/rm_two_perpendicular_exits_6.yy",},"order":5,},
     {"id":{"name":"rm_finish","path":"rooms/rm_finish/rm_finish.yy",},"order":8,},
     {"id":{"name":"rm_two_perpendicular_exits_7","path":"rooms/rm_two_perpendicular_exits_7/rm_two_perpendicular_exits_7.yy",},"order":6,},
@@ -305,6 +306,7 @@
     {"roomId":{"name":"rm_two_perpendicular_exits_14","path":"rooms/rm_two_perpendicular_exits_14/rm_two_perpendicular_exits_14.yy",},},
     {"roomId":{"name":"rm_two_perpendicular_exits_15","path":"rooms/rm_two_perpendicular_exits_15/rm_two_perpendicular_exits_15.yy",},},
     {"roomId":{"name":"rm_four_exits_16","path":"rooms/rm_four_exits_16/rm_four_exits_16.yy",},},
+    {"roomId":{"name":"rm_three_exits_16","path":"rooms/rm_three_exits_16/rm_three_exits_16.yy",},},
   ],
   "Folders": [
     {"folderPath":"folders/Sprites.yy","order":1,"resourceVersion":"1.0","name":"Sprites","tags":[],"resourceType":"GMFolder",},

@@ -45,6 +45,7 @@ function is_current_map_possible() {
 	}
 	until (ds_list_size(unlocked_exit_lists_to_verify) == 0)
 	
+	ds_list_destroy(unlocked_exit_lists_to_verify);
 	return map_is_possible;
 }
 

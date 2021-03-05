@@ -80,22 +80,3 @@ function get_quadrant_y_pos(quadrant_number) {
     if (quadrant_number < 2) { return y-4; }
 	else { return y+4; }
 }
-
-/// @function								make_fullscreen();
-/// @param		{boolean} is_fullscreen		Whether to ultiamtely set fullscreen to true or false
-function set_fullscreen(is_fullscreen) {
-	// Check if window has focus
-	if (!window_has_focus()) {
-		global.lostFocus = true;
-		// Refocus
-	} 
-	else if (global.lostFocus) {
-		global.lostFocus = false;
-	
-		// Fix windowed Gamemaker bug
-		if (!global.windowed) {
-			window_set_fullscreen(!is_fullscreen);
-			window_set_fullscreen(is_fullscreen);
-		}
-	}
-}

@@ -6,6 +6,7 @@ if (process_this_frame()) {
 	    var skeleton = instance_create_depth(x, y, 0, obj_skeleton);
 		skeleton.image_xscale = image_xscale;
 	    skeleton.spawn_timer += 6;
+		skeleton.usurped = false;
 	    instance_destroy();
 	}
 }

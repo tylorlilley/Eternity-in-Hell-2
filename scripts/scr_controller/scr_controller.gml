@@ -14,7 +14,7 @@ function initialize_game_variables() {
 	
 	// Set the global game speed
 	game_set_speed(60, gamespeed_fps);
-	gc_enable(false);
+	//gc_enable(false);
 	
 	// Set up global shortcut references
 	global.controller = id;

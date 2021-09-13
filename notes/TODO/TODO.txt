@@ -17,6 +17,14 @@ Make map show if room has key OR chest instead of just if a key spawned there?
 Remove lit rooms coloring different on map?
 
 NEW FEATURES
+Multi-tile worm that moves one space at a time and brings any associated worm bodies with him of varying length.
+- Worm bodies can be solid? But not head?
+- Must hit head with sword to kill it?
+Revamp rosary item to respawn player at the start upon being killed (and drop any items they were carrying on the players corpse)
+- leave behind a player corpse where they were killed
+- add player corpe decorative tile as tile that very rarely (1/100?) spawns instead of regular corpses/bodies
+- red rosary doesn't use itself up when being killed - if holding multiple rosaries, use up one and drop the other, and if holding red one use up none (like swords)
+Add flecks/dots randomly generated on first visit to room to further decorate the space
 Portcullis door opened with button
 Zelda style doors that close and you have to push block or light torch to open
 Greedy monster that runs toward held items drop items to distract

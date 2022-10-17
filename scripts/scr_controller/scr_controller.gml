@@ -21,7 +21,7 @@ function initialize_game_variables() {
 	global.player = noone;
 
 	// Initialize room probability constants
-	NUMBER_OF_EXITS_PROBABILITIES = array(10, 80, 10, 0);
+	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
 	LOCKED_DOOR_PROBABILITY = 5;
 	HAS_STAIRS_PROBABILITY = 20;
 	HAS_COLLECTABLE_PROBABILITY = 30;
@@ -54,17 +54,17 @@ function initialize_game_variables() {
 	time_provided = 1;
 	
 	// initialize room list values
-	rooms_with_collectables = ds_list_create();
-	rooms_with_torch = ds_list_create();
-	rooms_with_key = ds_list_create();
-	rooms_with_sword = ds_list_create();
-	rooms_with_map = ds_list_create();
-	rooms_with_rosary = ds_list_create();
+	rooms_with_collectables = array_create(0);
+	rooms_with_torch = array_create(0);
+	rooms_with_key = array_create(0);
+	rooms_with_sword = array_create(0);
+	rooms_with_map = array_create(0);
+	rooms_with_rosary = array_create(0);
 
 	// initialize game state values
 	total_number_of_rooms_with_collectables = 0;
 	//rooms_with_collectables_collected = 0;
-	//spawned_special_items = ds_list_create();
+	//spawned_special_items = array_create(0);
 	death_timer = 0;
 	completion_amount = 0;
 
@@ -99,7 +99,7 @@ function game_has_timed_out() {
 
 /// @function								game_has_timed_out();
 function game_progress_has_been_completed() {
-	return (ds_list_size(global.controller.rooms_with_collectables) == 0);
+	return (array_length(global.controller.rooms_with_collectables) == 0);
 }
 
 /// @function								transition_to_room();

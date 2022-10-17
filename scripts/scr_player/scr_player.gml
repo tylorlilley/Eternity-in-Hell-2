@@ -20,15 +20,13 @@ function move_player(dir) {
 function pick_up_or_drop_item(dir) {
 	if (carried_items[dir]) { with carried_items[dir] { drop_item(dir, true); } }
 	else {
-		var dropped_items = ds_list_create();
-		instance_place_list(x, y, obj_item, dropped_items, false);
-		while (ds_list_size(dropped_items) > 0) {
-			var dropped_item = ds_list_pop_random_value(dropped_items);
+		var dropped_items = instance_place_all(x, y, obj_item);
+		while (array_length(dropped_items) > 0) {
+			var dropped_item = array_random_pop(dropped_items);
 			if (dropped_item && !dropped_item.carried && dropped_item.can_pick_up && instance_at_coordinates(x, y, dropped_item)) {
-				with dropped_item { pick_up_item(dir, true); ds_list_destroy(dropped_items); return true; }
+				with dropped_item { pick_up_item(dir, true); return true; }
 			}
 		}
-		ds_list_destroy(dropped_items);
 		return false;
 	}
 }

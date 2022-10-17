@@ -10,14 +10,14 @@ function initialize_room(list_of_rooms) {
 
 		var rand = irandom(3);
 		switch rand {
-			case 0: { item_type = obj_rosary; ds_list_add(global.controller.rooms_with_rosary, id); break; }
-			case 1: { item_type = obj_map; ds_list_add(global.controller.rooms_with_map, id); break; }
-			case 2: { item_type = obj_sword; ds_list_add(global.controller.rooms_with_sword, id); break; }
-			default: { item_type = obj_torch; ds_list_add(global.controller.rooms_with_torch, id); break; }
+			case 0: { item_type = obj_rosary; array_push(global.controller.rooms_with_rosary, id); break; }
+			case 1: { item_type = obj_map; array_push(global.controller.rooms_with_map, id); break; }
+			case 2: { item_type = obj_sword; array_push(global.controller.rooms_with_sword, id); break; }
+			default: { item_type = obj_torch; array_push(global.controller.rooms_with_torch, id); break; }
 		}
 	}
-	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; ds_list_add(global.controller.rooms_with_key, id); }
-	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; ds_list_add(global.controller.rooms_with_collectables, id); }
+	if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; array_push(global.controller.rooms_with_key, id); }
+	if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; array_push(global.controller.rooms_with_collectables, id); }
 	
 	// Randomly determine the number of exits this room should have based on probability weighting
 	var target_number_of_exits = 0;
@@ -84,7 +84,7 @@ function create_adjoining_room(dir, list_of_rooms) {
 
 	var new_room = instance_create_depth(x+x_offset, y+y_offset, 0, obj_room);
 	link_adjoining_room(new_room, dir);
-	ds_list_add(list_of_rooms, new_room);
+	array_push(list_of_rooms, new_room);
 }
 
 /// @function								link_adjoining_room(adjoining_room, dir);

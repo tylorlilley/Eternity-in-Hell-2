@@ -45,14 +45,14 @@ function dir_turn_left(dir) {
 	else { return (dir-1) mod 4; }
 }
 
-/// @function								array(...);
-function array() {
-	// Creates an array with the value of each argument given at the positions in the order given
-	var arr;
-	for (var i = argument_count-1; i >= 0; i -= 1) { arr[i] = argument[i]; }
-	
-	return arr;
-}
+///// @function								array(...);
+//function array() {
+//	// Creates an array with the value of each argument given at the positions in the order given
+//	var arr;
+//	for (var i = argument_count-1; i >= 0; i -= 1) { arr[i] = argument[i]; }
+//	
+//	return arr;
+//}
 
 /// @function								get_random_instance(obj_index);
 /// @param		{index} obj_index			The type of object to get a random existing instance of
@@ -79,4 +79,24 @@ function get_quadrant_x_pos(quadrant_number) {
 function get_quadrant_y_pos(quadrant_number) {
     if (quadrant_number < 2) { return y-4; }
 	else { return y+4; }
+}
+
+/// @function								instance_place_all(x_pos, y_pos, obj_type);
+/// @param		{real}	x_pos				The x_pos to check for instances
+/// @param		{real}	y_pos				The x_pos to check for instances
+/// @param		{real}	y_pos				The object type of instance to check for
+function instance_place_all(x_pos, y_pos, obj_type) {
+    var calling_instance_id = id, list_of_matches = array_create(0);
+	
+    with (obj_type) {
+        var potential_match_id = id;
+        with (calling_instance_id) {
+            var potential_match = instance_place(x_pos, y_pos, potential_match_id);
+            if (potential_match != noone) { array_push(list_of_matches, potential_match); }
+        }
+    }
+    //if (array_length(list_of_matches) == 0) {
+    //    list_of_matches = noone;
+    //}
+    return list_of_matches;
 }

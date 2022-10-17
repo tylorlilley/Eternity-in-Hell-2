@@ -3,7 +3,7 @@ var has_won = game_has_been_won();
 var has_lost = game_has_been_lost();
 var has_timed_out = game_has_timed_out();
 var is_looking_at_map = key_space && !has_lost;
-var collectables_collected = total_number_of_rooms_with_collectables - ds_list_size(rooms_with_collectables);
+var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 
 if (transition || has_won || has_timed_out || is_looking_at_map) {
 	// Draw background over entire screen
@@ -77,6 +77,6 @@ if (TEST_MODE) {
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.item_type));
-	draw_text(4, room_height-20, string(ds_list_size(rooms_with_key))+" "+string(ds_list_size(rooms_with_torch))+" "+string(ds_list_size(rooms_with_sword))+" "+string(ds_list_size(rooms_with_rosary))+" "+string(ds_list_size(rooms_with_map)));
+	draw_text(4, room_height-20, string(array_length(rooms_with_key))+" "+string(array_length(rooms_with_torch))+" "+string(array_length(rooms_with_sword))+" "+string(array_length(rooms_with_rosary))+" "+string(array_length(rooms_with_map)));
 }
 

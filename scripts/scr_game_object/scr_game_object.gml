@@ -131,7 +131,7 @@ function flip_sprite_at_random(flip_vertical) {
 /// @function								get_presence_at_each_quadrant(obj_index);
 ///	@param		{index} obj_index			The object type to check the presence of in each quadrant
 function get_presence_at_each_quadrant(obj_index) {
-	var presence_at_quadrant = array(noone, noone, noone, noone);
+	var presence_at_quadrant =[noone, noone, noone, noone];
 	
 	for (var i = 0; i <= 3; i+= 1;) {
         var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);

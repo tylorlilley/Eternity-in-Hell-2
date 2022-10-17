@@ -5,7 +5,7 @@ function convert_to_multiple_death_boxes() {
 	death_box = noone;
 	
 	// Set up the death box for each quadrant of this lava
-	death_boxes = array(noone, noone, noone, noone);
+	death_boxes = [noone, noone, noone, noone];
 	for (var i = 0; i <= 3; i+= 1;) {
 		var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 

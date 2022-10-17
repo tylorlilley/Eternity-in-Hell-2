@@ -1,10 +1,10 @@
 // Destroy remaing ds lists
-ds_list_destroy(rooms_with_collectables);
-ds_list_destroy(rooms_with_torch);
-ds_list_destroy(rooms_with_key);
-ds_list_destroy(rooms_with_sword);
-ds_list_destroy(rooms_with_map);
-ds_list_destroy(rooms_with_rosary);
+//ds_list_destroy(rooms_with_collectables);
+//ds_list_destroy(rooms_with_torch);
+//ds_list_destroy(rooms_with_key);
+//ds_list_destroy(rooms_with_sword);
+//ds_list_destroy(rooms_with_map);
+//ds_list_destroy(rooms_with_rosary);
 
 // Destroy Persistent Rooms and Exits
 room_persistent = false;

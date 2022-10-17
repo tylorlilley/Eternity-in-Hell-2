@@ -44,12 +44,11 @@ function extinguish_torch() {
 
 /// @function							interact_with_carried_torches();
 function interact_with_other_torches() {
-	var actively_lit = false, torches = ds_list_create();
-	instance_place_list(x, y, obj_torch, torches, false);
+	var actively_lit = false, torches = instance_place_all(x, y, obj_torch);
 	
 	// Cycle through and interact with each carried torch on this object
-	while (ds_list_size(torches) > 0) {
-		var other_torch = ds_list_pop_random_value(torches);
+	while (array_length(torches) > 0) {
+		var other_torch = array_random_pop(torches);
 		
 		if (instance_at_coordinates(x, y, other_torch) && id != other_torch.id) {
 			var not_carried = (carried == noone), other_not_carried = (other_torch.carried == noone);
@@ -66,6 +65,4 @@ function interact_with_other_torches() {
 		if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(global.controller.PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT)); }
 		if (!time_to_remain_lit && image_speed > 0) { extinguish_torch(); }
 	}
-	
-	ds_list_destroy(torches);
 }

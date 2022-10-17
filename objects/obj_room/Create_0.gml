@@ -16,7 +16,7 @@ stairs_spot_obj = noone;
 item_type = noone;
 
 // Initialize room topography information
-exits = array( false, false, false, false, false );
-locked_exits = array( noone, noone, noone, noone, noone );
-adj_rooms = array( noone, noone, noone, noone, noone );
+exits = [false, false, false, false, false];
+locked_exits = [noone, noone, noone, noone, noone];
+adj_rooms = [noone, noone, noone, noone, noone];
 

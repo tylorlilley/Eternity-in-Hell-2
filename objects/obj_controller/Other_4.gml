@@ -63,7 +63,7 @@ if (room != rm_finish) {
 			if (instance_number(obj_collectable) == 0) { 
 				// This should never happen if every room has 2+ collectable spots
 				current_room.has_collectables = false;
-				ds_list_delete(rooms_with_collectables, ds_list_find_index(rooms_with_collectables, current_room.id));
+				array_delete(rooms_with_collectables, array_find_index(rooms_with_collectables, current_room.id), 1);
 			}
 	    }
 	

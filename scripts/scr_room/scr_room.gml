@@ -129,16 +129,12 @@ function add_random_exit(must_create_new, list_of_rooms) {
 /// @function								create_locked_exit(dir);
 /// @param		{direction}		dir			The directional exit of the room to create a locked exit in.
 function create_locked_exit(dir) {
-	var new_locked_exit = instance_create_depth(0,0,0,obj_exit); 
+	var new_exit = new RoomExit(id, dir);
 	
-	new_locked_exit.room_1 = id;
-	new_locked_exit.room_1_dir = dir;
-	new_locked_exit.room_2 = adj_rooms[dir];
-	new_locked_exit.room_2_dir = opposite_dir(dir);
-	new_locked_exit.room_1.locked_exits[new_locked_exit.room_1_dir] = new_locked_exit;
-	new_locked_exit.room_2.locked_exits[new_locked_exit.room_2_dir] = new_locked_exit;
+	new_exit.room_1.locked_exits[new_exit.room_1_dir] = new_exit;
+	new_exit.room_2.locked_exits[new_exit.room_2_dir] = new_exit;
 	
-	return new_locked_exit;
+	return new_exit;
 }
 
 /// @function								count_exits();

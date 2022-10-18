@@ -53,10 +53,11 @@ with obj_room {
 // destroy_room_lists();
 
 // Lock Random Exits
+var locked_exits = array_create(0);
 with obj_room {
     for(var i = 0; i <= 3; i+= 1;) {
         if (exits[i] && get_random_chance_out_of(global.controller.LOCKED_DOOR_PROBABILITY)) { 
-            create_locked_exit(i);
+           array_push(locked_exits, create_locked_exit(i));
         }
     }
 }
@@ -67,7 +68,7 @@ until (!current_room.stairs_spot_obj);
 with current_room { calculate_distance_to_current(0); }
 
 // Set up lists used to walk the map
-var locked_exits = array_create(0), keyless_rooms = array_create(0), farthest_rooms = array_create(0);
+var keyless_rooms = array_create(0), farthest_rooms = array_create(0);
 with (obj_room) {
 	// Determine if room could be the room the heart is in
 	if (!exits[4]) {
@@ -92,10 +93,6 @@ with array_random_pop(farthest_rooms) {
 	for (var i = 0; i <= 3; i += 1;) {
 		if (exits[i]) { create_locked_exit(i); }
 	}
-}
-// Create list of locked exits
-with (obj_exit) {
-    if (locked) { array_push(locked_exits, id); }
 }
 // Randomly spawn a special item for each item type
 total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
@@ -128,7 +125,7 @@ while (!visited_all_rooms) {
     }
     // Remove one of the locked doors and reset all rooms to have no keys
     else if (array_length(locked_exits) > 0) {
-        with array_random_pop(locked_exits) { remove_exit(); }
+        with array_random_pop(locked_exits) { remove(); }
 		with (obj_room) {
 		    if (has_key) { has_key = false; array_push(keyless_rooms, id); }
 		}
@@ -147,6 +144,10 @@ while (!visited_all_rooms) {
 show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (array_length(keyless_rooms)+1)));
 show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 
+// Set up point and time related variables
+time_provided = (instance_number(obj_room) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);
+time_remaining = time_provided;
+
 // Destroy the lists used for lock generation
 //ds_list_destroy(keyless_rooms);
 //ds_list_destroy(farthest_rooms);
@@ -158,10 +159,6 @@ show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 //ds_list_destroy(rooms_with_sword);
 //ds_list_destroy(rooms_with_rosary);
 //ds_list_destroy(rooms_with_map);
-
-// Set up point and time related variables
-time_provided = (instance_number(obj_room) * TIME_PROVIDED_PER_ROOM) + (instance_number(obj_exit) * TIME_PROVIEDED_PER_LOCK);
-time_remaining = time_provided;
 
 // Create player object and change room to current room's referenced room
 current_room.stairs_spot_obj = obj_cross;

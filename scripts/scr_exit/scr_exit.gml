@@ -1,11 +1,17 @@
-/// @function								unlock_exit();
-function unlock_exit() {
-	locked = false;
-}
-
-/// @function								remove_exit();
-function remove_exit() {
-	room_1.locked_exits[room_1_dir] = noone;
-	room_2.locked_exits[room_2_dir] = noone;
-	instance_destroy();
+/// @function								new RoomExit(room, dir);
+/// @param		{real}	given_room			The room to create an exit for
+/// @param		{dir}	dir					The cardinal direction of the adjoining room to link via this exit
+function RoomExit(given_room, dir) constructor {
+	locked = true;
+	room_1 = given_room;
+	room_1_dir = dir;
+	room_2 = given_room.adj_rooms[dir];
+	room_2_dir = opposite_dir(dir);
+	id = generate_id();
+	
+	function unlock() { locked = false; }
+	function remove() {
+		room_1.locked_exits[room_1_dir] = noone;
+		room_2.locked_exits[room_2_dir] = noone;
+	}
 }

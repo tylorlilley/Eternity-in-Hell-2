@@ -100,3 +100,10 @@ function instance_place_all(x_pos, y_pos, obj_type) {
     //}
     return list_of_matches;
 }
+
+/// @function								generate_id();
+function generate_id() {
+    static counter = 0;
+    counter++;
+    return counter;
+}

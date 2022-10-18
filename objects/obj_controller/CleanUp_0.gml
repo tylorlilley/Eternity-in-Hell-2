@@ -8,7 +8,7 @@
 
 // Destroy Persistent Rooms and Exits
 room_persistent = false;
-with (obj_exit) { instance_destroy(); }
+// with (obj_exit) { instance_destroy(); }
 with (obj_room) {
 	room_goto(room_reference);
 	room_persistent = false;

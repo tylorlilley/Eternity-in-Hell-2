@@ -4,7 +4,7 @@ if (process_this_frame()) {
 	        // You are collecting the final collectable in the room
 			with global.controller {
 				current_room.has_collectables = false;
-				array_delete(rooms_with_collectables, array_find_index(rooms_with_collectables, current_room.id), 1);
+				array_remove(rooms_with_collectables, current_room);
 				if (game_progress_has_been_completed()) { 
 					audio_play_sound( snd_win, 10, false ); 
 					global.controller.completion_amount += 1;

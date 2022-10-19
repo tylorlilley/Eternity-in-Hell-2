@@ -52,7 +52,7 @@ function walk_the_map(unlocked_exits) {
 	
 	// Add the initial room to the visited rooms
 	// Add each of that rooms exits to the list of exits to walk through
-	with global.controller.current_room.id { walk_through_room(visited_rooms, exits_to_walk_through); }
+	with global.controller.current_room { walk_through_room(visited_rooms, exits_to_walk_through); }
 	
 	
 	// Walk through each exit while there are still exits to walk through
@@ -61,9 +61,9 @@ function walk_the_map(unlocked_exits) {
 		var chosen_room = chosen_exit[0], chosen_dir = chosen_exit[1], target_room = chosen_room.adj_rooms[chosen_dir];
 		
 		// If the adjoining room hasn't been visited yet
-		if (!array_contains(visited_rooms, target_room.id)) {
+		if (!array_contains(visited_rooms, target_room)) {
 			// If the exit in the chosen direction from the chosen room is not locked or is but is in the given list of unlocked_exits
-			if (!chosen_room.locked_exits[chosen_dir] || array_contains(unlocked_exits, chosen_room.locked_exits[chosen_dir].id)) {
+			if (!chosen_room.locked_exits[chosen_dir] || array_contains(unlocked_exits, chosen_room.locked_exits[chosen_dir])) {
 				// Walk through the target room
 				if (target_room.has_key) { keys_found += (target_room.has_special_item && (target_room.item_type = obj_key || target_room.item_type == noone)) ? 9999 : 1; } //if (keys_found >= 9999) { show_debug_message("SPECIAL KEY FOUND ON WALK"); } }
 				with target_room { walk_through_room(visited_rooms, exits_to_walk_through); }
@@ -71,25 +71,14 @@ function walk_the_map(unlocked_exits) {
 			// If the exit in the chosen direction from the chosen room is locked
 			else if (chosen_room.locked_exits[chosen_dir]) {
 				// Add this to the list of encountered locked exits
-				array_push(locked_exits, chosen_room.locked_exits[chosen_dir].id);
+				array_push(locked_exits, chosen_room.locked_exits[chosen_dir]);
 			}
 		}
 	}
 	
 	// return whether all rooms were visited or not
 	// TODO: Return struct with keys and not ordered array
-	var visited_all_rooms = (array_length(visited_rooms) == instance_number(obj_room));
+	var visited_all_rooms = (array_length(visited_rooms) == array_length(global.controller.game_rooms));
 	return [visited_all_rooms, keys_found, locked_exits];
 }
 
-/// @function									walk_through_room(visited_rooms, exits_to_walk_through);
-/// @param		{index} visited_rooms			The list of rooms that have been visited on this walk of the map.
-/// @param		{index} exits_to_walk_through	The list of exits that need to be walked through to finish this walk of the map.
-function walk_through_room(visited_rooms, exits_to_walk_through) {
-	// Add this room to the list of visited rooms
-	array_push(visited_rooms, id);
-	// Add each of this room's exsiting exits to the list of exits to try walking through at some point
-	for (var i = 0; i <= 4; i += 1;) {
-		if (exits[i] && adj_rooms[i]) { array_push(exits_to_walk_through, [id, i]); }
-	}
-}

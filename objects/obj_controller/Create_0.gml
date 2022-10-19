@@ -1,3 +1,8 @@
+// Clean memory
+with all { 
+	if (id != other.id) { persistent = false; instance_destroy(); }
+}
+
 // Initialize global values
 randomize()
 //random_set_seed(2775969425
@@ -5,17 +10,19 @@ clear_inputs_for_next_frame();
 initialize_game_variables();
 
 // Generate Initial Room with Four Exits
-var uninitialized_rooms = array_create(0); // Used by functions called add_random_exit and initialized_room
-current_room = instance_create_depth(0,0,0,obj_room);
+var uninitialized_rooms = array_create(0) // Used by functions called add_random_exit and initialized_room
+current_room = new GameRoom(0,0);
 current_room.exits = [true, true, true, true, false];
+array_push(game_rooms, current_room);
 with current_room { initialize_room(uninitialized_rooms); }
 //ds_list_pop_random_value(uninitialized_rooms);
 
 // Generate More Rooms until minimum number is met.
 var target_number_of_rooms = MINIMUM_NUMBER_OF_ROOMS + irandom(ADDITIONAL_ROOMS);
-while (instance_number(obj_room) < target_number_of_rooms) {
-    var random_room = get_random_instance(obj_room);
+while (array_length(game_rooms) < target_number_of_rooms) {
+    var random_room = array_random_get(game_rooms);
     with random_room { add_random_exit(true, uninitialized_rooms); }
+	//show_debug_message("Added room exit to game room " + string(random_room.id))
 }
 
 // Generate and initialize rooms until all rooms have been initialized
@@ -27,19 +34,18 @@ while (array_length(uninitialized_rooms) > 0) {
 
 // Generate stairs Connections
 var rooms_with_stairs_spot = array_create(0);
-with (obj_room) {
-    if (exits[4]) { array_push(rooms_with_stairs_spot, self); }
+for (var i = 0; i < array_length(game_rooms); i++) {
+    if (game_rooms[i].exits[4]) { array_push(rooms_with_stairs_spot, game_rooms[i]); }
 }
-array_shuffle(rooms_with_stairs_spot);
 if (array_length(rooms_with_stairs_spot) mod 2 != 0) {
-    var odd_room_out = array_get(rooms_with_stairs_spot, 0);
+    var odd_room_out = array_random_pop(rooms_with_stairs_spot);
     odd_room_out.exits[4] = false;
 	odd_room_out.stairs_spot_obj = noone;
-    array_delete(rooms_with_stairs_spot, 0, 1);
+    array_remove(rooms_with_stairs_spot, odd_room_out);
 }
-for (var i = 0; i < array_length(rooms_with_stairs_spot); i += 2) {
-    var first_room = array_get(rooms_with_stairs_spot, i);
-    var second_room = array_get(rooms_with_stairs_spot, i+1);
+while (array_length(rooms_with_stairs_spot) > 0) {
+	var first_room = array_random_pop(rooms_with_stairs_spot);
+    var second_room = array_random_pop(rooms_with_stairs_spot);
     first_room.adj_rooms[4] = second_room;
     second_room.adj_rooms[4] = first_room;
 }
@@ -47,45 +53,54 @@ for (var i = 0; i < array_length(rooms_with_stairs_spot); i += 2) {
 
 // Assign a room reference from possible rooms for each room
 create_room_lists();
-with obj_room {
-    room_reference = get_room_from_room_lists();
+for (var i = 0; i < array_length(game_rooms); i++) {
+   game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
 }
 // destroy_room_lists();
 
 // Lock Random Exits
 var locked_exits = array_create(0);
-with obj_room {
-    for(var i = 0; i <= 3; i+= 1;) {
-        if (exits[i] && get_random_chance_out_of(global.controller.LOCKED_DOOR_PROBABILITY)) { 
-           array_push(locked_exits, create_locked_exit(i));
+for (var i = 0; i < array_length(game_rooms); i++) {
+    for(var dir = 0; dir <= 3; dir+= 1;) {
+        if (game_rooms[i].exits[dir] && get_random_chance_out_of(LOCKED_DOOR_PROBABILITY)) { 
+           array_push(locked_exits, game_rooms[i].create_locked_exit(dir));
         }
     }
 }
 
 // Begin Game in Random Room that has no stairs in it
-do { current_room = get_random_instance(obj_room); }
-until (!current_room.stairs_spot_obj);
-with current_room { calculate_distance_to_current(0); }
+var random_pos = irandom(array_length(game_rooms)-2);
+for (var i = random_pos+1; i < array_length(game_rooms); i++) {
+	if (i == array_length(game_rooms)) { i = 0; }
+	if (i == random_pos) {
+		// Should never need to reach this clause
+		show_debug_message("WARNING: random start room choice messed up.");
+		restart_game();
+	}
+	current_room = game_rooms[i];
+	if (!current_room.stairs_spot_obj) { break; }
+}
+current_room.calculate_distance_to_current(0);
 
 // Set up lists used to walk the map
 var keyless_rooms = array_create(0), farthest_rooms = array_create(0);
-with (obj_room) {
+for (var i = 0; i < array_length(game_rooms); i++) {
 	// Determine if room could be the room the heart is in
-	if (!exits[4]) {
-		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, id); }
+	if (!game_rooms[i].exits[4]) {
+		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, game_rooms[i]); }
 		else {
 			var distance = array_get(farthest_rooms, 0).distance_to_current_room;
-			if (distance_to_current_room == distance) {
-				array_push(farthest_rooms, id);
+			if (game_rooms[i].distance_to_current_room == distance) {
+				array_push(farthest_rooms, game_rooms[i]);
 			}
-			else if (distance_to_current_room > distance){
+			else if (game_rooms[i].distance_to_current_room > distance){
 				farthest_rooms = array_create(0);
-				array_push(farthest_rooms, id);
+				array_push(farthest_rooms, game_rooms[i]);
 			}
 		}
 	}
 	// Determine if room has a key or not
-    if (!has_key && id != global.controller.current_room) { array_push(keyless_rooms, id); }
+    if (!game_rooms[i].has_key && game_rooms[i] != current_room) { array_push(keyless_rooms, game_rooms[i]); }
 }
 // Create heart in farthest room
 with array_random_pop(farthest_rooms) {
@@ -103,11 +118,11 @@ if (array_length(rooms_with_rosary) > 0 && get_random_chance_out_of(SPECIAL_ITEM
 if (array_length(rooms_with_map) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_map) { has_special_item = true; show_debug_message("RED MAP"); } }
 
 // Walk the Map and tweak it until map is possible
-//show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (ds_list_size(keyless_rooms)+1)));
-//show_debug_message("NUMBER LOCKED DOORS: "+string(ds_list_size(locked_exits)));
+show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
+show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 var visited_all_rooms = is_current_map_possible();
 while (!visited_all_rooms) {
-	var number_of_keys = instance_number(obj_room) - (array_length(keyless_rooms)+1);
+	var number_of_keys = array_length(game_rooms) - (array_length(keyless_rooms)+1);
 	var number_of_locked_exits = array_length(locked_exits);
 	
 	//// Remove one of the locked exits if there are way too many
@@ -120,32 +135,32 @@ while (!visited_all_rooms) {
     if (array_length(keyless_rooms) > 0 && (array_length(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
         var room_to_add_key_to = array_random_pop(keyless_rooms);
 		room_to_add_key_to.has_key = true;
-		array_push(rooms_with_key, room_to_add_key_to.id);
-		//show_debug_message("NUMBER OF KEYS +1");
+		array_push(rooms_with_key, room_to_add_key_to);
+		show_debug_message("NUMBER OF KEYS +1");
     }
     // Remove one of the locked doors and reset all rooms to have no keys
     else if (array_length(locked_exits) > 0) {
         with array_random_pop(locked_exits) { remove(); }
-		with (obj_room) {
-		    if (has_key) { has_key = false; array_push(keyless_rooms, id); }
+		for (var i = 0; i < array_length(game_rooms); i++) {
+		    if (game_rooms[i].has_key) { game_rooms[i].has_key = false; array_push(keyless_rooms, game_rooms[i]); }
 		}
 		rooms_with_key = array_create(0);
-		//show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
+		show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
     }
 	// Should never need to reach this clause
 	else {
-		//show_debug_message("WARNING: lock generation screwed up.");
-		break;
+		show_debug_message("WARNING: lock generation screwed up.");
+		restart_game();
 	}
 	
 	visited_all_rooms = is_current_map_possible();
 }
 //show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
-show_debug_message("NUMBER OF KEYS: "+string(instance_number(obj_room) - (array_length(keyless_rooms)+1)));
+show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
 show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 
 // Set up point and time related variables
-time_provided = (instance_number(obj_room) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);
+time_provided = (array_length(game_rooms) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);
 time_remaining = time_provided;
 
 // Destroy the lists used for lock generation
@@ -164,5 +179,6 @@ time_remaining = time_provided;
 current_room.stairs_spot_obj = obj_cross;
 global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
-show_debug_message("SEED: "+string(random_get_seed())); 
+show_debug_message("SEED: "+string(random_get_seed()));
+initialized = true;
 

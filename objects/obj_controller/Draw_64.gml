@@ -14,7 +14,7 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 	var hud_x_pos = 4;
     if (is_looking_at_map && !has_won && !has_lost && !transition) {
         // Draw each visited room
-        with obj_room { drawn = false; }
+       for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].drawn = false; }
         with current_room {
             draw_room(room_width/2, (room_height/2));
         }

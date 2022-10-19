@@ -1,15 +1,20 @@
-/// @function								array_shuffle(list);
-/// @param		{index} list				The array to shuffle
-function array_shuffle(list) {
-	// This takes a random value from this array by shuffling it and deletes that value
-	// from the array and returns it, as long as the array has at least one value
+/// @function								array_random_get(list);
+/// @param		{index} list				The array to retrieve a random element from
+function array_random_get(list) {
+	if (array_length(list) == 0) { return noone; }
+	else { return list[irandom(array_length(list)-1)]; }
+}
 
-	for(var i = 0; i < array_length(list); i += 1) {
-	    var j = irandom_range(i,(array_length(list)-1));
-	    var temp = list[i];
-	    list[i] = list[j];
-	    list[j] = temp;
+/// @function								array_pop_random(list);
+/// @param		{index} list				The array from which to pop a random value
+function array_random_pop(list) {
+	var popped_value = noone;
+	if (array_length(list) > 0) {
+		var pos = irandom(array_length(list)-1);
+		popped_value = list[pos];
+		array_delete(list, pos, 1);
 	}
+	return popped_value;
 }
 
 /// @function									array_find_index(list, value_to_find);
@@ -20,17 +25,7 @@ function array_find_index(list, value_to_find) {
 	for(var i = 0; i < array_length(list); i += 1) {
 	    if (list[i] == value_to_find) { return list[i]; }
 	}
-	
 	return noone;
-}
-
-/// @function								array_pop_random(list);
-/// @param		{index} list				The array from which to pop a random value
-function array_random_pop(list) {
-	// This takes a random value from this array by shuffling it and deletes that value
-	// from the array and returns it, as long as the array has at least one value
-	array_shuffle(list);
-	return array_pop(list);
 }
 
 /// @function								array_combine(list, source_id);
@@ -64,4 +59,17 @@ function array_contains(list, value_to_find) {
 	// This returns whether the list contains a given value
 	return (array_find_index(list, value_to_find) != noone);
 }
+
+/// @function									array_remove(list, value_to_find);
+/// @param		{index}		list				List to check for the value in
+/// @param		{value}		value_to_remove		Value to remove from the array
+function array_remove(list, value_to_remove) {
+	// This returns whether the list contains a given value
+	if (array_contains(list, value_to_remove)) {
+		array_delete(list, array_find_index(list, value_to_remove), 1);
+		return true;
+	}
+	return false;
+}
+
 

@@ -63,7 +63,7 @@ if (room != rm_finish) {
 			if (instance_number(obj_collectable) == 0) { 
 				// This should never happen if every room has 2+ collectable spots
 				current_room.has_collectables = false;
-				array_delete(rooms_with_collectables, array_find_index(rooms_with_collectables, current_room.id), 1);
+				array_remove(rooms_with_collectables, array_find_index(rooms_with_collectables, current_room));
 			}
 	    }
 	
@@ -83,7 +83,7 @@ if (room != rm_finish) {
 	// Every Time Setup
 	background_id = layer_background_get_id(layer_get_id("Background"));
 	layer_background_blend( background_id, bg_color);
-	with obj_room { distance_to_current_room = 9999; }
+	for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].distance_to_current_room = 9999; }
 	with current_room { calculate_distance_to_current(0); }
 
 	// Change position if necessary

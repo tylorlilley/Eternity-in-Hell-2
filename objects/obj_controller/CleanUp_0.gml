@@ -9,10 +9,9 @@
 // Destroy Persistent Rooms and Exits
 room_persistent = false;
 // with (obj_exit) { instance_destroy(); }
-with (obj_room) {
-	room_goto(room_reference);
+for (var i = 0; i < array_length(game_rooms); i++) {
+	room_goto(game_rooms[i].room_reference);
 	room_persistent = false;
-	instance_destroy();
 }
 room_goto(rm_title);
 draw_set_color(c_black);

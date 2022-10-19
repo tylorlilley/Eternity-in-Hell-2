@@ -6,5 +6,7 @@ function teleport_to_empty_space() {
 	}
 	until (!instance_place(x, y, obj_solid) && 
 			!instance_place(x, y, obj_death) && 
+			!instance_place(x, y, obj_stairs_spot) && 
+			!instance_place(x, y, obj_player) && 
 			distance_to_instance(global.player) >= MOUTH_DISTANCE);
 }

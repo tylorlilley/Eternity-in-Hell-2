@@ -180,5 +180,4 @@ current_room.stairs_spot_obj = obj_cross;
 global.player = instance_create_depth(0, 0, -10, obj_player);
 room_goto(current_room.room_reference);
 show_debug_message("SEED: "+string(random_get_seed()));
-initialized = true;
 

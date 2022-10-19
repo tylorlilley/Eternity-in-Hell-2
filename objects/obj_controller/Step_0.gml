@@ -26,7 +26,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	layer_background_blend( background_id,  bg_color );
 	
 	// Restart game if necessary
-	if initialized && key_enter_released { restart_game(); }
+	if key_enter_released { restart_game(); }
 	
 	// ALL CODE CHECKING FOR KEYS DURING THIS FRAME MUST HAPPEN BEFORE THIS POINT
 	clear_inputs_for_next_frame();

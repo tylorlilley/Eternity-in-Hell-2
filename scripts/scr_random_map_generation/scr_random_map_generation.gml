@@ -24,7 +24,7 @@ function is_current_map_possible() {
 				// This walk could be successful if a walk through every currently available locked exit is successful.
 				for (var i = 0; i < array_length(locked_exits_encountered); i += 1;) {
 					var new_unlocked_list_to_verify = array_create(0);
-					array_full_copy(new_unlocked_list_to_verify, current_unlocked_list);
+					array_duplicate(new_unlocked_list_to_verify, current_unlocked_list);
 					array_push(new_unlocked_list_to_verify, array_get(locked_exits_encountered, i));
 					array_push(unlocked_exit_lists_to_verify, new_unlocked_list_to_verify);
 				}

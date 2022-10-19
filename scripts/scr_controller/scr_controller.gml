@@ -9,7 +9,11 @@ enum directions {
 
 /// @function								restart_game();
 function restart_game() {
-	with all { persistent = false; instance_destroy(); }
+	// Destroy all instances in this room and in every other room, then go back to the title screen
+	with all { instance_destroy(); }
+	for (var i = 0; i < array_length(game_rooms); i++) {
+		room_instance_clear(game_rooms[i].room_reference);
+	}
 	room_goto(rm_title);
 }
 
@@ -79,7 +83,6 @@ function initialize_game_variables() {
 	rooms_with_rosary = array_create(0);
 
 	// initialize game state values
-	initialized = false;
 	total_number_of_rooms_with_collectables = 0;
 	//rooms_with_collectables_collected = 0;
 	//spawned_special_items = array_create(0);

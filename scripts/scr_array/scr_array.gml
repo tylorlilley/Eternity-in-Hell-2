@@ -43,12 +43,12 @@ function array_combine(list, source_list) {
 	}
 }
 
-/// @function								array_copy(list, source_id);
+/// @function								array_duplicate(list, source_id);
 /// @param		{index}	list				Array to add the values to
 /// @param		{index}	source_list			Array to take the values being added from
-function array_full_copy(list, source_list) {
+function array_duplicate(list, source_list) {
 	// This replaces the first array with a copy of the second array.
-	list = array_create(0);
+	array_resize(list, 0);
 	array_copy(list, 0, source_list, 0, array_length(source_list));
 }
 

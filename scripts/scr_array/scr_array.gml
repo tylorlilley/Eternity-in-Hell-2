@@ -64,12 +64,11 @@ function array_contains(list, value_to_find) {
 /// @param		{index}		list				List to check for the value in
 /// @param		{value}		value_to_remove		Value to remove from the array
 function array_remove(list, value_to_remove) {
-	// This returns whether the list contains a given value
-	if (array_contains(list, value_to_remove)) {
-		array_delete(list, array_find_index(list, value_to_remove), 1);
-		return true;
+	var new_list = array_create(0);
+	for (var i = 0; i < array_length(list); i++) {
+	    if (list[i].id != value_to_remove.id) { array_push(new_list, list[i]); }
 	}
-	return false;
+	array_duplicate(list, new_list);
 }
 
 

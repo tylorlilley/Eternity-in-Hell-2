@@ -160,7 +160,7 @@ show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_l
 show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 
 // Set up point and time related variables
-time_provided = (array_length(game_rooms) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);
+time_provided = 100 //(array_length(game_rooms) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);
 time_remaining = time_provided;
 
 // Destroy the lists used for lock generation

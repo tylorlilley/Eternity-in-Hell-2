@@ -1,1 +1,0 @@
-if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(31)); }

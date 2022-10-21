@@ -141,14 +141,6 @@ function game_rooms_generate() {
 	}
 	//ds_list_destroy(rooms_with_stairs_spot);
 
-	// Assign a room reference from possible rooms for each room
-	create_room_lists();
-	for (var i = 0; i < array_length(game_rooms); i++) {
-		game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
-	   //game_rooms[i].get_state_from_room_lists();
-	}
-	// destroy_room_lists();
-
 	// Lock Random Exits
 	var locked_exits = array_create(0);
 	for (var i = 0; i < array_length(game_rooms); i++) {
@@ -269,8 +261,18 @@ function game_rooms_generate() {
 	// Create player object and change room to current room's referenced room
 	current_room.stairs_spot_obj = obj_cross;
 	global.player = instance_create_depth(0, 0, -10, obj_player);
-	current_room.load_state();
 	show_debug_message("SEED: "+string(random_get_seed()));
+	
+	// Assign a room reference from possible rooms for each room
+	create_room_lists();
+	for (var i = 0; i < array_length(game_rooms); i++) {
+		game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
+		game_rooms[i].initialize_from_room_reference();
+	   //game_rooms[i].get_state_from_room_lists();
+	}
+	room_goto(rm_start);
+	current_room.enter_room();
+	// destroy_room_lists();
 }
 
 /// @function								game_room_start();
@@ -406,7 +408,7 @@ function game_progress_has_been_completed() {
 
 /// @function								transition_to_room();
 function transition_to_room() {
-	current_room.save_state();
+	current_room.leave_room();
 	// Set room transition variables
 	entered_from_stairs = (transition == 4);
 	current_room = current_room.adj_rooms[transition]; 
@@ -427,7 +429,7 @@ function transition_to_room() {
 	move_player(4);
 	
 	// Change room
-	current_room.load_state();
+	current_room.enter_room();
 	game_room_start();
 	blackout = false;
 	transition = noone;

@@ -1,3 +1,3 @@
 /// @description Insert description here
 // You can write your code in this editor
-current_room.load_state()
+//current_room.enter_room();

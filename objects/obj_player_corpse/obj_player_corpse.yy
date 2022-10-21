@@ -1,10 +1,10 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_blood",
+  "name": "obj_player_corpse",
   "spriteId": {
-    "name": "spr_blood",
-    "path": "sprites/spr_blood/spr_blood.yy",
+    "name": "spr_player",
+    "path": "sprites/spr_player/spr_player.yy",
   },
   "solid": false,
   "visible": true,

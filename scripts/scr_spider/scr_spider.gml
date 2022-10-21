@@ -1,6 +1,6 @@
 /// @function								try_to_see_player();
 function try_to_see_player(){
-	if (state != SCREECHING && !global.player.dead) {   
+	if (state != SCREECHING && !global.player.dead && !global.player.hidden) {   
 		var new_dir = noone;
 		if (global.player.x == x) {
 		    if (global.player.y > y) { new_dir = directions.down; }

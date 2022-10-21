@@ -8,6 +8,7 @@ y_prev = y;
 dead = false;
 image_speed = 0;
 pause_movement = 0;
+hidden = false;
 
 // Create initial carried torch
 carried_items = [noone, noone, noone, noone, noone];

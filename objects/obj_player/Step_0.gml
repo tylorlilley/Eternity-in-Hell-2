@@ -1,7 +1,7 @@
 if (process_this_frame()) {
 	x_prev = x;
 	y_prev = y;
-
+	if (!instance_place(x, y, obj_bush)) { hidden = false; }
 	if (!dead && !game_has_been_won() && !game_has_been_lost()) {   
 	    // Get input from player
 	    var dir = -1; 

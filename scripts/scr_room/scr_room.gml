@@ -1,5 +1,5 @@
 function GameRoom(given_x, given_y) constructor {
-	//initialized = false;
+	room_reference = noone;
 	virtual_x = given_x;
 	virtual_y = given_y;
 	id = generate_id();
@@ -11,6 +11,7 @@ function GameRoom(given_x, given_y) constructor {
 	flip_vertical = false;
 	rotate = noone;
 	lit = get_random_chance_out_of(5);
+	state = noone;
 
 	// Room content values
 	has_key = false;
@@ -352,10 +353,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{index} list				List of rooms to duplicate one of at random
 	function duplicate_room_from_list(list) {
 		var chosen_room = array_random_get(list);
-		var new_room = room_duplicate(chosen_room);
-		room_set_persistent(new_room, true);
-	
-		return room_duplicate(new_room);
+		return room_duplicate(chosen_room);
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);
@@ -367,6 +365,372 @@ function GameRoom(given_x, given_y) constructor {
 		// Add each of this room's exsiting exits to the list of exits to try walking through at some point
 		for (var i = 0; i <= 4; i += 1;) {
 			if (exits[i] && adj_rooms[i]) { array_push(exits_to_walk_through, [self, i]); }
+		}
+	}
+	
+	/// @function									get_room_state()
+	function get_state() {
+		var instances = array_create(0);
+		with (obj_game_object) {
+			if !persistent {
+				var instance_information = {
+					x: x,
+					y: y,
+					object_index: object_index,
+					sprite_index: sprite_index,
+					image_index: image_index,
+					image_xscale: image_xscale,
+					image_yscale: image_yscale,
+					image_blend: image_blend,
+					image_alpha: image_alpha,
+					image_angle: image_angle
+				}
+				array_push(instances, instance_information);
+			}
+		}
+		return instances;
+	}
+	
+	/// @function									get_room_state()
+	function get_minimal_state() {
+		var instances = array_create(0);
+		with (obj_game_object) {
+			if !persistent {
+				var instance_information = {
+					x: x,
+					y: y,
+					object_index: object_index,
+				}
+				array_push(instances, instance_information);
+			}
+		}
+		return instances;
+	}
+	
+	///@function								print_state()
+	function print_state() {
+		var minimal_state = get_minimal_state();
+		show_debug_message("[");
+		for (var i = 0; i < array_length(minimal_state); i++) {
+			show_debug_message(string(minimal_state[i]) + ",");
+		}
+		show_debug_message("]");
+	}
+	
+	///@function								save_state()
+	function save_state() {
+		state = [
+			{ x : 208, y : 128, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 12566463, sprite_index : 8, image_index : 0.10, object_index : 38 },
+			{ x : 152, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 8, image_index : 0.10, object_index : 38 },
+			{ x : 184, y : 128, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 16777215, sprite_index : 29, image_index : 0, object_index : 36 },
+			{ x : 152, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 4408131, sprite_index : 23, image_index : 0, object_index : 9 },
+			{ x : 72, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 56, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 40, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 72, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 56, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 40, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 40, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 31, image_index : 0.50, object_index : 2 },
+			{ x : 40, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 13, image_index : 0, object_index : 21 },
+			{ x : 40, y : 104, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 31, image_index : 0.50, object_index : 2 },
+			{ x : 24, y : 168, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 88, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 72, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 56, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 40, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 72, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 56, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 40, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 40, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 56, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 72, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 24, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 40, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 56, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 72, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 152, y : 144, image_xscale : -1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 11184810, sprite_index : 31, image_index : 0.50, object_index : 2 },
+			{ x : 152, y : 128, image_xscale : -1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 11184810, sprite_index : 31, image_index : 0.50, object_index : 2 },
+			{ x : 152, y : 112, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 11184810, sprite_index : 31, image_index : 0.50, object_index : 2 },
+			{ x : 64, y : 160, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 31, image_index : 0.50, object_index : 2 },
+			{ x : 216, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 200, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 184, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 168, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 152, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 136, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 136, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 152, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 168, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 184, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 200, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 216, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 4144959, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 168, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 6908265, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 8355711, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 136, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 8355711, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 120, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 8355711, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 104, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 8355711, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 88, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 6908265, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 4144959, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 216, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 200, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 184, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 168, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 152, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 136, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 104, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 120, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 136, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 168, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 4144959, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 88, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 4144959, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 88, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 104, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 120, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 136, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 168, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 168, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 136, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 120, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 104, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 88, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 88, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 104, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 120, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 136, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 152, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 168, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 184, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 200, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 216, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 232, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 2, image_index : 0, object_index : 26 },
+			{ x : 72, y : 128, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 31, image_index : 0.50, object_index : 2 },
+			{ x : 64, y : 96, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 31, image_index : 0.50, object_index : 2 },
+			{ x : 64, y : 96, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 35, image_index : 0, object_index : 39 },
+			{ x : 72, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 56, y : 200, image_xscale : -1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 40, y : 200, image_xscale : -1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 72, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 56, y : 56, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 40, y : 56, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 168, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 184, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 200, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 88, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 72, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 56, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 40, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 216, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 72, y : 216, image_xscale : -1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 56, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 40, y : 216, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 72, y : 40, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 56, y : 40, image_xscale : 1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 40, y : 40, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 232, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 40, y : 232, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 56, y : 232, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 72, y : 232, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 24, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 40, y : 24, image_xscale : -1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 56, y : 24, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 72, y : 24, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 192, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 6908265, sprite_index : 13, image_index : 0, object_index : 21 },
+			{ x : 192, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 6908265, sprite_index : 13, image_index : 0, object_index : 21 },
+			{ x : 24, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 7, image_index : 0, object_index : 25 },
+			{ x : 24, y : 104, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 7, image_index : 0, object_index : 25 },
+			{ x : 216, y : 216, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 200, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 184, y : 216, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 168, y : 216, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 152, y : 216, image_xscale : -1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 136, y : 216, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 136, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 152, y : 40, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 168, y : 40, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 184, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 200, y : 40, image_xscale : -1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 216, y : 40, image_xscale : -1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 216, image_xscale : 1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 200, image_xscale : -1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 2697513, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 184, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 4144959, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 168, image_xscale : 1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 6908265, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 152, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 8355711, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 136, image_xscale : 1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 8355711, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 120, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 8355711, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 104, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 8355711, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 88, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 6908265, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 72, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 4144959, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 56, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 2697513, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 216, y : 232, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 200, y : 232, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 184, y : 232, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 168, y : 232, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 152, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 136, y : 232, image_xscale : -1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 104, image_xscale : 1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 5526612, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 120, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 5526612, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 136, image_xscale : -1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 152, image_xscale : -1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 168, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 4144959, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 200, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 232, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 88, image_xscale : -1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 4144959, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 72, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 56, image_xscale : -1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 40, image_xscale : -1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 56, image_xscale : -1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 72, image_xscale : -1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 88, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 104, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 2697513, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 120, image_xscale : -1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 2697513, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 136, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 152, image_xscale : -1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 168, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 200, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 216, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 216, image_xscale : 1, image_yscale : -1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 200, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 184, image_xscale : -1, image_yscale : 1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 168, image_xscale : 1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 136, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 120, image_xscale : 1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 104, image_xscale : 1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 88, image_xscale : -1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 72, image_xscale : -1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 56, image_xscale : -1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 40, image_xscale : 1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 88, y : 24, image_xscale : -1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 104, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 24, image_xscale : 1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 136, y : 24, image_xscale : 1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 152, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 168, y : 24, image_xscale : 1, image_yscale : -1, image_angle : 180, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 184, y : 24, image_xscale : 1, image_yscale : -1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 200, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 216, y : 24, image_xscale : -1, image_yscale : 1, image_angle : 90, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 232, y : 24, image_xscale : -1, image_yscale : -1, image_angle : 270, image_alpha : 1, image_blend : 1315860, sprite_index : 16, image_index : 0, object_index : 28 },
+			{ x : 120, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 120, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 136, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 168, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 104, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 24, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 40, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 56, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 72, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 88, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 104, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 152, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 168, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 184, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 200, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 216, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 232, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 248, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 232, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 216, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 200, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 184, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 168, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 4144959, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 152, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 136, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 120, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 104, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 5526612, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 88, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 4144959, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 72, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 2697513, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 56, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 40, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 24, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 248, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 232, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 216, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 200, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 184, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 168, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 152, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 136, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 104, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 88, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 72, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 88, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 56, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 40, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 24, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 },
+			{ x : 8, y : 8, image_xscale : 1, image_yscale : 1, image_angle : 0, image_alpha : 1, image_blend : 1315860, sprite_index : 5, image_index : 0, object_index : 24 }
+		];
+		state = get_state();
+	}
+	
+	///@function								load_state()
+	function load_state() {
+		with (obj_game_object) { if (!persistent) { instance_destroy(id, false); } }
+		for (var i = 0; i < array_length(state); i++) {
+			var new_instance = instance_create_depth(state[i].x, state[i].y, 0, state[i].object_index);
+			with new_instance {
+				if (variable_struct_exists(other.state[i], "sprite_index")) { sprite_index = other.state[i].sprite_index; }
+				if (variable_struct_exists(other.state[i], "image_index")) { image_index = other.state[i].image_index; }
+				if (variable_struct_exists(other.state[i], "image_blend")) { image_blend = other.state[i].image_blend; }
+				if (variable_struct_exists(other.state[i], "image_xscale")) { image_xscale = other.state[i].image_xscale; }
+				if (variable_struct_exists(other.state[i], "image_yscale")) { image_yscale = other.state[i].image_yscale; }
+				//if (variable_struct_exists(other.instance_to_load, "image_alpha")) { image_alpha = other.instance_to_load.image_alpha; }
+				//if (object_index == obj_light_source) {
+				//}
+			}
 		}
 	}
 }

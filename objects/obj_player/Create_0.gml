@@ -12,4 +12,3 @@ pause_movement = 0;
 // Create initial carried torch
 carried_items = [noone, noone, noone, noone, noone];
 with create_item_in_hand(directions.left, obj_torch) { light_torch(noone, true); }
-global.controller.initialized = true;

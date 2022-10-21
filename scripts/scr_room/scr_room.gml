@@ -11,7 +11,7 @@ function GameRoom(given_x, given_y) constructor {
 	flip_vertical = false;
 	rotate = noone;
 	lit = get_random_chance_out_of(5);
-	instances = array_create(0);
+	instances = noone;
 
 	// Room content values
 	has_key = false;
@@ -371,7 +371,11 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									leave_room()
 	function initialize_from_room_reference() {
-		room_goto(room_reference);
+		var reference_instances = instances_for_room_reference(room_reference);
+		for(var i = 0; i < array_length(reference_instances); i++) {
+			var ref = reference_instances[i];
+			instance_create_depth(ref.x, ref.y, 0, asset_get_index(ref.name));
+		}
 		leave_room();
 	}
 	
@@ -379,16 +383,23 @@ function GameRoom(given_x, given_y) constructor {
 	function leave_room() {
 		instances = array_create(0);
 		with (obj_game_object) {
-			if (!persistent) { array_push(instances, id); }
-			instance_deactivate_object(self);
+			if (!persistent) { array_push(other.instances, id); instance_deactivate_object(self); }
 		}
 	}
 	
 		
 	/// @function									enter_room()
 	function enter_room() {
-		for (var i = 0; i < array_length(instances); i++) {
-			instance_activate_object(instances[i]);
+		if (instances == noone) { initialize_from_room_reference(); }
+		else {
+			for (var i = 0; i < array_length(instances); i++) {
+				instance_activate_object(instances[i]);
+			}
 		}
 	}
+}
+
+function instances_for_room_reference(room_reference) {
+	// if (room_reference == rm_4_exits_1) { }
+	return [{"x":8.0,"y":8.0,"name":"obj_wall"},{"x":8.0,"y":24.0,"name":"obj_wall"},{"x":8.0,"y":40.0,"name":"obj_wall"},{"x":8.0,"y":56.0,"name":"obj_wall"},{"x":88.0,"y":8.0,"name":"obj_wall"},{"x":8.0,"y":72.0,"name":"obj_wall"},{"x":8.0,"y":88.0,"name":"obj_wall"},{"x":8.0,"y":104.0,"name":"obj_wall"},{"x":8.0,"y":152.0,"name":"obj_wall"},{"x":8.0,"y":168.0,"name":"obj_wall"},{"x":8.0,"y":184.0,"name":"obj_wall"},{"x":8.0,"y":200.0,"name":"obj_wall"},{"x":8.0,"y":216.0,"name":"obj_wall"},{"x":8.0,"y":232.0,"name":"obj_wall"},{"x":8.0,"y":248.0,"name":"obj_wall"},{"x":24.0,"y":248.0,"name":"obj_wall"},{"x":40.0,"y":248.0,"name":"obj_wall"},{"x":24.0,"y":8.0,"name":"obj_wall"},{"x":56.0,"y":8.0,"name":"obj_wall"},{"x":40.0,"y":8.0,"name":"obj_wall"},{"x":56.0,"y":248.0,"name":"obj_wall"},{"x":72.0,"y":248.0,"name":"obj_wall"},{"x":88.0,"y":248.0,"name":"obj_wall"},{"x":104.0,"y":248.0,"name":"obj_wall"},{"x":152.0,"y":248.0,"name":"obj_wall"},{"x":168.0,"y":248.0,"name":"obj_wall"},{"x":184.0,"y":248.0,"name":"obj_wall"},{"x":200.0,"y":248.0,"name":"obj_wall"},{"x":216.0,"y":248.0,"name":"obj_wall"},{"x":232.0,"y":248.0,"name":"obj_wall"},{"x":248.0,"y":248.0,"name":"obj_wall"},{"x":248.0,"y":232.0,"name":"obj_wall"},{"x":248.0,"y":216.0,"name":"obj_wall"},{"x":248.0,"y":200.0,"name":"obj_wall"},{"x":248.0,"y":184.0,"name":"obj_wall"},{"x":248.0,"y":168.0,"name":"obj_wall"},{"x":248.0,"y":152.0,"name":"obj_wall"},{"x":248.0,"y":104.0,"name":"obj_wall"},{"x":248.0,"y":88.0,"name":"obj_wall"},{"x":248.0,"y":72.0,"name":"obj_wall"},{"x":248.0,"y":56.0,"name":"obj_wall"},{"x":248.0,"y":40.0,"name":"obj_wall"},{"x":248.0,"y":24.0,"name":"obj_wall"},{"x":248.0,"y":8.0,"name":"obj_wall"},{"x":72.0,"y":8.0,"name":"obj_wall"},{"x":104.0,"y":8.0,"name":"obj_wall"},{"x":152.0,"y":8.0,"name":"obj_wall"},{"x":168.0,"y":8.0,"name":"obj_wall"},{"x":184.0,"y":8.0,"name":"obj_wall"},{"x":200.0,"y":8.0,"name":"obj_wall"},{"x":216.0,"y":8.0,"name":"obj_wall"},{"x":232.0,"y":8.0,"name":"obj_wall"},{"x":56.0,"y":200.0,"name":"obj_column"},{"x":200.0,"y":200.0,"name":"obj_column"},{"x":40.0,"y":40.0,"name":"obj_column"},{"x":40.0,"y":216.0,"name":"obj_column"},{"x":72.0,"y":184.0,"name":"obj_column"},{"x":56.0,"y":56.0,"name":"obj_column"},{"x":72.0,"y":72.0,"name":"obj_column"},{"x":200.0,"y":56.0,"name":"obj_column"},{"x":184.0,"y":72.0,"name":"obj_column"},{"x":184.0,"y":184.0,"name":"obj_column"},{"x":216.0,"y":216.0,"name":"obj_column"},{"x":216.0,"y":40.0,"name":"obj_column"},{"x":88.0,"y":88.0,"name":"obj_column"},{"x":88.0,"y":168.0,"name":"obj_column"},{"x":168.0,"y":168.0,"name":"obj_column"},{"x":168.0,"y":88.0,"name":"obj_column"},{"x":64.0,"y":128.0,"name":"obj_column"},{"x":192.0,"y":128.0,"name":"obj_column"},{"x":128.0,"y":64.0,"name":"obj_column"},{"x":128.0,"y":184.0,"name":"obj_column"},{"x":128.0,"y":128.0,"name":"obj_stairs_spot"},{"x":104.0,"y":152.0,"name":"obj_collectable_spot"},{"x":104.0,"y":104.0,"name":"obj_collectable_spot"},{"x":152.0,"y":104.0,"name":"obj_collectable_spot"},{"x":152.0,"y":152.0,"name":"obj_collectable_spot"},{"x":32.0,"y":128.0,"name":"obj_collectable_spot"},{"x":128.0,"y":32.0,"name":"obj_collectable_spot"},{"x":128.0,"y":216.0,"name":"obj_collectable_spot"},{"x":224.0,"y":128.0,"name":"obj_collectable_spot"},{"x":96.0,"y":208.0,"name":"obj_bones"},{"x":40.0,"y":80.0,"name":"obj_bones"},{"x":216.0,"y":80.0,"name":"obj_bones"}];
 }

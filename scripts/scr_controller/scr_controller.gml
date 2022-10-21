@@ -267,7 +267,7 @@ function game_rooms_generate() {
 	create_room_lists();
 	for (var i = 0; i < array_length(game_rooms); i++) {
 		game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
-		game_rooms[i].initialize_from_room_reference();
+		//game_rooms[i].initialize_from_room_reference();
 	   //game_rooms[i].get_state_from_room_lists();
 	}
 	room_goto(rm_start);

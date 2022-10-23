@@ -58,11 +58,17 @@ function create_item_in_hand(dir, obj_index)	{
 /// @function								kill_player();
 function kill_player() {
 	// Drop all carried items
-	for (var i = 1; i <= 3; i += 2;) {
-		if (global.player.carried_items[i]) { with global.player.carried_items[i] { drop_item(i, false); } }
-	}
+	//drop_all_items();
+	
 	// Set variables to mark death
 	global.player.dead = true;
 	global.controller.death_timer = 40;
 	audio_play_sound( snd_lose, 10, false );
+}
+
+/// @function								drop_all_items()
+function drop_all_items() {
+	for (var i = 1; i <= 3; i += 2;) {
+		if (global.player.carried_items[i]) { with global.player.carried_items[i] { drop_item(i, false); } }
+	}
 }

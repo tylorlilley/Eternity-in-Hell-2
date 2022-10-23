@@ -12,10 +12,31 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 		
 		// Handle room transition blackout to get around macOS drawing bug
 		if (transition != noone && !blackout) { blackout = true; }
-		else if (transition != noone && blackout) { transition_to_room(); }
+		else if (transition != noone && blackout) { 
+			var next_room = (transition == 5) ? start_room : current_room.adj_rooms[transition]
+			transition_to_room(next_room); 
+		}
 	}
 	if (room != rm_finish && (game_has_been_lost() || game_has_been_won())) {
-		if (game_has_been_won() || game_has_timed_out() || death_timer == 0) { global.player.visible = false; room_goto(rm_finish); }
+		if (game_has_been_won() || game_has_timed_out() || death_timer == 0) {
+			var carried_rosary = get_carried_item_of_type(obj_rosary);
+			if (carried_rosary) {
+				// Destroy the rosary being used
+				transition = 5;
+				with global.player {
+					drop_all_items();
+					dead = false;
+					image_index = 0;
+					var player_corpse = instance_create_depth(x, y, 3, obj_player_corpse);
+					player_corpse.image_xscale = image_xscale;
+				}
+				with carried_rosary { if (!special) { instance_destroy(); } }
+			}
+			else {
+				global.player.visible = false; 
+				room_goto(rm_finish);
+			}
+		}
 		else { death_timer -= 1; }
 	}
 	

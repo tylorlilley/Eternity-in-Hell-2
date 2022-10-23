@@ -35,7 +35,7 @@ if (process_this_frame()) {
 		lighting_range = global.controller.PLAYER_LIGHT_RANGE;
 		if (carried_rosary) { lighting_range += (carried_rosary.special) ? 2 : 1; }
 		is_flickering_light_source = false;
-		// Increase ligting range if carrying two torches
+		// Increase lighting range if carrying two torches
 		if (carried_items[directions.right] && carried_items[directions.right].object_index == obj_torch && carried_items[directions.right].light_source  &&
 			carried_items[directions.left] && carried_items[directions.left].object_index == obj_torch && carried_items[directions.left].light_source) { 
 			

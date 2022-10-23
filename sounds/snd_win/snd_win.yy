@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_win",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.73,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_win",
-  "duration": 1.283571,
+  "duration": 1.278571,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_win",
-  "tags": [],
-  "resourceType": "GMSound",
 }

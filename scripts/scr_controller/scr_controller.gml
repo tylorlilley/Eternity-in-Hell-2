@@ -84,6 +84,8 @@ function initialize_game_variables() {
 	rooms_with_rosary = array_create(0);
 
 	// initialize game state values
+	current_room = noone;
+	start_room = noone;
 	total_number_of_rooms_with_collectables = 0;
 	//rooms_with_collectables_collected = 0;
 	//spawned_special_items = array_create(0);
@@ -124,13 +126,14 @@ function game_progress_has_been_completed() {
 	return (array_length(global.controller.rooms_with_collectables) == 0);
 }
 
-/// @function								transition_to_room();
-function transition_to_room() {
+/// @function								transition_to_room(new_room);
+function transition_to_room(new_room) {
 	// Set room transition variables
-	entered_from_stairs = (transition == 4);
+	entered_from_stairs = (transition >= 4);
 			
 	// Play transition sound
-	if (transition == 4) { audio_play_sound( snd_stairs, 10, false ); }
+	if (transition == 5) { audio_play_sound( snd_win, 10, false ); }
+	else if (transition == 4) { audio_play_sound( snd_stairs, 10, false ); }
 	else { audio_play_sound( snd_move, 10, false ); }
 	
 	// Reposition player
@@ -145,7 +148,7 @@ function transition_to_room() {
 	move_player(4);
 	
 	// Change room
-	current_room.adj_rooms[transition].go_to_room(); 
+	new_room.go_to_room(); 
 	blackout = false;
 	transition = noone;
 }

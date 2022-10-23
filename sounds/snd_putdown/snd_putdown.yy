@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_putdown",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.5,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_putdown",
-  "duration": 0.243957,
+  "duration": 0.238957,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_putdown",
-  "tags": [],
-  "resourceType": "GMSound",
 }

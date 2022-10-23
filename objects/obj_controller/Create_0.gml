@@ -5,7 +5,7 @@ with all {
 
 // Initialize global values
 randomize()
-//random_set_seed(2775969425
+//random_set_seed(2121303160);
 clear_inputs_for_next_frame();
 initialize_game_variables();
 
@@ -15,7 +15,6 @@ current_room = new GameRoom(0,0);
 current_room.exits = [true, true, true, true, false];
 array_push(game_rooms, current_room);
 with current_room { initialize_room(uninitialized_rooms); }
-//ds_list_pop_random_value(uninitialized_rooms);
 
 // Generate More Rooms until minimum number is met.
 var target_number_of_rooms = MINIMUM_NUMBER_OF_ROOMS + irandom(ADDITIONAL_ROOMS);
@@ -81,6 +80,7 @@ for (var i = random_pos+1; i < array_length(game_rooms); i++) {
 	if (!current_room.stairs_spot_obj) { break; }
 }
 current_room.calculate_distance_to_current(0);
+start_room = current_room;
 
 // Set up lists used to walk the map
 var keyless_rooms = array_create(0), farthest_rooms = array_create(0);
@@ -118,25 +118,19 @@ if (array_length(rooms_with_rosary) > 0 && get_random_chance_out_of(SPECIAL_ITEM
 if (array_length(rooms_with_map) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_map) { has_special_item = true; show_debug_message("RED MAP"); } }
 
 // Walk the Map and tweak it until map is possible
-show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
-show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
+//show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
+//show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 var visited_all_rooms = is_current_map_possible();
 while (!visited_all_rooms) {
 	var number_of_keys = array_length(game_rooms) - (array_length(keyless_rooms)+1);
 	var number_of_locked_exits = array_length(locked_exits);
 	
-	//// Remove one of the locked exits if there are way too many
-	//if (ds_list_size(locked_exits) >= LOCKED_DOOR_PROBABILITY*2) {
-    //    with ds_list_pop_random_value(locked_exits) { remove_exit(); }
-			
-	//	show_debug_message("NUMBER OF LOCKS -1");
-	//}
     // Add an additional key somewhere
     if (array_length(keyless_rooms) > 0 && (array_length(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
         var room_to_add_key_to = array_random_pop(keyless_rooms);
 		room_to_add_key_to.has_key = true;
 		array_push(rooms_with_key, room_to_add_key_to);
-		show_debug_message("NUMBER OF KEYS +1");
+		//show_debug_message("NUMBER OF KEYS +1");
     }
     // Remove one of the locked doors and reset all rooms to have no keys
     else if (array_length(locked_exits) > 0) {
@@ -145,7 +139,7 @@ while (!visited_all_rooms) {
 		    if (game_rooms[i].has_key) { game_rooms[i].has_key = false; array_push(keyless_rooms, game_rooms[i]); }
 		}
 		rooms_with_key = array_create(0);
-		show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
+		//show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
     }
 	// Should never need to reach this clause
 	else {
@@ -156,24 +150,12 @@ while (!visited_all_rooms) {
 	visited_all_rooms = is_current_map_possible();
 }
 //show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
-show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
-show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
+//show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
+//show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 
 // Set up point and time related variables
-time_provided = 100 //(array_length(game_rooms) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);
+time_provided = (array_length(game_rooms) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);
 time_remaining = time_provided;
-
-// Destroy the lists used for lock generation
-//ds_list_destroy(keyless_rooms);
-//ds_list_destroy(farthest_rooms);
-//ds_list_destroy(locked_exits);
-
-// Destroy the lists used for special item generation
-//ds_list_destroy(rooms_with_key);
-//ds_list_destroy(rooms_with_torch);
-//ds_list_destroy(rooms_with_sword);
-//ds_list_destroy(rooms_with_rosary);
-//ds_list_destroy(rooms_with_map);
 
 // Create player object and change room to current room's referenced room
 current_room.stairs_spot_obj = obj_cross;

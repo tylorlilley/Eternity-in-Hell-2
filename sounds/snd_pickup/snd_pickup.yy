@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_pickup",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.4,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_pickup",
-  "duration": 0.223617,
+  "duration": 0.218617,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_pickup",
-  "tags": [],
-  "resourceType": "GMSound",
 }

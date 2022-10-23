@@ -28,12 +28,12 @@ function pick_up_item(dir, play_sound) {
 /// @function								drop_item();
 /// @param		{direction} dir				The hand this item is being dropped out of
 function drop_item(dir, play_sound) {	
-	if (play_sound) { global.player.carried_items[dir] = noone; }
+	if (play_sound) { audio_play_sound(snd_putdown, 10, false);}
+	global.player.carried_items[dir] = noone;
 	carried = noone;
 	persistent = false;
 	x = global.player.x;
 	y = global.player.y;
-	audio_play_sound(snd_pickup, 10, false);
 	depth = 2;
 	image_xscale = (dir == directions.left) ? image_xscale : -image_xscale;
 }

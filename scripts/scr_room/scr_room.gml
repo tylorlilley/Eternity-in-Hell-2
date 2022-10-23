@@ -381,6 +381,7 @@ function GameRoom(given_x, given_y) constructor {
 	function leave_room() {
 		instances = array_create(0);
 		with (obj_game_object) { if (!persistent) { array_push(other.instances, self); } }
+		with (obj_placeholder) { if (!persistent) { array_push(other.instances, self); } }
 		for (var i = 0; i < array_length(instances); i++) { instance_deactivate_object(instances[i]); }
 	}
 

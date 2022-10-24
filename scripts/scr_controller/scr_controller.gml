@@ -4,7 +4,8 @@ enum directions {
 	right,
 	down,
 	left,
-	stairs
+	stairs,
+	respawn
 }
 
 /// @function								restart_game();
@@ -19,6 +20,8 @@ function restart_game() {
 
 /// @function								create_room_lists();
 function create_room_lists() {
+	rooms_with_no_exits = array_create(0); 
+	array_push(rooms_with_no_exits, rm_no_exits_1);
 	rooms_with_one_exit = array_create(0); 
 	array_push(rooms_with_one_exit, rm_one_exit_1, rm_one_exit_2, rm_one_exit_3, rm_one_exit_4, rm_one_exit_5, rm_one_exit_6, rm_one_exit_7, rm_one_exit_8, rm_one_exit_9, rm_one_exit_10, rm_one_exit_11, rm_one_exit_12, rm_one_exit_13, rm_one_exit_14, rm_one_exit_15);
 	rooms_with_two_opposite_exits = array_create(0);
@@ -42,7 +45,7 @@ function initialize_game_variables() {
 	global.player = noone;
 
 	// Initialize room probability constants
-	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
+	NUMBER_OF_EXITS_PROBABILITIES = [100, 0, 0, 0, 0]//[5, 15, 75, 5, 0];
 	LOCKED_DOOR_PROBABILITY = 5;
 	HAS_STAIRS_PROBABILITY = 20;
 	HAS_COLLECTABLE_PROBABILITY = 30;
@@ -53,9 +56,9 @@ function initialize_game_variables() {
 	// Initialize map drawing constants
 	TEST_MODE = false;
 	MAX_WALKING_DEPTH = 255;
-	MINIMUM_NUMBER_OF_ROOMS = 32;
+	MINIMUM_NUMBER_OF_ROOMS = 8; //32;
 	ADDITIONAL_ROOMS = 16;
-	MAX_MAP_DRAW_DISTANCE = 8;
+	MAX_MAP_DRAW_DISTANCE = 32//8;
 
 	// Initialize lighting constants and variables
 	DIMMING_RATE = 8;

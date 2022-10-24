@@ -15,6 +15,10 @@ Refactor player with torches and lighting holding things
 ENHANCEMENTS
 Make map show if room has key OR chest instead of just if a key spawned there?
 Remove lit rooms coloring different on map?
+Make phantoms possible to appear in any unlit room.
+- Small chance of spawning phantom ONCE at first room visit
+- When entering a room phantom is always spawned just off the opposite side of the screen
+- Disable spawning when coming from stairs?
 
 NEW FEATURES
 Multi-tile worm that moves one space at a time and brings any associated worm bodies with him of varying length.

@@ -103,7 +103,6 @@ function instance_place_all(x_pos, y_pos, obj_type) {
 
 /// @function								generate_id();
 function generate_id() {
-    static counter = 0;
-    counter++;
-    return counter;
+    global.id_counter++;
+    return  global.id_counter;
 }

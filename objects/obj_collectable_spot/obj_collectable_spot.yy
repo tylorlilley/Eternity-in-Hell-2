@@ -1,10 +1,14 @@
 {
+  "resourceType": "GMObject",
+  "resourceVersion": "1.0",
+  "name": "obj_collectable_spot",
   "spriteId": {
     "name": "spr_collectable",
     "path": "sprites/spr_collectable/spr_collectable.yy",
   },
   "solid": false,
   "visible": false,
+  "managed": true,
   "spriteMaskId": null,
   "persistent": false,
   "parentObjectId": {
@@ -30,8 +34,4 @@
     "name": "Placeholders",
     "path": "folders/Objects/Placeholders.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "obj_collectable_spot",
-  "tags": [],
-  "resourceType": "GMObject",
 }

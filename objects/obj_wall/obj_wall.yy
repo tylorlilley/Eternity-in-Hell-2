@@ -1,10 +1,14 @@
 {
+  "resourceType": "GMObject",
+  "resourceVersion": "1.0",
+  "name": "obj_wall",
   "spriteId": {
     "name": "spr_wall",
     "path": "sprites/spr_wall/spr_wall.yy",
   },
   "solid": false,
   "visible": true,
+  "managed": true,
   "spriteMaskId": null,
   "persistent": false,
   "parentObjectId": {
@@ -30,8 +34,4 @@
     "name": "Tiles",
     "path": "folders/Objects/Tiles.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "obj_wall",
-  "tags": [],
-  "resourceType": "GMObject",
 }

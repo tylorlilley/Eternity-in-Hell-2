@@ -8,3 +8,4 @@ image_speed = 1;
 lethal = false;
 trap = true;
 visible = false;
+trap_duration = -1;

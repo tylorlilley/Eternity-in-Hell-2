@@ -77,7 +77,7 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
-	draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.item_type));
+	draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
 	//draw_text(4, room_height-20, string(array_length(rooms_with_key))+" "+string(array_length(rooms_with_torch))+" "+string(array_length(rooms_with_sword))+" "+string(array_length(rooms_with_rosary))+" "+string(array_length(rooms_with_map)));
 //}
 

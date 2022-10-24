@@ -52,7 +52,7 @@ function walk_the_map(unlocked_exits) {
 	
 	// Add the initial room to the visited rooms
 	// Add each of that rooms exits to the list of exits to walk through
-	with global.controller.current_room { walk_through_room(visited_rooms, exits_to_walk_through); }
+	with global.controller.current_room { walk_through_room(visited_rooms, exits_to_walk_through, directions.stairs); }
 	
 	
 	// Walk through each exit while there are still exits to walk through
@@ -66,7 +66,7 @@ function walk_the_map(unlocked_exits) {
 			if (!chosen_room.locked_exits[chosen_dir] || array_contains(unlocked_exits, chosen_room.locked_exits[chosen_dir])) {
 				// Walk through the target room
 				if (target_room.has_key) { keys_found += (target_room.has_special_item && (target_room.item_type = obj_key || target_room.item_type == noone)) ? 9999 : 1; } //if (keys_found >= 9999) { show_debug_message("SPECIAL KEY FOUND ON WALK"); } }
-				with target_room { walk_through_room(visited_rooms, exits_to_walk_through); }
+				with target_room { walk_through_room(visited_rooms, exits_to_walk_through, chosen_dir); }
 			}
 			// If the exit in the chosen direction from the chosen room is locked
 			else if (chosen_room.locked_exits[chosen_dir]) {

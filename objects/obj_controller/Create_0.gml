@@ -1,7 +1,4 @@
-// Clean memory
-with all { 
-	if (id != other.id) { persistent = false; instance_destroy(); }
-}
+global.zero_room = noone;
 
 // Initialize global values
 randomize()
@@ -29,7 +26,6 @@ while (array_length(uninitialized_rooms) > 0) {
     var random_uninitialized_room = array_random_pop(uninitialized_rooms);
     with random_uninitialized_room { initialize_room(uninitialized_rooms); }
 }
-//ds_list_destroy(uninitialized_rooms);
 
 // Generate stairs Connections
 var rooms_with_stairs_spot = array_create(0);
@@ -48,14 +44,13 @@ while (array_length(rooms_with_stairs_spot) > 0) {
     first_room.adj_rooms[4] = second_room;
     second_room.adj_rooms[4] = first_room;
 }
-//ds_list_destroy(rooms_with_stairs_spot);
 
 // Assign a room reference from possible rooms for each room
 create_room_lists();
 for (var i = 0; i < array_length(game_rooms); i++) {
    game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
+   game_rooms[i].get_reachable_exits();
 }
-// destroy_room_lists();
 
 // Lock Random Exits
 var locked_exits = array_create(0);

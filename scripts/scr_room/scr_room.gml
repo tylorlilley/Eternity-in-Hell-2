@@ -354,7 +354,7 @@ function GameRoom(given_x, given_y) constructor {
 				break;
 		}
 	
-		return array_random_get(room_list);
+		return rm_four_exits_17; //array_random_get(room_list);
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);
@@ -407,7 +407,11 @@ function GameRoom(given_x, given_y) constructor {
 	function go_to_room() {
 		global.controller.current_room.leave_room();
 		enter_room();
-		with (global.controller) { game_room_start(); }
+		with (global.controller) { 
+			game_room_start();
+			blackout = false;
+			transition = noone;
+		}
 	}
 	
 	/// @function									get_reachable_exits()

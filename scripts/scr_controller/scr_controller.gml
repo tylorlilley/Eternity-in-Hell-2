@@ -31,7 +31,7 @@ function create_room_lists() {
 	rooms_with_three_exits = array_create(0); 
 	array_push(rooms_with_three_exits, rm_three_exits_1, rm_three_exits_2, rm_three_exits_3, rm_three_exits_4, rm_three_exits_5, rm_three_exits_6, rm_three_exits_7, rm_three_exits_8, rm_three_exits_9, rm_three_exits_10, rm_three_exits_11, rm_three_exits_12, rm_three_exits_13, rm_three_exits_14, rm_three_exits_15, rm_three_exits_16);
 	rooms_with_four_exits = array_create(0); 
-	array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_2, rm_four_exits_3, rm_four_exits_4, rm_four_exits_5, rm_four_exits_6, rm_four_exits_7, rm_four_exits_8, rm_four_exits_9, rm_four_exits_10, rm_four_exits_11, rm_four_exits_12, rm_four_exits_13, rm_four_exits_14, rm_four_exits_15, rm_four_exits_16);
+	array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_2, rm_four_exits_3, rm_four_exits_4, rm_four_exits_5, rm_four_exits_6, rm_four_exits_7, rm_four_exits_8, rm_four_exits_9, rm_four_exits_10, rm_four_exits_11, rm_four_exits_12, rm_four_exits_13, rm_four_exits_14, rm_four_exits_15, rm_four_exits_16, rm_four_exits_17);
 }
 
 /// @function								initialize_game_variables();
@@ -99,8 +99,8 @@ function initialize_game_variables() {
 	bg_color = make_color_rgb(20, 20, 20);
 	number_of_frames_since_game_began = 0;
 	entered_from_stairs = true;
-	blackout = false;
-	transition = noone;
+	blackout = true;
+	transition = directions.respawn;
 	clear_inputs_for_next_frame();
 }
 
@@ -151,9 +151,7 @@ function transition_to_room(new_room) {
 	move_player(4);
 	
 	// Change room
-	new_room.go_to_room(); 
-	blackout = false;
-	transition = noone;
+	new_room.go_to_room();
 }
 
 /// @function					flip_room_contents_horizontally();
@@ -272,7 +270,7 @@ function clear_inputs_for_next_frame() {
 /// @function								game_room_start();
 function game_room_start() {
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
-	if (instance_number(obj_phantom) == 0) { audio_stop_sound( snd_dread ); }
+	audio_stop_sound( snd_dread );
 	
 	// First Time Setup	
 	if (!current_room.visited) {    
@@ -343,9 +341,17 @@ function game_room_start() {
 			if (instance_number(obj_lantern) == 0) { current_room.lit = false; }
 			else { with obj_lantern { light_torch(noone, false); } }
 		}
+		else
+		{
+			// If room is unlit but has the potential to be lit, consider spawning phantom
+			if (instance_number(obj_lantern) > 0 && get_random_chance_out_of(4)) {
+				instance_create_depth(0, 0, 0, obj_phantom);
+			}
+		}
 		
 		// Teleport mouth to empty space
 		with (obj_mouth) { teleport_to_empty_space(); }
+		with (obj_giant_worm_head) { connect_segments(); }
 	
 		// Mark room as one that has been visited at some point during this game
 		current_room.visited = true;
@@ -396,10 +402,14 @@ function game_room_start() {
 		visible = false;
 		lethal = false;
 
-
 		if (global.controller.current_room.lit) { instance_destroy(); }
 		else if (global.controller.entered_from_stairs) { spawn_timer = -1; }
-		else { audio_play_sound( snd_dread, 10, false ); spawn_timer = 15*instance_number(obj_lantern); }
+		else { 
+			audio_play_sound( snd_dread, 10, false ); 
+			spawn_timer = 15*instance_number(obj_lantern);
+			x = global.player.x;
+			y = global.player.y;
+		}
 	}
 
 }

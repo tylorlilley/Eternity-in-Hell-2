@@ -15,7 +15,7 @@ if (sprite_index) {
 			if (bush.depth <= depth) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1); }
 			// TODO: Draw box over bush else { draw_sprite_ext(spr_box, 0, x+x_pos, y+y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1);}
 		}
-        if (solid_obj && solid_obj.visible && solid_obj.id != self.id) {
+        if (solid_obj && solid_obj.visible && solid_obj.id != self.id && depth > -100) {
             if (!bush || bush.id != self.id) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1); }
         }
     }

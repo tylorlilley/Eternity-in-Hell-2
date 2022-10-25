@@ -3,7 +3,7 @@ if (process_this_frame()) {
 
 	var player = instance_place(x, y, global.player);
 	var carried_sword = get_carried_item_of_type(obj_sword);
-	var carried_rosary = get_carried_item_of_type(obj_rosary);
+	var carried_rosary = noone; //get_carried_item_of_type(obj_rosary);
 	if (lethal && player && !global.player.dead) {
 		if (carried_sword && killable_by_sword) {
 			audio_play_sound( death_sound, 10, false );

@@ -17,4 +17,6 @@ if (process_this_frame()) {
 	if (global.controller.current_room.lit) { audio_play_sound_for_object_only_once( snd_impact ); instance_destroy(); }
 
 	event_inherited();
+	
+	if (spawn_timer > 0) { visible = false; }
 }

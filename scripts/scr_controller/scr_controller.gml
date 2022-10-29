@@ -23,15 +23,15 @@ function create_room_lists() {
 	rooms_with_no_exits = array_create(0); 
 	array_push(rooms_with_no_exits, rm_no_exits_1);
 	rooms_with_one_exit = array_create(0); 
-	array_push(rooms_with_one_exit, rm_one_exit_1, rm_one_exit_2, rm_one_exit_3, rm_one_exit_4, rm_one_exit_5, rm_one_exit_6, rm_one_exit_7, rm_one_exit_8, rm_one_exit_9, rm_one_exit_10, rm_one_exit_11, rm_one_exit_12, rm_one_exit_13, rm_one_exit_14, rm_one_exit_15);
+	array_push(rooms_with_one_exit, rm_one_exit_1, rm_one_exit_2, rm_one_exit_3, rm_one_exit_4, rm_one_exit_5, rm_one_exit_6, rm_one_exit_7, rm_one_exit_8, rm_one_exit_9, rm_one_exit_10, rm_one_exit_11, rm_one_exit_12, rm_one_exit_13, rm_one_exit_14, rm_one_exit_15, rm_one_exit_16, rm_one_exit_17, rm_one_exit_18);
 	rooms_with_two_opposite_exits = array_create(0);
-	array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_1, rm_two_opposite_exits_2, rm_two_opposite_exits_3, rm_two_opposite_exits_4, rm_two_opposite_exits_5, rm_two_opposite_exits_6, rm_two_opposite_exits_7, rm_two_opposite_exits_8, rm_two_opposite_exits_9, rm_two_opposite_exits_10, rm_two_opposite_exits_11, rm_two_opposite_exits_12, rm_two_opposite_exits_13, rm_two_opposite_exits_14, rm_two_opposite_exits_15);
+	array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_1, rm_two_opposite_exits_2, rm_two_opposite_exits_3, rm_two_opposite_exits_4, rm_two_opposite_exits_5, rm_two_opposite_exits_6, rm_two_opposite_exits_7, rm_two_opposite_exits_8, rm_two_opposite_exits_9, rm_two_opposite_exits_10, rm_two_opposite_exits_11, rm_two_opposite_exits_12, rm_two_opposite_exits_13, rm_two_opposite_exits_14, rm_two_opposite_exits_15, rm_two_opposite_exits_16);
 	rooms_with_two_perpendicular_exits = array_create(0); 
-	array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_7, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_9, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_11, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_13, rm_two_perpendicular_exits_14, rm_two_perpendicular_exits_15);
+	array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_7, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_9, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_11, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_13, rm_two_perpendicular_exits_14, rm_two_perpendicular_exits_15, rm_two_perpendicular_exits_16);
 	rooms_with_three_exits = array_create(0); 
-	array_push(rooms_with_three_exits, rm_three_exits_1, rm_three_exits_2, rm_three_exits_3, rm_three_exits_4, rm_three_exits_5, rm_three_exits_6, rm_three_exits_7, rm_three_exits_8, rm_three_exits_9, rm_three_exits_10, rm_three_exits_11, rm_three_exits_12, rm_three_exits_13, rm_three_exits_14, rm_three_exits_15, rm_three_exits_16);
+	array_push(rooms_with_three_exits, rm_three_exits_1, rm_three_exits_2, rm_three_exits_3, rm_three_exits_4, rm_three_exits_5, rm_three_exits_6, rm_three_exits_7, rm_three_exits_8, rm_three_exits_9, rm_three_exits_10, rm_three_exits_11, rm_three_exits_12, rm_three_exits_13, rm_three_exits_14, rm_three_exits_15, rm_three_exits_16, rm_three_exits_17);
 	rooms_with_four_exits = array_create(0); 
-	array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_2, rm_four_exits_3, rm_four_exits_4, rm_four_exits_5, rm_four_exits_6, rm_four_exits_7, rm_four_exits_8, rm_four_exits_9, rm_four_exits_10, rm_four_exits_11, rm_four_exits_12, rm_four_exits_13, rm_four_exits_14, rm_four_exits_15, rm_four_exits_16, rm_four_exits_17);
+	array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_2, rm_four_exits_3, rm_four_exits_4, rm_four_exits_5, rm_four_exits_6, rm_four_exits_7, rm_four_exits_8, rm_four_exits_9, rm_four_exits_10, rm_four_exits_11, rm_four_exits_12);
 }
 
 /// @function								initialize_game_variables();
@@ -45,7 +45,7 @@ function initialize_game_variables() {
 	global.player = noone;
 
 	// Initialize room probability constants
-	NUMBER_OF_EXITS_PROBABILITIES = [100, 0, 0, 0, 0]//[5, 15, 75, 5, 0];
+	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
 	LOCKED_DOOR_PROBABILITY = 5;
 	HAS_STAIRS_PROBABILITY = 20;
 	HAS_COLLECTABLE_PROBABILITY = 30;
@@ -54,11 +54,11 @@ function initialize_game_variables() {
 	SPECIAL_ITEM_PROBABILITY = 4;
 
 	// Initialize map drawing constants
-	TEST_MODE = false;
+	TEST_MODE = true;
 	MAX_WALKING_DEPTH = 255;
-	MINIMUM_NUMBER_OF_ROOMS = 8; //32;
+	MINIMUM_NUMBER_OF_ROOMS = 32;
 	ADDITIONAL_ROOMS = 16;
-	MAX_MAP_DRAW_DISTANCE = 32//8;
+	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables
 	DIMMING_RATE = 8;
@@ -286,6 +286,10 @@ function game_room_start() {
 			xstart = x;
 			ystart = y;
 		}
+		with (obj_giant_worm_body) {
+			xstart = x;
+			ystart = y;
+		}
     
 		// Create locked exits if they should exist
 		for (var i = 0; i < 4; i++) {
@@ -351,7 +355,6 @@ function game_room_start() {
 		
 		// Teleport mouth to empty space
 		with (obj_mouth) { teleport_to_empty_space(); }
-		with (obj_giant_worm_head) { connect_segments(); }
 	
 		// Mark room as one that has been visited at some point during this game
 		current_room.visited = true;
@@ -380,6 +383,8 @@ function game_room_start() {
 	
 	// Run room start event for specific objects
 	with (obj_enemy) { x = xstart; y = ystart; }
+	with (obj_giant_worm_body) { x = xstart; y = ystart; }
+	with (obj_giant_worm_head) { connect_segments(); }
 	with (obj_stairs) { active = false; }
 	with (obj_block) { x = starting_spot.x; y = starting_spot.y; }
 	with (obj_door) { locked = (door_for_exit && door_for_exit.locked); }

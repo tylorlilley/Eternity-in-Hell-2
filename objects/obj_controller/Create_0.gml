@@ -158,3 +158,18 @@ global.player = instance_create_depth(0, 0, -10, obj_player);
 current_room.go_to_room();
 show_debug_message("SEED: "+string(random_get_seed()));
 
+avg_exits = 0;
+one_exits = 0;
+two_exits = 0;
+three_exits = 0;
+four_exits = 0;
+for (var i = 0; i < array_length(game_rooms); i++) {
+	var counted_exits = game_rooms[i].count_exits();
+	avg_exits += counted_exits;
+	if counted_exits == 1 one_exits += 1;
+	if counted_exits == 2 two_exits += 1;
+	if counted_exits == 3 three_exits += 1;
+	if counted_exits == 4 four_exits += 1;
+}
+avg_exits = avg_exits / array_length(game_rooms);
+

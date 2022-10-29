@@ -14,7 +14,10 @@ if (process_this_frame()) {
 	    }
 	}
 
-	if (global.controller.current_room.lit) { audio_play_sound_for_object_only_once( snd_impact ); instance_destroy(); }
+	if (global.controller.current_room.lit) { 
+		if (spawn_timer > 0) { audio_play_sound_for_object_only_once( snd_impact ) }; 
+		instance_destroy(); 
+	}
 
 	event_inherited();
 	

@@ -32,6 +32,7 @@
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"53819ebb-1aa3-4c7e-95c3-cca0268cd2d1",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"f4240a44-a7a9-4174-862d-561b59541c6c",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"648798fe-e022-4205-93a2-ccd8dd8a34af",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"d061b5ae-b3da-416a-b29d-8d83f3146934",},
   ],
   "sequence": {
     "resourceType": "GMSequence",
@@ -43,7 +44,7 @@
     "playbackSpeedType": 0,
     "autoRecord": true,
     "volume": 1.0,
-    "length": 4.0,
+    "length": 5.0,
     "events": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MessageEventKeyframe>",},
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
@@ -52,6 +53,7 @@
             {"id":"d9329c02-2728-45ca-8b5d-587c1e265921","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"53819ebb-1aa3-4c7e-95c3-cca0268cd2d1","path":"sprites/spr_giant_wurm/spr_giant_wurm.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"a9ec1709-1e8a-4489-81b7-82490401d0cb","Key":2.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"f4240a44-a7a9-4174-862d-561b59541c6c","path":"sprites/spr_giant_wurm/spr_giant_wurm.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"df42b16c-cd9f-4d20-9b9a-12315d13ef1a","Key":3.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"648798fe-e022-4205-93a2-ccd8dd8a34af","path":"sprites/spr_giant_wurm/spr_giant_wurm.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"af87a691-bf25-4a6d-a147-91e55b90c595","Key":4.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"d061b5ae-b3da-416a-b29d-8d83f3146934","path":"sprites/spr_giant_wurm/spr_giant_wurm.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
           ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,

@@ -1,7 +1,11 @@
 {
+  "resourceType": "GMObject",
+  "resourceVersion": "1.0",
+  "name": "obj_placeholder",
   "spriteId": null,
   "solid": false,
   "visible": false,
+  "managed": true,
   "spriteMaskId": null,
   "persistent": false,
   "parentObjectId": null,
@@ -24,8 +28,4 @@
     "name": "Parents",
     "path": "folders/Objects/Parents.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "obj_placeholder",
-  "tags": [],
-  "resourceType": "GMObject",
 }

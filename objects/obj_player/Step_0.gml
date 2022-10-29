@@ -1,7 +1,7 @@
 if (process_this_frame()) {
 	x_prev = x;
 	y_prev = y;
-	if (!instance_place(x, y, obj_bush)) { hidden = false; }
+
 	if (instance_place(x, y, obj_solid) && !dead) { kill_player(); }
 	if (!dead && !game_has_been_won() && !game_has_been_lost()) {   
 	    // Get input from player
@@ -57,6 +57,10 @@ if (process_this_frame()) {
 	    else if x > room_width { global.controller.transition = directions.right; }
 	    else if y < 0 { global.controller.transition = directions.up; }
 	    else if y > room_height { global.controller.transition = directions.down; }
+		
+		// Update bush hiding status
+		var bush_at_quadrant = get_presence_at_each_quadrant(obj_bush);
+		hidden = (bush_at_quadrant[0] && bush_at_quadrant[1] && bush_at_quadrant[2] && bush_at_quadrant[3]);
 	}
 	else if dead image_index = 2;
 

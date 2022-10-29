@@ -1,6 +1,7 @@
 if (process_this_frame()) {
 	timer += 1;
 	if (timer >= 4) { 
+		if (dir != -1) { prev_dir = dir; }
 		timer = 0;
 		if (dir != -1 && can_move_worm_in_direction(dir, false, true)) { 
 			move_in_direction(dir, true);

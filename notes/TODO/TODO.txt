@@ -17,17 +17,14 @@ Make map show if room has key OR chest instead of just if a key spawned there?
 Remove lit rooms coloring different on map?
 
 NEW FEATURES
-Multi-tile worm that moves one space at a time and brings any associated worm bodies with him of varying length.
-- Worm bodies can be solid? But not head?
-- Must hit head with sword to kill it?
-
+Add statue rooms
+- check lava rooms for nose compatibility
+- decide if fireball should stop on ANY solid or just block
 Add flecks/dots randomly generated on first visit to room to further decorate the space
 Portcullis door opened with button
 Zelda style doors that close and you have to push block or light torch to open
 Greedy monster that runs toward held items drop items to distract
-Worm man runs straight and turns at walls
 "Blind Monster" That moves toward whatever makes a sound
-Stationary Monster that spits projectile?
 Sometimes spawn a block on top of stairs if you didn't enter from stairs - requires checking stairs spot in each room
 mimic chests monsters
 

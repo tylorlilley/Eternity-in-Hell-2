@@ -14,8 +14,7 @@ if (process_this_frame()) {
 			image_index = 1;
 		}
 		else if (shoot_timer == 0) {
-			audio_play_sound(snd_shoot, 10, false);
-			with (instance_create_depth(x, y, 10, obj_fireball)) { move_towards_point(global.player.x, global.player.y, 2); }
+			shoot_fireball(global.player.x, global.player.y);
 			visible = false;
 			image_index = 0;
 			spawn_timer = irandom_range(16, 64);

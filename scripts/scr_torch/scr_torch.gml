@@ -3,15 +3,15 @@
 ///	@param		{boolean}	play_sound		Whether or not lighting this torch should play a sound
 function light_torch(lighting_torch, play_sound) {
 	// Set remaining torch time for the calling instance to new lit amount
-	var new_lit_amount = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
+	var new_lit_amount = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT, newly_lit = false;
 	if (lighting_torch && lighting_torch.time_to_remain_lit) { new_lit_amount = lighting_torch.time_to_remain_lit; }
 	if (time_to_remain_lit < new_lit_amount && time_to_remain_lit >= 0) {
 		time_to_remain_lit = new_lit_amount;
-		if (play_sound) { audio_play_sound( snd_torchlight, 10, false ); }
+		newly_lit = true;
 	}
 	// Light torch from completely extinguished
 	if (!light_source) {
-		if (play_sound) { audio_play_sound( snd_torchlight, 10, false ); }
+		newly_lit = true;
 		
 		image_index = 0;
 		image_speed = 1/6;
@@ -31,6 +31,8 @@ function light_torch(lighting_torch, play_sound) {
 	if (lighting_torch && time_to_remain_lit > lighting_torch.time_to_remain_lit) {
 		with lighting_torch { light_torch(noone, false); }
 	}
+	// Play sound if a torch is newly lit from this interaction
+	if (play_sound && newly_lit) { audio_play_sound( snd_torchlight, 10, false ); }
 }
 
 /// @function							extinguish_torch();

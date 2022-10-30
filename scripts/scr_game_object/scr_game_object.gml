@@ -121,6 +121,7 @@ function audio_play_sound_for_object_only_once(sound_to_play) {
 
 /// @function								pushed_against_by_player(key_pressed_only);
 function pushed_against_by_player(key_pressed_only) {
+	if (global.player.dead) { return noone; }
 	if (instance_at_coordinates(global.player.x_prev, global.player.y_prev-16, self) && (global.controller.key_up_pressed || (!key_pressed_only && global.controller.key_up))) { return directions.up; }
 	else if (instance_at_coordinates(global.player.x_prev, global.player.y_prev+16, self) && (global.controller.key_down_pressed || (!key_pressed_only && global.controller.key_down))) { return directions.down; }
 	else if (instance_at_coordinates(global.player.x_prev-16, global.player.y_prev, self) && (global.controller.key_left_pressed || (!key_pressed_only && global.controller.key_left))) { return directions.left; }

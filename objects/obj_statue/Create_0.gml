@@ -1,2 +1,3 @@
 event_inherited();
-shoot_timer = irandom_range(16,32);
+covered = true;
+image_angle = 180;

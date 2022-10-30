@@ -348,7 +348,7 @@ function game_room_start() {
 		else
 		{
 			// If room is unlit but has the potential to be lit, consider spawning phantom
-			if (instance_number(obj_lantern) > 0 && get_random_chance_out_of(4)) {
+			if (instance_number(obj_lantern) > 0 && get_random_chance_out_of(1)) {
 				instance_create_depth(0, 0, 0, obj_phantom);
 			}
 		}
@@ -389,6 +389,7 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
+	with (obj_fireball) { instance_destroy(); }
 	with (obj_enemy) { x = xstart; y = ystart; }
 	with (obj_giant_worm_body) { x = xstart; y = ystart; }
 	with (obj_giant_worm_head) { connect_segments(); }

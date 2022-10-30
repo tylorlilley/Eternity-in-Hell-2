@@ -3,8 +3,8 @@
   "resourceVersion": "1.0",
   "name": "obj_fireball",
   "spriteId": {
-    "name": "spr_collectable",
-    "path": "sprites/spr_collectable/spr_collectable.yy",
+    "name": "spr_fireball",
+    "path": "sprites/spr_fireball/spr_fireball.yy",
   },
   "solid": false,
   "visible": true,

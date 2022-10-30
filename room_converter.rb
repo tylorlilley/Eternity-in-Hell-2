@@ -10,7 +10,7 @@ def translate_file(filename)
     #puts parsed_data
     string = "["
     parsed_data.each do |instance_data|
-        instance_string = "{\"x\": #{instance_data['x']}, \"y\": #{instance_data['y']}, \"name\": \"#{instance_data["objectId"]["name"]}\"},"
+        instance_string = "{\"x\": #{instance_data['x'].to_f().round()}, \"y\": #{instance_data['y'].to_f().round()}, \"name\": \"#{instance_data["objectId"]["name"]}\"},"
         #puts instance_string
         string << instance_string
     end

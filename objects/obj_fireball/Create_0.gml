@@ -1,9 +1,8 @@
 event_inherited();
 
 depth = -300;
-sprite_index = spr_collectable;
+sprite_index = spr_fireball;
 image_speed = one_unit_of_game_time();
-image_blend = c_red;
 
 // Create Deathbox
 death_box = instance_create_depth(x, y, 5, obj_death);

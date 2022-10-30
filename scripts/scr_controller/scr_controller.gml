@@ -355,6 +355,13 @@ function game_room_start() {
 		
 		// Teleport mouth to empty space
 		with (obj_mouth) { teleport_to_empty_space(); }
+		
+		// If room has lava, consider spawning phantom
+		if (instance_number(obj_lava) > 0 && get_random_chance_out_of(1)) { 
+			if (get_random_chance_out_of(9)) { instance_create_depth(0, 0, 0, obj_nose); }
+			if (get_random_chance_out_of(9)) { instance_create_depth(0, 0, 0, obj_nose); }
+			if (get_random_chance_out_of(9)) { instance_create_depth(0, 0, 0, obj_nose); }
+		}
 	
 		// Mark room as one that has been visited at some point during this game
 		current_room.visited = true;
@@ -393,6 +400,7 @@ function game_room_start() {
 	with (obj_mouth) { audio_play_sound_for_object_only_once(snd_squelch); teleport_to_empty_space(); }
 	with (obj_eyes) { audio_play_sound_for_object_only_once(snd_flicker); }
 	with (obj_bumper) { lethal = false; trap = true; visible = false; }
+	with (obj_nose) { teleport_to_lava(); }
 	with (obj_spider) {
 		lethal = get_random_chance_out_of(2);
 		if global.controller.entered_from_stairs { lethal = false; }

@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_hiss",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.64,
   "preload": false,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_hiss.wav",
-  "duration": 0.799535,
+  "duration": 0.794535,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_hiss",
-  "tags": [],
-  "resourceType": "GMSound",
 }

@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_skeletonrise",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.7,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_skeletonrise",
-  "duration": 0.158651,
+  "duration": 0.153651,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_skeletonrise",
-  "tags": [],
-  "resourceType": "GMSound",
 }

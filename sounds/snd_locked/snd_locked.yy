@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_locked",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.22,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_locked",
-  "duration": 0.233118,
+  "duration": 0.228118,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_locked",
-  "tags": [],
-  "resourceType": "GMSound",
 }

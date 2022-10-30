@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_squelch",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.27,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_squelch",
-  "duration": 0.405839,
+  "duration": 0.400839,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_squelch",
-  "tags": [],
-  "resourceType": "GMSound",
 }

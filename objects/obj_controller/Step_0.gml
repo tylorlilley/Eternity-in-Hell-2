@@ -33,8 +33,11 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 				with carried_rosary { if (!special) { instance_destroy(); } }
 			}
 			else {
-				global.player.visible = false; 
-				room_goto(rm_finish);
+				with (global.player) {
+					drop_all_items();
+					visible = false;
+					room_goto(rm_finish);
+				}
 			}
 		}
 		else { death_timer -= 1; }

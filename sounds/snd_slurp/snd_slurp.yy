@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_slurp",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.24,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_slurp",
-  "duration": 1.19212,
+  "duration": 1.18712,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_slurp",
-  "tags": [],
-  "resourceType": "GMSound",
 }

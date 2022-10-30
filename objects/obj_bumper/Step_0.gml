@@ -6,7 +6,7 @@ if (process_this_frame()) {
 		blink_amount -= 1;
 	}
 	else if (blink_amount == 0) {
-		blink_amount = 5 + irandom(10);
+		blink_amount = irandom_range(6, 16);
 	    audio_play_sound( snd_bumper, 10, false );
 		turn_to_face_player();
 		if (lethal) {
@@ -24,12 +24,9 @@ if (process_this_frame()) {
 		global.controller.key_down || 
 		global.controller.key_left || 
 		global.controller.key_right)) {
-		blink_amount = 5 + irandom(10);
+		blink_amount = irandom_range(6, 16);
 		//audio_play_sound( snd_bumper, 10, false );
 		turn_to_face_player();
-		if (obj_player.x < x) { x -= 8; }
-		else if (obj_player.x > x) { x += 8; }
-		if (obj_player.y < y) { y -= 8; }
-		else if (obj_player.y > y) {y += 8; }
+		move_towards_coordinates(global.player.x, global.player.y);
 	}
 }

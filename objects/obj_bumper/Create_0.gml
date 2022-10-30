@@ -1,8 +1,6 @@
 event_inherited();
 
-killable_by_sword = false;
-consumed_by_block = false;
-death_sound = snd_crunch;
+death_sound = snd_bumper;
 image_speed = 1;
 
 lethal = false;

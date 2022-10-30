@@ -152,3 +152,31 @@ function get_presence_at_each_quadrant(obj_index) {
 	
 	return presence_at_quadrant;
 }
+
+/// @function								get_presence_at_each_quadrant(obj_index);
+///	@param		{index} obj_index			The object type to check the presence of in each quadrant
+function move_towards_coordinates(target_x, target_y) {
+	var x_dif = abs(x - target_x), y_dif = abs(y - target_y), move_dir = noone;
+	if (x_dif > y_dif) {
+		if (x < target_x) { move_dir = directions.right; }
+		if (x > target_x) { move_dir = directions.left; }
+	}
+	else if (y_dif < x_dif) {
+		if (y < target_y) { move_dir = directions.down; }
+		if (y > target_y) { move_dir = directions.up; }
+	}
+	else {
+		if (x_dif >= 8 && y_dif >= 8) {
+			if (get_random_chance_out_of(2)) {
+				if (y < target_y) { move_dir = directions.down; }
+				if (y > target_y) { move_dir = directions.up; }
+			}
+			else {
+				if (x < target_x) { move_dir = directions.right; }
+				if (x > target_x) { move_dir = directions.left; }
+			}
+		}
+	}
+	
+	move_in_direction(move_dir, false);
+}

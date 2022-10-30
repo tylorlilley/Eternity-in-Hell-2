@@ -4,13 +4,15 @@
 function light_torch(lighting_torch, play_sound) {
 	// Set remaining torch time for the calling instance to new lit amount
 	var new_lit_amount = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
-	if (lighting_torch && object_index != obj_lantern) { new_lit_amount = lighting_torch.time_to_remain_lit; }
-	if (time_to_remain_lit < new_lit_amount) {
+	if (lighting_torch && lighting_torch.time_to_remain_lit) { new_lit_amount = lighting_torch.time_to_remain_lit; }
+	if (time_to_remain_lit < new_lit_amount && time_to_remain_lit >= 0) {
 		time_to_remain_lit = new_lit_amount;
 		if (play_sound) { audio_play_sound( snd_torchlight, 10, false ); }
 	}
 	// Light torch from completely extinguished
 	if (!light_source) {
+		if (play_sound) { audio_play_sound( snd_torchlight, 10, false ); }
+		
 		image_index = 0;
 		image_speed = 1/6;
 
@@ -35,6 +37,7 @@ function light_torch(lighting_torch, play_sound) {
 function extinguish_torch() {
 	image_speed = 0;
 	image_index = 0;
+	time_to_remain_lit = 0;
 	
 	audio_play_sound( snd_extinguish, 10, false );
 	
@@ -42,7 +45,7 @@ function extinguish_torch() {
 	light_source = noone;
 }
 
-/// @function							interact_with_carried_torches();
+/// @function							interact_with_other_torches();
 function interact_with_other_torches() {
 	var actively_lit = false, torches = instance_place_all(x, y, obj_torch);
 	
@@ -60,7 +63,7 @@ function interact_with_other_torches() {
 	}	
 	
 	// Decrement time remaining if not actively_lit
-	if (!actively_lit && !special && object_index == obj_torch && time_to_remain_lit > 0) { 
+	if (!actively_lit && !special && time_to_remain_lit > 0) { 
 		time_to_remain_lit -= one_unit_of_game_time();
 		if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(global.controller.PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT)); }
 		if (!time_to_remain_lit && image_speed > 0) { extinguish_torch(); }

@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_thud",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.23,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_thud",
-  "duration": 0.12958,
+  "duration": 0.12458,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_thud",
-  "tags": [],
-  "resourceType": "GMSound",
 }

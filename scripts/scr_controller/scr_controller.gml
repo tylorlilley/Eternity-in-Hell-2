@@ -52,6 +52,11 @@ function initialize_game_variables() {
 	HAS_KEY_PROBABILITY = 10;
 	HAS_ITEM_PROBABILITY = 20;
 	SPECIAL_ITEM_PROBABILITY = 4;
+	
+	// Initilize room start probability constants
+	NOSE_PROBABILITY = 3;
+	PHANTOM_PROBABILITY = 4;
+	HANDS_PROBABILITY = 1;
 
 	// Initialize map drawing constants
 	TEST_MODE = true;
@@ -348,7 +353,7 @@ function game_room_start() {
 		else
 		{
 			// If room is unlit but has the potential to be lit, consider spawning phantom
-			if (instance_number(obj_lantern) > 0 && get_random_chance_out_of(1)) {
+			if (instance_number(obj_lantern) > 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
 				instance_create_depth(0, 0, 0, obj_phantom);
 			}
 		}
@@ -356,11 +361,11 @@ function game_room_start() {
 		// Teleport mouth to empty space
 		with (obj_mouth) { teleport_to_empty_space(); }
 		
-		// If room has lava, consider spawning phantom
+		// If room has lava, consider spawning nose
 		if (instance_number(obj_lava) > 0 && get_random_chance_out_of(1)) { 
-			if (get_random_chance_out_of(9)) { instance_create_depth(0, 0, 0, obj_nose); }
-			if (get_random_chance_out_of(9)) { instance_create_depth(0, 0, 0, obj_nose); }
-			if (get_random_chance_out_of(9)) { instance_create_depth(0, 0, 0, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(0, 0, 0, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(0, 0, 0, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(0, 0, 0, obj_nose); }
 		}
 	
 		// Mark room as one that has been visited at some point during this game
@@ -387,6 +392,21 @@ function game_room_start() {
 
 	// Set initial lighting to darkness
 	with obj_game_object { image_blend = global.controller.bg_color; }
+	
+	// If room has dropped item, consider spawning hands
+	if (instance_number(obj_item) > 0) {
+		// Set up list of items that could cause hands to spawn
+		var potential_items = array_create(0);
+		with (obj_item) { if (holder == noone && has_been_carried) { array_push(potential_items, self); } }
+		// Spawn a hand on each potential item if probability is met
+		for (var i = 0; i < array_length(potential_items); i++) {
+			var potential_item = potential_items[i];
+			if (get_random_chance_out_of(HANDS_PROBABILITY)) { 
+				var new_hands = instance_create_depth(potential_item.x, potential_item.y, 0, obj_hands);
+				new_hands.carried_items[1] = potential_item;
+			}
+		}
+	}
 	
 	// Run room start event for specific objects
 	with (obj_fireball) { instance_destroy(); }

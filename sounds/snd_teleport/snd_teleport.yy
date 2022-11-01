@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_teleport",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.3,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_teleport",
-  "duration": 0.330556,
+  "duration": 0.325556,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_teleport",
-  "tags": [],
-  "resourceType": "GMSound",
 }

@@ -17,12 +17,7 @@ if (process_this_frame()) {
 
 	// If this is a moving collectable, choose a random direction and move in that 
 	// direction or its opposite if the opposite is away from the player
-	if moving { 
-	    var dir = irandom(3);
-	    if (is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
-	    if (get_random_chance_out_of(3)) { dir = 4; }
-	    if (can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); }
-	}
+	if moving { run_away_from_player(); }
 
 	event_inherited();
 }

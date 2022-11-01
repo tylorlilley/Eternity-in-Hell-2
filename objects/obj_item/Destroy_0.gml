@@ -1,1 +1,1 @@
-if (carried) { global.player.carried_items[carried] = noone; }
+if (carried) { holder.carried_items[carried] = noone; }

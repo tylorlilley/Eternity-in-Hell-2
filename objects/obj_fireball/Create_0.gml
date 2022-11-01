@@ -15,7 +15,8 @@ death_box.image_yscale = 0.5;
 // Torch Variables
 torch = instance_create_depth(x, y, 5, obj_torch);
 torch.special = true;
-torch.carried = global.controller;
+torch.carried = true;
+torch.holder = global.controller;
 torch.time_to_remain_lit = -1;
 torch.lighting_range = 5;
 torch.light_source = instance_create_depth(x, y, 5, obj_light_source);

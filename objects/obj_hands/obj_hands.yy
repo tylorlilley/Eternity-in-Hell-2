@@ -1,10 +1,10 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_eyes",
+  "name": "obj_hands",
   "spriteId": {
-    "name": "spr_bumper",
-    "path": "sprites/spr_bumper/spr_bumper.yy",
+    "name": "spr_hands",
+    "path": "sprites/spr_hands/spr_hands.yy",
   },
   "solid": false,
   "visible": true,
@@ -30,6 +30,7 @@
   "eventList": [
     {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,},
     {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","isDnD":false,"eventNum":0,"eventType":3,"collisionObjectId":null,},
+    {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","isDnD":false,"eventNum":0,"eventType":1,"collisionObjectId":null,},
   ],
   "properties": [],
   "overriddenProperties": [],

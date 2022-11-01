@@ -24,7 +24,7 @@ function pick_up_or_drop_item(dir) {
 		while (array_length(dropped_items) > 0) {
 			var dropped_item = array_random_pop(dropped_items);
 			if (dropped_item && !dropped_item.carried && dropped_item.can_pick_up && instance_at_coordinates(x, y, dropped_item)) {
-				with dropped_item { pick_up_item(dir, true); return true; }
+				with dropped_item { pick_up_item(dir, true, global.player); return true; }
 			}
 		}
 		return false;
@@ -51,7 +51,7 @@ function get_carried_item_of_type(obj_index) {
 /// @param		{index} obj_index			The type of item to create in hand
 function create_item_in_hand(dir, obj_index)	{
 	var new_item = instance_create_depth(global.player.x, global.player.y, -5, obj_index)
-	with new_item { pick_up_item(dir, false); }
+	with new_item { pick_up_item(dir, false, global.player); }
 	return new_item;
 }
 

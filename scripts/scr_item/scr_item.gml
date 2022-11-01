@@ -11,17 +11,21 @@ function draw_while_carried(y_offset, dir) {
 /// @function								pick_up_item();
 /// @param		{direction} dir				The hand this item is being picked up with
 /// @param		{boolean} play_sound		Whether or not the item previously existed as a dropped item.
-function pick_up_item(dir, play_sound) {
+/// @param		{boolean} holder			The instance to begin holding the item.
+function pick_up_item(dir, play_sound, new_holder) {
 	if (play_sound) { audio_play_sound(snd_pickup, 10, false); }
-	global.player.carried_items[dir] = id;
+	holder = new_holder
+	holder.carried_items[dir] = id;
+	persistent = holder.persistent;
+	image_xscale = holder.image_xscale;
 	carried = dir;
-	persistent = true;
 	depth = -10;
-	image_xscale = global.player.image_xscale;
 	if (!has_been_carried) {
 		has_been_carried = true;
-		if (object_index == obj_key) { global.controller.current_room.has_key = false; }
-		else if (object_index == obj_heart) { global.controller.completion_amount += 1; }
+		if (holder == global.player) {
+			if (object_index == obj_key) { global.controller.current_room.has_key = false; }
+			else if (object_index == obj_heart) { global.controller.completion_amount += 1; }
+		}
 	}
 }
 
@@ -29,11 +33,14 @@ function pick_up_item(dir, play_sound) {
 /// @param		{direction} dir				The hand this item is being dropped out of
 function drop_item(dir, play_sound) {	
 	if (play_sound) { audio_play_sound(snd_putdown, 10, false);}
-	global.player.carried_items[dir] = noone;
+	if (holder) { 
+		holder.carried_items[dir] = noone;
+		x = holder.x;
+		y = holder.y;
+		holder = noone;
+	}
 	carried = noone;
 	persistent = false;
-	x = global.player.x;
-	y = global.player.y;
 	depth = 2;
 	image_xscale = (dir == directions.left) ? image_xscale : -image_xscale;
 }

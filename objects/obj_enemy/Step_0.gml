@@ -10,8 +10,8 @@ if (process_this_frame()) {
 		if (consumed_by_lava) {
 			var lava_at_quadrant = get_presence_at_each_quadrant(obj_lava);
 			if (lava_at_quadrant[0] && lava_at_quadrant[1] && lava_at_quadrant[2] && lava_at_quadrant[3]) {
+				play_sound(snd_extinguish, true);
 				kill_enemy();
-				audio_play_sound(snd_extinguish, 10, false);
 			}
 		}
 	}

@@ -12,6 +12,8 @@ function move_player(dir) {
 		for (var i = 0; i <= 4; i += 1;) {
 			if (carried_items[i]) { set_instance_to_same_position(carried_items[i]); }
 		}
+		// Open doors
+		with (instance_place(x, y, obj_door)) { open_door(); }
 	}
 }
 
@@ -63,7 +65,7 @@ function kill_player() {
 	// Set variables to mark death
 	global.player.dead = true;
 	global.controller.death_timer = 40;
-	audio_play_sound( snd_lose, 10, false );
+	play_sound(snd_lose, true);
 }
 
 /// @function								drop_all_items()

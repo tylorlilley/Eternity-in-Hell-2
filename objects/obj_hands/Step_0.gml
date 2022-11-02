@@ -2,7 +2,7 @@ if (process_this_frame()) {
 	if (!visible) {
 		if (distance_to_instance(global.player) < TRAP_DISTANCE && !visible) { 
 			visible = true;
-			audio_play_sound( snd_laugh, 10, false );
+			play_sound(snd_laugh, true);
 			with carried_items[1] { pick_up_item(1, false, other); }
 		}
 	}

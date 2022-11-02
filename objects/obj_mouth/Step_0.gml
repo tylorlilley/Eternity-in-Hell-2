@@ -8,7 +8,7 @@ if (process_this_frame()) {
 	    if (distance_to_instance(global.player) < MOUTH_DISTANCE && !visible) ||
 	       (distance_to_instance(global.player) >= MOUTH_DISTANCE && visible) { 
 	        visible = !visible;
-	        audio_play_sound( snd_squelch, 10, false );
+	        play_sound(snd_squelch, true);
 			if (!visible) { teleport_to_empty_space(); }
 	    }
 	}

@@ -6,7 +6,7 @@ if (process_this_frame()) {
 	var carried_rosary = noone; //get_carried_item_of_type(obj_rosary);
 	if (lethal && player && !global.player.dead) {
 		if (carried_sword && killable_by_sword) {
-			audio_play_sound( death_sound, 10, false );
+			play_sound(death_sound, true);
 			with carried_sword { 
 				if (!special) 
 				{ 
@@ -19,8 +19,8 @@ if (process_this_frame()) {
 		}
 		else if (corporeal || !carried_rosary) {
 			if (!stopped_by_special_rosary || !carried_rosary || (carried_rosary && !carried_rosary.special)) {
+				play_sound(death_sound, true);
 				kill_player();
-				audio_play_sound( death_sound, 10, false );
 			}
 		}
 	}

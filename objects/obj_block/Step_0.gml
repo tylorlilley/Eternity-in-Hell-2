@@ -9,7 +9,7 @@ if (process_this_frame()) {
 	else if global.controller.key_right && !global.controller.key_left && (global.controller.key_right_pressed || !global.controller.key_right_released) { dir = directions.right; }
 		
 	if (pushed_against_by_player(true) == dir && can_move_in_direction(dir, false, true)) { 
-		audio_play_sound(snd_thud, 10, false);
+		play_sound(snd_thud, false);
 		move_in_direction(dir, false); 
 		move_player(dir);
 	}
@@ -31,8 +31,8 @@ if (process_this_frame()) {
 			
 				with lava_at_quadrant[i] { destroy_lava_at_position(x_pos, y_pos); }
 		    }
+			play_sound(snd_extinguish, true);
 			instance_destroy();
-			audio_play_sound(snd_extinguish, 10, false);
 		}
 	}
 }

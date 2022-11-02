@@ -140,9 +140,9 @@ function transition_to_room(new_room) {
 	entered_from_stairs = (transition >= 4);
 			
 	// Play transition sound
-	if (transition == 5) { audio_play_sound( snd_win, 10, false ); }
-	else if (transition == 4) { audio_play_sound( snd_stairs, 10, false ); }
-	else { audio_play_sound( snd_move, 10, false ); }
+	if (transition == 5) { play_sound(snd_win, false); }
+	else if (transition == 4) { play_sound(snd_stairs, false); }
+	else { play_sound(snd_move, false); }
 	
 	// Reposition player
 	switch (transition) {
@@ -410,6 +410,7 @@ function game_room_start() {
 	
 	// Run room start event for specific objects
 	with (obj_fireball) { instance_destroy(); }
+	//with (obj_ears) { awake = false; }
 	with (obj_enemy) { x = xstart; y = ystart; }
 	with (obj_giant_worm_body) { x = xstart; y = ystart; }
 	with (obj_giant_worm_head) { connect_segments(); }
@@ -439,7 +440,7 @@ function game_room_start() {
 		if (global.controller.current_room.lit) { instance_destroy(); }
 		else if (global.controller.entered_from_stairs) { spawn_timer = -1; }
 		else { 
-			audio_play_sound( snd_dread, 10, false ); 
+			play_sound(snd_dread, false); 
 			spawn_timer = 15*instance_number(obj_lantern);
 			x = global.player.x;
 			y = global.player.y;

@@ -10,10 +10,10 @@ function draw_while_carried(y_offset, dir) {
 
 /// @function								pick_up_item();
 /// @param		{direction} dir				The hand this item is being picked up with
-/// @param		{boolean} play_sound		Whether or not the item previously existed as a dropped item.
+/// @param		{boolean} make_noise		Whether or not the item previously existed as a dropped item.
 /// @param		{boolean} holder			The instance to begin holding the item.
-function pick_up_item(dir, play_sound, new_holder) {
-	if (play_sound) { audio_play_sound(snd_pickup, 10, false); }
+function pick_up_item(dir, make_noise, new_holder) {
+	if (make_noise) { play_sound(snd_pickup, true); }
 	holder = new_holder
 	holder.carried_items[dir] = id;
 	persistent = holder.persistent;
@@ -31,8 +31,8 @@ function pick_up_item(dir, play_sound, new_holder) {
 
 /// @function								drop_item();
 /// @param		{direction} dir				The hand this item is being dropped out of
-function drop_item(dir, play_sound) {	
-	if (play_sound) { audio_play_sound(snd_putdown, 10, false);}
+function drop_item(dir, make_noise) {	
+	if (make_noise) { play_sound(snd_putdown, true);}
 	if (holder) { 
 		holder.carried_items[dir] = noone;
 		x = holder.x;

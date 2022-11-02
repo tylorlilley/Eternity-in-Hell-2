@@ -12,13 +12,15 @@ if (process_this_frame()) {
 				}
 			}
 			// Try to open the chest
-			if (array_length(free_hands) == 0) { audio_play_sound( snd_locked, 10, false ); }
+			if (array_length(free_hands) == 0) { play_sound(snd_locked, false); }
 			else { 
 				closed = false;
 				image_index = 1;
 				if (contents != noone) { 
-					audio_play_sound(snd_open, 10, false);
-					audio_play_sound(snd_pickup, 10, false);
+					with (global.player) {
+						play_sound(snd_open, true);
+						play_sound(snd_pickup, false);
+					}
 					var new_item = create_item_in_hand(array_random_pop(free_hands), contents);
 					if (special) { with new_item { make_item_special(); } }
 				}

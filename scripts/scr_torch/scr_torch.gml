@@ -1,7 +1,7 @@
 /// @function  								light_torch();
 ///	@param		{index}	lighting_torch		The instance that is doing the lighting
-///	@param		{boolean}	play_sound		Whether or not lighting this torch should play a sound
-function light_torch(lighting_torch, play_sound) {
+///	@param		{boolean}	make_noise		Whether or not lighting this torch should play a sound
+function light_torch(lighting_torch, make_noise) {
 	// Set remaining torch time for the calling instance to new lit amount
 	var new_lit_amount = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT, newly_lit = false;
 	if (lighting_torch && lighting_torch.time_to_remain_lit) { new_lit_amount = lighting_torch.time_to_remain_lit; }
@@ -32,7 +32,9 @@ function light_torch(lighting_torch, play_sound) {
 		with lighting_torch { light_torch(noone, false); }
 	}
 	// Play sound if a torch is newly lit from this interaction
-	if (play_sound && newly_lit) { audio_play_sound( snd_torchlight, 10, false ); }
+	if (make_noise && newly_lit) { 
+		play_sound(snd_torchlight, true); 
+	}
 }
 
 /// @function							extinguish_torch();
@@ -41,7 +43,7 @@ function extinguish_torch() {
 	image_index = 0;
 	time_to_remain_lit = 0;
 	
-	audio_play_sound( snd_extinguish, 10, false );
+	play_sound( snd_extinguish, true );
 	
 	with light_source { instance_destroy(); }
 	light_source = noone;

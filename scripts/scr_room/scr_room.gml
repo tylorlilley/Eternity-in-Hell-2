@@ -279,7 +279,7 @@ function GameRoom(given_x, given_y) constructor {
 		  if (adj_rooms[1] && !adj_rooms[1].drawn && x_pos+16 <= room_width) with adj_rooms[1] { draw_room(x_pos+16, y_pos); }
 		  if (adj_rooms[2] && !adj_rooms[2].drawn && y_pos+16 <= room_height) with adj_rooms[2] { draw_room(x_pos, y_pos+16); }
 		  if (adj_rooms[3] && !adj_rooms[3].drawn && x_pos-16 >= 0) with adj_rooms[3] { draw_room(x_pos-16, y_pos); }
-		  if (adj_rooms[4] && !adj_rooms[4].drawn) with adj_rooms[4] { draw_room(x_pos+(virtual_x - adj_rooms[4].virtual_x), y_pos+(virtual_y - adj_rooms[4].virtual_y)); }
+		  // if (adj_rooms[4] && !adj_rooms[4].drawn) with adj_rooms[4] { draw_room(x_pos+(virtual_x - adj_rooms[4].virtual_x), y_pos+(virtual_y - adj_rooms[4].virtual_y)); }
 		}
 	}
 	
@@ -354,7 +354,7 @@ function GameRoom(given_x, given_y) constructor {
 				break;
 		}
 	
-		return rm_three_exits_18; //array_random_get(room_list);
+		return rm_one_exit_18; //array_random_get(room_list);
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);

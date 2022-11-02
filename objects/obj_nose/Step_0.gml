@@ -7,7 +7,7 @@ if (process_this_frame()) {
 			visible = true; 
 			shoot_timer = 16; //irandom_range(6, 16);
 			turn_to_face_player();
-			audio_play_sound(snd_splash, 10, false);
+			play_sound(snd_splash, true);
 		}
 		else if (shoot_timer > 0) { shoot_timer -= 1; turn_to_face_player(); }
 		if (shoot_timer == 4) {

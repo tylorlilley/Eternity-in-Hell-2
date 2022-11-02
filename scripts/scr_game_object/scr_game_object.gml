@@ -32,7 +32,7 @@ function turn_to_face_player() {
 
 /// @function  							teleport_near_player();
 function teleport_near_player() {
-	audio_play_sound( snd_flicker, 10, false );
+	play_sound(snd_flicker, false);
 
 	do {
 	    var x_pos = (8*irandom(3));
@@ -92,9 +92,9 @@ function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ign
 
 /// @function								move_in_direction(dir);
 /// @param		{direction} dir				The direction in which to move the calling instance
-/// @param		{boolean} play_sound		Whether or not to play a movement sound
-function move_in_direction(dir, play_sound) {
-	if (play_sound) { audio_play_sound( snd_walk, 10, false ); }
+/// @param		{boolean} make_noise		Whether or not to play a movement sound
+function move_in_direction(dir, make_noise) {
+	if (make_noise) { play_sound(snd_walk, false); }
 	
 	if (dir == directions.up) { y -= 8; } 
 	if (dir == directions.right) { x += 8; image_xscale = -1; }
@@ -116,7 +116,7 @@ function set_instance_to_same_position(instance) {
 /// @function								audio_play_sound_for_object_only_once();
 /// @param		{index} sound_to_play		The sound to play only once
 function audio_play_sound_for_object_only_once(sound_to_play) {
-	if ((instance_number(object_index) > 0) && instance_find(object_index, 0).id == id) { audio_play_sound( sound_to_play, 10, false ); }
+	if ((instance_number(object_index) > 0) && instance_find(object_index, 0).id == id) { play_sound( sound_to_play, false ); }
 }
 
 /// @function								pushed_against_by_player(key_pressed_only);
@@ -154,15 +154,16 @@ function get_presence_at_each_quadrant(obj_index) {
 	return presence_at_quadrant;
 }
 
-/// @function								get_presence_at_each_quadrant(obj_index);
-///	@param		{index} obj_index			The object type to check the presence of in each quadrant
+/// @function								move_towards_coordinates(obj_index);
+///	@param		{int} target_x				The x position to be moving toward
+///	@param		{int} target_y				The y position to be moving toward
 function move_towards_coordinates(target_x, target_y) {
 	var x_dif = abs(x - target_x), y_dif = abs(y - target_y), move_dir = noone;
 	if (x_dif > y_dif) {
 		if (x < target_x) { move_dir = directions.right; }
 		if (x > target_x) { move_dir = directions.left; }
 	}
-	else if (y_dif < x_dif) {
+	else if (y_dif > x_dif) {
 		if (y < target_y) { move_dir = directions.down; }
 		if (y > target_y) { move_dir = directions.up; }
 	}

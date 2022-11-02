@@ -7,7 +7,7 @@ if (process_this_frame()) {
 	}
 	else if (blink_amount == 0) {
 		blink_amount = irandom_range(6, 16);
-	    audio_play_sound( snd_bumper, 10, false );
+	    play_sound(snd_bumper, true);
 		turn_to_face_player();
 		if (lethal) {
 			lethal = false;
@@ -18,14 +18,13 @@ if (process_this_frame()) {
 			visible = true;
 		}
 	}
-	
-	if (lethal && 
-		(global.controller.key_up || 
-		global.controller.key_down || 
-		global.controller.key_left || 
-		global.controller.key_right)) {
+	image_index = (global.controller.key_up || 
+				   global.controller.key_down || 
+				   global.controller.key_left || 
+				   global.controller.key_right) ? 1 : 0;
+	if (lethal && image_index == 1) {
 		blink_amount = irandom_range(6, 16);
-		//audio_play_sound( snd_bumper, 10, false );
+		//play_sound(snd_bumper, true );
 		turn_to_face_player();
 		move_towards_coordinates(global.player.x, global.player.y);
 	}

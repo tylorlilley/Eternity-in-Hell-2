@@ -8,6 +8,8 @@ random_set_seed(2037714886); // impossible locked key
 
 BUGFIXES
 Crash when entering stairs???
+Double sound when lighting lantern
+Enemies hit by fireballs?
 
 REFACTORS
 Refactor player with torches and lighting holding things

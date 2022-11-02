@@ -2,13 +2,13 @@
 if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	if (!game_has_been_lost() && !game_has_been_won()) {
 	    // Play map Sound Effects
-	    if key_space_pressed { audio_play_sound( snd_pickup, 10, false ); }
-	    if key_space_released { audio_play_sound( snd_putdown, 10, false ); }
+	    if key_space_pressed { play_sound( snd_pickup, false ); }
+	    if key_space_released { play_sound( snd_putdown, false ); }
     
 	    // Update per frame values
 	    time_remaining -= one_unit_of_game_time();
 	    //if key_space { time_remaining -= one_unit_of_game_time(); }
-	    if (game_has_timed_out()) { time_remaining = 0; audio_play_sound( snd_lose, 10, false ); }
+	    if (game_has_timed_out()) { time_remaining = 0; play_sound(snd_lose, false); }
 		
 		// Handle room transition blackout to get around macOS drawing bug
 		if (transition != noone && !blackout) { blackout = true; }

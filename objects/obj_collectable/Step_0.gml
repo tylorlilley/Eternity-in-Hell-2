@@ -6,13 +6,13 @@ if (process_this_frame()) {
 				current_room.has_collectables = false;
 				array_remove(rooms_with_collectables, current_room);
 				if (game_progress_has_been_completed()) { 
-					audio_play_sound( snd_win, 10, false ); 
+					play_sound(snd_win, false); 
 					global.controller.completion_amount += 1;
 				}
 			}
 	    }
 	    instance_destroy();
-	    audio_play_sound( snd_mana, 10, false );
+	    play_sound(snd_mana, false);
 	}
 
 	// If this is a moving collectable, choose a random direction and move in that 

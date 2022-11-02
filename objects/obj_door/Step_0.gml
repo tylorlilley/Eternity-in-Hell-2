@@ -4,18 +4,12 @@ if (process_this_frame()) {
 	if closed {
 		if locked image_index = 2;
 		var push_direction = pushed_against_by_player(true);
-		if (push_direction != noone || instance_place(x, y, obj_player)) {
+		if (push_direction != noone) {
 			var carried_key = get_carried_item_of_type(obj_key);
-		    if (locked && !carried_key && !instance_place(x, y, obj_player)) { audio_play_sound( snd_locked, 10, false ); }
+		    if (locked && !carried_key) { play_sound(snd_locked, false); }
 		    else { 
-				open_door(); 
+				play_sound(snd_open, true);
 				move_player(push_direction); 
-				if locked {
-					with door_for_exit { unlock(); }
-					locked = false;
-					audio_play_sound(snd_mana, 10, false);
-					with carried_key { if (!special) { instance_destroy(); } }
-				}
 			}
 		}
 	}

@@ -10,6 +10,7 @@ enum directions {
 
 // 
 enum difficulties {
+	very_easy,
 	easy,
 	medium,
 	hard,

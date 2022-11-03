@@ -5,6 +5,7 @@ function GameRoom(given_x, given_y) constructor {
 	virtual_y = given_y;
 	id = generate_id();
 	distance_to_current_room = 9999;
+	distance_from_start_room = 9999;
 
 	// Initialize room state values
 	visited = false;
@@ -216,7 +217,7 @@ function GameRoom(given_x, given_y) constructor {
 				white_color = merge_color(white_color, bg_color, 0.5);
 				red_color = merge_color(red_color, bg_color, 0.5);
 			}
-		
+			
 		    // Draw Room on Map
 			var room_color = lit ? red_color : white_color;
 			var inverse_color = lit ? white_color : red_color;
@@ -264,12 +265,12 @@ function GameRoom(given_x, given_y) constructor {
 			}
     
 		    // Draw distance information if testing
-		    //if (global.controller.TEST_MODE) {
-		    //    draw_set_color(c_lime);
-		    //    draw_set_halign(fa_center);
-		    //    draw_set_valign(fa_middle);
-		    //    if (distance_to_current_room < 9999) { draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_to_current_room))); }
-		    //}
+		    if (global.controller.TEST_MODE) {
+		        draw_set_color(c_lime);
+		        draw_set_halign(fa_center);
+		        draw_set_valign(fa_middle);
+		        draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_from_start_room)));
+		    }
 		}
 
 		// Mark the room as having been drawn, then draw each of its applicable neighbors

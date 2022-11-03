@@ -1,0 +1,1 @@
+completion_amount = TOTAL_COMPLETION_AMOUNT;

@@ -52,7 +52,10 @@ function walk_the_map(unlocked_exits) {
 	
 	// Add the initial room to the visited rooms
 	// Add each of that rooms exits to the list of exits to walk through
-	with global.controller.current_room { walk_through_room(visited_rooms, exits_to_walk_through, directions.stairs); }
+	with global.controller.current_room { 
+		distance_from_start_room = 0;
+		walk_through_room(visited_rooms, exits_to_walk_through, directions.stairs); 
+	}
 	
 	
 	// Walk through each exit while there are still exits to walk through
@@ -61,6 +64,7 @@ function walk_the_map(unlocked_exits) {
 		var chosen_room = chosen_exit[0], chosen_dir = chosen_exit[1], target_room = chosen_room.adj_rooms[chosen_dir];
 		
 		// If the adjoining room hasn't been visited yet
+		if (chosen_room.distance_from_start_room + 1 < target_room.distance_from_start_room) { target_room.distance_from_start_room = chosen_room.distance_from_start_room + 1; }
 		if (!array_contains(visited_rooms, target_room)) {
 			// If the exit in the chosen direction from the chosen room is not locked or is but is in the given list of unlocked_exits
 			if (!chosen_room.locked_exits[chosen_dir] || array_contains(unlocked_exits, chosen_room.locked_exits[chosen_dir])) {

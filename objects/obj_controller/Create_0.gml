@@ -2,7 +2,7 @@ global.zero_room = noone;
 
 // Initialize global values
 randomize()
-random_set_seed(372511985);
+//random_set_seed(372511985);
 clear_inputs_for_next_frame();
 initialize_game_variables();
 
@@ -80,30 +80,10 @@ start_room = current_room;
 // Set up lists used to walk the map
 var keyless_rooms = array_create(0), farthest_rooms = array_create(0);
 for (var i = 0; i < array_length(game_rooms); i++) {
-	// Determine if room could be the room the heart is in
-	if (!game_rooms[i].exits[4]) {
-		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, game_rooms[i]); }
-		else {
-			var distance = array_get(farthest_rooms, 0).distance_to_current_room;
-			if (game_rooms[i].distance_to_current_room == distance) {
-				array_push(farthest_rooms, game_rooms[i]);
-			}
-			else if (game_rooms[i].distance_to_current_room > distance){
-				farthest_rooms = array_create(0);
-				array_push(farthest_rooms, game_rooms[i]);
-			}
-		}
-	}
 	// Determine if room has a key or not
     if (!game_rooms[i].has_key && game_rooms[i] != current_room) { array_push(keyless_rooms, game_rooms[i]); }
 }
-// Create heart in farthest room
-with array_random_pop(farthest_rooms) {
-	stairs_spot_obj = obj_encased_heart;
-	for (var i = 0; i <= 3; i += 1;) {
-		if (exits[i]) { create_locked_exit(i); }
-	}
-}
+
 // Randomly spawn a special item for each item type
 total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 if (array_length(rooms_with_key) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_key) { has_special_item = true; show_debug_message("RED KEY"); } }
@@ -147,6 +127,29 @@ while (!visited_all_rooms) {
 //show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
 //show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
 //show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
+
+// Create heart in farthest room
+for (var i = 0; i < array_length(game_rooms); i++) {
+	if (!game_rooms[i].exits[4] && !game_rooms[i].stairs_spot_obj) {
+		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, game_rooms[i]); }
+		else {
+			var distance = array_get(farthest_rooms, 0).distance_from_start_room;
+			if (game_rooms[i].distance_from_start_room == distance) {
+				array_push(farthest_rooms, game_rooms[i]);
+			}
+			else if (game_rooms[i].distance_from_start_room > distance){
+				farthest_rooms = array_create(0);
+				array_push(farthest_rooms, game_rooms[i]);
+			}
+		}
+	}
+}
+with array_random_pop(farthest_rooms) {
+	stairs_spot_obj = obj_encased_heart;
+	for (var i = 0; i <= 3; i += 1;) {
+		if (exits[i]) { create_locked_exit(i); }
+	}
+}
 
 // Set up point and time related variables
 time_provided = (array_length(game_rooms) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);

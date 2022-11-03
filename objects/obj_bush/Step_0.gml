@@ -12,7 +12,7 @@ if (process_this_frame()) {
 	   (occupier && occupier != global.player  && occupier.lethal && get_random_chance_out_of(16))) {
 			image_xscale *= -1;
 			var just_the_wind = (!occupied && !occupier && !old_occupier);
-			var ears_are_rustling = (old_occupier && old_occupier.object_index == obj_ears) || (occupier && occupier.object_index == obj_ears);
+			var ears_are_rustling = (instance_exists(old_occupier) && old_occupier.object_index == obj_ears) || (instance_exists(occupier) && occupier.object_index == obj_ears);
 			play_sound(snd_bush, (!just_the_wind && !ears_are_rustling));
 			occupied = (occupier != noone);
 	}

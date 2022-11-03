@@ -1,9 +1,14 @@
+event_inherited();
+
 if (spawn_timer > 0) { 
 	spawn_timer -= 1;
 	if (spawn_timer == 0) { 
-		var echo = instance_create_depth(x, y, 10, obj_echo);
-		echo.generator = self;
-		play_sound(snd_echo, false);
-		spawn_timer = 256;
+		if (array_length(moves) > 1) {
+			var echo = instance_create_depth(x, y, 10, obj_echo);
+			echo.generator = self;
+			play_sound(snd_echo, false);
+			spawn_timer = 128+56;
+		}
+		else { spawn_timer = 16; }
 	}
 }

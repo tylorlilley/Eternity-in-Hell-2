@@ -13,7 +13,7 @@ function move_player(dir) {
 		for (var i = 0; i <= 4; i += 1;) {
 			if (carried_items[i]) { set_instance_to_same_position(carried_items[i]); }
 		}
-		// Open doors
+		// Open Doors
 		with (instance_place(x, y, obj_door)) { open_door(); }
 	}
 }

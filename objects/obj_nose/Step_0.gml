@@ -4,6 +4,7 @@ if (process_this_frame()) {
 	if (spawn_timer > 0) { visible = false; spawn_timer -= 1; }
 	else {
 		if (!visible) { 
+			teleport_to_lava();
 			visible = true; 
 			shoot_timer = 16; //irandom_range(6, 16);
 			turn_to_face_player();
@@ -17,8 +18,7 @@ if (process_this_frame()) {
 			shoot_fireball(global.player.x, global.player.y);
 			visible = false;
 			image_index = 0;
-			spawn_timer = irandom_range(16, 64);
-			teleport_to_lava();
+			spawn_timer = irandom_range(8, 64);
 		}
 	}
 }

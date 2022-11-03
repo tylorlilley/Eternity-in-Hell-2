@@ -27,7 +27,7 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
         draw_set_color(c_white);
         draw_set_halign(fa_left);
         draw_text(4, 4, string_hash_to_newline("Collected: "));
-        draw_rectangle(84, 6, (room_width-4), 19, true);
+        draw_rectangle(84, 6, (room_width-4), 18, true);
 
         if (collectables_collected > 0) { 
 			draw_rectangle(84, 6, get_scaling_amount(84, (room_width-4), collectables_collected, total_number_of_rooms_with_collectables), 18, false); 
@@ -58,16 +58,25 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 		draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
 		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+string(random_get_seed())));	// Draw elapsed time
 		var time_elapsed = (time_provided - time_remaining);
-		draw_text(hud_x_pos, room_height-80, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
+		draw_text(hud_x_pos, room_height-52, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
 		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
 		var bonus_for_winning_game = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
 		var total_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining)/3;
+		var difficulty_string = "";
+		switch (difficulty) {
+			case difficulties.easy: { difficulty_string = "Minute"; break; }
+			case difficulties.medium: { difficulty_string = "Lifetime"; break; }
+			case difficulties.hard: { difficulty_string = "Eons"; break; }
+			case difficulties.hell: { difficulty_string = "Eternity"; break; }
+		}
+		difficulty_string += " in Hell";
 	    if (has_won || has_lost) { 
 			draw_text(hud_x_pos, room_height-160, string_hash_to_newline("Collected: "+string(percentage_of_collectables_collected)+"%")); 
 			draw_text(hud_x_pos, room_height-144, string_hash_to_newline("Time Left: "+string(percentage_of_time_remaining)+"%")); 
 			draw_text(hud_x_pos, room_height-128, string_hash_to_newline("Victory: "+string(bonus_for_winning_game)+"%")); 
-			draw_text(hud_x_pos, room_height-96, string_hash_to_newline("Total Score: "+string(total_score)+"%")); 
+			draw_text(hud_x_pos, room_height-96, string_hash_to_newline("Final Grade: "+string(total_score)+"%")); 
+			draw_text(hud_x_pos, room_height-80, string_hash_to_newline("Difficulty: "+difficulty_string)); 
 		}
 	}
 

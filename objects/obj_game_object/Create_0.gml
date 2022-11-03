@@ -1,0 +1,1 @@
+image_blend = global.controller.bg_color;

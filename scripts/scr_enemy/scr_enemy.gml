@@ -37,8 +37,8 @@ function teleport_to_lava() {
 }
 
 /// @function								shoot_fireball()
-///	@param		{int}	target_x		The x position of the target to move towards;
-///	@param		{int}	target_y		The y position of the target to move towards;
+///	@param		{int}	target_x			The x position of the target to move towards;
+///	@param		{int}	target_y			The y position of the target to move towards;
 function shoot_fireball(target_x, target_y) {
 	play_sound(snd_shoot, false);
 	with (instance_create_depth(x, y, 10, obj_fireball)) { move_towards_point(target_x, target_y, 2); }	
@@ -66,8 +66,9 @@ function try_to_see_player() {
 	}
 }
 
-/// @function								move_snake();
-function move_snake(sound_to_play, iterations){
+/// @function								move_snake(iterations);
+///	@param		{int}	iterations			The number of times to move in one frame
+function move_snake(iterations){
 	var prev_dir = (dir == -1) ? irandom(3) : dir;
 	for (var i = 0; i < iterations; i +=1) {
 		if (dir != -1 && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
@@ -81,8 +82,7 @@ function move_snake(sound_to_play, iterations){
 			var new_dir = array_random_pop(new_directions);
 			if (can_move_in_direction(new_dir, false, true)) { dir = new_dir; break; }
 		}
-		if (dir != -1) { play_sound(sound_to_play, true); image_speed = original_image_speed; }
-		else { image_speed = 0; }
+		if (dir == -1) { image_speed = 0; }
 	}
 }
 

@@ -6,7 +6,6 @@ consumed_by_block = true;
 consumed_by_lava = true;
 death_sound = snd_crunch;
 image_speed = 1;
-original_image_speed = 1;
 
 dir = -1;
 

@@ -8,6 +8,14 @@ enum directions {
 	respawn
 }
 
+// 
+enum difficulties {
+	easy,
+	medium,
+	hard,
+	hell
+}
+
 /// @function								restart_game();
 function restart_game() {
 	// Destroy all instances in this room and in every other room, then go back to the title screen
@@ -43,6 +51,7 @@ function initialize_game_variables() {
 	// Set up global shortcut references
 	global.controller = id;
 	global.player = noone;
+	difficulty = difficulties.easy;
 
 	// Initialize room probability constants
 	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
@@ -51,18 +60,18 @@ function initialize_game_variables() {
 	HAS_COLLECTABLE_PROBABILITY = 30;
 	HAS_KEY_PROBABILITY = 10;
 	HAS_ITEM_PROBABILITY = 20;
-	SPECIAL_ITEM_PROBABILITY = 4;
+	SPECIAL_ITEM_PROBABILITY = 8 - difficulty;
 	
 	// Initilize room start probability constants
-	NOSE_PROBABILITY = 3;
-	PHANTOM_PROBABILITY = 4;
-	HANDS_PROBABILITY = 1;
+	NOSE_PROBABILITY = 6 - difficulty;
+	PHANTOM_PROBABILITY = 5 - difficulty;
+	HANDS_PROBABILITY = 6 - difficulty;
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
-	MAX_WALKING_DEPTH = 255;
-	MINIMUM_NUMBER_OF_ROOMS = 32;
-	ADDITIONAL_ROOMS = 16;
+	MAX_WALKING_DEPTH = 16 * difficulty;
+	MINIMUM_NUMBER_OF_ROOMS = 8 * difficulty;
+	ADDITIONAL_ROOMS = 4 * difficulty;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables
@@ -74,9 +83,9 @@ function initialize_game_variables() {
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
-	MAX_TORCH_TIME_TO_REMAIN_LIT = 60; // minutes * 60 = total seconds for torch to remain lit
-	TIME_PROVIDED_PER_ROOM = 30;
-	TIME_PROVIEDED_PER_LOCK = 10;
+	MAX_TORCH_TIME_TO_REMAIN_LIT = 75 - (difficulty * 5); // minutes * 60 = total seconds for torch to remain lit
+	TIME_PROVIDED_PER_ROOM = 40 - (difficulty * 5);
+	TIME_PROVIEDED_PER_LOCK = 15;
 	TOTAL_COMPLETION_AMOUNT = 4;
 	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run
 	time_remaining = 1;
@@ -143,17 +152,6 @@ function transition_to_room(new_room) {
 	if (transition == 5) { play_sound(snd_win, false); }
 	else if (transition == 4) { play_sound(snd_stairs, false); }
 	else { play_sound(snd_move, false); }
-	
-	// Reposition player
-	switch (transition) {
-		case directions.up: { global.player.y = room_height-8; global.player.x = room_width/2; break; }
-		case directions.right: { global.player.x = 8; global.player.y = room_height/2; break; }
-		case directions.down: { global.player.y = 8; global.player.x = room_width/2; break; }
-		case directions.left: { global.player.x = room_width-8; global.player.y = room_height/2; break; }
-	}
-	
-	// Move player to current position
-	move_player(4);
 	
 	// Change room
 	new_room.go_to_room();
@@ -276,6 +274,17 @@ function clear_inputs_for_next_frame() {
 function game_room_start() {
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
 	audio_stop_sound( snd_dread );
+
+	// Reposition player
+	switch (transition) {
+		case directions.up: { global.player.y = room_height-8; global.player.x = room_width/2; break; }
+		case directions.right: { global.player.x = 8; global.player.y = room_height/2; break; }
+		case directions.down: { global.player.y = 8; global.player.x = room_width/2; break; }
+		case directions.left: { global.player.x = room_width-8; global.player.y = room_height/2; break; }
+	}
+	
+	// Move player to current position
+	move_player(4);
 	
 	// First Time Setup	
 	if (!current_room.visited) {    
@@ -295,6 +304,7 @@ function game_room_start() {
 			xstart = x;
 			ystart = y;
 		}
+		with (obj_giant_worm_head) { connect_segments(); }
     
 		// Create locked exits if they should exist
 		for (var i = 0; i < 4; i++) {
@@ -411,18 +421,30 @@ function game_room_start() {
 	// Run room start event for specific objects
 	with (obj_echo) { instance_destroy(self, false); }
 	with (obj_fireball) { instance_destroy(); }
-	with (obj_enemy) { if (!persistent) { x = xstart; y = ystart; } }
-	with (obj_giant_worm_body) { x = xstart; y = ystart; }
+	with (obj_enemy) { x = xstart; y = ystart; }
+	with (obj_giant_worm_body) {
+		var new_worm_body = instance_create_depth(xstart, ystart, depth, object_index);
+		new_worm_body.xstart = xstart;
+		new_worm_body.ystart = ystart;
+		new_worm_body.image_blend = global.controller.bg_color;
+		instance_destroy(self, false);
+	}
 	with (obj_giant_worm_head) { connect_segments(); }
 	with (obj_stairs) { active = false; }
 	with (obj_block) { x = starting_spot.x; y = starting_spot.y; }
-	with (obj_door) { locked = (door_for_exit && door_for_exit.locked); }
+	with (obj_door) { 
+		locked = (door_for_exit && door_for_exit.locked);
+		if (instance_place(x, y, global.player)) { open_door(); }
+	}
 	with (obj_bones) { if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(31)); } }
 	with (obj_worm) { dir = -1; audio_play_sound_for_object_only_once(snd_hiss); }
 	with (obj_mouth) { audio_play_sound_for_object_only_once(snd_squelch); teleport_to_empty_space(); }
 	with (obj_eyes) { audio_play_sound_for_object_only_once(snd_flicker); }
 	with (obj_bumper) { lethal = false; trap = true; visible = false; }
-	with (obj_nose) { teleport_to_lava(); }
+	with (obj_nose) {
+		instance_create_depth(x, y, depth, obj_nose);
+		instance_destroy(self, false);
+	}
 	with (obj_spider) {
 		lethal = get_random_chance_out_of(2);
 		if global.controller.entered_from_stairs { lethal = false; }
@@ -453,5 +475,4 @@ function game_room_start() {
 		x = global.player.x;
 		y = global.player.y;
 	}
-
 }

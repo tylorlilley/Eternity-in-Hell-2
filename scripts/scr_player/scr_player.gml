@@ -7,6 +7,7 @@ function move_player(dir) {
 			image_index += 1;
 			if (image_index > 1) { image_index = 0; }
 			move_in_direction(dir, true);
+			with (obj_echo_spot) { array_push(moves, dir); }
 		}
 		// Move carried items
 		for (var i = 0; i <= 4; i += 1;) {
@@ -66,6 +67,7 @@ function kill_player() {
 	global.player.dead = true;
 	global.controller.death_timer = 40;
 	play_sound(snd_lose, true);
+	with (obj_echo_spot) { instance_destroy(); }
 }
 
 /// @function								drop_all_items()

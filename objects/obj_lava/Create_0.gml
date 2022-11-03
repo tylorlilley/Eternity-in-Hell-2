@@ -1,5 +1,5 @@
 event_inherited();
-depth = 6;
+depth = 4;
 
 // Set up single death box for normal use case
 death_box = instance_create_depth(x, y, 5, obj_death);

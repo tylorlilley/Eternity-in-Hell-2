@@ -1,5 +1,4 @@
 BUGFIXES
-- Does room count has_key when walking the map even when key won't be generated due to cross or other item in that room instead?
 2794973601 // keys already opened chest (not map?)
 2585055493 // wiggle under column?????
 random_set_seed(181256969); // impossible locked key
@@ -7,9 +6,9 @@ random_set_seed(1003439283); // impossible locked key
 random_set_seed(2037714886); // impossible locked key
 
 BUGFIXES
-Crash when entering stairs???
-Double sound when lighting lantern
-Enemies hit by fireballs?
+- Enemies hit by fireballs?
+- Does room count has_key when walking the map even when key won't be generated due to cross or other item in that room instead?
+- check lava rooms for nose compatibility
 
 REFACTORS
 Refactor player with torches and lighting holding things
@@ -19,14 +18,9 @@ Make map show if room has key OR chest instead of just if a key spawned there?
 Remove lit rooms coloring different on map?
 
 NEW FEATURES
-Add statue rooms
-- check lava rooms for nose compatibility
-- decide if fireball should stop on ANY solid or just block
 Add flecks/dots randomly generated on first visit to room to further decorate the space
 Portcullis door opened with button
 Zelda style doors that close and you have to push block or light torch to open
-Greedy monster that runs toward held items drop items to distract
-"Blind Monster" That moves toward whatever makes a sound
 Sometimes spawn a block on top of stairs if you didn't enter from stairs - requires checking stairs spot in each room
 mimic chests monsters
 

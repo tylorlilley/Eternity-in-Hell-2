@@ -1,0 +1,1 @@
+with (obj_echo) { instance_destroy(self, false); }

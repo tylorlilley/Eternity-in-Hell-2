@@ -10,9 +10,9 @@ if (process_this_frame()) {
 	
 	// Set shoot timer when uncovered
 	if (!covered) {
-		shoot_timer = (prev_covered) ? irandom_range(8, 32) : shoot_timer-1;
+		shoot_timer = (prev_covered) ? irandom_range(8, 24) : shoot_timer-1;
 		if (shoot_timer <= 0) {
-			shoot_timer = irandom_range(8, 32);
+			shoot_timer = irandom_range(8, 24);
 			shoot_fireball(x_pos, y_pos);
 		}
 	}

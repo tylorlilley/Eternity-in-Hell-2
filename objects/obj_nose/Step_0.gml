@@ -1,6 +1,4 @@
 if (process_this_frame()) {
-	event_inherited();
-	
 	if (spawn_timer > 0) { visible = false; spawn_timer -= 1; }
 	else {
 		if (!visible) { 
@@ -21,4 +19,6 @@ if (process_this_frame()) {
 			spawn_timer = irandom_range(8, 64);
 		}
 	}
+	
+	event_inherited();
 }

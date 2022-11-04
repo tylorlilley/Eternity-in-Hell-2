@@ -2,7 +2,7 @@ global.zero_room = noone;
 
 // Initialize global values
 randomize()
-//random_set_seed(372511985);
+//random_set_seed(1080708209);
 clear_inputs_for_next_frame();
 initialize_game_variables();
 

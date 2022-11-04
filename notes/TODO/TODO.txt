@@ -6,9 +6,11 @@ random_set_seed(1003439283); // impossible locked key
 random_set_seed(2037714886); // impossible locked key
 
 BUGFIXES
-- Enemies hit by fireballs?
+X- 9999 values for distance from start room ?
+X unpausing map causes worms to turn and not moving when map is up
+X Enemies hit by fireballs?
 - Does room count has_key when walking the map even when key won't be generated due to cross or other item in that room instead?
-- check lava rooms for nose compatibility
+X check lava rooms for nose compatibility
 
 REFACTORS
 Refactor player with torches and lighting holding things

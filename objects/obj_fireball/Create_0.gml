@@ -24,5 +24,6 @@ torch.light_source = instance_create_depth(x, y, 5, obj_light_source);
 torch.light_source.lighting_range = 5;
 torch.visible = false;
 torch.sprite_index = spr_box;
+torch.image_blend = c_lime;
 torch.image_xscale = 0.5;
 torch.image_yscale = 0.5;

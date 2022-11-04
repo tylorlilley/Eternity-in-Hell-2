@@ -112,6 +112,7 @@
     {"id":{"name":"obj_key","path":"objects/obj_key/obj_key.yy",},"order":10,},
     {"id":{"name":"scr_controller","path":"scripts/scr_controller/scr_controller.yy",},"order":0,},
     {"id":{"name":"rm_one_exit_18","path":"rooms/rm_one_exit_18/rm_one_exit_18.yy",},"order":15,},
+    {"id":{"name":"spr_ears_awake","path":"sprites/spr_ears_awake/spr_ears_awake.yy",},"order":47,},
     {"id":{"name":"obj_sword_in_ground","path":"objects/obj_sword_in_ground/obj_sword_in_ground.yy",},"order":11,},
     {"id":{"name":"obj_echo","path":"objects/obj_echo/obj_echo.yy",},"order":11,},
     {"id":{"name":"obj_bumper","path":"objects/obj_bumper/obj_bumper.yy",},"order":6,},

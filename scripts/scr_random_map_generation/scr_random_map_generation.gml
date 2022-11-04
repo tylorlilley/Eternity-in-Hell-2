@@ -17,7 +17,7 @@ function is_current_map_possible() {
 			var keys_spent = array_length(current_unlocked_list);
 			var keys_remaining = keys_collected - keys_spent;
 		
-			if (visited_all_rooms || keys_remaining >= array_length(locked_exits_encountered)) { 
+			if (visited_all_rooms) { // || keys_remaining >= array_length(locked_exits_encountered)) { 
 				// This walk is successful
 			}
 			else if (keys_remaining > 0) {
@@ -83,6 +83,7 @@ function walk_the_map(unlocked_exits) {
 	// return whether all rooms were visited or not
 	// TODO: Return struct with keys and not ordered array
 	var visited_all_rooms = (array_length(visited_rooms) == array_length(global.controller.game_rooms));
+	var test = 2;
 	return [visited_all_rooms, keys_found, locked_exits];
 }
 

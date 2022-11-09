@@ -20,7 +20,8 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	if (room != rm_finish && (game_has_been_lost() || game_has_been_won())) {
 		if (game_has_been_won() || game_has_timed_out() || death_timer == 0) {
 			var carried_rosary = get_carried_item_of_type(obj_rosary);
-			if (carried_rosary) {
+			var carried_pos = global.player.carried_items[1] == carried_rosary ? 1 : 3;
+			if (carried_rosary && global.player.dead) {
 				// Destroy the rosary being used
 				transition = 5;
 				with global.player {
@@ -30,7 +31,10 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 					var player_corpse = instance_create_depth(x, y, 3, obj_player_corpse);
 					player_corpse.image_xscale = image_xscale;
 				}
-				with carried_rosary { if (!special) { instance_destroy(); } }
+				with carried_rosary { 
+					if (!special) { instance_destroy(); } 
+					else { pick_up_item(carried_pos, false, global.player); }
+				}
 			}
 			else {
 				with (global.player) {

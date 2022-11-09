@@ -265,12 +265,12 @@ function GameRoom(given_x, given_y) constructor {
 			}
     
 		    // Draw distance information if testing
-		    if (global.controller.TEST_MODE) {
-		        draw_set_color(c_lime);
-		        draw_set_halign(fa_center);
-		        draw_set_valign(fa_middle);
-		        draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_from_start_room)));
-		    }
+		    //if (global.controller.TEST_MODE) {
+		    //   draw_set_color(c_lime);
+		    //    draw_set_halign(fa_center);
+		    //    draw_set_valign(fa_middle);
+		    //    draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_from_start_room)));
+		    //}
 		}
 
 		// Mark the room as having been drawn, then draw each of its applicable neighbors
@@ -361,21 +361,16 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);
 	/// @param		{index} visited_rooms			The list of rooms that have been visited on this walk of the map.
 	/// @param		{index} exits_to_walk_through	The list of exits that need to be walked through to finish this walk of the map.
-	function walk_through_room(visited_rooms, exits_to_walk_through, entered_from) {
-		// Add the exits that can be reached to the list of visited exits
-		var visited_exit_count = 0;
+	function walk_through_room(visited_rooms, exits_to_walk_through) {
+		// Add this room to the list of visited rooms
+		array_push(visited_rooms, self);
+		// Add each of this room's exsiting exits to the list of exits to try walking through at some point
 		for (var i = 0; i <= 4; i += 1;) {
-			if (array_contains(reachable_exits[entered_from], i)) { visited_exits[i] = true; }
-			if (visited_exits[i]) { visited_exit_count += 1; }
-		}
-		if (visited_exit_count >= 4) { array_push(visited_rooms, self); }
-		// Add each of this room's existing, visited exits to the list of exits to try walking through at some point
-		for (var i = 0; i <= 4; i += 1;) {
-			if (exits[i] && adj_rooms[i] && visited_exits[i]) { array_push(exits_to_walk_through, [self, i]); }
+			if (exits[i] && adj_rooms[i]) { array_push(exits_to_walk_through, [self, i]); }
 		}
 	}
 	
-	/// @function									leave_room()
+	/// @function									initialize_from_room_reference()
 	function initialize_from_room_reference() {
 		var reference_instances = instances_for_room_reference(room_reference);
 		for(var i = 0; i < array_length(reference_instances); i++) {
@@ -414,23 +409,6 @@ function GameRoom(given_x, given_y) constructor {
 			transition = noone;
 		}
 	}
-	
-	/// @function									get_reachable_exits()
-	function get_reachable_exits() {
-	switch (room_reference)
-	{
-		case rm_no_exits_1: {
-			show_debug_message("Zero room generated");
-			reachable_exits = [[], [], [], [], [4]];
-			break;
-		}
-		default: {  
-			var all_exits_available = [0,1,2,3,4];
-			reachable_exits = array_create(5, all_exits_available);
-			break;
-		}
-	}
-}
 }
 
 /// @function									instances_for_room_reference()

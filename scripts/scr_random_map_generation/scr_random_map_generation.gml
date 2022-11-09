@@ -34,7 +34,7 @@ function is_current_map_possible() {
 				map_is_possible = false;
 			}
 		}
-		
+		var test = 2;
 		// Cut off caluculations if it is becoming too complex
 		if (array_length(unlocked_exit_lists_to_verify) > global.controller.MAX_WALKING_DEPTH) { map_is_possible = false; }
 		//show_debug_message(array_length(unlocked_exit_lists_to_verify));
@@ -54,9 +54,8 @@ function walk_the_map(unlocked_exits) {
 	// Add each of that rooms exits to the list of exits to walk through
 	with global.controller.current_room { 
 		distance_from_start_room = 0;
-		walk_through_room(visited_rooms, exits_to_walk_through, directions.stairs); 
+		walk_through_room(visited_rooms, exits_to_walk_through); 
 	}
-	
 	
 	// Walk through each exit while there are still exits to walk through
 	while (array_length(exits_to_walk_through) > 0) {
@@ -70,7 +69,7 @@ function walk_the_map(unlocked_exits) {
 			if (!chosen_room.locked_exits[chosen_dir] || array_contains(unlocked_exits, chosen_room.locked_exits[chosen_dir])) {
 				// Walk through the target room
 				if (target_room.has_key) { keys_found += (target_room.has_special_item && (target_room.item_type = obj_key || target_room.item_type == noone)) ? 9999 : 1; } //if (keys_found >= 9999) { show_debug_message("SPECIAL KEY FOUND ON WALK"); } }
-				with target_room { walk_through_room(visited_rooms, exits_to_walk_through, chosen_dir); }
+				with target_room { walk_through_room(visited_rooms, exits_to_walk_through); }
 			}
 			// If the exit in the chosen direction from the chosen room is locked
 			else if (chosen_room.locked_exits[chosen_dir]) {

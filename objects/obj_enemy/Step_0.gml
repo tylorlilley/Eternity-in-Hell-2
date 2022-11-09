@@ -16,7 +16,7 @@ if (process_this_frame()) {
 		}
 	}
 	// Destroy self if completely covered by solids
-	if (consumed_by_block) {
+	if (consumed_by_block && visible) {
 		var solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
 		if (solid_at_quadrant[0] && solid_at_quadrant[1] && solid_at_quadrant[2] && solid_at_quadrant[3]) {
 			kill_enemy();

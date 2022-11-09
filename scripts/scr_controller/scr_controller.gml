@@ -14,7 +14,7 @@ enum difficulties {
 	easy,
 	medium,
 	hard,
-	hell
+	very_hard
 }
 
 /// @function								restart_game();
@@ -52,7 +52,7 @@ function initialize_game_variables() {
 	// Set up global shortcut references
 	global.controller = id;
 	global.player = noone;
-	difficulty = difficulties.medium;
+	difficulty = difficulties.easy;
 
 	// Initialize room probability constants
 	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
@@ -64,6 +64,7 @@ function initialize_game_variables() {
 	SPECIAL_ITEM_PROBABILITY = 8 - difficulty;
 	
 	// Initilize room start probability constants
+	DIRT_PROBABILITY = 16;
 	NOSE_PROBABILITY = 6 - difficulty;
 	PHANTOM_PROBABILITY = 5 - difficulty;
 	HANDS_PROBABILITY = 6 - difficulty;
@@ -369,9 +370,6 @@ function game_room_start() {
 			}
 		}
 		
-		// Teleport mouth to empty space
-		with (obj_mouth) { teleport_to_empty_space(); }
-		
 		// If room has lava, consider spawning nose
 		if (instance_number(obj_lava) > 0 && get_random_chance_out_of(1)) { 
 			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(0, 0, 0, obj_nose); }
@@ -381,6 +379,13 @@ function game_room_start() {
 	
 		// Mark room as one that has been visited at some point during this game
 		current_room.visited = true;
+		
+		// Spawn some dirt
+		var dirt_to_spawn = irandom(DIRT_PROBABILITY*2) - DIRT_PROBABILITY;
+		for (var i = 0; i < dirt_to_spawn; i++) {
+			var x_pos = irandom(room_width/8) * 8, y_pos = irandom(room_height/8) * 8
+			instance_create_depth(x_pos, y_pos, 10, obj_dirt);
+		}
 	}
 
 	// Every Time Setup
@@ -442,6 +447,7 @@ function game_room_start() {
 	with (obj_mouth) { audio_play_sound_for_object_only_once(snd_squelch); teleport_to_empty_space(); }
 	with (obj_eyes) { audio_play_sound_for_object_only_once(snd_flicker); teleport_near_player(); }
 	with (obj_bumper) { lethal = false; trap = true; visible = false; }
+	with (obj_ears) { awake = false; target_x = x; target_y = y; }
 	with (obj_nose) {
 		instance_create_depth(x, y, depth, obj_nose);
 		instance_destroy(self, false);
@@ -470,10 +476,13 @@ function game_room_start() {
 		}
 	}
 	with (obj_echo_spot) {
-		play_sound(snd_echo, false); 
-		spawn_timer = 128;
-		moves = array_create(0);
-		x = global.player.x;
-		y = global.player.y;
+		if (entered_from_stairs && current_room == start_room) { instance_destroy(self, false); }
+		else {
+			play_sound(snd_echo, false); 
+			spawn_timer = 128;
+			moves = array_create(0);
+			x = global.player.x;
+			y = global.player.y;
+		}
 	}
 }

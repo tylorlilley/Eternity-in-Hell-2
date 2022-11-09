@@ -2,7 +2,7 @@ global.zero_room = noone;
 
 // Initialize global values
 randomize()
-//random_set_seed(1080708209);
+//random_set_seed(2842268120);
 clear_inputs_for_next_frame();
 initialize_game_variables();
 
@@ -49,7 +49,6 @@ while (array_length(rooms_with_stairs_spot) > 0) {
 create_room_lists();
 for (var i = 0; i < array_length(game_rooms); i++) {
    game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
-   game_rooms[i].get_reachable_exits();
 }
 
 // Lock Random Exits

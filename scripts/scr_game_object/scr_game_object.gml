@@ -182,3 +182,12 @@ function move_towards_coordinates(target_x, target_y) {
 	
 	move_in_direction(move_dir, false);
 }
+
+/// @function								randomize_image(max_image_index);
+///	@param		{int} max_image_index		The max image_index value possible for this object's sprite
+function randomize_image(max_image_index) {
+	image_speed = 0;
+	image_index = irandom(max_image_index);
+	flip_sprite_at_random(true);
+	rotate_sprite_to_random_angle();
+}

@@ -20,7 +20,6 @@ Make map show if room has key OR chest instead of just if a key spawned there?
 Remove lit rooms coloring different on map?
 
 NEW FEATURES
-Add flecks/dots randomly generated on first visit to room to further decorate the space
 Portcullis door opened with button
 Zelda style doors that close and you have to push block or light torch to open
 Sometimes spawn a block on top of stairs if you didn't enter from stairs - requires checking stairs spot in each room

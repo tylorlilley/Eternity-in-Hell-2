@@ -67,7 +67,7 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 			case difficulties.easy: { difficulty_string = "Minute"; break; }
 			case difficulties.medium: { difficulty_string = "Lifetime"; break; }
 			case difficulties.hard: { difficulty_string = "Eons"; break; }
-			case difficulties.hell: { difficulty_string = "Eternity"; break; }
+			case difficulties.very_hard: { difficulty_string = "Eternity"; break; }
 		}
 		difficulty_string += " in Hell";
 	    if (has_won || has_lost) { 
@@ -87,7 +87,7 @@ if (TEST_MODE) {
 	draw_set_color(c_lime);
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
 	draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits));
-	draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
+	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
 	//draw_text(4, room_height-20, string(array_length(rooms_with_key))+" "+string(array_length(rooms_with_torch))+" "+string(array_length(rooms_with_sword))+" "+string(array_length(rooms_with_rosary))+" "+string(array_length(rooms_with_map)));
 }
 

@@ -1,6 +1,10 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_move",
+  "conversionMode": 0,
   "compression": 0,
-  "volume": 0.17,
+  "volume": 0.5,
   "preload": true,
   "bitRate": 192,
   "sampleRate": 44100,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_move",
-  "duration": 0.120079,
+  "duration": 0.115079,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_move",
-  "tags": [],
-  "resourceType": "GMSound",
 }

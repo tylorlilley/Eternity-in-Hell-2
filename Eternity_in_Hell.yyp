@@ -198,6 +198,7 @@
     {"id":{"name":"rm_two_perpendicular_exits_5","path":"rooms/rm_two_perpendicular_exits_5/rm_two_perpendicular_exits_5.yy",},"order":4,},
     {"id":{"name":"rm_two_perpendicular_exits_16","path":"rooms/rm_two_perpendicular_exits_16/rm_two_perpendicular_exits_16.yy",},"order":15,},
     {"id":{"name":"rm_three_exits_19","path":"rooms/rm_three_exits_19/rm_three_exits_19.yy",},"order":18,},
+    {"id":{"name":"spr_title_arrow","path":"sprites/spr_title_arrow/spr_title_arrow.yy",},"order":49,},
     {"id":{"name":"rm_two_perpendicular_exits_14","path":"rooms/rm_two_perpendicular_exits_14/rm_two_perpendicular_exits_14.yy",},"order":13,},
     {"id":{"name":"rm_three_exits_16","path":"rooms/rm_three_exits_16/rm_three_exits_16.yy",},"order":15,},
     {"id":{"name":"rm_two_perpendicular_exits_6","path":"rooms/rm_two_perpendicular_exits_6/rm_two_perpendicular_exits_6.yy",},"order":5,},

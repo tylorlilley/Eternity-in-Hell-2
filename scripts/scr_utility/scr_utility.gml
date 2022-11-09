@@ -106,3 +106,15 @@ function generate_id() {
     global.id_counter++;
     return  global.id_counter;
 }
+
+function difficulty_string() {
+	var result = "";
+	switch (global.difficulty) {
+		case difficulties.easy: { result = "Minute"; break; }
+		case difficulties.medium: { result = "Lifetime"; break; }
+		case difficulties.hard: { result = "Eons"; break; }
+		case difficulties.very_hard: { result = "Eternity"; break; }
+	}
+	result += " in Hell";
+	return result;
+}

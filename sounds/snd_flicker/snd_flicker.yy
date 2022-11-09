@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_flicker",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.27,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_flicker",
-  "duration": 0.217063,
+  "duration": 0.212063,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_flicker",
-  "tags": [],
-  "resourceType": "GMSound",
 }

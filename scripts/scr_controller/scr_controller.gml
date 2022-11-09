@@ -1,22 +1,3 @@
-// global values used to represent the four cardinal directions and the "direction" of coming to/from the stairs
-enum directions {
-	up,
-	right,
-	down,
-	left,
-	stairs,
-	respawn
-}
-
-// 
-enum difficulties {
-	very_easy,
-	easy,
-	medium,
-	hard,
-	very_hard
-}
-
 /// @function								restart_game();
 function restart_game() {
 	// Destroy all instances in this room and in every other room, then go back to the title screen
@@ -52,7 +33,6 @@ function initialize_game_variables() {
 	// Set up global shortcut references
 	global.controller = id;
 	global.player = noone;
-	difficulty = difficulties.easy;
 
 	// Initialize room probability constants
 	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
@@ -61,19 +41,19 @@ function initialize_game_variables() {
 	HAS_COLLECTABLE_PROBABILITY = 30;
 	HAS_KEY_PROBABILITY = 10;
 	HAS_ITEM_PROBABILITY = 20;
-	SPECIAL_ITEM_PROBABILITY = 8 - difficulty;
+	SPECIAL_ITEM_PROBABILITY = 8 - global.difficulty;
 	
 	// Initilize room start probability constants
 	DIRT_PROBABILITY = 16;
-	NOSE_PROBABILITY = 6 - difficulty;
-	PHANTOM_PROBABILITY = 5 - difficulty;
-	HANDS_PROBABILITY = 6 - difficulty;
+	NOSE_PROBABILITY = 6 - global.difficulty;
+	PHANTOM_PROBABILITY = 5 - global.difficulty;
+	HANDS_PROBABILITY = 6 - global.difficulty;
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
-	MAX_WALKING_DEPTH = 16 * difficulty;
-	MINIMUM_NUMBER_OF_ROOMS = 8 * difficulty;
-	ADDITIONAL_ROOMS = 4 * difficulty;
+	MAX_WALKING_DEPTH = 16 * global.difficulty;
+	MINIMUM_NUMBER_OF_ROOMS = 8 * global.difficulty;
+	ADDITIONAL_ROOMS = 4 * global.difficulty;
 	MAX_MAP_DRAW_DISTANCE = 8;
 
 	// Initialize lighting constants and variables
@@ -85,8 +65,8 @@ function initialize_game_variables() {
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
-	MAX_TORCH_TIME_TO_REMAIN_LIT = 75 - (difficulty * 5); // minutes * 60 = total seconds for torch to remain lit
-	TIME_PROVIDED_PER_ROOM = 40 - (difficulty * 5);
+	MAX_TORCH_TIME_TO_REMAIN_LIT = 75 - (global.difficulty * 5); // minutes * 60 = total seconds for torch to remain lit
+	TIME_PROVIDED_PER_ROOM = 40 - (global.difficulty * 5);
 	TIME_PROVIEDED_PER_LOCK = 15;
 	TOTAL_COMPLETION_AMOUNT = 4;
 	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run

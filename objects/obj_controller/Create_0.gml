@@ -1,8 +1,5 @@
-global.zero_room = noone;
-
 // Initialize global values
-randomize()
-//random_set_seed(2842268120);
+random_set_seed(global.seed);
 clear_inputs_for_next_frame();
 initialize_game_variables();
 

@@ -456,7 +456,7 @@ function game_room_start() {
 		}
 	}
 	with (obj_echo_spot) {
-		if (entered_from_stairs && current_room == start_room) { instance_destroy(self, false); }
+		if (global.controller.entered_from_stairs && global.controller.current_room == global.controller.start_room) { instance_destroy(self, false); }
 		else {
 			play_sound(snd_echo, false); 
 			spawn_timer = 128;

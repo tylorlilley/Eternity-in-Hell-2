@@ -1,7 +1,11 @@
-// Game setup
+randomize();
 audio_group_load(audiogroup_default);
 blink = false;
+pos = 0;
+current_seed = noone;
+seed_option = seed_options.rand;
 draw_set_color(c_black);
 global.id_counter = 0;
-room_speed = 4;
+blink_timer = 15;
+room_speed = 60;
 //window_set_fullscreen(false);

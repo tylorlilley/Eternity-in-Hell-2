@@ -118,3 +118,13 @@ function difficulty_string() {
 	result += " in Hell";
 	return result;
 }
+
+function seed_option_string(seed_option) {
+	var result = "";
+	switch (seed_option) {
+		case seed_options.rand: { result = "Generate Map"; break; }
+		case seed_options.same: { result = "Repeat Map"; break; }
+		case seed_options.specified: { result = "Specify Map"; break; }
+	}
+	return result;
+}

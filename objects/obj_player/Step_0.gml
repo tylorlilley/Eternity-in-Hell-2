@@ -16,7 +16,7 @@ if (process_this_frame()) {
 		
 		// Handle movement pause
 		if (pause_movement > 0) { pause_movement -= 1; }
-		else {
+		else if !global.controller.key_space {
 			// Handle inventory management
 			if (global.controller.key_z_pressed && image_xscale == 1) ||
 			   (global.controller.key_x_pressed && image_xscale == -1) { 

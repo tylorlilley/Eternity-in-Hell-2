@@ -26,4 +26,5 @@ enum seed_options {
 
 // Setup global variables for title screen
 global.difficulty = difficulties.medium;
+global.seed_option = seed_options.rand;
 global.seed = noone;

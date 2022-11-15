@@ -45,9 +45,9 @@ function initialize_game_variables() {
 	
 	// Initilize room start probability constants
 	DIRT_PROBABILITY = 16;
-	NOSE_PROBABILITY = 6 - global.difficulty;
+	NOSE_PROBABILITY = 9 - global.difficulty;
 	PHANTOM_PROBABILITY = 5 - global.difficulty;
-	HANDS_PROBABILITY = 6 - global.difficulty;
+	HANDS_PROBABILITY = 8 - global.difficulty;
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
@@ -389,21 +389,6 @@ function game_room_start() {
 	// Set initial lighting to darkness
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
-	// If room has dropped item, consider spawning hands
-	if (instance_number(obj_item) > 0) {
-		// Set up list of items that could cause hands to spawn
-		var potential_items = array_create(0);
-		with (obj_item) { if (holder == noone && has_been_carried) { array_push(potential_items, self); } }
-		// Spawn a hand on each potential item if probability is met
-		for (var i = 0; i < array_length(potential_items); i++) {
-			var potential_item = potential_items[i];
-			if (get_random_chance_out_of(HANDS_PROBABILITY)) { 
-				var new_hands = instance_create_depth(potential_item.x, potential_item.y, 0, obj_hands);
-				new_hands.carried_items[1] = potential_item;
-			}
-		}
-	}
-	
 	// Run room start event for specific objects
 	with (obj_echo) { instance_destroy(self, false); }
 	with (obj_fireball) { instance_destroy(); }
@@ -447,10 +432,13 @@ function game_room_start() {
 		lethal = false;
 
 		if (global.controller.current_room.lit) { instance_destroy(); }
-		else if (global.controller.entered_from_stairs) { spawn_timer = -1; }
+		//else if (global.controller.entered_from_stairs) { spawn_timer = -1; }
 		else { 
 			play_sound(snd_dread, false); 
-			spawn_timer = 15*instance_number(obj_lantern);
+			spawn_timer = 0;
+			with (obj_lantern) { if (!instance_exists(light_source)) { other.spawn_timer += (16 - global.difficulty); } }
+			if (spawn_timer > 50) { spawn_timer = 60; } 
+			if (spawn_timer < 15) { spawn_timer = 15; } 
 			x = global.player.x;
 			y = global.player.y;
 		}
@@ -463,6 +451,33 @@ function game_room_start() {
 			moves = array_create(0);
 			x = global.player.x;
 			y = global.player.y;
+		}
+	}
+	
+	// If room has dropped item, consider spawning hands
+	if (instance_number(obj_item) > 0) {
+		// Set up list of items that could cause hands to spawn
+		var potential_items = array_create(0);
+		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !instance_place(x, y, obj_solid)) { array_push(potential_items, self); } }
+		// Spawn a hand on each potential item if probability is met
+		for (var i = 0; i < array_length(potential_items); i++) {
+			var potential_item = potential_items[i];
+			if (get_random_chance_out_of(HANDS_PROBABILITY)) { 
+				var new_hands = instance_create_depth(potential_item.x, potential_item.y, 0, obj_hands);
+				new_hands.target_item = potential_item;
+				new_hands.xstart = potential_item.x;
+				new_hands.ystart = potential_item.y;
+			}
+		}
+	}
+	
+	with (obj_hands) { 
+		visible = false; 
+		with (carried_items[1]) { 
+			if (carried) { 
+				other.target_item = self;
+				drop_item(1, false);
+			} 
 		}
 	}
 }

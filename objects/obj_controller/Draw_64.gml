@@ -26,7 +26,7 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
         // Draw progress bar
         draw_set_color(c_white);
         draw_set_halign(fa_left);
-        draw_text(4, 4, string_hash_to_newline("Collected: "));
+        draw_text(4, 12, string_hash_to_newline("Collected: "));
         draw_rectangle(84, 6, (room_width-4), 18, true);
 
         if (collectables_collected > 0) { 
@@ -35,11 +35,11 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 		
 		// Draw elapsed time
 		var time_elapsed = (time_provided - time_remaining);
-		draw_text(hud_x_pos, room_height-20, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
+		draw_text(hud_x_pos, room_height-12, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
 		
 		// Draw game version
 		draw_set_halign(fa_right);
-		draw_text(room_width-4, room_height-20,"ver." + GM_version); 
+		//draw_text(room_width-4, room_height-12,"ver." + GM_version); 
 		draw_set_halign(fa_left);
     }
 	

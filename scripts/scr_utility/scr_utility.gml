@@ -110,7 +110,7 @@ function generate_id() {
 function difficulty_string() {
 	var result = "";
 	switch (global.difficulty) {
-		case difficulties.easy: { result = "Minute"; break; }
+		case difficulties.easy: { result = "Moment"; break; }
 		case difficulties.medium: { result = "Lifetime"; break; }
 		case difficulties.hard: { result = "Eons"; break; }
 		case difficulties.very_hard: { result = "Eternity"; break; }
@@ -119,9 +119,9 @@ function difficulty_string() {
 	return result;
 }
 
-function seed_option_string(seed_option) {
+function seed_option_string() {
 	var result = "";
-	switch (seed_option) {
+	switch (global.seed_option) {
 		case seed_options.rand: { result = "Generate Map"; break; }
 		case seed_options.same: { result = "Repeat Map"; break; }
 		case seed_options.specified: { result = "Specify Map"; break; }

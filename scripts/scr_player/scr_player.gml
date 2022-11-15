@@ -11,7 +11,10 @@ function move_player(dir) {
 		}
 		// Move carried items
 		for (var i = 0; i <= 4; i += 1;) {
-			if (carried_items[i]) { set_instance_to_same_position(carried_items[i]); }
+			if (instance_exists(carried_items[i])) { 
+				set_instance_to_same_position(carried_items[i]);
+				if (carried_items[i].object_index == obj_torch) { set_instance_to_same_position(carried_items[i].light_source); }
+			}
 		}
 		// Open Doors
 		with (instance_place(x, y, obj_door)) { open_door(); }
@@ -21,8 +24,16 @@ function move_player(dir) {
 /// @function								pick_up_or_drop_item(dir);
 /// @param		{direction} dir				The directional slot to pick up or drop an item into or from
 function pick_up_or_drop_item(dir) {
-	if (carried_items[dir]) { with carried_items[dir] { drop_item(dir, true); } }
+	if (carried_items[dir]) {
+		// Drop Item and alert one obj_hands to come grab it
+		var possible_hands = array_create(0);
+		with (obj_hands) { if (visible) { array_push(possible_hands, self); } }
+		var new_hands = array_length(possible_hands) > 0 ? array_random_get(possible_hands) : noone;
+		with new_hands { target_item = other.carried_items[dir]; }
+		with carried_items[dir] { drop_item(dir, true); } 
+	}
 	else {
+		// Cycle through the items you could be possibly pickiung up
 		var dropped_items = instance_place_all(x, y, obj_item);
 		while (array_length(dropped_items) > 0) {
 			var dropped_item = array_random_pop(dropped_items);

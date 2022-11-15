@@ -130,6 +130,7 @@
     {"id":{"name":"obj_bones","path":"objects/obj_bones/obj_bones.yy",},"order":5,},
     {"id":{"name":"obj_light_source","path":"objects/obj_light_source/obj_light_source.yy",},"order":4,},
     {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},"order":8,},
+    {"id":{"name":"snd_give_up","path":"sounds/snd_give_up/snd_give_up.yy",},"order":55,},
     {"id":{"name":"obj_item","path":"objects/obj_item/obj_item.yy",},"order":5,},
     {"id":{"name":"obj_torch","path":"objects/obj_torch/obj_torch.yy",},"order":9,},
     {"id":{"name":"spr_mimic","path":"sprites/spr_mimic/spr_mimic.yy",},"order":25,},

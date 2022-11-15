@@ -51,23 +51,18 @@ function teleport_near_player() {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function can_move_in_direction(dir, ignore_solid, ignore_death) {
-	return ((object_index != obj_player || !global.controller.key_space) && (ignore_solid || object_get_parent(object_index) == obj_solid || !instance_place(x, y, obj_solid)) && 
-	    ((dir == directions.up && (ignore_death || !instance_place(x, y-8, obj_death)) && (ignore_solid || !instance_place(x, y-8, obj_solid)) && (object_index == obj_player || y-8 > 0)) ||
-	    (dir == directions.down && (ignore_death || !instance_place(x, y+8, obj_death)) && (ignore_solid || !instance_place(x, y+8, obj_solid)) && (object_index == obj_player || y+8 < room_height)) ||
-	    (dir == directions.left && (ignore_death || !instance_place(x-8, y, obj_death)) && (ignore_solid || !instance_place(x-8, y, obj_solid)) && (object_index == obj_player || x-8 > 0)) ||
-	    (dir == directions.right && (ignore_death || !instance_place(x+8, y, obj_death))&& (ignore_solid || !instance_place(x+8, y, obj_solid)) && (object_index == obj_player || x+8 < room_width))));
+	return ((object_index != obj_player || !global.controller.key_space) && direction_is_free(dir, ignore_solid, ignore_death));
 }
 
-/// @function								can_move_in_direction(dir, ignore_solid);
+/// @function								direction_is_free(dir, ignore_solid);
 /// @param		{direction}	dir				The direction to check whether the calling instance can move in
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function can_move_worm_in_direction(dir, ignore_solid, ignore_death) {
-	return (!global.controller.key_space &&
-	    ((dir == directions.up && (ignore_death || !instance_place(x, y-8, obj_death)) && (ignore_solid || !instance_place(x, y-8, obj_solid)) && (object_index == obj_player || y-8 > 0)) ||
+function direction_is_free(dir, ignore_solid, ignore_death) {
+	return ((dir == directions.up && (ignore_death || !instance_place(x, y-8, obj_death)) && (ignore_solid || !instance_place(x, y-8, obj_solid)) && (object_index == obj_player || y-8 > 0)) ||
 	    (dir == directions.down && (ignore_death || !instance_place(x, y+8, obj_death)) && (ignore_solid || !instance_place(x, y+8, obj_solid)) && (object_index == obj_player || y+8 < room_height)) ||
 	    (dir == directions.left && (ignore_death || !instance_place(x-8, y, obj_death)) && (ignore_solid || !instance_place(x-8, y, obj_solid)) && (object_index == obj_player || x-8 > 0)) ||
-	    (dir == directions.right && (ignore_death || !instance_place(x+8, y, obj_death))&& (ignore_solid || !instance_place(x+8, y, obj_solid)) && (object_index == obj_player || x+8 < room_width))));
+	    (dir == directions.right && (ignore_death || !instance_place(x+8, y, obj_death))&& (ignore_solid || !instance_place(x+8, y, obj_solid)) && (object_index == obj_player || x+8 < room_width)));
 }
 
 /// @function								can_move_in_direction_and_reach(dir, ignore_solid);
@@ -154,33 +149,31 @@ function get_presence_at_each_quadrant(obj_index) {
 	return presence_at_quadrant;
 }
 
+
 /// @function								move_towards_coordinates(obj_index);
 ///	@param		{int} target_x				The x position to be moving toward
 ///	@param		{int} target_y				The y position to be moving toward
-function move_towards_coordinates(target_x, target_y) {
-	var x_dif = abs(x - target_x), y_dif = abs(y - target_y), move_dir = noone;
-	if (x_dif > y_dif) {
-		if (x < target_x) { move_dir = directions.right; }
-		if (x > target_x) { move_dir = directions.left; }
-	}
-	else if (y_dif > x_dif) {
-		if (y < target_y) { move_dir = directions.down; }
-		if (y > target_y) { move_dir = directions.up; }
-	}
-	else {
-		if (x_dif >= 8 && y_dif >= 8) {
-			if (get_random_chance_out_of(2)) {
-				if (y < target_y) { move_dir = directions.down; }
-				if (y > target_y) { move_dir = directions.up; }
-			}
-			else {
-				if (x < target_x) { move_dir = directions.right; }
-				if (x > target_x) { move_dir = directions.left; }
-			}
-		}
-	}
+/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
+function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death) {
+	// Determine which directions are free to move in
+	var can_move_up = can_move_in_direction(directions.up, ignore_solid, ignore_death);
+	var can_move_right = can_move_in_direction(directions.right, ignore_solid, ignore_death);
+	var can_move_left = can_move_in_direction(directions.left, ignore_solid, ignore_death);
+	var can_move_down = can_move_in_direction(directions.down, ignore_solid, ignore_death);
 	
-	move_in_direction(move_dir, false);
+	// Determine which directions one should move in to get closer to target
+	var possible_directions = array_create(0);
+	if (y > target_y && can_move_up) { array_push(possible_directions, directions.up); }
+	if (x < target_x && can_move_right) { array_push(possible_directions, directions.right); }
+	if (y < target_y && can_move_down) { array_push(possible_directions, directions.down); }
+	if (x > target_x && can_move_left) { array_push(possible_directions, directions.left); }
+	
+	// Move in the randomly chosen direction if one exists
+	var move_dir = array_length(possible_directions) > 0 ? array_random_get(possible_directions) : noone;
+	if (move_dir != noone) { move_in_direction(move_dir, false); }
+	
+	return move_dir;
 }
 
 /// @function								randomize_image(max_image_index);

@@ -3,8 +3,8 @@
   "resourceVersion": "1.0",
   "name": "obj_player_corpse",
   "spriteId": {
-    "name": "spr_player",
-    "path": "sprites/spr_player/spr_player.yy",
+    "name": "spr_highlight",
+    "path": "sprites/spr_highlight/spr_highlight.yy",
   },
   "solid": false,
   "visible": true,

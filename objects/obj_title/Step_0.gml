@@ -34,8 +34,8 @@ else {
 
 	// Adjust Seed Option Settings
 	else if (pos == 1) {
-		if ((seed_option > seed_options.rand || (seed_option > seed_options.same && global.seed)) && keyboard_check_pressed(vk_left)) { seed_option -= 1; play_sound(snd_mana, false); }
-		else if (seed_option < seed_options.specified && keyboard_check_pressed(vk_right)) { seed_option += 1; play_sound(snd_mana, false); }
+		if ((global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) && keyboard_check_pressed(vk_left)) { global.seed_option -= 1; play_sound(snd_mana, false); }
+		else if (global.seed_option < seed_options.specified && keyboard_check_pressed(vk_right)) { global.seed_option += 1; play_sound(snd_mana, false); }
 	}
 
 	// Adjust Seed Manually
@@ -75,8 +75,8 @@ else {
 	// Start Game
 	if (keyboard_check_released(vk_enter)) {
 		play_sound(snd_move, false);
-		if (seed_option == seed_options.specified) { global.seed = current_seed; }
-		else if (seed_option == seed_options.rand) { global.seed = irandom_range(0,99999999); }
+		if (global.seed_option == seed_options.specified) { global.seed = current_seed; }
+		else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0,99999999); }
 		room_goto(rm_start);
 	}
 }

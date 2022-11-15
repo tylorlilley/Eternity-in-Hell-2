@@ -8,7 +8,7 @@ if (process_this_frame()) {
 	else if global.controller.key_left && !global.controller.key_right && (global.controller.key_left_pressed || !global.controller.key_left_released) { dir = directions.left; }
 	else if global.controller.key_right && !global.controller.key_left && (global.controller.key_right_pressed || !global.controller.key_right_released) { dir = directions.right; }
 		
-	if (pushed_against_by_player(true) == dir && can_move_in_direction(dir, false, true)) { 
+	if (dir != noone && pushed_against_by_player(true) == dir && can_move_in_direction(dir, false, true)) { 
 		play_sound(snd_thud, false);
 		move_in_direction(dir, false); 
 		move_player(dir);

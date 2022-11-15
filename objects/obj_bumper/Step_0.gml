@@ -26,6 +26,6 @@ if (process_this_frame()) {
 		blink_amount = irandom_range(6, 16);
 		//play_sound(snd_bumper, true );
 		turn_to_face_player();
-		move_towards_coordinates(global.player.x, global.player.y);
+		move_towards_coordinates(global.player.x, global.player.y, true, true);
 	}
 }

@@ -1,15 +1,30 @@
 if (process_this_frame()) {
-	event_inherited(); 
+	event_inherited();
 	
-	var x_pos = x, y_pos = y, prev_covered = covered;
-	if (!instance_place(x, y-16, obj_solid)) { y_pos -= 16; image_angle = 0; covered = false; } 
-	else if (!instance_place(x+16, y, obj_solid)) { x_pos += 16; image_angle = 270; covered = false; } 
-	else if (!instance_place(x, y+16, obj_solid)) { y_pos += 16; image_angle = 180; covered = false; } 
-	else if (!instance_place(x-16, y, obj_solid)) { x_pos -= 16; image_angle = 90; covered = false; }
-	else { covered = true; }
+	// Determine initial direction if not set
+	if (dir == noone) {
+		if (!instance_place(x, y-16, obj_solid)) { dir = directions.up; } 
+		else if (!instance_place(x+16, y, obj_solid)) { dir = directions.right; } 
+		else if (!instance_place(x, y+16, obj_solid)) { dir = directions.down; } 
+		else if (!instance_place(x-16, y, obj_solid)) { dir = directions.left; }
+		else { covered = true; }
+	}
 	
-	// Set shoot timer when uncovered
+	// Setup direction spot
+	var x_pos = x, y_pos = y;
+	switch (dir) {
+		case directions.up: { y_pos -= 16; break; }
+		case directions.right: { x_pos += 16; break; }
+		case directions.down: { y_pos += 16; break; }
+		case directions.left: { x_pos -= 16; break; }
+	}
+	
+	// Determine whether statue is covered
+	var prev_covered = covered;
+	covered = instance_place(x_pos, y_pos, obj_solid);
+	
 	if (!covered) {
+		image_angle = dir * -90;
 		shoot_timer = (prev_covered) ? irandom_range(8, 24) : shoot_timer-1;
 		if (shoot_timer <= 0) {
 			shoot_timer = irandom_range(8, 24);

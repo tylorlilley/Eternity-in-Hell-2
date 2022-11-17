@@ -19,7 +19,7 @@ function open_door() {
 function close_door(room_start) {
 	image_index = 0;
 	
-	if !room_start { play_sound( snd_thud, false ); }
+	if !room_start { play_sound( snd_close, false ); }
 	
 	closed = instance_create_depth(x, y, 0, obj_solid);
 	closed.visible = false;

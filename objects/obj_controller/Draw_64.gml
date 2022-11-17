@@ -78,7 +78,7 @@ if (TEST_MODE) {
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
-	draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits));
+	draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
 	//draw_text(4, room_height-20, string(array_length(rooms_with_key))+" "+string(array_length(rooms_with_torch))+" "+string(array_length(rooms_with_sword))+" "+string(array_length(rooms_with_rosary))+" "+string(array_length(rooms_with_map)));
 }

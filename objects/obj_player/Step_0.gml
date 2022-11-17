@@ -59,8 +59,9 @@ if (process_this_frame()) {
 	    else if y > room_height { global.controller.transition = directions.down; }
 		
 		// Update bush hiding status
-		var bush_at_quadrant = get_presence_at_each_quadrant(obj_bush);
-		hidden = (bush_at_quadrant[0] && bush_at_quadrant[1] && bush_at_quadrant[2] && bush_at_quadrant[3]);
+		// var bush_at_quadrant = get_presence_at_each_quadrant(obj_bush);
+		// hidden = (bush_at_quadrant[0] && bush_at_quadrant[1] && bush_at_quadrant[2] && bush_at_quadrant[3]);
+		hidden = false;
 	}
 	else if dead image_index = 2;
 

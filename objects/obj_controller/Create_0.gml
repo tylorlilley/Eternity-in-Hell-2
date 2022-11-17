@@ -81,6 +81,11 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 }
 
 // Randomly spawn a special item for each item type
+while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
+	var new_collectables_room = array_random_get(game_rooms);
+	new_collectables_room.has_collectables = true;
+	array_push(rooms_with_collectables, new_collectables_room);
+}
 total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 if (array_length(rooms_with_key) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_key) { has_special_item = true; show_debug_message("RED KEY"); } }
 if (array_length(rooms_with_torch) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_torch) { has_special_item = true; show_debug_message("RED TORCH"); } }
@@ -159,16 +164,21 @@ show_debug_message("SEED: "+string(random_get_seed()));
 
 avg_exits = 0;
 one_exits = 0;
-two_exits = 0;
+two_exits_opp = 0;
+two_exits_perp = 0;
 three_exits = 0;
 four_exits = 0;
 for (var i = 0; i < array_length(game_rooms); i++) {
 	var counted_exits = game_rooms[i].count_exits();
 	avg_exits += counted_exits;
 	if counted_exits == 1 one_exits += 1;
-	if counted_exits == 2 two_exits += 1;
 	if counted_exits == 3 three_exits += 1;
 	if counted_exits == 4 four_exits += 1;
+	if counted_exits == 2 {
+		if game_rooms[i].exits[0] && game_rooms[i].exits[2] { two_exits_opp += 1; }
+		else if game_rooms[i].exits[1] && game_rooms[i].exits[3] { two_exits_opp += 1; }
+		else { two_exits_perp += 1; }
+	}
 }
 avg_exits = avg_exits / array_length(game_rooms);
 

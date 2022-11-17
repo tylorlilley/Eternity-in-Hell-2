@@ -1,6 +1,6 @@
 if (process_this_frame()) {
 	if (usurped) {
-		instance_create_depth(x, y, 0, obj_bumper);
+		instance_create_depth(x, y, 0, usurped);
 		instance_destroy();
 	}
 	

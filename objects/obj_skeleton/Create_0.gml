@@ -5,7 +5,9 @@ consumed_by_block = true;
 consumed_by_lava = true;
 death_sound = snd_crunch;
 spawn_timer = 3+irandom(3);
-skeleton_speed = (get_random_chance_out_of(10-global.difficulty)) ?  4 : 12; 
+skeleton_speed = (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBABILITY)) ?  4 : 12; 
 image_speed = (skeleton_speed == 4) ? 1 : 0;
 
-usurped = get_random_chance_out_of(32-global.difficulty);
+usurped = noone;
+if (get_random_chance_out_of(global.controller.WORM_PROBABILITY)) { usurped = obj_worm; }
+if (get_random_chance_out_of(global.controller.EYES_PROBABILITY)) { usurped = obj_bumper; }

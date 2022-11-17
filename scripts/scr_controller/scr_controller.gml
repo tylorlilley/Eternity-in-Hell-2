@@ -15,9 +15,9 @@ function create_room_lists() {
 	rooms_with_one_exit = array_create(0); 
 	array_push(rooms_with_one_exit, rm_one_exit_1, rm_one_exit_2, rm_one_exit_3, rm_one_exit_4, rm_one_exit_5, rm_one_exit_6, rm_one_exit_7, rm_one_exit_8, rm_one_exit_9, rm_one_exit_10, rm_one_exit_11, rm_one_exit_12, rm_one_exit_13, rm_one_exit_14, rm_one_exit_15, rm_one_exit_16, rm_one_exit_17, rm_one_exit_18, rm_one_exit_19, rm_one_exit_20, rm_one_exit_21, rm_one_exit_22);
 	rooms_with_two_opposite_exits = array_create(0);
-	array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_1, rm_two_opposite_exits_2, rm_two_opposite_exits_3, rm_two_opposite_exits_4, rm_two_opposite_exits_5, rm_two_opposite_exits_6, rm_two_opposite_exits_7, rm_two_opposite_exits_8, rm_two_opposite_exits_9, rm_two_opposite_exits_10, rm_two_opposite_exits_11, rm_two_opposite_exits_12, rm_two_opposite_exits_13, rm_two_opposite_exits_14, rm_two_opposite_exits_15, rm_two_opposite_exits_16, rm_two_opposite_exits_17, rm_two_opposite_exits_18, rm_two_opposite_exits_19, rm_two_opposite_exits_20, rm_two_opposite_exits_21, rm_two_opposite_exits_22);
+	array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_1, rm_two_opposite_exits_2, rm_two_opposite_exits_3, rm_two_opposite_exits_4, rm_two_opposite_exits_5, rm_two_opposite_exits_6, rm_two_opposite_exits_7, rm_two_opposite_exits_8, rm_two_opposite_exits_9, rm_two_opposite_exits_10, rm_two_opposite_exits_11, rm_two_opposite_exits_12, rm_two_opposite_exits_13, rm_two_opposite_exits_14, rm_two_opposite_exits_15, rm_two_opposite_exits_16);
 	rooms_with_two_perpendicular_exits = array_create(0); 
-	array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_7, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_9, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_11, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_13, rm_two_perpendicular_exits_14, rm_two_perpendicular_exits_15, rm_two_perpendicular_exits_16, rm_two_perpendicular_exits_17, rm_two_perpendicular_exits_18, rm_two_perpendicular_exits_19, rm_two_perpendicular_exits_20, rm_two_perpendicular_exits_21, rm_two_perpendicular_exits_22);
+	array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_7, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_9, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_11, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_13, rm_two_perpendicular_exits_14, rm_two_perpendicular_exits_15, rm_two_perpendicular_exits_16, rm_two_perpendicular_exits_17, rm_two_perpendicular_exits_18, rm_two_perpendicular_exits_19, rm_two_perpendicular_exits_20, rm_two_perpendicular_exits_21, rm_two_perpendicular_exits_22, rm_two_perpendicular_exits_23, rm_two_perpendicular_exits_24, rm_two_perpendicular_exits_25, rm_two_perpendicular_exits_26, rm_two_perpendicular_exits_27, rm_two_perpendicular_exits_28);
 	rooms_with_three_exits = array_create(0); 
 	array_push(rooms_with_three_exits, rm_three_exits_1, rm_three_exits_2, rm_three_exits_3, rm_three_exits_4, rm_three_exits_5, rm_three_exits_6, rm_three_exits_7, rm_three_exits_8, rm_three_exits_9, rm_three_exits_10, rm_three_exits_11, rm_three_exits_12, rm_three_exits_13, rm_three_exits_14, rm_three_exits_15, rm_three_exits_16, rm_three_exits_17, rm_three_exits_18, rm_three_exits_19, rm_three_exits_20, rm_three_exits_21, rm_three_exits_22);
 	rooms_with_four_exits = array_create(0); 
@@ -44,17 +44,21 @@ function initialize_game_variables() {
 	SPECIAL_ITEM_PROBABILITY = 8 - global.difficulty;
 	
 	// Initilize room start probability constants
-	DIRT_PROBABILITY = 16;
+	DIRT_PROBABILITY = 16 + global.difficulty * 2;
 	NOSE_PROBABILITY = 9 - global.difficulty;
 	PHANTOM_PROBABILITY = 5 - global.difficulty;
 	HANDS_PROBABILITY = 8 - global.difficulty;
+	WORM_PROBABILITY = 16 + global.difficulty;
+	EYES_PROBABILITY = 32 + global.difficulty;
+	FAST_SKELETON_PROBABILITY = 12 - global.difficulty;
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
 	MAX_WALKING_DEPTH = 16 * global.difficulty;
 	MINIMUM_NUMBER_OF_ROOMS = 8 * global.difficulty;
-	ADDITIONAL_ROOMS = 4 * global.difficulty;
+	ADDITIONAL_ROOMS = 2 * global.difficulty;
 	MAX_MAP_DRAW_DISTANCE = 8;
+	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
 
 	// Initialize lighting constants and variables
 	DIMMING_RATE = 8;
@@ -411,7 +415,7 @@ function game_room_start() {
 	with (obj_worm) { dir = -1; audio_play_sound_for_object_only_once(snd_hiss); }
 	with (obj_mouth) { audio_play_sound_for_object_only_once(snd_squelch); teleport_to_empty_space(); }
 	with (obj_eyes) { audio_play_sound_for_object_only_once(snd_flicker); teleport_near_player(); }
-	with (obj_bumper) { lethal = false; trap = true; visible = false; }
+	with (obj_bumper) { lethal = false; trap = true; visible = false; audio_play_sound_for_object_only_once(snd_bumper); }
 	with (obj_ears) { awake = false; target_x = x; target_y = y; }
 	with (obj_nose) {
 		instance_create_depth(x, y, depth, obj_nose);

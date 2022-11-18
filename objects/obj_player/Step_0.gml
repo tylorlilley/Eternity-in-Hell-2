@@ -40,12 +40,12 @@ if (process_this_frame()) {
 		if (carried_items[directions.right] && carried_items[directions.right].object_index == obj_torch && carried_items[directions.right].light_source  &&
 			carried_items[directions.left] && carried_items[directions.left].object_index == obj_torch && carried_items[directions.left].light_source) { 
 			
-			if (lighting_range < carried_items[directions.right].light_source.lighting_range+3) { 
-				lighting_range = carried_items[directions.right].light_source.lighting_range+3;
+			if (lighting_range < carried_items[directions.right].light_source.lighting_range+4) { 
+				lighting_range = carried_items[directions.right].light_source.lighting_range+4;
 				is_flickering_light_source = true;
 			}
-			if (lighting_range < carried_items[directions.left].light_source.lighting_range+3) { 
-				lighting_range = carried_items[directions.left].light_source.lighting_range+3;
+			if (lighting_range < carried_items[directions.left].light_source.lighting_range+4) { 
+				lighting_range = carried_items[directions.left].light_source.lighting_range+4;
 				is_flickering_light_source = true;
 			}
 		}

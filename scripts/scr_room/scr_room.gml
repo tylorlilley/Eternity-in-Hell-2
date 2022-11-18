@@ -12,7 +12,7 @@ function GameRoom(given_x, given_y) constructor {
 	flip_horizontal = false;
 	flip_vertical = false;
 	rotate = noone;
-	lit = get_random_chance_out_of(5);
+	lit = get_random_chance_out_of(global.controller.PRE_LIT_PROBABILITY);
 
 	// Room content values
 	has_key = false;
@@ -141,7 +141,6 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{boolean}	must_create_new		Whether or not an exit must be created as a result of this method
 	/// @param		{index}		list_of_rooms		The list of all created rooms
 	function add_random_exit(must_create_new, list_of_rooms) {
-		// TODO: Add stair linkage to this function
 		if (count_exits() > 3 || (must_create_new && count_adjacent_rooms() > 3)) { 
 		    return false; 
 		    // Impossible to create a new exit in this case. This method should not be called under

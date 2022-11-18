@@ -36,12 +36,13 @@ function initialize_game_variables() {
 
 	// Initialize room probability constants
 	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
-	LOCKED_DOOR_PROBABILITY = 5;
+	LOCKED_DOOR_PROBABILITY = 5 + global.difficulty;
 	HAS_STAIRS_PROBABILITY = 20;
-	HAS_COLLECTABLE_PROBABILITY = 30;
-	HAS_KEY_PROBABILITY = 10;
+	HAS_COLLECTABLE_PROBABILITY = 30 + global.difficulty;
+	PRE_LIT_PROBABILITY = 8 - global.difficulty;
+	HAS_KEY_PROBABILITY = 10 + global.difficulty;
 	HAS_ITEM_PROBABILITY = 20;
-	SPECIAL_ITEM_PROBABILITY = 8 - global.difficulty;
+	SPECIAL_ITEM_PROBABILITY = 8 + global.difficulty;
 	
 	// Initilize room start probability constants
 	DIRT_PROBABILITY = 16 + global.difficulty * 2;
@@ -56,7 +57,7 @@ function initialize_game_variables() {
 	TEST_MODE = false;
 	MAX_WALKING_DEPTH = 16 * global.difficulty;
 	MINIMUM_NUMBER_OF_ROOMS = 8 * global.difficulty;
-	ADDITIONAL_ROOMS = 2 * global.difficulty;
+	ADDITIONAL_ROOMS = MINIMUM_NUMBER_OF_ROOMS/8 * global.difficulty;
 	MAX_MAP_DRAW_DISTANCE = 8;
 	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
 
@@ -99,6 +100,7 @@ function initialize_game_variables() {
 	bg_color = make_color_rgb(20, 20, 20);
 	number_of_frames_since_game_began = 0;
 	entered_from_stairs = true;
+	entered_from_spawn = true;
 	blackout = true;
 	transition = directions.respawn;
 	clear_inputs_for_next_frame();
@@ -133,6 +135,7 @@ function game_progress_has_been_completed() {
 function transition_to_room(new_room) {
 	// Set room transition variables
 	entered_from_stairs = (transition >= 4);
+	entered_from_spawn = (transition > 4);
 			
 	// Play transition sound
 	if (transition == 5) { play_sound(snd_win, false); }
@@ -411,7 +414,7 @@ function game_room_start() {
 		locked = (door_for_exit && door_for_exit.locked);
 		if (instance_place(x, y, global.player)) { open_door(); }
 	}
-	with (obj_bones) { if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(31)); } }
+	with (obj_bones) { if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(32-global.difficulty)); } }
 	with (obj_worm) { dir = -1; audio_play_sound_for_object_only_once(snd_hiss); }
 	with (obj_mouth) { audio_play_sound_for_object_only_once(snd_squelch); teleport_to_empty_space(); }
 	with (obj_eyes) { audio_play_sound_for_object_only_once(snd_flicker); teleport_near_player(); }
@@ -436,10 +439,10 @@ function game_room_start() {
 		lethal = false;
 
 		if (global.controller.current_room.lit) { instance_destroy(); }
-		//else if (global.controller.entered_from_stairs) { spawn_timer = -1; }
+		else if (global.controller.entered_from_spawn) { spawn_timer = -1; }
 		else { 
 			play_sound(snd_dread, false); 
-			spawn_timer = 0;
+			spawn_timer = (global.controller.entered_from_stairs) ? 12 : 0;
 			with (obj_lantern) { if (!instance_exists(light_source)) { other.spawn_timer += (16 - global.difficulty); } }
 			if (spawn_timer > 50) { spawn_timer = 60; } 
 			if (spawn_timer < 15) { spawn_timer = 15; } 

@@ -22,3 +22,11 @@ Portcullis door opened with button
 Zelda style doors that close and you have to push block or light torch to open
 
 3313073792
+
+NEW ROOM GENERATION ALGORITHM
+Rooms need to know about themselves:
+- Difficulty Level for collectables spots. Should be an estimate of number of seconds to collect all spots
+- Whether or not room has a key spawned
+- Whether or not a room has a chest spawned
+- Whether or not a room has a lantern and can be lit or not
+- Whether or not a room is considered "difficult" or appropriate to appear at the given difficulty

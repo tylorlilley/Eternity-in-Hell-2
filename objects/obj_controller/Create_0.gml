@@ -2,6 +2,7 @@
 random_set_seed(global.seed);
 clear_inputs_for_next_frame();
 initialize_game_variables();
+//TEST_MODE = true;
 
 // Generate Initial Room with Four Exits
 var uninitialized_rooms = array_create(0) // Used by functions called add_random_exit and initialized_room
@@ -23,6 +24,15 @@ while (array_length(uninitialized_rooms) > 0) {
     var random_uninitialized_room = array_random_pop(uninitialized_rooms);
     with random_uninitialized_room { initialize_room(uninitialized_rooms); }
 }
+
+// Restart Room Spawning if room count is too high
+if (array_length(game_rooms) > MINIMUM_NUMBER_OF_ROOMS * 1.5) {
+	global.seed += 1;
+	if (global.seed > 99999999) { global.seed = 0; }
+	instance_destroy();
+	room_restart();
+}
+else {
 
 // Generate stairs Connections
 var rooms_with_stairs_spot = array_create(0);
@@ -181,4 +191,5 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	}
 }
 avg_exits = avg_exits / array_length(game_rooms);
+}
 

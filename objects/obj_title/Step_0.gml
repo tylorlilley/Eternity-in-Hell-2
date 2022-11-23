@@ -1,4 +1,9 @@
-if (pos == -2) { pos = (global.can_access_farmer_mode) ? -1 : 0; }
+if (pos == -2) { 
+	ini_open("farmer_mode_unlocked.ini");
+	global.can_access_farmer_mode = (ini_read_real("modes", "farmer", false) == true);
+	ini_close();
+	pos = (global.can_access_farmer_mode) ? -1 : 0;
+}
 
 if (blink_timer == 0) {
 	blink = !blink;

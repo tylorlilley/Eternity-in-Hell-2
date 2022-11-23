@@ -15,7 +15,7 @@ if keyboard_check(vk_space) {
 else {
 	// Adjust selected setting
 	if (keyboard_check_pressed(vk_up) && (pos > 0 || (pos > -1 && global.can_access_farmer_mode))) { pos -= 1; play_sound(snd_mana, false); }
-	else if (keyboard_check_pressed(vk_down) && pos < 2) { pos += 1; play_sound(snd_mana, false); }
+	else if (keyboard_check_pressed(vk_down) && (pos < 1 || (pos < 2 && global.seed_option == seed_options.specified))) { pos += 1; play_sound(snd_mana, false); }
 	
 	// Adjust Farmer Mode Settings
 	var prev_difficulty = global.difficulty;

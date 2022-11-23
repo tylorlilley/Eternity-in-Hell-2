@@ -1,5 +1,6 @@
 event_inherited();
 
+sprite_index = (global.controller.FARM_MODE) ? spr_hands_farmer : spr_hands;
 visible = false;
 lethal = false;
 carried_items = [noone, noone, noone, noone, noone];

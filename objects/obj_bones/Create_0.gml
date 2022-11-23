@@ -1,5 +1,7 @@
 event_inherited();
 
+sprite_index = (global.controller.FARM_MODE) ? spr_dirt : spr_bones;
+
 depth = 4;
 trap = false;
 

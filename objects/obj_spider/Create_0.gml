@@ -1,5 +1,7 @@
 event_inherited();
 
+sprite_index = (global.controller.FARM_MODE) ? spr_spider_farmer : spr_spider;
+
 killable_by_sword = true;
 consume_block = false
 consumed_by_block = true;

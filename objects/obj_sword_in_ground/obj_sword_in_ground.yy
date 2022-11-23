@@ -1,10 +1,14 @@
 {
+  "resourceType": "GMObject",
+  "resourceVersion": "1.0",
+  "name": "obj_sword_in_ground",
   "spriteId": {
     "name": "spr_sword_in_ground",
     "path": "sprites/spr_sword_in_ground/spr_sword_in_ground.yy",
   },
   "solid": false,
   "visible": true,
+  "managed": true,
   "spriteMaskId": null,
   "persistent": false,
   "parentObjectId": {
@@ -23,15 +27,13 @@
   "physicsStartAwake": true,
   "physicsKinematic": false,
   "physicsShapePoints": [],
-  "eventList": [],
+  "eventList": [
+    {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,},
+  ],
   "properties": [],
   "overriddenProperties": [],
   "parent": {
     "name": "Tiles",
     "path": "folders/Objects/Tiles.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "obj_sword_in_ground",
-  "tags": [],
-  "resourceType": "GMObject",
 }

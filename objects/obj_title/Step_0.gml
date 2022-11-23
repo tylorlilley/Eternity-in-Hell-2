@@ -1,3 +1,5 @@
+if (pos == -2) { pos = (global.can_access_farmer_mode) ? -1 : 0; }
+
 if (blink_timer == 0) {
 	blink = !blink;
 	blink_timer = 15;
@@ -12,8 +14,15 @@ if keyboard_check(vk_space) {
 }
 else {
 	// Adjust selected setting
-	if (keyboard_check_pressed(vk_up) && pos > 0) { pos -= 1; play_sound(snd_mana, false); }
+	if (keyboard_check_pressed(vk_up) && (pos > 0 || (pos > -1 && global.can_access_farmer_mode))) { pos -= 1; play_sound(snd_mana, false); }
 	else if (keyboard_check_pressed(vk_down) && pos < 2) { pos += 1; play_sound(snd_mana, false); }
+	
+	// Adjust Farmer Mode Settings
+	var prev_difficulty = global.difficulty;
+	if (pos == -1) {
+		if (global.FARM_MODE && keyboard_check_pressed(vk_left)) { global.FARM_MODE = false; play_sound(snd_putdown, false); }
+		else if (!global.FARM_MODE && keyboard_check_pressed(vk_right)) { global.FARM_MODE = true; play_sound(snd_pickup, false); }
+	}
 
 	// Adjust Difficulty Settings
 	var prev_difficulty = global.difficulty;

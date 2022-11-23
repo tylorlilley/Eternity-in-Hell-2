@@ -28,7 +28,15 @@ else {
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_center);
-
+	
+	// Draw farmer mode selection
+	if (blink && pos == -1) {
+		if (global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 64, room_height/4, 1, 1, 1, c_white, 1); }
+		if (!global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 64, room_height/4, -1, 1, 1, c_white, 1); }
+	}
+	var title_background = layer_background_get_id("background");
+	layer_background_sprite(title_background, (global.FARM_MODE) ? bg_title_farmer : bg_title)
+	
 	// Draw difficulty selection
 	draw_text(room_width/2, room_height/2, difficulty_string());
 	if (blink && pos == 0) {

@@ -1,3 +1,5 @@
 event_inherited();
+
+sprite_index = (global.controller.FARM_MODE) ? spr_heart_farmer : spr_heart;
 global.controller.completion_amount += 1;
 image_speed = one_unit_of_game_time();

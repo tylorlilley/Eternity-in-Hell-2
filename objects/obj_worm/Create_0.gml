@@ -1,5 +1,7 @@
 event_inherited();
 
+sprite_index = (global.controller.FARM_MODE) ? spr_worm_farmer : spr_worm;
+
 killable_by_sword = true;
 consume_block = false
 consumed_by_block = true;

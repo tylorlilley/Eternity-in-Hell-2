@@ -55,6 +55,7 @@ function initialize_game_variables() {
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
+	FARM_MODE = global.FARM_MODE;
 	MAX_WALKING_DEPTH = 16 * global.difficulty;
 	MINIMUM_NUMBER_OF_ROOMS = 8 * global.difficulty;
 	ADDITIONAL_ROOMS = MINIMUM_NUMBER_OF_ROOMS/8 * global.difficulty;

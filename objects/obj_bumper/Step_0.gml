@@ -11,10 +11,12 @@ if (process_this_frame()) {
 		if (lethal) {
 			lethal = false;
 			visible = false;
+			corporeal = true;
 		}
 		else {
 			lethal = true;
 			visible = true;
+			corporeal = false;
 		}
 	}
 	image_index = (global.controller.key_up || 

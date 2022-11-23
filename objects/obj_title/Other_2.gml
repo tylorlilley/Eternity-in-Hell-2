@@ -28,3 +28,5 @@ enum seed_options {
 global.difficulty = difficulties.medium;
 global.seed_option = seed_options.rand;
 global.seed = noone;
+global.FARM_MODE = false;
+global.can_access_farmer_mode = true;

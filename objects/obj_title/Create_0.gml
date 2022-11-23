@@ -1,7 +1,7 @@
 randomize();
 audio_group_load(audiogroup_default);
 blink = false;
-pos = 0;
+pos = -2;
 current_seed = noone;
 draw_set_color(c_black);
 global.id_counter = 0;

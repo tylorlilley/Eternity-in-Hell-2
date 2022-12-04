@@ -3,8 +3,8 @@
   "resourceVersion": "1.0",
   "name": "obj_ears",
   "spriteId": {
-    "name": "spr_ears_farmer",
-    "path": "sprites/spr_ears_farmer/spr_ears_farmer.yy",
+    "name": "spr_ears",
+    "path": "sprites/spr_ears/spr_ears.yy",
   },
   "solid": false,
   "visible": true,

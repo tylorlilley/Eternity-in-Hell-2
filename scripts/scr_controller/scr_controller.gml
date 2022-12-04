@@ -64,17 +64,17 @@ function initialize_game_variables() {
 	DIRT_PROBABILITY = 16 + global.difficulty * 2;
 	NOSE_PROBABILITY = 9 - global.difficulty;
 	PHANTOM_PROBABILITY = 5 - global.difficulty;
-	HANDS_PROBABILITY = 8 - global.difficulty;
-	WORM_PROBABILITY = 16 + global.difficulty;
-	EYES_PROBABILITY = 32 + global.difficulty;
-	FAST_SKELETON_PROBABILITY = 12 - global.difficulty;
+	HANDS_PROBABILITY = 4 * (5 - global.difficulty);
+	WORM_PROBABILITY =  32 - (4 * global.difficulty);
+	EYES_PROBABILITY =  64 - (4 * global.difficulty);
+	FAST_SKELETON_PROBABILITY = 16 - global.difficulty;
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
 	FARM_MODE = global.FARM_MODE;
 	MAX_WALKING_DEPTH = 16 * global.difficulty;
-	MINIMUM_NUMBER_OF_ROOMS = 8 * global.difficulty;
-	ADDITIONAL_ROOMS = MINIMUM_NUMBER_OF_ROOMS/8 * global.difficulty;
+	MINIMUM_NUMBER_OF_ROOMS = 5 + (3 * global.difficulty);
+	ADDITIONAL_ROOMS = 3 * global.difficulty;
 	MAX_MAP_DRAW_DISTANCE = 8;
 	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
 
@@ -88,7 +88,7 @@ function initialize_game_variables() {
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
 	MAX_TORCH_TIME_TO_REMAIN_LIT = 75 - (global.difficulty * 5); // minutes * 60 = total seconds for torch to remain lit
-	TIME_PROVIDED_PER_ROOM = 40 - (global.difficulty * 5);
+	TIME_PROVIDED_PER_ROOM = 40 - (global.difficulty * 3);
 	TIME_PROVIEDED_PER_LOCK = 15;
 	TOTAL_COMPLETION_AMOUNT = 4;
 	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run

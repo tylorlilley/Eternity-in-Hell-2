@@ -2,6 +2,7 @@ event_inherited();
 
 sprite_index = (global.controller.FARM_MODE) ? spr_skeleton_farmer : spr_skeleton;
 
+meat_eater = true;
 killable_by_sword = true;
 consumed_by_block = true;
 consumed_by_lava = true;
@@ -11,5 +12,5 @@ skeleton_speed = (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBA
 image_speed = (skeleton_speed == 4) ? 1 : 0;
 
 usurped = noone;
-if (get_random_chance_out_of(global.controller.WORM_PROBABILITY)) { usurped = obj_worm; }
-if (get_random_chance_out_of(global.controller.EYES_PROBABILITY)) { usurped = obj_bumper; }
+if (get_random_chance_out_of(global.controller.WORM_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_worm; }
+if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && instance_number(obj_phantom) == 0 && global.difficulty >= difficulties.hard) { usurped = obj_bumper; }

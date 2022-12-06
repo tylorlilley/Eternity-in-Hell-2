@@ -57,7 +57,7 @@ function initialize_game_variables() {
 	HAS_COLLECTABLE_PROBABILITY = 30 + global.difficulty;
 	PRE_LIT_PROBABILITY = 8 - global.difficulty;
 	HAS_KEY_PROBABILITY = 10 + global.difficulty;
-	HAS_ITEM_PROBABILITY = 20;
+	HAS_ITEM_PROBABILITY = 25 + global.difficulty;
 	SPECIAL_ITEM_PROBABILITY = 8 + global.difficulty;
 	
 	// Initilize room start probability constants
@@ -101,6 +101,7 @@ function initialize_game_variables() {
 	rooms_with_torch = array_create(0);
 	rooms_with_key = array_create(0);
 	rooms_with_sword = array_create(0);
+	rooms_with_meat = array_create(0);
 	rooms_with_map = array_create(0);
 	rooms_with_rosary = array_create(0);
 
@@ -477,6 +478,7 @@ function game_room_start() {
 			y = global.player.y;
 		}
 	}
+	with (obj_meat) { if (carried == noone) { instance_create_depth(x, y, 5, obj_bones); instance_destroy(); } }
 	
 	// If room has dropped item, consider spawning hands
 	if (instance_number(obj_item) > 0) {

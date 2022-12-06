@@ -46,22 +46,36 @@ function shoot_fireball(target_x, target_y) {
 
 /// @function								try_to_see_player();
 function try_to_see_player() {
-	if (state != SCREECHING && !global.player.dead && !global.player.hidden) {   
+	
+	var target = noone;
+	if (!global.player.dead && !global.player.hidden) { target = global.player; }
+	var dropped_meat = noone;
+	with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
+	
+	if (state != SCREECHING) {
 		var new_dir = noone;
-		if (global.player.x == x) {
-		    if (global.player.y > y) { new_dir = directions.down; }
-		    else { new_dir = directions.up; }
-		}
-		else if (global.player.y == y) {
-		    if (global.player.x > x) { new_dir = directions.right; }
-		    else { new_dir = directions.left; }
+		
+		if (dropped_meat != noone) {
+			new_dir = get_random_possible_direction(dropped_meat.x, dropped_meat.y, false, true);
+			if (new_dir != noone) { target = dropped_meat; }
 		}
 			
-		if (new_dir != noone && new_dir != dir && can_move_in_direction_and_reach(new_dir, global.player, false, true)) {
+		if (target == global.player) {   
+			if (target.x == x) {
+			    if (target.y > y) { new_dir = directions.down; }
+			    else { new_dir = directions.up; }
+			}
+			else if (target.y == y) {
+			    if (target.x > x) { new_dir = directions.right; }
+			    else { new_dir = directions.left; }
+			}
+		}
+			
+		if (new_dir != noone && new_dir != dir && (target != global.player || can_move_in_direction_and_reach(new_dir, target, false, true))) {
 			dir = new_dir;
 			state = SCREECHING;
 			screech_timer = 3;
-			play_sound(snd_lose, true);
+			if (target == global.player) { play_sound(snd_lose, true); }
 		}
 	}
 }

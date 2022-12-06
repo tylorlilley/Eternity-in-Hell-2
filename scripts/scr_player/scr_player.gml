@@ -25,12 +25,17 @@ function move_player(dir) {
 /// @param		{direction} dir				The directional slot to pick up or drop an item into or from
 function pick_up_or_drop_item(dir) {
 	if (carried_items[dir]) {
+		if (carried_items[dir].object_index == obj_meat) {
+			var spider = noone;
+			with (obj_spider) { if (visible) { spider = self; } }
+			with (spider) { audio_play_sound_for_object_only_once(snd_lose); }
+		}
 		// Drop Item and alert one obj_hands to come grab it
 		var possible_hands = array_create(0);
 		with (obj_hands) { if (visible) { array_push(possible_hands, self); } }
 		var new_hands = array_length(possible_hands) > 0 ? array_random_get(possible_hands) : noone;
 		with new_hands { target_item = other.carried_items[dir]; }
-		with carried_items[dir] { drop_item(dir, true); } 
+		with carried_items[dir] { drop_item(dir, true); }
 	}
 	else {
 		// Cycle through the items you could be possibly pickiung up

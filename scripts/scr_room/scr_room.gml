@@ -9,6 +9,7 @@ function GameRoom(given_x, given_y) constructor {
 
 	// Initialize room state values
 	visited = false;
+	visited_exits = [false, false, false, false, false];
 	flip_horizontal = false;
 	flip_vertical = false;
 	rotate = noone;
@@ -50,11 +51,12 @@ function GameRoom(given_x, given_y) constructor {
 			stairs_spot_obj = obj_chest;
 			//if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
 
-			var rand = irandom(3);
+			var rand = irandom(4);
 			switch rand {
 				case 0: { item_type = obj_rosary; array_push(global.controller.rooms_with_rosary, self); break; }
 				case 1: { item_type = obj_map; array_push(global.controller.rooms_with_map, self); break; }
 				case 2: { item_type = obj_sword; array_push(global.controller.rooms_with_sword, self); break; }
+				case 3: { item_type = obj_meat; array_push(global.controller.rooms_with_meat, self); break; }
 				default: { item_type = obj_torch; array_push(global.controller.rooms_with_torch, self); break; }
 			}
 		}
@@ -235,12 +237,12 @@ function GameRoom(given_x, given_y) constructor {
 					case 3: { x_offset = -8; x_size += 0.125; break; } 
 				}
 
-			    if (exits[i]) { draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, x_size, y_size, 0, exit_color, 1); }
+			    if (exits[i] && (visited_exits[i] || show_detailed_map)) { draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, x_size, y_size, 0, exit_color, 1); }
 			}
 		
 		    // Draw Room's Stairs
 			var stair_color = bg_color;
-		    if (exits[4]) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.125, 0.125, 0, stair_color, 1); }
+		    if (exits[4] && (visited_exits[4] || show_detailed_map)) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.125, 0.125, 0, stair_color, 1); }
 		
 		    // Draw Room's Keys if game is in test mode
 		    if (show_detailed_map && has_key) { 
@@ -400,12 +402,26 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									go_to_room()
 	function go_to_room() {
+		mark_exit_visited();
 		global.controller.current_room.leave_room();
 		enter_room();
 		with (global.controller) { 
 			game_room_start();
 			blackout = false;
 			transition = noone;
+		}
+	}
+	
+	/// @function									go_to_room()
+	function mark_exit_visited() {
+		var exit_dir = global.controller.transition, other_room = global.controller.current_room;
+		if (exit_dir == directions.stairs) {
+			other_room.visited_exits[directions.stairs] = true;
+			visited_exits[directions.stairs] = true;
+		}
+		else if (exit_dir != directions.respawn) {
+			other_room.visited_exits[exit_dir] = true;
+			visited_exits[opposite_dir(exit_dir)] = true;
 		}
 	}
 }

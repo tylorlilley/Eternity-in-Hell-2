@@ -1,6 +1,10 @@
 if (process_this_frame()) {
 	event_inherited();
 	
+	var dropped_meat = noone;
+	with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
+	if (dropped_meat) { target_x = dropped_meat.x; target_y = dropped_meat.y; }
+	
 	if (awake && !instance_at_coordinates(target_x, target_y, self)) {
 		sprite_index = (global.controller.FARM_MODE) ? spr_ears_awake_farmer : spr_ears_awake;
 		image_index = (x > target_x) ? 1 : -1;

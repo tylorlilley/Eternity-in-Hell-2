@@ -156,6 +156,18 @@ function get_presence_at_each_quadrant(obj_index) {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death) {
+	var move_dir = get_random_possible_direction(target_x, target_y, ignore_solid, ignore_death);
+	if (move_dir != noone) { move_in_direction(move_dir, true); }
+	
+	return move_dir;
+}
+
+/// @function								get_random_possible_direction(obj_index);
+///	@param		{int} target_x				The x position to be moving toward
+///	@param		{int} target_y				The y position to be moving toward
+/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
+function get_random_possible_direction(target_x, target_y, ignore_solid, ignore_death) {
 	// Determine which directions are free to move in
 	var can_move_up = can_move_in_direction(directions.up, ignore_solid, ignore_death);
 	var can_move_right = can_move_in_direction(directions.right, ignore_solid, ignore_death);
@@ -169,10 +181,8 @@ function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death
 	if (y < target_y && can_move_down) { array_push(possible_directions, directions.down); }
 	if (x > target_x && can_move_left) { array_push(possible_directions, directions.left); }
 	
-	// Move in the randomly chosen direction if one exists
+	// Return a random direction from among those possible
 	var move_dir = array_length(possible_directions) > 0 ? array_random_get(possible_directions) : noone;
-	if (move_dir != noone) { move_in_direction(move_dir, false); }
-	
 	return move_dir;
 }
 

@@ -15,6 +15,14 @@ if (process_this_frame()) {
 			}
 		}
 	}
+	// Fidget Sprite if Eating Meat
+	if (meat_eater) {
+		var dropped_meat = noone;
+		with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
+		if (dropped_meat != noone || instance_position(x, y, obj_player_corpse)) {
+			if (get_random_chance_out_of(4)) { play_sound(snd_walk, false); image_xscale *= -1; }
+		}
+	}
 	// Destroy self if completely covered by solids
 	if (consumed_by_block && visible) {
 		var solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);

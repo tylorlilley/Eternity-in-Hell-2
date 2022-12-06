@@ -1,5 +1,6 @@
 event_inherited();
 
+meat_eater = true;
 awake = false;
 target_x = x;
 target_y = y;

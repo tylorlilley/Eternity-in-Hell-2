@@ -28,6 +28,11 @@ if (process_this_frame()) {
 		
 		set_instance_to_same_position(carried_items[1]);
 	}
+	
+	// Make any dropped meat that can be moved towards a target
+	var dropped_meat = noone;
+	with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
+	if (dropped_meat != noone && move_towards_coordinates(dropped_meat.x, dropped_meat.y, false, false)) { target_item = dropped_meat; }
 
 	event_inherited();
 }

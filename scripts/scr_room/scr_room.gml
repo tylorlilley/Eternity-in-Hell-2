@@ -431,7 +431,7 @@ function instances_for_room_reference(room_reference) {
 	var filename = room_get_name(room_reference) + ".json";
 	var file = file_text_open_read(filename);
 	var file_content = file_text_read_string(file);
-	var decoded_content = json_parse(file_content);
+	var decoded_content = json_parse(file_content);          
 	file_text_close(file);
 	return decoded_content;
 }

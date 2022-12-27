@@ -24,10 +24,11 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
         draw_rectangle(0, room_height-40, room_width, room_height, false);
 
         // Draw progress bar
+		var os_offset = (os_type == os_windows) ? 0: 1
         draw_set_color(c_white);
         draw_set_halign(fa_left);
         draw_text(4, 12, string_hash_to_newline("Collected: "));
-        draw_rectangle(84, 6, (room_width-4), 18, true);
+        draw_rectangle(84, 6, (room_width-4), 18+os_offset, true);
 
         if (collectables_collected > 0) { 
 			draw_rectangle(84, 6, get_scaling_amount(84, (room_width-4), collectables_collected, total_number_of_rooms_with_collectables), 18, false); 

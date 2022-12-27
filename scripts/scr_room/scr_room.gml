@@ -19,6 +19,7 @@ function GameRoom(given_x, given_y) constructor {
 	has_key = false;
 	has_special_item = false;
 	has_collectables = false;
+	misleading_room = false;
 	stairs_spot_obj = noone;
 	item_type = noone;
 
@@ -315,6 +316,12 @@ function GameRoom(given_x, given_y) constructor {
 		var rand1 = get_random_chance_out_of(2);
 		var rand2 = get_random_chance_out_of(2);
 		var room_list = noone;
+		
+		while(get_random_chance_out_of(global.controller.MISLEADING_ROOM_PROBABILITY) && number_of_exits < 4) {
+			misleading_room = true;
+			number_of_exits += 1;
+		}
+
 
 		switch (number_of_exits) {
 			case 0: 

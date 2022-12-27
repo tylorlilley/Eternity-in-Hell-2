@@ -20,7 +20,7 @@ function create_room_lists() {
 		array_push(rooms_with_no_exits, rm_no_exits_1);
 		array_push(rooms_with_one_exit, rm_one_exit_1, rm_one_exit_2, rm_one_exit_3, rm_one_exit_6, rm_one_exit_7, rm_one_exit_9, rm_one_exit_11, rm_one_exit_12, rm_one_exit_14, rm_one_exit_17);
 		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_1, rm_two_opposite_exits_2, rm_two_opposite_exits_3, rm_two_opposite_exits_5, rm_two_opposite_exits_7, rm_two_opposite_exits_8, rm_two_opposite_exits_10, rm_two_opposite_exits_11, rm_two_opposite_exits_13, rm_two_opposite_exits_15);
-		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_7, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_17, rm_two_perpendicular_exits_21, rm_two_perpendicular_exits_23, rm_two_perpendicular_exits_24, rm_two_perpendicular_exits_25);
+		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_17, rm_two_perpendicular_exits_21, rm_two_perpendicular_exits_23, rm_two_perpendicular_exits_24, rm_two_perpendicular_exits_25);
 		array_push(rooms_with_three_exits, rm_three_exits_1, rm_three_exits_2, rm_three_exits_3, rm_three_exits_4, rm_three_exits_5, rm_three_exits_7, rm_three_exits_8, rm_three_exits_9, rm_three_exits_10, rm_three_exits_11, rm_three_exits_12, rm_three_exits_19);
 		array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_2, rm_four_exits_3, rm_four_exits_5, rm_four_exits_6, rm_four_exits_7, rm_four_exits_9);
 	}
@@ -37,6 +37,87 @@ function create_room_lists() {
 		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_7, rm_two_perpendicular_exits_14, rm_two_perpendicular_exits_15, rm_two_perpendicular_exits_18, rm_two_perpendicular_exits_19, rm_two_perpendicular_exits_20);
 		array_push(rooms_with_three_exits, rm_three_exits_14, rm_three_exits_15, rm_three_exits_18);
 		array_push(rooms_with_four_exits, rm_four_exits_12);
+	}
+}
+
+
+/// @function								get_room_difficulty();
+function get_room_difficulty(rm) {
+	switch (rm)
+	{
+		case rm_no_exits_1:
+		case rm_one_exit_2:
+		case rm_one_exit_3:
+		case rm_one_exit_6:
+		case rm_one_exit_7:
+		case rm_one_exit_9:
+		case rm_one_exit_11:
+		case rm_one_exit_12:
+		case rm_one_exit_14:
+		case rm_one_exit_17:
+		case rm_two_opposite_exits_1:
+		case rm_two_opposite_exits_2:
+		case rm_two_opposite_exits_3:
+		case rm_two_opposite_exits_5:
+		case rm_two_opposite_exits_7:
+		case rm_two_opposite_exits_8:
+		case rm_two_opposite_exits_10:
+		case rm_two_opposite_exits_11:
+		case rm_two_opposite_exits_13:
+		case rm_two_opposite_exits_15:
+		case rm_two_perpendicular_exits_1:
+		case rm_two_perpendicular_exits_2:
+		case rm_two_perpendicular_exits_3:
+		case rm_two_perpendicular_exits_4:
+		case rm_two_perpendicular_exits_5:
+		case rm_two_perpendicular_exits_6:
+		case rm_two_perpendicular_exits_8:			
+		case rm_two_perpendicular_exits_10:
+		case rm_two_perpendicular_exits_12:
+		case rm_two_perpendicular_exits_17:
+		case rm_two_perpendicular_exits_21:
+		case rm_two_perpendicular_exits_23:
+		case rm_two_perpendicular_exits_24:
+		case rm_two_perpendicular_exits_25:
+		case rm_three_exits_1:
+		case rm_three_exits_2:	
+		case rm_three_exits_3:
+		case rm_three_exits_4:
+		case rm_three_exits_5:
+		case rm_three_exits_7:
+		case rm_three_exits_8:
+		case rm_three_exits_9:
+		case rm_three_exits_10:
+		case rm_three_exits_11:			
+		case rm_three_exits_12:
+		case rm_three_exits_19:
+		case rm_four_exits_1:
+		case rm_four_exits_2:
+		case rm_four_exits_3:
+		case rm_four_exits_5:
+		case rm_four_exits_6:
+		case rm_four_exits_7:
+		case rm_four_exits_9:
+			return difficulties.easy;
+		case rm_one_exit_19:
+		case rm_one_exit_20:	
+		case rm_one_exit_21:
+		case rm_one_exit_22:
+		case rm_two_opposite_exits_6:
+		case rm_two_opposite_exits_9:
+		case rm_two_perpendicular_exits_7:
+		case rm_two_perpendicular_exits_14:
+		case rm_two_perpendicular_exits_15:
+		case rm_two_perpendicular_exits_18:			
+		case rm_two_perpendicular_exits_19:
+		case rm_two_perpendicular_exits_20:
+		case rm_three_exits_14:
+		case rm_three_exits_15:
+		case rm_three_exits_18:
+		case rm_four_exits_12:
+			return difficulties.hard;
+		default:
+			return difficulties.medium;
 	}
 }
 
@@ -68,6 +149,7 @@ function initialize_game_variables() {
 	WORM_PROBABILITY =  32 - (4 * global.difficulty);
 	EYES_PROBABILITY =  64 - (4 * global.difficulty);
 	FAST_SKELETON_PROBABILITY = 16 - global.difficulty;
+	MISLEADING_ROOM_PROBABILITY = 512 / power(2, global.difficulty);
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
@@ -330,6 +412,28 @@ function game_room_start() {
 		        door.door_for_exit = exit_to_create_door_for;
 		        door.locked = exit_to_create_door_for.locked;
 		    }
+			
+			// Create blocked exists if they should exist
+			if (current_room.misleading_room) {
+				for (var i = 0; i < 4; i++) {
+					var x_pos_1 = 0, y_pos_1 = 0, x_pos_2 = 0, y_pos_2 = 0;
+				
+					if (i == 0) { x_pos_1 = (room_width/2)-8; y_pos_1 = 8; x_pos_2 = (room_width/2)+8; y_pos_2 = 8; }
+					if (i == 1) { x_pos_1 = room_width-8; y_pos_1 = room_height/2-8; x_pos_2 = room_width-8; y_pos_2 =  room_height/2+8; }
+					if (i == 2) { x_pos_1 = (room_width/2)-8; y_pos_1 = room_height-8; x_pos_2 = (room_width/2)+8; y_pos_2 = room_height-8; }
+					if (i == 3) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
+					
+					if (!current_room.exits[i]) {
+						if (!instance_place(x_pos, y_pos, obj_solid)) {   
+						    instance_create_depth(x_pos_1, y_pos_1, 0, obj_wall);
+						    instance_create_depth(x_pos_2, y_pos_2, 0, obj_wall);
+						}
+					else {
+						with instance_position(x_pos_1, y_pos_1, obj_wall) { instance_destroy(); }
+						with instance_position(x_pos_2, y_pos_2, obj_wall) { instance_destroy(); }
+					}
+				}
+			}
 		}
 		
 		// Create key in room if it should exist

@@ -54,8 +54,15 @@ while (array_length(rooms_with_stairs_spot) > 0) {
 
 // Assign a room reference from possible rooms for each room
 create_room_lists();
+time_provided = 0;
 for (var i = 0; i < array_length(game_rooms); i++) {
    game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
+   var room_difficulty = get_room_difficulty(game_rooms[i].room_reference);
+   var room_time_provided = TIME_PROVIDED_PER_ROOM;
+   if (room_difficulty == difficulties.easy) { room_time_provided -= 5; }
+   if (room_difficulty == difficulties.hard) { room_time_provided += 15; }
+   if (game_rooms[i].misleading_room) { room_time_provided += 15; }
+   time_provided += room_time_provided;
 }
 
 // Lock Random Exits
@@ -163,7 +170,6 @@ with array_random_pop(farthest_rooms) {
 }
 
 // Set up point and time related variables
-time_provided = (array_length(game_rooms) * TIME_PROVIDED_PER_ROOM) + (array_length(locked_exits) * TIME_PROVIEDED_PER_LOCK);
 time_remaining = time_provided;
 
 // Create player object and change room to current room's referenced room

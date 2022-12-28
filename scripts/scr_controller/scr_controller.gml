@@ -423,14 +423,9 @@ function game_room_start() {
 					if (i == 2) { x_pos_1 = (room_width/2)-8; y_pos_1 = room_height-8; x_pos_2 = (room_width/2)+8; y_pos_2 = room_height-8; }
 					if (i == 3) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
 					
-					if (!current_room.exits[i]) {
-						if (!instance_place(x_pos, y_pos, obj_solid)) {   
-						    instance_create_depth(x_pos_1, y_pos_1, 0, obj_wall);
-						    instance_create_depth(x_pos_2, y_pos_2, 0, obj_wall);
-						}
-					else {
-						with instance_position(x_pos_1, y_pos_1, obj_wall) { instance_destroy(); }
-						with instance_position(x_pos_2, y_pos_2, obj_wall) { instance_destroy(); }
+					if (!current_room.exits[i] && !instance_place(x_pos, y_pos, obj_solid)) {   
+						instance_create_depth(x_pos_1, y_pos_1, 0, obj_wall);
+						instance_create_depth(x_pos_2, y_pos_2, 0, obj_wall);
 					}
 				}
 			}

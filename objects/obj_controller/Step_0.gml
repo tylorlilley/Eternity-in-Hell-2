@@ -56,7 +56,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	// Restart game if necessary
 	if key_enter_released { 
 		play_sound(snd_move, false);
-		if (game_has_been_won() && global.difficulty == difficulties.very_hard) { 
+		if (game_has_been_won() && global.difficulty >= difficulties.hard) { 
 			ini_open("farmer_mode_unlocked.ini");
 			ini_write_string("modes", "farmer", true);
 			ini_close();

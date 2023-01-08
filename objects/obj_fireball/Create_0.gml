@@ -7,7 +7,7 @@ image_speed = one_unit_of_game_time();
 // Create Deathbox
 death_box = instance_create_depth(x, y, 5, obj_death);
 death_box.death_sound = snd_torchlight;
-death_box.stopped_by_special_rosary = true;
+death_box.lava = true;
 death_box.visible = false;
 death_box.image_blend = c_teal;
 death_box.image_xscale = 0.5;

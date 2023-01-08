@@ -55,3 +55,10 @@ function make_item_special() {
 		sprite_index = spr_special_torch; 
 	}
 }
+
+/// @function								thump();
+function thump() {
+	thump_timer -= 1;
+	if (thump_timer == 15) { play_sound(snd_thump, false); image_index = 1; }
+	if (thump_timer == 0) { thump_timer = 120; image_index = 0; }
+}

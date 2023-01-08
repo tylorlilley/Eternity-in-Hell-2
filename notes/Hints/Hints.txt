@@ -1,0 +1,58 @@
+Died in < 4 rooms
+
+Held Rosary but Restarted before Respawn
+Held Meat but never dropped it
+Held Meat but dropped it in room with no effected enemies
+Held Map but didn't look at it
+
+Encountered a "Trap" room with blocked exit
+
+Collected Nothing
+Collected Everything
+Found Heart
+Held Heart
+
+Found red key
+Found red sword
+Found red map
+Found red torch
+Found red rosary
+
+Thief stole key
+Killed by Respawn
+Killed by Eyes
+Killed by Bumper
+Killed by Mouth
+Killed by Skeleton
+Killed by Red Eye Skeleton
+Killed by Trap Skeleton
+Killed by Ears
+Killed by Phantom
+Killed by Fireball
+Killed by Lava
+Killed by Snake
+Killed by Giant Worm
+Killed by Echo
+
+Torch burnt out and not re-lit
+
+Explain torches and lanterns lit by fireball
+Explain refilling torches at lanterns when torch is lit
+Explain return to start to remove echo?
+Explain to look under moveable stones?
+Explain that moveable stones respawn if not destroyed?
+Explain Spiders Nesting (only showing up sometimes)
+Explain bush rustling indicates someone there
+Explain bush sometimes rustles in the wind
+Explain carrying two torches at once
+Explain Rosary adding a little Light
+Explain how using keys can get you stuck
+Explain how not every key has a door
+Explain Zig Zag to avoid Spiders
+Explain Light to Banish Phantom
+Explain red items
+Explain stairs?
+Explain moveable block?
+
+
+

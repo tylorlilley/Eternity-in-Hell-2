@@ -12,5 +12,6 @@ hidden = false;
 
 // Create initial carried torch
 carried_items = [noone, noone, noone, noone, noone];
-with create_item_in_hand(directions.left, obj_torch) { light_torch(noone, true); }
-//with create_item_in_hand(directions.right, obj_meat) { special = false; image_index = 0; }
+//with create_item_in_hand(directions.left, obj_torch) { light_torch(noone, true); }
+with create_item_in_hand(directions.left, obj_amulet) { special = false; }
+with create_item_in_hand(directions.right, obj_heart) { special = false; image_index = 0; }

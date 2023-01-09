@@ -59,10 +59,10 @@ function can_move_in_direction(dir, ignore_solid, ignore_death) {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function direction_is_free(dir, ignore_solid, ignore_death) {
-	return ((dir == directions.up && (ignore_death || !instance_place(x, y-8, obj_death)) && (ignore_solid || !instance_place(x, y-8, obj_solid)) && (object_index == obj_player || y-8 > 0)) ||
-	    (dir == directions.down && (ignore_death || !instance_place(x, y+8, obj_death)) && (ignore_solid || !instance_place(x, y+8, obj_solid)) && (object_index == obj_player || y+8 < room_height)) ||
-	    (dir == directions.left && (ignore_death || !instance_place(x-8, y, obj_death)) && (ignore_solid || !instance_place(x-8, y, obj_solid)) && (object_index == obj_player || x-8 > 0)) ||
-	    (dir == directions.right && (ignore_death || !instance_place(x+8, y, obj_death))&& (ignore_solid || !instance_place(x+8, y, obj_solid)) && (object_index == obj_player || x+8 < room_width)));
+	return ((dir == directions.up && (ignore_death || !instance_place(x, y-8, obj_death)) && (ignore_solid || !instance_place(x, y-8, obj_solid)) && ((object_index == obj_player && !instance_place(x, y, obj_solid)) || y-8 > 0)) ||
+	    (dir == directions.down && (ignore_death || !instance_place(x, y+8, obj_death)) && (ignore_solid || !instance_place(x, y+8, obj_solid)) && ((object_index == obj_player && !instance_place(x, y, obj_solid)) || y+8 < room_height)) ||
+	    (dir == directions.left && (ignore_death || !instance_place(x-8, y, obj_death)) && (ignore_solid || !instance_place(x-8, y, obj_solid)) && ((object_index == obj_player && !instance_place(x, y, obj_solid)) || x-8 > 0)) ||
+	    (dir == directions.right && (ignore_death || !instance_place(x+8, y, obj_death))&& (ignore_solid || !instance_place(x+8, y, obj_solid)) && ((object_index == obj_player && !instance_place(x, y, obj_solid)) || x+8 < room_width)));
 }
 
 /// @function								can_move_in_direction_and_reach(dir, ignore_solid);
@@ -104,7 +104,7 @@ function set_instance_to_same_position(instance) {
 	with instance { 
 	    x = other.x; 
 	    y = other.y; 
-	    image_xscale = other.image_xscale; 
+	    //image_xscale = other.image_xscale; 
 	}
 }
 
@@ -116,7 +116,11 @@ function audio_play_sound_for_object_only_once(sound_to_play) {
 
 /// @function								pushed_against_by_player(key_pressed_only);
 function pushed_against_by_player(key_pressed_only) {
-	if (global.player.dead || global.controller.key_space) { return noone; }
+	var carried_amulet = noone;
+	with (global.player) { carried_amulet = get_carried_item_of_type(obj_amulet); }
+	var has_special_amulet = (carried_amulet != noone && carried_amulet.special);
+	
+	if (global.player.dead || global.controller.key_space || has_special_amulet) { return noone; }
 	if (instance_at_coordinates(global.player.x_prev, global.player.y_prev-16, self) && (global.controller.key_up_pressed || (!key_pressed_only && global.controller.key_up))) { return directions.up; }
 	else if (instance_at_coordinates(global.player.x_prev, global.player.y_prev+16, self) && (global.controller.key_down_pressed || (!key_pressed_only && global.controller.key_down))) { return directions.down; }
 	else if (instance_at_coordinates(global.player.x_prev-16, global.player.y_prev, self) && (global.controller.key_left_pressed || (!key_pressed_only && global.controller.key_left))) { return directions.left; }

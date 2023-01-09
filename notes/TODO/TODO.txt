@@ -1,14 +1,12 @@
 way to add time; 
-don't switch sides when turning around; 
+
 multiple sound cueues; 
-open chests with full hands; 
+
 mark rooms whose exits can be blocked or unblocked; 
-fireball spell; 
-keep statues off if blocked once; 
+
 spiders stop chasing you for some reason?
-46882062 open door into wall; doors that kill you?; 
+
 continuous push; 
-fire protection ring
 
 
 

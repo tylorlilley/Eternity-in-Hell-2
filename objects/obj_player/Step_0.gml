@@ -1,11 +1,11 @@
 if (process_this_frame()) {
+	var carried_amulet = get_carried_item_of_type(obj_amulet);
+	var has_special_amulet = (carried_amulet != noone && carried_amulet.special);
 	x_prev = x;
 	y_prev = y;
+	opened_door_this_frame = false;
 
-	if (instance_place(x, y, obj_solid) && !dead) { 
-		var carried_amulet = get_carried_item_of_type(obj_amulet)
-		if !(carried_amulet.special) { kill_player(); }
-	}
+	if (instance_place(x, y, obj_solid) && !dead && !has_special_amulet) { kill_player(); }
 	if (!dead && !game_has_been_won() && !game_has_been_lost()) {   
 	    // Get input from player
 	    var dir = -1; 
@@ -21,17 +21,21 @@ if (process_this_frame()) {
 		if (pause_movement > 0) { pause_movement -= 1; }
 		else if !global.controller.key_space {
 			// Handle inventory management
+			if (global.controller.key_z_pressed) { pick_up_or_drop_item(directions.left) }
+			if (global.controller.key_x_pressed) { pick_up_or_drop_item(directions.right) }
+			/*
 			if (global.controller.key_z_pressed && image_xscale == 1) ||
-			   (global.controller.key_x_pressed && image_xscale == -1) { 
+			   || (global.controller.key_x_pressed && image_xscale == -1) { 
 					pick_up_or_drop_item(directions.left)
 			}
 			if (global.controller.key_z_pressed && image_xscale == -1) ||
 			   (global.controller.key_x_pressed && image_xscale == 1) { 
 					pick_up_or_drop_item(directions.right)
 			}
+			*/
 			
 		    // Move player in chosen direction if possible
-		    if (can_move_in_direction(dir, false, true)) { move_player(dir); }
+		    if (can_move_in_direction(dir, false, true) || (has_special_amulet && can_move_in_direction(dir, true, true) )) { move_player(dir); }
 		}
 		
 		// Increase lighting range if carrying a rosary

@@ -53,6 +53,13 @@ function extinguish_torch() {
 function interact_with_other_torches() {
 	var actively_lit = false, torches = instance_place_all(x, y, obj_torch);
 	
+	// Light torches from lava
+	var lava = instance_place(x, y, obj_lava);
+	if (lava != noone) {
+		light_torch(noone, true);	
+		actively_lit = true;
+	}
+	
 	// Cycle through and interact with each carried torch on this object
 	while (array_length(torches) > 0) {
 		var other_torch = array_random_pop(torches);

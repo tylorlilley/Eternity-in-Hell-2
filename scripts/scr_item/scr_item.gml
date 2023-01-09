@@ -17,16 +17,23 @@ function pick_up_item(dir, make_noise, new_holder) {
 	holder = new_holder
 	holder.carried_items[dir] = id;
 	persistent = holder.persistent;
-	image_xscale = holder.image_xscale;
+	image_xscale = (dir == directions.left) ? 1 : -1;
 	carried = dir;
 	depth = -10;
-	if (!has_been_carried) {
+	if (has_been_carried) {
+			if (object_index == obj_bomb) {
+				if (fuse_timer != 0) { play_sound(snd_hiss, false); }
+				fuse_timer = 4*irandom_range(5,8); 
+			}
+	}
+	else {
 		has_been_carried = true;
 		if (holder == global.player) {
 			if (object_index == obj_key) { global.controller.current_room.has_key = false; }
 			else if (object_index == obj_heart) { global.controller.completion_amount += 1; }
 		}
 	}
+
 }
 
 /// @function								drop_item();
@@ -59,6 +66,6 @@ function make_item_special() {
 /// @function								thump();
 function thump() {
 	thump_timer -= 1;
-	if (thump_timer == 15) { play_sound(snd_thump, false); image_index = 1; }
-	if (thump_timer == 0) { thump_timer = 120; image_index = 0; }
+	if (thump_timer == 3) { play_sound(snd_thump, false); image_index = 1; }
+	if (thump_timer == 0) { thump_timer = 12; image_index = 0; }
 }

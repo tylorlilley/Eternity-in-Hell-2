@@ -3,8 +3,8 @@
   "resourceVersion": "1.0",
   "name": "obj_amulet",
   "spriteId": {
-    "name": "spr_amulet",
-    "path": "sprites/spr_amulet/spr_amulet.yy",
+    "name": "spr_staff",
+    "path": "sprites/spr_staff/spr_staff.yy",
   },
   "solid": false,
   "visible": true,

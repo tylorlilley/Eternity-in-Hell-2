@@ -183,9 +183,12 @@ function initialize_game_variables() {
 	rooms_with_torch = array_create(0);
 	rooms_with_key = array_create(0);
 	rooms_with_sword = array_create(0);
+	rooms_with_amulet = array_create(0);
+	rooms_with_bomb = array_create(0);
 	rooms_with_meat = array_create(0);
 	rooms_with_map = array_create(0);
 	rooms_with_rosary = array_create(0);
+	mapped_rooms = array_create(0);
 
 	// initialize game state values
 	current_room = noone;
@@ -483,6 +486,7 @@ function game_room_start() {
 	
 		// Mark room as one that has been visited at some point during this game
 		current_room.visited = true;
+		array_push(mapped_rooms, current_room);
 		
 		// Spawn some dirt
 		var dirt_to_spawn = irandom(DIRT_PROBABILITY*2) - DIRT_PROBABILITY;

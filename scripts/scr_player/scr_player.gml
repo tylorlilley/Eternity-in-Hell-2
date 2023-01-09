@@ -16,8 +16,6 @@ function move_player(dir) {
 				if (carried_items[i].object_index == obj_torch) { set_instance_to_same_position(carried_items[i].light_source); }
 			}
 		}
-		// Open Doors
-		with (instance_place(x, y, obj_door)) { open_door(); }
 	}
 }
 

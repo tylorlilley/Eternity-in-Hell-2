@@ -28,7 +28,7 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"47a57cc7-4476-4f68-9a20-cc6d38e4d3b3",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"53c4a489-92c5-47ec-a159-b392e2561f49",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"a235eaa7-73c8-4d2e-9df5-cba95503eb76",},
   ],
   "sequence": {
@@ -46,8 +46,8 @@
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
-            {"id":"eaf371ca-169e-4bb7-8a7f-4177ce0f4e03","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"47a57cc7-4476-4f68-9a20-cc6d38e4d3b3","path":"sprites/spr_amulet/spr_amulet.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-            {"id":"097db00e-cbec-492d-91ea-cc5d41e23232","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"a235eaa7-73c8-4d2e-9df5-cba95503eb76","path":"sprites/spr_amulet/spr_amulet.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"abc639ba-e208-4f54-ba7c-dee07146972b","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"53c4a489-92c5-47ec-a159-b392e2561f49","path":"sprites/spr_amulet/spr_amulet.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"796de102-fc45-4870-b322-ad41e37b3d8b","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"a235eaa7-73c8-4d2e-9df5-cba95503eb76","path":"sprites/spr_amulet/spr_amulet.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
           ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,

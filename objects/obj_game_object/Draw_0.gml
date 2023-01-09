@@ -20,4 +20,7 @@ if (sprite_index) {
             if (!bush || bush.id != self.id) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1); }
         }
     }
+	
+	
+    if (object_index == obj_player) { draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
 }

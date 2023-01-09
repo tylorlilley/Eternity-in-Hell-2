@@ -7,9 +7,11 @@ if (process_this_frame()) {
 		if (push_direction != noone) {
 			var carried_key = get_carried_item_of_type(obj_key);
 		    if (locked && !carried_key) { play_sound(snd_locked, false); }
-		    else { 
+		    else if (!global.player.opened_door_this_frame) {
+				global.player.opened_door_this_frame = true;
 				play_sound(snd_open, true);
-				move_player(push_direction); 
+				move_player(push_direction);
+				open_door();
 			}
 		}
 	}

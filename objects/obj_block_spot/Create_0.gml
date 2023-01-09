@@ -8,7 +8,7 @@ if get_random_chance_out_of(32) {
 		case 3: { item = obj_map; break; }
 		case 4: { item = obj_blood; break; }
 		case 5: { item = obj_rosary; break; }
-		//case 6: { item = obj_lantern; break; }
+		case 6: { item = obj_amulet; break; }
 		default: { item = obj_bones; break; }
 	}
 	instance_create_depth(x, y, 4, item);

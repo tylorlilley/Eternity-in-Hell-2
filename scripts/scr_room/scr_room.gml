@@ -52,15 +52,15 @@ function GameRoom(given_x, given_y) constructor {
 			stairs_spot_obj = obj_chest;
 			//if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
 
-			var rand = irandom(6);
-			switch rand {
-				case 0: { item_type = obj_rosary; array_push(global.controller.rooms_with_rosary, self); break; }
-				case 1: { item_type = obj_map; array_push(global.controller.rooms_with_map, self); break; }
-				case 2: { item_type = obj_sword; array_push(global.controller.rooms_with_sword, self); break; }
-				case 3: { item_type = obj_meat; array_push(global.controller.rooms_with_meat, self); break; }
+			var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 6;
+			switch (irandom(available_item_types)) {
+				case 0: { item_type = obj_torch; array_push(global.controller.rooms_with_torch, self); break; }
+				case 1: { item_type = obj_sword; array_push(global.controller.rooms_with_sword, self); break; }
+				case 2: { item_type = obj_map; array_push(global.controller.rooms_with_map, self); break; }
+				case 3: { item_type = obj_rosary; array_push(global.controller.rooms_with_rosary, self); break; }
 				case 4: { item_type = obj_amulet; array_push(global.controller.rooms_with_amulet, self); break; }
 				case 5: { item_type = obj_bomb; array_push(global.controller.rooms_with_bomb, self); break; }
-				default: { item_type = obj_torch; array_push(global.controller.rooms_with_torch, self); break; }
+				case 6: { item_type = obj_meat; array_push(global.controller.rooms_with_meat, self); break; }
 			}
 		}
 		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; array_push(global.controller.rooms_with_key, self); }

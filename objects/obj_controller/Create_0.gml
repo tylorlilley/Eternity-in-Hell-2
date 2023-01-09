@@ -176,7 +176,7 @@ time_remaining = time_provided;
 
 // Create player object and change room to current room's referenced room
 current_room.stairs_spot_obj = obj_cross;
-global.player = instance_create_depth(0, 0, -10, obj_player);
+global.player = instance_create_depth(8, 8, -10, obj_player);
 current_room.go_to_room();
 show_debug_message("SEED: "+string(random_get_seed()));
 

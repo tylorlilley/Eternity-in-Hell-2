@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_dread",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.5,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_dread",
-  "duration": 1.79178,
+  "duration": 1.78678,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_dread",
-  "tags": [],
-  "resourceType": "GMSound",
 }

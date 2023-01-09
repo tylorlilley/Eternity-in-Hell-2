@@ -42,7 +42,7 @@ function teleport_near_player() {
 	    x = global.player.x + x_pos;
 	    y = global.player.y + y_pos;
 	}
-	until (distance_to_instance(global.player) >= 24 && y >= 0 && y <= room_height && x >= 0 && x <= room_width);
+	until (distance_to_instance(global.player) >= 24 && !position_is_outside_room(x,y));
 }
 
 
@@ -59,10 +59,50 @@ function can_move_in_direction(dir, ignore_solid, ignore_death) {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function direction_is_free(dir, ignore_solid, ignore_death) {
-	return ((dir == directions.up && (ignore_death || !instance_place(x, y-8, obj_death)) && (ignore_solid || !instance_place(x, y-8, obj_solid)) && ((object_index == obj_player && !instance_place(x, y, obj_solid)) || y-8 > 0)) ||
-	    (dir == directions.down && (ignore_death || !instance_place(x, y+8, obj_death)) && (ignore_solid || !instance_place(x, y+8, obj_solid)) && ((object_index == obj_player && !instance_place(x, y, obj_solid)) || y+8 < room_height)) ||
-	    (dir == directions.left && (ignore_death || !instance_place(x-8, y, obj_death)) && (ignore_solid || !instance_place(x-8, y, obj_solid)) && ((object_index == obj_player && !instance_place(x, y, obj_solid)) || x-8 > 0)) ||
-	    (dir == directions.right && (ignore_death || !instance_place(x+8, y, obj_death))&& (ignore_solid || !instance_place(x+8, y, obj_solid)) && ((object_index == obj_player && !instance_place(x, y, obj_solid)) || x+8 < room_width)));
+	var x_pos = x, y_pos = y;
+	switch (dir) {
+		case directions.up: { y_pos -= 8; break; }
+		case directions.right: { x_pos += 8; break; }
+		case directions.down: { y_pos += 8; break; }
+		case directions.left: { x_pos -= 8; break; }
+		default: { return false; }
+	}
+	
+	// Set up general variables for blocking the given direction
+	var blocked_by_room_boundry = position_is_outside_room(x_pos, y_pos);
+	var blocked_by_solid = (!ignore_solid && instance_place(x_pos, y_pos, obj_solid));
+	var blocked_by_death = (!ignore_death && instance_place(x_pos, y_pos, obj_death));
+	
+	if (object_index == obj_player) {
+		// Allow player to not be blocked by walls and columns if they are carrying the special amulet
+		var carried_amulet = get_carried_item_of_type(obj_amulet);
+		var has_special_amulet = (carried_amulet != noone && carried_amulet.special);
+		
+		if (has_special_amulet) {
+			blocked_by_solid = false;
+			var blocking_solids = instance_place_all(x_pos, y_pos, obj_solid);
+			while (array_length(blocking_solids) > 0) {
+				var current_solid = array_random_pop(blocking_solids);
+				if (current_solid.object_index != obj_wall && current_solid.object_index != obj_column) {
+					blocked_by_solid = true;
+					break;
+				}
+			}
+		}
+		
+		// Allow the player to move outside the room if they aren't currently on a solid object
+		if (!instance_place(x, y, obj_solid)) { blocked_by_room_boundry = false; }
+	}
+	
+	// return whether the direction is blocked
+	return (!blocked_by_room_boundry && !blocked_by_solid && !blocked_by_death);
+}
+
+/// @function								position_is_outside_room(x_pos, y_pos);
+/// @param		{int}	x_pos				The x position to check
+/// @param		{int}	y_pos				The y position to check
+function position_is_outside_room(x_pos, y_pos) {
+	return (x_pos <= 0 || x_pos >= room_width || y_pos <= 0 || y_pos >= room_height);
 }
 
 /// @function								can_move_in_direction_and_reach(dir, ignore_solid);
@@ -116,11 +156,7 @@ function audio_play_sound_for_object_only_once(sound_to_play) {
 
 /// @function								pushed_against_by_player(key_pressed_only);
 function pushed_against_by_player(key_pressed_only) {
-	var carried_amulet = noone;
-	with (global.player) { carried_amulet = get_carried_item_of_type(obj_amulet); }
-	var has_special_amulet = (carried_amulet != noone && carried_amulet.special);
-	
-	if (global.player.dead || global.controller.key_space || has_special_amulet) { return noone; }
+	if (global.player.dead || global.controller.key_space) { return noone; }
 	if (instance_at_coordinates(global.player.x_prev, global.player.y_prev-16, self) && (global.controller.key_up_pressed || (!key_pressed_only && global.controller.key_up))) { return directions.up; }
 	else if (instance_at_coordinates(global.player.x_prev, global.player.y_prev+16, self) && (global.controller.key_down_pressed || (!key_pressed_only && global.controller.key_down))) { return directions.down; }
 	else if (instance_at_coordinates(global.player.x_prev-16, global.player.y_prev, self) && (global.controller.key_left_pressed || (!key_pressed_only && global.controller.key_left))) { return directions.left; }

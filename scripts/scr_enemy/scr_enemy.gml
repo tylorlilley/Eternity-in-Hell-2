@@ -21,7 +21,8 @@ function teleport_to_empty_space() {
 	until (!instance_place(x, y, obj_solid) && 
 			!instance_place(x, y, obj_death) && 
 			!instance_place(x, y, obj_stairs_spot) && 
-			!instance_place(x, y, obj_player) && 
+			!instance_place(x, y, obj_player) &&
+			!position_is_outside_room(x, y) &&
 			distance_to_instance(global.player) >= MOUTH_DISTANCE);
 }
 
@@ -33,7 +34,7 @@ function teleport_to_lava() {
 		y = irandom(room_height/8)*8;
 		var lava_at_quadrant = get_presence_at_each_quadrant(obj_lava);
 	}
-	until (lava_at_quadrant[0] && lava_at_quadrant[1] && lava_at_quadrant[2] && lava_at_quadrant[3]);
+	until (!position_is_outside_room(x, y) && lava_at_quadrant[0] && lava_at_quadrant[1] && lava_at_quadrant[2] && lava_at_quadrant[3]);
 }
 
 /// @function								shoot_fireball()
@@ -47,13 +48,12 @@ function shoot_fireball(target_x, target_y) {
 /// @function								try_to_see_player();
 function try_to_see_player() {
 	
-	var target = noone;
-	if (!global.player.dead && !global.player.hidden) { target = global.player; }
-	var dropped_meat = noone;
+	var target = noone, dropped_meat = noone;
+	if (!global.player.dead) { target = global.player; }
 	with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
 	
 	if (state != SCREECHING) {
-		var new_dir = noone;
+		var new_dir = noone, offset = (state == ATTACKING) ? 8 : 0
 		
 		if (dropped_meat != noone) {
 			new_dir = get_random_possible_direction(dropped_meat.x, dropped_meat.y, false, true);
@@ -61,13 +61,13 @@ function try_to_see_player() {
 		}
 			
 		if (target == global.player) {   
-			if (target.x == x) {
+			if (target.x - offset <= x && target.x + offset >= x) {
 			    if (target.y > y) { new_dir = directions.down; }
-			    else { new_dir = directions.up; }
+			    else if (target.y < y) { new_dir = directions.up; }
 			}
-			else if (target.y == y) {
+			else if (target.y - offset <= y && target.y + offset >= y) {
 			    if (target.x > x) { new_dir = directions.right; }
-			    else { new_dir = directions.left; }
+			    else if (target.x < x) { new_dir = directions.left; }
 			}
 		}
 			

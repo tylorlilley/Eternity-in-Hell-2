@@ -13,6 +13,5 @@ death_sound = snd_crunch;
 WAITING = 0;
 SCREECHING = 1;
 ATTACKING = 2;
-MEAT = 3;
 state = WAITING;
 dir = -1;

@@ -24,9 +24,7 @@ function move_player(dir) {
 function pick_up_or_drop_item(dir) {
 	if (carried_items[dir]) {
 		if (carried_items[dir].object_index == obj_meat) {
-			var spider = noone;
-			with (obj_spider) { if (visible) { spider = self; } }
-			with (spider) { audio_play_sound_for_object_only_once(snd_lose); }
+			with (obj_spider) { if (lethal) { audio_play_sound_for_object_only_once(snd_lose); } }
 		}
 		// Drop Item and alert one obj_hands to come grab it
 		var possible_hands = array_create(0);

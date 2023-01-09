@@ -16,7 +16,7 @@ if (process_this_frame()) {
 	
 	// Destroy self and/or enemy when pushed onto an enemy
 	var enemy = instance_place(x, y, obj_enemy);
-	if (enemy && instance_at_coordinates(x, y, enemy)) {
+	if (enemy != noone && enemy.visible && instance_at_coordinates(x, y, enemy)) {
 		if enemy.consume_block { instance_destroy(); }
 		if enemy.consumed_by_block { with enemy { kill_enemy(); } }
 	}

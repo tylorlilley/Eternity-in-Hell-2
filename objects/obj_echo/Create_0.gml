@@ -6,6 +6,7 @@ image_blend = c_black;
 
 killable_by_sword = true;
 consumed_by_block = false;
+corporeal = false;
 consumed_by_lava = true;
 death_sound = snd_lose;
 

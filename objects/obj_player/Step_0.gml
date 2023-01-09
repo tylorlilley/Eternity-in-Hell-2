@@ -35,7 +35,7 @@ if (process_this_frame()) {
 			*/
 			
 		    // Move player in chosen direction if possible
-		    if (can_move_in_direction(dir, false, true) || (has_special_amulet && can_move_in_direction(dir, true, true) )) { move_player(dir); }
+		    if (can_move_in_direction(dir, false, true)) { move_player(dir); }
 		}
 		
 		// Increase lighting range if carrying a rosary

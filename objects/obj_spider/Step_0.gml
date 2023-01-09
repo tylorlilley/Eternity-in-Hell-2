@@ -1,7 +1,7 @@
 if (process_this_frame()) {
-	visible = lethal
+	visible = lethal;
 
-	if lethal {
+	if lethal {		
 		// Turn to face the player and begin Screeching if player is in view
 		try_to_see_player();
 		
@@ -20,7 +20,10 @@ if (process_this_frame()) {
 			state = WAITING;
 			dir = -1;
 		}
-    
+		
+		// Turn to face the player and begin Screeching if player is in view
+		try_to_see_player();
+
 	    event_inherited();
 	}
 }

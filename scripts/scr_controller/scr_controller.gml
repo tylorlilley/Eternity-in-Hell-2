@@ -473,15 +473,15 @@ function game_room_start() {
 		{
 			// If room is unlit but has the potential to be lit, consider spawning phantom
 			if (instance_number(obj_lantern) > 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
-				instance_create_depth(0, 0, 0, obj_phantom);
+				instance_create_depth(8, 8, 0, obj_phantom);
 			}
 		}
 		
 		// If room has lava, consider spawning nose
-		if (instance_number(obj_lava) > 0 && get_random_chance_out_of(1)) { 
-			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(0, 0, 0, obj_nose); }
-			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(0, 0, 0, obj_nose); }
-			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(0, 0, 0, obj_nose); }
+		if (instance_number(obj_lava) > 0 && !get_random_chance_out_of(4)) { 
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
 		}
 	
 		// Mark room as one that has been visited at some point during this game
@@ -538,7 +538,7 @@ function game_room_start() {
 	with (obj_bones) { if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(32-global.difficulty)); } }
 	with (obj_worm) { dir = -1; audio_play_sound_for_object_only_once(snd_hiss); }
 	with (obj_mouth) { audio_play_sound_for_object_only_once(snd_squelch); teleport_to_empty_space(); }
-	with (obj_eyes) { audio_play_sound_for_object_only_once(snd_flicker); teleport_near_player(); audio_play_sound_for_object_only_once(snd_bumper_room); }
+	with (obj_eyes) { audio_play_sound_for_object_only_once(snd_flicker); teleport_near_player(); audio_play_sound_for_object_only_once(snd_whisper); }
 	with (obj_bumper) { lethal = false; trap = true; visible = false; }
 	with (obj_ears) { awake = false; target_x = x; target_y = y; }
 	with (obj_nose) {

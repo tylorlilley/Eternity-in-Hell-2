@@ -23,7 +23,7 @@ function pick_up_item(dir, make_noise, new_holder) {
 	if (has_been_carried) {
 			if (object_index == obj_bomb) {
 				if (fuse_timer != 0) { play_sound(snd_hiss, false); }
-				fuse_timer = 4*irandom_range(5,8); 
+				fuse_timer = 0; 
 			}
 	}
 	else {

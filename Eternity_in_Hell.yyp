@@ -285,6 +285,7 @@
     {"id":{"name":"rm_one_exit_19","path":"rooms/rm_one_exit_19/rm_one_exit_19.yy",},"order":17,},
     {"id":{"name":"rm_one_exit_17","path":"rooms/rm_one_exit_17/rm_one_exit_17.yy",},"order":21,},
     {"id":{"name":"snd_thump","path":"sounds/snd_thump/snd_thump.yy",},"order":58,},
+    {"id":{"name":"spr_bomb_farmer","path":"sprites/spr_bomb_farmer/spr_bomb_farmer.yy",},"order":78,},
     {"id":{"name":"rm_unused_1","path":"rooms/rm_unused_1/rm_unused_1.yy",},"order":23,},
     {"id":{"name":"rm_two_opposite_exits_7","path":"rooms/rm_two_opposite_exits_7/rm_two_opposite_exits_7.yy",},"order":6,},
     {"id":{"name":"rm_two_opposite_exits_8","path":"rooms/rm_two_opposite_exits_8/rm_two_opposite_exits_8.yy",},"order":7,},

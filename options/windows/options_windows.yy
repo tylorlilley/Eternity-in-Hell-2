@@ -4,7 +4,7 @@
   "name": "Windows",
   "option_windows_display_name": "EIH",
   "option_windows_executable_name": "${project_name}",
-  "option_windows_version": "1.0.0.2",
+  "option_windows_version": "1.0.0.4",
   "option_windows_company_info": "Tylor Lilley",
   "option_windows_product_info": "EIH",
   "option_windows_copyright_info": "2020",

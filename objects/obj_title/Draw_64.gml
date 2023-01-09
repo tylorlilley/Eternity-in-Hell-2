@@ -31,8 +31,8 @@ else {
 	
 	// Draw farmer mode selection
 	if (blink && pos == -1) {
-		if (global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 64, room_height/4, 1, 1, 1, c_white, 1); }
-		if (!global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 64, room_height/4, -1, 1, 1, c_white, 1); }
+		if (global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, room_width/4, room_height/4, 1, 1, 0, c_white, 1); }
+		if (!global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4, room_height/4, -1, 1, 0, c_white, 1); }
 	}
 	var title_background = layer_background_get_id("background");
 	layer_background_sprite(title_background, (global.FARM_MODE) ? bg_title_farmer : bg_title)
@@ -40,22 +40,22 @@ else {
 	// Draw difficulty selection
 	draw_text(room_width/2, room_height/2, difficulty_string());
 	if (blink && pos == 0) {
-		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2, 1, 1, 1, c_white, 1); }
-		if (global.difficulty < difficulties.very_hard) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2, -1, 1, 1, c_white, 1); }
+		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2, 1, 1, 0, c_white, 1); }
+		if (global.difficulty < difficulties.very_hard) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2, -1, 1, 0, c_white, 1); }
 	}
 
 	// Draw seed selection
 	draw_text(room_width/2, room_height/2+16, seed_option_string());
 	if (blink && pos == 1) {
-		if (global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2 + 16, 1, 1, 1, c_white, 1); }
-		if (global.seed_option < seed_options.specified) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2 + 16, -1, 1, 1, c_white, 1); }
+		if (global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2 + 16, 1, 1, 0, c_white, 1); }
+		if (global.seed_option < seed_options.specified) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2 + 16, -1, 1, 0, c_white, 1); }
 	}
 
 	// Draw seed
 	if (global.seed_option == seed_options.specified) { draw_text(room_width/2, room_height/2+32, zero_padded_string(current_seed, 9)); }
 	if (blink && pos == 2) {
-		if (current_seed < 99999999) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2 + 32, -1, 1, 1, c_white, 1); }
-	    if (current_seed > 0) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2 + 32, 1, 1, 1, c_white, 1); }
+		if (current_seed < 99999999) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2 + 32, -1, 1, 0, c_white, 1); }
+	    if (current_seed > 0) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2 + 32, 1, 1, 0, c_white, 1); }
 	}
 	
 	// Draw Settings Switch Messages

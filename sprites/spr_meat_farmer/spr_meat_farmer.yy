@@ -1,7 +1,7 @@
 {
   "resourceType": "GMSprite",
   "resourceVersion": "1.0",
-  "name": "spr_bomb_farmer",
+  "name": "spr_meat_farmer",
   "bboxMode": 0,
   "collisionKind": 1,
   "type": 0,
@@ -10,10 +10,10 @@
   "edgeFiltering": false,
   "collisionTolerance": 0,
   "swfPrecision": 2.525,
-  "bbox_left": 4,
-  "bbox_right": 10,
-  "bbox_top": 0,
-  "bbox_bottom": 12,
+  "bbox_left": 2,
+  "bbox_right": 13,
+  "bbox_top": 5,
+  "bbox_bottom": 13,
   "HTile": false,
   "VTile": false,
   "For3D": false,
@@ -28,13 +28,13 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"c8a0a8cd-cc9d-4e22-8fff-cfe4bd965ecd",},
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"baa94569-fbda-4f5b-a2cf-83381ee75c22",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"e3f9ea44-0cd6-415e-b867-21abc6f317a0",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"c754d890-8b08-4c07-8dce-5f7fb10f7f10",},
   ],
   "sequence": {
     "resourceType": "GMSequence",
     "resourceVersion": "1.4",
-    "name": "spr_bomb_farmer",
+    "name": "spr_meat_farmer",
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 1.0,
@@ -46,8 +46,8 @@
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
-            {"id":"08f1ca15-5c14-4c1b-9276-5cdd8ca6b800","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"c8a0a8cd-cc9d-4e22-8fff-cfe4bd965ecd","path":"sprites/spr_bomb_farmer/spr_bomb_farmer.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-            {"id":"a5f3cadf-fb70-4394-a28f-33aa3487bc26","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"baa94569-fbda-4f5b-a2cf-83381ee75c22","path":"sprites/spr_bomb_farmer/spr_bomb_farmer.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"827f7ac1-2fe4-4777-a3c7-8a0cc7926550","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"e3f9ea44-0cd6-415e-b867-21abc6f317a0","path":"sprites/spr_meat_farmer/spr_meat_farmer.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"d81cc869-fbcb-4dd3-99a7-5ea1ea02dbe2","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"c754d890-8b08-4c07-8dce-5f7fb10f7f10","path":"sprites/spr_meat_farmer/spr_meat_farmer.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
           ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
@@ -66,7 +66,7 @@
     "eventStubScript": null,
   },
   "layers": [
-    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"ddfbbe9a-3793-49b9-830f-4bc49bc36e19","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"d14e8515-e254-4047-a979-e64abe989da8","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {

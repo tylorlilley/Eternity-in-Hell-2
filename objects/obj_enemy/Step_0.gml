@@ -7,12 +7,9 @@ if (process_this_frame()) {
 	}
 	else {
 		// Destroy self if completely covered by lava
-		if (consumed_by_lava) {
-			var lava_at_quadrant = lava_at_position();
-			if (lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone) {
-				play_sound(snd_extinguish, true);
-				kill_enemy();
-			}
+		if (consumed_by_lava && lava_at_all_quadrants()) {
+			play_sound(snd_extinguish, true);
+			kill_enemy();
 		}
 	}
 	// Fidget Sprite if Eating Meat

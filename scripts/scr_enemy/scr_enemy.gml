@@ -40,11 +40,10 @@ function teleport_to_lava() {
 		else if (instance_place(x, y+8, obj_lava) && get_random_chance_out_of(2)) { y += 8; }
 		var lava_at_quadrant = lava_at_position();
 		var solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
-		var player_at_quadrant = get_presence_at_each_quadrant(obj_player);
+		var player_at_quadrant = get_presence_at_each_quadrant(global.player);
 	}
 	until (count >= 128 || (
-		!position_is_outside_room(x, y) && 
-		lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone &&
+		!position_is_outside_room(x, y) && lava_at_all_quadrants() &&
 		solid_at_quadrant[0] == noone && solid_at_quadrant[1] == noone && solid_at_quadrant[2] == noone && solid_at_quadrant[3] == noone &&
 		player_at_quadrant[0] == noone && player_at_quadrant[1] == noone && player_at_quadrant[2] == noone && player_at_quadrant[3] == noone
 	));
@@ -216,8 +215,8 @@ function move_segments(new_dir) {
 }
 
 /// @function								play_sound();
-///	@param		{Sound}	  snd					The sound to play
-///	@param		{Boolean} loud_soun				Whether the sound is heard by ears or not
+///	@param		{Sound}	  snd				The sound to play
+///	@param		{Boolean} loud_soun			Whether the sound is heard by ears or not
 function play_sound(snd, loud_sound) {
 	audio_play_sound(snd, 10, false);
 	if (loud_sound) {
@@ -232,3 +231,24 @@ function play_sound(snd, loud_sound) {
 	}
 }
 
+/// @function								explode(destroy_self);
+///	@param		{Sound}	  destroy_self		Whether to destroy the calling instance or not
+function explode(destroy_self) {
+	play_sound(snd_explosion, true);
+	shoot_fireball(x-8, y-8);
+	shoot_fireball(x+0, y-8);
+	shoot_fireball(x+8, y-8);
+	shoot_fireball(x-8, y-4);
+	shoot_fireball(x+0, y-4);
+	shoot_fireball(x+8, y-4);
+	shoot_fireball(x-8, y);
+	shoot_fireball(x+0, y);
+	shoot_fireball(x+8, y);
+	shoot_fireball(x-8, y+4);
+	shoot_fireball(x+0, y+4);
+	shoot_fireball(x+8, y+4);
+	shoot_fireball(x-8, y+8);
+	shoot_fireball(x+0, y+8);
+	shoot_fireball(x+8, y+8);
+	if (destroy_self) { instance_destroy(); }
+}

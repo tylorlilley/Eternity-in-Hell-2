@@ -13,10 +13,13 @@ if (process_this_frame()) {
 			image_index = 1;
 		}
 		else if (shoot_timer == 0) {
-			shoot_fireball(global.player.x, global.player.y);
-			visible = false;
-			image_index = 0;
-			spawn_timer = irandom_range(8, 64);
+			if (get_random_chance_out_of(128*global.difficulty)) { explode(true); } 
+			else {
+				shoot_fireball(global.player.x, global.player.y);
+				visible = false;
+				image_index = 0;
+				spawn_timer = irandom_range(8, 64);
+			}
 		}
 	}
 	

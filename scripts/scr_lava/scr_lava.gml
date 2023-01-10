@@ -56,7 +56,7 @@ function lava_at_position() {
 /// @param		{bool} require_all			Only consume whole chunks of lava at once
 function consume_lava(require_all) {
 	var lava_at_quadrant = lava_at_position();
-	if (!require_all || (lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone)) {
+	if (!require_all || lava_at_all_quadrants()) {
 		var consumed = false;
 		for (var i = 0; i <= 3; i++) {
 			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
@@ -69,4 +69,11 @@ function consume_lava(require_all) {
 		}
 	}
 	return false;
+}
+
+/// @ function								consume_lava(require_all);
+/// @param		{bool} require_all			Only consume whole chunks of lava at once
+function lava_at_all_quadrants() {
+	var lava_at_quadrant = lava_at_position()
+	return (lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone);
 }

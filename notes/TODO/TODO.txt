@@ -1,9 +1,8 @@
 Finish fixing drawing lava differently via drawing partial sprites
 Finish eating walls like lava with special staff
+shovel
 Fix giant worm corners
-Make special meat
-Make farmer meat
-Make farmer bomb firework
+Make special meat - poisoned
 rename amulet
 
 BUGFIXES

@@ -492,7 +492,13 @@ function game_room_start() {
 		var dirt_to_spawn = irandom(DIRT_PROBABILITY*2) - DIRT_PROBABILITY;
 		for (var i = 0; i < dirt_to_spawn; i++) {
 			var x_pos = irandom(room_width/8) * 8, y_pos = irandom(room_height/8) * 8
-			instance_create_depth(x_pos, y_pos, 10, obj_dirt);
+			with (instance_create_depth(x_pos, y_pos, 0, obj_dirt)) {
+				var lava_at_coordinates = lava_at_position(), solid_at_coordinates = get_presence_at_each_quadrant(obj_solid);
+				if ((lava_at_coordinates[0] != noone && lava_at_coordinates[1] != noone && lava_at_coordinates[2] != noone && lava_at_coordinates[3] != noone) ||
+					(solid_at_coordinates[0] != noone && solid_at_coordinates[1] != noone && solid_at_coordinates[2] != noone && solid_at_coordinates[3] != noone)) {
+					instance_destroy(self, false);
+				}
+			}
 		}
 	}
 

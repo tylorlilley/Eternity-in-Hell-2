@@ -4,7 +4,7 @@ if (process_this_frame()) {
 	image_xscale = 1;
 	image_angle = direction+270;
 	if (instance_exists(torch)) { torch.image_xscale = 0.5; }
-	if (instance_place(x, y, obj_solid)) { play_sound(snd_thud, false); instance_destroy(); }
+	if (instance_place(x, y, obj_solid)) { play_sound(snd_fuse, false); instance_destroy(); }
 	
 	// Destroy self and enemy when colliding with enemy
 	var enemy = instance_place(x, y, obj_enemy);
@@ -17,6 +17,6 @@ if (process_this_frame()) {
 	// Destroy self when colliding with player with amulet
 	if (instance_place(x, y, global.player)) {
 		var carried_amulet = get_carried_item_of_type(obj_amulet);
-		if (carried_amulet != noone) { play_sound(snd_thud, true); instance_destroy(); }
+		if (carried_amulet != noone) { play_sound(snd_fuse, true); instance_destroy(); }
 	}
 }

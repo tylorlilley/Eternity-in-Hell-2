@@ -129,12 +129,17 @@ function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ign
 /// @param		{direction} dir				The direction in which to move the calling instance
 /// @param		{boolean} make_noise		Whether or not to play a movement sound
 function move_in_direction(dir, make_noise) {
-	if (make_noise) { play_sound(snd_walk, false); }
-	
 	if (dir == directions.up) { y -= 8; } 
 	if (dir == directions.right) { x += 8; image_xscale = -1; }
 	if (dir == directions.down) { y += 8; }
 	if (dir == directions.left) { x -= 8; image_xscale = 1; }
+	
+	if (make_noise) {
+		var snd = snd_walk, lava_at_quadrant = lava_at_position(), solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
+		if (lava_at_quadrant[0] != noone || lava_at_quadrant[1] != noone || lava_at_quadrant[2] != noone || lava_at_quadrant[3] != noone) { snd = snd_splash; }
+		else if (solid_at_quadrant[0] != noone || solid_at_quadrant[1] != noone || solid_at_quadrant[2] != noone || solid_at_quadrant[3] != noone) { snd = snd_thud; }
+		play_sound(snd, false); 
+	}
 }
 
 
@@ -188,7 +193,6 @@ function get_presence_at_each_quadrant(obj_index) {
 	
 	return presence_at_quadrant;
 }
-
 
 /// @function								move_towards_coordinates(obj_index);
 ///	@param		{int} target_x				The x position to be moving toward

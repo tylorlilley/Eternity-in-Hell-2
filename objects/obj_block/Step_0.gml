@@ -23,6 +23,8 @@ if (process_this_frame()) {
 	
 	// Destroy self and parts of lava if pushed onto lava
 	if (consume_lava(true)) {
+		var dirt = instance_create_depth(x, y, 0, obj_dirt);
+		dirt.depth = 5;
 		play_sound(snd_extinguish, true);
 		instance_destroy();
 	}

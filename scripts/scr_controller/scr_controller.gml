@@ -478,7 +478,7 @@ function game_room_start() {
 		}
 		
 		// If room has lava, consider spawning nose
-		if (instance_number(obj_lava) > 0 && !get_random_chance_out_of(4)) { 
+		if (instance_number(obj_lava) > 0) { 
 			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
 			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
 			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
@@ -518,6 +518,7 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
+	with (obj_statue) { covered = false; }
 	with (obj_echo) { instance_destroy(self, false); }
 	with (obj_fireball) { instance_destroy(); }
 	with (obj_enemy) { x = xstart; y = ystart; }
@@ -591,7 +592,7 @@ function game_room_start() {
 		// Spawn a hand on each potential item if probability is met
 		for (var i = 0; i < array_length(potential_items); i++) {
 			var potential_item = potential_items[i];
-			if (get_random_chance_out_of(HANDS_PROBABILITY)) { 
+			if (!entered_from_spawn && get_random_chance_out_of(HANDS_PROBABILITY)) { 
 				var new_hands = instance_create_depth(potential_item.x, potential_item.y, 0, obj_hands);
 				new_hands.target_item = potential_item;
 				new_hands.xstart = potential_item.x;

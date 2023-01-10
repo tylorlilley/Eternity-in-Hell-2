@@ -28,8 +28,9 @@ if process_this_frame() {
 		else { 
 			visible = true; 
 			// Light bomb fuses with torches and lava
-			var torch = instance_place(x, y, obj_torch), lava = instance_place(x, y, obj_lava) ;
-			if (lava != noone || (torch != noone && torch.light_source != noone)) {
+			var torch = instance_place(x, y, obj_torch), lava_at_quadrant = lava_at_position();
+			if ((lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone) || 
+			   (torch != noone && torch.light_source != noone)) {
 				play_sound(snd_torchlight, true);
 				fuse_timer = 4*irandom_range(5,8);
 			}

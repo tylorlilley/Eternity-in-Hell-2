@@ -28,13 +28,27 @@ function teleport_to_empty_space() {
 
 /// @function								teleport_to_lava()
 function teleport_to_lava() {
-	var lava_at_quadrant = [];
+	var count = 0;
 	do {
-		x = irandom(room_width/8)*8;
-		y = irandom(room_height/8)*8;
-		var lava_at_quadrant = get_presence_at_each_quadrant(obj_lava);
+		//count += 1;
+		var lava = get_random_instance(obj_lava);
+		x = lava.x;
+		y = lava.y;
+		if (instance_place(x-8, y, obj_lava) && get_random_chance_out_of(2)) { x -= 8; }
+		else if (instance_place(x+8, y, obj_lava) && get_random_chance_out_of(2)) { x += 8; }
+		if (instance_place(x, y-8, obj_lava) && get_random_chance_out_of(2)) { y -= 8; }
+		else if (instance_place(x, y+8, obj_lava) && get_random_chance_out_of(2)) { y += 8; }
+		var lava_at_quadrant = lava_at_position();
+		var solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
+		var player_at_quadrant = get_presence_at_each_quadrant(obj_player);
 	}
-	until (!position_is_outside_room(x, y) && lava_at_quadrant[0] && lava_at_quadrant[1] && lava_at_quadrant[2] && lava_at_quadrant[3]);
+	until (count >= 128 || (
+		!position_is_outside_room(x, y) && 
+		lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone &&
+		solid_at_quadrant[0] == noone && solid_at_quadrant[1] == noone && solid_at_quadrant[2] == noone && solid_at_quadrant[3] == noone &&
+		player_at_quadrant[0] == noone && player_at_quadrant[1] == noone && player_at_quadrant[2] == noone && player_at_quadrant[3] == noone
+	));
+	if (count >= 255) { instance_destroy(self, false); }
 }
 
 /// @function								shoot_fireball()

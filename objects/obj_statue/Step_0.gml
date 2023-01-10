@@ -1,22 +1,20 @@
 if (process_this_frame()) {
-	event_inherited();
-	
 	// Determine initial direction if not set
 	if (dir == noone) {
-		if (!instance_place(x, y-16, obj_solid)) { dir = directions.up; } 
-		else if (!instance_place(x+16, y, obj_solid)) { dir = directions.right; } 
-		else if (!instance_place(x, y+16, obj_solid)) { dir = directions.down; } 
-		else if (!instance_place(x-16, y, obj_solid)) { dir = directions.left; }
+		if (!instance_place(x, y-8, obj_solid)) { dir = directions.up; } 
+		else if (!instance_place(x+8, y, obj_solid)) { dir = directions.right; } 
+		else if (!instance_place(x, y+8, obj_solid)) { dir = directions.down; } 
+		else if (!instance_place(x-8, y, obj_solid)) { dir = directions.left; }
 		else { covered = true; }
 	}
 	
 	// Setup direction spot
 	var x_pos = x, y_pos = y;
 	switch (dir) {
-		case directions.up: { y_pos -= 16; break; }
-		case directions.right: { x_pos += 16; break; }
-		case directions.down: { y_pos += 16; break; }
-		case directions.left: { x_pos -= 16; break; }
+		case directions.up: { y_pos -= 8; break; }
+		case directions.right: { x_pos += 8; break; }
+		case directions.down: { y_pos += 8; break; }
+		case directions.left: { x_pos -= 8; break; }
 	}
 	
 	// Determine whether statue is covered
@@ -32,8 +30,12 @@ if (process_this_frame()) {
 			shoot_fireball(x_pos, y_pos);
 		}
 	}
+	/*
 	else if (!prev_covered) { 
-		play_sound(snd_shutdown, false);
+		play_sound(snd_move, false);
 		image_index = 1; 
 	}
+	*/
+	
+	event_inherited();
 }

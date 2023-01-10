@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_stairs",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.31,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_stairs",
-  "duration": 0.710193,
+  "duration": 0.705193,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_stairs",
-  "tags": [],
-  "resourceType": "GMSound",
 }

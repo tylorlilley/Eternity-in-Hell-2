@@ -56,6 +56,9 @@ if (process_this_frame()) {
 				is_flickering_light_source = true;
 			}
 		}
+		
+		// Destroy lava if standing on it
+		if (carried_amulet != noone) { consume_lava(false); }
     
 	    // Transition to new room depending on player position
 	    var stairs = instance_place(x, y, obj_stairs);

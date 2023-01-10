@@ -8,8 +8,8 @@ if (process_this_frame()) {
 	else {
 		// Destroy self if completely covered by lava
 		if (consumed_by_lava) {
-			var lava_at_quadrant = get_presence_at_each_quadrant(obj_lava);
-			if (lava_at_quadrant[0] && lava_at_quadrant[1] && lava_at_quadrant[2] && lava_at_quadrant[3]) {
+			var lava_at_quadrant = lava_at_position();
+			if (lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone) {
 				play_sound(snd_extinguish, true);
 				kill_enemy();
 			}

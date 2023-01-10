@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_walk",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.13,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_walk",
-  "duration": 0.096927,
+  "duration": 0.091927,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_walk",
-  "tags": [],
-  "resourceType": "GMSound",
 }

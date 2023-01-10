@@ -5,7 +5,7 @@ if (process_this_frame()) {
 	var carried_sword = get_carried_item_of_type(obj_sword);
 	var carried_amulet = get_carried_item_of_type(obj_amulet);
 	if (lethal && player && !global.player.dead) {
-		if (carried_sword && killable_by_sword) {
+		if (carried_sword != noone && killable_by_sword) {
 			play_sound(death_sound, true);
 			with carried_sword { 
 				if (!special) 
@@ -17,7 +17,7 @@ if (process_this_frame()) {
 			}
 			instance_destroy();
 		}
-		else if (!lava || !carried_amulet) {
+		else if (!lava || carried_amulet == noone) {
 			play_sound(death_sound, true);
 			kill_player();
 		}

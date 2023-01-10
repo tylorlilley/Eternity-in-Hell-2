@@ -1,14 +1,10 @@
-way to add time; 
-
-multiple sound cueues; 
-
-mark rooms whose exits can be blocked or unblocked; 
-
-spiders stop chasing you for some reason?
-
-continuous push; 
-
-
+Finish fixing drawing lava differently via drawing partial sprites
+Finish eating walls like lava with special staff
+Fix giant worm corners
+Make special meat
+Make farmer meat
+Make farmer bomb firework
+rename amulet
 
 BUGFIXES
 2794973601 // keys already opened chest (not map?)

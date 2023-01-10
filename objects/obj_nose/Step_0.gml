@@ -20,5 +20,13 @@ if (process_this_frame()) {
 		}
 	}
 	
+	lethal = visible;
+	
+	var lava_at_quadrant = lava_at_position();
+	if (lava_at_quadrant[0] == noone || lava_at_quadrant[1] == noone || lava_at_quadrant[2] == noone ||lava_at_quadrant[3] == noone) {
+		instance_destroy();
+		play_sound(death_sound, true); 
+	}
+	
 	event_inherited();
 }

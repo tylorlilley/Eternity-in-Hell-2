@@ -365,7 +365,7 @@ function GameRoom(given_x, given_y) constructor {
 				break;
 		}
 	
-		return array_random_get(room_list);
+		return rm_three_exits_13; //array_random_get(room_list);
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);

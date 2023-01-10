@@ -11,9 +11,9 @@ function convert_to_multiple_death_boxes() {
 
 		death_boxes[i] = instance_create_depth(x_pos, y_pos, 5, obj_death);
 		death_boxes[i].death_sound = snd_torchlight;
+		death_boxes[i].lava = true;
 		death_boxes[i].image_xscale = 0.5;
 		death_boxes[i].image_yscale = 0.5;
-		death_boxes[i].stopped_by_special_rosary = true;
 	}
 }
 
@@ -27,6 +27,46 @@ function destroy_lava_at_position(x_pos, y_pos) {
 	    if (instance_at_coordinates(x_pos, y_pos, death_boxes[i])) {
 	        with death_boxes[i] { instance_destroy(); }
 			death_boxes[i] = noone;
+			return true;
 	    }
 	}
+	return false;
+}
+
+/// @function								lava_at_position();
+function lava_at_position() {
+	var lava_at_quadrant = get_presence_at_each_quadrant(obj_lava);
+	
+	// Check each quadrant and mark the lava as not present if it's death box isn't present
+	for (var i = 0; i <= 3; i++) {
+		var lava = lava_at_quadrant[i], missing_death_box = true, x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+		if (lava != noone && lava.death_box == noone) {
+			for (var j = 0; j <= 3; j++) {
+				var death_box = lava.death_boxes[j]
+				if (death_box != noone && death_box.x == x_pos && death_box.y == y_pos) { missing_death_box = false; }
+			}
+			if (missing_death_box) { lava_at_quadrant[i] = noone; }
+		}
+	}
+		
+	return lava_at_quadrant;
+}
+
+/// @ function								consume_lava(require_all);
+/// @param		{bool} require_all			Only consume whole chunks of lava at once
+function consume_lava(require_all) {
+	var lava_at_quadrant = lava_at_position();
+	if (!require_all || (lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone)) {
+		var consumed = false;
+		for (var i = 0; i <= 3; i++) {
+			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+			
+			with lava_at_quadrant[i] { consumed = destroy_lava_at_position(x_pos, y_pos) || consumed; }
+		}
+		if (consumed) {
+			play_sound(snd_splash, false);
+			return true;
+		}
+	}
+	return false;
 }

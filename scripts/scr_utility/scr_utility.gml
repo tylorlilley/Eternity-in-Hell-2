@@ -81,6 +81,18 @@ function get_quadrant_y_pos(quadrant_number) {
 	else { return y+4; }
 }
 
+/// @function								get_quadrant_left_pos(quadrant_number);
+/// @param		{real}	quadrant_number		The number of the quadrant to get the left position for
+function get_quadrant_left_pos(quadrant_number) {
+    return 0//(get_quadrant_x_pos-x+4);
+}
+
+/// @function								get_quadrant_top_pos(quadrant_number);
+/// @param		{real}	quadrant_number		The number of the quadrant to get the top position for
+function get_quadrant_top_pos(quadrant_number) {
+    return 0//(get_quadrant_y_pos(quadrant_number)-y+4);
+}
+
 /// @function								instance_place_all(x_pos, y_pos, obj_type);
 /// @param		{real}	x_pos				The x_pos to check for instances
 /// @param		{real}	y_pos				The x_pos to check for instances

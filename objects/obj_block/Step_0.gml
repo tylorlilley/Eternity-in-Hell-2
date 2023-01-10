@@ -22,17 +22,8 @@ if (process_this_frame()) {
 	}
 	
 	// Destroy self and parts of lava if pushed onto lava
-	var lava_at_quadrant = get_presence_at_each_quadrant(obj_lava);
-	if (lava_at_quadrant[0] && lava_at_quadrant[1] && lava_at_quadrant[2] && lava_at_quadrant[3]) {
-		var death_boxes = get_presence_at_each_quadrant(obj_death);
-		if (death_boxes[0] && death_boxes[1] && death_boxes[2] && death_boxes[3]) {
-			for (var i = 0; i <= 3; i++) {
-				var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
-			
-				with lava_at_quadrant[i] { destroy_lava_at_position(x_pos, y_pos); }
-		    }
-			play_sound(snd_extinguish, true);
-			instance_destroy();
-		}
+	if (consume_lava(true)) {
+		play_sound(snd_extinguish, true);
+		instance_destroy();
 	}
 }

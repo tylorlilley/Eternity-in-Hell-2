@@ -1,5 +1,5 @@
 // Drw extra tile when changing direction for tail
-if (head && head.dir == head.prev_dir && head.x != x && head.y != y) {
+if (head && head.x != x && head.y != y) {
 	/*
 	var x_offset = 0, y_offset = 0;
 	switch (dir) {

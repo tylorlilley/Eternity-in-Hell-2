@@ -28,26 +28,44 @@ function teleport_to_empty_space() {
 
 /// @function								teleport_to_lava()
 function teleport_to_lava() {
-	var count = 0;
-	do {
-		//count += 1;
-		var lava = get_random_instance(obj_lava);
-		x = lava.x;
-		y = lava.y;
-		if (instance_place(x-8, y, obj_lava) && get_random_chance_out_of(2)) { x -= 8; }
-		else if (instance_place(x+8, y, obj_lava) && get_random_chance_out_of(2)) { x += 8; }
-		if (instance_place(x, y-8, obj_lava) && get_random_chance_out_of(2)) { y -= 8; }
-		else if (instance_place(x, y+8, obj_lava) && get_random_chance_out_of(2)) { y += 8; }
-		var lava_at_quadrant = lava_at_position();
-		var solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
-		var player_at_quadrant = get_presence_at_each_quadrant(global.player);
+	var total_lava = instance_number(obj_lava)-1, count = 0, current_pos = irandom(total_lava), initial_x = x, initial_y = y;
+	while (count < total_lava) {
+		var lava = instance_find(obj_lava, current_pos);
+
+		// Test this lava and all offsets by 8
+		var start_dir = irandom(4);
+		for (var i = 0; i <= 4; i++) {
+			// Set up lava for this run
+			x = lava.x;
+			y = lava.y;
+			
+			switch ((i+start_dir) % 5) {
+				case directions.up: { y -= 8; break; }
+				case directions.right: { x += 8; break; }
+				case directions.down: { y += 8; break; }
+				case directions.left: { x -= 8; break; }
+			}
+			
+			// return early if this is a good teleported position
+			var solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
+			var player_at_quadrant = get_presence_at_each_quadrant(global.player);
+			
+			if (!position_is_outside_room(x, y) && lava_at_all_quadrants() &&
+				solid_at_quadrant[0] == noone && solid_at_quadrant[1] == noone && solid_at_quadrant[2] == noone && solid_at_quadrant[3] == noone &&
+				player_at_quadrant[0] == noone && player_at_quadrant[1] == noone && player_at_quadrant[2] == noone && player_at_quadrant[3] == noone) {
+				  return lava;
+			  }
+		}
+		
+		// Setup next iteration
+		count += 1;
+		current_pos = (current_pos + 1 > total_lava) ? 0 : current_pos + 1;
 	}
-	until (count >= 128 || (
-		!position_is_outside_room(x, y) && lava_at_all_quadrants() &&
-		solid_at_quadrant[0] == noone && solid_at_quadrant[1] == noone && solid_at_quadrant[2] == noone && solid_at_quadrant[3] == noone &&
-		player_at_quadrant[0] == noone && player_at_quadrant[1] == noone && player_at_quadrant[2] == noone && player_at_quadrant[3] == noone
-	));
-	if (count >= 255) { instance_destroy(self, false); }
+	
+	// no suitable teleport spot
+	instance_destroy();
+	play_sound(death_sound, true); 
+	return noone;
 }
 
 /// @function								shoot_fireball()

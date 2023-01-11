@@ -43,7 +43,7 @@ function lava_at_position() {
 		if (lava != noone && lava.death_box == noone) {
 			for (var j = 0; j <= 3; j++) {
 				var death_box = lava.death_boxes[j]
-				if (death_box != noone && death_box.x == x_pos && death_box.y == y_pos) { missing_death_box = false; }
+				if (death_box != noone && death_box.x == x_pos && death_box.y == y_pos) { missing_death_box = false; break; }
 			}
 			if (missing_death_box) { lava_at_quadrant[i] = noone; }
 		}
@@ -71,8 +71,7 @@ function consume_lava(require_all) {
 	return false;
 }
 
-/// @ function								consume_lava(require_all);
-/// @param		{bool} require_all			Only consume whole chunks of lava at once
+/// @ function								lava_at_all_quadrants();
 function lava_at_all_quadrants() {
 	var lava_at_quadrant = lava_at_position()
 	return (lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone);

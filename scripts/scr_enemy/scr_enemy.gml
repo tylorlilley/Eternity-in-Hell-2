@@ -194,9 +194,9 @@ function connect_segments() {
 			tail = potential_tail;
 			tail.head = id; 
 			tail.dir = opposite_dir(i);
-			tail.old_dir = opposite_dir(i);
+			tail.prev_dir = opposite_dir(i);
 			tail.depth = depth + 1;
-			if (!head) { dir = opposite_dir(i); old_dir = opposite_dir(i); }
+			if (!head) { dir = opposite_dir(i); prev_dir = opposite_dir(i); }
 			break;
 		}
 	}
@@ -209,8 +209,8 @@ function connect_segments() {
 function move_segments(new_dir) {
 	move_in_direction(dir, false);
 	with tail { move_segments(other.dir); }
-	dir = old_dir;
-	old_dir = new_dir;
+	dir = prev_dir;
+	prev_dir = new_dir;
 	//set_segment_image();
 }
 

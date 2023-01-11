@@ -8,7 +8,7 @@ var collectables_collected = total_number_of_rooms_with_collectables - array_len
 if (transition || has_won || has_timed_out || is_looking_at_map) {
 	// Draw background over entire screen
 	draw_set_color(bg_color);
-	draw_rectangle(0, 0, room_width, room_height, false);
+	draw_rectangle(0, 0, room_width-1, room_height-1, false);
 
     // Draw map of rooms if applicable
 	var hud_x_pos = 4;

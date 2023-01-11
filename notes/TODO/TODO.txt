@@ -1,5 +1,6 @@
 Finish fixing drawing lava differently via drawing partial sprites
 Finish eating walls like lava with special staff
+ 
 shovel
 Fix giant worm corners
 Make special meat - poisoned

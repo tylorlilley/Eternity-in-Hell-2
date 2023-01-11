@@ -53,6 +53,7 @@ function GameRoom(given_x, given_y) constructor {
 			//if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
 
 			var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 6;
+			if (global.difficulty > difficulties.medium) { available_item_types += 1; }
 			switch (irandom(available_item_types)) {
 				case 0: { item_type = obj_torch; array_push(global.controller.rooms_with_torch, self); break; }
 				case 1: { item_type = obj_sword; array_push(global.controller.rooms_with_sword, self); break; }
@@ -61,6 +62,7 @@ function GameRoom(given_x, given_y) constructor {
 				case 4: { item_type = obj_amulet; array_push(global.controller.rooms_with_amulet, self); break; }
 				case 5: { item_type = obj_bomb; array_push(global.controller.rooms_with_bomb, self); break; }
 				case 6: { item_type = obj_meat; array_push(global.controller.rooms_with_meat, self); break; }
+				case 7: { item_type = obj_meat; array_push(global.controller.rooms_with_shovel, self); break; }
 			}
 		}
 		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; array_push(global.controller.rooms_with_key, self); }
@@ -365,7 +367,7 @@ function GameRoom(given_x, given_y) constructor {
 				break;
 		}
 	
-		return rm_three_exits_13; //array_random_get(room_list);
+		return array_random_get(room_list); //rm_two_perpendicular_exits_16; //
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);

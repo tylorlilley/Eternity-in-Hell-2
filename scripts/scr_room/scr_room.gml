@@ -47,6 +47,7 @@ function GameRoom(given_x, given_y) constructor {
 	function initialize_room(list_of_rooms) {
 		// Randomly decide if room will have collectables, stairs, keys, items, etc
 		rand = irandom(100);
+		//if (id == global.controller.current_room.id) { stairs_spot_obj = obj_cross; }
 		if (rand < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; stairs_spot_obj = obj_stairs; }
 		else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { 
 			stairs_spot_obj = obj_chest;
@@ -65,6 +66,7 @@ function GameRoom(given_x, given_y) constructor {
 				case 7: { item_type = obj_meat; array_push(global.controller.rooms_with_shovel, self); break; }
 			}
 		}
+		
 		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; array_push(global.controller.rooms_with_key, self); }
 		if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
 	
@@ -367,7 +369,7 @@ function GameRoom(given_x, given_y) constructor {
 				break;
 		}
 	
-		return array_random_get(room_list); //rm_two_perpendicular_exits_16; //
+		return rm_two_perpendicular_exits_10 //array_random_get(room_list); //rm_two_perpendicular_exits_16; //
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);

@@ -1,3 +1,6 @@
+94604035 - no exit to first room?
+
+
 Finish fixing drawing lava differently via drawing partial sprites
 Finish eating walls like lava with special staff
  

@@ -25,8 +25,8 @@ function create_room_lists() {
 		array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_2, rm_four_exits_3, rm_four_exits_5, rm_four_exits_6, rm_four_exits_7, rm_four_exits_9);
 	}
 	if (global.difficulty >= difficulties.medium) {	
-		array_push(rooms_with_one_exit, rm_one_exit_4, rm_one_exit_5, rm_one_exit_8, rm_one_exit_9, rm_one_exit_10, rm_one_exit_13, rm_one_exit_15, rm_one_exit_16, rm_one_exit_18);
-		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_4, rm_two_opposite_exits_14, rm_two_opposite_exits_16);
+		array_push(rooms_with_one_exit, rm_one_exit_4, rm_one_exit_5, rm_one_exit_8, rm_one_exit_10, rm_one_exit_13, rm_one_exit_15, rm_one_exit_16, rm_one_exit_18);
+		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_4, rm_two_opposite_exits_12, rm_two_opposite_exits_14, rm_two_opposite_exits_16);
 		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_9, rm_two_perpendicular_exits_11, rm_two_perpendicular_exits_13, rm_two_perpendicular_exits_16, rm_two_perpendicular_exits_22, rm_two_perpendicular_exits_26, rm_two_perpendicular_exits_27, rm_two_perpendicular_exits_28);
 		array_push(rooms_with_three_exits, rm_three_exits_6, rm_three_exits_13, rm_three_exits_14, rm_three_exits_16, rm_three_exits_17, rm_three_exits_20, rm_three_exits_21, rm_three_exits_22);
 		array_push(rooms_with_four_exits, rm_four_exits_4, rm_four_exits_8, rm_four_exits_10, rm_four_exits_11);
@@ -35,7 +35,7 @@ function create_room_lists() {
 		array_push(rooms_with_one_exit,  rm_one_exit_19, rm_one_exit_20, rm_one_exit_21, rm_one_exit_22);
 		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_6, rm_two_opposite_exits_9);
 		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_7, rm_two_perpendicular_exits_14, rm_two_perpendicular_exits_15, rm_two_perpendicular_exits_18, rm_two_perpendicular_exits_19, rm_two_perpendicular_exits_20, rm_two_perpendicular_exits_25);
-		array_push(rooms_with_three_exits, rm_three_exits_14, rm_three_exits_15, rm_three_exits_18);
+		array_push(rooms_with_three_exits, rm_three_exits_15, rm_three_exits_18);
 		array_push(rooms_with_four_exits, rm_four_exits_12);
 	}
 }
@@ -111,7 +111,6 @@ function get_room_difficulty(rm) {
 		case rm_two_perpendicular_exits_18:			
 		case rm_two_perpendicular_exits_19:
 		case rm_two_perpendicular_exits_20:
-		case rm_three_exits_14:
 		case rm_three_exits_15:
 		case rm_three_exits_18:
 		case rm_four_exits_12:

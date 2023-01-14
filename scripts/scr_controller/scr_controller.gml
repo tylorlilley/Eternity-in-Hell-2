@@ -138,7 +138,7 @@ function initialize_game_variables() {
 	PRE_LIT_PROBABILITY = 8 - global.difficulty;
 	HAS_KEY_PROBABILITY = 10 + global.difficulty;
 	HAS_ITEM_PROBABILITY = 25 + global.difficulty;
-	SPECIAL_ITEM_PROBABILITY = 8 + global.difficulty;
+	SPECIAL_ITEM_PROBABILITY = 10 - global.difficulty;
 	
 	// Initilize room start probability constants
 	DIRT_PROBABILITY = 16 + global.difficulty * 2;
@@ -170,6 +170,10 @@ function initialize_game_variables() {
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
 	MAX_TORCH_TIME_TO_REMAIN_LIT = 75 - (global.difficulty * 5); // minutes * 60 = total seconds for torch to remain lit
 	TIME_PROVIDED_PER_ROOM = 40 - (global.difficulty * 3);
+	TIME_PROVIDED_PER_EASY_ROOM = -5;
+	TIME_PROVIDED_PER_HARD_ROOM = 15;
+	TIME_PROVIDED_PER_DEAD_END = 10;
+	TIME_PROVIDED_PER_COLLECTABLE = 25 - (global.difficulty * 3);
 	TIME_PROVIEDED_PER_LOCK = 15;
 	TOTAL_COMPLETION_AMOUNT = 4;
 	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run

@@ -1,4 +1,5 @@
 // Initialize global values
+// global.seed = 24034153
 random_set_seed(global.seed);
 clear_inputs_for_next_frame();
 initialize_game_variables();
@@ -49,19 +50,6 @@ while (array_length(rooms_with_stairs_spot) > 0) {
     var second_room = array_random_pop(rooms_with_stairs_spot);
     first_room.adj_rooms[4] = second_room;
     second_room.adj_rooms[4] = first_room;
-}
-
-// Assign a room reference from possible rooms for each room
-create_room_lists();
-time_provided = 0;
-for (var i = 0; i < total_rooms; i++) {
-   game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
-   var room_difficulty = get_room_difficulty(game_rooms[i].room_reference);
-   var room_time_provided = TIME_PROVIDED_PER_ROOM;
-   if (room_difficulty == difficulties.easy) { room_time_provided -= 5; }
-   if (room_difficulty == difficulties.hard) { room_time_provided += 15; }
-   if (game_rooms[i].misleading_room) { room_time_provided += 15; }
-   time_provided += room_time_provided;
 }
 
 // Lock Random Exits
@@ -147,8 +135,22 @@ with array_random_pop(farthest_rooms) {
 }
 keyless_rooms = setup_locks_and_keys(keyless_rooms);
 
-
-// Set up point and time related variables
+// Set up point and time related variables and room references
+create_room_lists();
+time_provided = 0;
+for (var i = 0; i < total_rooms; i++) {
+   game_rooms[i].room_reference = game_rooms[i].get_room_from_room_lists();
+   var room_difficulty = get_room_difficulty(game_rooms[i].room_reference);
+   var room_time_provided = TIME_PROVIDED_PER_ROOM;
+   if (room_difficulty == difficulties.easy) { room_time_provided += TIME_PROVIDED_PER_EASY_ROOM; }
+   if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }
+   if (game_rooms[i].has_collectables) { room_time_provided += TIME_PROVIDED_PER_COLLECTABLE; }
+   if (game_rooms[i].misleading_room) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
+   for (var j = 0; j < 4; j++) {
+	   if (game_rooms[i].locked_exits[j]) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
+   }
+   time_provided += room_time_provided;
+}
 time_remaining = time_provided;
 
 // Create player object and change room to current room's referenced room

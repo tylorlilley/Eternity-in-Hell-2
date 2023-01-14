@@ -49,7 +49,7 @@ function drop_item(dir, make_noise) {
 	carried = noone;
 	persistent = false;
 	depth = 2;
-	image_xscale = (dir == directions.left) ? image_xscale : -image_xscale;
+	//image_xscale = (dir == directions.left) ? image_xscale : -image_xscale;
 }
 
 /// @function								make_item_special();

@@ -3,16 +3,12 @@ Explain spacebar on it better
 
 options for control bindings
 options for light flicker intensity
-Put an are you sure on the enter button?
+Put an "are you sure" on the enter button?
 
 leave ghost room shows vible ghost before its spawned
-24034152 - moment trap door corner
-drop objecs flipping x_scale
 death_counter on title screen
 
 78777685 - eternity
-
-315749 - no exit to first room?
 
 Finish fixing drawing lava differently via drawing partial sprites
 Finish eating walls like lava with special staff

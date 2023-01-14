@@ -88,3 +88,51 @@ function drop_all_items() {
 		if (global.player.carried_items[i]) { with global.player.carried_items[i] { drop_item(i, false); } }
 	}
 }
+
+/// @function								get_direction_input(key_pressed_only)
+/// @param		{bool} key_pressed_only		Whether to only count if the key has been pressed this frame
+/// @param		{bool} ignore_solid			Whether to ignore solids when determininig if dir is valid
+function get_direction_input(key_pressed_only, ignore_solid) {
+	// Return no input if player is dead or looking at map
+	if (global.player.dead || global.controller.key_space) { return noone; }
+	
+	// Starting with the previous direction, check each direction for inputs
+	var possible_directions = array_create(0);
+	for (var i = 0; i < 4; i++) {
+		var current_dir = (i+global.player.dir_prev) % 4;
+		
+		if (!can_move_in_direction(current_dir, ignore_solid, true)) { continue; }
+		
+		if current_dir == directions.up &&
+			global.controller.key_up && 
+			!global.controller.key_down &&
+			(global.controller.key_up_pressed || !global.controller.key_up_released) &&
+			(!key_pressed_only || global.controller.key_up_pressed) { 
+				array_push(possible_directions, directions.up); 
+		}
+		else if current_dir == directions.down &&
+				global.controller.key_down && 
+				!global.controller.key_up &&
+				(global.controller.key_down_pressed || !global.controller.key_down_released) &&
+				(!key_pressed_only || global.controller.key_down_pressed) { 
+					array_push(possible_directions, directions.down);  
+		}
+		else if current_dir == directions.left &&
+				global.controller.key_left && 
+				!global.controller.key_right &&
+				(global.controller.key_left_pressed || !global.controller.key_left_released) &&
+				(!key_pressed_only || global.controller.key_left_pressed) { 
+					array_push(possible_directions, directions.left); 
+		}
+		else if current_dir == directions.right &&
+				global.controller.key_right && 
+				!global.controller.key_left &&
+				(global.controller.key_right_pressed || !global.controller.key_right_released) && 
+				(!key_pressed_only || global.controller.key_right_pressed) { 
+					array_push(possible_directions, directions.right); 
+		}
+	}
+	
+	if (array_length(possible_directions) == 0) { return noone; }
+	return possible_directions[0];
+}

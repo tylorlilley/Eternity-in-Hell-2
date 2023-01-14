@@ -130,9 +130,9 @@ function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ign
 /// @param		{boolean} make_noise		Whether or not to play a movement sound
 function move_in_direction(dir, make_noise) {
 	if (dir == directions.up) { y -= 8; } 
-	if (dir == directions.right) { x += 8; image_xscale = -1; }
-	if (dir == directions.down) { y += 8; }
-	if (dir == directions.left) { x -= 8; image_xscale = 1; }
+	else if (dir == directions.right) { x += 8; image_xscale = -1; }
+	else if (dir == directions.down) { y += 8; }
+	else if (dir == directions.left) { x -= 8; image_xscale = 1; }
 	
 	if (make_noise) {
 		var snd = snd_walk, lava_at_quadrant = lava_at_position(), solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
@@ -159,14 +159,19 @@ function audio_play_sound_for_object_only_once(sound_to_play) {
 	if ((instance_number(object_index) > 0) && instance_find(object_index, 0).id == id) { play_sound( sound_to_play, false ); }
 }
 
-/// @function								pushed_against_by_player(key_pressed_only);
-function pushed_against_by_player(key_pressed_only) {
-	if (global.player.dead || global.controller.key_space) { return noone; }
-	if (instance_at_coordinates(global.player.x_prev, global.player.y_prev-16, self) && (global.controller.key_up_pressed || (!key_pressed_only && global.controller.key_up))) { return directions.up; }
-	else if (instance_at_coordinates(global.player.x_prev, global.player.y_prev+16, self) && (global.controller.key_down_pressed || (!key_pressed_only && global.controller.key_down))) { return directions.down; }
-	else if (instance_at_coordinates(global.player.x_prev-16, global.player.y_prev, self) && (global.controller.key_left_pressed || (!key_pressed_only && global.controller.key_left))) { return directions.left; }
-	else if (instance_at_coordinates(global.player.x_prev+16, global.player.y_prev, self) && (global.controller.key_right_pressed || (!key_pressed_only && global.controller.key_right))) { return directions.right; }
-	else { return noone; }
+/// @function								pushed_against_by_player();
+function pushed_against_by_player() {
+	var dir = get_direction_input(true, true), x_pos = global.player.x_prev, y_pos = global.player.y_prev;
+	switch (dir) {
+		case directions.up: { y_pos -= 16; break; }
+		case directions.right: { x_pos += 16; break; }
+		case directions.down: { y_pos += 16; break; }
+		case directions.left: { x_pos -= 16; break; }
+	}
+	
+	if (!instance_at_coordinates(x_pos, y_pos, self)) {dir = noone; }
+	
+	return dir;
 }
 
 /// @function								rotate_sprite_to_random_angle();

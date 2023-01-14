@@ -318,7 +318,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function								get_room_from_room_lists();
 	function get_room_from_room_lists() {
-		var number_of_exits = count_exits()
+		var number_of_exits = count_exits();
 		var rand1 = get_random_chance_out_of(2);
 		var rand2 = get_random_chance_out_of(2);
 		var room_list = noone;
@@ -327,17 +327,33 @@ function GameRoom(given_x, given_y) constructor {
 			misleading_room = true;
 			number_of_exits += 1;
 		}
-
-
-		switch (number_of_exits) {
+		
+		switch(number_of_exits) {
 			case 0: 
 				room_list = global.controller.rooms_with_no_exits; 
+				break;
+			case 1: 
+				room_list = global.controller.rooms_with_one_exit; 
+				break;
+			case 2: 
+				room_list = global.controller.rooms_with_two_perpendicular_exits;
+				if ((exits[0] && exits[2]) || (exits[1] && exits[3])) { room_list = global.controller.rooms_with_two_opposite_exits; }
+				break;
+			case 3: 
+				room_list = global.controller.rooms_with_three_exits; 
+				break;
+			case 4: 
+				room_list = global.controller.rooms_with_four_exits; 
+				break;
+		}
+
+		switch (count_exits()) {
+			case 0: 
 		        flip_horizontal = rand1; 
 		        flip_vertical = rand2;
 				rotate = irandom(3);
 				break;
 		    case 1:
-				room_list = global.controller.rooms_with_one_exit;
 				flip_horizontal = rand1;
 				flip_vertical = false;
 				for (var i = 0; i < 4; i+= 1) {
@@ -345,16 +361,14 @@ function GameRoom(given_x, given_y) constructor {
 				}
 				break;
 			case 2:
-				room_list = global.controller.rooms_with_two_perpendicular_exits; 
-		        if (exits[0] && exits[2]) { flip_horizontal = rand1; flip_vertical = rand2; room_list = global.controller.rooms_with_two_opposite_exits; }
-		        else if (exits[1] && exits[3]) { flip_horizontal = rand1; flip_vertical = rand2; rotate = (get_random_chance_out_of(2)) ? 1 : 3; room_list = global.controller.rooms_with_two_opposite_exits; }
+		        if (exits[0] && exits[2]) { flip_horizontal = rand1; flip_vertical = rand2; }
+		        else if (exits[1] && exits[3]) { flip_horizontal = rand1; flip_vertical = rand2; rotate = (get_random_chance_out_of(2)) ? 1 : 3; }
 		        else if (exits[0] && exits[1]) { flip_horizontal = false; flip_vertical = false; }
 		        else if (exits[0] && exits[3]) { flip_horizontal = true; flip_vertical = false; }
 		        else if (exits[1] && exits[2]) { flip_horizontal = false; flip_vertical = true; }
-		        else {  flip_horizontal = true; flip_vertical = true; }
+		        else if (exits[3] && exits[2]){  flip_horizontal = true; flip_vertical = true; }
 				break;
 		    case 3:
-				room_list = global.controller.rooms_with_three_exits; 
 				flip_horizontal = false;
 				flip_vertical = rand1;
 				for (var i = 0; i < 4; i+= 1) {
@@ -362,7 +376,6 @@ function GameRoom(given_x, given_y) constructor {
 				}
 				break;
 		    case 4:
-				room_list = global.controller.rooms_with_four_exits; 
 		        flip_horizontal = rand1; 
 		        flip_vertical = rand2;
 				rotate = irandom(3);

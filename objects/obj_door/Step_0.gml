@@ -3,13 +3,20 @@ if (process_this_frame()) {
 	
 	if closed {
 		if locked image_index = 2;
-		var push_direction = pushed_against_by_player(true);
+		var push_direction = pushed_against_by_player();
 		if (push_direction != noone) {
 			var carried_key = get_carried_item_of_type(obj_key);
 		    if (locked && !carried_key) { play_sound(snd_locked, false); }
-		    else if (!global.player.opened_door_this_frame) {
-				global.player.opened_door_this_frame = true;
+		    else {
 				play_sound(snd_open, true);
+				global.player.x = x;
+				global.player.y = y;
+				switch (push_direction) {
+					case directions.up: { global.player.y += 16; break; }
+					case directions.down: { global.player.y -= 16; break; }
+					case directions.left: { global.player.x += 16; break; }
+					case directions.right: { global.player.x -= 16; break; }
+				}
 				move_player(push_direction);
 				open_door();
 			}

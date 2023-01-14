@@ -192,6 +192,7 @@ function initialize_game_variables() {
 
 	// initialize game state values
 	current_room = noone;
+	last_hole = noone;
 	start_room = noone;
 	total_number_of_rooms_with_collectables = 0;
 	//rooms_with_collectables_collected = 0;

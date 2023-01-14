@@ -28,10 +28,8 @@ while (array_length(uninitialized_rooms) > 0) {
 // Restart Room Spawning if room count is too high
 var total_rooms = array_length(game_rooms);
 if (total_rooms > MINIMUM_NUMBER_OF_ROOMS * 1.5) {
-	global.seed += 1;
-	if (global.seed > 99999999) { global.seed = 0; }
-	instance_destroy();
-	room_restart();
+	show_debug_message("WARNING: too many rooms required.");
+	reset_map_generation();
 }
 else {
 
@@ -67,7 +65,7 @@ for (var i = 0; i < total_rooms; i++) {
 }
 
 // Lock Random Exits
-var locked_exits = array_create(0);
+locked_exits = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
     for(var dir = 0; dir <= 3; dir+= 1;) {
         if (game_rooms[i].exits[dir] && get_random_chance_out_of(LOCKED_DOOR_PROBABILITY)) { 
@@ -88,7 +86,7 @@ for (var i = 0; i < total_rooms; i++) {
 if (start_room == noone) {
 	// Should never need to reach this clause
 	show_debug_message("WARNING: random start room choice messed up.");
-	restart_game();
+	reset_map_generation();
 }
 
 current_room.calculate_distance_to_current(0);
@@ -120,35 +118,7 @@ if (array_length(rooms_with_meat) > 0 && get_random_chance_out_of(SPECIAL_ITEM_P
 // Walk the Map and tweak it until map is possible
 //show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
 //show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
-var visited_all_rooms = is_current_map_possible();
-while (!visited_all_rooms) {
-	var number_of_keys = total_rooms - (array_length(keyless_rooms)+1);
-	var number_of_locked_exits = array_length(locked_exits);
-	
-    // Add an additional key somewhere
-    if (array_length(keyless_rooms) > 0 && (array_length(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
-        var room_to_add_key_to = array_random_pop(keyless_rooms);
-		room_to_add_key_to.has_key = true;
-		array_push(rooms_with_key, room_to_add_key_to);
-		//show_debug_message("NUMBER OF KEYS +1");
-    }
-    // Remove one of the locked doors and reset all rooms to have no keys
-    else if (array_length(locked_exits) > 0) {
-        with array_random_pop(locked_exits) { remove(); }
-		for (var i = 0; i < total_rooms; i++) {
-		    if (game_rooms[i].has_key) { game_rooms[i].has_key = false; array_push(keyless_rooms, game_rooms[i]); }
-		}
-		rooms_with_key = array_create(0);
-		//show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
-    }
-	else {
-		// Should never need to reach this clause
-		show_debug_message("WARNING: lock generation screwed up.");
-		restart_game();
-	}
-	
-	visited_all_rooms = is_current_map_possible();
-}
+keyless_rooms = setup_locks_and_keys(keyless_rooms);
 //show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
 //show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
 //show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
@@ -175,6 +145,8 @@ with array_random_pop(farthest_rooms) {
 		if (exits[i]) { create_locked_exit(i); }
 	}
 }
+keyless_rooms = setup_locks_and_keys(keyless_rooms);
+
 
 // Set up point and time related variables
 time_remaining = time_provided;

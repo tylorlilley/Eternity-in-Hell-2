@@ -57,7 +57,7 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 
 	    // Draw final score and game seed and game version
 		draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
-		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+string(random_get_seed())));	// Draw elapsed time
+		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+zero_padded_string(random_get_seed(), 9)));	// Draw elapsed time
 		var time_elapsed = (time_provided - time_remaining);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
 		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
@@ -80,8 +80,9 @@ if (transition || has_won || has_timed_out || is_looking_at_map) {
 if (TEST_MODE) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
+	draw_text(4, room_height-20, string(array_length(rooms_with_key)));
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
-	draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
+	//draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
 	//draw_text(4, room_height-20, string(array_length(rooms_with_key))+" "+string(array_length(rooms_with_torch))+" "+string(array_length(rooms_with_sword))+" "+string(array_length(rooms_with_rosary))+" "+string(array_length(rooms_with_map)));
 }

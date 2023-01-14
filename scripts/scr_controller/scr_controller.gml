@@ -148,7 +148,7 @@ function initialize_game_variables() {
 	WORM_PROBABILITY =  32 - (4 * global.difficulty);
 	EYES_PROBABILITY =  64 - (4 * global.difficulty);
 	FAST_SKELETON_PROBABILITY = 16 - global.difficulty;
-	MISLEADING_ROOM_PROBABILITY = 512 / power(2, global.difficulty);
+	MISLEADING_ROOM_PROBABILITY = 256 / power(2, global.difficulty);
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
@@ -626,4 +626,49 @@ function game_room_start() {
 			} 
 		}
 	}
+}
+
+/// @function								setup_locks_and_keys();
+function setup_locks_and_keys(keyless_rooms) {
+	var total_rooms = array_length(game_rooms), visited_all_rooms = is_current_map_possible();
+	while (!visited_all_rooms) {
+		//break;
+		var number_of_keys = total_rooms - (array_length(keyless_rooms)+1);
+		var number_of_locked_exits = array_length(locked_exits);
+	
+	    // Add an additional key somewhere
+	    if (array_length(keyless_rooms) > 0 && (array_length(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
+	        var room_to_add_key_to = array_random_pop(keyless_rooms);
+			room_to_add_key_to.has_key = true;
+			array_push(rooms_with_key, room_to_add_key_to);
+			//show_debug_message("NUMBER OF KEYS +1");
+	    }
+	
+	    // Remove one of the locked doors and reset all rooms to have no keys
+	    else if (array_length(locked_exits) > 0) {
+	        with array_random_pop(locked_exits) { remove(); }
+			for (var i = 0; i < total_rooms; i++) {
+			    if (game_rooms[i].has_key) { game_rooms[i].has_key = false; array_push(keyless_rooms, game_rooms[i]); }
+			}
+			rooms_with_key = array_create(0);
+			//show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
+	    }
+		else {
+			// Should never need to reach this clause
+			show_debug_message("WARNING: lock generation screwed up.");
+			reset_map_generation();
+		}
+	
+		visited_all_rooms = is_current_map_possible();
+	}
+	
+	return keyless_rooms;
+}
+
+/// @function								reset_map_generation();
+function reset_map_generation() {
+	global.seed += 1;
+	if (global.seed > 99999999) { global.seed = 0; }
+	instance_destroy();
+	room_restart();
 }

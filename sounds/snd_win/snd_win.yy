@@ -4,7 +4,7 @@
   "name": "snd_win",
   "conversionMode": 0,
   "compression": 0,
-  "volume": 0.73,
+  "volume": 0.7,
   "preload": true,
   "bitRate": 192,
   "sampleRate": 44100,

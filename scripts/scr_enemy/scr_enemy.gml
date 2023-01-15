@@ -9,7 +9,7 @@ function run_away_from_player() {
 	var dir = irandom(3);
 	if (is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
 	if (get_random_chance_out_of(3)) { dir = 4; }
-	if (can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); }
+	if (!instance_place(x, y, obj_solid) && can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); }
 }
 
 /// @function								teleport_to_empty_space()
@@ -116,7 +116,7 @@ function try_to_see_player() {
 function move_snake(iterations){
 	var prev_dir = (dir == -1) ? irandom(3) : dir;
 	for (var i = 0; i < iterations; i +=1) {
-		if (dir != -1 && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
+		if (!instance_place(x, y, obj_solid) && dir != -1 && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
 		else { dir = -1; break; }
 	}
 	//if (!can_move_in_direction(dir, false, true)) { dir = -1; }
@@ -125,7 +125,7 @@ function move_snake(iterations){
 		array_push(new_directions, opposite_dir(prev_dir), dir_turn_right(prev_dir), dir_turn_left(prev_dir));
 		while (array_length(new_directions) > 0) {
 			var new_dir = array_random_pop(new_directions);
-			if (can_move_in_direction(new_dir, false, true)) { dir = new_dir; break; }
+			if (!instance_place(x, y, obj_solid) && can_move_in_direction(new_dir, false, true)) { dir = new_dir; break; }
 		}
 		if (dir == -1) { image_speed = 0; }
 	}

@@ -575,7 +575,7 @@ function game_room_start() {
 	with (obj_worm) { dir = -1; play_sound(snd_hiss, false); }
 	with (obj_mouth) { play_sound(snd_squelch, false); teleport_to_empty_space(); }
 	with (obj_eyes) { play_sound(snd_flicker, false); teleport_near_player(); play_sound(snd_whisper, false); }
-	with (obj_bumper) { lethal = false; trap = true; visible = false; }
+	with (obj_bumper) { instance_create_depth(x, y, 0, obj_bumper); instance_destroy(); }
 	with (obj_ears) { awake = false; target_x = x; target_y = y; }
 	with (obj_nose) {
 		instance_create_depth(x, y, depth, obj_nose);

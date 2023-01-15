@@ -1,4 +1,8 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_bush",
+  "conversionMode": 0,
   "compression": 0,
   "volume": 0.28,
   "preload": true,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_bush",
-  "duration": 0.722959,
+  "duration": 0.717959,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_bush",
-  "tags": [],
-  "resourceType": "GMSound",
 }

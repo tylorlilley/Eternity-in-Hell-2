@@ -1,6 +1,3 @@
-028867801 - eons - map says room is red until entering when it is not
-don't spawn phantom and eyes in the same room
-Check corners on big worms with only two segments
 
 Explain fullscreen toggle
 Explain spacebar on it better

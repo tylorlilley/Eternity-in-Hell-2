@@ -4,7 +4,7 @@
   "name": "snd_thud",
   "conversionMode": 0,
   "compression": 0,
-  "volume": 0.23,
+  "volume": 0.2,
   "preload": true,
   "bitRate": 192,
   "sampleRate": 44100,

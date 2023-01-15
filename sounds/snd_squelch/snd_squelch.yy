@@ -4,7 +4,7 @@
   "name": "snd_squelch",
   "conversionMode": 0,
   "compression": 0,
-  "volume": 0.27,
+  "volume": 0.4,
   "preload": true,
   "bitRate": 192,
   "sampleRate": 44100,

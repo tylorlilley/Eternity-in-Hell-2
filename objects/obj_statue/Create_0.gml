@@ -4,7 +4,7 @@ killable_by_sword = true;
 consume_block = true;
 consumed_by_block = true;
 consumed_by_lava = true;
-consumed_by_fireball = true;
+consumed_by_fireball = false;
 death_sound = snd_crunch;
 
 image_speed = 0;

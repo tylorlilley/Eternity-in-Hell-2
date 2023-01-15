@@ -6,6 +6,7 @@ if (process_this_frame()) {
 		try_to_see_player();
 		
 		// Determine course of action based on state
+		instance_place(x, y, obj_solid) { state = WAITING; }
 		if (state == SCREECHING) {
 			if (screech_timer > 0) { screech_timer -= 1; }
 			else { state = ATTACKING; }

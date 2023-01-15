@@ -4,7 +4,7 @@
   "name": "snd_walk",
   "conversionMode": 0,
   "compression": 0,
-  "volume": 0.13,
+  "volume": 0.25,
   "preload": true,
   "bitRate": 192,
   "sampleRate": 44100,

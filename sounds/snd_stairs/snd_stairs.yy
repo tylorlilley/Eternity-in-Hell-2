@@ -4,7 +4,7 @@
   "name": "snd_stairs",
   "conversionMode": 0,
   "compression": 0,
-  "volume": 0.31,
+  "volume": 0.3,
   "preload": true,
   "bitRate": 192,
   "sampleRate": 44100,

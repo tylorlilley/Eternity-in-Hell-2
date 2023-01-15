@@ -4,7 +4,7 @@
   "name": "snd_pickup",
   "conversionMode": 0,
   "compression": 0,
-  "volume": 0.4,
+  "volume": 0.8,
   "preload": true,
   "bitRate": 192,
   "sampleRate": 44100,

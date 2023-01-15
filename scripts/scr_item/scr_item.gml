@@ -84,6 +84,7 @@ function thump() {
 
 /// @function								thump();
 function get_random_item_type() {
+	return obj_shovel;
 	var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 6;
 	if (global.difficulty > difficulties.medium) { available_item_types += 1; }
 

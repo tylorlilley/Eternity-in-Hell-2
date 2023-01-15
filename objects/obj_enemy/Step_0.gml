@@ -2,7 +2,7 @@ if (process_this_frame()) {
 	event_inherited();
 	
 	// Flicker sprite if corporeal
-	if (!corporeal) {
+	if (!killable_by_sword) {
 		visible = (global.controller.number_of_frames_since_game_began mod (global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING * 2) == 0);
 	}
 	else {

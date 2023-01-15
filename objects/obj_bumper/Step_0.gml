@@ -11,12 +11,12 @@ if (process_this_frame()) {
 		if (lethal) {
 			lethal = false;
 			visible = false;
-			corporeal = true;
+			killable_by_sword = true;
 		}
 		else {
 			lethal = true;
 			visible = true;
-			corporeal = false;
+			killable_by_sword = false;
 		}
 	}
 	

@@ -1,6 +1,10 @@
 {
+  "resourceType": "GMSound",
+  "resourceVersion": "1.0",
+  "name": "snd_open",
+  "conversionMode": 0,
   "compression": 0,
-  "volume": 0.59,
+  "volume": 0.6,
   "preload": true,
   "bitRate": 192,
   "sampleRate": 44100,
@@ -11,13 +15,9 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_open",
-  "duration": 0.24144,
+  "duration": 0.23644,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "snd_open",
-  "tags": [],
-  "resourceType": "GMSound",
 }

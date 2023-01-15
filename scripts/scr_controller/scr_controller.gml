@@ -625,7 +625,7 @@ function game_room_start() {
 		// Spawn a hand on each potential item if probability is met
 		for (var i = 0; i < array_length(potential_items); i++) {
 			var potential_item = potential_items[i];
-			if (!entered_from_spawn && get_random_chance_out_of(HANDS_PROBABILITY)) { 
+			if (!entered_from_spawn && get_random_chance_out_of(HANDS_PROBABILITY) && instance_number(obj_hands) == 0) { 
 				var new_hands = instance_create_depth(potential_item.x, potential_item.y, 0, obj_hands);
 				new_hands.target_item = potential_item;
 				new_hands.xstart = potential_item.x;

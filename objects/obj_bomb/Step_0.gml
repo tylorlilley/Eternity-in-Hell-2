@@ -8,7 +8,7 @@ if process_this_frame() {
 			else { visible = true; }
 			if (fuse_timer == 0) {
 				if (!special && get_random_chance_out_of(64)) { play_sound(snd_move, false); }
-				else { explode(!special); }
+				else { explode(!special); instance_create_depth(x, y, 0, obj_dirt); }
 			}
 		}
 		else { 

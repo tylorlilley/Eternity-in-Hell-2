@@ -162,7 +162,7 @@ function audio_play_sound_for_object_only_once(sound_to_play) {
 /// @function								pushed_against_by_player();
 function pushed_against_by_player() {
 	var dir = noone, x_pos = global.player.x_prev, y_pos = global.player.y_prev;
-	dir = get_direction_input(true, true);
+	dir = get_direction_input(true);
 	if (dir == noone) { return dir; }
 	
 	switch (dir) {

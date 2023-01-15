@@ -23,6 +23,7 @@ function move_player(dir) {
 /// @param		{direction} dir				The directional slot to pick up or drop an item into or from
 function pick_up_or_drop_item(dir) {
 	if (carried_items[dir]) {
+		// Alert spiders if meat is dropped
 		if (carried_items[dir].object_index == obj_meat) {
 			with (obj_spider) { if (lethal) { audio_play_sound_for_object_only_once(snd_lose); } }
 		}
@@ -34,7 +35,7 @@ function pick_up_or_drop_item(dir) {
 		with carried_items[dir] { drop_item(dir, true); }
 	}
 	else {
-		// Cycle through the items you could be possibly pickiung up
+		// Cycle through the items you could be possibly picking up
 		var dropped_items = instance_place_all(x, y, obj_item);
 		while (array_length(dropped_items) > 0) {
 			var dropped_item = array_random_pop(dropped_items);
@@ -89,9 +90,8 @@ function drop_all_items() {
 	}
 }
 
-/// @function								get_direction_input(key_pressed_only, ignore_solid)
+/// @function								get_direction_input(key_pressed_only)
 /// @param		{bool} key_pressed_only		Whether to only count if the key has been pressed this frame
-/// @param		{bool} ignore_solid			Whether to ignore solids when determininig if dir is valid
 function get_direction_input(key_pressed_only) {
 	// Return no input if player is dead or looking at map
 	if (global.player.dead || global.controller.key_space) { return noone; }
@@ -138,4 +138,23 @@ function get_direction_input(key_pressed_only) {
 	
 	if (array_length(possible_directions) == 0) { return noone; }
 	return possible_directions[0];
+}
+
+/// @function					can_drop_item(dir)
+/// @param		{dir} dir		The direction of the item you are trying to drop
+function can_drop_item(dir) {
+	var item_to_drop = carried_items[dir];
+	if (item_to_drop == noone) { return true; }
+	if (item_to_drop.object_index == obj_shovel) { 
+		return (!instance_place(x, y, obj_solid) &&
+				!instance_place(x, y, obj_door) &&
+				!instance_place(x, y, obj_stairs) &&
+				!instance_place(x, y, obj_lava) &&
+				!instance_place(x, y, obj_lantern) &&
+				!instance_place(x, y, obj_cross) &&
+				!instance_place(x, y, obj_bush) &&
+				!instance_place(x, y, obj_hole) &&
+				!instance_place(x, y, obj_block_spot));
+	}
+	else { return (!instance_place(x, y, obj_solid)); }
 }

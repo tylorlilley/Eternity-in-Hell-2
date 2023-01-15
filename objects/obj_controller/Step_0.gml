@@ -13,7 +13,9 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 		// Handle room transition blackout to get around macOS drawing bug
 		if (transition != noone && !blackout) { blackout = true; }
 		else if (transition != noone && blackout) { 
-			var next_room = (transition == 5) ? start_room : current_room.adj_rooms[transition]
+			var next_room = current_room.adj_rooms[transition];
+			if (transition == 5) {  next_room = start_room; }
+			else if (transition == 4 && transition_hole != noone) {  next_room = transition_hole.connected_hole.connected_room; }
 			transition_to_room(next_room); 
 		}
 	}

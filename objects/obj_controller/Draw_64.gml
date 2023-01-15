@@ -5,14 +5,14 @@ var has_timed_out = game_has_timed_out();
 var is_looking_at_map = key_space && !has_lost;
 var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 
-if (transition || has_won || has_timed_out || is_looking_at_map) {
+if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 	// Draw background over entire screen
 	draw_set_color(bg_color);
 	draw_rectangle(0, 0, room_width-1, room_height-1, false);
 
     // Draw map of rooms if applicable
 	var hud_x_pos = 4;
-    if (is_looking_at_map && !has_won && !has_lost && !transition) {
+    if (is_looking_at_map && !has_won && !has_lost && transition == noone) {
         // Draw each visited room
        for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].drawn = false; }
         with current_room {

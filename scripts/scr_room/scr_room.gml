@@ -63,7 +63,7 @@ function GameRoom(given_x, given_y) constructor {
 				case 4: { item_type = obj_amulet; array_push(global.controller.rooms_with_amulet, self); break; }
 				case 5: { item_type = obj_bomb; array_push(global.controller.rooms_with_bomb, self); break; }
 				case 6: { item_type = obj_meat; array_push(global.controller.rooms_with_meat, self); break; }
-				case 7: { item_type = obj_meat; array_push(global.controller.rooms_with_shovel, self); break; }
+				case 7: { item_type = obj_shovel; array_push(global.controller.rooms_with_shovel, self); break; }
 			}
 		}
 		
@@ -435,6 +435,7 @@ function GameRoom(given_x, given_y) constructor {
 			game_room_start();
 			blackout = false;
 			transition = noone;
+			transition_hole = noone;
 		}
 	}
 	
@@ -442,8 +443,10 @@ function GameRoom(given_x, given_y) constructor {
 	function mark_exit_visited() {
 		var exit_dir = global.controller.transition, other_room = global.controller.current_room;
 		if (exit_dir == directions.stairs) {
-			other_room.visited_exits[directions.stairs] = true;
-			visited_exits[directions.stairs] = true;
+			if (global.controller.transition_hole == noone) {
+				other_room.visited_exits[directions.stairs] = true;
+				visited_exits[directions.stairs] = true;
+			}
 		}
 		else if (exit_dir != directions.respawn) {
 			other_room.visited_exits[exit_dir] = true;

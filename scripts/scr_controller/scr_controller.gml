@@ -211,6 +211,7 @@ function initialize_game_variables() {
 	entered_from_spawn = true;
 	blackout = true;
 	transition = directions.respawn;
+	transition_hole = noone;
 	clear_inputs_for_next_frame();
 }
 
@@ -303,7 +304,7 @@ function rotate_room_contents_around_room_center(direction_to_face) {
 
 /// @function								process_this_frame();
 function process_this_frame() {
-	return (!global.controller.transition && global.controller.number_of_frames_since_game_began % global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
+	return (global.controller.transition == noone && global.controller.number_of_frames_since_game_began % global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
 }
 
 /// @function								get_inputs_for_next_frame();
@@ -403,7 +404,7 @@ function game_room_start() {
 		}
 		with (obj_giant_worm_head) { connect_segments(); }
     
-		// Create locked exits if they should exist
+		// Check each of the four exits
 		for (var i = 0; i < 4; i++) {
 		    var x_pos = 0;
 		    var y_pos = 0;
@@ -414,6 +415,7 @@ function game_room_start() {
 		    if (i == 3) { x_pos = 8; y_pos = room_height/2; }
 		    var door = instance_position(x_pos, y_pos, obj_door);
         
+			// Create locked exits if they should exist
 		    var exit_to_create_door_for = current_room.locked_exits[i];
 		    if (exit_to_create_door_for) {   
 		        if !door { door = instance_create_depth(x_pos, y_pos, 0, obj_door); }
@@ -422,20 +424,16 @@ function game_room_start() {
 		    }
 			
 			// Create blocked exists if they should exist
-			if (current_room.misleading_room) {
-				for (var i = 0; i < 4; i++) {
-					var x_pos_1 = 0, y_pos_1 = 0, x_pos_2 = 0, y_pos_2 = 0;
+			var x_pos_1 = 0, y_pos_1 = 0, x_pos_2 = 0, y_pos_2 = 0;
 				
-					if (i == 0) { x_pos_1 = (room_width/2)-8; y_pos_1 = 8; x_pos_2 = (room_width/2)+8; y_pos_2 = 8; }
-					if (i == 1) { x_pos_1 = room_width-8; y_pos_1 = room_height/2-8; x_pos_2 = room_width-8; y_pos_2 =  room_height/2+8; }
-					if (i == 2) { x_pos_1 = (room_width/2)-8; y_pos_1 = room_height-8; x_pos_2 = (room_width/2)+8; y_pos_2 = room_height-8; }
-					if (i == 3) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
+			if (i == 0) { x_pos_1 = (room_width/2)-8; y_pos_1 = 8; x_pos_2 = (room_width/2)+8; y_pos_2 = 8; }
+			if (i == 1) { x_pos_1 = room_width-8; y_pos_1 = room_height/2-8; x_pos_2 = room_width-8; y_pos_2 =  room_height/2+8; }
+			if (i == 2) { x_pos_1 = (room_width/2)-8; y_pos_1 = room_height-8; x_pos_2 = (room_width/2)+8; y_pos_2 = room_height-8; }
+			if (i == 3) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
 					
-					if (!current_room.exits[i] && !instance_place(x_pos, y_pos, obj_solid)) {   
-						instance_create_depth(x_pos_1, y_pos_1, 0, obj_wall);
-						instance_create_depth(x_pos_2, y_pos_2, 0, obj_wall);
-					}
-				}
+			if (!current_room.exits[i] && !instance_place(x_pos, y_pos, obj_solid)) {   
+				instance_create_depth(x_pos_1, y_pos_1, 0, obj_wall);
+				instance_create_depth(x_pos_2, y_pos_2, 0, obj_wall);
 			}
 		}
 		
@@ -515,8 +513,14 @@ function game_room_start() {
 
 	// Change position if necessary
 	if entered_from_stairs {
-		global.player.x = stairs_spot.x
-		global.player.y = stairs_spot.y
+		if (transition_hole == noone) {
+			global.player.x = stairs_spot.x;
+			global.player.y = stairs_spot.y;
+		}
+		else {
+			global.player.x = transition_hole.connected_hole.x;
+			global.player.y = transition_hole.connected_hole.y;
+		}
 	}
 
 	// Move character into position
@@ -532,6 +536,12 @@ function game_room_start() {
 	with (obj_statue) { covered = false; }
 	with (obj_echo) { instance_destroy(self, false); }
 	with (obj_fireball) { instance_destroy(); }
+	with (obj_bomb) { 
+		if (carried == noone) {
+			if (special) { fuse_timer = 0; } 
+			else { instance_destroy(); }
+		}
+	}
 	with (obj_meat) {
 		var meat = self;
 		if (carried == noone) { 
@@ -554,6 +564,7 @@ function game_room_start() {
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
 	with (obj_stairs) { active = false; }
+	with (obj_hole) { active = false; }
 	with (obj_block) { x = starting_spot.x; y = starting_spot.y; }
 	with (obj_door) { 
 		locked = (door_for_exit && door_for_exit.locked);

@@ -25,6 +25,18 @@ function pick_up_item(dir, make_noise, new_holder) {
 				if (fuse_timer != 0) { play_sound(snd_hiss, false); }
 				fuse_timer = 0; 
 			}
+			if (object_index == obj_shovel) {
+				play_sound(snd_shovel, true);
+				if (damaged) { instance_destroy(); }
+				else if (!special) { damaged = true; }
+				var new_hole = instance_create_depth(x, y, 0, obj_hole);
+				if (global.controller.last_hole == noone) { global.controller.last_hole = new_hole; }
+				else { 
+					new_hole.connected_hole = global.controller.last_hole; 
+					global.controller.last_hole.connected_hole = new_hole;
+					global.controller.last_hole = noone;
+				}
+			}
 	}
 	else {
 		has_been_carried = true;

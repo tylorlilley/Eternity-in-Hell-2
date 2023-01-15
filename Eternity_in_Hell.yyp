@@ -90,6 +90,7 @@
     {"id":{"name":"spr_amulet","path":"sprites/spr_amulet/spr_amulet.yy",},"order":75,},
     {"id":{"name":"rm_one_exit_14","path":"rooms/rm_one_exit_14/rm_one_exit_14.yy",},"order":13,},
     {"id":{"name":"snd_skeletonrise","path":"sounds/snd_skeletonrise/snd_skeletonrise.yy",},"order":21,},
+    {"id":{"name":"obj_hole","path":"objects/obj_hole/obj_hole.yy",},"order":20,},
     {"id":{"name":"snd_teleport","path":"sounds/snd_teleport/snd_teleport.yy",},"order":23,},
     {"id":{"name":"spr_skeleton_farmer","path":"sprites/spr_skeleton_farmer/spr_skeleton_farmer.yy",},"order":56,},
     {"id":{"name":"spr_torch","path":"sprites/spr_torch/spr_torch.yy",},"order":29,},

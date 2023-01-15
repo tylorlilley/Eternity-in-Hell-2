@@ -8,8 +8,6 @@ Put an "are you sure" on the enter button?
 leave ghost room shows vible ghost before its spawned
 death_counter on title screen
 
-78777685 - eternity
-
 Finish fixing drawing lava differently via drawing partial sprites
 Finish eating walls like lava with special staff
  

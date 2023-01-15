@@ -161,7 +161,10 @@ function audio_play_sound_for_object_only_once(sound_to_play) {
 
 /// @function								pushed_against_by_player();
 function pushed_against_by_player() {
-	var dir = get_direction_input(true, true), x_pos = global.player.x_prev, y_pos = global.player.y_prev;
+	var dir = noone, x_pos = global.player.x_prev, y_pos = global.player.y_prev;
+	dir = get_direction_input(true, true);
+	if (dir == noone) { return dir; }
+	
 	switch (dir) {
 		case directions.up: { y_pos -= 16; break; }
 		case directions.right: { x_pos += 16; break; }
@@ -169,7 +172,9 @@ function pushed_against_by_player() {
 		case directions.left: { x_pos -= 16; break; }
 	}
 	
-	if (!instance_at_coordinates(x_pos, y_pos, self)) {dir = noone; }
+	if (!instance_at_coordinates(x_pos, y_pos, self)) { 
+		dir = noone; 
+	}
 	
 	return dir;
 }

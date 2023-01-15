@@ -1,8 +1,8 @@
 if (process_this_frame()) {
 	event_inherited();
 	
-	if closed {
-		if locked image_index = 2;
+	if (closed != noone) {
+		if (locked) { image_index = 2; }
 		var push_direction = pushed_against_by_player();
 		if (push_direction != noone) {
 			var carried_key = get_carried_item_of_type(obj_key);
@@ -22,13 +22,7 @@ if (process_this_frame()) {
 			}
 		}
 	}
-	else {
-		if (close_behind && !instance_place(x, y, global.player)) {
-			close_door(false);
-		}
-		else if (!close_behind && instance_place(x, y, global.player)) {
-			close_behind = true;
-		}
+	else if (!instance_place(x, y, global.player)) {
+		close_door(false);
 	}
-	
 }

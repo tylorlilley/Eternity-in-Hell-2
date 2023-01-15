@@ -89,10 +89,10 @@ function drop_all_items() {
 	}
 }
 
-/// @function								get_direction_input(key_pressed_only)
+/// @function								get_direction_input(key_pressed_only, ignore_solid)
 /// @param		{bool} key_pressed_only		Whether to only count if the key has been pressed this frame
 /// @param		{bool} ignore_solid			Whether to ignore solids when determininig if dir is valid
-function get_direction_input(key_pressed_only, ignore_solid) {
+function get_direction_input(key_pressed_only) {
 	// Return no input if player is dead or looking at map
 	if (global.player.dead || global.controller.key_space) { return noone; }
 	
@@ -101,7 +101,10 @@ function get_direction_input(key_pressed_only, ignore_solid) {
 	for (var i = 0; i < 4; i++) {
 		var current_dir = (i+global.player.dir_prev) % 4;
 		
-		if (!can_move_in_direction(current_dir, ignore_solid, true)) { continue; }
+		// For the player object, skip directions that block movement
+		// This allows doors, chests, blocks, etc. to evaluate ignoring blocking objects
+		// so that they can be pushed and opened even when against a wall
+		if (object_index == obj_player && !can_move_in_direction(current_dir, false, true)) { continue; }
 		
 		if current_dir == directions.up &&
 			global.controller.key_up && 

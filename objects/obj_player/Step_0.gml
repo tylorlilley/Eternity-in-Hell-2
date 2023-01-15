@@ -25,7 +25,7 @@ if (process_this_frame()) {
 			}
 			
 		    // Move player in chosen direction if possible
-		    if (dir != noone) { move_player(dir); }
+		    if (dir != noone && can_move_in_direction(dir, false, true)) { move_player(dir); }
 		}
 		
 		// Increase lighting range if carrying a rosary

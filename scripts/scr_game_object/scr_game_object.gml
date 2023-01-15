@@ -153,12 +153,6 @@ function set_instance_to_same_position(instance) {
 	}
 }
 
-/// @function								audio_play_sound_for_object_only_once();
-/// @param		{index} sound_to_play		The sound to play only once
-function audio_play_sound_for_object_only_once(sound_to_play) {
-	if ((instance_number(object_index) > 0) && instance_find(object_index, 0).id == id) { play_sound( sound_to_play, false ); }
-}
-
 /// @function								pushed_against_by_player();
 function pushed_against_by_player() {
 	var dir = noone, x_pos = global.player.x_prev, y_pos = global.player.y_prev;
@@ -247,4 +241,9 @@ function randomize_image(max_image_index) {
 	image_index = irandom(max_image_index);
 	flip_sprite_at_random(true);
 	rotate_sprite_to_random_angle();
+}
+
+/// @function								singleton_instance();
+function singleton_instance() {
+	if (instance_number(object_index) > 1) { instance_destroy(); }
 }

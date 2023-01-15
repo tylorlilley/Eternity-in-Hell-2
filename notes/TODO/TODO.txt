@@ -1,4 +1,6 @@
-eternity - 083284647 = one way locked door?
+028867801 - eons - map says room is red until entering when it is not
+don't spawn phantom and eyes in the same room
+Check corners on big worms with only two segments
 
 Explain fullscreen toggle
 Explain spacebar on it better
@@ -9,6 +11,7 @@ Put an "are you sure" on the enter button?
 
 leave ghost room shows vible ghost before its spawned
 death_counter on title screen
+show what killed you / message about what killed you on lose screen?
 
 Finish fixing drawing lava differently via drawing partial sprites
 Finish eating walls like lava with special staff

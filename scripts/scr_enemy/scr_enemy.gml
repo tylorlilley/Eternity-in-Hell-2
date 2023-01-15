@@ -28,7 +28,7 @@ function teleport_to_empty_space() {
 
 /// @function								teleport_to_lava()
 function teleport_to_lava() {
-	var total_lava = instance_number(obj_lava)-1, count = 0, current_pos = irandom(total_lava), initial_x = x, initial_y = y;
+	var total_lava = instance_number(obj_lava)-1, count = 0, current_pos = irandom(total_lava);
 	while (count < total_lava) {
 		var lava = instance_find(obj_lava, current_pos);
 
@@ -236,7 +236,7 @@ function move_segments(new_dir) {
 ///	@param		{Sound}	  snd				The sound to play
 ///	@param		{Boolean} loud_soun			Whether the sound is heard by ears or not
 function play_sound(snd, loud_sound) {
-	audio_play_sound(snd, 10, false);
+	array_push(global.sound_manager.sounds_to_play, snd);
 	if (loud_sound) {
 		with (obj_ears) {
 			if id != other.id {

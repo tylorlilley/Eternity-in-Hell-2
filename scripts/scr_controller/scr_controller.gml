@@ -119,7 +119,7 @@ function get_room_difficulty(rm) {
 			return difficulties.medium;
 	}
 }
-
+		
 /// @function								initialize_game_variables();
 function initialize_game_variables() {
 	display_reset(0, false);
@@ -203,6 +203,7 @@ function initialize_game_variables() {
 	//spawned_special_items = array_create(0);
 	death_timer = 0;
 	completion_amount = 0;
+	sounds_to_play = array_create(0);
 
 	// initialize room transition values
 	bg_color = make_color_rgb(20, 20, 20);
@@ -463,7 +464,7 @@ function game_room_start() {
 			if (instance_number(obj_collectable) == 0) { 
 				// This should never happen if every room has 2+ collectable spots
 				current_room.has_collectables = false;
-				array_remove(rooms_with_collectables, array_find_index(rooms_with_collectables, current_room));
+				array_remove(rooms_with_collectables, array_get_index(rooms_with_collectables, current_room));
 			}
 		}
 	
@@ -475,7 +476,7 @@ function game_room_start() {
 		else
 		{
 			// If room is unlit but has the potential to be lit, consider spawning phantom
-			if (instance_number(obj_lantern) > 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
+			if (instance_number(obj_lantern) > 0 && instance_number(obj_bumper) == 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
 				instance_create_depth(8, 8, 0, obj_phantom);
 			}
 		}
@@ -571,9 +572,9 @@ function game_room_start() {
 		if (instance_place(x, y, global.player)) { open_door(); }
 	}
 	with (obj_bones) { if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(32-global.difficulty)); } }
-	with (obj_worm) { dir = -1; audio_play_sound_for_object_only_once(snd_hiss); }
-	with (obj_mouth) { audio_play_sound_for_object_only_once(snd_squelch); teleport_to_empty_space(); }
-	with (obj_eyes) { audio_play_sound_for_object_only_once(snd_flicker); teleport_near_player(); audio_play_sound_for_object_only_once(snd_whisper); }
+	with (obj_worm) { dir = -1; play_sound(snd_hiss, false); }
+	with (obj_mouth) { play_sound(snd_squelch, false); teleport_to_empty_space(); }
+	with (obj_eyes) { play_sound(snd_flicker, false); teleport_near_player(); play_sound(snd_whisper, false); }
 	with (obj_bumper) { lethal = false; trap = true; visible = false; }
 	with (obj_ears) { awake = false; target_x = x; target_y = y; }
 	with (obj_nose) {
@@ -644,8 +645,8 @@ function game_room_start() {
 	}
 }
 
-/// @function								setup_locks_and_keys();
-function setup_locks_and_keys(keyless_rooms) {
+/// @function								set_up_locks_and_keys();
+function set_up_locks_and_keys(keyless_rooms) {
 	var total_rooms = array_length(game_rooms), visited_all_rooms = is_current_map_possible();
 	while (!visited_all_rooms) {
 		//break;

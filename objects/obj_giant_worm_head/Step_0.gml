@@ -4,7 +4,8 @@ if (process_this_frame()) {
 		if (dir != -1) { prev_dir = dir; }
 		timer = 0;
 		if (dir != -1 && direction_is_free(dir, false, true)) { 
-			move_in_direction(dir, true);
+			move_in_direction(dir, false);
+			play_sound(snd_walk, false)
 			with tail { move_segments(other.dir); }
 		}
 		else { dir = -1; }
@@ -16,7 +17,7 @@ if (process_this_frame()) {
 				var new_dir = array_random_pop(new_directions);
 				if (direction_is_free(new_dir, false, true)) { dir = new_dir; break; }
 			}
-			if (dir != -1) {play_sound(snd_thud, false); }
+			if (dir != -1) { play_sound(snd_thud, false); }
 		}
 	}
 	

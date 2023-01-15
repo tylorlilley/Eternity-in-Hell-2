@@ -81,7 +81,7 @@ function walk_the_map(unlocked_exits) {
 	// return whether all rooms were visited or not
 	// TODO: Return struct with keys and not ordered array
 	var visited_all_rooms = (array_length(visited_rooms) == array_length(global.controller.game_rooms));
-	var test = 2;
+	//var test = 2;
 	return [visited_all_rooms, keys_found, locked_exits];
 }
 

@@ -4,7 +4,6 @@ function open_door() {
 
 	with closed { instance_destroy(); }
 	closed = noone;
-	close_behind = false;
 	
 	if locked {
 		locked = false;

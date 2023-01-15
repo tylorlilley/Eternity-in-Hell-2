@@ -9,13 +9,13 @@ if (process_this_frame()) {
 		
 		// Become lethal if time is up and it is not lethal yet
 	    if (!lethal) { 
-	        audio_play_sound_for_object_only_once( snd_static );
+	        play_sound(snd_static, false);
 	        lethal = true;
 	    }
 	}
 
 	if (global.controller.current_room.lit) { 
-		if (spawn_timer >= 0) { audio_play_sound_for_object_only_once( snd_impact ) }; 
+		if (spawn_timer >= 0) { play_sound(snd_impact, false) }; 
 		instance_destroy(); 
 	}
 

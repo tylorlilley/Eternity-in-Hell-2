@@ -49,23 +49,7 @@ function GameRoom(given_x, given_y) constructor {
 		rand = irandom(100);
 		//if (id == global.controller.current_room.id) { stairs_spot_obj = obj_cross; }
 		if (rand < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; stairs_spot_obj = obj_stairs; }
-		else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { 
-			stairs_spot_obj = obj_chest;
-			//if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
-
-			var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 6;
-			if (global.difficulty > difficulties.medium) { available_item_types += 1; }
-			switch (irandom(available_item_types)) {
-				case 0: { item_type = obj_torch; array_push(global.controller.rooms_with_torch, self); break; }
-				case 1: { item_type = obj_sword; array_push(global.controller.rooms_with_sword, self); break; }
-				case 2: { item_type = obj_map; array_push(global.controller.rooms_with_map, self); break; }
-				case 3: { item_type = obj_rosary; array_push(global.controller.rooms_with_rosary, self); break; }
-				case 4: { item_type = obj_amulet; array_push(global.controller.rooms_with_amulet, self); break; }
-				case 5: { item_type = obj_bomb; array_push(global.controller.rooms_with_bomb, self); break; }
-				case 6: { item_type = obj_meat; array_push(global.controller.rooms_with_meat, self); break; }
-				case 7: { item_type = obj_shovel; array_push(global.controller.rooms_with_shovel, self); break; }
-			}
-		}
+		else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { set_up_room_chest(); }
 		
 		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; array_push(global.controller.rooms_with_key, self); }
 		if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
@@ -99,6 +83,23 @@ function GameRoom(given_x, given_y) constructor {
 		    add_random_exit(false, list_of_rooms);
 		}
 
+	}
+	
+	function set_up_room_chest() {
+		stairs_spot_obj = obj_chest;
+		//if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
+		item_type = get_random_item_type();
+		
+		switch (item_type) {
+			case obj_torch: { array_push(global.controller.rooms_with_torch, self); break; }
+			case obj_sword: { array_push(global.controller.rooms_with_sword, self); break; }
+			case obj_map: { array_push(global.controller.rooms_with_map, self); break; }
+			case obj_rosary: { array_push(global.controller.rooms_with_rosary, self); break; }
+			case obj_amulet: { array_push(global.controller.rooms_with_amulet, self); break; }
+			case obj_bomb: { array_push(global.controller.rooms_with_bomb, self); break; }
+			case obj_meat: { array_push(global.controller.rooms_with_meat, self); break; }
+			case obj_shovel: { array_push(global.controller.rooms_with_shovel, self); break; }
+		}
 	}
 	
 	/// @function								create_locked_exit(dir);
@@ -381,8 +382,10 @@ function GameRoom(given_x, given_y) constructor {
 				rotate = irandom(3);
 				break;
 		}
-	
-		return array_random_get(room_list); //rm_two_perpendicular_exits_16; //
+		
+		var ref = array_random_get(room_list);
+		//while (ref == rm_one_exit_22 && (global.start_room == self || exits[4])) { array_random_get(room_list); }
+		return ref; //rm_two_perpendicular_exits_16; //
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);
@@ -404,6 +407,18 @@ function GameRoom(given_x, given_y) constructor {
 			var ref = reference_instances[i];
 			instance_create_depth(ref.x, ref.y, 0, asset_get_index(ref.name));
 		}
+	}
+	
+	/// @function								room_reference_object_count();
+	/// @param		{int} obj					The object index to check for the presence of
+	function room_reference_object_count(obj) {
+		var reference_instances = instances_for_room_reference(room_reference);
+		var count = 0;
+		for(var i = 0; i < array_length(reference_instances); i++) {
+			var ref = reference_instances[i];
+			if (asset_get_index(ref.name) == obj) { count += 1; }
+		}
+		return count;
 	}
 
 	/// @function									leave_room()

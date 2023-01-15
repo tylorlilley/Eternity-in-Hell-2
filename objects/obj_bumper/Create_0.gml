@@ -1,7 +1,7 @@
 event_inherited();
 
 sprite_index = (global.controller.FARM_MODE) ? spr_eyes_farmer : spr_eyes;
-audio_play_sound_for_object_only_once(snd_bumper);
+play_sound(snd_bumper, false);
 
 death_sound = snd_bumper;
 image_speed = 0;

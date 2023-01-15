@@ -25,7 +25,7 @@ function pick_up_or_drop_item(dir) {
 	if (carried_items[dir]) {
 		// Alert spiders if meat is dropped
 		if (carried_items[dir].object_index == obj_meat) {
-			with (obj_spider) { if (lethal) { audio_play_sound_for_object_only_once(snd_lose); } }
+			with (obj_spider) { if (lethal) { play_sound(snd_lose, false); } }
 		}
 		// Drop Item and alert one obj_hands to come grab it
 		var possible_hands = array_create(0);

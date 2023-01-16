@@ -10,7 +10,7 @@ function draw_while_carried(y_offset, dir) {
 
 /// @function								pick_up_item();
 /// @param		{direction} dir				The hand this item is being picked up with
-/// @param		{boolean} make_noise		Whether or not the item previously existed as a dropped item.
+/// @param		{boolean} make_noise		Whether or not to make a noise as part of picking up the item.
 /// @param		{boolean} holder			The instance to begin holding the item.
 function pick_up_item(dir, make_noise, new_holder) {
 	if (make_noise) { play_sound(snd_pickup, true); }
@@ -85,8 +85,8 @@ function thump() {
 /// @function								thump();
 function get_random_item_type() {
 	return obj_shovel;
-	var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 6;
-	if (global.difficulty > difficulties.medium) { available_item_types += 1; }
+	var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 5;
+	if (global.difficulty > difficulties.medium) { available_item_types += 3; }
 
 	switch (irandom(available_item_types)) {
 		case 0: { return obj_torch; }
@@ -97,5 +97,6 @@ function get_random_item_type() {
 		case 5: { return obj_bomb; }
 		case 6: { return obj_meat; }
 		case 7: { return obj_shovel; }
+		case 8: { return obj_clock; }
 	}
 }

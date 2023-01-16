@@ -1,16 +1,7 @@
 // Sometimes spawn something under block
 if get_random_chance_out_of(32) {
-	var item = noone;
-	switch irandom(12) {
-		case 0: { item = obj_sword; break; }
-		case 1: { item = obj_torch; break; }
-		case 2: { item = obj_key; break; }
-		case 3: { item = obj_map; break; }
-		case 4: { item = obj_blood; break; }
-		case 5: { item = obj_rosary; break; }
-		case 6: { item = obj_amulet; break; }
-		default: { item = obj_bones; break; }
-	}
+	var item = (get_random_chance_out_of(2)) ? get_random_item_type() : obj_bones;
+	if (item == obj_meat) { item = obj_key; }
 	instance_create_depth(x, y, 4, item);
 }
 

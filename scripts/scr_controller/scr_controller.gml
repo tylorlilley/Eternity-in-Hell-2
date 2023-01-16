@@ -182,6 +182,7 @@ function initialize_game_variables() {
 	
 	// initialize room list values
 	game_rooms = array_create(0);
+	mapped_rooms = array_create(0);
 	rooms_with_collectables = array_create(0);
 	rooms_with_torch = array_create(0);
 	rooms_with_key = array_create(0);
@@ -192,7 +193,7 @@ function initialize_game_variables() {
 	rooms_with_map = array_create(0);
 	rooms_with_rosary = array_create(0);
 	rooms_with_shovel = array_create(0);
-	mapped_rooms = array_create(0);
+	rooms_with_clock = array_create(0);
 
 	// initialize game state values
 	current_room = noone;

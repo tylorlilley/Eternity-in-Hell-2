@@ -6,7 +6,9 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	    if key_space_released { play_sound( snd_putdown, false ); }
     
 	    // Update per frame values
-	    time_remaining -= one_unit_of_game_time();
+		var carried_clock = get_carried_item_of_type(obj_clock);
+		var time_to_decrement = (!carried_clock) ? one_unit_of_game_time() : one_unit_of_game_time()/2;
+		if (!carried_clock || !carried_clock.special) { time_remaining -= time_to_decrement; }
 	    //if key_space { time_remaining -= one_unit_of_game_time(); }
 	    if (game_has_timed_out()) { time_remaining = 0; play_sound(snd_lose, false); }
 		

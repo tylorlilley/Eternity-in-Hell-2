@@ -99,6 +99,7 @@ function GameRoom(given_x, given_y) constructor {
 			case obj_bomb: { array_push(global.controller.rooms_with_bomb, self); break; }
 			case obj_meat: { array_push(global.controller.rooms_with_meat, self); break; }
 			case obj_shovel: { array_push(global.controller.rooms_with_shovel, self); break; }
+			case obj_clock: { array_push(global.controller.rooms_with_clock, self); break; }
 		}
 	}
 	

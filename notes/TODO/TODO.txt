@@ -1,3 +1,24 @@
+=== REFACTORS ===
+change special item generation so that we can spawn at most one regular and one special map & staff (and at most two regular and two special clocks), etc
+rename amulet
+rename meat
+rename eyes / bumper
+all functions that return boolean should start with can_ prefix and nothing else.
+all functions that do a thing should start with do_ prefix and nothing else.
+all functions that return an instance/object should return with get_prefix and nothing else.
+Update stairs to be generated and connected the same way holes are to remove special/different logic between holes and stairs
+refactor the way that can_move_in_direction doesn't look at whether current x, y has a solid on it and how that makes so many callers also do !instance_plce(x, y, obj_solid)
+consolidate visible checks and lethal checks into just lethal checks and rename lethal to activated (nothing should use visible to run logic on, visible should just be for display drawing purposes)
+conslidate can_be_killed_by_sword && lava && fireball into one "corporeal" variable?
+utilize reading in of room data to build up profiles of each room reference to work with. This lets us assign times based on # of collectables, etc.
+Update room reference data to include non-instance information like intelligent sections for adding/removing exits for misleading rooms and specialized amounts of base time that that room itself should add, etc
+refactor carrying items for player, hands, and controller (fireball) to be way less confusing and not rely on directions
+Implement smarter pathfinding for move_towards_coordinates
+
+Remove all commented out code that we don't need anymore
+Examine remaining TODO comments
+
+=== NEW FETAURES ===
 Explain fullscreen toggle
 Explain spacebar on it better
 
@@ -5,46 +26,23 @@ options for control bindings
 options for light flicker intensity
 Put an "are you sure" on the enter button?
 
-leave ghost room shows vible ghost before its spawned
 death_counter on title screen
 show what killed you / message about what killed you on lose screen?
 
-Finish fixing drawing lava differently via drawing partial sprites
-Finish eating walls like lava with special staff
- 
-shovel
-
-rename amulet
-
-BUGFIXES
-2794973601 // keys already opened chest (not map?)
-2585055493 // wiggle under column?????
-random_set_seed(181256969); // impossible locked key
-random_set_seed(1003439283); // impossible locked key
-random_set_seed(2037714886); // impossible locked key
-
-BUGFIXES
-- Refactor key spawning with new algorithm
-- Make sure at least one collectables room is spawned?
-- Make sure at least one lit room is spawned?
-
-REFACTORS
-Refactor player with torches and lighting holding things
-
-ENHANCEMENTS
 Make map show if room has key OR chest instead of just if a key spawned there?
-Remove lit rooms coloring different on map?
+Is lit rooms coloring different on map helpful?
 
-NEW FEATURES
-Portcullis door opened with button
-Zelda style doors that close and you have to push block or light torch to open
+Zelda style portcullis that close and you have to push block or light torch to open?
 
-3313073792
+=== BUGS TO FIX ===
+leave ghost room shows vible ghost before its spawned
+ 
 
-NEW ROOM GENERATION ALGORITHM
+=== NEW ROOM GENERATION ALGORITHM ===
 Rooms need to know about themselves:
 - Difficulty Level for collectables spots. Should be an estimate of number of seconds to collect all spots
-- Whether or not room has a key spawned
+- Whether or not room has a key spawned (including if key is red)
 - Whether or not a room has a chest spawned
 - Whether or not a room has a lantern and can be lit or not
 - Whether or not a room is considered "difficult" or appropriate to appear at the given difficulty
+- What instances to include or exclude for each of the four exit directions for the purposes of filling in/clearing exits for misleading rooms

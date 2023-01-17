@@ -8,5 +8,6 @@ image_speed = 0;
 
 lethal = false;
 visible = false;
+killable_by_sword = true;
 
 blink_amount = irandom_range(10, 16);

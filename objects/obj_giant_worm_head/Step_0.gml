@@ -10,12 +10,17 @@ if (process_this_frame()) {
 		}
 		else { dir = -1; }
 		
+		// Turn in a new available direction
 		if (dir == -1) {
 			var new_directions = array_create(0);
 			array_push(new_directions, 0, 1, 2, 3);
 			while (array_length(new_directions) > 0) {
 				var new_dir = array_random_pop(new_directions);
-				if (direction_is_free(new_dir, false, true)) { dir = new_dir; break; }
+				var target = global.player;
+				with (obj_meat) { if (!carried) { target = self; } }
+				if (direction_is_free(new_dir, false, true)) { 
+					if (dir == -1 || is_direction_toward(new_dir, target)) { dir = new_dir; }
+				}
 			}
 			if (dir != -1) { play_sound(snd_thud, false); }
 		}

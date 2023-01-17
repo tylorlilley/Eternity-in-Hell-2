@@ -8,7 +8,7 @@ function draw_while_carried(y_offset, dir) {
 	draw_sprite_ext(sprite_index, image_index, x-sprite_width+(x_scale*x_offset),y+y_offset, x_scale, image_yscale, image_angle, image_blend, image_alpha);
 }
 
-/// @function								pick_up_item();
+/// @function								pick_up_item(dir, make_noise, new_holder);
 /// @param		{direction} dir				The hand this item is being picked up with
 /// @param		{boolean} make_noise		Whether or not to make a noise as part of picking up the item.
 /// @param		{boolean} holder			The instance to begin holding the item.
@@ -25,7 +25,7 @@ function pick_up_item(dir, make_noise, new_holder) {
 				if (fuse_timer != 0) { play_sound(snd_hiss, false); }
 				fuse_timer = 0; 
 			}
-			if (object_index == obj_shovel) {
+			if (object_index == obj_shovel && can_make_hole()) {
 				play_sound(snd_shovel, true);
 				if (damaged) { instance_destroy(); }
 				else if (!special) { damaged = true; }
@@ -51,7 +51,11 @@ function pick_up_item(dir, make_noise, new_holder) {
 /// @function								drop_item();
 /// @param		{direction} dir				The hand this item is being dropped out of
 function drop_item(dir, make_noise) {	
-	if (make_noise) { play_sound(snd_putdown, true);}
+	if (make_noise) { 
+		play_sound(snd_putdown, true);
+		if (object_index == obj_shovel) { play_sound(snd_shovel, true); }
+	}
+		
 	if (holder) { 
 		holder.carried_items[dir] = noone;
 		x = holder.x;
@@ -61,6 +65,7 @@ function drop_item(dir, make_noise) {
 	carried = noone;
 	persistent = false;
 	depth = 2;
+	
 	//image_xscale = (dir == directions.left) ? image_xscale : -image_xscale;
 }
 
@@ -82,9 +87,8 @@ function thump() {
 	if (thump_timer == 0) { thump_timer = 12; image_index = 0; }
 }
 
-/// @function								thump();
+/// @function								get_random_item_type();
 function get_random_item_type() {
-	return obj_shovel;
 	var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 5;
 	if (global.difficulty > difficulties.medium) { available_item_types += 3; }
 

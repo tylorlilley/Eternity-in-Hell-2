@@ -15,7 +15,9 @@ if (process_this_frame()) {
 		else if (shoot_timer == 0) {
 			if (get_random_chance_out_of(128*global.difficulty)) { explode(true); } 
 			else {
-				shoot_fireball(global.player.x, global.player.y);
+				var target = global.player;
+				with (obj_meat) { if (!carried) { target = self; } }
+				shoot_fireball(target.x, target.y);
 				visible = false;
 				image_index = 0;
 				spawn_timer = irandom_range(8, 64);

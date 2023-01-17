@@ -14,11 +14,8 @@ function open_door() {
 }
 
 /// @function							close_door();
-///	@param		{boolean}	room_start	Whether or not this is being lit by the game upon room initialization
-function close_door(room_start) {
+function close_door() {
 	image_index = 0;
-	
-	if !room_start { play_sound( snd_close, false ); }
 	
 	closed = instance_create_depth(x, y, 0, obj_solid);
 	closed.visible = false;

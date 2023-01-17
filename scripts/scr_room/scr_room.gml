@@ -19,6 +19,7 @@ function GameRoom(given_x, given_y) constructor {
 	has_key = false;
 	has_special_item = false;
 	has_collectables = false;
+	has_portcullis = false;
 	misleading_room = false;
 	stairs_spot_obj = noone;
 	item_type = noone;
@@ -53,6 +54,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; array_push(global.controller.rooms_with_key, self); }
 		if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
+		if (irandom(100) < global.controller.HAS_PORTCULLIS_PROBABILITY) { has_portcullis = true; }
 	
 		// Randomly determine the number of exits this room should have based on probability weighting
 		var target_number_of_exits = 0;
@@ -88,7 +90,14 @@ function GameRoom(given_x, given_y) constructor {
 	function set_up_room_chest() {
 		stairs_spot_obj = obj_chest;
 		//if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
-		item_type = get_random_item_type();
+		while (item_type == noone) {
+			item_type = get_random_item_type();
+		
+			if (item_type == obj_torch && array_length(global.controller.rooms_with_torch) > 1) { item_type = noone; } 
+			if (item_type == obj_map && array_length(global.controller.rooms_with_map) > 1) { item_type = noone; } 
+			if (item_type == obj_clock && array_length(global.controller.rooms_with_clock) > 1) { item_type = noone; } 
+			if (item_type == obj_amulet && array_length(global.controller.rooms_with_amulet) > 1) { item_type = noone; } 
+		}
 		
 		switch (item_type) {
 			case obj_torch: { array_push(global.controller.rooms_with_torch, self); break; }

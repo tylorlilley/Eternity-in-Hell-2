@@ -1,7 +1,7 @@
 {
   "resourceType": "GMSprite",
   "resourceVersion": "1.0",
-  "name": "spr_door",
+  "name": "spr_portcullis",
   "bboxMode": 0,
   "collisionKind": 1,
   "type": 0,
@@ -28,14 +28,14 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"322f5f51-bc0d-47e3-871a-48d1aa33f47b",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"b37703c3-59cd-45ba-919f-0f4225f4a6e6",},
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"29b1c687-7f7c-4909-98e5-27442c5b17d1",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"c2528a6a-58b1-4e74-8419-d9e3f2aefdc1",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"6dca33eb-2252-48e4-9fe3-b32afc7125bd",},
   ],
   "sequence": {
     "resourceType": "GMSequence",
     "resourceVersion": "1.4",
-    "name": "",
+    "name": "spr_portcullis",
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 1.0,
@@ -47,9 +47,9 @@
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
-            {"id":"8345b6ba-0d69-44c0-8dc9-ded91ee9e9f1","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"322f5f51-bc0d-47e3-871a-48d1aa33f47b","path":"sprites/spr_door/spr_door.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-            {"id":"dd79b0f3-c499-416b-ac21-c05a4891b6d0","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"b37703c3-59cd-45ba-919f-0f4225f4a6e6","path":"sprites/spr_door/spr_door.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-            {"id":"3e9f90c6-4e05-489e-b70a-9d7dd5dc13d9","Key":2.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"29b1c687-7f7c-4909-98e5-27442c5b17d1","path":"sprites/spr_door/spr_door.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"6fde2b77-e6f8-40f7-8c46-a49538cd987a","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"b37703c3-59cd-45ba-919f-0f4225f4a6e6","path":"sprites/spr_portcullis/spr_portcullis.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"f44ec10b-7b64-4432-bc0d-6bb7a82c34c8","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"c2528a6a-58b1-4e74-8419-d9e3f2aefdc1","path":"sprites/spr_portcullis/spr_portcullis.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"e6b7a567-e5c8-42bd-914f-02df74085535","Key":2.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"6dca33eb-2252-48e4-9fe3-b32afc7125bd","path":"sprites/spr_portcullis/spr_portcullis.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
           ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,

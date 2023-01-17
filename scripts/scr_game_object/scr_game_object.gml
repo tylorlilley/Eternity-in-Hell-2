@@ -15,18 +15,19 @@ function instance_at_coordinates(x_pos, y_pos, instance) {
 	return (instance && (instance.x == x_pos && instance.y == y_pos))
 }
 
-/// @function								is_direction_toward_player(dir);
+/// @function								is_direction_toward(dir, obj);
 /// @param		{direction} dir				The direction from the calling instance to check whether the player is in or not
-function is_direction_toward_player(dir) {
-	return ((y > global.player.y && dir == directions.up) ||
-	        (x < global.player.x && dir == directions.right) ||
-	        (y < global.player.y && dir == directions.down) ||
-	        (x > global.player.x && dir == directions.left));
+/// @param		{instance} obj				The object to check for the direction of
+function is_direction_toward(dir, obj) {
+	return ((y > obj.y && dir == directions.up) ||
+	        (x < obj.x && dir == directions.right) ||
+	        (y < obj.y && dir == directions.down) ||
+	        (x > obj.x && dir == directions.left));
 }
 
 /// @function								turn_to_face_player();
 function turn_to_face_player() {
-	if (is_direction_toward_player(1)) { image_xscale = -1; }
+	if (is_direction_toward(1, global.player)) { image_xscale = -1; }
 	else { image_xscale = 1; }
 }
 
@@ -71,7 +72,7 @@ function direction_is_free(dir, ignore_solid, ignore_death) {
 	// Set up general variables for blocking the given direction
 	var blocked_by_room_boundry = position_is_outside_room(x_pos, y_pos);
 	var blocked_by_solid = (!ignore_solid && instance_place(x_pos, y_pos, obj_solid));
-	var blocked_by_death = (!ignore_death && instance_place(x_pos, y_pos, obj_death));
+	var blocked_by_death = (!ignore_death && instance_place(x_pos, y_pos, obj_death) && instance_place(x_pos, y_pos, obj_death).lava);
 	
 	if (object_index == obj_player) {
 		// Allow player to not be blocked by walls and columns if they are carrying the special amulet
@@ -140,6 +141,8 @@ function move_in_direction(dir, make_noise) {
 		else if (solid_at_quadrant[0] != noone || solid_at_quadrant[1] != noone || solid_at_quadrant[2] != noone || solid_at_quadrant[3] != noone) { snd = snd_thud; }
 		play_sound(snd, false); 
 	}
+	
+	if (object_get_parent(self) == obj_enemy) { check_for_player_collision(); }
 }
 
 

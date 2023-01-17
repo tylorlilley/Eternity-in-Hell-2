@@ -7,7 +7,7 @@ function kill_enemy() {
 /// @function								run_away_from_player();
 function run_away_from_player() {
 	var dir = irandom(3);
-	if (is_direction_toward_player(dir)) { dir = opposite_dir(dir); }
+	if (is_direction_toward(dir, global.player)) { dir = opposite_dir(dir); }
 	if (get_random_chance_out_of(3)) { dir = 4; }
 	if (!instance_place(x, y, obj_solid) && can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); }
 }
@@ -269,4 +269,26 @@ function explode(destroy_self) {
 	shoot_fireball(x+0, y+8);
 	shoot_fireball(x+8, y+8);
 	if (destroy_self) { instance_destroy(); }
+}
+
+/// @function								check_for_killing_player();
+function check_for_player_collision() {
+	var carried_sword = get_carried_item_of_type(obj_sword);
+	var carried_amulet = get_carried_item_of_type(obj_amulet);
+		if (carried_sword != noone && killable_by_sword) {
+			play_sound(death_sound, true);
+			with carried_sword { 
+				if (!special) 
+				{ 
+					var sword_in_ground = instance_create_depth(x, y, 3, obj_sword_in_ground);
+					sword_in_ground.image_xscale = carried_sword.image_xscale;
+					instance_destroy(); 
+				} 
+			}
+			instance_destroy();
+		}
+		else if (!lava || carried_amulet == noone) {
+			play_sound(death_sound, true);
+			kill_player();
+		}
 }

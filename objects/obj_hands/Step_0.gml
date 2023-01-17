@@ -6,11 +6,11 @@ if (process_this_frame()) {
 				// Run Away From Player While Carrying Target
 				run_away_from_player();
 			}
-			else if (instance_exists(target_item)) {
+			else if (instance_exists(target_item) && (target_item.holder == noone || target_item.holder == self)) {
 				if (x == target_item.x && y == target_item.y) {
 					// Pick Up New Item and Drop Current
 					play_sound(snd_laugh, true);
-					with carried_items[1] { drop_item(1, false); }
+					if (carried_items[1] != noone) { put_item_down(1); }
 					with target_item { pick_up_item(1, false, other); }
 					target_item = noone;
 					xstart = x;
@@ -30,9 +30,16 @@ if (process_this_frame()) {
 	}
 	
 	// Make any dropped meat that can be moved towards a target
-	var dropped_meat = noone;
-	with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
-	if (dropped_meat != noone && move_towards_coordinates(dropped_meat.x, dropped_meat.y, false, false)) { target_item = dropped_meat; }
-
+	if (carried_items[1] == noone || carried_items[1].object_index != obj_meat) {
+		var dropped_meat = noone;
+		with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
+		if (dropped_meat != noone && target_item != dropped_meat) { 
+			if (!visible) { play_sound(snd_laugh, true); }
+			target_item = dropped_meat; 
+			visible = true; 
+			lethal = true;  
+		}
+	}
+	
 	event_inherited();
 }

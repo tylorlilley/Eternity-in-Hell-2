@@ -138,6 +138,7 @@ function initialize_game_variables() {
 	PRE_LIT_PROBABILITY = 8 - global.difficulty;
 	HAS_KEY_PROBABILITY = 10 + global.difficulty;
 	HAS_ITEM_PROBABILITY = 25 + global.difficulty;
+	HAS_PORTCULLIS_PROBABILITY = (global.difficulty == difficulties.easy) ? 0 : 5 + (global.difficulty-2)*10
 	SPECIAL_ITEM_PROBABILITY = 10 - global.difficulty;
 	
 	// Initilize room start probability constants
@@ -396,6 +397,10 @@ function game_room_start() {
 		with obj_placeholder { image_angle = 0; }
 		
 		// Update enemies in room to reflect new x, y position as initial position
+		with (obj_item) {
+			xstart = x;
+			ystart = y;
+		}
 		with (obj_enemy) {
 			xstart = x;
 			ystart = y;
@@ -405,6 +410,49 @@ function game_room_start() {
 			ystart = y;
 		}
 		with (obj_giant_worm_head) { connect_segments(); }
+		
+		// Create key in room if it should exist
+		var key_in_chest = false;
+		if (current_room.has_key) {
+			if (!current_room.stairs_spot_obj && get_random_chance_out_of(3)) { 	
+				key_in_chest = true;
+				current_room.item_type = obj_key;
+				current_room.stairs_spot_obj = obj_chest;
+			}
+			else {
+				with get_random_instance(obj_collectable_spot) {
+					var new_key = instance_create_depth(x, y, 4, obj_key);
+					with new_key { if (global.controller.current_room.item_type == noone && global.controller.current_room.has_special_item) { make_item_special(); } }
+					instance_destroy();
+				} 
+			}
+		}
+		
+		// Create portcullis button if it should exist
+		for (var i = 0; i < 4; i++) {
+			if (current_room.locked_exits[i] != noone) { current_room.has_portcullis = false; break; }
+		}
+		if (current_room.has_portcullis) {
+			// Set up spots where button could spawn
+			var possible_spots = array_create(0);
+			if (current_room.stairs_spot_obj == noone) { array_push(possible_spots, stairs_spot); }
+			if (!current_room.has_collectables || (!current_room.has_key || key_in_chest)) { 
+				with (obj_collectable_spot) { array_push(possible_spots, self); }
+			}
+			
+			// Determine if button can spawn, and if so, spawn it in a possible spot
+			if (array_length(possible_spots) == 0) { current_room.has_portcullis = false; }
+			else {
+				var button_spot = array_pop(possible_spots);
+				if (button_spot == stairs_spot) { current_room.stairs_spot_obj = obj_button; }
+				else {
+					with button_spot {
+						instance_create_depth(x, y, 0, obj_button);
+						instance_destroy();
+					}
+				}
+			}
+		}
     
 		// Check each of the four exits
 		for (var i = 0; i < 4; i++) {
@@ -419,11 +467,14 @@ function game_room_start() {
         
 			// Create locked exits if they should exist
 		    var exit_to_create_door_for = current_room.locked_exits[i];
-		    if (exit_to_create_door_for) {   
-		        if !door { door = instance_create_depth(x_pos, y_pos, 0, obj_door); }
+		    if (exit_to_create_door_for != noone) {
+		        if (door == noone) { door = instance_create_depth(x_pos, y_pos, 0, obj_door); }
 		        door.door_for_exit = exit_to_create_door_for;
 		        door.locked = exit_to_create_door_for.locked;
 		    }
+			
+			// Create portcullis doors if they should exist
+			else if (current_room.has_portcullis && current_room.exits[i]) { instance_create_depth(x_pos, y_pos, 0, obj_portcullis); }
 			
 			// Create blocked exists if they should exist
 			var x_pos_1 = 0, y_pos_1 = 0, x_pos_2 = 0, y_pos_2 = 0;
@@ -438,24 +489,9 @@ function game_room_start() {
 				instance_create_depth(x_pos_2, y_pos_2, 0, obj_wall);
 			}
 		}
-		
-		// Create key in room if it should exist
-		if (current_room.has_key) {
-			if (!current_room.stairs_spot_obj && get_random_chance_out_of(3)) { 	
-				current_room.item_type = obj_key;
-				current_room.stairs_spot_obj = obj_chest
-			}
-			else { 
-				with get_random_instance(obj_collectable_spot) {
-					var new_key = instance_create_depth(x, y, 4, obj_key);
-					with new_key { if (global.controller.current_room.item_type == noone && global.controller.current_room.has_special_item) { make_item_special(); } }
-					instance_destroy();
-				} 
-			}
-		}
 	
 		// Create room's stairs_spot object
-		if (current_room.stairs_spot_obj) {
+		if (current_room.stairs_spot_obj != noone) {
 		    instance_create_depth(stairs_spot.x, stairs_spot.y, 5, current_room.stairs_spot_obj);
 		}
     
@@ -535,26 +571,15 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
+	with (obj_item) { x = xstart; y = ystart; }
 	with (obj_statue) { covered = false; }
 	with (obj_echo) { instance_destroy(self, false); }
 	with (obj_fireball) { instance_destroy(); }
 	with (obj_bomb) { 
-		if (carried == noone) {
+		if (carried == noone && fuse_timer > 0) {
 			if (special) { fuse_timer = 0; } 
 			else { instance_destroy(); }
 		}
-	}
-	with (obj_meat) {
-		var meat = self;
-		if (carried == noone) { 
-			if (!special) {
-				instance_create_depth(x, y, 5, obj_bones); 
-				instance_destroy();
-			}
-			else {
-				with (obj_enemy) { if (meat_eater && instance_place(x, y, meat)) { instance_destroy(); } }
-			}
-		} 
 	}
 	with (obj_enemy) { x = xstart; y = ystart; }
 	with (obj_giant_worm_body) {
@@ -622,11 +647,11 @@ function game_room_start() {
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
 		var potential_items = array_create(0);
-		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !instance_place(x, y, obj_solid)) { array_push(potential_items, self); } }
+		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !instance_place(x, y, obj_solid) && !instance_place(x, y, obj_hands)) { array_push(potential_items, self); } }
 		// Spawn a hand on each potential item if probability is met
 		for (var i = 0; i < array_length(potential_items); i++) {
 			var potential_item = potential_items[i];
-			if (!entered_from_spawn && get_random_chance_out_of(HANDS_PROBABILITY) && instance_number(obj_hands) == 0) { 
+			if (!entered_from_spawn && get_random_chance_out_of(HANDS_PROBABILITY)) { 
 				var new_hands = instance_create_depth(potential_item.x, potential_item.y, 0, obj_hands);
 				new_hands.target_item = potential_item;
 				new_hands.xstart = potential_item.x;
@@ -634,16 +659,30 @@ function game_room_start() {
 			}
 		}
 	}
-	
 	with (obj_hands) { 
-		visible = false; 
-		with (carried_items[1]) { 
+		visible = false;
+		with (carried_items[1]) {
 			if (carried) { 
 				other.target_item = self;
 				drop_item(1, false);
-			} 
+			}
+			if (object_index == obj_meat) { instance_destroy(other, false); }
 		}
+		if (target_item == noone) { instance_destroy(self, false); }
 	}
+	with (obj_meat) {
+		var meat = self;
+		if (carried == noone) { 
+			if (!special) {
+				instance_create_depth(x, y, 5, obj_bones); 
+				instance_destroy();
+			}
+			else {
+				with (obj_enemy) { if (meat_eater && instance_place(x, y, meat)) { instance_destroy(); } }
+			}
+		} 
+	}
+	move_player(4);
 }
 
 /// @function								set_up_locks_and_keys();

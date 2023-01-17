@@ -6,7 +6,7 @@ if (process_this_frame()) {
 		var push_direction = pushed_against_by_player();
 		if (push_direction != noone) {
 			var carried_key = get_carried_item_of_type(obj_key);
-		    if (locked && !carried_key) { play_sound(snd_locked, false); }
+		    if (!unlocked_by_key || (locked && !carried_key)) { play_sound(snd_locked, false); }
 		    else {
 				play_sound(snd_open, true);
 				global.player.x = x;
@@ -22,7 +22,8 @@ if (process_this_frame()) {
 			}
 		}
 	}
-	else if (!instance_place(x, y, global.player)) {
-		close_door(false);
+	else if (!stuck_open && !instance_place(x, y, global.player)) {
+		play_sound(close_sound, false);
+		close_door();
 	}
 }

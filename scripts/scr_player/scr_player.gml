@@ -22,18 +22,7 @@ function move_player(dir) {
 /// @function								pick_up_or_drop_item(dir);
 /// @param		{direction} dir				The directional slot to pick up or drop an item into or from
 function pick_up_or_drop_item(dir) {
-	if (carried_items[dir]) {
-		// Alert spiders if meat is dropped
-		if (carried_items[dir].object_index == obj_meat) {
-			with (obj_spider) { if (lethal) { play_sound(snd_lose, false); } }
-		}
-		// Drop Item and alert one obj_hands to come grab it
-		var possible_hands = array_create(0);
-		with (obj_hands) { if (visible) { array_push(possible_hands, self); } }
-		var new_hands = array_length(possible_hands) > 0 ? array_random_get(possible_hands) : noone;
-		with new_hands { target_item = other.carried_items[dir]; }
-		with carried_items[dir] { drop_item(dir, true); }
-	}
+	if (carried_items[dir]) { put_item_down(dir); }
 	else {
 		// Cycle through the items you could be possibly picking up
 		var dropped_items = instance_place_all(x, y, obj_item);
@@ -45,6 +34,30 @@ function pick_up_or_drop_item(dir) {
 		}
 		return false;
 	}
+}
+
+/// @function								pick_up_or_drop_item(dir);
+/// @param		{direction} dir				The directional slot to drop an item from
+function put_item_down(dir) {
+	var dropped_by_player = (object_index == obj_player);
+	// Alert spiders if meat is dropped
+	if (carried_items[dir].object_index == obj_meat) {
+		with (obj_spider) { if (lethal) { play_sound(snd_lose, false); } }
+	}
+	// Drop Item and alert interested obj_hands to come grab it
+	with (obj_hands) { 
+		if (visible && (carried_items[dir] == noone || (dropped_by_player && carried_items[dir].object_index != obj_meat))) { 
+			target_item = other.carried_items[dir]; 
+		} 
+	}
+	with carried_items[dir] { 
+		drop_item(dir, dropped_by_player); 
+		if (dropped_by_player) {
+			xstart = x;
+			ystart = y;
+		}
+	}
+
 }
 
 /// @function								get_carried_item_of_type(dir);
@@ -145,16 +158,19 @@ function get_direction_input(key_pressed_only) {
 function can_drop_item(dir) {
 	var item_to_drop = carried_items[dir];
 	if (item_to_drop == noone) { return true; }
-	if (item_to_drop.object_index == obj_shovel) { 
-		return (!instance_place(x, y, obj_solid) &&
-				!instance_place(x, y, obj_door) &&
-				!instance_place(x, y, obj_stairs) &&
-				!instance_place(x, y, obj_lava) &&
-				!instance_place(x, y, obj_lantern) &&
-				!instance_place(x, y, obj_cross) &&
-				!instance_place(x, y, obj_bush) &&
-				!instance_place(x, y, obj_hole) &&
-				!instance_place(x, y, obj_block_spot));
-	}
+	if (item_to_drop.object_index == obj_shovel) { return can_make_hole(); }
 	else { return (!instance_place(x, y, obj_solid)); }
+}
+
+/// @function					can_make_hole(dir)
+function can_make_hole() {
+	return (!instance_place(x, y, obj_solid) &&
+			!instance_place(x, y, obj_door) &&
+			!instance_place(x, y, obj_stairs) &&
+			!instance_place(x, y, obj_lava) &&
+			!instance_place(x, y, obj_lantern) &&
+			!instance_place(x, y, obj_cross) &&
+			!instance_place(x, y, obj_bush) &&
+			!instance_place(x, y, obj_hole) &&
+			!instance_place(x, y, obj_block_spot));
 }

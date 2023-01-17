@@ -7,7 +7,9 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
     
 	    // Update per frame values
 		var carried_clock = get_carried_item_of_type(obj_clock);
-		var time_to_decrement = (!carried_clock) ? one_unit_of_game_time() : one_unit_of_game_time()/2;
+		var time_to_decrement = one_unit_of_game_time();
+		if (global.player.carried_items[directions.right] && global.player.carried_items[directions.right].object_index == obj_clock) { time_to_decrement/= 2; }
+		if (global.player.carried_items[directions.left] && global.player.carried_items[directions.left].object_index == obj_clock) { time_to_decrement/= 2; }
 		if (!carried_clock || !carried_clock.special) { time_remaining -= time_to_decrement; }
 	    //if key_space { time_remaining -= one_unit_of_game_time(); }
 	    if (game_has_timed_out()) { time_remaining = 0; play_sound(snd_lose, false); }

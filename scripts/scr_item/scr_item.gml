@@ -11,7 +11,7 @@ function draw_while_carried(y_offset, dir) {
 /// @function								pick_up_item(dir, make_noise, new_holder);
 /// @param		{direction} dir				The hand this item is being picked up with
 /// @param		{boolean} make_noise		Whether or not to make a noise as part of picking up the item.
-/// @param		{boolean} holder			The instance to begin holding the item.
+/// @param		{boolean} new_holder		The instance to begin holding the item.
 function pick_up_item(dir, make_noise, new_holder) {
 	if (make_noise) { play_sound(snd_pickup, true); }
 	holder = new_holder

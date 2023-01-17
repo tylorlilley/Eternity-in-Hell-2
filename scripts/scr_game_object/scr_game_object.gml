@@ -250,3 +250,14 @@ function randomize_image(max_image_index) {
 function singleton_instance() {
 	if (instance_number(object_index) > 1) { instance_destroy(); }
 }
+
+/// @function								press_button();
+function can_press_button() {	
+	var enemy = instance_position(x, y, obj_enemy), block = instance_position(x, y, obj_solid);
+	
+	return (
+		(enemy && enemy.killable_by_sword && instance_at_coordinates(x, y, enemy)) || 
+		instance_at_coordinates(x, y, global.player) || 
+		(block && instance_at_coordinates(x, y, block))
+	);
+}

@@ -4,7 +4,7 @@
   "name": "macOS",
   "option_mac_display_name": "EIH",
   "option_mac_app_id": "EIH",
-  "option_mac_version": "1.1.3",
+  "option_mac_version": "1.1.5",
   "option_mac_output_dir": "~/GameMaker-Studio/Eternity_in_Hell",
   "option_mac_team_id": "",
   "option_mac_signing_identity": "",
@@ -31,5 +31,5 @@
   "option_mac_x86_64": true,
   "option_mac_arm64": true,
   "option_mac_apple_sign_in": false,
-  "option_mac_min_version": "1.1.4.0",
+  "option_mac_min_version": "1.1.5.0",
 }

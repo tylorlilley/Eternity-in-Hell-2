@@ -647,7 +647,9 @@ function game_room_start() {
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
 		var potential_items = array_create(0);
-		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !instance_place(x, y, obj_solid) && !instance_place(x, y, obj_hands)) { array_push(potential_items, self); } }
+		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !instance_place(x, y, obj_solid) && !instance_place(x, y, obj_hands)) { 
+			array_push(potential_items, self); } 
+		}
 		// Spawn a hand on each potential item if probability is met
 		for (var i = 0; i < array_length(potential_items); i++) {
 			var potential_item = potential_items[i];
@@ -656,6 +658,7 @@ function game_room_start() {
 				new_hands.target_item = potential_item;
 				new_hands.xstart = potential_item.x;
 				new_hands.ystart = potential_item.y;
+				potential_item.holder = global.controller;
 			}
 		}
 	}
@@ -665,6 +668,7 @@ function game_room_start() {
 			if (carried) { 
 				other.target_item = self;
 				drop_item(1, false);
+				holder = global.controller;
 			}
 			if (object_index == obj_meat) { instance_destroy(other, false); }
 		}

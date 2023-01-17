@@ -84,7 +84,7 @@ function get_quadrant_y_pos(quadrant_number) {
 /// @function								instance_place_all(x_pos, y_pos, obj_type);
 /// @param		{real}	x_pos				The x_pos to check for instances
 /// @param		{real}	y_pos				The x_pos to check for instances
-/// @param		{real}	y_pos				The object type of instance to check for
+/// @param		{real}	obj_type			The object type of instance to check for
 function instance_place_all(x_pos, y_pos, obj_type) {
     var calling_instance_id = id, list_of_matches = array_create(0);
 	

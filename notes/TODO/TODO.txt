@@ -1,5 +1,3 @@
-MAKE HANDS USE ITEMS IT IS CARRYING?
-
 Explain fullscreen toggle
 Explain spacebar on it better
 

@@ -1,1 +1,1 @@
-if (carried) { holder.carried_items[carried] = noone; }
+if (carried) { with holder { carried_items[other.carried] = noone; } }

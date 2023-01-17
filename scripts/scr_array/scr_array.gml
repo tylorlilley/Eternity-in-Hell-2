@@ -5,7 +5,7 @@ function array_random_get(list) {
 	else { return list[irandom(array_length(list)-1)]; }
 }
 
-/// @function								array_pop_random(list);
+/// @function								array_random_pop(list);
 /// @param		{index} list				The array from which to pop a random value
 function array_random_pop(list) {
 	var popped_value = noone;

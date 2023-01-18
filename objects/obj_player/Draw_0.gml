@@ -1,6 +1,6 @@
 // Draw box over lava or amulet solids
 if (get_carried_item_of_type(obj_amulet) != noone) {
-	var lava_at_quadrant = lava_at_position(), wall_at_quadrant = get_presence_at_each_quadrant(obj_wall), column_at_quadrant = get_presence_at_each_quadrant(obj_column);
+	var lava_at_quadrant = get_instance_at_each_quadrant(obj_lava), wall_at_quadrant = get_instance_at_each_quadrant(obj_wall), column_at_quadrant = get_instance_at_each_quadrant(obj_column);
 	for (var i = 0; i <= 3; i +=1;) {
 		var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 

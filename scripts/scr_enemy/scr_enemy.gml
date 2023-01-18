@@ -1,22 +1,23 @@
-/// @function								kill_enemy();
-function kill_enemy() {
-	play_sound(death_sound, true);
+/// @function								kill_enemy(death_sound);
+///	@param		{index}	death_sound			The sound to play upon killing this enemy
+function kill_enemy(death_sound) {
+	if (death_sound != noone) { play_sound(death_sound, true); }
+	if (corporeal) {
+		var corpse = (object_index == obj_skeleton) ? obj_bones : obj_blood;
+		instance_create_depth(x, y, 4, corpse);
+	}
 	instance_destroy();
 }
 
 /// @function								kill_with_sword();
 ///	@param		{instance}	sword			The sword being used to kill this enemy
 function kill_with_sword(sword) {
-	play_sound(death_sound, true);
-	with sword { 
-		if (!special) 
-		{ 
-			var sword_in_ground = instance_create_depth(x, y, 3, obj_sword_in_ground);
-			sword_in_ground.image_xscale = image_xscale;
-			instance_destroy(); 
-		} 
+	if (!sword.special) { 
+		var sword_in_ground = instance_create_depth(x, y, 0, obj_sword_in_ground);
+		sword_in_ground.image_xscale = sword.image_xscale;
+		instance_destroy(sword); 
 	}
-	instance_destroy();
+	kill_enemy(snd_crunch);
 }
 
 /// @function								run_away_from_player(ignore_solid, ignore_death);
@@ -40,7 +41,7 @@ function teleport_to_empty_space() {
 			!instance_place(x, y, obj_stairs_spot) && 
 			!instance_place(x, y, obj_player) &&
 			!position_is_outside_room(x, y) &&
-			distance_to_instance(global.player) >= MOUTH_DISTANCE);
+			distance_to_instance(global.player) >= global.controller.TRAP_RANGE);
 }
 
 /// @function								teleport_to_lava()
@@ -64,12 +65,10 @@ function teleport_to_lava() {
 			}
 			
 			// return early if this is a good teleported position
-			var solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
-			var player_at_quadrant = get_presence_at_each_quadrant(global.player);
-			
-			if (!position_is_outside_room(x, y) && lava_at_all_quadrants() &&
-				solid_at_quadrant[0] == noone && solid_at_quadrant[1] == noone && solid_at_quadrant[2] == noone && solid_at_quadrant[3] == noone &&
-				player_at_quadrant[0] == noone && player_at_quadrant[1] == noone && player_at_quadrant[2] == noone && player_at_quadrant[3] == noone) {
+			if (is_covered_at_each_quadrant_by(obj_lava) &&
+				!position_is_outside_room(x, y) &&
+				!is_covered_at_each_quadrant_by(obj_solid) &&
+				!instance_at_coordinates(x, y, global.player)) {
 				  return lava;
 			  }
 		}
@@ -79,9 +78,9 @@ function teleport_to_lava() {
 		current_pos = (current_pos + 1 > total_lava) ? 0 : current_pos + 1;
 	}
 	
-	// no suitable teleport spot
-	instance_destroy();
-	play_sound(death_sound, true); 
+	// No suitable teleport spot; Should never need to reach this clause
+	show_debug_message("WARNING: teleport to lava failed.");
+	instance_destroy(self, false);
 	return noone;
 }
 
@@ -288,15 +287,12 @@ function explode(destroy_self) {
 	if (destroy_self) { instance_destroy(); }
 }
 
-/// @function								check_for_killing_player();
+/// @function								check_for_player_collision();
 function check_for_player_collision() {
 	if (instance_place(x, y, global.player) != noone && !global.player.dead) {
 		var carried_sword = get_carried_item_of_type(obj_sword);
 		var carried_amulet = get_carried_item_of_type(obj_amulet);
-			if (carried_sword != noone && killable_by_sword) { kill_with_sword(carried_sword); }
-			else if (!lava || carried_amulet == noone) {
-				play_sound(death_sound, true);
-				kill_player();
-			}
+			if (carried_sword != noone && corporeal) { kill_with_sword(carried_sword); }
+			else if (!lava || carried_amulet == noone) { kill_player(); }
 	}
 }

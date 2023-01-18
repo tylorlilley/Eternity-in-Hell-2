@@ -3,8 +3,8 @@ if (sprite_index) {
     
     // Consider each quadrant of the sprite and draw a blank square over it if it is behind another object that should cover it
     draw_set_color(global.controller.bg_color);
-	var bush_at_quadrant = get_presence_at_each_quadrant(obj_bush);
-	var solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
+	var bush_at_quadrant = get_instance_at_each_quadrant(obj_bush);
+	var solid_at_quadrant = get_instance_at_each_quadrant(obj_solid);
 	
     for (var i = 0; i <= 3; i += 1;) {
         var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);

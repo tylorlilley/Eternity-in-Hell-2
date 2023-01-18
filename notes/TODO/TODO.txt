@@ -3,7 +3,8 @@ change special item generation so that we can spawn at most one regular and one 
 rename amulet
 rename meat
 rename eyes / bumper
-all functions that return boolean should start with can_ prefix and nothing else.
+rename worm to snake
+all functions that return boolean should start with is_ or can_ prefix and nothing else.
 all functions that do a thing should start with do_ prefix and nothing else.
 all functions that return an instance/object should return with get_prefix and nothing else.
 Update stairs to be generated and connected the same way holes are to remove special/different logic between holes and stairs
@@ -17,6 +18,11 @@ Implement smarter pathfinding for move_towards_coordinates
 
 Remove all commented out code that we don't need anymore
 Examine remaining TODO comments
+
+dropped bomb and torch lighting and parent item destruction when covered by lava but not player with amulet; should also not work when covered by hands with amulet. Hands should also draw squares over lava they stand on.
+refactor !carried into carried == noone
+relocate functions to script files they belong in 
+Examine instance_place vs instance_place_all use
 
 === NEW FETAURES ===
 Explain fullscreen toggle
@@ -34,8 +40,11 @@ Is lit rooms coloring different on map helpful?
 
 Zelda style portcullis that close and you have to push block or light torch to open?
 
+Should staff protect against non-corporeal enemies?
+
 === BUGS TO FIX ===
 leave ghost room shows vible ghost before its spawned
+Why do seeds play out differently in terms of what gets spawned or not?
  
 
 === NEW ROOM GENERATION ALGORITHM ===

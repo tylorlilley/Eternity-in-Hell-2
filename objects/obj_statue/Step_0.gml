@@ -30,12 +30,6 @@ if (process_this_frame()) {
 			shoot_fireball(x_pos, y_pos);
 		}
 	}
-	/*
-	else if (!prev_covered) { 
-		play_sound(snd_move, false);
-		image_index = 1; 
-	}
-	*/
 	
 	event_inherited();
 }

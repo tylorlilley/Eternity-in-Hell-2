@@ -1,9 +1,9 @@
 if (process_this_frame()) {
-	if (spawn_timer > 0) { visible = false; spawn_timer -= 1; }
+	if (spawn_timer > 0) { activated = false; spawn_timer -= 1; }
 	else {
-		if (!visible) { 
+		if (!activated) { 
 			teleport_to_lava();
-			visible = true; 
+			activated = true; 
 			shoot_timer = 16; //irandom_range(6, 16);
 			turn_to_face_player();
 			play_sound(snd_splash, false);
@@ -18,19 +18,14 @@ if (process_this_frame()) {
 				var target = global.player;
 				with (obj_meat) { if (!carried) { target = self; } }
 				shoot_fireball(target.x, target.y);
-				visible = false;
 				image_index = 0;
+				activated = false;
 				spawn_timer = irandom_range(8, 64);
 			}
 		}
 	}
 	
-	lethal = visible;
-	
-	var lava_at_quadrant = lava_at_position();
-	if (lava_at_quadrant[0] == noone || lava_at_quadrant[1] == noone || lava_at_quadrant[2] == noone ||lava_at_quadrant[3] == noone) {
-		teleport_to_lava();
-	}
+	if (!is_covered_at_each_quadrant_by(obj_lava)) { teleport_to_lava(); }
 	
 	event_inherited();
 }

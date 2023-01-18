@@ -1,4 +1,5 @@
 event_inherited();
-lethal = true;
-meat_eater = false;
-consumed_by_fireball = true;
+
+visible = false;
+corporeal = true;
+fire_resistant = false;

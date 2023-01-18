@@ -1,8 +1,8 @@
 event_inherited();
+set_farm_mode_sprite(spr_giant_wurm_farmer);
 
-sprite_index = (global.controller.FARM_MODE) ? spr_giant_wurm_farmer : spr_giant_wurm;
 depth = -12;
-image_speed = 0;
+
 head = noone;
 tail = noone;
 dir = -1;

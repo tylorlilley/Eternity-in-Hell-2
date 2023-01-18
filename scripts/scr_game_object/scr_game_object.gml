@@ -136,9 +136,9 @@ function move_in_direction(dir, make_noise) {
 	else if (dir == directions.left) { x -= 8; image_xscale = 1; }
 	
 	if (make_noise) {
-		var snd = snd_walk, lava_at_quadrant = lava_at_position(), solid_at_quadrant = get_presence_at_each_quadrant(obj_solid);
-		if (lava_at_quadrant[0] != noone || lava_at_quadrant[1] != noone || lava_at_quadrant[2] != noone || lava_at_quadrant[3] != noone) { snd = snd_splash; }
-		else if (solid_at_quadrant[0] != noone || solid_at_quadrant[1] != noone || solid_at_quadrant[2] != noone || solid_at_quadrant[3] != noone) { snd = snd_thud; }
+		var snd = snd_walk;
+		if (is_covered_at_each_quadrant_by(obj_lava)) { snd = snd_splash; }
+		else if (is_covered_at_each_quadrant_by(obj_solid)) { snd = snd_thud; }
 		play_sound(snd, false); 
 	}
 	
@@ -188,17 +188,36 @@ function flip_sprite_at_random(flip_vertical) {
 	if (flip_vertical) { image_yscale = get_random_chance_out_of(2) ? 1 : -1; }
 }
 
-/// @function								get_presence_at_each_quadrant(obj_index);
-///	@param		{index} obj_index			The object type to check the presence of in each quadrant
-function get_presence_at_each_quadrant(obj_index) {
-	var presence_at_quadrant =[noone, noone, noone, noone];
+/// @function								get_instance_at_each_quadrant(obj_index);
+///	@param		{index} obj_index			The object type to return the presence of in each quadrant
+function get_instance_at_each_quadrant(obj_index) {
+	// Checking for lava is a special case, because the full lava object stays and blacks out
+	// certain quadrants with individual quadrant death boxes due to the way blocks can destroy
+	// multiple different lava's quadrants at once. Thus we need to use a special method that
+	// Takes that into account.
+	if (obj_index == obj_lava) { return get_lava_at_each_quadrant(); }
+	
+	var presence_at_quadrant = [noone, noone, noone, noone];
 	
 	for (var i = 0; i <= 3; i+= 1;) {
         var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
-       presence_at_quadrant[i] = instance_position(x_pos, y_pos, obj_index);
+		presence_at_quadrant[i] = instance_position(x_pos, y_pos, obj_index);
     }
 	
 	return presence_at_quadrant;
+}
+
+/// @function								is_covered_at_each_quadrant_by(obj_index);
+///	@param		{index} obj_index			The object type to check the presence of in each quadrant
+function is_covered_at_each_quadrant_by(obj_index) {
+	var presence_at_quadrant = get_instance_at_each_quadrant(obj_index);
+	
+	return (
+		presence_at_quadrant[0] != noone &&
+		presence_at_quadrant[1] != noone &&
+		presence_at_quadrant[2] != noone &&
+		presence_at_quadrant[3] != noone
+	);
 }
 
 /// @function								move_towards_coordinates(obj_index);
@@ -240,7 +259,6 @@ function get_random_possible_direction(target_x, target_y, ignore_solid, ignore_
 /// @function								randomize_image(max_image_index);
 ///	@param		{int} max_image_index		The max image_index value possible for this object's sprite
 function randomize_image(max_image_index) {
-	image_speed = 0;
 	image_index = irandom(max_image_index);
 	flip_sprite_at_random(true);
 	rotate_sprite_to_random_angle();
@@ -256,8 +274,13 @@ function can_press_button() {
 	var enemy = instance_position(x, y, obj_enemy), block = instance_position(x, y, obj_solid);
 	
 	return (
-		(enemy && enemy.killable_by_sword && instance_at_coordinates(x, y, enemy)) || 
+		(enemy && enemy.corporeal && instance_at_coordinates(x, y, enemy)) || 
 		instance_at_coordinates(x, y, global.player) || 
 		(block && instance_at_coordinates(x, y, block))
 	);
+}
+
+/// @function								set_farm_mode_sprite();
+function set_farm_mode_sprite(farm_sprite) {
+	if (global.controller.FARM_MODE) { sprite_index = farm_sprite; }
 }

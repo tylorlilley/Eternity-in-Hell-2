@@ -1,10 +1,9 @@
 event_inherited();
 
 sprite_index = spr_echo;
-image_speed = 0;
-image_blend = c_black;
+//image_blend = c_black;
 
-death_sound = snd_lose;
+corporeal = false;
 
 generator = noone;
 walk_timer = 2;

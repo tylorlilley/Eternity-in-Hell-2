@@ -1,12 +1,12 @@
 event_inherited();
+set_farm_mode_sprite(spr_ears_farmer);
 
-meat_eater = true;
-awake = false;
-target_x = x;
-target_y = y;
-killable_by_sword = true;
-consumed_by_block = false;
-death_sound = snd_crunch;
-hiss_timer = -1;
 image_speed = one_unit_of_game_time();;
 image_xscale = (get_random_chance_out_of(2)) ? 1 : -1;
+
+corporeal = false;
+
+awake = false;
+hiss_timer = -1;
+target_x = xstart;
+target_y = ystart;

@@ -1,10 +1,14 @@
 event_inherited();
 
+activated = true;
 lava = false;
-killable_by_sword = false;
+
+corporeal = false;
+fire_resistant = true;
+
+//killed_by_sword = false;
+//killed_by_solid = false;
+//killed_by_lava = false;
+//killed_by_fireball = false;
+
 consume_block = false;
-consumed_by_block = false;
-consumed_by_lava = false;
-consumed_by_fireball = false;
-death_sound = snd_lose;
-lethal = true;

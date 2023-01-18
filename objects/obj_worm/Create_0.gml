@@ -1,14 +1,7 @@
 event_inherited();
+set_farm_mode_sprite(spr_worm_farmer);
+play_sound(snd_hiss, false);
 
-sprite_index = (global.controller.FARM_MODE) ? spr_worm_farmer : spr_worm;
-
-meat_eater = true;
-killable_by_sword = true;
-consume_block = false
-consumed_by_block = true;
-consumed_by_lava = true;
-death_sound = snd_crunch;
 image_speed = 1;
 
 dir = -1;
-

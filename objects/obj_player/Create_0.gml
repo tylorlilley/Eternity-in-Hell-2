@@ -1,16 +1,18 @@
+event_inherited();
 global.player = id;
+
 depth = -10;
-flicker_value = 0;
+
 lighting_range = global.controller.PLAYER_LIGHT_RANGE;
 is_flickering_light_source = false;
+flicker_value = 0;
+
 dir = noone;
 dir_prev = noone;
 x_prev = x;
 y_prev = y;
 dead = false;
-image_speed = 0;
 pause_movement = 0;
-hidden = false;
 
 // Create initial carried torch
 carried_items = [noone, noone, noone, noone, noone];

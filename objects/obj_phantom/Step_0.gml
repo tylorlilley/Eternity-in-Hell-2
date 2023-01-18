@@ -8,18 +8,18 @@ if (process_this_frame()) {
 	    if (get_random_chance_out_of(2)) { play_sound(snd_flicker, false); }
 		
 		// Become lethal if time is up and it is not lethal yet
-	    if (!lethal) { 
+	    if (!activated) { 
 	        play_sound(snd_static, false);
-	        lethal = true;
+	        activated = true;
 	    }
 	}
 
+	// If room becomes fully lit, destroy self
 	if (global.controller.current_room.lit) { 
-		if (spawn_timer >= 0) { play_sound(snd_impact, false) }; 
-		instance_destroy(); 
+		if (spawn_timer >= 0) { kill_enemy(snd_impact); }
 	}
+	
+	if (spawn_timer > 0) { activated = false; }
 
 	event_inherited();
-	
-	if (spawn_timer > 0) { visible = false; }
 }

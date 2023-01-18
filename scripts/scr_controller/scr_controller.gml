@@ -165,6 +165,7 @@ function initialize_game_variables() {
 	LANTERN_LIGHT_RANGE = 14;
 	TORCH_LIGHT_RANGE = 11;
 	PLAYER_LIGHT_RANGE = 6;
+	TRAP_RANGE = 40;
 
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
@@ -534,12 +535,16 @@ function game_room_start() {
 		for (var i = 0; i < dirt_to_spawn; i++) {
 			var x_pos = irandom(room_width/8) * 8, y_pos = irandom(room_height/8) * 8
 			with (instance_create_depth(x_pos, y_pos, 0, obj_dirt)) {
-				var lava_at_coordinates = lava_at_position(), solid_at_coordinates = get_presence_at_each_quadrant(obj_solid);
-				if ((lava_at_coordinates[0] != noone && lava_at_coordinates[1] != noone && lava_at_coordinates[2] != noone && lava_at_coordinates[3] != noone) ||
-					(solid_at_coordinates[0] != noone && solid_at_coordinates[1] != noone && solid_at_coordinates[2] != noone && solid_at_coordinates[3] != noone)) {
-					instance_destroy(self, false);
-				}
+				if (is_covered_at_each_quadrant_by(obj_lava) || is_covered_at_each_quadrant_by(obj_solid)) { instance_destroy(self, false); }
 			}
+		}
+		
+		// Usurp some skeletons
+		with (obj_skeleton) {
+			var usurped = noone;
+			if (get_random_chance_out_of(global.controller.WORM_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_worm; }
+			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_bumper) == 0) { usurped = obj_bumper; }
+			if (usurped != noone) { instance_create_depth(x, y, 0, usurped); instance_destroy(); }
 		}
 	}
 
@@ -571,9 +576,16 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
-	with (obj_item) { x = xstart; y = ystart; }
-	with (obj_statue) { covered = false; }
-	with (obj_echo) { instance_destroy(self, false); }
+	with (obj_bones) { if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(32-global.difficulty)); } }
+	with (obj_stairs) { active = false; }
+	with (obj_hole) { active = false; }
+	with (obj_door) { 
+		locked = (door_for_exit && door_for_exit.locked);
+		if (instance_place(x, y, global.player)) { open_door(); }
+	}
+	
+	//// Destroy instances that shouldn't persist after leaving the room
+	with (obj_echo) { instance_destroy(); }
 	with (obj_fireball) { instance_destroy(); }
 	with (obj_bomb) { 
 		if (carried == noone && fuse_timer > 0) {
@@ -581,7 +593,24 @@ function game_room_start() {
 			else { instance_destroy(); }
 		}
 	}
-	with (obj_enemy) { x = xstart; y = ystart; }
+	with (obj_meat) {
+		var meat = self;
+		if (carried == noone) { 
+			if (!special) {
+				instance_create_depth(x, y, 5, obj_bones); 
+				instance_destroy();
+			}
+			else {
+				// If special, kill any enemies that were eating the meat
+				with (obj_enemy) { if (corporeal && instance_place(x, y, meat)) { kill_enemy(noone); } }
+			}
+		} 
+	}
+	
+	//// Reset instances to their start positions
+	with (obj_block) { x = starting_spot.x; y = starting_spot.y; }
+	with (obj_item) { x = xstart; y = ystart; }
+	with (obj_enemy) { if (object_index != obj_hands) { instance_create_depth(xstart, ystart, 0, object_index); instance_destroy(); } }
 	with (obj_giant_worm_body) {
 		var new_worm_body = instance_create_depth(xstart, ystart, depth, object_index);
 		new_worm_body.xstart = xstart;
@@ -590,49 +619,6 @@ function game_room_start() {
 		instance_destroy(self, false);
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
-	with (obj_stairs) { active = false; }
-	with (obj_hole) { active = false; }
-	with (obj_block) { x = starting_spot.x; y = starting_spot.y; }
-	with (obj_door) { 
-		locked = (door_for_exit && door_for_exit.locked);
-		if (instance_place(x, y, global.player)) { open_door(); }
-	}
-	with (obj_bones) { if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(32-global.difficulty)); } }
-	with (obj_worm) { dir = -1; play_sound(snd_hiss, false); }
-	with (obj_mouth) { play_sound(snd_squelch, false); teleport_to_empty_space(); }
-	with (obj_eyes) { play_sound(snd_flicker, false); teleport_near_player(); play_sound(snd_whisper, false); }
-	with (obj_bumper) { instance_create_depth(x, y, 0, obj_bumper); instance_destroy(); }
-	with (obj_ears) { awake = false; target_x = x; target_y = y; }
-	with (obj_nose) {
-		instance_create_depth(x, y, depth, obj_nose);
-		instance_destroy(self, false);
-	}
-	with (obj_spider) {
-		lethal = get_random_chance_out_of(2);
-		if global.controller.entered_from_stairs { lethal = false; }
-
-		WAITING = 0;
-		SCREECHING = 1;
-		ATTACKING = 2;
-		state = WAITING;
-		dir = -1;
-	}
-	with (obj_phantom) {
-		visible = false;
-		lethal = false;
-
-		if (global.controller.current_room.lit) { instance_destroy(); }
-		else if (global.controller.entered_from_spawn) { spawn_timer = -1; }
-		else { 
-			play_sound(snd_dread, false); 
-			spawn_timer = (global.controller.entered_from_stairs) ? 12 : 0;
-			with (obj_lantern) { if (!instance_exists(light_source)) { other.spawn_timer += (16 - global.difficulty); } }
-			if (spawn_timer > 50) { spawn_timer = 60; } 
-			if (spawn_timer < 15) { spawn_timer = 15; } 
-			x = global.player.x;
-			y = global.player.y;
-		}
-	}
 	with (obj_echo_spot) {
 		if (global.controller.entered_from_stairs && global.controller.current_room == global.controller.start_room) { instance_destroy(self, false); }
 		else {
@@ -643,7 +629,8 @@ function game_room_start() {
 			y = global.player.y;
 		}
 	}
-	// If room has dropped item, consider spawning hands
+	
+	//// If room has dropped item, consider spawning hands
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
 		var potential_items = array_create(0);
@@ -662,30 +649,21 @@ function game_room_start() {
 			}
 		}
 	}
-	with (obj_hands) { 
-		visible = false;
-		with (carried_items[1]) {
-			if (carried) { 
-				other.target_item = self;
-				drop_item(1, false);
-				holder = global.controller;
+	with (obj_hands) {
+		activated = false;
+		
+		if (carried_items[1] != noone) {
+			if (carried_items[1].object_index == obj_meat) { instance_destroy(); }
+			else {
+				target_item = carried_items[1];
+				with (carried_items[1]) { drop_item(1, false); holder = global.controller; }
 			}
-			if (object_index == obj_meat) { instance_destroy(other, false); }
 		}
+		
 		if (target_item == noone) { instance_destroy(self, false); }
 	}
-	with (obj_meat) {
-		var meat = self;
-		if (carried == noone) { 
-			if (!special) {
-				instance_create_depth(x, y, 5, obj_bones); 
-				instance_destroy();
-			}
-			else {
-				with (obj_enemy) { if (meat_eater && instance_place(x, y, meat)) { instance_destroy(); } }
-			}
-		} 
-	}
+	
+	//// Make sure player is in proper position after room start code has run
 	move_player(4);
 }
 

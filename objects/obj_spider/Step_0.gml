@@ -1,7 +1,5 @@
 if (process_this_frame()) {
-	visible = lethal;
-
-	if lethal {		
+	if (activated) {		
 		// Turn to face the player and begin Screeching if player is in view
 		try_to_see_player();
 		
@@ -23,7 +21,7 @@ if (process_this_frame()) {
 		
 		// Turn to face the player and begin Screeching if player is in view
 		try_to_see_player();
-
-	    event_inherited();
 	}
+
+	event_inherited();
 }

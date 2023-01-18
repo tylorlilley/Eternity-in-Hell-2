@@ -1,5 +1,5 @@
 event_inherited();
+set_farm_mode_sprite(spr_bomb_farmer);
 
-sprite_index = (global.controller.FARM_MODE) ? spr_bomb_farmer : spr_bomb;
 draw_y_offset = -2;
 fuse_timer = 0;

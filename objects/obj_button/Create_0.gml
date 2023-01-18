@@ -6,4 +6,3 @@ if (can_press_button()) {
 }
 instance_create_depth(x, y, 0, obj_dirt);
 visible = false;
-image_speed = false;

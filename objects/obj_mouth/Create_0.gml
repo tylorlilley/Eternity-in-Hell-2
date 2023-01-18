@@ -1,11 +1,7 @@
 event_inherited();
+set_farm_mode_sprite(spr_mouth_farmer);
+play_sound(snd_squelch, false);
+teleport_to_empty_space();
 
-sprite_index = (global.controller.FARM_MODE) ? spr_mouth_farmer : spr_mouth;
-killable_by_sword = true;
+activated = false;
 consume_block = true;
-consumed_by_block = true;
-//consumed_by_lava = true;
-death_sound = snd_crunch;
-visible = false;
-
-MOUTH_DISTANCE = 40;

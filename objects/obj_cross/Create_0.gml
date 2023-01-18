@@ -1,6 +1,4 @@
 event_inherited();
-
-sprite_index = (global.controller.FARM_MODE) ? spr_cross_farmer : spr_cross;
+set_farm_mode_sprite(spr_cross_farmer);
 
 flip_sprite_at_random(false);
-image_speed = 0;

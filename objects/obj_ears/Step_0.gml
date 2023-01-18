@@ -1,14 +1,9 @@
 if (process_this_frame()) {
-	event_inherited();
-	
-	var dropped_meat = noone;
-	with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
-	if (dropped_meat) { target_x = dropped_meat.x; target_y = dropped_meat.y; }
-	
 	if (awake && !instance_at_coordinates(target_x, target_y, self)) {
-		sprite_index = (global.controller.FARM_MODE) ? spr_ears_awake_farmer : spr_ears_awake;
+		sprite_index = spr_ears_awake;
+		set_farm_mode_sprite(spr_ears_awake_farmer);
 		image_index = (x > target_x) ? 1 : -1;
-		// TODO: Explore making killable by block and lava again? Probably means not attracted to splash sound
+		// TODO: Explore making corporeal again if we create better pathfinding for this function
 		move_towards_coordinates(target_x, target_y, true, true);
 		move_towards_coordinates(target_x, target_y, true, true);
 		move_towards_coordinates(target_x, target_y, true, true);
@@ -18,7 +13,9 @@ if (process_this_frame()) {
 	}
 	else {
 		sprite_index = spr_ears;
-		sprite_index = (global.controller.FARM_MODE) ? spr_ears_farmer : spr_ears;
+		set_farm_mode_sprite(spr_ears_farmer);
 		awake = false;
 	}
+	
+	event_inherited();
 }

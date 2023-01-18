@@ -1,14 +1,8 @@
 event_inherited();
+set_farm_mode_sprite(spr_spider_farmer);
 
-sprite_index = (global.controller.FARM_MODE) ? spr_spider_farmer : spr_spider;
-
-meat_eater = true;
-killable_by_sword = true;
-consume_block = false
-consumed_by_block = true;
-consumed_by_lava = true;
-lethal = get_random_chance_out_of(2);
-death_sound = snd_crunch;
+activated = get_random_chance_out_of(2);
+if global.controller.entered_from_stairs { activated = false; }
 
 WAITING = 0;
 SCREECHING = 1;

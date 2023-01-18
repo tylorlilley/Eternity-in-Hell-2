@@ -1,16 +1,11 @@
 event_inherited();
+set_farm_mode_sprite(spr_skeleton_farmer);
 
-sprite_index = (global.controller.FARM_MODE) ? spr_skeleton_farmer : spr_skeleton;
-
-meat_eater = true;
-killable_by_sword = true;
-consumed_by_block = true;
-consumed_by_lava = true;
-death_sound = snd_crunch;
 spawn_timer = 3+irandom(3);
-skeleton_speed = (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBABILITY)) ?  4 : 12; 
-image_speed = (skeleton_speed == 4) ? 1 : 0;
+skeleton_speed = 12;
 
-usurped = noone;
-if (get_random_chance_out_of(global.controller.WORM_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_worm; }
-if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && instance_number(obj_phantom) == 0 && global.difficulty >= difficulties.hard) { usurped = obj_bumper; }
+// Create red eyed skeleton
+if (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBABILITY)) {
+	skeleton_speed = 12;
+	image_speed = 1;
+}

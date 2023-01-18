@@ -10,7 +10,6 @@ function convert_to_multiple_death_boxes() {
 		var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 
 		death_boxes[i] = instance_create_depth(x_pos, y_pos, 5, obj_death);
-		death_boxes[i].death_sound = snd_torchlight;
 		death_boxes[i].lava = true;
 		death_boxes[i].image_xscale = 0.5;
 		death_boxes[i].image_yscale = 0.5;
@@ -33,9 +32,15 @@ function destroy_lava_at_position(x_pos, y_pos) {
 	return false;
 }
 
-/// @function								lava_at_position();
-function lava_at_position() {
-	var lava_at_quadrant = get_presence_at_each_quadrant(obj_lava);
+/// @function								get_lava_at_each_quadrant();
+function get_lava_at_each_quadrant() {
+	// Get the actual lava objects at each lava quadrant
+	var lava_at_quadrant  = [noone, noone, noone, noone];
+	
+	for (var i = 0; i <= 3; i+= 1;) {
+        var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+		lava_at_quadrant[i] = instance_position(x_pos, y_pos, obj_lava);
+    }
 	
 	// Check each quadrant and mark the lava as not present if it's death box isn't present
 	for (var i = 0; i <= 3; i++) {
@@ -55,8 +60,8 @@ function lava_at_position() {
 /// @ function								consume_lava(require_all);
 /// @param		{bool} require_all			Only consume whole chunks of lava at once
 function consume_lava(require_all) {
-	var lava_at_quadrant = lava_at_position();
-	if (!require_all || lava_at_all_quadrants()) {
+	var lava_at_quadrant = get_instance_at_each_quadrant(obj_lava);
+	if (!require_all || is_covered_at_each_quadrant_by(obj_lava)) {
 		var consumed = false;
 		for (var i = 0; i <= 3; i++) {
 			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
@@ -69,10 +74,4 @@ function consume_lava(require_all) {
 		}
 	}
 	return false;
-}
-
-/// @ function								lava_at_all_quadrants();
-function lava_at_all_quadrants() {
-	var lava_at_quadrant = lava_at_position()
-	return (lava_at_quadrant[0] != noone && lava_at_quadrant[1] != noone && lava_at_quadrant[2] != noone && lava_at_quadrant[3] != noone);
 }

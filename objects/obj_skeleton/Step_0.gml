@@ -1,9 +1,4 @@
 if (process_this_frame()) {
-	if (usurped) {
-		instance_create_depth(x, y, 0, usurped);
-		instance_destroy();
-	}
-	
 	if (spawn_timer > 0) { spawn_timer -= 1; }
 	else { 
 		var dir = irandom(skeleton_speed);

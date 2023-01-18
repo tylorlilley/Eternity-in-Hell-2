@@ -42,7 +42,7 @@ function put_item_down(dir) {
 	var dropped_by_player = (object_index == obj_player);
 	// Alert spiders if meat is dropped
 	if (carried_items[dir].object_index == obj_meat) {
-		with (obj_spider) { if (lethal) { play_sound(snd_lose, false); } }
+		with (obj_spider) { if (activated) { play_sound(snd_lose, false); } }
 	}
 	// Drop Item and alert interested obj_hands to come grab it
 	with (obj_hands) { 

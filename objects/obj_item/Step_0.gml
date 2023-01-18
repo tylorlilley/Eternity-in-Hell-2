@@ -1,8 +1,7 @@
 event_inherited();
 
 if (process_this_frame()) {
-	var player_at_quadrant = get_presence_at_each_quadrant(global.player);
-	if (!carried && lava_at_all_quadrants() && (get_carried_item_of_type(obj_amulet) == noone || (player_at_quadrant[0] == noone && player_at_quadrant[1] == noone && player_at_quadrant[2] == noone && player_at_quadrant[3] == noone))) {
+	if (!carried && is_covered_at_each_quadrant_by(obj_lava) && (get_carried_item_of_type(obj_amulet) == noone || !instance_at_coordinates(x, y, global.player))) {
 		instance_destroy();
 		play_sound(snd_extinguish, true);
 	}

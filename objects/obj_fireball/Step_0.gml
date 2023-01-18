@@ -12,7 +12,7 @@ if (process_this_frame()) {
 	// Destroy self when colliding with solid, enemy, or player with amulet
 	var enemy = instance_place(x, y, obj_enemy)
 	if (instance_place(x, y, obj_solid) != noone) { play_sound(snd_fuse, false); instance_destroy(); }
-	else if (enemy != noone && enemy.lethal) { play_sound(snd_fuse, true); instance_destroy(); }
+	else if (enemy != noone && enemy.activated) { play_sound(snd_fuse, true); instance_destroy(); }
 	else if (instance_place(x, y, global.player)) {
 		var carried_amulet = get_carried_item_of_type(obj_amulet);
 		if (carried_amulet != noone) { play_sound(snd_fuse, true); instance_destroy(); }

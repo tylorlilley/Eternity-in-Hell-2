@@ -15,10 +15,13 @@ if (process_this_frame()) {
 	}
 	
 	// Destroy self and/or enemy when pushed onto an enemy
-	var enemy = instance_place(x, y, obj_enemy);
-	if (enemy != noone && enemy.visible && instance_at_coordinates(x, y, enemy)) {
-		if (enemy.consume_block) { instance_destroy(); }
-		if (enemy.corporeal) { with enemy { kill_enemy(snd_crunch); } }
+	var enemies_at_position = instance_place_all(x, y, obj_enemy);
+	while (array_length(enemies_at_position) > 0) {
+		var enemy = array_random_pop(enemies_at_position);
+		if (enemy != noone && enemy.activated && instance_at_coordinates(x, y, enemy)) {
+			if (enemy.consume_block) { instance_destroy(); }
+			if (enemy.corporeal) { with enemy { kill_enemy(snd_crunch); } }
+		}
 	}
 	
 	// Destroy self and parts of lava if pushed onto lava

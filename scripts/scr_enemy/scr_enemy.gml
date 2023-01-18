@@ -27,7 +27,7 @@ function run_away_from_player(ignore_solid, ignore_death) {
 	var dir = irandom(3);
 	if (is_direction_toward(dir, global.player)) { dir = opposite_dir(dir); }
 	if (get_random_chance_out_of(3)) { dir = 4; }
-	if ((ignore_solid || !instance_place(x, y, obj_solid)) && can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, true); }
+	if ((ignore_solid || !place_meeting(x, y, obj_solid)) && can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, true); }
 }
 
 /// @function								teleport_to_empty_space()
@@ -36,11 +36,11 @@ function teleport_to_empty_space() {
 		x = irandom(room_width/8)*8;
 		y = irandom(room_height/8)*8;
 	}
-	until (!instance_place(x, y, obj_solid) && 
-			!instance_place(x, y, obj_death) && 
-			!instance_place(x, y, obj_stairs_spot) && 
-			!instance_place(x, y, obj_player) &&
-			!position_is_outside_room(x, y) &&
+	until (!place_meeting(x, y, obj_solid) && 
+			!place_meeting(x, y, obj_death) && 
+			!place_meeting(x, y, obj_stairs_spot) && 
+			!place_meeting(x, y, obj_player) &&
+			!is_outside_room(x, y) &&
 			distance_to_instance(global.player) >= global.controller.TRAP_RANGE);
 }
 
@@ -66,9 +66,9 @@ function teleport_to_lava() {
 			
 			// return early if this is a good teleported position
 			if (is_covered_at_each_quadrant_by(obj_lava) &&
-				!position_is_outside_room(x, y) &&
+				!is_outside_room(x, y) &&
 				!is_covered_at_each_quadrant_by(obj_solid) &&
-				!instance_at_coordinates(x, y, global.player)) {
+				!place_meeting(x, y, global.player)) {
 				  return lava;
 			  }
 		}
@@ -132,7 +132,7 @@ function try_to_see_player() {
 function move_snake(iterations){
 	var prev_dir = (dir == -1) ? irandom(3) : dir;
 	for (var i = 0; i < iterations; i +=1) {
-		if (!instance_place(x, y, obj_solid) && dir != -1 && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
+		if (!place_meeting(x, y, obj_solid) && dir != -1 && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
 		else { dir = -1; break; }
 	}
 	//if (!can_move_in_direction(dir, false, true)) { dir = -1; }
@@ -141,7 +141,7 @@ function move_snake(iterations){
 		array_push(new_directions, opposite_dir(prev_dir), dir_turn_right(prev_dir), dir_turn_left(prev_dir));
 		while (array_length(new_directions) > 0) {
 			var new_dir = array_random_pop(new_directions);
-			if (!instance_place(x, y, obj_solid) && can_move_in_direction(new_dir, false, true)) { dir = new_dir; break; }
+			if (!place_meeting(x, y, obj_solid) && can_move_in_direction(new_dir, false, true)) { dir = new_dir; break; }
 		}
 		if (dir == -1) { image_speed = 0; }
 	}
@@ -190,20 +190,20 @@ function set_segment_image() {
 			image_index = 2;
 			image_xscale = 1;
 			image_yscale = 1;
-			if ((instance_place(x, y-16, tail) && instance_place(x+16, y, head)) ||
-				(instance_place(x, y-16, head) && instance_place(x+16, y, tail))) {
+			if ((place_meeting(x, y-16, tail) && place_meeting(x+16, y, head)) ||
+				(place_meeting(x, y-16, head) && place_meeting(x+16, y, tail))) {
 					image_angle = 0;
 			}
-			else if ((instance_place(x, y+16, tail) && instance_place(x+16, y, head)) ||
-					 (instance_place(x, y+16, head) && instance_place(x+16, y, tail))) {
+			else if ((place_meeting(x, y+16, tail) && place_meeting(x+16, y, head)) ||
+					 (place_meeting(x, y+16, head) && place_meeting(x+16, y, tail))) {
 					image_angle = 270;
 			}
-			else if ((instance_place(x, y+16, tail) && instance_place(x-16, y, head)) ||
-					 (instance_place(x, y+16, head) && instance_place(x-16, y, tail))) {
+			else if ((place_meeting(x, y+16, tail) && place_meeting(x-16, y, head)) ||
+					 (place_meeting(x, y+16, head) && place_meeting(x-16, y, tail))) {
 					image_angle = 180;
 			}
-			else if ((instance_place(x, y-16, tail) && instance_place(x-16, y, head)) ||
-					 (instance_place(x, y-16, head) && instance_place(x-16, y, tail))) {
+			else if ((place_meeting(x, y-16, tail) && place_meeting(x-16, y, head)) ||
+					 (place_meeting(x, y-16, head) && place_meeting(x-16, y, tail))) {
 					image_angle = 90;
 			}
 		}
@@ -289,10 +289,10 @@ function explode(destroy_self) {
 
 /// @function								check_for_player_collision();
 function check_for_player_collision() {
-	if (instance_place(x, y, global.player) != noone && !global.player.dead) {
+	if (place_meeting(x, y, global.player) && !global.player.dead) {
 		var carried_sword = get_carried_item_of_type(obj_sword);
 		var carried_staff = get_carried_item_of_type(obj_staff);
 			if (carried_sword != noone && corporeal) { kill_with_sword(carried_sword); }
-			else if (!lava || carried_staff == noone) { kill_player(); }
+			else if (object_index != obj_death || carried_staff == noone) { kill_player(); }
 	}
 }

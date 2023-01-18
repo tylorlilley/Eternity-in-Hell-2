@@ -43,7 +43,7 @@ function teleport_near_player() {
 	    x = global.player.x + x_pos;
 	    y = global.player.y + y_pos;
 	}
-	until (distance_to_instance(global.player) >= 24 && !position_is_outside_room(x,y));
+	until (distance_to_instance(global.player) >= 24 && !is_outside_room(x,y));
 }
 
 
@@ -70,9 +70,16 @@ function direction_is_free(dir, ignore_solid, ignore_death) {
 	}
 	
 	// Set up general variables for blocking the given direction
-	var blocked_by_room_boundry = position_is_outside_room(x_pos, y_pos);
-	var blocked_by_solid = (!ignore_solid && instance_place(x_pos, y_pos, obj_solid));
-	var blocked_by_death = (!ignore_death && instance_place(x_pos, y_pos, obj_death) && instance_place(x_pos, y_pos, obj_death).lava);
+	var blocked_by_death = false;
+	if (!ignore_death) {
+		var death_at_position = instance_place_all(x_pos, y_pos, obj_death);
+		while (array_length(death_at_position) > 0) {
+			var death = array_random_pop(death_at_position);
+			if (death.object_index == obj_death && place_meeting(x_pos, y_pos, death)) { blocked_by_death = true; break; }
+		}
+	}
+	var blocked_by_room_boundry = is_outside_room(x_pos, y_pos);
+	var blocked_by_solid = (!ignore_solid && place_meeting(x_pos, y_pos, obj_solid));
 	
 	if (object_index == obj_player) {
 		// Allow player to not be blocked by walls and columns if they are carrying the special staff
@@ -92,17 +99,17 @@ function direction_is_free(dir, ignore_solid, ignore_death) {
 		}
 		
 		// Allow the player to move outside the room if they aren't currently on a solid object
-		if (!instance_place(x, y, obj_solid)) { blocked_by_room_boundry = false; }
+		if (!place_meeting(x, y, obj_solid)) { blocked_by_room_boundry = false; }
 	}
 	
 	// return whether the direction is blocked
 	return (!blocked_by_room_boundry && !blocked_by_solid && !blocked_by_death);
 }
 
-/// @function								position_is_outside_room(x_pos, y_pos);
+/// @function								is_outside_room(x_pos, y_pos);
 /// @param		{int}	x_pos				The x position to check
 /// @param		{int}	y_pos				The y position to check
-function position_is_outside_room(x_pos, y_pos) {
+function is_outside_room(x_pos, y_pos) {
 	return (x_pos <= 0 || x_pos >= room_width || y_pos <= 0 || y_pos >= room_height);
 }
 
@@ -271,13 +278,12 @@ function singleton_instance() {
 
 /// @function								press_button();
 function can_press_button() {	
-	var enemy = instance_position(x, y, obj_enemy), block = instance_position(x, y, obj_solid);
-	
-	return (
-		(enemy && enemy.corporeal && instance_at_coordinates(x, y, enemy)) || 
-		instance_at_coordinates(x, y, global.player) || 
-		(block && instance_at_coordinates(x, y, block))
-	);
+	var pressed = is_covered_at_each_quadrant_by(obj_solid), enemies_at_position = instance_place_all(x, y, obj_enemy);
+	while (array_length(enemies_at_position) > 0) {
+		var enemy = array_random_pop(enemies_at_position);
+		if (enemy.corporeal && instance_at_coordinates(x, y, enemy)) { pressed = true; }
+	}
+	return (instance_at_coordinates(x, y, global.player) || pressed);
 }
 
 /// @function								set_farm_mode_sprite();

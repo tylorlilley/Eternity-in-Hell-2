@@ -48,8 +48,9 @@ function pick_up_item(dir, make_noise, new_holder) {
 
 }
 
-/// @function								drop_item();
+/// @function								drop_item(dir, make_noise);
 /// @param		{direction} dir				The hand this item is being dropped out of
+/// @param		{bool} make_noise			Whetherto play the put down sound or not
 function drop_item(dir, make_noise) {	
 	if (make_noise) { 
 		play_sound(snd_putdown, true);

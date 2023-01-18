@@ -14,10 +14,14 @@ if process_this_frame() {
 		else { 
 			visible = true; 
 			// Light bomb fuses with torches
-			var torch = instance_place(x, y, obj_torch);
-			if (torch != noone && torch.light_source != noone) {
-				play_sound(snd_torchlight, true);
-				fuse_timer = 4*irandom_range(5,8);
+			var torches_at_position = instance_place_all(x, y, obj_torch);
+			while (array_length(torches_at_position) > 0) {
+				var torch = array_random_pop(torches_at_position);
+				if (torch.light_source != noone && instance_at_coordinates(x, y, torch)) {
+					play_sound(snd_torchlight, true);
+					fuse_timer = 4*irandom_range(5,8);
+					break;
+				}
 			}
 		}
 		

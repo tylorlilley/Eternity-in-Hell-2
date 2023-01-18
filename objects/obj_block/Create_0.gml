@@ -1,5 +1,5 @@
 event_inherited();
-depth = -6;
+depth = -26;
 
 rotate_sprite_to_random_angle();
 flip_sprite_at_random(true);

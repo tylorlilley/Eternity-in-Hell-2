@@ -1,10 +1,10 @@
 if (process_this_frame()) {
 	// Determine initial direction if not set
 	if (dir == noone) {
-		if (!instance_place(x, y-8, obj_solid)) { dir = directions.up; } 
-		else if (!instance_place(x+8, y, obj_solid)) { dir = directions.right; } 
-		else if (!instance_place(x, y+8, obj_solid)) { dir = directions.down; } 
-		else if (!instance_place(x-8, y, obj_solid)) { dir = directions.left; }
+		if (!place_meeting(x, y-8, obj_solid)) { dir = directions.up; } 
+		else if (!place_meeting(x+8, y, obj_solid)) { dir = directions.right; } 
+		else if (!place_meeting(x, y+8, obj_solid)) { dir = directions.down; } 
+		else if (!place_meeting(x-8, y, obj_solid)) { dir = directions.left; }
 		else { covered = true; }
 	}
 	
@@ -19,7 +19,7 @@ if (process_this_frame()) {
 	
 	// Determine whether statue is covered
 	var prev_covered = covered;
-	covered = covered || instance_place(x_pos, y_pos, obj_solid);
+	covered = covered || place_meeting(x_pos, y_pos, obj_solid);
 	
 	if (!covered) {
 		image_index = 0

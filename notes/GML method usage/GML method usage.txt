@@ -1,0 +1,5 @@
+Don't use instance_place or place_meeting
+Use instance_place or place_meeting to check for a loose overlap at the position
+Use instance_at_coordinates or is_covered_by to check for an exact overlap at the position
+use place_meeting when you don't need an id returned and instance_place when you do
+Use instance_place when you don't need to check for multiple of an object, instance_place_all when you do

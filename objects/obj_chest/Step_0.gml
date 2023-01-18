@@ -12,7 +12,7 @@ if (process_this_frame()) {
 				}
 			}
 			// Try to open the chest
-			if (array_length(free_hands) == 0 && instance_place(global.player.x, global.player.y, obj_solid)) { play_sound(snd_locked, false); }
+			if (array_length(free_hands) == 0 && place_meeting(global.player.x, global.player.y, obj_solid)) { play_sound(snd_locked, false); }
 			else {
 				closed = false;
 				image_index = 1;

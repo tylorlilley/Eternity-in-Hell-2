@@ -22,7 +22,7 @@ if (process_this_frame()) {
 			}
 		}
 	}
-	else if (!stuck_open && !instance_place(x, y, global.player)) {
+	else if (!stuck_open && !place_meeting(x, y, global.player)) {
 		play_sound(close_sound, false);
 		close_door();
 	}

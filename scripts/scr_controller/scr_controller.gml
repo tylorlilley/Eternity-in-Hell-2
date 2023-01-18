@@ -144,7 +144,7 @@ function initialize_game_variables() {
 	// Initilize room start probability constants
 	DIRT_PROBABILITY = 16 + global.difficulty * 2;
 	NOSE_PROBABILITY = 8 - global.difficulty;
-	PHANTOM_PROBABILITY = 1//5 - global.difficulty;
+	PHANTOM_PROBABILITY = 5 - global.difficulty;
 	HANDS_PROBABILITY = 4 * (5 - global.difficulty);
 	SNAKE_PROBABILITY =  32 - (4 * global.difficulty);
 	EYES_PROBABILITY =  64 - (4 * global.difficulty);
@@ -485,7 +485,7 @@ function game_room_start() {
 			if (i == 2) { x_pos_1 = (room_width/2)-8; y_pos_1 = room_height-8; x_pos_2 = (room_width/2)+8; y_pos_2 = room_height-8; }
 			if (i == 3) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
 					
-			if (!current_room.exits[i] && !instance_place(x_pos, y_pos, obj_solid)) {   
+			if (!current_room.exits[i] && !place_meeting(x_pos, y_pos, obj_solid)) {   
 				instance_create_depth(x_pos_1, y_pos_1, 0, obj_wall);
 				instance_create_depth(x_pos_2, y_pos_2, 0, obj_wall);
 			}
@@ -576,12 +576,12 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
-	with (obj_bones) { if (!instance_place(x, y, obj_solid)) { trap = (get_random_chance_out_of(32-global.difficulty)); } }
+	with (obj_bones) { if (!place_meeting(x, y, obj_solid)) { trap = (get_random_chance_out_of(32-global.difficulty)); } }
 	with (obj_stairs) { active = false; }
 	with (obj_hole) { active = false; }
 	with (obj_door) { 
 		locked = (door_for_exit && door_for_exit.locked);
-		if (instance_place(x, y, global.player)) { open_door(); }
+		if (place_meeting(x, y, global.player)) { open_door(); }
 	}
 	
 	//// Destroy instances that shouldn't persist after leaving the room
@@ -602,7 +602,7 @@ function game_room_start() {
 			}
 			else {
 				// If special, kill any enemies that were eating the meat
-				with (obj_enemy) { if (corporeal && instance_place(x, y, meat)) { kill_enemy(noone); } }
+				with (obj_enemy) { if (corporeal && place_meeting(x, y, meat)) { kill_enemy(noone); } }
 			}
 		} 
 	}
@@ -634,7 +634,7 @@ function game_room_start() {
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
 		var potential_items = array_create(0);
-		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !instance_place(x, y, obj_solid) && !instance_place(x, y, obj_hands)) { 
+		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !place_meeting(x, y, obj_solid) && !place_meeting(x, y, obj_hands)) { 
 			array_push(potential_items, self); } 
 		}
 		// Spawn a hand on each potential item if probability is met
@@ -650,7 +650,10 @@ function game_room_start() {
 		}
 	}
 	with (obj_hands) {
+		x = xstart;
+		y = ystart;
 		activated = false;
+		visible = false;
 		
 		if (carried_items[1] != noone) {
 			if (carried_items[1].object_index == obj_meat) { instance_destroy(); }

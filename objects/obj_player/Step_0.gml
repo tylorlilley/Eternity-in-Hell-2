@@ -6,7 +6,7 @@ if (process_this_frame()) {
 	dir_prev = dir;
 	if (dir_prev == noone) { dir_prev = irandom(3); }
 
-	if (instance_place(x, y, obj_solid) && !dead && !has_special_staff) { kill_player(); }
+	if (place_meeting(x, y, obj_solid) && !dead && !has_special_staff) { kill_player(); }
 	if (!dead && !game_has_been_won() && !game_has_been_lost()) {   
 	    // Get input from player
 	    dir = get_direction_input(false);

@@ -16,7 +16,7 @@ if (process_this_frame()) {
 				if (x == target_item.x && y == target_item.y) {
 					// Pick Up New Item and Drop Current
 					play_sound(snd_laugh, true);
-					if (carried_items[1] != noone) { put_item_down(1); }
+					if (carried_items[1] != noone) { put_down_item(1); }
 					var new_holder = self;
 					with target_item { pick_up_item(1, false, new_holder); }
 					target_item = noone;
@@ -37,10 +37,10 @@ if (process_this_frame()) {
 		if (carried_items[1] != noone && carried_items[1].object_index == obj_sword) {
 			var enemies_at_position = instance_place_all(x, y, obj_enemy);
 			while (array_length(enemies_at_position) > 0) {
-				var enemy_to_kill = array_random_pop(enemies_at_position);
-				if (enemy_to_kill == self || !enemy_to_kill.corporeal) { continue; }
+				var enemy = array_random_pop(enemies_at_position);
+				if (enemy == self || !enemy.corporeal) { continue; }
 				
-				with (enemy_to_kill) { kill_with_sword(carried_sword); }
+				with (enemy) { kill_with_sword(carried_sword); }
 				if (instance_exists(carried_sword)) { continue; }
 				else { break; }
 			}

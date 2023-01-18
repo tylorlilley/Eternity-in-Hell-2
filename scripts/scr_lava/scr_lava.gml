@@ -10,7 +10,6 @@ function convert_to_multiple_death_boxes() {
 		var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 
 		death_boxes[i] = instance_create_depth(x_pos, y_pos, 5, obj_death);
-		death_boxes[i].lava = true;
 		death_boxes[i].image_xscale = 0.5;
 		death_boxes[i].image_yscale = 0.5;
 	}
@@ -35,7 +34,7 @@ function destroy_lava_at_position(x_pos, y_pos) {
 /// @function								get_lava_at_each_quadrant();
 function get_lava_at_each_quadrant() {
 	// Get the actual lava objects at each lava quadrant
-	var lava_at_quadrant  = [noone, noone, noone, noone];
+	var lava_at_quadrant = [noone, noone, noone, noone];
 	
 	for (var i = 0; i <= 3; i+= 1;) {
         var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);

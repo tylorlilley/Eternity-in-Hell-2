@@ -168,6 +168,7 @@
     {"id":{"name":"obj_torch","path":"objects/obj_torch/obj_torch.yy",},"order":8,},
     {"id":{"name":"spr_mimic","path":"sprites/spr_mimic/spr_mimic.yy",},"order":25,},
     {"id":{"name":"spr_giant_wurm","path":"sprites/spr_giant_wurm/spr_giant_wurm.yy",},"order":40,},
+    {"id":{"name":"GML method usage","path":"notes/GML method usage/GML method usage.yy",},"order":3,},
     {"id":{"name":"obj_lantern","path":"objects/obj_lantern/obj_lantern.yy",},"order":7,},
     {"id":{"name":"obj_sword","path":"objects/obj_sword/obj_sword.yy",},"order":7,},
     {"id":{"name":"obj_solid","path":"objects/obj_solid/obj_solid.yy",},"order":1,},

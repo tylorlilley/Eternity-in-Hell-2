@@ -1,7 +1,6 @@
 event_inherited();
 
 activated = true;
-lava = false;
 
 corporeal = false;
 fire_resistant = true;

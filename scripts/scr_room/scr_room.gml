@@ -152,8 +152,8 @@ function GameRoom(given_x, given_y) constructor {
 		exits[dir] = true;
 	
 		with adjoining_room {
-		    adj_rooms[opposite_dir(dir)] = other;
-		    exits[opposite_dir(dir)] = true;
+		    adj_rooms[get_opposite_dir(dir)] = other;
+		    exits[get_opposite_dir(dir)] = true;
 		}
 	}
 	
@@ -220,9 +220,8 @@ function GameRoom(given_x, given_y) constructor {
 	function draw_room(x_pos, y_pos) {
 
 		// Only draw the room if the room has been visited at least once, or game is in test mode
-		var carried_map = get_carried_item_of_type(obj_map);
-		var show_detailed_map = global.controller.TEST_MODE || carried_map;
-		var show_collectables = global.controller.TEST_MODE || (carried_map && carried_map.special);
+		var show_detailed_map = global.controller.TEST_MODE || is_carrying_item(obj_map);
+		var show_collectables = global.controller.TEST_MODE || is_carrying_special_item(obj_map);
 		if (show_detailed_map || visited) {
 			// Set up colors to draw this room with
 			var fade_amount = distance_to_current_room / global.controller.MAX_MAP_DRAW_DISTANCE;
@@ -330,8 +329,8 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								get_room_from_room_lists();
 	function get_room_from_room_lists() {
 		var number_of_exits = count_exits();
-		var rand1 = get_random_chance_out_of(2);
-		var rand2 = get_random_chance_out_of(2);
+		var rand1 = get_coin_flip();
+		var rand2 = get_coin_flip();
 		var room_list = noone;
 		
 		while(get_random_chance_out_of(global.controller.MISLEADING_ROOM_PROBABILITY) && number_of_exits < 4) {
@@ -373,7 +372,7 @@ function GameRoom(given_x, given_y) constructor {
 				break;
 			case 2:
 		        if (exits[0] && exits[2]) { flip_horizontal = rand1; flip_vertical = rand2; }
-		        else if (exits[1] && exits[3]) { flip_horizontal = rand1; flip_vertical = rand2; rotate = (get_random_chance_out_of(2)) ? 1 : 3; }
+		        else if (exits[1] && exits[3]) { flip_horizontal = rand1; flip_vertical = rand2; rotate = (get_coin_flip()) ? 1 : 3; }
 		        else if (exits[0] && exits[1]) { flip_horizontal = false; flip_vertical = false; }
 		        else if (exits[0] && exits[3]) { flip_horizontal = true; flip_vertical = false; }
 		        else if (exits[1] && exits[2]) { flip_horizontal = false; flip_vertical = true; }
@@ -475,7 +474,7 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		else if (exit_dir != directions.respawn) {
 			other_room.visited_exits[exit_dir] = true;
-			visited_exits[opposite_dir(exit_dir)] = true;
+			visited_exits[get_opposite_dir(exit_dir)] = true;
 		}
 	}
 }

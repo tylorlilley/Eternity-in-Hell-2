@@ -1,5 +1,5 @@
 if (process_this_frame()) {
-	if (awake && !instance_at_coordinates(target_x, target_y, self)) {
+	if (awake && !is_instance_at_coordinates(target_x, target_y, self)) {
 		sprite_index = spr_ears_awake;
 		set_farm_mode_sprite(spr_ears_awake_farmer);
 		image_index = (x > target_x) ? 1 : -1;

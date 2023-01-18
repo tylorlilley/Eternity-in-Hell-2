@@ -3,7 +3,7 @@ if (process_this_frame()) {
 	if (timer >= 4) { 
 		if (dir != -1) { prev_dir = dir; }
 		timer = 0;
-		if (dir != -1 && direction_is_free(dir, false, true)) { 
+		if (dir != -1 && is_direction_free(dir, false, true)) { 
 			move_in_direction(dir, false);
 			play_sound(snd_walk, false)
 			with tail { move_segments(other.dir); }
@@ -18,7 +18,7 @@ if (process_this_frame()) {
 				var new_dir = array_random_pop(new_directions);
 				var target = global.player;
 				with (obj_meat) { if (!carried) { target = self; } }
-				if (direction_is_free(new_dir, false, true)) { 
+				if (is_direction_free(new_dir, false, true)) { 
 					if (dir == -1 || is_direction_toward(new_dir, target)) { dir = new_dir; }
 				}
 			}

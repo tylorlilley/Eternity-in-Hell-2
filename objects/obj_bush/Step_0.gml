@@ -12,8 +12,8 @@ if (process_this_frame()) {
 	occupier = new_occupier;
 	
 	// Rustle bush if occupied status changes, monster rustles it, or random rustling
-	if ((occupier && !occupied) || (!occupier && occupied) || get_random_chance_out_of(2056) ||
-	   (occupier && occupier != global.player && get_random_chance_out_of(16))) {
+	if ((occupier && !occupied) || (!occupier && occupied) || get_random_chance_out_of(global.controller.BUSH_RUSTLE_PROBABILITY) ||
+	   (occupier && occupier != global.player && get_random_chance_out_of(global.controller.BUSH_RUSTLE_FREQUENCY))) {
 			image_xscale *= -1;
 			var just_the_wind = (!occupied && !occupier && !old_occupier);
 			var ears_are_rustling = (instance_exists(old_occupier) && old_occupier.object_index == obj_ears) || (instance_exists(occupier) && occupier.object_index == obj_ears);

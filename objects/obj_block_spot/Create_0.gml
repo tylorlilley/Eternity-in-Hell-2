@@ -1,6 +1,6 @@
 // Sometimes spawn something under block
-if get_random_chance_out_of(32) {
-	var item = (get_random_chance_out_of(2)) ? get_random_item_type() : obj_bones;
+if get_random_chance_out_of(global.controller.BLOCK_ITEM_PROBABILITY) {
+	var item = (get_coin_flip()) ? get_random_item_type() : obj_bones;
 	if (item == obj_meat) { item = obj_key; }
 	instance_create_depth(x, y, 4, item);
 }

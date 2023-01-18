@@ -1,5 +1,5 @@
 if (process_this_frame()) {
-	if (distance_to_instance(global.player) < global.controller.TRAP_RANGE && !activated) { activated = true; }
+	if (get_distance_to_instance(global.player) < global.controller.TRAP_RANGE && !activated) { activated = true; }
 	if (activated) {
 		for (var i = 0; i < 2; i++) {
 			var carried_staff = (carried_items[1] != noone && carried_items[1].object_index == obj_staff) ? carried_items[1] : noone;

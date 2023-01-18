@@ -2,7 +2,7 @@ if (process_this_frame()) {
 	event_inherited();
 	
 	if closed {
-		var push_direction = pushed_against_by_player();
+		var push_direction = get_direction_pushed_against();
 		if (push_direction != noone) {
 			// Set up which inventory slots are available
 			var free_hands = array_create(0);

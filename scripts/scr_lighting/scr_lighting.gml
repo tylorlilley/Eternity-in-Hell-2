@@ -3,7 +3,7 @@
 /// @param		{real} maximum_intensity		The maximum brightness to be returned for the instance the calling instance is lighting up
 function get_relative_light_intensity(instance_to_light, maximum_intensity) {
 	var flicker = floor(flicker_value / 25);
-	var distance_away = distance_to_instance(instance_to_light);
+	var distance_away = get_distance_to_instance(instance_to_light);
 
 	var lighting_intensity = floor(distance_away/global.controller.DIMMING_RATE);
 	var lighting_distance = (lighting_range + flicker);

@@ -1,17 +1,17 @@
-/// @function								distance_to_instance(instance);
+/// @function								get_distance_to_instance(instance);
 /// @param		{index} instance			The instance whose distance away from the calling instance is to be calculated
-function distance_to_instance(instance) {
+function get_distance_to_instance(instance) {
 	if (!instance_exists(instance)) { return -1; }
 	if (self.id == instance.id) { return 0; }
 
 	return sqrt((sqr(instance.x - x) + sqr(instance.y - y)));
 }
 
-/// @function								instance_at_coordinates(x_pos, y_pos, instance);
+/// @function								is_instance_at_coordinates(x_pos, y_pos, instance);
 /// @param		{real}  x_pos				The x value to check against the instance's x value
 /// @param		{real}  y_pos				The y value to check against the instance's y value
 /// @param		{index} instance			The instance whos positional coordinates are being checked
-function instance_at_coordinates(x_pos, y_pos, instance) {
+function is_instance_at_coordinates(x_pos, y_pos, instance) {
 	return (instance && (instance.x == x_pos && instance.y == y_pos))
 }
 
@@ -38,12 +38,12 @@ function teleport_near_player() {
 	do {
 	    var x_pos = (8*irandom(3));
 	    var y_pos = (8*irandom(3));
-	    if (get_random_chance_out_of(2)) { x_pos *= -1; }
-	    if (get_random_chance_out_of(2)) { y_pos *= -1; }
+	    if (get_coin_flip()) { x_pos *= -1; }
+	    if (get_coin_flip()) { y_pos *= -1; }
 	    x = global.player.x + x_pos;
 	    y = global.player.y + y_pos;
 	}
-	until (distance_to_instance(global.player) >= 24 && !is_outside_room(x,y));
+	until (get_distance_to_instance(global.player) >= 24 && !is_outside_room(x,y));
 }
 
 
@@ -52,14 +52,43 @@ function teleport_near_player() {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function can_move_in_direction(dir, ignore_solid, ignore_death) {
-	return ((object_index != obj_player || !global.controller.key_space) && direction_is_free(dir, ignore_solid, ignore_death));
+	if (!ignore_solid && is_solid_at_position(x, y)) { return false; }
+	else { return (is_direction_free(dir, ignore_solid, ignore_death)); }
 }
 
-/// @function								direction_is_free(dir, ignore_solid);
+/// @function								is_solid_at_position(x_pos, y_pos);
+/// @param		{int} x_pos					The x coordinate of the position
+/// @param		{int} y_pos					The y coordinate of the position
+function is_solid_at_position(x_pos, y_pos) {
+	var solids = instance_place_all(x_pos, y_pos, obj_solid)
+	// TODO: Update to hands as well and not just player
+	while (array_length(solids) > 0) {
+		var current_solid = array_random_pop(solids);
+		if (current_solid != self && (object_index != obj_player || (!is_carrying_special_item(obj_staff) || (current_solid.object_index != obj_wall && current_solid.object_index != obj_column)))) { return true; }
+	}
+	return false;
+}
+
+/// @function								is_lava_at_position(x_pos, y_pos);
+/// @param		{int} x_pos					The x coordinate of the position
+/// @param		{int} y_pos					The y coordinate of the position
+function is_lava_at_position(x_pos, y_pos) {
+	// TODO: Update to hands as well and not just player
+	if (object_index == obj_player && is_carrying_item(obj_staff)) { return false; }
+	
+	var death_at_position = instance_place_all(x_pos, y_pos, obj_death);
+	while (array_length(death_at_position) > 0) {
+		var death = array_random_pop(death_at_position);
+		if (death.object_index == obj_death) { return true; }
+	}
+	return false;
+}
+
+/// @function								is_direction_free(dir, ignore_solid);
 /// @param		{direction}	dir				The direction to check whether the calling instance can move in
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function direction_is_free(dir, ignore_solid, ignore_death) {
+function is_direction_free(dir, ignore_solid, ignore_death) {
 	var x_pos = x, y_pos = y;
 	switch (dir) {
 		case directions.up: { y_pos -= 8; break; }
@@ -70,37 +99,12 @@ function direction_is_free(dir, ignore_solid, ignore_death) {
 	}
 	
 	// Set up general variables for blocking the given direction
-	var blocked_by_death = false;
-	if (!ignore_death) {
-		var death_at_position = instance_place_all(x_pos, y_pos, obj_death);
-		while (array_length(death_at_position) > 0) {
-			var death = array_random_pop(death_at_position);
-			if (death.object_index == obj_death && place_meeting(x_pos, y_pos, death)) { blocked_by_death = true; break; }
-		}
-	}
 	var blocked_by_room_boundry = is_outside_room(x_pos, y_pos);
-	var blocked_by_solid = (!ignore_solid && place_meeting(x_pos, y_pos, obj_solid));
+	var blocked_by_death = (!ignore_death && is_lava_at_position(x_pos, y_pos));
+	var blocked_by_solid = (!ignore_solid && is_solid_at_position(x_pos, y_pos));
 	
-	if (object_index == obj_player) {
-		// Allow player to not be blocked by walls and columns if they are carrying the special staff
-		var carried_staff = get_carried_item_of_type(obj_staff);
-		var has_special_staff = (carried_staff != noone && carried_staff.special);
-		
-		if (has_special_staff) {
-			blocked_by_solid = false;
-			var blocking_solids = instance_place_all(x_pos, y_pos, obj_solid);
-			while (array_length(blocking_solids) > 0) {
-				var current_solid = array_random_pop(blocking_solids);
-				if (current_solid.object_index != obj_wall && current_solid.object_index != obj_column) {
-					blocked_by_solid = true;
-					break;
-				}
-			}
-		}
-		
-		// Allow the player to move outside the room if they aren't currently on a solid object
-		if (!place_meeting(x, y, obj_solid)) { blocked_by_room_boundry = false; }
-	}
+	// The player is allowed to move outside the room while not on any solid
+	if (object_index == obj_player && !place_meeting(x, y, obj_solid)) { blocked_by_room_boundry = false; }
 	
 	// return whether the direction is blocked
 	return (!blocked_by_room_boundry && !blocked_by_solid && !blocked_by_death);
@@ -123,7 +127,7 @@ function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ign
 	
 	while(can_move_in_direction(dir, ignore_solid, ignore_death) && !can_reach_target) {
 		move_in_direction(dir, false);
-		if (instance_at_coordinates(x, y, target_instance)) { can_reach_target = true; }
+		if (is_instance_at_coordinates(x, y, target_instance)) { can_reach_target = true; }
 	}
 	
 	x = original_x;
@@ -149,7 +153,9 @@ function move_in_direction(dir, make_noise) {
 		play_sound(snd, false); 
 	}
 	
-	if (object_get_parent(self) == obj_enemy) { check_for_player_collision(); }
+	if (object_is_ancestor(object_index, obj_enemy)) { 
+		check_for_player_collision(); 
+	}
 }
 
 
@@ -158,13 +164,12 @@ function move_in_direction(dir, make_noise) {
 function set_instance_to_same_position(instance) {
 	with instance { 
 	    x = other.x; 
-	    y = other.y; 
-	    //image_xscale = other.image_xscale; 
+	    y = other.y;
 	}
 }
 
-/// @function								pushed_against_by_player();
-function pushed_against_by_player() {
+/// @function								get_direction_pushed_against();
+function get_direction_pushed_against() {
 	var dir = noone, x_pos = global.player.x_prev, y_pos = global.player.y_prev;
 	dir = get_direction_input(true);
 	if (dir == noone) { return dir; }
@@ -176,7 +181,7 @@ function pushed_against_by_player() {
 		case directions.left: { x_pos -= 16; break; }
 	}
 	
-	if (!instance_at_coordinates(x_pos, y_pos, self)) { 
+	if (!is_instance_at_coordinates(x_pos, y_pos, self)) { 
 		dir = noone; 
 	}
 	
@@ -191,8 +196,8 @@ function rotate_sprite_to_random_angle() {
 /// @function								flip_sprite_at_random();
 /// @param		{boolean} flip_vertical		Whether or not to also randomly flip the sprite vertically
 function flip_sprite_at_random(flip_vertical) {
-	image_xscale = get_random_chance_out_of(2) ? 1 : -1;
-	if (flip_vertical) { image_yscale = get_random_chance_out_of(2) ? 1 : -1; }
+	image_xscale = get_coin_flip() ? 1 : -1;
+	if (flip_vertical) { image_yscale = (get_coin_flip()) ? 1 : -1; }
 }
 
 /// @function								get_instance_at_each_quadrant(obj_index);
@@ -281,9 +286,9 @@ function can_press_button() {
 	var pressed = is_covered_at_each_quadrant_by(obj_solid), enemies_at_position = instance_place_all(x, y, obj_enemy);
 	while (array_length(enemies_at_position) > 0) {
 		var enemy = array_random_pop(enemies_at_position);
-		if (enemy.corporeal && instance_at_coordinates(x, y, enemy)) { pressed = true; }
+		if (enemy.corporeal && is_instance_at_coordinates(x, y, enemy)) { pressed = true; }
 	}
-	return (instance_at_coordinates(x, y, global.player) || pressed);
+	return (is_instance_at_coordinates(x, y, global.player) || pressed);
 }
 
 /// @function								set_farm_mode_sprite();

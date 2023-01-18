@@ -1,12 +1,10 @@
 if (process_this_frame()) {
-	var carried_staff = get_carried_item_of_type(obj_staff);
-	var has_special_staff = (carried_staff != noone && carried_staff.special);
 	x_prev = x;
 	y_prev = y;
 	dir_prev = dir;
 	if (dir_prev == noone) { dir_prev = irandom(3); }
 
-	if (place_meeting(x, y, obj_solid) && !dead && !has_special_staff) { kill_player(); }
+	if (!dead && is_solid_at_position(x, y)) { kill_player(); }
 	if (!dead && !game_has_been_won() && !game_has_been_lost()) {   
 	    // Get input from player
 	    dir = get_direction_input(false);
@@ -17,11 +15,11 @@ if (process_this_frame()) {
 			// Handle inventory management
 			if (global.controller.key_z_pressed) { 
 				if (!can_drop_item(directions.left)) { play_sound(snd_locked, false); }
-				else { pick_up_or_drop_item(directions.left); }
+				else { pick_up_or_put_down_item(directions.left); }
 			}
 			if (global.controller.key_x_pressed) { 
 				if (!can_drop_item(directions.right)) { play_sound(snd_locked, false); }
-				else { pick_up_or_drop_item(directions.right); }
+				else { pick_up_or_put_down_item(directions.right); }
 			}
 			
 		    // Move player in chosen direction if possible
@@ -29,9 +27,8 @@ if (process_this_frame()) {
 		}
 		
 		// Increase lighting range if carrying a rosary
-		var carried_rosary = get_carried_item_of_type(obj_rosary)
 		lighting_range = global.controller.PLAYER_LIGHT_RANGE;
-		if (carried_rosary) { lighting_range += (carried_rosary.special) ? 2 : 1; }
+		if (is_carrying_item(obj_rosary)) { lighting_range += (is_carrying_special_item(obj_rosary)) ? 2 : 1; }
 		is_flickering_light_source = false;
 		
 		// Increase lighting range if carrying two torches
@@ -50,8 +47,8 @@ if (process_this_frame()) {
     
 	    // Transition to new room depending on player position
 	    var stairs = instance_place(x, y, obj_stairs), hole = instance_place(x, y, obj_hole);
-		if (stairs != noone && stairs.active && instance_at_coordinates(x, y, stairs)) { global.controller.transition = directions.stairs; }
-		if (hole != noone && hole.active && hole.connected_hole != noone && instance_at_coordinates(x, y, hole)) { global.controller.transition = directions.stairs; global.controller.transition_hole = hole; }
+		if (stairs != noone && stairs.active && is_instance_at_coordinates(x, y, stairs)) { global.controller.transition = directions.stairs; }
+		if (hole != noone && hole.active && hole.connected_hole != noone && is_instance_at_coordinates(x, y, hole)) { global.controller.transition = directions.stairs; global.controller.transition_hole = hole; }
 	    else if x < 0 { global.controller.transition = directions.left; }
 	    else if x > room_width { global.controller.transition = directions.right; }
 	    else if y < 0 { global.controller.transition = directions.up; }

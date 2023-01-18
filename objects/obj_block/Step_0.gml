@@ -8,7 +8,7 @@ if (process_this_frame()) {
 	else if global.controller.key_left && !global.controller.key_right && (global.controller.key_left_pressed || !global.controller.key_left_released) { dir = directions.left; }
 	else if global.controller.key_right && !global.controller.key_left && (global.controller.key_right_pressed || !global.controller.key_right_released) { dir = directions.right; }
 		
-	if (dir != noone && pushed_against_by_player() == dir && can_move_in_direction(dir, false, true)) { 
+	if (dir != noone && get_direction_pushed_against() == dir && can_move_in_direction(dir, false, true)) { 
 		play_sound(snd_thud, false);
 		move_in_direction(dir, false); 
 		move_player(dir);
@@ -18,7 +18,7 @@ if (process_this_frame()) {
 	var enemies_at_position = instance_place_all(x, y, obj_enemy);
 	while (array_length(enemies_at_position) > 0) {
 		var enemy = array_random_pop(enemies_at_position);
-		if (enemy != noone && enemy.activated && instance_at_coordinates(x, y, enemy)) {
+		if (enemy != noone && enemy.activated && is_instance_at_coordinates(x, y, enemy)) {
 			if (enemy.consume_block) { instance_destroy(); }
 			if (enemy.corporeal) { with enemy { kill_enemy(snd_crunch); } }
 		}

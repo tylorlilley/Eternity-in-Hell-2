@@ -6,7 +6,7 @@ if (process_this_frame()) {
 		with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
 		if (dir <= 3) {
 			if (dropped_meat != noone && get_random_possible_direction(dropped_meat.x, dropped_meat.y, false, true) != noone) { move_towards_coordinates(dropped_meat.x, dropped_meat.y, false, true); }
-			else if (!place_meeting(x, y, obj_solid) && can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); } 
+			else if (can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); } 
 		}
 	}
 

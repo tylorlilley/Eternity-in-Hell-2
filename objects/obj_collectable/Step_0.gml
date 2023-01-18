@@ -1,5 +1,5 @@
 if (process_this_frame()) {
-	if (instance_at_coordinates(x, y, global.player)) {
+	if (is_instance_at_coordinates(x, y, global.player)) {
 	    if (instance_number(obj_collectable) == 1) {
 	        // You are collecting the final collectable in the room
 			with global.controller {

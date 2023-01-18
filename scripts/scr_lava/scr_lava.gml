@@ -22,7 +22,7 @@ function destroy_lava_at_position(x_pos, y_pos) {
 	if death_box { convert_to_multiple_death_boxes(); }
 	
 	for (var i = 0; i <= 3; i+=1;) {
-	    if (instance_at_coordinates(x_pos, y_pos, death_boxes[i])) {
+	    if (is_instance_at_coordinates(x_pos, y_pos, death_boxes[i])) {
 	        with death_boxes[i] { instance_destroy(); }
 			death_boxes[i] = noone;
 			return true;

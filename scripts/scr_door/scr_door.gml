@@ -9,7 +9,7 @@ function open_door() {
 		locked = false;
 		with (global.player) { play_sound(snd_mana, true); }
 		with door_for_exit { unlock(); }
-		with (get_carried_item_of_type(obj_key)) { if (!special) { instance_destroy(); } }
+		with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }
 	}
 }
 

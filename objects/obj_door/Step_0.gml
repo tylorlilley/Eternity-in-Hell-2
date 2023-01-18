@@ -3,10 +3,9 @@ if (process_this_frame()) {
 	
 	if (closed != noone) {
 		if (locked) { image_index = 2; }
-		var push_direction = pushed_against_by_player();
+		var push_direction = get_direction_pushed_against();
 		if (push_direction != noone) {
-			var carried_key = get_carried_item_of_type(obj_key);
-		    if (!unlocked_by_key || (locked && !carried_key)) { play_sound(snd_locked, false); }
+		    if (!unlocked_by_key || (locked && !is_carrying_item(obj_key))) { play_sound(snd_locked, false); }
 		    else {
 				play_sound(snd_open, true);
 				global.player.x = x;

@@ -6,7 +6,7 @@ function RoomExit(given_room, dir) constructor {
 	room_1 = given_room;
 	room_1_dir = dir;
 	room_2 = given_room.adj_rooms[dir];
-	room_2_dir = opposite_dir(dir);
+	room_2_dir = get_opposite_dir(dir);
 	id = generate_id();
 	
 	function unlock() { locked = false; }

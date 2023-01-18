@@ -132,6 +132,7 @@ function initialize_game_variables() {
 
 	// Initialize room probability constants
 	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
+	MISLEADING_ROOM_PROBABILITY = 256 / power(2, global.difficulty);
 	LOCKED_DOOR_PROBABILITY = 5 + global.difficulty;
 	HAS_STAIRS_PROBABILITY = 20;
 	HAS_COLLECTABLE_PROBABILITY = 30 + global.difficulty;
@@ -142,6 +143,7 @@ function initialize_game_variables() {
 	SPECIAL_ITEM_PROBABILITY = 10 - global.difficulty;
 	
 	// Initilize room start probability constants
+	ROOM_KEY_IN_CHEST_PROBABILITY = 3;
 	DIRT_PROBABILITY = 16 + global.difficulty * 2;
 	NOSE_PROBABILITY = 8 - global.difficulty;
 	PHANTOM_PROBABILITY = 5 - global.difficulty;
@@ -149,7 +151,8 @@ function initialize_game_variables() {
 	SNAKE_PROBABILITY =  32 - (4 * global.difficulty);
 	EYES_PROBABILITY =  64 - (4 * global.difficulty);
 	FAST_SKELETON_PROBABILITY = 16 - global.difficulty;
-	MISLEADING_ROOM_PROBABILITY = 256 / power(2, global.difficulty);
+	TRAP_BONES_PROBABILITY = 32-global.difficulty;
+	MOVING_COLLECTABLE_PROBABILITY = 32-global.difficulty;
 
 	// Initialize map drawing constants
 	TEST_MODE = false;
@@ -160,12 +163,25 @@ function initialize_game_variables() {
 	MAX_MAP_DRAW_DISTANCE = 8;
 	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
 
-	// Initialize lighting constants and variables
+	// Initialize lighting constants
 	DIMMING_RATE = 8;
 	LANTERN_LIGHT_RANGE = 14;
 	TORCH_LIGHT_RANGE = 11;
 	PLAYER_LIGHT_RANGE = 6;
+	
+	// Initilaize other gameplay constants
+	BUSH_RUSTLE_PROBABILITY = 2056;
+	BUSH_RUSTLE_FREQUENCY = 16;
+	SKELETON_MOVE_FREQUENCY = 12;
+	FAST_SKELETON_MOVE_FREQUENCY = 4;
+	SNAKE_HISS_FREQUENCY = 32;
+	SNAKE_MOVE_FREQUENCY = 4;
+	BLOOD_REPLACEMENT_PROBABILITY = 32;
+	CORPSE_REPLACEMENT_PROBABILITY = 1024;
 	TRAP_RANGE = 40;
+	BOMB_DUB_PROBABILITY = 64
+	BLOCK_ITEM_PROBABILITY = 32+global.difficulty;
+	NOSE_SELF_DESTRUCT_PROBABILITY = 128*(5-global.difficulty);
 
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
@@ -415,7 +431,7 @@ function game_room_start() {
 		// Create key in room if it should exist
 		var key_in_chest = false;
 		if (current_room.has_key) {
-			if (!current_room.stairs_spot_obj && get_random_chance_out_of(3)) { 	
+			if (!current_room.stairs_spot_obj && get_random_chance_out_of(ROOM_KEY_IN_CHEST_PROBABILITY)) { 	
 				key_in_chest = true;
 				current_room.item_type = obj_key;
 				current_room.stairs_spot_obj = obj_chest;
@@ -498,7 +514,11 @@ function game_room_start() {
     
 		// Create collectables in room if they should exist
 		if (current_room.has_collectables) {
-		    with obj_collectable_spot { instance_create_depth(x, y, 0, obj_collectable); instance_destroy(); }
+		    with obj_collectable_spot { 
+				var new_collectable = instance_create_depth(x, y, 0, obj_collectable);
+				if (get_random_chance_out_of(global.controller.MOVING_COLLECTABLE_PROBABILITY)) { new_collectable.moving = true; }
+				instance_destroy(); 
+			}
 			if (instance_number(obj_collectable) == 0) { 
 				// This should never happen if every room has 2+ collectable spots
 				current_room.has_collectables = false;
@@ -542,8 +562,9 @@ function game_room_start() {
 		// Usurp some skeletons
 		with (obj_skeleton) {
 			var usurped = noone;
-			if (get_random_chance_out_of(global.controller.SNAKE_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_snake; }
 			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurped = obj_eyes; }
+			else if (get_random_chance_out_of(global.controller.SNAKE_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_snake; }
+			else if (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBABILITY) && global.difficulty >= difficulties.medium) { skeleton_speed = global.controller.FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
 			if (usurped != noone) { instance_create_depth(x, y, 0, usurped); instance_destroy(); }
 		}
 	}
@@ -576,7 +597,7 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
-	with (obj_bones) { if (!place_meeting(x, y, obj_solid)) { trap = (get_random_chance_out_of(32-global.difficulty)); } }
+	with (obj_bones) { if (!is_solid_at_position(x, y)) { trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } }
 	with (obj_stairs) { active = false; }
 	with (obj_hole) { active = false; }
 	with (obj_door) { 
@@ -634,7 +655,7 @@ function game_room_start() {
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
 		var potential_items = array_create(0);
-		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !place_meeting(x, y, obj_solid) && !place_meeting(x, y, obj_hands)) { 
+		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !is_solid_at_position(x, y) && !place_meeting(x, y, obj_hands)) { 
 			array_push(potential_items, self); } 
 		}
 		// Spawn a hand on each potential item if probability is met

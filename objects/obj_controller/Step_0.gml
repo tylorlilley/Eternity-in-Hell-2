@@ -6,11 +6,10 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	    if key_space_released { play_sound( snd_putdown, false ); }
     
 	    // Update per frame values
-		var carried_clock = get_carried_item_of_type(obj_clock);
 		var time_to_decrement = one_unit_of_game_time();
 		if (global.player.carried_items[directions.right] && global.player.carried_items[directions.right].object_index == obj_clock) { time_to_decrement/= 2; }
 		if (global.player.carried_items[directions.left] && global.player.carried_items[directions.left].object_index == obj_clock) { time_to_decrement/= 2; }
-		if (!carried_clock || !carried_clock.special) { time_remaining -= time_to_decrement; }
+		if (!is_carrying_special_item(obj_clock)) { time_remaining -= time_to_decrement; }
 	    //if key_space { time_remaining -= one_unit_of_game_time(); }
 	    if (game_has_timed_out()) { time_remaining = 0; play_sound(snd_lose, false); }
 		
@@ -25,13 +24,13 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	}
 	if (room != rm_finish && (game_has_been_lost() || game_has_been_won())) {
 		if (game_has_been_won() || game_has_timed_out() || death_timer == 0) {
-			var carried_rosary = get_carried_item_of_type(obj_rosary);
+			var carried_rosary = get_carried_item(obj_rosary);
 			var carried_pos = global.player.carried_items[1] == carried_rosary ? 1 : 3;
 			if (carried_rosary && global.player.dead) {
 				// Destroy the rosary being used
 				transition = 5;
 				with global.player {
-					drop_all_items();
+					put_down_all_items();
 					dead = false;
 					image_index = 0;
 					var player_corpse = instance_create_depth(x, y, 3, obj_player_corpse);
@@ -44,7 +43,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 			}
 			else {
 				with (global.player) {
-					drop_all_items();
+					put_down_all_items();
 					visible = false;
 					room_goto(rm_finish);
 				}

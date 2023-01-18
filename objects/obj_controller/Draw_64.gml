@@ -36,7 +36,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 		
 		// Draw elapsed time
 		var time_elapsed = (time_provided - time_remaining);
-		draw_text(hud_x_pos, room_height-12, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
+		draw_text(hud_x_pos, room_height-12, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(time_elapsed mod 60), 2)));
 		
 		// Draw game version
 		draw_set_halign(fa_right);
@@ -57,7 +57,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 
 	    // Draw final score and game seed and game version
 		draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
-		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+zero_padded_string(random_get_seed(), 9)));	// Draw elapsed time
+		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));	// Draw elapsed time
 		var time_elapsed = (time_provided - time_remaining);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
 		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
@@ -66,12 +66,12 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 		var total_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
 	    if (has_won || has_lost) { 
 			draw_text(hud_x_pos, room_height-56-16+8, string_hash_to_newline("Final Grade: "+string(total_score)+"%")); 
-			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline("Difficulty: "+difficulty_string())); 
+			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline("Difficulty: "+get_difficulty_string())); 
 			draw_text(hud_x_pos, room_height-128-16-16, string_hash_to_newline("Collected: "+string(percentage_of_collectables_collected)+"%")); 
 			draw_text(hud_x_pos, room_height-112-16-16, string_hash_to_newline("Mapped: "+string(percentage_of_rooms_mapped)+"%"));
 			draw_text(hud_x_pos, room_height-96-16-16, string_hash_to_newline("Time Left: "+string(percentage_of_time_remaining)+"%")); 
 			if (completion_amount > 0) { draw_text(hud_x_pos, room_height-96-16, string_hash_to_newline("Victory: "+string(bonus_for_winning_game)+"%")); }
-			draw_text(hud_x_pos, room_height-160-16-16, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+zero_padded_string(floor(time_elapsed mod 60), 2)));
+			draw_text(hud_x_pos, room_height-160-16-16, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(time_elapsed mod 60), 2)));
 		}
 	}
 

@@ -19,16 +19,16 @@ function move_player(dir) {
 	}
 }
 
-/// @function								pick_up_or_drop_item(dir);
+/// @function								pick_up_or_put_down_item(dir);
 /// @param		{direction} dir				The directional slot to pick up or drop an item into or from
-function pick_up_or_drop_item(dir) {
+function pick_up_or_put_down_item(dir) {
 	if (carried_items[dir]) { put_down_item(dir); }
 	else {
 		// Cycle through the items you could be possibly picking up
 		var dropped_items = instance_place_all(x, y, obj_item);
 		while (array_length(dropped_items) > 0) {
 			var dropped_item = array_random_pop(dropped_items);
-			if (dropped_item && !dropped_item.carried && dropped_item.can_pick_up && instance_at_coordinates(x, y, dropped_item)) {
+			if (dropped_item && !dropped_item.carried && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
 				with dropped_item { pick_up_item(dir, true, global.player); return true; }
 			}
 		}
@@ -63,19 +63,33 @@ function put_down_item(dir) {
 	}
 }
 
-/// @function								get_carried_item_of_type(dir);
+/// @function								get_carried_item(dir);
 /// @param		{index} obj_index			The object type to check the carried items for
-function get_carried_item_of_type(obj_index) {
+function get_carried_item(obj_index) {
 	var carried_item = noone;
 	for (var i = 0; i <= 4; i += 1;) {
 		var current_item = global.player.carried_items[i];
-		if (current_item && current_item.object_index == obj_index) { 
+		if (current_item && current_item.object_index == obj_index) {
+			// Prioritize returning the carried special item if carrying multiple items
 			if (!carried_item || (current_item.special && !carried_item.special)) {
 				carried_item = current_item;
 			}
 		}
 	}
 	return carried_item;
+}
+
+/// @function								is_carrying_item(dir);
+/// @param		{index} obj_index			The object type to check the carried items for
+function is_carrying_item(obj_index) {
+	return (get_carried_item(obj_index) != noone);
+}
+
+/// @function								is_carrying_special_item(dir);
+/// @param		{index} obj_index			The object type to check the carried items for
+function is_carrying_special_item(obj_index) {
+	var item = get_carried_item(obj_index)
+	return (item != noone && item.special);
 }
 
 /// @function								create_item_in_hand(dir);
@@ -89,9 +103,6 @@ function create_item_in_hand(dir, obj_index)	{
 
 /// @function								kill_player();
 function kill_player() {
-	// Drop all carried items
-	//drop_all_items();
-	
 	// Set variables to mark death
 	global.player.dead = true;
 	global.controller.death_timer = 40;
@@ -99,8 +110,8 @@ function kill_player() {
 	with (obj_echo_spot) { instance_destroy(); }
 }
 
-/// @function								drop_all_items()
-function drop_all_items() {
+/// @function								put_down_all_items()
+function put_down_all_items() {
 	for (var i = 1; i <= 3; i += 2;) {
 		if (global.player.carried_items[i]) { put_down_item(i); }
 	}
@@ -162,7 +173,7 @@ function can_drop_item(dir) {
 	var item_to_drop = carried_items[dir];
 	if (item_to_drop == noone) { return true; }
 	if (item_to_drop.object_index == obj_shovel) { return can_make_hole(); }
-	else { return (!place_meeting(x, y, obj_solid)); }
+	else { return (!is_solid_at_position(x, y)); }
 }
 
 /// @function					can_make_hole(dir)

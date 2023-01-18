@@ -75,11 +75,11 @@ function direction_is_free(dir, ignore_solid, ignore_death) {
 	var blocked_by_death = (!ignore_death && instance_place(x_pos, y_pos, obj_death) && instance_place(x_pos, y_pos, obj_death).lava);
 	
 	if (object_index == obj_player) {
-		// Allow player to not be blocked by walls and columns if they are carrying the special amulet
-		var carried_amulet = get_carried_item_of_type(obj_amulet);
-		var has_special_amulet = (carried_amulet != noone && carried_amulet.special);
+		// Allow player to not be blocked by walls and columns if they are carrying the special staff
+		var carried_staff = get_carried_item_of_type(obj_staff);
+		var has_special_staff = (carried_staff != noone && carried_staff.special);
 		
-		if (has_special_amulet) {
+		if (has_special_staff) {
 			blocked_by_solid = false;
 			var blocking_solids = instance_place_all(x_pos, y_pos, obj_solid);
 			while (array_length(blocking_solids) > 0) {

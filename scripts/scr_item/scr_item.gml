@@ -97,7 +97,7 @@ function get_random_item_type() {
 		case 1: { return obj_sword; }
 		case 2: { return obj_map; }
 		case 3: { return obj_rosary; }
-		case 4: { return obj_amulet; }
+		case 4: { return obj_staff; }
 		case 5: { return obj_bomb; }
 		case 6: { return obj_meat; }
 		case 7: { return obj_shovel; }

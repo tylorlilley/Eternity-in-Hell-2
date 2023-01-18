@@ -54,7 +54,7 @@ function interact_with_other_torches() {
 	var actively_lit = false, torches = instance_place_all(x, y, obj_torch);
 	
 	// Light torches from lava
-	if (is_covered_at_each_quadrant_by(obj_lava) && (get_carried_item_of_type(obj_amulet) == noone || !instance_at_coordinates(x, y, global.player))) {
+	if (is_covered_at_each_quadrant_by(obj_lava) && (get_carried_item_of_type(obj_staff) == noone || !instance_at_coordinates(x, y, global.player))) {
 		light_torch(noone, true);	
 		actively_lit = true;
 	}

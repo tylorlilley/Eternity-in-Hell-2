@@ -144,9 +144,9 @@ function initialize_game_variables() {
 	// Initilize room start probability constants
 	DIRT_PROBABILITY = 16 + global.difficulty * 2;
 	NOSE_PROBABILITY = 8 - global.difficulty;
-	PHANTOM_PROBABILITY = 5 - global.difficulty;
+	PHANTOM_PROBABILITY = 1//5 - global.difficulty;
 	HANDS_PROBABILITY = 4 * (5 - global.difficulty);
-	WORM_PROBABILITY =  32 - (4 * global.difficulty);
+	SNAKE_PROBABILITY =  32 - (4 * global.difficulty);
 	EYES_PROBABILITY =  64 - (4 * global.difficulty);
 	FAST_SKELETON_PROBABILITY = 16 - global.difficulty;
 	MISLEADING_ROOM_PROBABILITY = 256 / power(2, global.difficulty);
@@ -189,7 +189,7 @@ function initialize_game_variables() {
 	rooms_with_torch = array_create(0);
 	rooms_with_key = array_create(0);
 	rooms_with_sword = array_create(0);
-	rooms_with_amulet = array_create(0);
+	rooms_with_staff = array_create(0);
 	rooms_with_bomb = array_create(0);
 	rooms_with_meat = array_create(0);
 	rooms_with_map = array_create(0);
@@ -514,7 +514,7 @@ function game_room_start() {
 		else
 		{
 			// If room is unlit but has the potential to be lit, consider spawning phantom
-			if (instance_number(obj_lantern) > 0 && instance_number(obj_bumper) == 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
+			if (instance_number(obj_lantern) > 0 && instance_number(obj_eyes) == 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
 				instance_create_depth(8, 8, 0, obj_phantom);
 			}
 		}
@@ -542,8 +542,8 @@ function game_room_start() {
 		// Usurp some skeletons
 		with (obj_skeleton) {
 			var usurped = noone;
-			if (get_random_chance_out_of(global.controller.WORM_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_worm; }
-			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_bumper) == 0) { usurped = obj_bumper; }
+			if (get_random_chance_out_of(global.controller.SNAKE_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_snake; }
+			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurped = obj_eyes; }
 			if (usurped != noone) { instance_create_depth(x, y, 0, usurped); instance_destroy(); }
 		}
 	}

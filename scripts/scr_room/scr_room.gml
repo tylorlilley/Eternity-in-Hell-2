@@ -96,7 +96,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (item_type == obj_torch && array_length(global.controller.rooms_with_torch) > 1) { item_type = noone; } 
 			if (item_type == obj_map && array_length(global.controller.rooms_with_map) > 1) { item_type = noone; } 
 			if (item_type == obj_clock && array_length(global.controller.rooms_with_clock) > 1) { item_type = noone; } 
-			if (item_type == obj_amulet && array_length(global.controller.rooms_with_amulet) > 1) { item_type = noone; } 
+			if (item_type == obj_staff && array_length(global.controller.rooms_with_staff) > 1) { item_type = noone; } 
 		}
 		
 		switch (item_type) {
@@ -104,7 +104,7 @@ function GameRoom(given_x, given_y) constructor {
 			case obj_sword: { array_push(global.controller.rooms_with_sword, self); break; }
 			case obj_map: { array_push(global.controller.rooms_with_map, self); break; }
 			case obj_rosary: { array_push(global.controller.rooms_with_rosary, self); break; }
-			case obj_amulet: { array_push(global.controller.rooms_with_amulet, self); break; }
+			case obj_staff: { array_push(global.controller.rooms_with_staff, self); break; }
 			case obj_bomb: { array_push(global.controller.rooms_with_bomb, self); break; }
 			case obj_meat: { array_push(global.controller.rooms_with_meat, self); break; }
 			case obj_shovel: { array_push(global.controller.rooms_with_shovel, self); break; }

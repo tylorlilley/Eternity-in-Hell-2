@@ -291,8 +291,8 @@ function explode(destroy_self) {
 function check_for_player_collision() {
 	if (instance_place(x, y, global.player) != noone && !global.player.dead) {
 		var carried_sword = get_carried_item_of_type(obj_sword);
-		var carried_amulet = get_carried_item_of_type(obj_amulet);
+		var carried_staff = get_carried_item_of_type(obj_staff);
 			if (carried_sword != noone && corporeal) { kill_with_sword(carried_sword); }
-			else if (!lava || carried_amulet == noone) { kill_player(); }
+			else if (!lava || carried_staff == noone) { kill_player(); }
 	}
 }

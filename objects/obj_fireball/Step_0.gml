@@ -9,12 +9,12 @@ if (process_this_frame()) {
 	//var dropped_meat = instance_place(x, y, obj_meat);
 	//with dropped_meat { if (carried == noone) { play_sound(snd_extinguish, true); instance_destroy(); instance_create_depth(x, y, 5, obj_bones); } }
 	
-	// Destroy self when colliding with solid, enemy, or player with amulet
+	// Destroy self when colliding with solid, enemy, or player with staff
 	var enemy = instance_place(x, y, obj_enemy)
 	if (instance_place(x, y, obj_solid) != noone) { play_sound(snd_fuse, false); instance_destroy(); }
 	else if (enemy != noone && enemy.activated) { play_sound(snd_fuse, true); instance_destroy(); }
 	else if (instance_place(x, y, global.player)) {
-		var carried_amulet = get_carried_item_of_type(obj_amulet);
-		if (carried_amulet != noone) { play_sound(snd_fuse, true); instance_destroy(); }
+		var carried_staff = get_carried_item_of_type(obj_staff);
+		if (carried_staff != noone) { play_sound(snd_fuse, true); instance_destroy(); }
 	}
 }

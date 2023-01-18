@@ -3,8 +3,8 @@
   "resourceVersion": "1.0",
   "name": "obj_bumper",
   "spriteId": {
-    "name": "spr_eyes",
-    "path": "sprites/spr_eyes/spr_eyes.yy",
+    "name": "spr_bumper",
+    "path": "sprites/spr_bumper/spr_bumper.yy",
   },
   "solid": false,
   "visible": true,

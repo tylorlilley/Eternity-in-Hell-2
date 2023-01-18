@@ -1,7 +1,7 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_amulet",
+  "name": "obj_staff",
   "spriteId": {
     "name": "spr_staff",
     "path": "sprites/spr_staff/spr_staff.yy",

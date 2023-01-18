@@ -99,7 +99,7 @@ if (array_length(rooms_with_torch) > 0 && get_random_chance_out_of(SPECIAL_ITEM_
 if (array_length(rooms_with_sword) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_sword) { has_special_item = true; show_debug_message("RED SWORD"); } }
 if (array_length(rooms_with_rosary) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_rosary) { has_special_item = true; show_debug_message("RED ROSARY"); } }
 if (array_length(rooms_with_map) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_map) { has_special_item = true; show_debug_message("RED MAP"); } }
-if (array_length(rooms_with_amulet) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_amulet) { has_special_item = true; show_debug_message("RED AMULET"); } }
+if (array_length(rooms_with_staff) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_staff) { has_special_item = true; show_debug_message("RED STAFF"); } }
 if (array_length(rooms_with_bomb) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_bomb) { has_special_item = true; show_debug_message("RED BOMB"); } }
 if (array_length(rooms_with_shovel) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_shovel) { has_special_item = true; show_debug_message("RED SHOVEL"); } }
 if (array_length(rooms_with_meat) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_meat) { has_special_item = true; show_debug_message("RED MEAT"); } }

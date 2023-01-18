@@ -22,7 +22,7 @@ if process_this_frame() {
 		}
 		
 		// Blow up bombs dropped in lava
-		if (is_covered_at_each_quadrant_by(obj_lava) && (get_carried_item_of_type(obj_amulet) == noone || !instance_at_coordinates(x, y, global.player))) {
+		if (is_covered_at_each_quadrant_by(obj_lava) && (get_carried_item_of_type(obj_staff) == noone || !instance_at_coordinates(x, y, global.player))) {
 			explode(!special);
 		}
 	}

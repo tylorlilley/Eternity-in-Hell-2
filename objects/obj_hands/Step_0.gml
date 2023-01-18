@@ -2,11 +2,11 @@ if (process_this_frame()) {
 	if (distance_to_instance(global.player) < global.controller.TRAP_RANGE && !activated) { activated = true; }
 	if (activated) {
 		for (var i = 0; i < 2; i++) {
-			var carried_amulet = (carried_items[1] != noone && carried_items[1].object_index == obj_amulet) ? carried_items[1] : noone;
+			var carried_staff = (carried_items[1] != noone && carried_items[1].object_index == obj_staff) ? carried_items[1] : noone;
 			var carried_sword = (carried_items[1] != noone && carried_items[1].object_index == obj_sword) ? carried_items[1] : noone;
 	
-			corporeal = (carried_amulet == noone || !carried_amulet.special);
-			fire_resistant = (carried_amulet != noone);
+			corporeal = (carried_staff == noone || !carried_staff.special);
+			fire_resistant = (carried_staff != noone);
 	
 			if (target_item == noone) {
 				// Run Away From Player While Carrying Target

@@ -1,7 +1,7 @@
 {
   "resourceType": "GMSound",
   "resourceVersion": "1.0",
-  "name": "snd_bumper",
+  "name": "snd_eyes",
   "conversionMode": 0,
   "compression": 0,
   "volume": 0.4,
@@ -14,7 +14,7 @@
     "name": "audiogroup_default",
     "path": "audiogroups/audiogroup_default",
   },
-  "soundFile": "snd_bumper.wav",
+  "soundFile": "snd_eyes.wav",
   "duration": 0.326757,
   "parent": {
     "name": "Sounds",

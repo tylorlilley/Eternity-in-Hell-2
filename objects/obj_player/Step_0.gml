@@ -1,12 +1,12 @@
 if (process_this_frame()) {
-	var carried_amulet = get_carried_item_of_type(obj_amulet);
-	var has_special_amulet = (carried_amulet != noone && carried_amulet.special);
+	var carried_staff = get_carried_item_of_type(obj_staff);
+	var has_special_staff = (carried_staff != noone && carried_staff.special);
 	x_prev = x;
 	y_prev = y;
 	dir_prev = dir;
 	if (dir_prev == noone) { dir_prev = irandom(3); }
 
-	if (instance_place(x, y, obj_solid) && !dead && !has_special_amulet) { kill_player(); }
+	if (instance_place(x, y, obj_solid) && !dead && !has_special_staff) { kill_player(); }
 	if (!dead && !game_has_been_won() && !game_has_been_lost()) {   
 	    // Get input from player
 	    dir = get_direction_input(false);
@@ -47,9 +47,6 @@ if (process_this_frame()) {
 				is_flickering_light_source = true;
 			}
 		}
-		
-		// Destroy lava if standing on it
-		//if (carried_amulet != noone) { consume_lava(false); }
     
 	    // Transition to new room depending on player position
 	    var stairs = instance_place(x, y, obj_stairs), hole = instance_place(x, y, obj_hole);

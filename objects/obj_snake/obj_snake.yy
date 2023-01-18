@@ -1,10 +1,10 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_worm",
+  "name": "obj_snake",
   "spriteId": {
-    "name": "spr_worm",
-    "path": "sprites/spr_worm/spr_worm.yy",
+    "name": "spr_snake",
+    "path": "sprites/spr_snake/spr_snake.yy",
   },
   "solid": false,
   "visible": true,

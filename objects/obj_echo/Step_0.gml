@@ -4,7 +4,8 @@ if (process_this_frame()) {
 		walk_timer = 2;
 		if (array_length(generator.moves) > move_pos) {
 			var dir = generator.moves[move_pos]
-			move_in_direction(dir, true);
+			move_in_direction(dir, false);
+			play_sound(snd_walk, false);
 			move_pos += 1;
 			image_index = move_pos mod 2;
 		}

@@ -45,6 +45,7 @@
     {"id":{"name":"bg_title_farmer","path":"sprites/bg_title_farmer/bg_title_farmer.yy",},"order":2,},
     {"id":{"name":"rm_four_exits_4","path":"rooms/rm_four_exits_4/rm_four_exits_4.yy",},"order":27,},
     {"id":{"name":"rm_two_opposite_exits_4","path":"rooms/rm_two_opposite_exits_4/rm_two_opposite_exits_4.yy",},"order":17,},
+    {"id":{"name":"rm_unused_6","path":"rooms/rm_unused_6/rm_unused_6.yy",},"order":10,},
     {"id":{"name":"spr_bumper","path":"sprites/spr_bumper/spr_bumper.yy",},"order":69,},
     {"id":{"name":"rm_two_perpendicular_exits_19","path":"rooms/rm_two_perpendicular_exits_19/rm_two_perpendicular_exits_19.yy",},"order":18,},
     {"id":{"name":"snd_splash","path":"sounds/snd_splash/snd_splash.yy",},"order":51,},
@@ -447,6 +448,7 @@
     {"roomId":{"name":"rm_two_perpendicular_exits_22","path":"rooms/rm_two_perpendicular_exits_22/rm_two_perpendicular_exits_22.yy",},},
     {"roomId":{"name":"rm_unused_5","path":"rooms/rm_unused_5/rm_unused_5.yy",},},
     {"roomId":{"name":"rm_no_exits_2","path":"rooms/rm_no_exits_2/rm_no_exits_2.yy",},},
+    {"roomId":{"name":"rm_unused_6","path":"rooms/rm_unused_6/rm_unused_6.yy",},},
   ],
   "Folders": [
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Animation Curves","folderPath":"folders/Animation Curves.yy","order":0,},
@@ -602,6 +604,7 @@
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_two_perpendicular_exits_28.json","CopyToMask":-1,"filePath":"datafiles",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_unused_5.json","CopyToMask":-1,"filePath":"datafiles",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_no_exits_2.json","CopyToMask":-1,"filePath":"datafiles",},
+    {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_unused_6.json","CopyToMask":-1,"filePath":"datafiles",},
   ],
   "MetaData": {
     "IDEVersion": "2022.11.1.56",

@@ -15,9 +15,9 @@ function get_relative_light_intensity(instance_to_light, maximum_intensity) {
 	return relative_intensity;
 }
 
-/// @function									calculate_lighting(maximum_intensity);
+/// @function									get_image_blend(maximum_intensity);
 /// @param		{real} maximum_intensity		The maximum brightness that can be set for the calling instance
-function calculate_lighting(maximum_intensity) {
+function get_image_blend(maximum_intensity) {
 	var greatest_lighting_intensity = 0;
 
 	with obj_light_source {
@@ -26,5 +26,5 @@ function calculate_lighting(maximum_intensity) {
 	}
 
 	if greatest_lighting_intensity > maximum_intensity { greatest_lighting_intensity = maximum_intensity; }
-	image_blend = merge_color(global.controller.bg_color, c_white, greatest_lighting_intensity);
+	return merge_color(global.controller.bg_color, c_white, greatest_lighting_intensity);
 }

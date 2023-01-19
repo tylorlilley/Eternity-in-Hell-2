@@ -54,11 +54,8 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 		else { death_timer -= 1; }
 	}
 	
-	// Update background
-	background_id = layer_background_get_id(layer_get_id("Background"));
+	// Update background color
 	bg_color = make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(time_remaining/time_provided), 8), 1)), 20, 20);
-	//if (game_has_been_won()) { bg_color = c_white; }
-	layer_background_blend( background_id,  bg_color );
 	
 	// Restart game if necessary
 	if key_enter_released { 

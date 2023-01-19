@@ -7,6 +7,5 @@ image_xscale = (get_coin_flip()) ? 1 : -1;
 corporeal = false;
 
 awake = false;
-hiss_timer = -1;
 target_x = xstart;
 target_y = ystart;

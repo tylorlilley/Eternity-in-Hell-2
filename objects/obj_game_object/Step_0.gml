@@ -1,5 +1,5 @@
 if (process_this_frame()) {
-	calculate_lighting(1);
+	image_blend = get_image_blend(1);
 	if  (!persistent && is_outside_room(x, y)) { 
 	    instance_destroy(); 
 	}

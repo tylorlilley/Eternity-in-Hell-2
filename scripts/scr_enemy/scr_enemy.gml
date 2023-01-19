@@ -247,23 +247,6 @@ function move_segments(new_dir) {
 	//set_segment_image();
 }
 
-/// @function								play_sound();
-///	@param		{Sound}	  snd				The sound to play
-///	@param		{Boolean} loud_soun			Whether the sound is heard by ears or not
-function play_sound(snd, loud_sound) {
-	array_push(global.sound_manager.sounds_to_play, snd);
-	if (loud_sound) {
-		with (obj_ears) {
-			if id != other.id {
-				target_x = other.x;
-				target_y = other.y;
-				awake = true;
-				hiss_timer = 2;
-			}
-		}
-	}
-}
-
 /// @function								explode(destroy_self);
 ///	@param		{Sound}	  destroy_self		Whether to destroy the calling instance or not
 function explode(destroy_self) {

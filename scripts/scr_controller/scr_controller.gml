@@ -596,6 +596,7 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
+	with (obj_bush) { occupier = noone; occupied = false; }
 	with (obj_bones) { if (!is_solid_at_position(x, y)) { trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } }
 	with (obj_stairs) { active = false; }
 	with (obj_hole) { active = false; }

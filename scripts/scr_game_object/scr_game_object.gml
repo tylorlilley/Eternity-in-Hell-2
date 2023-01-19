@@ -148,6 +148,11 @@ function move_in_direction(dir, make_noise) {
 	else if (dir == directions.down) { y += 8; }
 	else if (dir == directions.left) { x -= 8; image_xscale = 1; }
 	
+	if (object_is_ancestor(object_index, obj_enemy)) { 
+		check_for_player_collision();
+		if (!corporeal) { make_noise = false; }
+	}
+	
 	if (make_noise) {
 		var snd = snd_walk;
 		if (is_covered_at_each_quadrant_by(obj_lava)) { snd = snd_splash; }
@@ -155,9 +160,7 @@ function move_in_direction(dir, make_noise) {
 		play_sound(snd, false); 
 	}
 	
-	if (object_is_ancestor(object_index, obj_enemy)) { 
-		check_for_player_collision(); 
-	}
+
 }
 
 

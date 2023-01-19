@@ -8,8 +8,6 @@ if (process_this_frame()) {
 		move_towards_coordinates(target_x, target_y, true, true);
 		move_towards_coordinates(target_x, target_y, true, true);
 		move_towards_coordinates(target_x, target_y, true, true);
-		if (hiss_timer >= 0) { hiss_timer -= 1; }
-		if (hiss_timer == 0 && !audio_is_playing(snd_ears)) { play_sound(snd_ears, false); }
 	}
 	else {
 		sprite_index = spr_ears;

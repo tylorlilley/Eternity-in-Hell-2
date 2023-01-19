@@ -12,7 +12,7 @@ if (process_this_frame()) {
 			}
 	    }
 	    instance_destroy();
-	    play_sound(snd_mana, false);
+	    play_sound(snd_mana, true);
 	}
 
 	// If this is a moving collectable, choose a random direction and move in that 

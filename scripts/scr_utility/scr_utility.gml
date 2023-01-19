@@ -126,3 +126,23 @@ function get_seed_option_string() {
 	}
 	return result;
 }
+
+
+/// @function								play_sound();
+///	@param		{Sound}	  snd				The sound to play
+///	@param		{Boolean} loud_soun			Whether the sound is heard by ears or not
+function play_sound(snd, loud_sound) {
+	array_push(global.sound_manager.sounds_to_play, snd);
+	if (loud_sound) {
+		with (obj_ears) {
+			if id != other.id {
+				if (target_x != other.x || target_y != other.y) {
+					target_x = other.x;
+					target_y = other.y;
+					awake = true;
+					play_sound(snd_ears, true);
+				}
+			}
+		}
+	}
+}

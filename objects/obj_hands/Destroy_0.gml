@@ -8,3 +8,5 @@ with (right_hand_item) {
 	become_dropped(other.id); 
 }
 
+
+if (target_item != noone && target_item.holder == global.controller) { target_item.holder = noone; }

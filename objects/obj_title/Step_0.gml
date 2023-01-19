@@ -12,7 +12,7 @@ if (blink_timer == 0) {
 else { blink_timer -= 1; }
 
 if (keyboard_check_pressed(vk_space)) { play_sound(snd_pickup, false); }
-if (keyboard_check_released(vk_space)) { play_sound(snd_pickup, false); }
+if (keyboard_check_released(vk_space)) { play_sound(snd_putdown, false); }
 
 if keyboard_check(vk_space) {
 	// do nothing

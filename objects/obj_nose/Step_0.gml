@@ -25,7 +25,7 @@ if (process_this_frame()) {
 		}
 	}
 	
-	if (!is_covered_at_each_quadrant_by(obj_lava)) { teleport_to_lava(); }
+	if (!is_lava_at_position(x,y)) { teleport_to_lava(); }
 	
 	event_inherited();
 }

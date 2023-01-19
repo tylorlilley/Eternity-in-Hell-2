@@ -134,8 +134,8 @@ function kill_player() {
 
 /// @function								put_down_all_items()
 function put_down_all_items() {
-	with (right_hand_item) { become_dropped(other.id); }
-	with (left_hand_item) { become_dropped(other.id); }
+	put_down_item(right_hand_item, false);
+	put_down_item(left_hand_item, false);
 }
 
 /// @function								get_direction_input(key_pressed_only)

@@ -4,7 +4,10 @@ if (process_this_frame()) {
 		if (death_timer == 0) { play_sound(snd_win, false); activted = true; }
 	}
 	else {
-		if (get_distance_to_instance(global.player) < global.controller.TRAP_RANGE && !activated) { activated = true; }
+		if (get_distance_to_instance(global.player) < global.controller.TRAP_RANGE && !activated) { 
+			if (is_solid_at_position(x, y)) { instance_destroy(); }
+			else { activated = true; }
+		}
 		if (activated) {
 			// Move Around
 			for (var i = 0; i < 2; i++) {

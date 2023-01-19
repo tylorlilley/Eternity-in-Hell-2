@@ -182,6 +182,7 @@ function initialize_game_variables() {
 	BOMB_DUB_PROBABILITY = 64
 	BLOCK_ITEM_PROBABILITY = 32+global.difficulty;
 	NOSE_SELF_DESTRUCT_PROBABILITY = 128*(5-global.difficulty);
+	RESPAWN_FREQUENCY = 40;
 
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
@@ -223,6 +224,9 @@ function initialize_game_variables() {
 	death_timer = 0;
 	completion_amount = 0;
 	sounds_to_play = array_create(0);
+	right_hand_item = noone;
+	left_hand_item = noone;
+	carried_heart = false;
 
 	// initialize room transition values
 	bg_color = make_color_rgb(20, 20, 20);
@@ -430,7 +434,7 @@ function game_room_start() {
 		
 		// Create key in room if it should exist
 		var key_in_chest = false;
-		if (current_room.has_key) {
+		if (current_room.has_keys > 0) {
 			if (!current_room.stairs_spot_obj && get_random_chance_out_of(ROOM_KEY_IN_CHEST_PROBABILITY)) { 	
 				key_in_chest = true;
 				current_room.item_type = obj_key;
@@ -453,8 +457,8 @@ function game_room_start() {
 			// Set up spots where button could spawn
 			var possible_spots = array_create(0);
 			if (current_room.stairs_spot_obj == noone) { array_push(possible_spots, stairs_spot); }
-			if (!current_room.has_collectables || (!current_room.has_key || key_in_chest)) { 
-				with (obj_collectable_spot) { array_push(possible_spots, self); }
+			if (!current_room.has_collectables || (current_room.has_keys == 0 || key_in_chest)) { 
+				with (obj_collectable_spot) { array_push(possible_spots, id); }
 			}
 			
 			// Determine if button can spawn, and if so, spawn it in a possible spot
@@ -551,13 +555,8 @@ function game_room_start() {
 		array_push(mapped_rooms, current_room);
 		
 		// Spawn some dirt
-		var dirt_to_spawn = irandom(DIRT_PROBABILITY*2) - DIRT_PROBABILITY;
-		for (var i = 0; i < dirt_to_spawn; i++) {
-			var x_pos = irandom(room_width/8) * 8, y_pos = irandom(room_height/8) * 8
-			with (instance_create_depth(x_pos, y_pos, 0, obj_dirt)) {
-				if (is_covered_at_each_quadrant_by(obj_lava) || is_covered_at_each_quadrant_by(obj_solid)) { instance_destroy(self, false); }
-			}
-		}
+		var dirt_to_spawn = irandom(global.controller.DIRT_PROBABILITY*2) - global.controller.DIRT_PROBABILITY;
+		for (var i = 0; i < dirt_to_spawn; i++) { spawn_dirt(); }
 		
 		// Usurp some skeletons
 		with (obj_skeleton) {
@@ -609,21 +608,20 @@ function game_room_start() {
 	with (obj_echo) { instance_destroy(); }
 	with (obj_fireball) { instance_destroy(); }
 	with (obj_bomb) { 
-		if (carried == noone && fuse_timer > 0) {
+		if (holder == noone && fuse_timer > 0) {
 			if (special) { fuse_timer = 0; } 
 			else { instance_destroy(); }
 		}
 	}
 	with (obj_meat) {
-		var meat = self;
-		if (carried == noone) { 
+		if (holder == noone || holder.object_index == obj_hands) { 
 			if (!special) {
 				instance_create_depth(x, y, 5, obj_bones); 
 				instance_destroy();
 			}
 			else {
 				// If special, kill any enemies that were eating the meat
-				with (obj_enemy) { if (corporeal && place_meeting(x, y, meat)) { kill_enemy(noone); } }
+				with (obj_enemy) { if (corporeal && place_meeting(x, y, other.id)) { kill_enemy(noone); } }
 			}
 		} 
 	}
@@ -637,11 +635,11 @@ function game_room_start() {
 		new_worm_body.xstart = xstart;
 		new_worm_body.ystart = ystart;
 		new_worm_body.image_blend = global.controller.bg_color;
-		instance_destroy(self, false);
+		instance_destroy(id, false);
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
 	with (obj_echo_spot) {
-		if (global.controller.entered_from_stairs && global.controller.current_room == global.controller.start_room) { instance_destroy(self, false); }
+		if (global.controller.entered_from_stairs && global.controller.current_room == global.controller.start_room) { instance_destroy(id, false); }
 		else {
 			play_sound(snd_echo, false); 
 			spawn_timer = 128;
@@ -655,8 +653,8 @@ function game_room_start() {
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
 		var potential_items = array_create(0);
-		with (obj_item) { if (holder == noone && object_index != obj_heart && object_index != obj_lantern && !is_solid_at_position(x, y) && !place_meeting(x, y, obj_hands)) { 
-			array_push(potential_items, self); } 
+		with (obj_item) { if (holder == noone && can_pick_up && object_index != obj_heart && object_index != obj_meat && !is_solid_at_position(x, y) && !place_meeting(x, y, obj_hands)) { 
+			array_push(potential_items, id); } 
 		}
 		// Spawn a hand on each potential item if probability is met
 		for (var i = 0; i < array_length(potential_items); i++) {
@@ -664,6 +662,7 @@ function game_room_start() {
 			if (!entered_from_spawn && get_random_chance_out_of(HANDS_PROBABILITY)) { 
 				var new_hands = instance_create_depth(potential_item.x, potential_item.y, 0, obj_hands);
 				new_hands.target_item = potential_item;
+				new_hands.right_hand_item = potential_item;
 				new_hands.xstart = potential_item.x;
 				new_hands.ystart = potential_item.y;
 				potential_item.holder = global.controller;
@@ -676,15 +675,13 @@ function game_room_start() {
 		activated = false;
 		visible = false;
 		
-		if (carried_items[1] != noone) {
-			if (carried_items[1].object_index == obj_meat) { instance_destroy(); }
-			else {
-				target_item = carried_items[1];
-				with (carried_items[1]) { drop_item(1, false); holder = global.controller; }
-			}
+		if (right_hand_item == noone) { instance_destroy(); }
+		else {
+			target_item = right_hand_item;
+			put_down_item(right_hand_item, false);
+			target_item.holder = global.controller;
+			right_hand_item = target_item;
 		}
-		
-		if (target_item == noone) { instance_destroy(self, false); }
 	}
 	
 	//// Make sure player is in proper position after room start code has run
@@ -702,7 +699,7 @@ function set_up_locks_and_keys(keyless_rooms) {
 	    // Add an additional key somewhere
 	    if (array_length(keyless_rooms) > 0 && (array_length(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
 	        var room_to_add_key_to = array_random_pop(keyless_rooms);
-			room_to_add_key_to.has_key = true;
+			room_to_add_key_to.has_keys = 1;
 			array_push(rooms_with_key, room_to_add_key_to);
 			//show_debug_message("NUMBER OF KEYS +1");
 	    }
@@ -711,7 +708,7 @@ function set_up_locks_and_keys(keyless_rooms) {
 	    else if (array_length(locked_exits) > 0) {
 	        with array_random_pop(locked_exits) { remove(); }
 			for (var i = 0; i < total_rooms; i++) {
-			    if (game_rooms[i].has_key) { game_rooms[i].has_key = false; array_push(keyless_rooms, game_rooms[i]); }
+			    if (game_rooms[i].has_keys > 0) { game_rooms[i].has_keys = 0; array_push(keyless_rooms, game_rooms[i]); }
 			}
 			rooms_with_key = array_create(0);
 			//show_debug_message("KEYS RESET; NUMBER OF LOCKS -1");
@@ -734,4 +731,12 @@ function reset_map_generation() {
 	if (global.seed > 99999999) { global.seed = 0; }
 	instance_destroy();
 	room_restart();
+}
+
+/// @function								spawn_dirt();
+function spawn_dirt() {
+	var x_pos = irandom(room_width/8) * 8, y_pos = irandom(room_height/8) * 8
+	with (instance_create_depth(x_pos, y_pos, 0, obj_dirt)) {
+		if (is_covered_at_each_quadrant_by(obj_lava) || is_covered_at_each_quadrant_by(obj_solid)) { instance_destroy(id, false); }
+	}
 }

@@ -6,11 +6,9 @@ if (process_this_frame()) {
 		if (push_direction != noone) {
 			// Set up which inventory slots are available
 			var free_hands = array_create(0);
-			for (var i = 1; i <= 3; i += 2;) {
-				if (!global.player.carried_items[i]) { 
-					array_push(free_hands, i); 
-				}
-			}
+			if (global.player.right_hand_item == noone) { array_push(free_hands, directions.right); } 
+			if (global.player.left_hand_item == noone) { array_push(free_hands, directions.left); } 
+			
 			// Try to open the chest
 			if (array_length(free_hands) == 0 && place_meeting(global.player.x, global.player.y, obj_solid)) { play_sound(snd_locked, false); }
 			else {

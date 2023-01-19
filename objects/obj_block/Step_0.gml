@@ -20,7 +20,13 @@ if (process_this_frame()) {
 		var enemy = array_random_pop(enemies_at_position);
 		if (enemy != noone && enemy.activated && is_instance_at_coordinates(x, y, enemy)) {
 			if (enemy.consume_block) { instance_destroy(); }
-			if (enemy.corporeal) { with enemy { kill_enemy(snd_crunch); } }
+			if (enemy.corporeal) {
+				with enemy { 
+					if (object_index != obj_hands || !is_carrying_special_item(obj_staff)) {
+						kill_enemy(snd_crunch); 
+					}
+				}
+			}
 		}
 	}
 	

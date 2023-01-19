@@ -1,1 +1,1 @@
-if (carried) { with holder { carried_items[other.carried] = noone; } }
+with holder { put_down_item(other.id, false); }

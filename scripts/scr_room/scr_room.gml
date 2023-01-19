@@ -16,7 +16,7 @@ function GameRoom(given_x, given_y) constructor {
 	lit = get_random_chance_out_of(global.controller.PRE_LIT_PROBABILITY);
 
 	// Room content values
-	has_key = false;
+	has_keys = 0;
 	has_special_item = false;
 	has_collectables = false;
 	has_portcullis = false;
@@ -52,7 +52,7 @@ function GameRoom(given_x, given_y) constructor {
 		if (rand < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; stairs_spot_obj = obj_stairs; }
 		else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { set_up_room_chest(); }
 		
-		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_key = true; array_push(global.controller.rooms_with_key, self); }
+		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_keys = 1; array_push(global.controller.rooms_with_key, self); }
 		if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
 		if (irandom(100) < global.controller.HAS_PORTCULLIS_PROBABILITY) { has_portcullis = true; }
 	
@@ -220,8 +220,12 @@ function GameRoom(given_x, given_y) constructor {
 	function draw_room(x_pos, y_pos) {
 
 		// Only draw the room if the room has been visited at least once, or game is in test mode
-		var show_detailed_map = global.controller.TEST_MODE || is_carrying_item(obj_map);
-		var show_collectables = global.controller.TEST_MODE || is_carrying_special_item(obj_map);
+		var show_detailed_map = false, show_collectables = false;
+		with (global.player) {
+			show_detailed_map = (global.controller.TEST_MODE || is_carrying_item(obj_map));
+			show_collectables = (global.controller.TEST_MODE || is_carrying_special_item(obj_map));
+		}
+		
 		if (show_detailed_map || visited) {
 			// Set up colors to draw this room with
 			var fade_amount = distance_to_current_room / global.controller.MAX_MAP_DRAW_DISTANCE;
@@ -262,7 +266,7 @@ function GameRoom(given_x, given_y) constructor {
 		    if (exits[4] && (visited_exits[4] || show_detailed_map)) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.125, 0.125, 0, stair_color, 1); }
 		
 		    // Draw Room's Keys if game is in test mode
-		    if (show_detailed_map && has_key) { 
+		    if (show_detailed_map && has_keys > 0) { 
 				var x_offset = get_virtual_quadrant_x_pos(rotate)-virtual_x, y_offset = get_virtual_quadrant_y_pos(rotate)-virtual_y;
 				var key_color = inverse_color;
 				draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, 0.125, 0.125, 0, key_color, 1); 
@@ -433,8 +437,8 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function									leave_room()
 	function leave_room() {
 		instances = array_create(0);
-		with (obj_game_object) { if (!persistent) { array_push(other.instances, self); } }
-		with (obj_placeholder) { if (!persistent) { array_push(other.instances, self); } }
+		with (obj_game_object) { if (!persistent) { array_push(other.instances, id); } }
+		with (obj_placeholder) { if (!persistent) { array_push(other.instances, id); } }
 		for (var i = 0; i < array_length(instances); i++) { instance_deactivate_object(instances[i]); }
 	}
 

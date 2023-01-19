@@ -1,11 +1,10 @@
-with (carried_items[1]) {
+with (right_hand_item) {
 	if (object_index == obj_rosary) {
-		play_sound(snd_win, false);
 		var new_hands = instance_create_depth(other.xstart, other.ystart, 0, obj_hands);
-		new_hands.activated = true;
+		new_hands.death_timer = global.controller.RESPAWN_FREQUENCY;
 		if (!special) { instance_destroy(); }
-		else { new_hands.target_item = self; }
+		else { new_hands.target_item = id; }
 	}
-	drop_item(1, false); 
+	become_dropped(other.id); 
 }
 

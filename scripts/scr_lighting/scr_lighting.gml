@@ -21,7 +21,7 @@ function calculate_lighting(maximum_intensity) {
 	var greatest_lighting_intensity = 0;
 
 	with obj_light_source {
-	    var lighting_intensity = get_relative_light_intensity(other, maximum_intensity);
+	    var lighting_intensity = get_relative_light_intensity(other.id, maximum_intensity);
 	    if (lighting_intensity > greatest_lighting_intensity) { greatest_lighting_intensity = lighting_intensity; }
 	}
 

@@ -1,5 +1,5 @@
 if process_this_frame() {
-	if (!carried) {
+	if (holder == noone) {
 		if (fuse_timer > 0) {
 			fuse_timer -= 1;
 			if (fuse_timer % 4 == 0) { 
@@ -26,7 +26,7 @@ if process_this_frame() {
 		}
 		
 		// Blow up bombs dropped in lava
-		if (is_covered_at_each_quadrant_by(obj_lava) && (!is_carrying_item(obj_staff) || !is_instance_at_coordinates(x, y, global.player))) {
+		if (is_covered_at_each_quadrant_by(obj_lava)) {
 			explode(!special);
 		}
 	}

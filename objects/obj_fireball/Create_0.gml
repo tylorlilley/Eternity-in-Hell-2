@@ -4,18 +4,9 @@ depth = -300;
 sprite_index = spr_fireball;
 image_speed = one_unit_of_game_time();
 
-// Create Deathbox
-death_box = instance_create_depth(x, y, 5, obj_death);
-death_box.visible = false;
-death_box.image_blend = c_teal;
-death_box.image_xscale = 0.5;
-death_box.image_yscale = 0.5;
-
-	
 // Torch Variables
 torch = instance_create_depth(x, y, 5, obj_torch);
 torch.special = true;
-torch.carried = true;
 torch.holder = global.controller;
 torch.time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
 torch.special = true;

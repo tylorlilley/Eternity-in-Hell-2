@@ -6,12 +6,6 @@ account for shovel dropped on things that can't make hole and picking it up
 === REFACTORS ===
 rename meat
 
-refactor carrying items for player, hands, and controller (fireball) to be way less confusing and not rely on directions
-- dropped bomb and torch lighting and parent item destruction when covered by lava but not player with amulet; should also not work when covered by hands with amulet. Hands should also draw squares over lava they stand on.
-- refactor !carried into carried == noone
-
-refactor the way that can_move_in_direction doesn't look at whether current x, y has a solid on it and how that makes so many callers also do !instance_plce(x, y, obj_solid)
-
 Remove all commented out code that we don't need anymore
 Examine remaining TODO comments
 relocate functions to script files they belong in 

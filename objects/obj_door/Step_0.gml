@@ -4,8 +4,10 @@ if (process_this_frame()) {
 	if (closed != noone) {
 		if (locked) { image_index = 2; }
 		var push_direction = get_direction_pushed_against();
+		var carrying_key = false;
+		with (global.player) { carrying_key = is_carrying_item(obj_key); }
 		if (push_direction != noone) {
-		    if (!unlocked_by_key || (locked && !is_carrying_item(obj_key))) { play_sound(snd_locked, false); }
+		    if (!unlocked_by_key || (locked && !carrying_key)) { play_sound(snd_locked, false); }
 		    else {
 				play_sound(snd_open, true);
 				global.player.x = x;

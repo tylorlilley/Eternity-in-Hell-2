@@ -80,7 +80,7 @@ function teleport_to_lava() {
 	
 	// No suitable teleport spot; Should never need to reach this clause
 	show_debug_message("WARNING: teleport to lava failed.");
-	instance_destroy(self, false);
+	instance_destroy(id, false);
 	return noone;
 }
 
@@ -95,9 +95,8 @@ function shoot_fireball(target_x, target_y) {
 /// @function								try_to_see_player();
 function try_to_see_player() {
 	
-	var target = noone, dropped_meat = noone;
+	var target = noone, dropped_meat = get_dropped_meat();
 	if (!global.player.dead) { target = global.player; }
-	with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
 	
 	if (state != SCREECHING) {
 		var new_dir = noone, offset = (state == ATTACKING) ? 8 : 0
@@ -289,9 +288,11 @@ function explode(destroy_self) {
 
 /// @function								check_for_player_collision();
 function check_for_player_collision() {
-	if (place_meeting(x, y, global.player) && !global.player.dead) {
-		var carried_sword = get_carried_item(obj_sword);
+	if (activated && place_meeting(x, y, global.player) && !global.player.dead) {
+		var carried_sword = noone;
+		with (global.player) { carried_sword = get_carried_item(obj_sword); }
 		if (carried_sword != noone && corporeal) { kill_with_sword(carried_sword); }
-		else if (object_index != obj_death || !is_carrying_item(obj_staff)) { kill_player(); }
+		else if (object_index == obj_death) { with (global.player) { if (!is_carrying_item(obj_staff)) { kill_player(); } } }
+		else { kill_player(); }
 	}
 }

@@ -1,73 +1,55 @@
 /// @function								draw_while_carried();
-/// @param		{real} y_offset				How vertically displaced rom the player's origin should this should be drawn
-/// @param		{direction} dir				The hand this item is being held in
-function draw_while_carried(y_offset, dir) {
-	var x_scale = (dir == directions.left) ? image_xscale : -image_xscale;
-	var x_offset = (dir == directions.left) ? 8 : -24;
+function draw_while_carried() {
+	if (holder == noone) { return; }
+	
+	var x_offset = (holder.right_hand_item == id) ? 8 : -8;
 
-	draw_sprite_ext(sprite_index, image_index, x-sprite_width+(x_scale*x_offset),y+y_offset, x_scale, image_yscale, image_angle, image_blend, image_alpha);
+	draw_sprite_ext(sprite_index, image_index, x+x_offset, y+draw_y_offset, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 }
 
-/// @function								pick_up_item(dir, make_noise, new_holder);
-/// @param		{direction} dir				The hand this item is being picked up with
-/// @param		{boolean} make_noise		Whether or not to make a noise as part of picking up the item.
+/// @function								become_carried(new_holder);
 /// @param		{boolean} new_holder		The instance to begin holding the item.
-function pick_up_item(dir, make_noise, new_holder) {
-	if (make_noise) { play_sound(snd_pickup, true); }
-	holder = new_holder
-	holder.carried_items[dir] = id;
-	persistent = holder.persistent;
-	image_xscale = (dir == directions.left) ? 1 : -1;
-	carried = dir;
-	depth = -10;
-	if (has_been_carried) {
-			if (object_index == obj_bomb) {
-				if (fuse_timer != 0) { play_sound(snd_hiss, false); }
-				fuse_timer = 0; 
-			}
-			if (object_index == obj_shovel && can_make_hole()) {
-				play_sound(snd_shovel, true);
-				if (damaged) { instance_destroy(); }
-				else if (!special) { damaged = true; }
-				var new_hole = instance_create_depth(x, y, 0, obj_hole);
-				if (global.controller.last_hole == noone) { global.controller.last_hole = new_hole; }
-				else { 
-					new_hole.connected_hole = global.controller.last_hole; 
-					global.controller.last_hole.connected_hole = new_hole;
-					global.controller.last_hole = noone;
-				}
-			}
-	}
-	else {
-		has_been_carried = true;
-		if (holder == global.player) {
-			if (object_index == obj_key) { global.controller.current_room.has_key = false; }
-			else if (object_index == obj_heart) { global.controller.completion_amount += 1; }
-		}
-	}
-
-}
-
-/// @function								drop_item(dir, make_noise);
-/// @param		{direction} dir				The hand this item is being dropped out of
-/// @param		{bool} make_noise			Whetherto play the put down sound or not
-function drop_item(dir, make_noise) {	
-	if (make_noise) { 
-		play_sound(snd_putdown, true);
-		if (object_index == obj_shovel) { play_sound(snd_shovel, true); }
+function become_carried(new_holder) {
+	// Perform individual item pick-up actions
+	switch (object_index) {
+		case obj_key: { if (holder == global.player) { global.controller.current_room.has_keys -= 1; } break; }
+		case obj_bomb: { defuse_bomb(); break; }
+		case obj_shovel: { dig_hole(); break; }
+		case obj_heart: { mark_heart_carried(); break; }
 	}
 		
-	if (holder) { 
-		holder.carried_items[dir] = noone;
-		x = holder.x;
-		y = holder.y;
-		holder = noone;
+	// Become carried
+	holder = new_holder;
+	persistent = new_holder.persistent;
+	depth = -10;
+}
+
+/// @function								become_dropped(dropper);
+/// @param		{inst} dropper				The instance dropping this item
+function become_dropped(dropper) {
+	// Perform individual item drop actions
+	switch (object_index) {
+		case obj_key: { if (dropper == global.player) { global.controller.current_room.has_keys += 1; } break; }
+		case obj_meat: { with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } break; }
 	}
-	carried = noone;
+	
+	// Become dropped
+	holder = noone;
 	persistent = false;
 	depth = 2;
+	x = dropper.x;
+	y = dropper.y;
 	
-	//image_xscale = (dir == directions.left) ? image_xscale : -image_xscale;
+	// Perform individual actions based on dropper
+	if (dropper == global.player) {
+		xstart = x;
+		ystart = y;
+	}
+	
+	// Alert interested obj_hands to come grab it
+	with (obj_hands) { 
+		if (dropper != id && activated && !is_carrying_item(obj_meat) && (right_hand_item == noone || dropper == global.player)) { target_item = other.id; } 
+	}
 }
 
 /// @function								make_item_special();
@@ -104,4 +86,40 @@ function get_random_item_type() {
 		case 7: { return obj_shovel; }
 		case 8: { return obj_clock; }
 	}
+}
+
+/// @function								defuse_bomb();
+function defuse_bomb() {
+	if (fuse_timer != 0) { play_sound(snd_hiss, false); }
+	fuse_timer = 0; 
+}
+
+/// @function								dig_hole();
+function dig_hole() {
+	if (can_make_hole()) {
+		play_sound(snd_shovel, true);
+		if (!special) { damaged += 1; }
+		var new_hole = instance_create_depth(x, y, 0, obj_hole);
+		if (global.controller.last_hole == noone) { global.controller.last_hole = new_hole; }
+		else { 
+			new_hole.connected_hole = global.controller.last_hole; 
+			global.controller.last_hole.connected_hole = new_hole;
+			global.controller.last_hole = noone;
+		}
+	}
+}
+
+/// @function								mark_heart_carried();
+function mark_heart_carried() {
+	if (!global.controller.carried_heart && holder == global.player) { 
+		global.controller.completion_amount += 1;
+		global.controller.carried_heart = true;
+	}
+}
+
+/// @function								get_dropped_meat();
+function get_dropped_meat() {
+	var dropped_meat = noone
+	with (obj_meat) { if (holder == noone) { dropped_meat = id; } }
+	return dropped_meat;
 }

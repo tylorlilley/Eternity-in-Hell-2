@@ -36,19 +36,35 @@ function get_lava_at_each_quadrant() {
 	// Get the actual lava objects at each lava quadrant
 	var lava_at_quadrant = [noone, noone, noone, noone];
 	
+	// mark the lava as missing a death box if a player or hands is holding a staff at the quadrant position
+	if (instance_place(x, y, global.player)) {
+		with (global.player) { if (is_carrying_item(obj_staff)) { return lava_at_quadrant; } }
+	}
+	var hands = instance_place_all(x, y, obj_hands);
+	while (array_length(hands) > 0) { 
+		var hand = array_pop(hands);
+		if (instance_place(x, y, hand)) {
+			with (hand) { if (is_carrying_item(obj_staff)) { return lava_at_quadrant; } }
+		}
+	}
+	
+	// Get the lava object at each quadrant
 	for (var i = 0; i <= 3; i+= 1;) {
         var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 		lava_at_quadrant[i] = instance_position(x_pos, y_pos, obj_lava);
     }
 	
-	// Check each quadrant and mark the lava as not present if it's death box isn't present
+	// Check each quadrant for death boxes
 	for (var i = 0; i <= 3; i++) {
 		var lava = lava_at_quadrant[i], missing_death_box = true, x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 		if (lava != noone && lava.death_box == noone) {
+			// mark the lava as not missing a death box if a death box is at the right quadrant position
 			for (var j = 0; j <= 3; j++) {
 				var death_box = lava.death_boxes[j]
 				if (death_box != noone && death_box.x == x_pos && death_box.y == y_pos) { missing_death_box = false; break; }
 			}
+		
+			// Override lava at this quadrant with noone if death box is missing
 			if (missing_death_box) { lava_at_quadrant[i] = noone; }
 		}
 	}
@@ -59,7 +75,7 @@ function get_lava_at_each_quadrant() {
 /// @ function								consume_lava(require_all);
 /// @param		{bool} require_all			Only consume whole chunks of lava at once
 function consume_lava(require_all) {
-	var lava_at_quadrant = get_instance_at_each_quadrant(obj_lava);
+	var lava_at_quadrant = get_lava_at_each_quadrant();
 	if (!require_all || is_covered_at_each_quadrant_by(obj_lava)) {
 		var consumed = false;
 		for (var i = 0; i <= 3; i++) {

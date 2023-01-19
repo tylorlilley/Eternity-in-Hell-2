@@ -84,7 +84,7 @@ current_room.calculate_distance_to_current(0);
 var keyless_rooms = array_create(0), farthest_rooms = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
 	// Determine if room has a key or not
-    if (!game_rooms[i].has_key && game_rooms[i] != current_room) { array_push(keyless_rooms, game_rooms[i]); }
+    if (!game_rooms[i].has_keys > 0 && game_rooms[i] != current_room) { array_push(keyless_rooms, game_rooms[i]); }
 }
 
 // Randomly spawn a special item for each item type

@@ -15,8 +15,8 @@ if (process_this_frame()) {
 		else if (shoot_timer == 0) {
 			if (get_random_chance_out_of(global.controller.NOSE_SELF_DESTRUCT_PROBABILITY)) { explode(true); } 
 			else {
-				var target = global.player;
-				with (obj_meat) { if (!carried) { target = self; } }
+				var target = get_dropped_meat();
+				if (target == noone) { target = global.player; }
 				shoot_fireball(target.x, target.y);
 				image_index = 0;
 				activated = false;

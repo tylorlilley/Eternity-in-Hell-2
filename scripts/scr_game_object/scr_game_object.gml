@@ -2,7 +2,7 @@
 /// @param		{index} instance			The instance whose distance away from the calling instance is to be calculated
 function get_distance_to_instance(instance) {
 	if (!instance_exists(instance)) { return -1; }
-	if (self.id == instance.id) { return 0; }
+	if (id == instance) { return 0; }
 
 	return sqrt((sqr(instance.x - x) + sqr(instance.y - y)));
 }
@@ -60,11 +60,12 @@ function can_move_in_direction(dir, ignore_solid, ignore_death) {
 /// @param		{int} x_pos					The x coordinate of the position
 /// @param		{int} y_pos					The y coordinate of the position
 function is_solid_at_position(x_pos, y_pos) {
-	var solids = instance_place_all(x_pos, y_pos, obj_solid)
-	// TODO: Update to hands as well and not just player
+	var solids = instance_place_all(x_pos, y_pos, obj_solid), carrying_special_staff = false;
+	if (object_index == obj_hands || object_index == obj_player) { carrying_special_staff = is_carrying_special_item(obj_staff); }
+	
 	while (array_length(solids) > 0) {
 		var current_solid = array_random_pop(solids);
-		if (current_solid != self && (object_index != obj_player || (!is_carrying_special_item(obj_staff) || (current_solid.object_index != obj_wall && current_solid.object_index != obj_column)))) { return true; }
+		if (current_solid != id && (!carrying_special_staff || (current_solid.object_index != obj_wall && current_solid.object_index != obj_column))) { return true; }
 	}
 	return false;
 }
@@ -73,8 +74,7 @@ function is_solid_at_position(x_pos, y_pos) {
 /// @param		{int} x_pos					The x coordinate of the position
 /// @param		{int} y_pos					The y coordinate of the position
 function is_lava_at_position(x_pos, y_pos) {
-	// TODO: Update to hands as well and not just player
-	if (object_index == obj_player && is_carrying_item(obj_staff)) { return false; }
+	if ((object_index == obj_hands || object_index == obj_player) && is_carrying_item(obj_staff)) { return false; }
 	
 	var death_at_position = instance_place_all(x_pos, y_pos, obj_death);
 	while (array_length(death_at_position) > 0) {
@@ -125,10 +125,12 @@ function is_outside_room(x_pos, y_pos) {
 function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ignore_death) {
 	var original_x = x, original_y = y, can_reach_target = false;
 	
+	activated = false;
 	while(can_move_in_direction(dir, ignore_solid, ignore_death) && !can_reach_target) {
 		move_in_direction(dir, false);
 		if (is_instance_at_coordinates(x, y, target_instance)) { can_reach_target = true; }
 	}
+	activated = true;
 	
 	x = original_x;
 	y = original_y;
@@ -181,7 +183,7 @@ function get_direction_pushed_against() {
 		case directions.left: { x_pos -= 16; break; }
 	}
 	
-	if (!is_instance_at_coordinates(x_pos, y_pos, self)) { 
+	if (!is_instance_at_coordinates(x_pos, y_pos, id)) { 
 		dir = noone; 
 	}
 	
@@ -203,12 +205,6 @@ function flip_sprite_at_random(flip_vertical) {
 /// @function								get_instance_at_each_quadrant(obj_index);
 ///	@param		{index} obj_index			The object type to return the presence of in each quadrant
 function get_instance_at_each_quadrant(obj_index) {
-	// Checking for lava is a special case, because the full lava object stays and blacks out
-	// certain quadrants with individual quadrant death boxes due to the way blocks can destroy
-	// multiple different lava's quadrants at once. Thus we need to use a special method that
-	// Takes that into account.
-	if (obj_index == obj_lava) { return get_lava_at_each_quadrant(); }
-	
 	var presence_at_quadrant = [noone, noone, noone, noone];
 	
 	for (var i = 0; i <= 3; i+= 1;) {
@@ -222,7 +218,11 @@ function get_instance_at_each_quadrant(obj_index) {
 /// @function								is_covered_at_each_quadrant_by(obj_index);
 ///	@param		{index} obj_index			The object type to check the presence of in each quadrant
 function is_covered_at_each_quadrant_by(obj_index) {
-	var presence_at_quadrant = get_instance_at_each_quadrant(obj_index);
+	// Checking for lava is a special case, because the full lava object stays and blacks out
+	// certain quadrants with individual quadrant death boxes due to the way blocks can destroy
+	// multiple different lava's quadrants at once. Thus we need to use a special method that
+	// Takes that into account.
+	var presence_at_quadrant = (obj_index == obj_lava) ? get_lava_at_each_quadrant() : get_instance_at_each_quadrant(obj_index);
 	
 	return (
 		presence_at_quadrant[0] != noone &&

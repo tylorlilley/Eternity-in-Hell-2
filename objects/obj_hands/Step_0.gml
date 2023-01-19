@@ -1,62 +1,65 @@
 if (process_this_frame()) {
-	if (get_distance_to_instance(global.player) < global.controller.TRAP_RANGE && !activated) { activated = true; }
-	if (activated) {
-		for (var i = 0; i < 2; i++) {
-			var carried_staff = (carried_items[1] != noone && carried_items[1].object_index == obj_staff) ? carried_items[1] : noone;
-			var carried_sword = (carried_items[1] != noone && carried_items[1].object_index == obj_sword) ? carried_items[1] : noone;
+	if (death_timer > 0) { 
+		death_timer -= 1; 
+		if (death_timer == 0) { play_sound(snd_win, false); activted = true; }
+	}
+	else {
+		if (get_distance_to_instance(global.player) < global.controller.TRAP_RANGE && !activated) { activated = true; }
+		if (activated) {
+			// Move Around
+			for (var i = 0; i < 2; i++) {
+				fire_resistant = is_carrying_item(obj_staff);
+				depth = (fire_resistant) ? -9 : 0;
 	
-			corporeal = (carried_staff == noone || !carried_staff.special);
-			fire_resistant = (carried_staff != noone);
-	
-			if (target_item == noone) {
-				// Run Away From Player While Carrying Target
-				run_away_from_player(!corporeal, fire_resistant);
-			}
-			else if (instance_exists(target_item) && (target_item.holder == noone || target_item.holder == global.controller || target_item.holder == self)) {
-				if (x == target_item.x && y == target_item.y) {
-					// Pick Up New Item and Drop Current
-					play_sound(snd_laugh, true);
-					if (carried_items[1] != noone) { put_down_item(1); }
-					var new_holder = self;
-					with target_item { pick_up_item(1, false, new_holder); }
-					target_item = noone;
-					xstart = x;
-					ystart = y;
+				if (target_item == noone) {
+					// Run Away From Player While Carrying Target
+					run_away_from_player(!corporeal, fire_resistant);
 				}
-				else if (!target_item.carried) {
-					// Move Towards New Target if still possible to pick it up
-					var move_dir = move_towards_coordinates(target_item.x, target_item.y, !corporeal, fire_resistant);
-					if (move_dir == noone) { target_item = noone; play_sound(snd_give_up, false); }
+				else if (instance_exists(target_item) && (target_item.holder == noone || target_item.holder == global.controller || target_item.holder == id)) {
+					if (x == target_item.x && y == target_item.y) {
+						// Pick Up New Item and Drop Current
+						play_sound(snd_laugh, true);
+						if (right_hand_item != noone) { put_down_item(right_hand_item, false); }
+						pick_up_item(target_item, false, directions.right);
+						target_item = noone;
+						xstart = x;
+						ystart = y;
+					}
+					else if (target_item.holder == noone) {
+						// Move Towards New Target if still possible to pick it up
+						var move_dir = move_towards_coordinates(target_item.x, target_item.y, !corporeal, fire_resistant);
+						if (move_dir == noone) { target_item = noone; play_sound(snd_give_up, false); }
+					}
+					else { target_item = noone; }
 				}
 				else { target_item = noone; }
-			}
-			else { target_item = noone; }
-		}
-		
-		// Kill other enemies with carried sword
-		if (carried_items[1] != noone && carried_items[1].object_index == obj_sword) {
-			var enemies_at_position = instance_place_all(x, y, obj_enemy);
-			while (array_length(enemies_at_position) > 0) {
-				var enemy = array_random_pop(enemies_at_position);
-				if (enemy == self || !enemy.corporeal) { continue; }
 				
-				with (enemy) { kill_with_sword(carried_sword); }
-				if (instance_exists(carried_sword)) { continue; }
-				else { break; }
+				// Kill other enemies with carried sword
+				if (is_carrying_item(obj_sword)) {
+					var enemies_at_position = instance_place_all(x, y, obj_enemy);
+					while (array_length(enemies_at_position) > 0) {
+						var enemy = array_random_pop(enemies_at_position);
+						if (enemy == id || !enemy.corporeal) { continue; }
+				
+						with (enemy) { kill_with_sword(other.right_hand_item); }
+						if (instance_exists(right_hand_item)) { continue; }
+						else { break; }
+					}
+				}
 			}
+			
+			set_instance_to_same_position(right_hand_item);
 		}
-		
-		set_instance_to_same_position(carried_items[1]);
-	}
 	
-	// Make any dropped meat that can be moved towards a target
-	if (carried_items[1] == noone || carried_items[1].object_index != obj_meat) {
-		var dropped_meat = noone;
-		with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
-		if (dropped_meat != noone && target_item != dropped_meat) { 
-			if (!activated) { play_sound(snd_laugh, true); }
-			target_item = dropped_meat; 
-			activated = true;
+		// Make any dropped meat that can be moved towards a target
+		if (right_hand_item == noone || !is_carrying_item(obj_meat)) {
+			var dropped_meat = noone;
+			
+			if (dropped_meat != noone && target_item != dropped_meat) { 
+				if (!activated) { play_sound(snd_laugh, true); }
+				target_item = dropped_meat; 
+				activated = true;
+			}
 		}
 	}
 	

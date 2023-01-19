@@ -12,12 +12,12 @@ if (sprite_index) {
         var bush = bush_at_quadrant[i];
         var solid_obj = solid_at_quadrant[i];
 		if (solid_obj && (solid_obj.object_index == obj_giant_worm_head || solid_obj.object_index == obj_giant_worm_body)) { solid_obj = noone; }
-        if (bush && bush.visible && bush.id != self.id) {
+        if (bush && bush.visible && bush != id) {
 			if (bush.depth <= depth) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1); }
 			// TODO: Draw box over bush else { draw_sprite_ext(spr_box, 0, x+x_pos, y+y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1);}
 		}
-        if (solid_obj && solid_obj.visible && solid_obj.id != self.id && depth > -100) {
-            if (!bush || bush.id != self.id) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1); }
+        if (solid_obj && solid_obj.visible && solid_obj != id && depth > -100) {
+            if (!bush || bush != id) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1); }
         }
     }
 	

@@ -18,7 +18,7 @@ function light_torch(lighting_torch, make_noise) {
 
 		light_source = instance_create_depth(x, y, 0, obj_light_source);
 		light_source.lighting_range = lighting_range;
-		light_source.persistent = (carried != noone);
+		light_source.persistent = (holder != noone);
 		
 		// Mark room as lit if this was the last lantern in the room
 		if (object_index == obj_lantern) {
@@ -54,7 +54,7 @@ function interact_with_other_torches() {
 	var actively_lit = false, torches = instance_place_all(x, y, obj_torch);
 	
 	// Light torches from lava
-	if (is_covered_at_each_quadrant_by(obj_lava) && (!is_carrying_item(obj_staff) || !is_instance_at_coordinates(x, y, global.player))) {
+	if (is_covered_at_each_quadrant_by(obj_lava)) {
 		light_torch(noone, true);	
 		actively_lit = true;
 	}
@@ -65,7 +65,7 @@ function interact_with_other_torches() {
 		var other_torch = array_random_pop(torches);
 		
 		if ((other_torch.holder == global.controller || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
-			var not_carried = (carried == noone), other_not_carried = (other_torch.carried == noone);
+			var not_carried = (holder == noone), other_not_carried = (other_torch.holder == noone);
 			if (other_torch.light_source && not_carried != other_not_carried) { 
 				light_torch(other_torch, true);		
 				actively_lit = true;

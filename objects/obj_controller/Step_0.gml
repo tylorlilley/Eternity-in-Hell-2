@@ -7,10 +7,12 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
     
 	    // Update per frame values
 		var time_to_decrement = one_unit_of_game_time();
-		if (global.player.carried_items[directions.right] && global.player.carried_items[directions.right].object_index == obj_clock) { time_to_decrement/= 2; }
-		if (global.player.carried_items[directions.left] && global.player.carried_items[directions.left].object_index == obj_clock) { time_to_decrement/= 2; }
-		if (!is_carrying_special_item(obj_clock)) { time_remaining -= time_to_decrement; }
-	    //if key_space { time_remaining -= one_unit_of_game_time(); }
+		with (global.player) {
+			if (is_carrying_item_in_right_hand(obj_clock)) { time_to_decrement/= 2; }
+			if (is_carrying_item_in_left_hand(obj_clock)) { time_to_decrement/= 2; }
+			if (is_carrying_special_item(obj_clock)) { time_to_decrement = 0; }
+		}
+		time_remaining -= time_to_decrement;
 	    if (game_has_timed_out()) { time_remaining = 0; play_sound(snd_lose, false); }
 		
 		// Handle room transition blackout to get around macOS drawing bug
@@ -24,22 +26,22 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	}
 	if (room != rm_finish && (game_has_been_lost() || game_has_been_won())) {
 		if (game_has_been_won() || game_has_timed_out() || death_timer == 0) {
-			var carried_rosary = get_carried_item(obj_rosary);
-			var carried_pos = global.player.carried_items[1] == carried_rosary ? 1 : 3;
-			if (carried_rosary && global.player.dead) {
-				// Destroy the rosary being used
-				transition = 5;
-				with global.player {
+			var carried_rosary = noone;
+			with (global.player) { carried_rosary = get_carried_item(obj_rosary); }
+			if (carried_rosary != noone && global.player.dead) {
+				// Revive and respawn player
+				var carried_dir = (global.player.right_hand_item == carried_rosary) ? directions.right : directions.left;
+				with (global.player) {
 					put_down_all_items();
 					dead = false;
 					image_index = 0;
 					var player_corpse = instance_create_depth(x, y, 3, obj_player_corpse);
 					player_corpse.image_xscale = image_xscale;
-				}
-				with carried_rosary { 
-					if (!special) { instance_destroy(); } 
-					else { pick_up_item(carried_pos, false, global.player); }
-				}
+				}				
+				transition = directions.respawn;
+				// Destroy or pick up rosary
+				if (!carried_rosary.special) { instance_destroy(carried_rosary); } 
+				else { pick_up_item(carried_rosary, false, carried_dir); }
 			}
 			else {
 				with (global.player) {

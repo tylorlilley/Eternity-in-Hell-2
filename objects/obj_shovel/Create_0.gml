@@ -1,4 +1,4 @@
 event_inherited();
 
 draw_y_offset = -3;
-damaged = false;
+damaged = 0;

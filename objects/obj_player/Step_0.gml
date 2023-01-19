@@ -14,11 +14,11 @@ if (process_this_frame()) {
 		else {
 			// Handle inventory management
 			if (global.controller.key_z_pressed) { 
-				if (!can_drop_item(directions.left)) { play_sound(snd_locked, false); }
+				if (!can_drop_item(left_hand_item)) { play_sound(snd_locked, false); }
 				else { pick_up_or_put_down_item(directions.left); }
 			}
 			if (global.controller.key_x_pressed) { 
-				if (!can_drop_item(directions.right)) { play_sound(snd_locked, false); }
+				if (!can_drop_item(right_hand_item)) { play_sound(snd_locked, false); }
 				else { pick_up_or_put_down_item(directions.right); }
 			}
 			
@@ -32,17 +32,16 @@ if (process_this_frame()) {
 		is_flickering_light_source = false;
 		
 		// Increase lighting range if carrying two torches
-		if (carried_items[directions.right] && carried_items[directions.right].object_index == obj_torch && carried_items[directions.right].light_source  &&
-			carried_items[directions.left] && carried_items[directions.left].object_index == obj_torch && carried_items[directions.left].light_source) { 
-			
-			if (lighting_range < carried_items[directions.right].light_source.lighting_range+4) { 
-				lighting_range = carried_items[directions.right].light_source.lighting_range+4;
-				is_flickering_light_source = true;
-			}
-			if (lighting_range < carried_items[directions.left].light_source.lighting_range+4) { 
-				lighting_range = carried_items[directions.left].light_source.lighting_range+4;
-				is_flickering_light_source = true;
-			}
+		if (is_carrying_item_in_right_hand(obj_torch) && right_hand_item.light_source != noone &&
+			is_carrying_item_in_left_hand(obj_torch) && left_hand_item.light_source != noone) { 
+				if (lighting_range < right_hand_item.light_source.lighting_range+4) { 
+					lighting_range = right_hand_item.light_source.lighting_range+4;
+					is_flickering_light_source = true;
+				}
+				if (lighting_range < left_hand_item.light_source.lighting_range+4) { 
+					lighting_range = left_hand_item.light_source.lighting_range+4;
+					is_flickering_light_source = true;
+				}
 		}
     
 	    // Transition to new room depending on player position

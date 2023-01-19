@@ -16,8 +16,8 @@ if (process_this_frame()) {
 			array_push(new_directions, 0, 1, 2, 3);
 			while (array_length(new_directions) > 0) {
 				var new_dir = array_random_pop(new_directions);
-				var target = global.player;
-				with (obj_meat) { if (!carried) { target = self; } }
+				var target = get_dropped_meat();
+				if (target == noone) { target = global.player; }
 				if (is_direction_free(new_dir, false, true)) { 
 					if (dir == -1 || is_direction_toward(new_dir, target)) { dir = new_dir; }
 				}

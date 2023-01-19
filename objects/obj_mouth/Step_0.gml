@@ -3,8 +3,7 @@ if (process_this_frame()) {
 
 	// Disapear and Reappear based on proximity to the player
 	if ((get_distance_to_instance(global.player) < global.controller.TRAP_RANGE) != activated) {
-		var dropped_meat = noone;
-		with (obj_meat) { if (carried == noone) { dropped_meat = self; } }
+		var dropped_meat = get_dropped_meat();
 		
 		if (dropped_meat == noone || (is_instance_at_coordinates(x, y, dropped_meat))) {
 			activated = !activated;

@@ -1,6 +1,3 @@
-portcullis difficulties
-
-
 === REFACTORS ===
 rename meat
 
@@ -8,8 +5,6 @@ Remove all commented out code that we don't need anymore
 Examine remaining TODO comments
 relocate functions to script files they belong in 
 
-change special item generation so that we can spawn at most one regular and one special map & staff (and at most two regular and two special clocks), etc
-- dont spawn red key unless its in a chest
 all functions that return boolean should start with is_ or can_ prefix and nothing else.
 all functions that do a thing should start with do_ prefix and nothing else.
 all functions that return an instance/object should return with get_prefix and nothing else.

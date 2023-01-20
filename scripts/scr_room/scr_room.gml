@@ -47,12 +47,28 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param	{index}	list_of_rooms			The list of available rooms
 	function initialize_room(list_of_rooms) {
 		// Randomly decide if room will have collectables, stairs, keys, items, etc
+		
+		// Decide what to spawn in stairs_spot
 		rand = irandom(100);
-		//if (id == global.controller.current_room.id) { stairs_spot_obj = obj_cross; }
 		if (rand < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; stairs_spot_obj = obj_stairs; }
 		else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { set_up_room_chest(); }
 		
-		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) { has_keys = 1; array_push(global.controller.rooms_with_key, self); }
+		// Decide what to spawn in collectables spots
+		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) {
+			// Determine if it should be a red key
+			if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) {
+				if (array_count_occurances(global.controller.spawned_special_items, obj_key) == 0) {
+					stairs_spot_obj = obj_chest;
+					item_type = obj_key;
+					has_special_item = true;
+					array_push(global.controller.spawned_special_items, item_type); 
+					show_debug_message("SPAWNED RED obj_key");
+				}
+			}
+			
+			has_keys = 1; 
+			array_push(global.controller.rooms_with_key, self); 
+		}
 		if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
 		if (irandom(100) < global.controller.HAS_PORTCULLIS_PROBABILITY) { has_portcullis = true; }
 	
@@ -89,27 +105,25 @@ function GameRoom(given_x, given_y) constructor {
 	
 	function set_up_room_chest() {
 		stairs_spot_obj = obj_chest;
-		//if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
+		// Decide if spawning a special item or not
+		if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
+		
+		// Decide which item to spawn based on previous item spawns
 		while (item_type == noone) {
-			item_type = get_random_item_type();
-		
-			if (item_type == obj_torch && array_length(global.controller.rooms_with_torch) > 1) { item_type = noone; } 
-			if (item_type == obj_map && array_length(global.controller.rooms_with_map) > 1) { item_type = noone; } 
-			if (item_type == obj_clock && array_length(global.controller.rooms_with_clock) > 1) { item_type = noone; } 
-			if (item_type == obj_staff && array_length(global.controller.rooms_with_staff) > 1) { item_type = noone; } 
+			item_type = get_random_item_type(false);
+			
+			var array_to_check = (has_special_item) ? global.controller.spawned_special_items : global.controller.spawned_items;
+			var spawned_item_count = array_count_occurances(array_to_check, item_type);
+			
+			if (has_special_item && spawned_item_count >= 1) { item_type = noone; }
+			else if (item_type == obj_map && spawned_item_count >= 1) { item_type = noone; } 
+			else if (item_type == obj_staff && spawned_item_count >= 1) { item_type = noone; } 
+			else if (item_type == obj_torch && spawned_item_count >= 2) { item_type = noone; } 
+			else if (item_type == obj_clock && spawned_item_count >= 2) { item_type = noone; } 
+			else if (item_type == obj_shovel && spawned_item_count >= 2) { item_type = noone; } 
 		}
-		
-		switch (item_type) {
-			case obj_torch: { array_push(global.controller.rooms_with_torch, self); break; }
-			case obj_sword: { array_push(global.controller.rooms_with_sword, self); break; }
-			case obj_map: { array_push(global.controller.rooms_with_map, self); break; }
-			case obj_rosary: { array_push(global.controller.rooms_with_rosary, self); break; }
-			case obj_staff: { array_push(global.controller.rooms_with_staff, self); break; }
-			case obj_bomb: { array_push(global.controller.rooms_with_bomb, self); break; }
-			case obj_meat: { array_push(global.controller.rooms_with_meat, self); break; }
-			case obj_shovel: { array_push(global.controller.rooms_with_shovel, self); break; }
-			case obj_clock: { array_push(global.controller.rooms_with_clock, self); break; }
-		}
+		if (has_special_item) { show_debug_message("SPAWNED " + ((has_special_item) ? "RED " : "") + object_get_name(item_type)); }
+		array_push(array_to_check, item_type); 
 	}
 	
 	/// @function								create_locked_exit(dir);

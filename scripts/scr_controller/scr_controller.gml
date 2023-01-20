@@ -140,7 +140,8 @@ function initialize_game_variables() {
 	HAS_KEY_PROBABILITY = 10 + global.difficulty;
 	HAS_ITEM_PROBABILITY = 25 + global.difficulty;
 	HAS_PORTCULLIS_PROBABILITY = (global.difficulty == difficulties.easy) ? 0 : 5 + (global.difficulty-2)*10
-	SPECIAL_ITEM_PROBABILITY = 10 - global.difficulty;
+	SPECIAL_ITEM_PROBABILITY = 25 - (2*global.difficulty);
+	SPECIAL_ITEM_LIMIT = global.difficulty;
 	
 	// Initilize room start probability constants
 	ROOM_KEY_IN_CHEST_PROBABILITY = 3;
@@ -203,16 +204,9 @@ function initialize_game_variables() {
 	game_rooms = array_create(0);
 	mapped_rooms = array_create(0);
 	rooms_with_collectables = array_create(0);
-	rooms_with_torch = array_create(0);
 	rooms_with_key = array_create(0);
-	rooms_with_sword = array_create(0);
-	rooms_with_staff = array_create(0);
-	rooms_with_bomb = array_create(0);
-	rooms_with_meat = array_create(0);
-	rooms_with_map = array_create(0);
-	rooms_with_rosary = array_create(0);
-	rooms_with_shovel = array_create(0);
-	rooms_with_clock = array_create(0);
+	spawned_items = array_create(0);
+	spawned_special_items = array_create(0);
 
 	// initialize game state values
 	current_room = noone;
@@ -431,7 +425,7 @@ function game_room_start() {
 		with (obj_giant_worm_head) { connect_segments(); }
 		
 		// Create key in room if it should exist
-		var key_in_chest = false;
+		var key_in_chest = current_room.has_special_item;
 		if (current_room.has_keys > 0) {
 			if (!current_room.stairs_spot_obj && get_random_chance_out_of(ROOM_KEY_IN_CHEST_PROBABILITY)) { 	
 				key_in_chest = true;
@@ -440,8 +434,7 @@ function game_room_start() {
 			}
 			else {
 				with get_random_instance(obj_collectable_spot) {
-					var new_key = instance_create_depth(x, y, 4, obj_key);
-					with new_key { if (global.controller.current_room.item_type == noone && global.controller.current_room.has_special_item) { make_item_special(); } }
+					instance_create_depth(x, y, 4, obj_key);
 					instance_destroy();
 				} 
 			}

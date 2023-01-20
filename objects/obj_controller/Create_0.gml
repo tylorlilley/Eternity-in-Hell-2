@@ -87,31 +87,16 @@ for (var i = 0; i < total_rooms; i++) {
     if (!game_rooms[i].has_keys > 0 && game_rooms[i] != current_room) { array_push(keyless_rooms, game_rooms[i]); }
 }
 
-// Randomly spawn a special item for each item type
+// Randomly spawn a minimum number of collectables rooms
 while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
 	var new_collectables_room = array_random_get(game_rooms);
 	new_collectables_room.has_collectables = true;
 	array_push(rooms_with_collectables, new_collectables_room);
 }
 total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
-if (array_length(rooms_with_key) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_key) { has_special_item = true; show_debug_message("RED KEY"); } }
-if (array_length(rooms_with_torch) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_torch) { has_special_item = true; show_debug_message("RED TORCH"); } }
-if (array_length(rooms_with_sword) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_sword) { has_special_item = true; show_debug_message("RED SWORD"); } }
-if (array_length(rooms_with_rosary) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_rosary) { has_special_item = true; show_debug_message("RED ROSARY"); } }
-if (array_length(rooms_with_map) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_map) { has_special_item = true; show_debug_message("RED MAP"); } }
-if (array_length(rooms_with_staff) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_staff) { has_special_item = true; show_debug_message("RED STAFF"); } }
-if (array_length(rooms_with_bomb) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_bomb) { has_special_item = true; show_debug_message("RED BOMB"); } }
-if (array_length(rooms_with_shovel) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_shovel) { has_special_item = true; show_debug_message("RED SHOVEL"); } }
-if (array_length(rooms_with_meat) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_meat) { has_special_item = true; show_debug_message("RED MEAT"); } }
-if (array_length(rooms_with_clock) > 0 && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { with array_random_pop(rooms_with_clock) { has_special_item = true; show_debug_message("RED CLOCK"); } }
 
 // Walk the Map and tweak it until map is possible
-//show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
-//show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 keyless_rooms = set_up_locks_and_keys(keyless_rooms);
-//show_debug_message("WALK RESULTS: "+string(visited_all_rooms));
-//show_debug_message("NUMBER OF KEYS: "+string(array_length(game_rooms) - (array_length(keyless_rooms)+1)));
-//show_debug_message("NUMBER LOCKED DOORS: "+string(array_length(locked_exits)));
 
 // Create heart in farthest room
 for (var i = 0; i < total_rooms; i++) {
@@ -148,7 +133,6 @@ for (var i = 0; i < total_rooms; i++) {
    
    // Update room based on assigned room reference
    with (given_room) {
-	   //if (room_reference == rm_one_exit_22) { set_up_room_chest(); has_special_item = true; show_debug_message("ECHO ROOM"); }
 	   if (room_reference_object_count(obj_lantern) == 0) { lit = false; }
 	   if (global.controller.TEST_MODE) {
 		   if (room_reference_object_count(obj_collectable_spot) < 2) { show_debug_message("WARNING: not enough collectable spots in room "+room_get_name(room_reference)); } 

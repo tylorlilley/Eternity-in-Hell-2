@@ -46,7 +46,7 @@ function array_contains(list, value_to_find) {
 }
 
 /// @function									array_remove(list, value_to_find);
-/// @param		{index}		list				List to check for the value in
+/// @param		{index}		list				List to remove the value from
 /// @param		{value}		value_to_remove		Value to remove from the array
 function array_remove(list, value_to_remove) {
 	var new_list = array_create(0);
@@ -54,6 +54,18 @@ function array_remove(list, value_to_remove) {
 	    if (list[i].id != value_to_remove.id) { array_push(new_list, list[i]); }
 	}
 	array_duplicate(list, new_list);
+}
+
+/// @function									array_count_occurances(list, value_to_count);
+/// @param		{index}		list				List to check for the value in
+/// @param		{value}		value_to_count		Value to count ocurrances of in the array
+function array_count_occurances(list, value_to_count) {
+	var count = 0;
+	for (var i = 0; i < array_length(list); i++) {
+	    if (list[i] == value_to_count) {count += 1; }
+	}
+	
+	 return count;
 }
 
 

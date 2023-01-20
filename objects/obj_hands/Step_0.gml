@@ -1,7 +1,7 @@
 if (process_this_frame()) {
 	if (death_timer > 0) { 
 		death_timer -= 1; 
-		if (death_timer == 0) { play_sound(snd_win, false); activted = true; }
+		if (death_timer == 0) { play_sound(snd_win, false); activated = true; }
 	}
 	else {
 		if (get_distance_to_instance(global.player) < global.controller.TRAP_RANGE && !activated) { 
@@ -9,16 +9,16 @@ if (process_this_frame()) {
 			else { activated = true; }
 		}
 		if (activated) {
+			fire_resistant = is_carrying_item(obj_staff);
+			depth = (fire_resistant) ? -9 : 0;
+				
 			// Move Around
 			for (var i = 0; i < 2; i++) {
-				fire_resistant = is_carrying_item(obj_staff);
-				depth = (fire_resistant) ? -9 : 0;
-	
 				if (target_item == noone) {
 					// Run Away From Player While Carrying Target
 					run_away_from_player(!corporeal, fire_resistant);
 				}
-				else if (instance_exists(target_item) && (target_item.holder == noone || target_item.holder == global.controller || target_item.holder == id)) {
+				else if (instance_exists(target_item) && (target_item.holder == noone || target_item.holder == id)) {
 					if (x == target_item.x && y == target_item.y) {
 						// Pick Up New Item and Drop Current
 						play_sound(snd_laugh, true);

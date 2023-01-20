@@ -145,7 +145,7 @@ function initialize_game_variables() {
 	// Initilize room start probability constants
 	ROOM_KEY_IN_CHEST_PROBABILITY = 3;
 	DIRT_PROBABILITY = 16 + global.difficulty * 2;
-	NOSE_PROBABILITY = 8 - global.difficulty;
+	NOSE_PROBABILITY = 1//8 - global.difficulty;
 	PHANTOM_PROBABILITY = 5 - global.difficulty;
 	HANDS_PROBABILITY = 4 * (5 - global.difficulty);
 	SNAKE_PROBABILITY =  32 - (4 * global.difficulty);
@@ -224,8 +224,6 @@ function initialize_game_variables() {
 	death_timer = 0;
 	completion_amount = 0;
 	sounds_to_play = array_create(0);
-	right_hand_item = noone;
-	left_hand_item = noone;
 	carried_heart = false;
 
 	// initialize room transition values
@@ -666,7 +664,6 @@ function game_room_start() {
 				new_hands.right_hand_item = potential_item;
 				new_hands.xstart = potential_item.x;
 				new_hands.ystart = potential_item.y;
-				potential_item.holder = global.controller;
 			}
 		}
 	}
@@ -680,7 +677,7 @@ function game_room_start() {
 		else {
 			target_item = right_hand_item;
 			put_down_item(right_hand_item, false);
-			target_item.holder = global.controller;
+			target_item.holder = id;
 			right_hand_item = target_item;
 		}
 	}

@@ -1,2 +1,2 @@
-if (holder == noone || holder == global.controller) { event_inherited(); }
+if (holder == noone || (holder.object_index == obj_hands && !holder.activated)) { event_inherited(); }
 

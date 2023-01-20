@@ -6,6 +6,16 @@ function kill_enemy(death_sound) {
 		var corpse = (object_index == obj_skeleton) ? obj_bones : obj_blood;
 		instance_create_depth(x, y, 4, corpse);
 	}
+	if (object_index == obj_hands) {
+		with (right_hand_item) {
+			if (object_index == obj_rosary) {
+				var new_hands = instance_create_depth(other.xstart, other.ystart, 0, obj_hands);
+				new_hands.death_timer = global.controller.RESPAWN_FREQUENCY;
+				if (!special) { instance_destroy(); }
+				else { new_hands.target_item = id; }
+			}
+		}
+	}
 	instance_destroy();
 }
 

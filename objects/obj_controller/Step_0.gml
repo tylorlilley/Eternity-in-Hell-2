@@ -41,7 +41,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 				transition = directions.respawn;
 				// Destroy or pick up rosary
 				if (!carried_rosary.special) { instance_destroy(carried_rosary); } 
-				else { pick_up_item(carried_rosary, false, carried_dir); }
+				else { with (global.player) { pick_up_item(carried_rosary, false, carried_dir); } }
 			}
 			else {
 				with (global.player) {

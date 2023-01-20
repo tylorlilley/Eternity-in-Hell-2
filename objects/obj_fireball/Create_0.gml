@@ -7,7 +7,7 @@ image_speed = one_unit_of_game_time();
 // Torch Variables
 torch = instance_create_depth(x, y, 5, obj_torch);
 torch.special = true;
-torch.holder = global.controller;
+torch.holder = id//global.controller;
 torch.time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
 torch.special = true;
 torch.lighting_range = 5;

@@ -145,7 +145,7 @@ function initialize_game_variables() {
 	// Initilize room start probability constants
 	ROOM_KEY_IN_CHEST_PROBABILITY = 3;
 	DIRT_PROBABILITY = 16 + global.difficulty * 2;
-	NOSE_PROBABILITY = 1//8 - global.difficulty;
+	NOSE_PROBABILITY = 8 - global.difficulty;
 	PHANTOM_PROBABILITY = 5 - global.difficulty;
 	HANDS_PROBABILITY = 4 * (5 - global.difficulty);
 	SNAKE_PROBABILITY =  32 - (4 * global.difficulty);

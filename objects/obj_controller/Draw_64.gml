@@ -66,7 +66,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 		var total_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
 	    if (has_won || has_lost) { 
 			draw_text(hud_x_pos, room_height-56-16+8, string_hash_to_newline("Final Grade: "+string(total_score)+"%")); 
-			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline("Difficulty: "+get_difficulty_string())); 
+			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline("Complexity: "+get_difficulty_string())); 
 			draw_text(hud_x_pos, room_height-128-16-16, string_hash_to_newline("Collected: "+string(percentage_of_collectables_collected)+"%")); 
 			draw_text(hud_x_pos, room_height-112-16-16, string_hash_to_newline("Mapped: "+string(percentage_of_rooms_mapped)+"%"));
 			draw_text(hud_x_pos, room_height-96-16-16, string_hash_to_newline("Time Left: "+string(percentage_of_time_remaining)+"%")); 

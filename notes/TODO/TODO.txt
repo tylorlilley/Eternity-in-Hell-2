@@ -14,7 +14,6 @@ Update room reference data to include non-instance information like intelligent 
 Implement smarter pathfinding for move_towards_coordinates
 
 === NEW FETAURES ===
-Explain fullscreen toggle
 Explain spacebar on it better
 
 options for control bindings

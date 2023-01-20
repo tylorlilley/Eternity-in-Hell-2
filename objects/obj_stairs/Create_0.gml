@@ -1,6 +1,6 @@
 event_inherited();
 
 depth = 5;
-sprite_index = spr_stairs;
+sprite_index = get_sprite_to_use(spr_stairs);
 
 active = false;

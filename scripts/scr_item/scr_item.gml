@@ -59,7 +59,7 @@ function make_item_special() {
 	if (object_index == obj_torch) { 
 		image_index = 0;
 		lighting_range = global.controller.TORCH_LIGHT_RANGE*2;
-		sprite_index = spr_special_torch; 
+		sprite_index = get_sprite_to_use(spr_special_torch); 
 	}
 }
 

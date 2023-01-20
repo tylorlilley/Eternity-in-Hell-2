@@ -1,5 +1,4 @@
 event_inherited();
-set_farm_mode_sprite(spr_phantom_farmer);
 
 x = global.player.x;
 y = global.player.y;

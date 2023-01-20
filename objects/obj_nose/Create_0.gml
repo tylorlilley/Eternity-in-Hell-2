@@ -1,7 +1,4 @@
 event_inherited();
-set_farm_mode_sprite(spr_nose_farmer);
-
-//image_blend = global.controller.bg_color;
 
 activated = false;
 fire_resistant = true;

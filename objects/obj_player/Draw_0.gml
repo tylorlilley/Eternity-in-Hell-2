@@ -17,5 +17,4 @@ if ((image_xscale == -1 && left_hand_item != noone) || (image_xscale == 1 && rig
 }
 
 // Draw hat in farm mode
-if (global.controller.FARM_MODE) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
-
+draw_player_hat();

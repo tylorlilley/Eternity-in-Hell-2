@@ -1,7 +1,6 @@
 event_inherited();
 
-sprite_index = spr_echo;
-//image_blend = c_black;
+sprite_index = get_sprite_to_use(spr_echo);
 
 corporeal = false;
 

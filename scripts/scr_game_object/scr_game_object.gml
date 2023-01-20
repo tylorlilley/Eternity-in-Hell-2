@@ -294,7 +294,37 @@ function can_press_button() {
 	return (is_instance_at_coordinates(x, y, global.player) || pressed);
 }
 
-/// @function								set_farm_mode_sprite();
-function set_farm_mode_sprite(farm_sprite) {
-	if (global.controller.FARM_MODE) { sprite_index = farm_sprite; }
+/// @function								get_sprite_to_use();
+function get_sprite_to_use(regular_sprite) {
+	if (!global.controller.FARM_MODE) { return regular_sprite; }
+	
+	switch (regular_sprite) {
+		/// Tiles
+		case spr_collectable: { return spr_collectable_farmer; }
+		case spr_bones: { return spr_bones_farmer; }
+		case spr_cross: { return spr_cross_farmer; }
+		case spr_giant_wurm: { return spr_giant_wurm_farmer; }
+		case spr_portcullis: { return spr_portcullis_farmer; }
+		/// Enemies
+		case spr_skeleton: { return spr_skeleton_farmer; }
+		case spr_spider: { return spr_spider_farmer; }
+		case spr_mouth: { return spr_mouth_farmer; }
+		case spr_bumper: { return spr_bumper_farmer; }
+		case spr_snake: { return spr_snake_farmer; }
+		case spr_phantom: { return spr_phantom_farmer; }
+		case spr_hands: { return spr_hands_farmer; }
+		case spr_nose: { return spr_nose_farmer; }
+		case spr_statue: { return spr_statue_farmer; }
+		case spr_eyes: { return spr_eyes_farmer; }
+		case spr_ears: { return spr_ears_farmer; }
+		case spr_echo: { return spr_echo_farmer; }
+		/// Items
+		case spr_sword: { return spr_sword_farmer; }
+		case spr_sword_in_ground: { return spr_sword_in_ground_farmer; }
+		case spr_meat: { return spr_meat_farmer; }
+		case spr_bomb: { return spr_bomb_farmer; }
+		case spr_heart: { return spr_heart_farmer; }
+	}
+	
+	return regular_sprite;
 }

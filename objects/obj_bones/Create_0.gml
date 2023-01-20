@@ -1,5 +1,4 @@
 event_inherited();
-set_farm_mode_sprite(spr_dirt);
 
 depth = 4;
 image_index = irandom(5);

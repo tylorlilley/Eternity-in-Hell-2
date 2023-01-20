@@ -125,11 +125,16 @@ function create_item_in_hand(dir, obj_index) {
 
 /// @function								kill_player();
 function kill_player() {
-	// Set variables to mark death
-	global.player.dead = true;
-	global.controller.death_timer = global.controller.RESPAWN_FREQUENCY;
-	play_sound(snd_lose, true);
-	with (obj_echo_spot) { instance_destroy(); }
+	if (!global.player.dead) {
+		// Set variables to mark death
+		global.player.dead = true;
+		global.controller.death_timer = global.controller.RESPAWN_FREQUENCY;
+		play_sound(snd_lose, true);
+		with (obj_echo_spot) { instance_destroy(); }
+			
+		// Record what killed you
+		//var killed_by = (other.object_index == obj_death) ? obj_lava : other.object_index;
+	}
 }
 
 /// @function								put_down_all_items()
@@ -222,4 +227,9 @@ function draw_staff_box() {
 			}
 		}
 	}
+}
+
+/// @function				draw_player_hat();
+function draw_player_hat() {
+	if (global.controller.FARM_MODE) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
 }

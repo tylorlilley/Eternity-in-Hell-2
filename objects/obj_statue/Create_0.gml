@@ -1,5 +1,4 @@
 event_inherited();
-set_farm_mode_sprite(spr_statue_farmer);
 
 consume_block = true;
 fire_resistant = true;

@@ -1,7 +1,6 @@
 event_inherited();
 
 depth = -300;
-sprite_index = spr_fireball;
 image_speed = one_unit_of_game_time();
 
 // Torch Variables

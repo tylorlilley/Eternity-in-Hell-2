@@ -10,6 +10,11 @@ function draw_while_carried() {
 /// @function								become_carried(new_holder);
 /// @param		{boolean} new_holder		The instance to begin holding the item.
 function become_carried(new_holder) {
+	// Become carried
+	holder = new_holder;
+	persistent = new_holder.persistent;
+	depth = -5;
+	
 	// Perform individual item pick-up actions
 	switch (object_index) {
 		case obj_key: { if (holder == global.player) { global.controller.current_room.has_keys -= 1; } break; }
@@ -17,11 +22,6 @@ function become_carried(new_holder) {
 		case obj_shovel: { dig_hole(); break; }
 		case obj_heart: { mark_heart_carried(); break; }
 	}
-		
-	// Become carried
-	holder = new_holder;
-	persistent = new_holder.persistent;
-	depth = -10;
 }
 
 /// @function								become_dropped(dropper);
@@ -31,12 +31,13 @@ function become_dropped(dropper) {
 	switch (object_index) {
 		case obj_key: { if (dropper == global.player) { global.controller.current_room.has_keys += 1; } break; }
 		case obj_meat: { with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } break; }
+		case obj_shovel: { dropped_by_digger = true; break; }
 	}
 	
 	// Become dropped
 	holder = noone;
 	persistent = false;
-	depth = 2;
+	depth = 1;
 	x = dropper.x;
 	y = dropper.y;
 	
@@ -70,26 +71,46 @@ function thump() {
 	if (thump_timer == 0) { thump_timer = 12; image_index = 0; }
 }
 
-/// @function								get_random_item_type(include_key);
+/// @function								get_random_item_type(special_item, include_key);
+/// @param		{bool} special_item			Whether to check against the spawned specialitems or not
 /// @param		{bool} include_key			Whether to include the key in what can be returned or not
-function get_random_item_type(include_key) {
+function get_random_item_type(special_item, include_key) {
+	var array_to_check = (special_item) ? global.controller.spawned_special_items : global.controller.spawned_items;
 	var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 5;
 	if (global.difficulty > difficulties.medium) { available_item_types += 3; }
-	var rand = irandom(available_item_types);
-	if (!include_key) { rand += 1; }
+	var chosen_type = noone;
+	
+	// Decide which item to spawn based on previous item spawns
+	while (chosen_type == noone) {
+		var rand = irandom(available_item_types);
+		if (!include_key) { rand += 1; }
 
-	switch (rand) {
-		case 0: { return obj_key; }
-		case 1: { return obj_torch; }
-		case 2: { return obj_sword; }
-		case 3: { return obj_map; }
-		case 4: { return obj_rosary; }
-		case 5: { return obj_staff; }
-		case 6: { return obj_bomb; }
-		case 7: { return obj_meat; }
-		case 8: { return obj_shovel; }
-		case 9: { return obj_clock; }
+		switch (rand) {
+			case 0: { chosen_type = obj_key; break; }
+			case 1: { chosen_type = obj_torch; break; }
+			case 2: { chosen_type = obj_sword; break; }
+			case 3: { chosen_type = obj_map; break; }
+			case 4: { chosen_type = obj_rosary; break; }
+			case 5: { chosen_type = obj_staff; break; }
+			case 6: { chosen_type = obj_bomb; break; }
+			case 7: { chosen_type = obj_meat; break; }
+			case 8: { chosen_type = obj_shovel; break; }
+			case 9: { chosen_type = obj_clock; break; }
+		}
+			
+		var spawned_item_count = array_count_occurances(array_to_check, chosen_type);
+			
+		if (special_item && spawned_item_count >= 1) { chosen_type = noone; }
+		else if (chosen_type == obj_map && spawned_item_count >= 1) { chosen_type = noone; } 
+		else if (chosen_type == obj_staff && spawned_item_count >= 1) { chosen_type = noone; } 
+		else if (chosen_type == obj_torch && spawned_item_count >= 2) { chosen_type = noone; } 
+		else if (chosen_type == obj_clock && spawned_item_count >= 2) { chosen_type = noone; } 
+		else if (chosen_type == obj_shovel && spawned_item_count >= 2) { chosen_type = noone; } 
 	}
+	
+	if (special_item) { show_debug_message("SPAWNED " + ((special_item) ? "RED " : "") + object_get_name(chosen_type)); }
+	
+	return chosen_type;
 }
 
 /// @function								defuse_bomb();

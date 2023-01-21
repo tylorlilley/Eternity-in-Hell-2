@@ -1,5 +1,7 @@
 event_inherited();
 
+depth = 6;
+
 special = true;
 can_pick_up = false;
 lighting_range = global.controller.LANTERN_LIGHT_RANGE;

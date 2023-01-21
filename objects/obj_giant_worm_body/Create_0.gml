@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = -12;
+depth = -200;
 
 head = noone;
 tail = noone;

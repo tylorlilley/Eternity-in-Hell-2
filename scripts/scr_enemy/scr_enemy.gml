@@ -4,7 +4,7 @@ function kill_enemy(death_sound) {
 	if (death_sound != noone) { play_sound(death_sound, true); }
 	if (corporeal) {
 		var corpse = (object_index == obj_skeleton) ? obj_bones : obj_blood;
-		instance_create_depth(x, y, 4, corpse);
+		instance_create_depth(x, y, 0, corpse);
 	}
 	if (object_index == obj_hands) {
 		with (right_hand_item) {
@@ -99,7 +99,7 @@ function teleport_to_lava() {
 ///	@param		{int}	target_y			The y position of the target to move towards;
 function shoot_fireball(target_x, target_y) {
 	play_sound(snd_shoot, false);
-	with (instance_create_depth(x, y, 10, obj_fireball)) {
+	with (instance_create_depth(x, y, 0, obj_fireball)) {
 		creator = other.id;
 		move_towards_point(target_x, target_y, 2); 
 	}	
@@ -291,10 +291,14 @@ function check_for_player_collision() {
 		else if (object_index == obj_death) { 
 			with (global.player) { 
 				if (!is_carrying_item(obj_staff)) { 
-					kill_player(obj_lava);;
+					kill_player(other.creator.object_index);
 				} 
 			} 
 		}
-		else { kill_player(object_index); }
+		else {
+			var killer = object_index;
+			if (killer == obj_skeleton && bone_trap) { killer = obj_bones; }
+			kill_player(killer); 
+		}
 	}
 }

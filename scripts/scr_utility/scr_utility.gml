@@ -55,6 +55,8 @@ function get_random_instance(obj_index) {
 /// @function								get_random_chance_out_of(denominator);
 /// @param		{real}	denominator			The value to use as the denomimnator for the one-in-x chance
 function get_random_chance_out_of(denominator) {
+	if (denominator == 0) { return false; }
+	
 	return (irandom(denominator-1) == 0);
 }
 

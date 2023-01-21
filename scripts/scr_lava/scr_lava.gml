@@ -9,9 +9,10 @@ function convert_to_multiple_death_boxes() {
 	for (var i = 0; i <= 3; i+= 1;) {
 		var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 
-		death_boxes[i] = instance_create_depth(x_pos, y_pos, 5, obj_death);
+		death_boxes[i] = instance_create_depth(x_pos, y_pos, 0, obj_death);
 		death_boxes[i].image_xscale = 0.5;
 		death_boxes[i].image_yscale = 0.5;
+		death_boxes[i].creator = id;
 	}
 }
 

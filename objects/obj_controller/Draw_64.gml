@@ -51,18 +51,21 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 	        var message;
 	        if has_won { draw_set_color(c_white); message = "YOU WIN!" }
 	        if has_lost { 
-				draw_set_color(c_white); message = "You have been killed by:      "
-				draw_death_type_sprite(room_width/2+128-32, room_height-216, killed_by);
+				draw_set_color(c_white); message = "Killed By:    "
+				draw_death_type_sprite(room_width/2+48, room_height-216, killed_by);
 			}
 	        draw_text(room_width/2, room_height-216, string_hash_to_newline(message));
 	        hud_x_pos = room_width/2;
 	    }
 
 	    // Draw final score and game seed and game version
-		var total_score = get_current_score();;
+		var total_score = get_current_score();
 		
-		draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
-		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));	// Draw elapsed time
+		if (key_space) {
+			// Draw game seed information
+			draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
+			draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
+		}
 		
 		var time_elapsed = (time_provided - time_remaining);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
@@ -82,7 +85,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 
 }
 
-if (TEST_MODE) { 
+if (global.TEST_MODE) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
 	if (global.player != noone) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }

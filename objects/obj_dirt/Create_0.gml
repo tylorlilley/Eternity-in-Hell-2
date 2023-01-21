@@ -1,4 +1,4 @@
 event_inherited();
 
-depth = 600;
+depth = 20;
 randomize_image(7);

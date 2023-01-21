@@ -4,7 +4,7 @@ random_set_seed(global.seed);
 show_debug_message("SEED: "+string(random_get_seed()));
 clear_inputs_for_next_frame();
 initialize_game_variables();
-//TEST_MODE = true;
+//global.TEST_MODE = true;
 
 // Generate Initial Room with Four Exits
 var uninitialized_rooms = array_create(0) // Used by functions called add_random_exit and initialized_room
@@ -134,7 +134,7 @@ for (var i = 0; i < total_rooms; i++) {
    // Update room based on assigned room reference
    with (given_room) {
 	   if (room_reference_object_count(obj_lantern) == 0) { lit = false; }
-	   if (global.controller.TEST_MODE) {
+	   if (global.TEST_MODE) {
 		   if (room_reference_object_count(obj_collectable_spot) < 2) { show_debug_message("WARNING: not enough collectable spots in room "+room_get_name(room_reference)); } 
 		   if (room_reference_object_count(obj_stairs_spot) != 1) { show_debug_message("WARNING: not exactly one stairs spot in room "+room_get_name(room_reference)); } 
 		   if (room_reference_object_count(obj_collectable) > 0) { show_debug_message("WARNING: obj_collectable in room "+room_get_name(room_reference)); } 
@@ -173,7 +173,7 @@ time_remaining = time_provided;
 
 // Create player object and change room to current room's referenced room
 current_room.stairs_spot_obj = obj_cross;
-global.player = instance_create_depth(8, 8, -10, obj_player);
+global.player = instance_create_depth(8, 8, 0, obj_player);
 current_room.go_to_room();
 
 /*

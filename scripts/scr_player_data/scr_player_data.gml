@@ -51,7 +51,7 @@ function get_death_count_string(difficulty) {
 	var deaths = get_total_death_count(difficulty);
 	if (deaths == 0) { return noone; }
 	
-	return (deaths > 1) ? ("You have died " + string(deaths) + " times") : "You have died once";
+	return "Death Count: " + string(deaths);
 }
 
 /// @function								get_difficulties();
@@ -121,7 +121,7 @@ function get_win_count_string(difficulty) {
 	var wins = get_win_count(difficulty);
 	if (wins == 0) { return noone; }
 	
-	return (wins > 1) ? ("You won " + string(wins) + " times") : "You have won";
+	return "Victories: " + string(wins);
 }
 
 /// @function								get_best_score(difficulty);
@@ -147,7 +147,7 @@ function get_best_score(difficulty) {
 /// @function								get_best_score_string(difficulty);
 ///	@param		{difficulty} difficulty		The difficulty to return a count for
 function get_best_score_string(difficulty) { 
-	return "Your top grade is " + string(get_best_score(difficulty)) + "%";
+	return "Highest Grade: " + string(get_best_score(difficulty)) + "%";
 }
 
 function draw_death_type_sprite(x_pos, y_pos, obj_index) {
@@ -164,4 +164,22 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		draw_sprite_ext(death_sprite, 0, x_pos+8, y_pos, 1, 1, 90, c_white, 1);
 	}
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
+}
+
+/// @function								get_max_difficulty();
+function get_max_difficulty() { 
+	var max_difficulty = difficulties.DO_NOT_USE;
+	
+	var all_difficulties = get_difficulties();
+	while (array_length(all_difficulties) > 0) {
+		var next_difficulty = array_pop(all_difficulties);
+		var next_wins = get_win_count(next_difficulty);
+		if (next_wins > 0 && next_difficulty > max_difficulty) {
+			max_difficulty = next_difficulty;
+		}
+	}
+	
+	if (max_difficulty < difficulties.very_hard) { max_difficulty += 1; }
+	
+	return max_difficulty;
 }

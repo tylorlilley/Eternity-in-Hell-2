@@ -107,7 +107,7 @@ function is_carrying_special_item(obj_index) {
 /// @param		{index} obj_index			The type of item to create in hand
 function create_item_in_hand(dir, obj_index) {
 	with (global.player) {
-		var new_item = instance_create_depth(x, y, -5, obj_index)
+		var new_item = instance_create_depth(x, y, 0, obj_index)
 		
 		if (dir == directions.right) { right_hand_item = new_item; new_item.image_xscale = -1; }
 		else if (dir == directions.left) { left_hand_item = new_item; new_item.image_xscale =1; }
@@ -116,7 +116,7 @@ function create_item_in_hand(dir, obj_index) {
 			// Become carried
 			holder = other.id;
 			persistent = other.persistent;
-			depth = -10;
+			depth = -5;
 		}
 		
 		return new_item;
@@ -131,6 +131,7 @@ function kill_player(killed_by) {
 		global.player.dead = true;
 		global.controller.death_timer = global.controller.RESPAWN_FREQUENCY;
 		play_sound(snd_lose, true);
+		with (global.player) { put_down_items_on_death(); }
 		with (obj_echo_spot) { instance_destroy(); }
 		
 		global.controller.killed_by = (killed_by == noone) ? other.object_index : killed_by;
@@ -138,10 +139,10 @@ function kill_player(killed_by) {
 	}
 }
 
-/// @function								put_down_all_items()
-function put_down_all_items() {
-	put_down_item(right_hand_item, false);
-	put_down_item(left_hand_item, false);
+/// @function								put_down_items_on_death()
+function put_down_items_on_death() {
+	if (right_hand_item != noone && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false); }
+	if (left_hand_item != noone && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false); }
 }
 
 /// @function								get_direction_input(key_pressed_only)
@@ -205,7 +206,8 @@ function can_drop_item(item) {
 
 /// @function					can_make_hole()
 function can_make_hole() {
-	return (!place_meeting(x, y, obj_solid) &&
+	return (!place_meeting(x, y, obj_bones) &&
+			!place_meeting(x, y, obj_solid) &&
 			!place_meeting(x, y, obj_door) &&
 			!place_meeting(x, y, obj_stairs) &&
 			!place_meeting(x, y, obj_lava) &&

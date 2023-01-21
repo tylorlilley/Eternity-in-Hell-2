@@ -1,5 +1,6 @@
 randomize();
 audio_group_load(audiogroup_default);
+loading = false;
 blink = false;
 pos = -2;
 current_seed = noone;

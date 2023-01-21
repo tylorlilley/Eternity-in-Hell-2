@@ -1,12 +1,6 @@
-if (holder != noone && holder != global.controller && !damaged) { sprite_index = get_sprite_to_use(spr_shovel); }
-else if (holder != noone && holder != global.controller && damaged) { sprite_index = get_sprite_to_use(spr_worn_shovel); }
-else if (holder == noone && !damaged) {
-	if (can_make_hole()) { sprite_index = get_sprite_to_use(spr_shovel_in_ground); }
-	else { sprite_index = get_sprite_to_use(spr_shovel); }
-}
-else if (holder == noone && damaged) { 
-	if (can_make_hole()) { sprite_index = get_sprite_to_use(spr_worn_shovel_in_ground); }
-	else { sprite_index = get_sprite_to_use(spr_worn_shovel); }
-}
+var sprite = sprite_index = (damaged) ? spr_worn_shovel_in_ground : spr_shovel_in_ground;
+if (!dropped_by_digger || holder != noone || !can_make_hole()) { sprite = (damaged) ?  spr_worn_shovel : spr_shovel; }
+
+sprite_index = get_sprite_to_use(sprite);
 
 event_inherited();

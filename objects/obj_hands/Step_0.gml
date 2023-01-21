@@ -10,7 +10,7 @@ if (process_this_frame()) {
 		}
 		if (activated) {
 			fire_resistant = is_carrying_item(obj_staff);
-			depth = (fire_resistant) ? -9 : 0;
+			depth = (fire_resistant) ? -4 : 0;
 				
 			// Move Around
 			for (var i = 0; i < 2; i++) {

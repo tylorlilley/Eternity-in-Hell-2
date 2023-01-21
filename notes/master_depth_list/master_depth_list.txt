@@ -1,0 +1,34 @@
+-300 fireball
+
+
+-200 giant worm
+
+
+-30 pushable block
+
+-20 bush
+
+-10 player
+
+-5 carried item
+
+-4 hands when carrying staff
+-1 solid
+0 enemies and anything else
+
+1 dropped item
+2 collectable
+
+3 sword in ground
+4 player corpse
+5 bones
+6 cross
+6 lantern
+7 blood
+8 button
+8 dirt spawned by pushable block moved into lava
+9 lava
+10 stairs
+10 hole
+
+20 dirt

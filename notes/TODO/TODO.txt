@@ -1,4 +1,13 @@
 === REFACTORS ===
+check that map keys work
+
+Add more rooms
+- mouth and nose
+- variety pack room
+- easy spider rooms?
+- easy statue rooms?
+
+
 rename meat
 
 Remove all commented out code that we don't need anymore
@@ -20,8 +29,6 @@ options for control bindings
 options for light flicker intensity
 Put an "are you sure" on the enter button?
 
-death_counter on title screen
-show what killed you / message about what killed you on lose screen?
 
 Make map show if room has key OR chest instead of just if a key spawned there?
 Is lit rooms coloring different on map helpful?

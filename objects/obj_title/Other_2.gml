@@ -25,10 +25,11 @@ enum seed_options {
 }
 
 // Setup global variables for title screen
-global.difficulty = difficulties.medium;
+global.difficulty = difficulties.easy;
 global.seed_option = seed_options.rand;
 global.seed = noone;
 global.FARM_MODE = false;
+global.TEST_MODE = false;
 global.can_access_farmer_mode = false;
 
 // Setup generic arrays
@@ -44,18 +45,19 @@ global.death_types_array = array_create(0);
 array_push(global.death_types_array, obj_controller);
 array_push(global.death_types_array, obj_bomb); // Medium Only
 array_push(global.death_types_array, obj_lava);
+array_push(global.death_types_array, obj_bones);
 array_push(global.death_types_array, obj_skeleton);
 array_push(global.death_types_array, obj_mouth);
 array_push(global.death_types_array, obj_bumper);
 array_push(global.death_types_array, obj_phantom);
-array_push(global.death_types_array, obj_spider);
-array_push(global.death_types_array, obj_statue);
 // Medium
+array_push(global.death_types_array, obj_spider); // Currently Medium Only
+array_push(global.death_types_array, obj_statue); // Currently Medium Only
 array_push(global.death_types_array, obj_giant_worm_body);
 array_push(global.death_types_array, obj_snake);
 array_push(global.death_types_array, obj_nose);
-array_push(global.death_types_array, obj_ears);
 array_push(global.death_types_array, obj_hands);
+array_push(global.death_types_array, obj_ears);
 // Hard
 array_push(global.death_types_array, obj_eyes);
 array_push(global.death_types_array, obj_echo);

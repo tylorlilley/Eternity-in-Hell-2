@@ -1,7 +1,6 @@
 event_inherited();
 
 image_index = 0;
-depth = 4;
 
 draw_y_offset = -4;
 

@@ -284,7 +284,7 @@ function singleton_instance() {
 	if (instance_number(object_index) > 1) { instance_destroy(); }
 }
 
-/// @function								press_button();
+/// @function								can_press_button();
 function can_press_button() {	
 	var pressed = is_covered_at_each_quadrant_by(obj_solid), enemies_at_position = instance_place_all(x, y, obj_enemy);
 	while (array_length(enemies_at_position) > 0) {

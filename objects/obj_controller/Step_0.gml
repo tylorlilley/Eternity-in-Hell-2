@@ -31,16 +31,21 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	}
 	if (room != rm_finish && (game_has_been_lost() || game_has_been_won())) {
 		if (game_has_been_won() || game_has_timed_out() || death_timer == 0) {
-			var carried_rosary = noone;
-			with (global.player) { carried_rosary = get_carried_item(obj_rosary); }
+			var carried_rosary = noone, carried_dir = noone;
+			with (global.player) { 
+				carried_rosary = get_carried_item(obj_rosary);
+				carried_dir = (right_hand_item == carried_rosary) ? directions.right : directions.left;
+				put_down_item(right_hand_item, false);
+				put_down_item(left_hand_item, false);
+			}
 			if (carried_rosary != noone && global.player.dead) {
 				// Revive and respawn player
-				var carried_dir = (global.player.right_hand_item == carried_rosary) ? directions.right : directions.left;
 				with (global.player) {
-					put_down_all_items();
+					x = -8;
+					y = -8;
 					dead = false;
 					image_index = 0;
-					var player_corpse = instance_create_depth(x, y, 3, obj_player_corpse);
+					var player_corpse = instance_create_depth(x, y, 0, obj_player_corpse);
 					player_corpse.image_xscale = image_xscale;
 				}				
 				transition = directions.respawn;
@@ -51,7 +56,6 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 			else {
 				if (game_has_been_won()) { update_win_log(global.difficulty); }
 				with (global.player) {
-					put_down_all_items();
 					visible = false;
 					room_goto(rm_finish);
 				}

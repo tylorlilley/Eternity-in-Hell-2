@@ -1,5 +1,5 @@
 if (pos == -2) { 
-	global.can_access_farmer_mode = (get_win_count(difficulties.hard) + get_win_count(difficulties.very_hard) > 0);
+	global.can_access_farmer_mode = (get_win_count(difficulties.very_hard) > 0);
 	pos = (global.can_access_farmer_mode) ? -1 : 0;
 }
 
@@ -25,13 +25,14 @@ else if (keyboard_check_pressed(ord("Z"))) { play_sound(snd_locked, false); }
 if (keyboard_check_pressed(ord("X"))) { play_sound(snd_locked, false); }
 
 // Draw main title screen
-if (keyboard_check(vk_space) || (keyboard_check(ord("Z")) && death_count > 0)) {
+if (keyboard_check(vk_space) || (pos > 0 && (keyboard_check(ord("Z")) && death_count > 0))) {
 	// do nothing
 }
 else {
 	// Adjust selected setting
+	var can_access_seed_options = global.TEST_MODE;
 	if (keyboard_check_pressed(vk_up) && (pos > 0 || (pos > -1 && global.can_access_farmer_mode))) { pos -= 1; play_sound(snd_mana, false); }
-	else if (keyboard_check_pressed(vk_down) && (pos < 1 || (pos < 2 && global.seed_option == seed_options.specified))) { pos += 1; play_sound(snd_mana, false); }
+	else if (keyboard_check_pressed(vk_down) && (pos < ((can_access_seed_options) ? 1 : 0) || (pos < 2 && global.seed_option == seed_options.specified))) { pos += 1; play_sound(snd_mana, false); }
 	
 	// Adjust Farmer Mode Settings
 	var prev_difficulty = global.difficulty;
@@ -44,7 +45,7 @@ else {
 	var prev_difficulty = global.difficulty;
 	if (pos == 0) {
 		if (global.difficulty > difficulties.easy && keyboard_check_pressed(vk_left)) { global.difficulty -= 1; }
-		else if (global.difficulty < difficulties.very_hard && keyboard_check_pressed(vk_right)) { global.difficulty += 1; }
+		else if (global.difficulty < get_max_difficulty() && keyboard_check_pressed(vk_right)) { global.difficulty += 1; }
 		if (prev_difficulty != global.difficulty) {
 			var difficulty_sound = noone;
 			switch (global.difficulty) {
@@ -98,7 +99,8 @@ else {
 	}
 	
 	// Start Game
-	if (keyboard_check_released(vk_enter)) {
+	if (keyboard_check_released(vk_enter)) { loading = true; }
+	else if (loading) {
 		play_sound(snd_move, false);
 		if (global.seed_option == seed_options.specified) { global.seed = current_seed; }
 		else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0,99999999); }

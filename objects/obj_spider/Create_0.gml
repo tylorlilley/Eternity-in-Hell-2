@@ -1,6 +1,6 @@
 event_inherited();
 
-activated = get_coin_flip();
+activated = get_random_chance_out_of(global.controller.SPIDER_PROBABILITY);
 if global.controller.entered_from_stairs { activated = false; }
 
 WAITING = 0;

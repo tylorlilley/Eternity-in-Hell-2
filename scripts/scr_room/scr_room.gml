@@ -104,25 +104,13 @@ function GameRoom(given_x, given_y) constructor {
 	}
 	
 	function set_up_room_chest() {
+		var array_to_check = global.controller.spawned_items;
 		stairs_spot_obj = obj_chest;
-		// Decide if spawning a special item or not
-		if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { has_special_item = true; }
-		
-		// Decide which item to spawn based on previous item spawns
-		while (item_type == noone) {
-			item_type = get_random_item_type(false);
-			
-			var array_to_check = (has_special_item) ? global.controller.spawned_special_items : global.controller.spawned_items;
-			var spawned_item_count = array_count_occurances(array_to_check, item_type);
-			
-			if (has_special_item && spawned_item_count >= 1) { item_type = noone; }
-			else if (item_type == obj_map && spawned_item_count >= 1) { item_type = noone; } 
-			else if (item_type == obj_staff && spawned_item_count >= 1) { item_type = noone; } 
-			else if (item_type == obj_torch && spawned_item_count >= 2) { item_type = noone; } 
-			else if (item_type == obj_clock && spawned_item_count >= 2) { item_type = noone; } 
-			else if (item_type == obj_shovel && spawned_item_count >= 2) { item_type = noone; } 
+		if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { 
+			has_special_item = true; 
+			array_to_check = global.controller.spawned_special_items;
 		}
-		if (has_special_item) { show_debug_message("SPAWNED " + ((has_special_item) ? "RED " : "") + object_get_name(item_type)); }
+		item_type = get_random_item_type(has_special_item, false)
 		array_push(array_to_check, item_type); 
 	}
 	
@@ -236,8 +224,8 @@ function GameRoom(given_x, given_y) constructor {
 		// Only draw the room if the room has been visited at least once, or game is in test mode
 		var show_detailed_map = false, show_collectables = false;
 		with (global.player) {
-			show_detailed_map = (global.controller.TEST_MODE || is_carrying_item(obj_map));
-			show_collectables = (global.controller.TEST_MODE || is_carrying_special_item(obj_map));
+			show_detailed_map = (global.TEST_MODE || is_carrying_item(obj_map));
+			show_collectables = (global.TEST_MODE || is_carrying_special_item(obj_map));
 		}
 		
 		if (show_detailed_map || visited) {
@@ -301,7 +289,7 @@ function GameRoom(given_x, given_y) constructor {
 			}
     
 		    // Draw distance information if testing
-		    //if (global.controller.TEST_MODE) {
+		    //if (global.TEST_MODE) {
 		    //   draw_set_color(c_lime);
 		    //    draw_set_halign(fa_center);
 		    //    draw_set_valign(fa_middle);

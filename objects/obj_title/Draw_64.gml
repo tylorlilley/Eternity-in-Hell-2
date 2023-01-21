@@ -1,19 +1,27 @@
 /// @description Insert description here
 // You can write your code in this editor
 var death_count_string = get_death_count_string(global.difficulty);
+var title_y_pos = room_height/4+16, title_scale = 0.125;
 
-if keyboard_check(vk_space) {
+// Draw background
+draw_set_color(c_black);
+draw_rectangle(0, 0, room_width, room_height, false);
+
+if (loading) { title_y_pos = room_height/2; title_scale = 0.25; }
+else if keyboard_check(vk_space) {
+	draw_set_color(c_black);
+	draw_rectangle(0, 0, room_width, room_height, false);
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
 	
 	// Draw Controls
 	draw_set_halign(fa_left);
-	draw_text(room_width/4-4, room_height/2-16,"Move / Push / Open");
-	draw_text(room_width/4-4, room_height/2+16+8, "Left Hand - Take / Drop");
-	draw_text(room_width/4-4, room_height/2+16+16+8, "Right Hand - Take / Drop");
-	draw_text(room_width/4-4, room_height/2+16+16+24+8, "Hold to Look at Map");
-	draw_text(room_width/4-4, room_height/2+16+16+24+24+8, "Return to Title Screen");
+	draw_text(room_width/4+8, room_height/2-16,"Move / Push / Open");
+	draw_text(room_width/4+8, room_height/2+16+8, "Left: Take / Drop");
+	draw_text(room_width/4+8, room_height/2+16+16+8, "Right: - Take / Drop");
+	draw_text(room_width/4+8, room_height/2+16+16+24+8, "View Map");
+	draw_text(room_width/4+8, room_height/2+16+16+24+24+8, "Restart Game");
 	
 	draw_sprite(spr_small_key, 0, room_width/4 - 36, room_height/2-16-8);
 	draw_sprite(spr_small_key, 1,  room_width/4 - 36 + 16, room_height/2-8);
@@ -36,13 +44,16 @@ else if (keyboard_check(ord("Z")) && death_count_string != noone) {
 	draw_set_valign(fa_middle);
 	
 	// Draw General Log Info
+	title_y_pos = room_height*2;
 	draw_set_halign(fa_center);
 	
 	var win_count_string = get_win_count_string(global.difficulty), best_score_string = get_best_score_string(global.difficulty);
-	draw_text(room_width/2, 16, "Death Log for " + get_difficulty_string(global.difficulty));
+	draw_text(room_width/2, 16, get_difficulty_string(global.difficulty));
+
 	if (death_count_string != noone) { draw_text(room_width/2, 16*2, death_count_string); }
-	if (win_count_string != noone) { draw_text(room_width/2, room_height-8, win_count_string); }
-	if (best_score_string != noone) { draw_text(room_width/2, room_height-8-16, best_score_string); }
+	if (win_count_string != noone) { draw_text(room_width/2, room_height-16, win_count_string); }
+	if (best_score_string != noone) { draw_text(room_width/2, room_height-16-16, best_score_string); }
+	
 	
 	// Create list of all deaths to display
 	var death_types = get_death_types(), deaths_to_display = array_create(0),
@@ -54,9 +65,12 @@ else if (keyboard_check(ord("Z")) && death_count_string != noone) {
 		if (death_count > 0) { array_push(deaths_to_display, [death_type, death_count]); }
 	}
 	
+	// Sort deaths to display by death count
+	array_sort(deaths_to_display, function(elm1, elm2) { return elm1[1] - elm2[1]; });
+	
 	// Cycle through deaths to display
 	draw_set_halign(fa_left);
-	var y_initial = (16*3)+14, x_columns = (array_length(deaths_to_display) <= 9) ? 3 : 5, x_initial = room_width/x_columns, y_pos = y_initial, x_pos = x_initial;
+	var y_initial = (16*3)+8, x_columns = (array_length(deaths_to_display) <= 9) ? 3 : 5, x_initial = room_width/x_columns, y_pos = y_initial, x_pos = x_initial;
 	while (array_length(deaths_to_display) > 0) {
 		var death_to_display = array_pop(deaths_to_display), death_object = death_to_display[0], death_count = death_to_display[1];
 		
@@ -66,7 +80,7 @@ else if (keyboard_check(ord("Z")) && death_count_string != noone) {
 		
 		// Increase Draw Position
 		y_pos += 18;
-		if (y_pos > (y_initial+(18*8))) { y_pos = y_initial; x_pos = x_initial*4; }
+		if (y_pos > (y_initial+(18*8))) { y_pos = y_initial; x_pos += 2*x_initial; }
 	}
 }
 else {
@@ -75,40 +89,45 @@ else {
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_center);
 	
-	// Draw farmer mode selection
-	if (blink && pos == -1) {
-		if (global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, room_width/4, room_height/4, 1, 1, 0, c_white, 1); }
-		if (!global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4, room_height/4, -1, 1, 0, c_white, 1); }
-	}
-	var title_background = layer_background_get_id("background");
-	layer_background_sprite(title_background, (global.FARM_MODE) ? bg_title_farmer : bg_title)
-	
-	// Draw death count for current difficulty
-	if (death_count_string != noone) { draw_text(room_width/2, (room_height/2)-16, death_count_string); }
+	// Draw Settings Switch Messages
+	var message_y_pos = room_height - 40, messages_y_offset = 0;
+	if (death_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(room_width/2, message_y_pos, "Hold Z: View Death Log"); }
+	draw_text(room_width/2, message_y_pos+messages_y_offset, "Hold Space: View Controls");
+	draw_text(room_width/2, message_y_pos+messages_y_offset+16, "Press Enter: Begin Game");
 	
 	// Draw difficulty selection
-	draw_text(room_width/2, room_height/2, get_difficulty_string(global.difficulty));
+	if (global.seed_option == seed_options.specified) { title_y_pos -= 16; }
+	var difficulty_y_pos = (global.TEST_MODE) ? title_y_pos + room_height/4 - 16 : (title_y_pos + message_y_pos) / 2;
+	draw_text(room_width/2, difficulty_y_pos, get_difficulty_string(global.difficulty));
 	if (blink && pos == 0) {
-		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2, 1, 1, 0, c_white, 1); }
-		if (global.difficulty < difficulties.very_hard) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2, -1, 1, 0, c_white, 1); }
+		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, difficulty_y_pos, 1, 1, 0, c_white, 1); }
+		if (global.difficulty < get_max_difficulty()) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, difficulty_y_pos, -1, 1, 0, c_white, 1); }
 	}
+	// Draw death count for current difficulty
+	if (death_count_string != noone) { draw_text(room_width/2, difficulty_y_pos+16, death_count_string); }
 
 	// Draw seed selection
-	draw_text(room_width/2, room_height/2+16, get_seed_option_string());
-	if (blink && pos == 1) {
-		if (global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2 + 16, 1, 1, 0, c_white, 1); }
-		if (global.seed_option < seed_options.specified) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2 + 16, -1, 1, 0, c_white, 1); }
-	}
-
-	// Draw seed
-	if (global.seed_option == seed_options.specified) { draw_text(room_width/2, room_height/2+32, get_zero_padded_string(current_seed, 9)); }
-	if (blink && pos == 2) {
-		if (current_seed < 99999999) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, room_height/2 + 32, -1, 1, 0, c_white, 1); }
-	    if (current_seed > 0) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, room_height/2 + 32, 1, 1, 0, c_white, 1); }
+	if (global.TEST_MODE) {
+		var seed_y_pos = difficulty_y_pos + 40;
+		draw_text(room_width/2, seed_y_pos, get_seed_option_string());
+		if (blink && pos == 1) {
+			if (global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, seed_y_pos, 1, 1, 0, c_white, 1); }
+			if (global.seed_option < seed_options.specified) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, seed_y_pos, -1, 1, 0, c_white, 1); }
+		}
+		// Draw seed
+		if (global.seed_option == seed_options.specified) { draw_text(room_width/2, seed_y_pos+16, get_zero_padded_string(current_seed, 9)); }
+		if (blink && pos == 2) {
+			if (current_seed < 99999999) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, seed_y_pos+16, -1, 1, 0, c_white, 1); }
+		    if (current_seed > 0) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, seed_y_pos+16, 1, 1, 0, c_white, 1); }
+		}
 	}
 	
-	// Draw Settings Switch Messages
-	if (death_count_string != noone) { draw_text(room_width/2, room_height/2+32+32-16, "Hold Z Key to view death log"); }
-	draw_text(room_width/2, room_height/2+32+32, "Hold Space Key to view controls");
-	draw_text(room_width/2, room_height/2+32+32+16, "Press Enter Key to begin");
+	// Draw farmer mode selection
+	if (blink && pos == -1) {
+		if (global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, room_width/4-32, title_y_pos, 1, 1, 0, c_white, 1); }
+		if (!global.FARM_MODE) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4+32, title_y_pos, -1, 1, 0, c_white, 1); }
+	}
 }
+
+// Draw Logo 
+draw_sprite_ext(spr_logo, (global.FARM_MODE) ? 1 : 0, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);

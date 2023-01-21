@@ -18,18 +18,18 @@ function create_room_lists() {
 	rooms_with_four_exits = array_create(0);
 	if (global.difficulty >= difficulties.easy) {
 		array_push(rooms_with_no_exits, rm_no_exits_1);
-		array_push(rooms_with_one_exit, rm_one_exit_1, rm_one_exit_2, rm_one_exit_3, rm_one_exit_6, rm_one_exit_7, rm_one_exit_9, rm_one_exit_11, rm_one_exit_12, rm_one_exit_14, rm_one_exit_17);
+		array_push(rooms_with_one_exit, rm_one_exit_1, rm_one_exit_2, rm_one_exit_3, rm_one_exit_6, rm_one_exit_7, rm_one_exit_9, rm_one_exit_11, rm_one_exit_14, rm_one_exit_17);
 		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_1, rm_two_opposite_exits_2, rm_two_opposite_exits_3, rm_two_opposite_exits_5, rm_two_opposite_exits_7, rm_two_opposite_exits_8, rm_two_opposite_exits_10, rm_two_opposite_exits_11, rm_two_opposite_exits_13, rm_two_opposite_exits_15);
-		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_17, rm_two_perpendicular_exits_21, rm_two_perpendicular_exits_23, rm_two_perpendicular_exits_24);
-		array_push(rooms_with_three_exits, rm_three_exits_1, rm_three_exits_2, rm_three_exits_3, rm_three_exits_4, rm_three_exits_5, rm_three_exits_7, rm_three_exits_8, rm_three_exits_9, rm_three_exits_10, rm_three_exits_11, rm_three_exits_12, rm_three_exits_19);
-		array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_2, rm_four_exits_3, rm_four_exits_5, rm_four_exits_6, rm_four_exits_7, rm_four_exits_9);
+		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_17, rm_two_perpendicular_exits_21, rm_two_perpendicular_exits_23, rm_two_perpendicular_exits_24);
+		array_push(rooms_with_three_exits, rm_three_exits_1, rm_three_exits_2, rm_three_exits_3, rm_three_exits_4, rm_three_exits_5, rm_three_exits_7, rm_three_exits_8, rm_three_exits_9, rm_three_exits_10, rm_three_exits_11, rm_three_exits_12);
+		array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_3, rm_four_exits_5, rm_four_exits_7, rm_four_exits_9);
 	}
 	if (global.difficulty >= difficulties.medium) {	
-		array_push(rooms_with_one_exit, rm_one_exit_4, rm_one_exit_5, rm_one_exit_8, rm_one_exit_10, rm_one_exit_13, rm_one_exit_15, rm_one_exit_16, rm_one_exit_18);
+		array_push(rooms_with_one_exit, rm_one_exit_4, rm_one_exit_5, rm_one_exit_8, rm_one_exit_10, rm_one_exit_12, rm_one_exit_13, rm_one_exit_15, rm_one_exit_16, rm_one_exit_18);
 		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_4, rm_two_opposite_exits_12, rm_two_opposite_exits_14, rm_two_opposite_exits_16);
-		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_9, rm_two_perpendicular_exits_11, rm_two_perpendicular_exits_13, rm_two_perpendicular_exits_16, rm_two_perpendicular_exits_22, rm_two_perpendicular_exits_26, rm_two_perpendicular_exits_27, rm_two_perpendicular_exits_28);
-		array_push(rooms_with_three_exits, rm_three_exits_6, rm_three_exits_13, rm_three_exits_14, rm_three_exits_16, rm_three_exits_17, rm_three_exits_20, rm_three_exits_21, rm_three_exits_22);
-		array_push(rooms_with_four_exits, rm_four_exits_4, rm_four_exits_8, rm_four_exits_10, rm_four_exits_11);
+		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_9, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_11, rm_two_perpendicular_exits_13, rm_two_perpendicular_exits_16, rm_two_perpendicular_exits_22, rm_two_perpendicular_exits_26, rm_two_perpendicular_exits_27, rm_two_perpendicular_exits_28);
+		array_push(rooms_with_three_exits, rm_three_exits_6, rm_three_exits_13, rm_three_exits_14, rm_three_exits_16, rm_three_exits_17, rm_three_exits_20, rm_three_exits_21, rm_three_exits_22, rm_three_exits_19);
+		array_push(rooms_with_four_exits, rm_four_exits_2, rm_four_exits_4, rm_four_exits_6, rm_four_exits_8, rm_four_exits_10, rm_four_exits_11);
 	}
 	if (global.difficulty >= difficulties.hard) {
 		array_push(rooms_with_one_exit,  rm_one_exit_19, rm_one_exit_20, rm_one_exit_21, rm_one_exit_22);
@@ -52,7 +52,6 @@ function get_room_difficulty(rm) {
 		case rm_one_exit_7:
 		case rm_one_exit_9:
 		case rm_one_exit_11:
-		case rm_one_exit_12:
 		case rm_one_exit_14:
 		case rm_one_exit_17:
 		case rm_two_opposite_exits_1:
@@ -71,8 +70,7 @@ function get_room_difficulty(rm) {
 		case rm_two_perpendicular_exits_4:
 		case rm_two_perpendicular_exits_5:
 		case rm_two_perpendicular_exits_6:
-		case rm_two_perpendicular_exits_8:			
-		case rm_two_perpendicular_exits_10:
+		case rm_two_perpendicular_exits_8:		
 		case rm_two_perpendicular_exits_12:
 		case rm_two_perpendicular_exits_17:
 		case rm_two_perpendicular_exits_21:
@@ -90,12 +88,9 @@ function get_room_difficulty(rm) {
 		case rm_three_exits_10:
 		case rm_three_exits_11:			
 		case rm_three_exits_12:
-		case rm_three_exits_19:
 		case rm_four_exits_1:
-		case rm_four_exits_2:
 		case rm_four_exits_3:
 		case rm_four_exits_5:
-		case rm_four_exits_6:
 		case rm_four_exits_7:
 		case rm_four_exits_9:
 			return difficulties.easy;
@@ -132,34 +127,35 @@ function initialize_game_variables() {
 
 	// Initialize room probability constants
 	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
-	MISLEADING_ROOM_PROBABILITY = 256 / power(2, global.difficulty);
-	LOCKED_DOOR_PROBABILITY = 5 + global.difficulty;
 	HAS_STAIRS_PROBABILITY = 20;
 	HAS_COLLECTABLE_PROBABILITY = 30 + global.difficulty;
-	PRE_LIT_PROBABILITY = 8 - global.difficulty;
-	HAS_KEY_PROBABILITY = 10 + global.difficulty;
 	HAS_ITEM_PROBABILITY = 25 + global.difficulty;
+	HAS_KEY_PROBABILITY = 10 + global.difficulty;
 	HAS_PORTCULLIS_PROBABILITY = (global.difficulty == difficulties.easy) ? 0 : 5 + (global.difficulty-2)*10
-	SPECIAL_ITEM_PROBABILITY = 25 - (2*global.difficulty);
+	
+	MISLEADING_ROOM_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12]);
+	LOCKED_DOOR_PROBABILITY = get_probability_for_difficulty([0, 8, 6, 5, 4]);
+	PRE_LIT_PROBABILITY = get_probability_for_difficulty([1, 4, 6, 8, 12]);
+	SPECIAL_ITEM_PROBABILITY = get_probability_for_difficulty([0, 24, 20, 18, 16]);
 	SPECIAL_ITEM_LIMIT = global.difficulty;
 	
 	// Initilize room start probability constants
 	ROOM_KEY_IN_CHEST_PROBABILITY = 3;
-	DIRT_PROBABILITY = 16 + global.difficulty * 2;
-	NOSE_PROBABILITY = 8 - global.difficulty;
-	PHANTOM_PROBABILITY = 5 - global.difficulty;
-	HANDS_PROBABILITY = 4 * (5 - global.difficulty);
-	SNAKE_PROBABILITY =  32 - (4 * global.difficulty);
-	EYES_PROBABILITY =  64 - (4 * global.difficulty);
-	FAST_SKELETON_PROBABILITY = 16 - global.difficulty;
-	TRAP_BONES_PROBABILITY = 32-global.difficulty;
-	MOVING_COLLECTABLE_PROBABILITY = 32-global.difficulty;
+	DIRT_PROBABILITY = get_probability_for_difficulty([0, 16, 20, 24, 28]);
+	NOSE_PROBABILITY = get_probability_for_difficulty([0, 0, 6, 5, 4]);
+	PHANTOM_PROBABILITY = get_probability_for_difficulty([0, 5, 4, 3, 2]);
+	SPIDER_PROBABILITY = get_probability_for_difficulty([0, 4, 2, 2, 1]);
+	HANDS_PROBABILITY = get_probability_for_difficulty([0, 0, 12, 8, 4]);
+	SNAKE_PROBABILITY =  get_probability_for_difficulty([0, 0, 24, 16, 8]);
+	EYES_PROBABILITY =  get_probability_for_difficulty([0, 0, 0, 64, 46]);
+	FAST_SKELETON_PROBABILITY = get_probability_for_difficulty([0, 0, 16, 14, 12]);
+	TRAP_BONES_PROBABILITY = get_probability_for_difficulty([0, 36, 30, 28, 24]);
+	MOVING_COLLECTABLE_PROBABILITY = get_probability_for_difficulty([0, 0, 32, 28, 24]);
 
 	// Initialize map drawing constants
-	TEST_MODE = false;
 	FARM_MODE = global.FARM_MODE;
 	MAX_WALKING_DEPTH = 16 * global.difficulty;
-	MINIMUM_NUMBER_OF_ROOMS = 5 + (3 * global.difficulty);
+	MINIMUM_NUMBER_OF_ROOMS = get_probability_for_difficulty([4, 12, 16, 20, 24]);
 	ADDITIONAL_ROOMS = 3 * global.difficulty;
 	MAX_MAP_DRAW_DISTANCE = 8;
 	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
@@ -181,19 +177,19 @@ function initialize_game_variables() {
 	CORPSE_REPLACEMENT_PROBABILITY = 1024;
 	TRAP_RANGE = 40;
 	BOMB_DUB_PROBABILITY = 64
-	BLOCK_ITEM_PROBABILITY = 32+global.difficulty;
-	NOSE_SELF_DESTRUCT_PROBABILITY = 128*(5-global.difficulty);
+	BLOCK_ITEM_PROBABILITY = get_probability_for_difficulty([0, 64, 32, 30, 28]);
+	NOSE_SELF_DESTRUCT_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 256, 128]);
 	RESPAWN_FREQUENCY = 40;
 
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
 	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
-	MAX_TORCH_TIME_TO_REMAIN_LIT = 75 - (global.difficulty * 5); // minutes * 60 = total seconds for torch to remain lit
-	TIME_PROVIDED_PER_ROOM = 40 - (global.difficulty * 3);
+	MAX_TORCH_TIME_TO_REMAIN_LIT = get_probability_for_difficulty([100, 75, 65, 60, 50]); // minutes * 60 = total seconds for torch to remain lit
+	TIME_PROVIDED_PER_ROOM = get_probability_for_difficulty([40, 38, 34, 30, 28]);
 	TIME_PROVIDED_PER_EASY_ROOM = -5;
 	TIME_PROVIDED_PER_HARD_ROOM = 15;
 	TIME_PROVIDED_PER_DEAD_END = 10;
-	TIME_PROVIDED_PER_COLLECTABLE = 25 - (global.difficulty * 3);
+	TIME_PROVIDED_PER_COLLECTABLE = get_probability_for_difficulty([40, 25, 20, 16, 12]);
 	TIME_PROVIEDED_PER_LOCK = 15;
 	TOTAL_COMPLETION_AMOUNT = 4;
 	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run
@@ -435,7 +431,7 @@ function game_room_start() {
 			}
 			else {
 				with get_random_instance(obj_collectable_spot) {
-					instance_create_depth(x, y, 4, obj_key);
+					instance_create_depth(x, y, 0, obj_key);
 					instance_destroy();
 				} 
 			}
@@ -505,7 +501,7 @@ function game_room_start() {
 	
 		// Create room's stairs_spot object
 		if (current_room.stairs_spot_obj != noone) {
-		    instance_create_depth(stairs_spot.x, stairs_spot.y, 5, current_room.stairs_spot_obj);
+		    instance_create_depth(stairs_spot.x, stairs_spot.y, 0, current_room.stairs_spot_obj);
 		}
     
 		// Create collectables in room if they should exist
@@ -561,8 +557,8 @@ function game_room_start() {
 	}
 
 	// Every Time Setup
-	background_id = layer_background_get_id(layer_get_id("Background"));
-	layer_background_blend( background_id, bg_color);
+	//background_id = layer_background_get_id(layer_get_id("Background"));
+	//layer_background_blend( background_id, bg_color);
 	for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].distance_to_current_room = 9999; }
 	with current_room { calculate_distance_to_current(0); }
 
@@ -590,6 +586,7 @@ function game_room_start() {
 	// Run room start event for specific objects
 	with (obj_bush) { occupier = noone; occupied = false; }
 	with (obj_bones) { if (!is_solid_at_position(x, y)) { trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } }
+	with (obj_skeleton) { bone_trap = false; }
 	with (obj_stairs) { active = false; }
 	with (obj_hole) { active = false; }
 	with (obj_door) { 
@@ -609,7 +606,7 @@ function game_room_start() {
 	with (obj_meat) {
 		if (holder == noone || holder.object_index == obj_hands) { 
 			if (!special) {
-				instance_create_depth(x, y, 5, obj_bones); 
+				instance_create_depth(x, y, 0, obj_bones); 
 				instance_destroy();
 			}
 			else {
@@ -624,7 +621,7 @@ function game_room_start() {
 	with (obj_item) { x = xstart; y = ystart; }
 	with (obj_enemy) { if (object_index != obj_hands) { instance_create_depth(xstart, ystart, 0, object_index); instance_destroy(); } }
 	with (obj_giant_worm_body) {
-		var new_worm_body = instance_create_depth(xstart, ystart, depth, object_index);
+		var new_worm_body = instance_create_depth(xstart, ystart, 0, object_index);
 		new_worm_body.xstart = xstart;
 		new_worm_body.ystart = ystart;
 		new_worm_body.image_blend = global.controller.bg_color;
@@ -744,4 +741,10 @@ function get_current_score() {
 		current_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
 	}
 	return global.controller.current_score;  
+}
+
+/// @function								get_best_score_string(difficulty);
+///	@param		{array} probabilities		A 5 position array containing the probabilities for each difficulty
+function get_probability_for_difficulty(probability_list) {
+	return probability_list[global.difficulty];
 }

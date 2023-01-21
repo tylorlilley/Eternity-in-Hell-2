@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = 4;
+depth = 10;
 image_index = 0
 
 active = false;

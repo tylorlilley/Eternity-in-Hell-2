@@ -22,7 +22,7 @@ if (!global.player.dead && place_meeting(x, y, global.player) && get_distance_to
 	with (global.player) {
 		if (!is_carrying_item(obj_staff)) {
 			play_sound(snd_extinguish, true);
-			kill_player(); 
+			kill_player(other.creator.object_index);
 		}
 	}
 }

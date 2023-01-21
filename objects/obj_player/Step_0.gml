@@ -4,7 +4,11 @@ if (process_this_frame()) {
 	dir_prev = dir;
 	if (dir_prev == noone) { dir_prev = irandom(3); }
 
-	if (!dead && is_solid_at_position(x, y)) { kill_player(); }
+	if (!dead && is_solid_at_position(x, y)) {
+		var killed_by = instance_place(x, y, obj_solid).object_index;
+		killed_by = (killed_by == obj_giant_worm_head) ? obj_giant_worm_body : killed_by;
+		kill_player(killed_by);
+	}
 	if (!dead && !game_has_been_won() && !game_has_been_lost()) {   
 	    // Get input from player
 	    dir = get_direction_input(false);

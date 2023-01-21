@@ -50,23 +50,28 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 	        draw_set_halign(fa_center);
 	        var message;
 	        if has_won { draw_set_color(c_white); message = "YOU WIN!" }
-	        if has_lost { draw_set_color(c_white); message = "YOU LOSE!" }
+	        if has_lost { 
+				draw_set_color(c_white); message = "You have been killed by:      "
+				draw_death_type_sprite(room_width/2+128-32, room_height-216, killed_by);
+			}
 	        draw_text(room_width/2, room_height-216, string_hash_to_newline(message));
 	        hud_x_pos = room_width/2;
 	    }
 
 	    // Draw final score and game seed and game version
+		var total_score = get_current_score();;
+		
 		draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
 		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));	// Draw elapsed time
+		
 		var time_elapsed = (time_provided - time_remaining);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
 		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
 		var bonus_for_winning_game = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
 		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
-		var total_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
-	    if (has_won || has_lost) { 
+		if (has_won || has_lost) { 
 			draw_text(hud_x_pos, room_height-56-16+8, string_hash_to_newline("Final Grade: "+string(total_score)+"%")); 
-			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline("Complexity: "+get_difficulty_string())); 
+			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline("Complexity: "+get_difficulty_string(global.difficulty))); 
 			draw_text(hud_x_pos, room_height-128-16-16, string_hash_to_newline("Collected: "+string(percentage_of_collectables_collected)+"%")); 
 			draw_text(hud_x_pos, room_height-112-16-16, string_hash_to_newline("Mapped: "+string(percentage_of_rooms_mapped)+"%"));
 			draw_text(hud_x_pos, room_height-96-16-16, string_hash_to_newline("Time Left: "+string(percentage_of_time_remaining)+"%")); 

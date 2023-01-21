@@ -1,7 +1,5 @@
 if (pos == -2) { 
-	ini_open("farmer_mode_unlocked.ini");
-	global.can_access_farmer_mode = (ini_read_real("modes", "farmer", false) == true);
-	ini_close();
+	global.can_access_farmer_mode = (get_win_count(difficulties.hard) + get_win_count(difficulties.very_hard) > 0);
 	pos = (global.can_access_farmer_mode) ? -1 : 0;
 }
 
@@ -11,10 +9,23 @@ if (blink_timer == 0) {
 }
 else { blink_timer -= 1; }
 
+// Make sounds for space bar
 if (keyboard_check_pressed(vk_space)) { play_sound(snd_pickup, false); }
 if (keyboard_check_released(vk_space)) { play_sound(snd_putdown, false); }
 
-if keyboard_check(vk_space) {
+// Make sounds for Z key
+var death_count = get_total_death_count(global.difficulty);
+if (death_count > 0) {
+	if (keyboard_check_pressed(ord("Z"))) { play_sound(snd_pickup, false); }
+	if (keyboard_check_released(ord("Z"))) { play_sound(snd_putdown, false); }
+}
+else if (keyboard_check_pressed(ord("Z"))) { play_sound(snd_locked, false); }
+
+// Make Sounds for X key
+if (keyboard_check_pressed(ord("X"))) { play_sound(snd_locked, false); }
+
+// Draw main title screen
+if (keyboard_check(vk_space) || (keyboard_check(ord("Z")) && death_count > 0)) {
 	// do nothing
 }
 else {

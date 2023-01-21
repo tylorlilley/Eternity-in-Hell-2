@@ -123,17 +123,18 @@ function create_item_in_hand(dir, obj_index) {
 	}
 }
 
-/// @function								kill_player();
-function kill_player() {
+/// @function								kill_player(killed_by);
+/// @param		{obj} killed_by				The object_index of the thing killing the player
+function kill_player(killed_by) {
 	if (!global.player.dead) {
 		// Set variables to mark death
 		global.player.dead = true;
 		global.controller.death_timer = global.controller.RESPAWN_FREQUENCY;
 		play_sound(snd_lose, true);
 		with (obj_echo_spot) { instance_destroy(); }
-			
-		// Record what killed you
-		//var killed_by = (other.object_index == obj_death) ? obj_lava : other.object_index;
+		
+		global.controller.killed_by = (killed_by == noone) ? other.object_index : killed_by;
+		update_death_log(global.controller.killed_by, global.difficulty);
 	}
 }
 
@@ -231,5 +232,5 @@ function draw_staff_box() {
 
 /// @function				draw_player_hat();
 function draw_player_hat() {
-	if (global.controller.FARM_MODE) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
+	if (global.FARM_MODE) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
 }

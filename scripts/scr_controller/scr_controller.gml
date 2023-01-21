@@ -219,6 +219,7 @@ function initialize_game_variables() {
 	completion_amount = 0;
 	sounds_to_play = array_create(0);
 	carried_heart = false;
+	current_score = 0;
 
 	// initialize room transition values
 	bg_color = make_color_rgb(20, 20, 20);
@@ -730,4 +731,17 @@ function spawn_dirt() {
 	with (instance_create_depth(x_pos, y_pos, 0, obj_dirt)) {
 		if (is_covered_at_each_quadrant_by(obj_lava) || is_covered_at_each_quadrant_by(obj_solid)) { instance_destroy(id, false); }
 	}
+}
+
+/// @function								get_current_score()
+function get_current_score() {
+	with (global.controller) {
+		var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
+		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
+		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
+		var bonus_for_winning_game = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
+		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
+		current_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
+	}
+	return global.controller.current_score;  
 }

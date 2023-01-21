@@ -103,10 +103,11 @@ function generate_id() {
     return  global.id_counter;
 }
 
-/// @function								get_difficulty_string();
-function get_difficulty_string() {
+/// @function								get_difficulty_string(difficulty);
+///	@param		{difficulty} difficulty		The difficulty to return a string for
+function get_difficulty_string(difficulty) {
 	var result = "";
-	switch (global.difficulty) {
+	switch (difficulty) {
 		case difficulties.easy: { result = "Moment"; break; }
 		case difficulties.medium: { result = "Lifetime"; break; }
 		case difficulties.hard: { result = "Eons"; break; }

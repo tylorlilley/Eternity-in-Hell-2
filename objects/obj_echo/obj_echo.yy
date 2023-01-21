@@ -3,8 +3,8 @@
   "resourceVersion": "1.0",
   "name": "obj_echo",
   "spriteId": {
-    "name": "spr_highlight",
-    "path": "sprites/spr_highlight/spr_highlight.yy",
+    "name": "spr_echo",
+    "path": "sprites/spr_echo/spr_echo.yy",
   },
   "solid": false,
   "visible": true,

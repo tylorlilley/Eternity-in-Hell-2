@@ -13,7 +13,12 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 			if (is_carrying_special_item(obj_clock)) { time_to_decrement = 0; }
 		}
 		time_remaining -= time_to_decrement;
-	    if (game_has_timed_out()) { time_remaining = 0; play_sound(snd_lose, false); }
+	    if (game_has_timed_out()) {
+			killed_by = obj_controller;
+			update_death_log(global.controller.killed_by, global.difficulty);
+			time_remaining = 0; 
+			play_sound(snd_lose, false); 
+		}
 		
 		// Handle room transition blackout to get around macOS drawing bug
 		if (transition != noone && !blackout) { blackout = true; }
@@ -44,6 +49,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 				else { with (global.player) { pick_up_item(carried_rosary, false, carried_dir); } }
 			}
 			else {
+				if (game_has_been_won()) { update_win_log(global.difficulty); }
 				with (global.player) {
 					put_down_all_items();
 					visible = false;
@@ -60,11 +66,6 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	// Restart game if necessary
 	if key_enter_released { 
 		play_sound(snd_move, false);
-		if (game_has_been_won() && global.difficulty >= difficulties.hard) { 
-			ini_open("farmer_mode_unlocked.ini");
-			ini_write_string("modes", "farmer", true);
-			ini_close();
-		}
 		restart_game();
 	}
 	

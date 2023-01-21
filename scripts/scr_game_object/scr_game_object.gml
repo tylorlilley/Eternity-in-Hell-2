@@ -296,7 +296,7 @@ function can_press_button() {
 
 /// @function								get_sprite_to_use();
 function get_sprite_to_use(regular_sprite) {
-	if (!global.controller.FARM_MODE) { return regular_sprite; }
+	if (!global.FARM_MODE) { return regular_sprite; }
 	
 	switch (regular_sprite) {
 		/// Tiles

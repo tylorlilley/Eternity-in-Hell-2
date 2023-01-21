@@ -99,7 +99,10 @@ function teleport_to_lava() {
 ///	@param		{int}	target_y			The y position of the target to move towards;
 function shoot_fireball(target_x, target_y) {
 	play_sound(snd_shoot, false);
-	with (instance_create_depth(x, y, 10, obj_fireball)) { move_towards_point(target_x, target_y, 2); }	
+	with (instance_create_depth(x, y, 10, obj_fireball)) {
+		creator = other.id;
+		move_towards_point(target_x, target_y, 2); 
+	}	
 }
 
 /// @function								try_to_see_player();
@@ -285,7 +288,13 @@ function check_for_player_collision() {
 		var carried_sword = noone;
 		with (global.player) { carried_sword = get_carried_item(obj_sword); }
 		if (carried_sword != noone && corporeal) { kill_with_sword(carried_sword); }
-		else if (object_index == obj_death) { with (global.player) { if (!is_carrying_item(obj_staff)) { kill_player(); } } }
-		else { kill_player(); }
+		else if (object_index == obj_death) { 
+			with (global.player) { 
+				if (!is_carrying_item(obj_staff)) { 
+					kill_player(obj_lava);;
+				} 
+			} 
+		}
+		else { kill_player(object_index); }
 	}
 }

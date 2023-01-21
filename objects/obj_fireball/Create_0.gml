@@ -3,6 +3,8 @@ event_inherited();
 depth = -300;
 image_speed = one_unit_of_game_time();
 
+creator = noone;
+
 // Torch Variables
 torch = instance_create_depth(x, y, 5, obj_torch);
 torch.special = true;

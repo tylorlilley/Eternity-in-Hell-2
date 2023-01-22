@@ -2,6 +2,9 @@ if (instance_exists(torch)) { set_instance_to_same_position(torch);  torch.image
 	
 // Destroy self and/or other when colliding with solid, enemy, or player
 var blocked = is_solid_at_position(x, y), enemies_at_position = instance_place_all(x, y, obj_enemy);
+var door = instance_place(x, y, obj_door);
+
+with (door) { instance_destroy(); play_sound(snd_crunch, true); }
 while (array_length(enemies_at_position) > 0) {
 	var enemy = array_random_pop(enemies_at_position);
 	if (enemy.activated && enemy.corporeal && get_distance_to_instance(enemy) <= 8) {

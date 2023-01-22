@@ -1,12 +1,9 @@
 === REFACTORS ===
-check that map keys work
-
 Add more rooms
 - mouth and nose
 - variety pack room
 - easy spider rooms?
 - easy statue rooms?
-
 
 rename meat
 
@@ -28,7 +25,6 @@ Explain spacebar on it better
 options for control bindings
 options for light flicker intensity
 Put an "are you sure" on the enter button?
-
 
 Make map show if room has key OR chest instead of just if a key spawned there?
 Is lit rooms coloring different on map helpful?

@@ -4,6 +4,7 @@ depth = -300;
 image_speed = one_unit_of_game_time();
 
 creator = noone;
+destructive = false;
 
 // Torch Variables
 torch = instance_create_depth(x, y, 0, obj_torch);

@@ -590,7 +590,10 @@ function game_room_start() {
 	with (obj_stairs) { active = false; }
 	with (obj_hole) { active = false; }
 	with (obj_door) { 
-		locked = (door_for_exit && door_for_exit.locked);
+		if (door_for_exit != noone) {
+			locked = ( door_for_exit.locked);
+			if (door_for_exit.destroyed) { instance_destroy(); }
+		}
 		if (place_meeting(x, y, global.player)) { open_door(); }
 	}
 	

@@ -13,12 +13,11 @@
 -5 carried item
 
 -4 hands when carrying staff
+
 -1 solid
 0 enemies and anything else
-
 1 dropped item
 2 collectable
-
 3 sword in ground
 4 player corpse
 5 bones

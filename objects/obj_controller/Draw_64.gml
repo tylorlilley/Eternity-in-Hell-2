@@ -1,7 +1,7 @@
 draw_set_font(ft_hud);
-var has_won = game_has_been_won();
-var has_lost = game_has_been_lost();
-var has_timed_out = game_has_timed_out();
+var has_won = is_game_won();
+var has_lost = is_game_lost();
+var has_timed_out = is_time_up();
 var is_looking_at_map = key_space && !has_lost;
 var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 
@@ -74,7 +74,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
 		if (has_won || has_lost) { 
 			draw_text(hud_x_pos, room_height-56-16+8, string_hash_to_newline("Final Grade: "+string(total_score)+"%")); 
-			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline("Complexity: "+get_difficulty_string(global.difficulty))); 
+			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline(get_difficulty_string(global.difficulty))); 
 			draw_text(hud_x_pos, room_height-128-16-16, string_hash_to_newline("Collected: "+string(percentage_of_collectables_collected)+"%")); 
 			draw_text(hud_x_pos, room_height-112-16-16, string_hash_to_newline("Mapped: "+string(percentage_of_rooms_mapped)+"%"));
 			draw_text(hud_x_pos, room_height-96-16-16, string_hash_to_newline("Time Left: "+string(percentage_of_time_remaining)+"%")); 

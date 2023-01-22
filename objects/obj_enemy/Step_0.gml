@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	event_inherited();
 	
 	visible = activated;

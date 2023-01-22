@@ -5,5 +5,5 @@ with (obj_cross) {
 		item_type = get_random_item_type(true);
 		if (array_count_occurances(global.controller.spawned_special_items, item_type) >= 1) { item_type = noone; }
 	}
-	with (instance_create_depth(x, y, 0, item_type)) { make_item_special(); } 
+	with (instance_create(x, y, item_type)) { make_item_special(); } 
 }

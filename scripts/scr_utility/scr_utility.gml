@@ -23,7 +23,6 @@ function get_zero_padded_string(value_to_pad, target_length) {
 	return padded_value;
 }
 
-
 /// @function								get_opposite_dir(dir);
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {
@@ -99,37 +98,11 @@ function instance_place_all(x_pos, y_pos, obj_type) {
     return list_of_matches;
 }
 
-/// @function								generate_id();
-function generate_id() {
+/// @function								get_new_id();
+function get_new_id() {
     global.id_counter++;
-    return  global.id_counter;
+    return global.id_counter;
 }
-
-/// @function								get_difficulty_string(difficulty);
-///	@param		{difficulty} difficulty		The difficulty to return a string for
-function get_difficulty_string(difficulty) {
-	var result = "";
-	switch (difficulty) {
-		case difficulties.easy: { result = "Moment"; break; }
-		case difficulties.medium: { result = "Lifetime"; break; }
-		case difficulties.hard: { result = "Eons"; break; }
-		case difficulties.very_hard: { result = "Eternity"; break; }
-	}
-	result += " in Hell";
-	return result;
-}
-
-/// @function								get_seed_option_string();
-function get_seed_option_string() {
-	var result = "";
-	switch (global.seed_option) {
-		case seed_options.rand: { result = "Generate Map"; break; }
-		case seed_options.same: { result = "Repeat Map"; break; }
-		case seed_options.specified: { result = "Specify Map"; break; }
-	}
-	return result;
-}
-
 
 /// @function								play_sound();
 ///	@param		{Sound}	  snd				The sound to play
@@ -148,4 +121,12 @@ function play_sound(snd, loud_sound) {
 			}
 		}
 	}
+}
+
+/// @function								instance_create(x_pos, y_pos, obj_index);
+///	@param		{real} x_pos				The x_pos to create the instance at
+///	@param		{real} y_pos				The y_pos to create the instance at
+///	@param		{object_index} difficulty	The object_index to create an instance of
+function instance_create(x_pos, y_pos, obj_index) {
+	return instance_create_depth(x_pos, y_pos, 0, obj_index);
 }

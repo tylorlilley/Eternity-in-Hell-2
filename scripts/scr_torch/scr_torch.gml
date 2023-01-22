@@ -16,7 +16,7 @@ function light_torch(lighting_torch, make_noise) {
 		image_index = 0;
 		image_speed = 1/6;
 
-		light_source = instance_create_depth(x, y, 0, obj_light_source);
+		light_source = instance_create(x, y, obj_light_source);
 		light_source.lighting_range = lighting_range;
 		light_source.persistent = (holder != noone);
 		
@@ -75,7 +75,7 @@ function interact_with_other_torches() {
 	
 	// Decrement time remaining if not actively_lit
 	if (!actively_lit && !special && time_to_remain_lit > 0) { 
-		time_to_remain_lit -= one_unit_of_game_time();
+		time_to_remain_lit -= get_one_unit_of_game_time();
 		if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(global.controller.PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT)); }
 		if (!time_to_remain_lit && image_speed > 0) { extinguish_torch(); }
 	}

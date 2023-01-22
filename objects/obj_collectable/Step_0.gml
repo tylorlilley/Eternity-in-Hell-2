@@ -1,11 +1,11 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	if (is_instance_at_coordinates(x, y, global.player)) {
 	    if (instance_number(obj_collectable) == 1) {
 	        // You are collecting the final collectable in the room
 			with global.controller {
 				current_room.has_collectables = false;
 				array_remove(rooms_with_collectables, current_room);
-				if (game_progress_has_been_completed()) { 
+				if (are_all_collectables_collected()) { 
 					play_sound(snd_win, false); 
 					global.controller.completion_amount += 1;
 				}

@@ -1,2 +1,2 @@
 event_inherited();
-if process_this_frame() { thump(); }
+if can_process_this_frame() { thump(); }

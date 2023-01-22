@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	if (spawn_timer > 0) { spawn_timer -= 1;  }
 	else if (spawn_timer == 0) {
 	    // Move in a random direction, and turn toward player if that direction is away from player.

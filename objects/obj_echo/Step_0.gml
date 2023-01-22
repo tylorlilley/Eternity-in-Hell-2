@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	if (walk_timer > 0) { walk_timer -= 1; }
 	else {
 		walk_timer = 2;

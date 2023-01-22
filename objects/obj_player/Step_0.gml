@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	x_prev = x;
 	y_prev = y;
 	dir_prev = dir;
@@ -9,7 +9,7 @@ if (process_this_frame()) {
 		killed_by = (killed_by == obj_giant_worm_head) ? obj_giant_worm_body : killed_by;
 		kill_player(killed_by);
 	}
-	if (!dead && !game_has_been_won() && !game_has_been_lost()) {   
+	if (!dead && !is_game_won() && !is_game_lost()) {   
 	    // Get input from player
 	    dir = get_direction_input(false);
 		

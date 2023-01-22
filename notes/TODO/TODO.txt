@@ -9,11 +9,7 @@ rename meat
 
 Remove all commented out code that we don't need anymore
 Examine remaining TODO comments
-relocate functions to script files they belong in 
 
-all functions that return boolean should start with is_ or can_ prefix and nothing else.
-all functions that do a thing should start with do_ prefix and nothing else.
-all functions that return an instance/object should return with get_prefix and nothing else.
 Update stairs to be generated and connected the same way holes are to remove special/different logic between holes and stairs
 utilize reading in of room data to build up profiles of each room reference to work with. This lets us assign times based on # of collectables, etc.
 Update room reference data to include non-instance information like intelligent sections for adding/removing exits for misleading rooms and specialized amounts of base time that that room itself should add, etc

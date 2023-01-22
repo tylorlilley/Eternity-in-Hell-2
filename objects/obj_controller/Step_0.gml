@@ -1,19 +1,19 @@
 // If this frame should be processed
 if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
-	if (!game_has_been_lost() && !game_has_been_won()) {
+	if (!is_game_lost() && !is_game_won()) {
 	    // Play map Sound Effects
 	    if key_space_pressed { play_sound( snd_pickup, false ); }
 	    if key_space_released { play_sound( snd_putdown, false ); }
     
 	    // Update per frame values
-		var time_to_decrement = one_unit_of_game_time();
+		var time_to_decrement = get_one_unit_of_game_time();
 		with (global.player) {
 			if (is_carrying_item_in_right_hand(obj_clock)) { time_to_decrement/= 2; }
 			if (is_carrying_item_in_left_hand(obj_clock)) { time_to_decrement/= 2; }
 			if (is_carrying_special_item(obj_clock)) { time_to_decrement = 0; }
 		}
 		time_remaining -= time_to_decrement;
-	    if (game_has_timed_out()) {
+	    if (is_time_up()) {
 			killed_by = obj_controller;
 			update_death_log(global.controller.killed_by, global.difficulty);
 			time_remaining = 0; 
@@ -29,8 +29,8 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 			transition_to_room(next_room); 
 		}
 	}
-	if (room != rm_finish && (game_has_been_lost() || game_has_been_won())) {
-		if (game_has_been_won() || game_has_timed_out() || death_timer == 0) {
+	if (room != rm_finish && (is_game_lost() || is_game_won())) {
+		if (is_game_won() || is_time_up() || death_timer == 0) {
 			var carried_rosary = noone, carried_dir = noone;
 			with (global.player) { 
 				carried_rosary = get_carried_item(obj_rosary);
@@ -45,7 +45,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 					y = -8;
 					dead = false;
 					image_index = 0;
-					var player_corpse = instance_create_depth(x, y, 0, obj_player_corpse);
+					var player_corpse = instance_create(x, y, obj_player_corpse);
 					player_corpse.image_xscale = image_xscale;
 				}				
 				transition = directions.respawn;
@@ -54,7 +54,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 				else { with (global.player) { pick_up_item(carried_rosary, false, carried_dir); } }
 			}
 			else {
-				if (game_has_been_won()) { update_win_log(global.difficulty); }
+				if (is_game_won()) { update_win_log(global.difficulty); }
 				with (global.player) {
 					visible = false;
 					room_goto(rm_finish);
@@ -81,4 +81,4 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 number_of_frames_since_game_began += 1;
 
 // Record inputs that happen between frames to apply to the next frame
-get_inputs_for_next_frame();
+setup_inputs_for_next_frame();

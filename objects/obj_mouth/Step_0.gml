@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	turn_to_face_player();
 
 	// Disapear and Reappear based on proximity to the player

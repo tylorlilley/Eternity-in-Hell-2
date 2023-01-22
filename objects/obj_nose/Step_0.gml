@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	if (spawn_timer > 0) { activated = false; spawn_timer -= 1; }
 	else {
 		if (!activated) { 

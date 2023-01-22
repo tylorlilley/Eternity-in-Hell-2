@@ -64,11 +64,61 @@ function make_item_special() {
 	}
 }
 
+/// @function								defuse_bomb();
+function defuse_bomb() {
+	if (fuse_timer != 0) { play_sound(snd_fuse, false); }
+	fuse_timer = 0; 
+}
+
+/// @function					can_dig_hole()
+function can_dig_hole() {
+	return (!place_meeting(x, y, obj_bones) &&
+			!place_meeting(x, y, obj_solid) &&
+			!place_meeting(x, y, obj_door) &&
+			!place_meeting(x, y, obj_stairs) &&
+			!place_meeting(x, y, obj_lava) &&
+			!place_meeting(x, y, obj_lantern) &&
+			!place_meeting(x, y, obj_cross) &&
+			!place_meeting(x, y, obj_bush) &&
+			!place_meeting(x, y, obj_hole) &&
+			!place_meeting(x, y, obj_block_spot));
+}
+
+/// @function								dig_hole();
+function dig_hole() {
+	if (can_dig_hole()) {
+		play_sound(snd_shovel, true);
+		if (!special) { damaged += 1; }
+		var new_hole = instance_create(x, y, obj_hole);
+		if (global.controller.last_hole == noone) { global.controller.last_hole = new_hole; }
+		else { 
+			new_hole.connected_hole = global.controller.last_hole; 
+			global.controller.last_hole.connected_hole = new_hole;
+			global.controller.last_hole = noone;
+		}
+	}
+}
+
 /// @function								thump();
 function thump() {
 	thump_timer -= 1;
 	if (thump_timer == 3) { play_sound(snd_thump, false); image_index = 1; }
 	if (thump_timer == 0) { thump_timer = 12; image_index = 0; }
+}
+
+/// @function								mark_heart_carried();
+function mark_heart_carried() {
+	if (!global.controller.carried_heart && holder == global.player) { 
+		global.controller.completion_amount += 1;
+		global.controller.carried_heart = true;
+	}
+}
+
+/// @function								get_dropped_meat();
+function get_dropped_meat() {
+	var dropped_meat = noone
+	with (obj_meat) { if (holder == noone) { dropped_meat = id; } }
+	return dropped_meat;
 }
 
 /// @function								get_random_item_type(special_item, include_key);
@@ -111,40 +161,4 @@ function get_random_item_type(special_item, include_key) {
 	if (special_item) { show_debug_message("SPAWNED " + ((special_item) ? "RED " : "") + object_get_name(chosen_type)); }
 	
 	return chosen_type;
-}
-
-/// @function								defuse_bomb();
-function defuse_bomb() {
-	if (fuse_timer != 0) { play_sound(snd_hiss, false); }
-	fuse_timer = 0; 
-}
-
-/// @function								dig_hole();
-function dig_hole() {
-	if (can_make_hole()) {
-		play_sound(snd_shovel, true);
-		if (!special) { damaged += 1; }
-		var new_hole = instance_create_depth(x, y, 0, obj_hole);
-		if (global.controller.last_hole == noone) { global.controller.last_hole = new_hole; }
-		else { 
-			new_hole.connected_hole = global.controller.last_hole; 
-			global.controller.last_hole.connected_hole = new_hole;
-			global.controller.last_hole = noone;
-		}
-	}
-}
-
-/// @function								mark_heart_carried();
-function mark_heart_carried() {
-	if (!global.controller.carried_heart && holder == global.player) { 
-		global.controller.completion_amount += 1;
-		global.controller.carried_heart = true;
-	}
-}
-
-/// @function								get_dropped_meat();
-function get_dropped_meat() {
-	var dropped_meat = noone
-	with (obj_meat) { if (holder == noone) { dropped_meat = id; } }
-	return dropped_meat;
 }

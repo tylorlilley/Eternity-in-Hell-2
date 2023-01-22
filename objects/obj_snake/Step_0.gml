@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	var move_speed = get_random_chance_out_of(global.controller.SNAKE_MOVE_FREQUENCY) ? 2 : 1;
 	var dropped_meat = get_dropped_meat();
 	if (dropped_meat && get_random_possible_direction(dropped_meat.x, dropped_meat.y, false, true) != noone) { 

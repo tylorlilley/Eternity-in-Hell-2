@@ -19,6 +19,6 @@ function open_door() {
 function close_door() {
 	image_index = 0;
 	
-	closed = instance_create_depth(x, y, 0, obj_solid);
+	closed = instance_create(x, y, obj_solid);
 	closed.visible = false;
 }

@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	timer += 1;
 	if (timer >= 4) { 
 		if (dir != -1) { prev_dir = dir; }

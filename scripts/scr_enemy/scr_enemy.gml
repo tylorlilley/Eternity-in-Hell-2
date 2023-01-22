@@ -4,12 +4,12 @@ function kill_enemy(death_sound) {
 	if (death_sound != noone) { play_sound(death_sound, true); }
 	if (corporeal) {
 		var corpse = (object_index == obj_skeleton) ? obj_bones : obj_blood;
-		instance_create_depth(x, y, 0, corpse);
+		instance_create(x, y, corpse);
 	}
 	if (object_index == obj_hands) {
 		with (right_hand_item) {
 			if (object_index == obj_rosary) {
-				var new_hands = instance_create_depth(other.xstart, other.ystart, 0, obj_hands);
+				var new_hands = instance_create(other.xstart, other.ystart, obj_hands);
 				new_hands.death_timer = global.controller.RESPAWN_FREQUENCY;
 				if (!special) { instance_destroy(); }
 				else { new_hands.target_item = id; }
@@ -23,7 +23,7 @@ function kill_enemy(death_sound) {
 ///	@param		{instance}	sword			The sword being used to kill this enemy
 function kill_with_sword(sword) {
 	if (!sword.special) { 
-		var sword_in_ground = instance_create_depth(x, y, 0, obj_sword_in_ground);
+		var sword_in_ground = instance_create(x, y, obj_sword_in_ground);
 		sword_in_ground.image_xscale = sword.image_xscale;
 		instance_destroy(sword); 
 	}
@@ -94,20 +94,22 @@ function teleport_to_lava() {
 	return noone;
 }
 
-/// @function								shoot_fireball()
+/// @function								shoot_fireball(target_x, target_y, make_destructive)
 ///	@param		{int}	target_x			The x position of the target to move towards;
 ///	@param		{int}	target_y			The y position of the target to move towards;
-function shoot_fireball(target_x, target_y) {
+///	@param		{boolen} make_destructive			The y position of the target to move towards;
+function shoot_fireball(target_x, target_y, make_destructive) {
 	play_sound(snd_shoot, false);
-	with (instance_create_depth(x, y, 0, obj_fireball)) {
+	var fireball = instance_create(x, y, obj_fireball);
+	with (fireball) {
 		creator = other.id;
+		destructive = make_destructive;
 		move_towards_point(target_x, target_y, 2); 
 	}	
 }
 
 /// @function								try_to_see_player();
 function try_to_see_player() {
-	
 	var target = noone, dropped_meat = get_dropped_meat();
 	if (!global.player.dead) { target = global.player; }
 	
@@ -264,21 +266,21 @@ function move_segments(new_dir) {
 ///	@param		{Sound}	  destroy_self		Whether to destroy the calling instance or not
 function explode(destroy_self) {
 	play_sound(snd_explosion, true);
-	shoot_fireball(x-8, y-8);
-	shoot_fireball(x+0, y-8);
-	shoot_fireball(x+8, y-8);
-	shoot_fireball(x-8, y-4);
-	shoot_fireball(x+0, y-4);
-	shoot_fireball(x+8, y-4);
-	shoot_fireball(x-8, y);
-	shoot_fireball(x+0, y);
-	shoot_fireball(x+8, y);
-	shoot_fireball(x-8, y+4);
-	shoot_fireball(x+0, y+4);
-	shoot_fireball(x+8, y+4);
-	shoot_fireball(x-8, y+8);
-	shoot_fireball(x+0, y+8);
-	shoot_fireball(x+8, y+8);
+	shoot_fireball(x-8, y-8, true);
+	shoot_fireball(x+0, y-8, true);
+	shoot_fireball(x+8, y-8, true);
+	shoot_fireball(x-8, y-4, true);
+	shoot_fireball(x+0, y-4, true);
+	shoot_fireball(x+8, y-4, true);
+	shoot_fireball(x-8, y, true);
+	shoot_fireball(x+0, y, true);
+	shoot_fireball(x+8, y, true);
+	shoot_fireball(x-8, y+4, true);
+	shoot_fireball(x+0, y+4, true);
+	shoot_fireball(x+8, y+4, true);
+	shoot_fireball(x-8, y+8, true);
+	shoot_fireball(x+0, y+8, true);
+	shoot_fireball(x+8, y+8, true);
 	if (destroy_self) { instance_destroy(); }
 }
 

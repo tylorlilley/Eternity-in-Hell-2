@@ -8,9 +8,7 @@ function RoomExit(given_room, dir) constructor {
 	room_1_dir = dir;
 	room_2 = given_room.adj_rooms[dir];
 	room_2_dir = get_opposite_dir(dir);
-	room_1_door = noone;
-	room_2_door = noone;
-	id = generate_id();
+	id = get_new_id();
 	
 	function destroy() { destroyed = true; }
 	function unlock() { locked = false; }

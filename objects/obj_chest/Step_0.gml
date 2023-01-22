@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	event_inherited();
 	
 	if closed {
@@ -21,7 +21,7 @@ if (process_this_frame()) {
 						play_sound(snd_pickup, false);
 					}
 					if (array_length(free_hands) == 0) { 
-						new_item = instance_create_depth(global.player.x, global.player.y, 0, contents);
+						new_item = instance_create(global.player.x, global.player.y, contents);
 					}
 					else {
 						new_item = create_item_in_hand(array_random_pop(free_hands), contents);

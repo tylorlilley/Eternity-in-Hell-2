@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	if (awake && !is_instance_at_coordinates(target_x, target_y, id)) {
 		sprite_index = get_sprite_to_use(spr_ears_awake);
 		image_index = (x > target_x) ? 1 : -1;

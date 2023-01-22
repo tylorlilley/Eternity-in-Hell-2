@@ -274,6 +274,7 @@
     {"id":{"name":"rm_three_exits_2","path":"rooms/rm_three_exits_2/rm_three_exits_2.yy",},"order":1,},
     {"id":{"name":"rm_three_exits_17","path":"rooms/rm_three_exits_17/rm_three_exits_17.yy",},"order":16,},
     {"id":{"name":"rm_three_exits_3","path":"rooms/rm_three_exits_3/rm_three_exits_3.yy",},"order":2,},
+    {"id":{"name":"scr_title","path":"scripts/scr_title/scr_title.yy",},"order":4,},
     {"id":{"name":"rm_three_exits_4","path":"rooms/rm_three_exits_4/rm_three_exits_4.yy",},"order":3,},
     {"id":{"name":"rm_three_exits_5","path":"rooms/rm_three_exits_5/rm_three_exits_5.yy",},"order":4,},
     {"id":{"name":"snd_close","path":"sounds/snd_close/snd_close.yy",},"order":56,},

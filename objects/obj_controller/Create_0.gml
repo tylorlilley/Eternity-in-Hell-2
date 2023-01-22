@@ -78,7 +78,7 @@ if (start_room == noone) {
 	reset_map_generation();
 }
 
-current_room.calculate_distance_to_current(0);
+current_room.calculate_distance_to_current_room(0);
 
 // Set up lists used to walk the map
 var keyless_rooms = array_create(0), farthest_rooms = array_create(0);
@@ -133,26 +133,26 @@ for (var i = 0; i < total_rooms; i++) {
    
    // Update room based on assigned room reference
    with (given_room) {
-	   if (room_reference_object_count(obj_lantern) == 0) { lit = false; }
+	   if (get_room_reference_object_count(obj_lantern) == 0) { lit = false; }
 	   if (global.TEST_MODE) {
-		   if (room_reference_object_count(obj_collectable_spot) < 2) { show_debug_message("WARNING: not enough collectable spots in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_stairs_spot) != 1) { show_debug_message("WARNING: not exactly one stairs spot in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_collectable) > 0) { show_debug_message("WARNING: obj_collectable in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_block) > 0) { show_debug_message("WARNING: obj_block in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_stairs) > 0) { show_debug_message("WARNING: obj_stairs in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_hole) > 0) { show_debug_message("WARNING: obj_hole in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_cross) > 0) { show_debug_message("WARNING: obj_cross in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_encased_heart) > 0) { show_debug_message("WARNING: obj_encased_heart in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_echo) > 0) { show_debug_message("WARNING: obj_echo in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_chest) > 0) { show_debug_message("WARNING: obj_echo in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_fireball) > 0) { show_debug_message("WARNING: obj_echo in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_phantom) > 0) { show_debug_message("WARNING: obj_phantom in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_nose) > 0) { show_debug_message("WARNING: obj_nose in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_hands) > 0) { show_debug_message("WARNING: obj_hands in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_title) > 0) { show_debug_message("WARNING: obj_echo in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_sound_manager) > 0) { show_debug_message("WARNING: obj_sound_manager in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_controller) > 0) { show_debug_message("WARNING: obj_controller in room "+room_get_name(room_reference)); } 
-		   if (room_reference_object_count(obj_player) > 0) { show_debug_message("WARNING: obj_player in room "+room_get_name(room_reference)); }
+		   if (get_room_reference_object_count(obj_collectable_spot) < 2) { show_debug_message("WARNING: not enough collectable spots in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_stairs_spot) != 1) { show_debug_message("WARNING: not exactly one stairs spot in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_collectable) > 0) { show_debug_message("WARNING: obj_collectable in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_block) > 0) { show_debug_message("WARNING: obj_block in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_stairs) > 0) { show_debug_message("WARNING: obj_stairs in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_hole) > 0) { show_debug_message("WARNING: obj_hole in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_cross) > 0) { show_debug_message("WARNING: obj_cross in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_encased_heart) > 0) { show_debug_message("WARNING: obj_encased_heart in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_echo) > 0) { show_debug_message("WARNING: obj_echo in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_chest) > 0) { show_debug_message("WARNING: obj_echo in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_fireball) > 0) { show_debug_message("WARNING: obj_echo in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_phantom) > 0) { show_debug_message("WARNING: obj_phantom in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_nose) > 0) { show_debug_message("WARNING: obj_nose in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_hands) > 0) { show_debug_message("WARNING: obj_hands in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_title) > 0) { show_debug_message("WARNING: obj_echo in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_sound_manager) > 0) { show_debug_message("WARNING: obj_sound_manager in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_controller) > 0) { show_debug_message("WARNING: obj_controller in room "+room_get_name(room_reference)); } 
+		   if (get_room_reference_object_count(obj_player) > 0) { show_debug_message("WARNING: obj_player in room "+room_get_name(room_reference)); }
 	   }
    }
    
@@ -173,7 +173,7 @@ time_remaining = time_provided;
 
 // Create player object and change room to current room's referenced room
 current_room.stairs_spot_obj = obj_cross;
-global.player = instance_create_depth(8, 8, 0, obj_player);
+global.player = instance_create(8, 8, obj_player);
 current_room.go_to_room();
 
 /*
@@ -184,7 +184,7 @@ two_exits_perp = 0;
 three_exits = 0;
 four_exits = 0;
 for (var i = 0; i < total_rooms; i++) {
-	var counted_exits = game_rooms[i].count_exits();
+	var counted_exits = game_rooms[i].get_exits_count();
 	avg_exits += counted_exits;
 	if counted_exits == 1 one_exits += 1;
 	if counted_exits == 3 three_exits += 1;

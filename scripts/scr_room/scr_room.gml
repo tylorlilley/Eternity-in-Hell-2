@@ -3,7 +3,7 @@ function GameRoom(given_x, given_y) constructor {
 	instances = array_create(0);
 	virtual_x = given_x;
 	virtual_y = given_y;
-	id = generate_id();
+	id = get_new_id();
 	distance_to_current_room = 9999;
 	distance_from_start_room = 9999;
 
@@ -91,12 +91,13 @@ function GameRoom(given_x, given_y) constructor {
 		}
 
 		// Generate some number of random additional exits
-		while (count_exits() < target_number_of_exits) {
+		while (get_exits_count() < target_number_of_exits) {
 		    add_random_exit(false, list_of_rooms);
 		}
 
 	}
 	
+	/// @function								set_up_room_chest();
 	function set_up_room_chest() {
 		var array_to_check = global.controller.spawned_items;
 		stairs_spot_obj = obj_chest;
@@ -138,6 +139,7 @@ function GameRoom(given_x, given_y) constructor {
 		array_push(global.controller.game_rooms, new_room);
 		link_adjoining_room(new_room, dir);
 		array_push(list_of_rooms, new_room);
+		return new_room;
 	}
 	
 	/// @function								link_adjoining_room(adjoining_room, dir);
@@ -157,7 +159,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{boolean}	must_create_new		Whether or not an exit must be created as a result of this method
 	/// @param		{index}		list_of_rooms		The list of all created rooms
 	function add_random_exit(must_create_new, list_of_rooms) {
-		if (count_exits() > 3 || (must_create_new && count_adjacent_rooms() > 3)) { 
+		if (get_exits_count() > 3 || (must_create_new && get_adjacent_rooms_count() > 3)) { 
 		    return false; 
 		    // Impossible to create a new exit in this case. This method should not be called under
 		    // These circumstances anyway, but this guard clause is here for protection.
@@ -177,8 +179,8 @@ function GameRoom(given_x, given_y) constructor {
 		else { create_adjoining_room(next_exit_pos, list_of_rooms); }
 	}
 
-	/// @function								count_exits();
-	function count_exits() {
+	/// @function								get_exits_count();
+	function get_exits_count() {
 		var number_of_exits = 0;
 
 		for (var i = 0; i < 4; i++) {
@@ -188,8 +190,8 @@ function GameRoom(given_x, given_y) constructor {
 		return number_of_exits;
 	}
 
-	/// @function								count_adjacent_rooms();
-	function count_adjacent_rooms() {
+	/// @function								get_adjacent_rooms_count();
+	function get_adjacent_rooms_count() {
 		var number_of_rooms = 0;
 
 		for (var i = 0; i < 4; i++) {
@@ -199,13 +201,13 @@ function GameRoom(given_x, given_y) constructor {
 		return number_of_rooms;
 	}
 
-	/// @function								calculate_distance_to_current(distance)
+	/// @function								calculate_distance_to_current_room(distance)
 	/// @param		{real}	distance			The number of rooms away from this room the current room is
-	function calculate_distance_to_current(distance) {
+	function calculate_distance_to_current_room(distance) {
 		if (distance < distance_to_current_room) { distance_to_current_room = distance; }
 		for (var i = 0; i < 4; i++) {
 		    if (adj_rooms[i]) {
-		        if (distance+1 < adj_rooms[i].distance_to_current_room) with adj_rooms[i] { calculate_distance_to_current(distance+1); }
+		        if (distance+1 < adj_rooms[i].distance_to_current_room) with adj_rooms[i] { calculate_distance_to_current_room(distance+1); }
 		    }
 		}
 	}
@@ -293,7 +295,7 @@ function GameRoom(given_x, given_y) constructor {
 
 		// Mark the room as having been drawn, then draw each of its applicable neighbors
 		drawn = true;
-		if (distance_to_current_room < global.controller.MAX_MAP_DRAW_DISTANCE || game_has_been_lost() || game_has_been_won()) {
+		if (distance_to_current_room < global.controller.MAX_MAP_DRAW_DISTANCE || is_game_lost() || is_game_won()) {
 		  if (adj_rooms[0] && !adj_rooms[0].drawn && y_pos-16 >= 0) with adj_rooms[0] { draw_room(x_pos, y_pos-16); }
 		  if (adj_rooms[1] && !adj_rooms[1].drawn && x_pos+16 <= room_width) with adj_rooms[1] { draw_room(x_pos+16, y_pos); }
 		  if (adj_rooms[2] && !adj_rooms[2].drawn && y_pos+16 <= room_height) with adj_rooms[2] { draw_room(x_pos, y_pos+16); }
@@ -328,7 +330,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function								get_room_from_room_lists();
 	function get_room_from_room_lists() {
-		var number_of_exits = count_exits();
+		var number_of_exits = get_exits_count();
 		var rand1 = get_coin_flip();
 		var rand2 = get_coin_flip();
 		var room_list = noone;
@@ -357,7 +359,7 @@ function GameRoom(given_x, given_y) constructor {
 				break;
 		}
 
-		switch (count_exits()) {
+		switch (get_exits_count()) {
 			case 0: 
 		        flip_horizontal = rand1; 
 		        flip_vertical = rand2;
@@ -393,7 +395,6 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		
 		var ref = array_random_get(room_list);
-		//while (ref == rm_one_exit_22 && (global.start_room == self || exits[4])) { array_random_get(room_list); }
 		return ref;
 	}
 	
@@ -414,13 +415,13 @@ function GameRoom(given_x, given_y) constructor {
 		var reference_instances = instances_for_room_reference(room_reference);
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
-			instance_create_depth(ref.x, ref.y, 0, asset_get_index(ref.name));
+			instance_create(ref.x, ref.y, asset_get_index(ref.name));
 		}
 	}
 	
-	/// @function								room_reference_object_count();
+	/// @function								get_room_reference_object_count();
 	/// @param		{int} obj					The object index to check for the presence of
-	function room_reference_object_count(obj) {
+	function get_room_reference_object_count(obj) {
 		var reference_instances = instances_for_room_reference(room_reference);
 		var count = 0;
 		for(var i = 0; i < array_length(reference_instances); i++) {
@@ -463,7 +464,7 @@ function GameRoom(given_x, given_y) constructor {
 		}
 	}
 	
-	/// @function									go_to_room()
+	/// @function									mark_exit_visited()
 	function mark_exit_visited() {
 		var exit_dir = global.controller.transition, other_room = global.controller.current_room;
 		if (exit_dir == directions.stairs) {
@@ -487,4 +488,125 @@ function instances_for_room_reference(room_reference) {
 	var decoded_content = json_parse(file_content);          
 	file_text_close(file);
 	return decoded_content;
+}
+
+/// @function								get_room_difficulty();
+function get_room_difficulty(rm) {
+	switch (rm)
+	{
+		case rm_no_exits_1:
+		case rm_one_exit_2:
+		case rm_one_exit_3:
+		case rm_one_exit_6:
+		case rm_one_exit_7:
+		case rm_one_exit_9:
+		case rm_one_exit_11:
+		case rm_one_exit_14:
+		case rm_one_exit_17:
+		case rm_two_opposite_exits_1:
+		case rm_two_opposite_exits_2:
+		case rm_two_opposite_exits_3:
+		case rm_two_opposite_exits_5:
+		case rm_two_opposite_exits_7:
+		case rm_two_opposite_exits_8:
+		case rm_two_opposite_exits_10:
+		case rm_two_opposite_exits_11:
+		case rm_two_opposite_exits_13:
+		case rm_two_opposite_exits_15:
+		case rm_two_perpendicular_exits_1:
+		case rm_two_perpendicular_exits_2:
+		case rm_two_perpendicular_exits_3:
+		case rm_two_perpendicular_exits_4:
+		case rm_two_perpendicular_exits_5:
+		case rm_two_perpendicular_exits_6:
+		case rm_two_perpendicular_exits_8:		
+		case rm_two_perpendicular_exits_12:
+		case rm_two_perpendicular_exits_17:
+		case rm_two_perpendicular_exits_21:
+		case rm_two_perpendicular_exits_23:
+		case rm_two_perpendicular_exits_24:
+		case rm_two_perpendicular_exits_25:
+		case rm_three_exits_1:
+		case rm_three_exits_2:	
+		case rm_three_exits_3:
+		case rm_three_exits_4:
+		case rm_three_exits_5:
+		case rm_three_exits_7:
+		case rm_three_exits_8:
+		case rm_three_exits_9:
+		case rm_three_exits_10:
+		case rm_three_exits_11:			
+		case rm_three_exits_12:
+		case rm_four_exits_1:
+		case rm_four_exits_3:
+		case rm_four_exits_5:
+		case rm_four_exits_7:
+		case rm_four_exits_9:
+			return difficulties.easy;
+		case rm_one_exit_19:
+		case rm_one_exit_20:	
+		case rm_one_exit_21:
+		case rm_one_exit_22:
+		case rm_two_opposite_exits_6:
+		case rm_two_opposite_exits_9:
+		case rm_two_perpendicular_exits_7:
+		case rm_two_perpendicular_exits_14:
+		case rm_two_perpendicular_exits_15:
+		case rm_two_perpendicular_exits_18:			
+		case rm_two_perpendicular_exits_19:
+		case rm_two_perpendicular_exits_20:
+		case rm_three_exits_15:
+		case rm_three_exits_18:
+		case rm_four_exits_12:
+			return difficulties.hard;
+		default:
+			return difficulties.medium;
+	}
+}
+
+/// @function					flip_room_contents_horizontally();
+function flip_room_contents_horizontally() {
+	with obj_game_object {
+	    if (object_index != obj_player) { x = room_width - x; }
+	}
+	with obj_placeholder {
+		x = room_width - x;
+	}
+}
+
+/// @function				flip_room_contents_vertically();
+function flip_room_contents_vertically() {
+	with obj_game_object {
+	    if (object_index != obj_player) { y = room_height - y; }
+	}
+	with obj_placeholder {
+		y = room_height - y;
+	}
+}
+
+/// @function									rotate_room_contents_around_room_center(direction_to_face);
+/// @param		{direction}	direction_to_face	The direction in which the room should face once rotated
+function rotate_room_contents_around_room_center(direction_to_face) {
+	var angle = direction_to_face * 90;
+	
+	with obj_game_object {
+	    if (object_index != obj_player) { 
+			image_angle = 0;
+			var x_prev = x - room_width/2;
+			var y_prev = y - room_height/2;
+			
+			x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
+			y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
+			if (!place_snapped(4, 4)) { move_snap(4, 4); }
+		}
+	}
+	with obj_placeholder {
+		image_angle = 0;
+		var x_prev = x - room_width/2;
+		var y_prev = y - room_height/2;
+			
+		x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
+		y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
+		if (!place_snapped(4, 4)) { move_snap(4, 4); }
+	}
 }

@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	if (activated) {		
 		// Turn to face the player and begin Screeching if player is in view
 		try_to_see_player();

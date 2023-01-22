@@ -1,4 +1,4 @@
-if process_this_frame() {
+if can_process_this_frame() {
 	if (holder == noone) {
 		if (fuse_timer > 0) {
 			fuse_timer -= 1;
@@ -8,7 +8,7 @@ if process_this_frame() {
 			else { visible = true; }
 			if (fuse_timer == 0) {
 				if (!special && get_random_chance_out_of(global.controller.BOMB_DUB_PROBABILITY)) { play_sound(snd_move, false); }
-				else { explode(!special); instance_create_depth(x, y, 0, obj_dirt); }
+				else { explode(!special); instance_create(x, y, obj_dirt); }
 			}
 		}
 		else { 

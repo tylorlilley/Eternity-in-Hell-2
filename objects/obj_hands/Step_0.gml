@@ -1,4 +1,4 @@
-if (process_this_frame()) {
+if (can_process_this_frame()) {
 	if (death_timer > 0) { 
 		death_timer -= 1; 
 		if (death_timer == 0) { play_sound(snd_win, false); activated = true; }

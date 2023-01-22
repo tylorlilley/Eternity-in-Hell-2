@@ -149,37 +149,3 @@ function get_best_score(difficulty) {
 function get_best_score_string(difficulty) { 
 	return "Highest Grade: " + string(get_best_score(difficulty)) + "%";
 }
-
-function draw_death_type_sprite(x_pos, y_pos, obj_index) {
-	var death_sprite = get_sprite_to_use(object_get_sprite(obj_index));
-	
-	// Draw Sprite
-	if (obj_index == obj_controller) { 
-		draw_sprite_ext(spr_clock, 0, x_pos, y_pos, 1, 1, 0, c_white, 1); 
-		draw_sprite_ext(spr_sand, 7, x_pos, y_pos, 1, 1, 0, c_white, 1); 
-	}
-	else if (obj_index == obj_statue) { draw_sprite_ext(death_sprite, 0, x_pos, y_pos, 1, 1, 180, c_white, 1); }
-	else if (obj_index == obj_giant_worm_body) { 
-		draw_sprite_ext(death_sprite, 0, x_pos-8, y_pos, 1, 1, 270, c_white, 1);
-		draw_sprite_ext(death_sprite, 0, x_pos+8, y_pos, 1, 1, 90, c_white, 1);
-	}
-	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
-}
-
-/// @function								get_max_difficulty();
-function get_max_difficulty() { 
-	var max_difficulty = difficulties.DO_NOT_USE;
-	
-	var all_difficulties = get_difficulties();
-	while (array_length(all_difficulties) > 0) {
-		var next_difficulty = array_pop(all_difficulties);
-		var next_wins = get_win_count(next_difficulty);
-		if (next_wins > 0 && next_difficulty > max_difficulty) {
-			max_difficulty = next_difficulty;
-		}
-	}
-	
-	if (max_difficulty < difficulties.very_hard) { max_difficulty += 1; }
-	
-	return max_difficulty;
-}

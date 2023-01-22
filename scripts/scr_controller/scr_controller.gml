@@ -39,81 +39,6 @@ function create_room_lists() {
 		array_push(rooms_with_four_exits, rm_four_exits_12);
 	}
 }
-
-
-/// @function								get_room_difficulty();
-function get_room_difficulty(rm) {
-	switch (rm)
-	{
-		case rm_no_exits_1:
-		case rm_one_exit_2:
-		case rm_one_exit_3:
-		case rm_one_exit_6:
-		case rm_one_exit_7:
-		case rm_one_exit_9:
-		case rm_one_exit_11:
-		case rm_one_exit_14:
-		case rm_one_exit_17:
-		case rm_two_opposite_exits_1:
-		case rm_two_opposite_exits_2:
-		case rm_two_opposite_exits_3:
-		case rm_two_opposite_exits_5:
-		case rm_two_opposite_exits_7:
-		case rm_two_opposite_exits_8:
-		case rm_two_opposite_exits_10:
-		case rm_two_opposite_exits_11:
-		case rm_two_opposite_exits_13:
-		case rm_two_opposite_exits_15:
-		case rm_two_perpendicular_exits_1:
-		case rm_two_perpendicular_exits_2:
-		case rm_two_perpendicular_exits_3:
-		case rm_two_perpendicular_exits_4:
-		case rm_two_perpendicular_exits_5:
-		case rm_two_perpendicular_exits_6:
-		case rm_two_perpendicular_exits_8:		
-		case rm_two_perpendicular_exits_12:
-		case rm_two_perpendicular_exits_17:
-		case rm_two_perpendicular_exits_21:
-		case rm_two_perpendicular_exits_23:
-		case rm_two_perpendicular_exits_24:
-		case rm_two_perpendicular_exits_25:
-		case rm_three_exits_1:
-		case rm_three_exits_2:	
-		case rm_three_exits_3:
-		case rm_three_exits_4:
-		case rm_three_exits_5:
-		case rm_three_exits_7:
-		case rm_three_exits_8:
-		case rm_three_exits_9:
-		case rm_three_exits_10:
-		case rm_three_exits_11:			
-		case rm_three_exits_12:
-		case rm_four_exits_1:
-		case rm_four_exits_3:
-		case rm_four_exits_5:
-		case rm_four_exits_7:
-		case rm_four_exits_9:
-			return difficulties.easy;
-		case rm_one_exit_19:
-		case rm_one_exit_20:	
-		case rm_one_exit_21:
-		case rm_one_exit_22:
-		case rm_two_opposite_exits_6:
-		case rm_two_opposite_exits_9:
-		case rm_two_perpendicular_exits_7:
-		case rm_two_perpendicular_exits_14:
-		case rm_two_perpendicular_exits_15:
-		case rm_two_perpendicular_exits_18:			
-		case rm_two_perpendicular_exits_19:
-		case rm_two_perpendicular_exits_20:
-		case rm_three_exits_15:
-		case rm_three_exits_18:
-		case rm_four_exits_12:
-			return difficulties.hard;
-		default:
-			return difficulties.medium;
-	}
-}
 		
 /// @function								initialize_game_variables();
 function initialize_game_variables() {
@@ -227,28 +152,28 @@ function initialize_game_variables() {
 	clear_inputs_for_next_frame();
 }
 
-/// @function								one_unit_of_game_time();
-function one_unit_of_game_time() {
+/// @function								get_one_unit_of_game_time();
+function get_one_unit_of_game_time() {
 	return (global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING/game_get_speed(gamespeed_fps));
 }
 
-/// @function								game_has_been_won();
-function game_has_been_won() {
+/// @function								is_game_won();
+function is_game_won() {
 	return (global.controller.completion_amount >= global.controller.TOTAL_COMPLETION_AMOUNT);
 }
 
-/// @function								game_has_been_lost();
-function game_has_been_lost() {
-	return (global.player.dead || game_has_timed_out());
+/// @function								is_game_lost();
+function is_game_lost() {
+	return (global.player.dead || is_time_up());
 }
 
-/// @function								game_has_timed_out();
-function game_has_timed_out() {
+/// @function								is_time_up();
+function is_time_up() {
 	return (ceil(global.controller.time_remaining) <= 0 || (global.player.dead && global.controller.death_timer == 0));
 }
 
-/// @function								game_has_timed_out();
-function game_progress_has_been_completed() {
+/// @function								are_all_collectables_collected();
+function are_all_collectables_collected() {
 	return (array_length(global.controller.rooms_with_collectables) == 0);
 }
 
@@ -267,60 +192,13 @@ function transition_to_room(new_room) {
 	new_room.go_to_room();
 }
 
-/// @function					flip_room_contents_horizontally();
-function flip_room_contents_horizontally() {
-	with obj_game_object {
-	    if (object_index != obj_player) { x = room_width - x; }
-	}
-	with obj_placeholder {
-		x = room_width - x;
-	}
-}
-
-/// @function				flip_room_contents_vertically();
-function flip_room_contents_vertically() {
-	with obj_game_object {
-	    if (object_index != obj_player) { y = room_height - y; }
-	}
-	with obj_placeholder {
-		y = room_height - y;
-	}
-}
-
-/// @function									rotate_room_contents_around_room_center(direction_to_face);
-/// @param		{direction}	direction_to_face	The direction in which the room should face once rotated
-function rotate_room_contents_around_room_center(direction_to_face) {
-	var angle = direction_to_face * 90;
-	
-	with obj_game_object {
-	    if (object_index != obj_player) { 
-			image_angle = 0;
-			var x_prev = x - room_width/2;
-			var y_prev = y - room_height/2;
-			
-			x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
-			y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
-			if (!place_snapped(4, 4)) { move_snap(4, 4); }
-		}
-	}
-	with obj_placeholder {
-		image_angle = 0;
-		var x_prev = x - room_width/2;
-		var y_prev = y - room_height/2;
-			
-		x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
-		y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
-		if (!place_snapped(4, 4)) { move_snap(4, 4); }
-	}
-}
-
-/// @function								process_this_frame();
-function process_this_frame() {
+/// @function								can_process_this_frame();
+function can_process_this_frame() {
 	return (global.controller.transition == noone && global.controller.number_of_frames_since_game_began % global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
 }
 
-/// @function								get_inputs_for_next_frame();
-function get_inputs_for_next_frame() {
+/// @function								setup_inputs_for_next_frame();
+function setup_inputs_for_next_frame() {
 	key_up = key_up || keyboard_check(vk_up);
 	key_down = key_down || keyboard_check(vk_down);
 	key_left = key_left || keyboard_check(vk_left);
@@ -430,7 +308,7 @@ function game_room_start() {
 			}
 			else {
 				with get_random_instance(obj_collectable_spot) {
-					instance_create_depth(x, y, 0, obj_key);
+					instance_create(x, y, obj_key);
 					instance_destroy();
 				} 
 			}
@@ -452,19 +330,19 @@ function game_room_start() {
 			if (array_length(possible_spots) == 0) { current_room.has_portcullis = false; }
 			else {
 				var button_spot = array_pop(possible_spots);
-				instance_create_depth(button_spot.x, button_spot.y, 0, obj_dirt);
+				instance_create(button_spot.x, button_spot.y, obj_dirt);
 					
 				if (button_spot == stairs_spot) { current_room.stairs_spot_obj = obj_button; }
 				else {
 					with button_spot {
-						instance_create_depth(x, y, 0, obj_button);
+						instance_create(x, y, obj_button);
 						instance_destroy();
 					}
 				}
 				
 				while (array_length(possible_spots) > 0) {
 					var button_spot = array_pop(possible_spots);
-					instance_create_depth(button_spot.x, button_spot.y, 0, obj_dirt);
+					instance_create(button_spot.x, button_spot.y, obj_dirt);
 				}
 			}
 		}
@@ -483,13 +361,13 @@ function game_room_start() {
 			// Create locked exits if they should exist
 		    var exit_to_create_door_for = current_room.locked_exits[i];
 		    if (exit_to_create_door_for != noone) {
-		        if (door == noone) { door = instance_create_depth(x_pos, y_pos, 0, obj_door); }
+		        if (door == noone) { door = instance_create(x_pos, y_pos, obj_door); }
 		        door.door_for_exit = exit_to_create_door_for;
 		        door.locked = exit_to_create_door_for.locked;
 		    }
 			
 			// Create portcullis doors if they should exist
-			else if (current_room.has_portcullis && current_room.exits[i]) { instance_create_depth(x_pos, y_pos, 0, obj_portcullis); }
+			else if (current_room.has_portcullis && current_room.exits[i]) { instance_create(x_pos, y_pos, obj_portcullis); }
 			
 			// Create blocked exists if they should exist
 			var x_pos_1 = 0, y_pos_1 = 0, x_pos_2 = 0, y_pos_2 = 0;
@@ -500,20 +378,20 @@ function game_room_start() {
 			if (i == 3) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
 					
 			if (!current_room.exits[i] && !place_meeting(x_pos, y_pos, obj_solid)) {   
-				instance_create_depth(x_pos_1, y_pos_1, 0, obj_wall);
-				instance_create_depth(x_pos_2, y_pos_2, 0, obj_wall);
+				instance_create(x_pos_1, y_pos_1, obj_wall);
+				instance_create(x_pos_2, y_pos_2, obj_wall);
 			}
 		}
 	
 		// Create room's stairs_spot object
 		if (current_room.stairs_spot_obj != noone) {
-		    instance_create_depth(stairs_spot.x, stairs_spot.y, 0, current_room.stairs_spot_obj);
+		    instance_create(stairs_spot.x, stairs_spot.y, current_room.stairs_spot_obj);
 		}
     
 		// Create collectables in room if they should exist
 		if (current_room.has_collectables) {
 		    with obj_collectable_spot { 
-				var new_collectable = instance_create_depth(x, y, 0, obj_collectable);
+				var new_collectable = instance_create(x, y, obj_collectable);
 				if (get_random_chance_out_of(global.controller.MOVING_COLLECTABLE_PROBABILITY)) { new_collectable.moving = true; }
 				instance_destroy(); 
 			}
@@ -533,15 +411,15 @@ function game_room_start() {
 		{
 			// If room is unlit but has the potential to be lit, consider spawning phantom
 			if (instance_number(obj_lantern) > 0 && instance_number(obj_eyes) == 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
-				instance_create_depth(8, 8, 0, obj_phantom);
+				instance_create(8, 8, obj_phantom);
 			}
 		}
 		
 		// If room has lava, consider spawning nose
 		if (instance_number(obj_lava) > 0) { 
-			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
-			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
-			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create_depth(8, 8, 0, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(8, 8, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(8, 8, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(8, 8, obj_nose); }
 		}
 	
 		// Mark room as one that has been visited at some point during this game
@@ -558,7 +436,7 @@ function game_room_start() {
 			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurped = obj_eyes; }
 			else if (get_random_chance_out_of(global.controller.SNAKE_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_snake; }
 			else if (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBABILITY) && global.difficulty >= difficulties.medium) { skeleton_speed = global.controller.FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
-			if (usurped != noone) { instance_create_depth(x, y, 0, usurped); instance_destroy(); }
+			if (usurped != noone) { instance_create(x, y, usurped); instance_destroy(); }
 		}
 	}
 
@@ -566,7 +444,7 @@ function game_room_start() {
 	//background_id = layer_background_get_id(layer_get_id("Background"));
 	//layer_background_blend( background_id, bg_color);
 	for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].distance_to_current_room = 9999; }
-	with current_room { calculate_distance_to_current(0); }
+	with current_room { calculate_distance_to_current_room(0); }
 
 	// Change position if necessary
 	if entered_from_stairs {
@@ -614,7 +492,7 @@ function game_room_start() {
 	with (obj_meat) {
 		if (holder == noone || holder.object_index == obj_hands) { 
 			if (!special) {
-				instance_create_depth(x, y, 0, obj_bones); 
+				instance_create(x, y, obj_bones); 
 				instance_destroy();
 			}
 			else {
@@ -627,9 +505,9 @@ function game_room_start() {
 	//// Reset instances to their start positions
 	with (obj_block) { x = starting_spot.x; y = starting_spot.y; }
 	with (obj_item) { x = xstart; y = ystart; }
-	with (obj_enemy) { if (object_index != obj_hands) { instance_create_depth(xstart, ystart, 0, object_index); instance_destroy(); } }
+	with (obj_enemy) { if (object_index != obj_hands) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
 	with (obj_giant_worm_body) {
-		var new_worm_body = instance_create_depth(xstart, ystart, 0, object_index);
+		var new_worm_body = instance_create(xstart, ystart, object_index);
 		new_worm_body.xstart = xstart;
 		new_worm_body.ystart = ystart;
 		new_worm_body.image_blend = global.controller.bg_color;
@@ -658,7 +536,7 @@ function game_room_start() {
 		for (var i = 0; i < array_length(potential_items); i++) {
 			var potential_item = potential_items[i];
 			if (!entered_from_spawn && get_random_chance_out_of(HANDS_PROBABILITY)) { 
-				var new_hands = instance_create_depth(potential_item.x, potential_item.y, 0, obj_hands);
+				var new_hands = instance_create(potential_item.x, potential_item.y, obj_hands);
 				new_hands.target_item = potential_item;
 				new_hands.right_hand_item = potential_item;
 				new_hands.xstart = potential_item.x;
@@ -733,7 +611,7 @@ function reset_map_generation() {
 /// @function								spawn_dirt();
 function spawn_dirt() {
 	var x_pos = irandom(room_width/8) * 8, y_pos = irandom(room_height/8) * 8
-	with (instance_create_depth(x_pos, y_pos, 0, obj_dirt)) {
+	with (instance_create(x_pos, y_pos, obj_dirt)) {
 		if (is_covered_at_each_quadrant_by(obj_lava) || is_covered_at_each_quadrant_by(obj_solid)) { instance_destroy(id, false); }
 	}
 }
@@ -755,4 +633,54 @@ function get_current_score() {
 ///	@param		{array} probabilities		A 5 position array containing the probabilities for each difficulty
 function get_probability_for_difficulty(probability_list) {
 	return probability_list[global.difficulty];
+}
+
+/// @function								get_direction_input(key_pressed_only)
+/// @param		{bool} key_pressed_only		Whether to only count if the key has been pressed this frame
+function get_direction_input(key_pressed_only) {
+	// Return no input if player is dead or looking at map
+	if (global.player.dead || global.controller.key_space) { return noone; }
+	
+	// Starting with the previous direction, check each direction for inputs
+	var possible_directions = array_create(0);
+	for (var i = 0; i < 4; i++) {
+		var current_dir = (i+global.player.dir_prev) % 4;
+		
+		// For the player object, skip directions that block movement
+		// This allows doors, chests, blocks, etc. to evaluate ignoring blocking objects
+		// so that they can be pushed and opened even when against a wall
+		if (object_index == obj_player && !can_move_in_direction(current_dir, false, true)) { continue; }
+		
+		if current_dir == directions.up &&
+			global.controller.key_up && 
+			!global.controller.key_down &&
+			(global.controller.key_up_pressed || !global.controller.key_up_released) &&
+			(!key_pressed_only || global.controller.key_up_pressed) { 
+				array_push(possible_directions, directions.up); 
+		}
+		else if current_dir == directions.down &&
+				global.controller.key_down && 
+				!global.controller.key_up &&
+				(global.controller.key_down_pressed || !global.controller.key_down_released) &&
+				(!key_pressed_only || global.controller.key_down_pressed) { 
+					array_push(possible_directions, directions.down);  
+		}
+		else if current_dir == directions.left &&
+				global.controller.key_left && 
+				!global.controller.key_right &&
+				(global.controller.key_left_pressed || !global.controller.key_left_released) &&
+				(!key_pressed_only || global.controller.key_left_pressed) { 
+					array_push(possible_directions, directions.left); 
+		}
+		else if current_dir == directions.right &&
+				global.controller.key_right && 
+				!global.controller.key_left &&
+				(global.controller.key_right_pressed || !global.controller.key_right_released) && 
+				(!key_pressed_only || global.controller.key_right_pressed) { 
+					array_push(possible_directions, directions.right); 
+		}
+	}
+	
+	if (array_length(possible_directions) == 0) { return noone; }
+	return possible_directions[0];
 }

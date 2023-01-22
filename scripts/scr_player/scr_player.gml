@@ -35,7 +35,8 @@ function pick_up_or_put_down_item(dir) {
 		while (array_length(dropped_items) > 0) {
 			var dropped_item = array_random_pop(dropped_items);
 			if (dropped_item && dropped_item.holder == noone && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
-				pick_up_item(dropped_item, true, dir); 
+				pick_up_item(dropped_item, true, dir);
+				break;
 			}
 		}
 	}

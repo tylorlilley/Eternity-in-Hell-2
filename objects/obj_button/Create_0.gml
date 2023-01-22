@@ -11,4 +11,3 @@ if (can_press_button()) {
 
 var dirt_to_spawn = irandom(global.controller.DIRT_PROBABILITY);
 for (var i = 0; i < dirt_to_spawn; i++) { spawn_dirt(); }
-instance_create_depth(x, y, 0, obj_dirt);

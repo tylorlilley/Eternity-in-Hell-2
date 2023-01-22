@@ -49,12 +49,11 @@ function GameRoom(given_x, given_y) constructor {
 		// Randomly decide if room will have collectables, stairs, keys, items, etc
 		
 		// Decide what to spawn in stairs_spot
-		rand = irandom(100);
-		if (rand < global.controller.HAS_STAIRS_PROBABILITY) { exits[4] = true; stairs_spot_obj = obj_stairs; }
-		else if (rand < global.controller.HAS_STAIRS_PROBABILITY+global.controller.HAS_ITEM_PROBABILITY) { set_up_room_chest(); }
+		if (get_random_chance_out_of(global.controller.HAS_STAIRS_PROBABILITY)) { exits[4] = true; stairs_spot_obj = obj_stairs; }
+		else if (get_random_chance_out_of(global.controller.HAS_ITEM_PROBABILITY)) { set_up_room_chest(); }
 		
 		// Decide what to spawn in collectables spots
-		if (irandom(100) < global.controller.HAS_KEY_PROBABILITY && item_type == noone) {
+		if (get_random_chance_out_of(global.controller.HAS_KEY_PROBABILITY) && item_type == noone) {
 			// Determine if it should be a red key
 			if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) {
 				if (array_count_occurances(global.controller.spawned_special_items, obj_key) == 0) {
@@ -69,17 +68,12 @@ function GameRoom(given_x, given_y) constructor {
 			has_keys = 1; 
 			array_push(global.controller.rooms_with_key, self); 
 		}
-		if (irandom(100) < global.controller.HAS_COLLECTABLE_PROBABILITY) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
-		if (irandom(100) < global.controller.HAS_PORTCULLIS_PROBABILITY) { has_portcullis = true; }
+		if (get_random_chance_out_of(global.controller.HAS_COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
+		if (get_random_chance_out_of(global.controller.HAS_PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
 	
 		// Randomly determine the number of exits this room should have based on probability weighting
-		var target_number_of_exits = 0;
-		var rand = irandom(100)-array_length(global.controller.game_rooms); // subtract number of rooms in order to drive generation toward an end eventually
-		do {
-			rand -= global.controller.NUMBER_OF_EXITS_PROBABILITIES[target_number_of_exits];
-		    target_number_of_exits += 1;
-		}
-		until (rand <= 0);
+		var target_number_of_exits = irandom(global.controller.NUMBER_OF_EXITS_PROBABILITY);
+		if (target_number_of_exits == 0 || target_number_of_exits > 3) { target_number_of_exits = 2; }
 	
 		// Take care of exits that must exist based on adjacent rooms and decrement number of exits accordingly
 		for (var i = 0; i < 4; i++) {

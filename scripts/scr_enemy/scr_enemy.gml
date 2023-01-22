@@ -297,7 +297,7 @@ function check_for_player_collision() {
 		}
 		else {
 			var killer = object_index;
-			if (killer == obj_skeleton && bone_trap) { killer = obj_bones; }
+			if (killer == obj_skeleton && spawn_timer > 0) { killer = obj_bones; }
 			kill_player(killer); 
 		}
 	}

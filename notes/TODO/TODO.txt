@@ -33,6 +33,9 @@ Zelda style portcullis that close and you have to push block or light torch to o
 
 Should staff protect against non-corporeal enemies?
 
+Should phantom time depend on distance to the torches in the room somehow?
+Should mouths be drawn toward dropped items and collectables somehow?
+
 === BUGS TO FIX ===
 leave ghost room shows vible ghost before its spawned
 Why do seeds play out differently in terms of what gets spawned or not?

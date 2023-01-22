@@ -126,13 +126,12 @@ function initialize_game_variables() {
 	global.player = noone;
 
 	// Initialize room probability constants
-	NUMBER_OF_EXITS_PROBABILITIES = [10, 80, 10, 0];
-	HAS_STAIRS_PROBABILITY = 20;
-	HAS_COLLECTABLE_PROBABILITY = 30 + global.difficulty;
-	HAS_ITEM_PROBABILITY = 25 + global.difficulty;
-	HAS_KEY_PROBABILITY = 10 + global.difficulty;
-	HAS_PORTCULLIS_PROBABILITY = (global.difficulty == difficulties.easy) ? 0 : 5 + (global.difficulty-2)*10
-	
+	NUMBER_OF_EXITS_PROBABILITY = 9;
+	HAS_STAIRS_PROBABILITY = 5;
+	HAS_COLLECTABLE_PROBABILITY = get_probability_for_difficulty([4, 3, 3, 3, 2]);
+	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([8, 16, 14, 12, 10]);
+	HAS_KEY_PROBABILITY = get_probability_for_difficulty([10, 8, 6, 5, 4]);
+	HAS_PORTCULLIS_PROBABILITY = get_probability_for_difficulty([0, 0, 20, 8, 4]);
 	MISLEADING_ROOM_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12]);
 	LOCKED_DOOR_PROBABILITY = get_probability_for_difficulty([0, 8, 6, 5, 4]);
 	PRE_LIT_PROBABILITY = get_probability_for_difficulty([1, 4, 6, 8, 12]);
@@ -155,7 +154,7 @@ function initialize_game_variables() {
 	// Initialize map drawing constants
 	FARM_MODE = global.FARM_MODE;
 	MAX_WALKING_DEPTH = 16 * global.difficulty;
-	MINIMUM_NUMBER_OF_ROOMS = get_probability_for_difficulty([4, 12, 16, 20, 24]);
+	MINIMUM_NUMBER_OF_ROOMS = get_probability_for_difficulty([4, 8, 12, 14, 15]);
 	ADDITIONAL_ROOMS = 3 * global.difficulty;
 	MAX_MAP_DRAW_DISTANCE = 8;
 	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
@@ -453,12 +452,19 @@ function game_room_start() {
 			if (array_length(possible_spots) == 0) { current_room.has_portcullis = false; }
 			else {
 				var button_spot = array_pop(possible_spots);
+				instance_create_depth(button_spot.x, button_spot.y, 0, obj_dirt);
+					
 				if (button_spot == stairs_spot) { current_room.stairs_spot_obj = obj_button; }
 				else {
 					with button_spot {
 						instance_create_depth(x, y, 0, obj_button);
 						instance_destroy();
 					}
+				}
+				
+				while (array_length(possible_spots) > 0) {
+					var button_spot = array_pop(possible_spots);
+					instance_create_depth(button_spot.x, button_spot.y, 0, obj_dirt);
 				}
 			}
 		}
@@ -586,7 +592,6 @@ function game_room_start() {
 	// Run room start event for specific objects
 	with (obj_bush) { occupier = noone; occupied = false; }
 	with (obj_bones) { if (!is_solid_at_position(x, y)) { trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } }
-	with (obj_skeleton) { bone_trap = false; }
 	with (obj_stairs) { active = false; }
 	with (obj_hole) { active = false; }
 	with (obj_door) { 

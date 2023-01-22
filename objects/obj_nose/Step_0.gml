@@ -17,7 +17,7 @@ if (can_process_this_frame()) {
 			else {
 				var target = get_dropped_meat();
 				if (target == noone) { target = global.player; }
-				shoot_fireball(target.x, target.y);
+				shoot_fireball(target.x, target.y, false);
 				image_index = 0;
 				activated = false;
 				spawn_timer = irandom_range(8, 64);

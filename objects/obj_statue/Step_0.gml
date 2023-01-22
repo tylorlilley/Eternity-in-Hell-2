@@ -27,7 +27,7 @@ if (can_process_this_frame()) {
 		shoot_timer = (prev_covered) ? irandom_range(8, 24) : shoot_timer-1;
 		if (shoot_timer <= 0) {
 			shoot_timer = irandom_range(8, 24);
-			shoot_fireball(x_pos, y_pos);
+			shoot_fireball(x_pos, y_pos, false);
 		}
 	}
 	

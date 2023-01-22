@@ -3,6 +3,7 @@ stack keys??
 2x and 4x pixel scaling
 shotgun
 gamepad support
+throw bones
 
 === REFACTORS ===
 Add more rooms

@@ -1,10 +1,3 @@
-stack keys??
-controls page movement move down 8 px
-2x and 4x pixel scaling
-shotgun
-gamepad support
-throw bones
-
 === REFACTORS ===
 Add more rooms
 - mouth and nose
@@ -23,10 +16,14 @@ Update room reference data to include non-instance information like intelligent 
 Implement smarter pathfinding for move_towards_coordinates
 
 === NEW FETAURES ===
-Explain spacebar on it better
+level editor
 
+OPTIONS MENU:
+Pixel Scaling 1x, 2x, 4x, full
 options for control bindings
+gamepad support
 options for light flicker intensity
+
 Put an "are you sure" on the enter button?
 
 Make map show if room has key OR chest instead of just if a key spawned there?
@@ -35,7 +32,7 @@ Is lit rooms coloring different on map helpful?
 Zelda style portcullis that close and you have to push block or light torch to open?
 
 Should staff protect against non-corporeal enemies?
-
+Should you be able to pick up and throw bones?
 Should phantom time depend on distance to the torches in the room somehow?
 Should mouths be drawn toward dropped items and collectables somehow?
 

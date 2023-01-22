@@ -17,16 +17,16 @@ else if keyboard_check(vk_space) {
 	
 	// Draw Controls
 	draw_set_halign(fa_left);
-	draw_text(room_width/4+8, room_height/2-16,"Move / Push / Open");
+	draw_text(room_width/4+8, room_height/2-8,"Move / Push / Open");
 	draw_text(room_width/4+8, room_height/2+16+8, "Left: Take / Drop");
 	draw_text(room_width/4+8, room_height/2+16+16+8, "Right: - Take / Drop");
 	draw_text(room_width/4+8, room_height/2+16+16+24+8, "View Map");
 	draw_text(room_width/4+8, room_height/2+16+16+24+24+8, "Restart Game");
 	
-	draw_sprite(spr_small_key, 0, room_width/4 - 36, room_height/2-16-8);
-	draw_sprite(spr_small_key, 1,  room_width/4 - 36 + 16, room_height/2-8);
-	draw_sprite(spr_small_key, 2, room_width/4 - 36, room_height/2-8);
-	draw_sprite(spr_small_key, 3, room_width/4 - 36 - 16, room_height/2-8);
+	draw_sprite(spr_small_key, 0, room_width/4 - 36, room_height/2-16);
+	draw_sprite(spr_small_key, 1,  room_width/4 - 36 + 16, room_height/2);
+	draw_sprite(spr_small_key, 2, room_width/4 - 36, room_height/2);
+	draw_sprite(spr_small_key, 3, room_width/4 - 36 - 16, room_height/2);
 	draw_sprite(spr_small_key, 4, room_width/4 - 36, room_height/2+32-8);
 	draw_sprite(spr_small_key, 5, room_width/4 - 36, room_height/2+32+16-8);
 	draw_sprite(spr_large_key, 0, room_width/4 - 36, room_height/2+32+16+24-8);

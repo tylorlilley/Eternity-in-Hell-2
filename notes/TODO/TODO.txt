@@ -1,5 +1,5 @@
 stack keys??
-
+controls page movement move down 8 px
 2x and 4x pixel scaling
 shotgun
 gamepad support

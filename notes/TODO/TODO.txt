@@ -1,3 +1,7 @@
+2x and 4x pixel scaling
+shotgun
+gamepad support
+
 === REFACTORS ===
 Add more rooms
 - mouth and nose

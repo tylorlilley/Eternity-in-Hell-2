@@ -203,8 +203,8 @@ class RoomConverter
         (1..3).each do |possible_difficulty|
             next if possible_difficulty < difficulty
 
-            if (!@total_rooms[difficulty][exit_type].include?(filename))
-                @total_rooms[difficulty][exit_type] << filename 
+            if (!@total_rooms[possible_difficulty][exit_type].include?(filename))
+                @total_rooms[possible_difficulty][exit_type] << filename 
             end
         end
 
@@ -241,8 +241,8 @@ class RoomConverter
                     raise "UNEXPECTED OBJECT #{object_name} FOUND IN #{filename}"
                 end
 
-                if (!@object_rooms[difficulty][object_key][exit_type].include?(filename))
-                    @object_rooms[difficulty][object_key][exit_type] << filename
+                if (!@object_rooms[possible_difficulty][object_key][exit_type].include?(filename))
+                    @object_rooms[possible_difficulty][object_key][exit_type] << filename
                 end
             end
         end
@@ -291,7 +291,7 @@ class RoomConverter
         total_count_string = total_count_total.to_s.rjust(3)
         percentage_of_total_string = (percentage_of_total * 100.00).round(2).to_s.rjust(5)
         weighted_percentage_of_total_string = (weighted_object_count_total * 100.00).round(2).to_s.rjust(5)
-        target_difference_string = (weighted_object_count_total - target_probability(object_type)).round(2).to_s.rjust(5)
+        target_difference_string = (weighted_object_count_total * 100.00 - target_probability(object_type)).round(2).to_s.rjust(5)
 
         puts "\t#{'total'.ljust(24)} \tcount: #{count_string} / #{total_count_string} = #{percentage_of_total_string} %; Weighted: #{weighted_percentage_of_total_string} %; Target Diff: #{target_difference_string} %"
     end

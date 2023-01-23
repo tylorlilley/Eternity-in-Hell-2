@@ -81,4 +81,4 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 number_of_frames_since_game_began += 1;
 
 // Record inputs that happen between frames to apply to the next frame
-setup_inputs_for_next_frame();
+set_up_inputs_for_next_frame();

@@ -1,1 +1,1 @@
-with (death_box) { instance_destroy(); }
+//with (death_box) { instance_destroy(); }

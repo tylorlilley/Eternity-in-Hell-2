@@ -51,23 +51,10 @@ function GameRoom(given_x, given_y) constructor {
 		// Decide what to spawn in stairs_spot
 		if (get_random_chance_out_of(global.controller.HAS_STAIRS_PROBABILITY)) { exits[4] = true; stairs_spot_obj = obj_stairs; }
 		else if (get_random_chance_out_of(global.controller.HAS_ITEM_PROBABILITY)) { set_up_room_chest(); }
+		else if (get_random_chance_out_of(global.controller.TRAP_CHEST_PROBABILITY)) { item_type = obj_statue; stairs_spot_obj = obj_chest; }
 		
 		// Decide what to spawn in collectables spots
-		if (get_random_chance_out_of(global.controller.HAS_KEY_PROBABILITY) && item_type == noone) {
-			// Determine if it should be a red key
-			if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) {
-				if (array_count_occurances(global.controller.spawned_special_items, obj_key) == 0) {
-					stairs_spot_obj = obj_chest;
-					item_type = obj_key;
-					has_special_item = true;
-					array_push(global.controller.spawned_special_items, item_type); 
-					show_debug_message("SPAWNED RED obj_key");
-				}
-			}
-			
-			has_keys = 1; 
-			array_push(global.controller.rooms_with_key, self); 
-		}
+		//if (get_random_chance_out_of(global.controller.HAS_KEY_PROBABILITY) && item_type == noone) { set_up_room_key(); }
 		if (get_random_chance_out_of(global.controller.HAS_COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
 		if (get_random_chance_out_of(global.controller.HAS_PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
 	
@@ -109,6 +96,24 @@ function GameRoom(given_x, given_y) constructor {
 		array_push(array_to_check, item_type); 
 	}
 	
+	/// @function								set_up_room_key();
+	function set_up_room_key() {
+		// Determine if it should be a red key
+		if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY) && 
+			get_random_chance_out_of(global.controller.HAS_ITEM_PROBABILITY) &&
+			stairs_spot_obj != obj_stairs &&
+			can_spawn_special_item(obj_key)) {
+				stairs_spot_obj = obj_chest;
+				item_type = obj_key;
+				has_special_item = true;
+				array_push(global.controller.spawned_special_items, item_type); 
+				show_debug_message("SPAWNED RED obj_key");
+		}
+			
+		has_keys = 1; 
+		array_push(global.controller.rooms_with_key, self); 
+	}
+	
 	/// @function								create_locked_exit(dir);
 	/// @param		{direction}		dir			The directional exit of the room to create a locked exit in.
 	function create_locked_exit(dir) {
@@ -118,6 +123,13 @@ function GameRoom(given_x, given_y) constructor {
 		new_exit.room_2.locked_exits[new_exit.room_2_dir] = new_exit;
 	
 		return new_exit;
+	}
+	
+	/// @function								can_spawn_special_item(obj_index);
+	/// @param		{object} obj_index			The object_index of the item to spawn
+	function can_spawn_special_item(item_type) {
+		return (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT &&
+				array_count_occurances(global.controller.spawned_special_items, item_type) == 0);
 	}
 	
 	/// @function								create_adjoining_room(dir, list_of_rooms);
@@ -395,7 +407,7 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		
 		var ref = array_random_get(room_list);
-		return ref;
+		return rm_two_perpendicular_exits_13//ref;
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);
@@ -484,85 +496,27 @@ function GameRoom(given_x, given_y) constructor {
 function instances_for_room_reference(room_reference) {
 	var filename = room_get_name(room_reference) + ".json";
 	var file = file_text_open_read(filename);
-	var file_content = file_text_read_string(file);
-	var decoded_content = json_parse(file_content);          
+	var file_difficulty_content = file_text_read_string(file);
+	file_text_readln(file);
+	var file_instances_content = file_text_read_string(file);
+	var decoded_content = json_parse(file_instances_content);          
 	file_text_close(file);
 	return decoded_content;
 }
 
-/// @function								get_room_difficulty();
-function get_room_difficulty(rm) {
-	switch (rm)
-	{
-		case rm_no_exits_1:
-		case rm_one_exit_2:
-		case rm_one_exit_3:
-		case rm_one_exit_6:
-		case rm_one_exit_7:
-		case rm_one_exit_9:
-		case rm_one_exit_11:
-		case rm_one_exit_14:
-		case rm_one_exit_17:
-		case rm_two_opposite_exits_1:
-		case rm_two_opposite_exits_2:
-		case rm_two_opposite_exits_3:
-		case rm_two_opposite_exits_5:
-		case rm_two_opposite_exits_7:
-		case rm_two_opposite_exits_8:
-		case rm_two_opposite_exits_10:
-		case rm_two_opposite_exits_11:
-		case rm_two_opposite_exits_13:
-		case rm_two_opposite_exits_15:
-		case rm_two_perpendicular_exits_1:
-		case rm_two_perpendicular_exits_2:
-		case rm_two_perpendicular_exits_3:
-		case rm_two_perpendicular_exits_4:
-		case rm_two_perpendicular_exits_5:
-		case rm_two_perpendicular_exits_6:
-		case rm_two_perpendicular_exits_8:		
-		case rm_two_perpendicular_exits_12:
-		case rm_two_perpendicular_exits_17:
-		case rm_two_perpendicular_exits_21:
-		case rm_two_perpendicular_exits_23:
-		case rm_two_perpendicular_exits_24:
-		case rm_two_perpendicular_exits_25:
-		case rm_three_exits_1:
-		case rm_three_exits_2:	
-		case rm_three_exits_3:
-		case rm_three_exits_4:
-		case rm_three_exits_5:
-		case rm_three_exits_7:
-		case rm_three_exits_8:
-		case rm_three_exits_9:
-		case rm_three_exits_10:
-		case rm_three_exits_11:			
-		case rm_three_exits_12:
-		case rm_four_exits_1:
-		case rm_four_exits_3:
-		case rm_four_exits_5:
-		case rm_four_exits_7:
-		case rm_four_exits_9:
-			return difficulties.easy;
-		case rm_one_exit_19:
-		case rm_one_exit_20:	
-		case rm_one_exit_21:
-		case rm_one_exit_22:
-		case rm_two_opposite_exits_6:
-		case rm_two_opposite_exits_9:
-		case rm_two_perpendicular_exits_7:
-		case rm_two_perpendicular_exits_14:
-		case rm_two_perpendicular_exits_15:
-		case rm_two_perpendicular_exits_18:			
-		case rm_two_perpendicular_exits_19:
-		case rm_two_perpendicular_exits_20:
-		case rm_three_exits_15:
-		case rm_three_exits_18:
-		case rm_four_exits_12:
-			return difficulties.hard;
-		default:
-			return difficulties.medium;
-	}
+/// @function								difficulty_for_room_reference();
+function difficulty_for_room_reference(room_reference) {
+	var filename = room_get_name(room_reference) + ".json";
+	var file = file_text_open_read(filename);
+	if (file == -1) { return 0; }
+	
+	var file_difficulty_content = file_text_read_string(file);
+	file_text_readln(file);
+	var decoded_content = string_digits(file_difficulty_content);          
+	file_text_close(file);
+	return decoded_content;
 }
+
 
 /// @function					flip_room_contents_horizontally();
 function flip_room_contents_horizontally() {

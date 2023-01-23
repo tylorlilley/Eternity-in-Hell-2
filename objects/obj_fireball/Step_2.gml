@@ -1,5 +1,5 @@
 if (instance_exists(torch)) { set_instance_to_same_position(torch);  torch.image_xscale = 0.5; }
-var blocked = is_solid_at_position(x, y);
+var blocked = false;
 
 // Destroy doors
 var door = instance_place(x, y, obj_door);
@@ -36,6 +36,14 @@ if (!global.player.dead && place_meeting(x, y, global.player) && get_distance_to
 	}
 }
 
+// Get Blocked by Solids
+if (!blocked) {
+	var solids_at_position = instance_place_all(x, y, obj_solid);
+	while (array_length(solids_at_position) > 0) {
+		var blocking_solid = array_random_pop(solids_at_position);
+		if (blocking_solid != noone && blocking_solid != creator) { blocked = true; break; }
+	}
+}
 
 // Destroy Self
 if (blocked) {

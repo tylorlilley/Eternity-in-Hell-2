@@ -2,7 +2,7 @@
 function draw_while_carried() {
 	if (holder == noone) { return; }
 	
-	var x_offset = (holder.right_hand_item == id) ? 8 : -8;
+	var x_offset = image_xscale * -8;
 
 	draw_sprite_ext(sprite_index, image_index, x+x_offset, y+draw_y_offset, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 }
@@ -158,7 +158,7 @@ function get_random_item_type(special_item, include_key) {
 		else if (chosen_type == obj_shovel && spawned_item_count >= 2) { chosen_type = noone; } 
 	}
 	
-	if (special_item) { show_debug_message("SPAWNED " + ((special_item) ? "RED " : "") + object_get_name(chosen_type)); }
+	show_debug_message("SPAWNED " + ((special_item) ? "RED " : "") + object_get_name(chosen_type));
 	
 	return chosen_type;
 }

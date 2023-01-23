@@ -52,6 +52,7 @@ if (can_process_this_frame()) {
 			}
 			
 			set_instance_to_same_position(right_hand_item);
+			with (right_hand_item) { image_xscale = other.image_xscale; }
 		}
 	
 		// Make any dropped meat that can be moved towards a target

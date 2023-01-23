@@ -60,3 +60,4 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 	}
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
+		

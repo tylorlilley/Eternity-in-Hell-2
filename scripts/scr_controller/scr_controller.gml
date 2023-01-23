@@ -16,27 +16,18 @@ function create_room_lists() {
 	rooms_with_two_perpendicular_exits = array_create(0); 
 	rooms_with_three_exits = array_create(0); 
 	rooms_with_four_exits = array_create(0);
-	if (global.difficulty >= difficulties.easy) {
-		array_push(rooms_with_no_exits, rm_no_exits_1);
-		array_push(rooms_with_one_exit, rm_one_exit_1, rm_one_exit_2, rm_one_exit_3, rm_one_exit_6, rm_one_exit_7, rm_one_exit_9, rm_one_exit_11, rm_one_exit_14, rm_one_exit_17);
-		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_1, rm_two_opposite_exits_2, rm_two_opposite_exits_3, rm_two_opposite_exits_5, rm_two_opposite_exits_7, rm_two_opposite_exits_8, rm_two_opposite_exits_10, rm_two_opposite_exits_11, rm_two_opposite_exits_13, rm_two_opposite_exits_15);
-		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_1, rm_two_perpendicular_exits_2, rm_two_perpendicular_exits_3, rm_two_perpendicular_exits_4, rm_two_perpendicular_exits_5, rm_two_perpendicular_exits_6, rm_two_perpendicular_exits_8, rm_two_perpendicular_exits_12, rm_two_perpendicular_exits_17, rm_two_perpendicular_exits_21, rm_two_perpendicular_exits_23, rm_two_perpendicular_exits_24);
-		array_push(rooms_with_three_exits, rm_three_exits_1, rm_three_exits_2, rm_three_exits_3, rm_three_exits_4, rm_three_exits_5, rm_three_exits_7, rm_three_exits_8, rm_three_exits_9, rm_three_exits_10, rm_three_exits_11, rm_three_exits_12);
-		array_push(rooms_with_four_exits, rm_four_exits_1, rm_four_exits_3, rm_four_exits_5, rm_four_exits_7, rm_four_exits_9);
-	}
-	if (global.difficulty >= difficulties.medium) {	
-		array_push(rooms_with_one_exit, rm_one_exit_4, rm_one_exit_5, rm_one_exit_8, rm_one_exit_10, rm_one_exit_12, rm_one_exit_13, rm_one_exit_15, rm_one_exit_16, rm_one_exit_18);
-		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_4, rm_two_opposite_exits_12, rm_two_opposite_exits_14, rm_two_opposite_exits_16);
-		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_9, rm_two_perpendicular_exits_10, rm_two_perpendicular_exits_11, rm_two_perpendicular_exits_13, rm_two_perpendicular_exits_16, rm_two_perpendicular_exits_22, rm_two_perpendicular_exits_26, rm_two_perpendicular_exits_27, rm_two_perpendicular_exits_28);
-		array_push(rooms_with_three_exits, rm_three_exits_6, rm_three_exits_13, rm_three_exits_14, rm_three_exits_16, rm_three_exits_17, rm_three_exits_20, rm_three_exits_21, rm_three_exits_22, rm_three_exits_19);
-		array_push(rooms_with_four_exits, rm_four_exits_2, rm_four_exits_4, rm_four_exits_6, rm_four_exits_8, rm_four_exits_10, rm_four_exits_11);
-	}
-	if (global.difficulty >= difficulties.hard) {
-		array_push(rooms_with_one_exit,  rm_one_exit_19, rm_one_exit_20, rm_one_exit_21, rm_one_exit_22);
-		array_push(rooms_with_two_opposite_exits, rm_two_opposite_exits_6, rm_two_opposite_exits_9);
-		array_push(rooms_with_two_perpendicular_exits, rm_two_perpendicular_exits_7, rm_two_perpendicular_exits_14, rm_two_perpendicular_exits_15, rm_two_perpendicular_exits_18, rm_two_perpendicular_exits_19, rm_two_perpendicular_exits_20, rm_two_perpendicular_exits_25);
-		array_push(rooms_with_three_exits, rm_three_exits_15, rm_three_exits_18);
-		array_push(rooms_with_four_exits, rm_four_exits_12);
+	
+	for (var i = room_first; i <= room_last; i++) {
+		var room_to_add = i, room_name = room_get_name(room_to_add);
+		
+		if (room_name = "rm_start" || room_name = "rm_finish" || room_name = "rm_title") { continue; }
+		if (difficulty_for_room_reference(room_to_add) > global.difficulty) { continue; }
+		
+		if (string_pos("one_exit", room_name) != 0) { array_push(rooms_with_one_exit, room_to_add); }
+		else if (string_pos("two_opposite_exits", room_name) != 0) { array_push(rooms_with_two_opposite_exits, room_to_add); }
+		else if (string_pos("two_perpendicular_exits", room_name) != 0) { array_push(rooms_with_two_perpendicular_exits, room_to_add); }
+		else if (string_pos("three_exits", room_name) != 0) { array_push(rooms_with_three_exits, room_to_add); }
+		else if (string_pos("four_exits", room_name) != 0) { array_push(rooms_with_four_exits, room_to_add); }
 	}
 }
 		
@@ -54,7 +45,8 @@ function initialize_game_variables() {
 	NUMBER_OF_EXITS_PROBABILITY = 9;
 	HAS_STAIRS_PROBABILITY = 5;
 	HAS_COLLECTABLE_PROBABILITY = get_probability_for_difficulty([4, 3, 3, 3, 2]);
-	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([8, 16, 14, 12, 10]);
+	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([6, 12, 11, 10, 8]); // This happens only after the get stairs fails, so its combined with 4/5
+	TRAP_CHEST_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12])  // This happens only after the get item fails, so its combined with that probability
 	HAS_KEY_PROBABILITY = get_probability_for_difficulty([10, 8, 6, 5, 4]);
 	HAS_PORTCULLIS_PROBABILITY = get_probability_for_difficulty([0, 0, 20, 8, 4]);
 	MISLEADING_ROOM_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12]);
@@ -66,7 +58,7 @@ function initialize_game_variables() {
 	// Initilize room start probability constants
 	ROOM_KEY_IN_CHEST_PROBABILITY = 3;
 	DIRT_PROBABILITY = get_probability_for_difficulty([0, 16, 20, 24, 28]);
-	NOSE_PROBABILITY = get_probability_for_difficulty([0, 0, 6, 5, 4]);
+	NOSE_PROBABILITY = get_probability_for_difficulty([0, 0, 3, 2, 1]);
 	PHANTOM_PROBABILITY = get_probability_for_difficulty([0, 5, 4, 3, 2]);
 	SPIDER_PROBABILITY = get_probability_for_difficulty([0, 4, 2, 2, 1]);
 	HANDS_PROBABILITY = get_probability_for_difficulty([0, 0, 12, 8, 4]);
@@ -197,8 +189,8 @@ function can_process_this_frame() {
 	return (global.controller.transition == noone && global.controller.number_of_frames_since_game_began % global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
 }
 
-/// @function								setup_inputs_for_next_frame();
-function setup_inputs_for_next_frame() {
+/// @function								set_up_inputs_for_next_frame();
+function set_up_inputs_for_next_frame() {
 	key_up = key_up || keyboard_check(vk_up);
 	key_down = key_down || keyboard_check(vk_down);
 	key_left = key_left || keyboard_check(vk_left);
@@ -418,8 +410,8 @@ function game_room_start() {
 		// If room has lava, consider spawning nose
 		if (instance_number(obj_lava) > 0) { 
 			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(8, 8, obj_nose); }
-			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(8, 8, obj_nose); }
-			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(8, 8, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY*2)) { instance_create(8, 8, obj_nose); }
+			if (get_random_chance_out_of(NOSE_PROBABILITY*3)) { instance_create(8, 8, obj_nose); }
 		}
 	
 		// Mark room as one that has been visited at some point during this game
@@ -468,7 +460,6 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
-	// with (global.player) { instance_create(x+24, y+24, obj_key); }
 	with (obj_bush) { occupier = noone; occupied = false; }
 	with (obj_bones) { if (!is_solid_at_position(x, y)) { trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } }
 	with (obj_stairs) { active = false; }
@@ -506,7 +497,7 @@ function game_room_start() {
 	//// Reset instances to their start positions
 	with (obj_block) { x = starting_spot.x; y = starting_spot.y; }
 	with (obj_item) { x = xstart; y = ystart; }
-	with (obj_enemy) { if (object_index != obj_hands) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
+	with (obj_enemy) { if (object_index != obj_hands && object_index != obj_statue) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
 	with (obj_giant_worm_body) {
 		var new_worm_body = instance_create(xstart, ystart, object_index);
 		new_worm_body.xstart = xstart;
@@ -560,6 +551,9 @@ function game_room_start() {
 		}
 	}
 	
+	/// If room has lava, consider spawning nose
+	if (instance_number(obj_lava) > 0 && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(8, 8, obj_nose); }
+	
 	//// Make sure player is in proper position after room start code has run
 	move_player(4);
 }
@@ -574,9 +568,8 @@ function set_up_locks_and_keys(keyless_rooms) {
 	
 	    // Add an additional key somewhere
 	    if (array_length(keyless_rooms) > 0 && (array_length(locked_exits) == 0 || number_of_keys <= number_of_locked_exits*1.5)) {
-	        var room_to_add_key_to = array_random_pop(keyless_rooms);
-			room_to_add_key_to.has_keys = 1;
-			array_push(rooms_with_key, room_to_add_key_to);
+			var room_to_add_key_to = array_random_pop(keyless_rooms);
+			with (room_to_add_key_to) { set_up_room_key(); }
 			//show_debug_message("NUMBER OF KEYS +1");
 	    }
 	
@@ -613,7 +606,15 @@ function reset_map_generation() {
 function spawn_dirt() {
 	var x_pos = irandom(room_width/8) * 8, y_pos = irandom(room_height/8) * 8
 	with (instance_create(x_pos, y_pos, obj_dirt)) {
-		if (is_covered_at_each_quadrant_by(obj_lava) || is_covered_at_each_quadrant_by(obj_solid)) { instance_destroy(id, false); }
+		if (is_covered_at_each_quadrant_by(obj_lava) || 
+			is_covered_at_each_quadrant_by(obj_solid) ||
+			is_covered_at_each_quadrant_by(obj_statue) ||
+			is_covered_at_each_quadrant_by(obj_stairs) ||
+			is_covered_at_each_quadrant_by(obj_bush) ||
+			is_covered_at_each_quadrant_by(obj_cross) ||
+			is_covered_at_each_quadrant_by(obj_lantern)) { 
+				instance_destroy(id, false); 
+		}
 	}
 }
 
@@ -622,10 +623,10 @@ function get_current_score() {
 	with (global.controller) {
 		var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
-		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
-		var bonus_for_winning_game = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
+		var percentage_of_time_remaining = (is_game_won()) ? 100*(time_remaining / time_provided) : 0;
+		var percentage_of_victory = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
 		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
-		current_score = floor(percentage_of_collectables_collected + bonus_for_winning_game + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
+		current_score = floor(percentage_of_collectables_collected + percentage_of_victory + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
 	}
 	return global.controller.current_score;  
 }

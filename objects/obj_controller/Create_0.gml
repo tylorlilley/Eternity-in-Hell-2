@@ -30,7 +30,7 @@ while (array_length(uninitialized_rooms) > 0) {
 // Restart Room Spawning if room count is too high
 var total_rooms = array_length(game_rooms);
 if (total_rooms > MINIMUM_NUMBER_OF_ROOMS * 1.5) {
-	show_debug_message("WARNING: too many rooms required.");
+	//show_debug_message("WARNING: too many rooms required.");
 	reset_map_generation();
 }
 else {
@@ -78,6 +78,7 @@ if (start_room == noone) {
 	reset_map_generation();
 }
 
+start_room.has_portcullis = false;
 current_room.calculate_distance_to_current_room(0);
 
 // Set up lists used to walk the map
@@ -158,7 +159,7 @@ for (var i = 0; i < total_rooms; i++) {
    
    
    // Add game time based on assigned room reference
-   var room_difficulty = get_room_difficulty(game_rooms[i].room_reference);
+   var room_difficulty = difficulty_for_room_reference(game_rooms[i].room_reference);
    var room_time_provided = TIME_PROVIDED_PER_ROOM;
    if (room_difficulty == difficulties.easy) { room_time_provided += TIME_PROVIDED_PER_EASY_ROOM; }
    if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }

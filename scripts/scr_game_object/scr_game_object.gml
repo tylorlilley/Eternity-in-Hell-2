@@ -4,7 +4,7 @@ function get_distance_to_instance(instance) {
 	if (!instance_exists(instance)) { return -1; }
 	if (id == instance) { return 0; }
 
-	return sqrt((sqr(instance.x - x) + sqr(instance.y - y)));
+	return point_distance(x, y, instance.x, instance.y);//sqrt((sqr(instance.x - x) + sqr(instance.y - y)));
 }
 
 /// @function								is_instance_at_coordinates(x_pos, y_pos, instance);

@@ -14,7 +14,13 @@ if (can_process_this_frame()) {
 			else {
 				closed = false;
 				image_index = 1;
-				if (contents != noone) { 
+				if (contents == obj_statue) {
+					play_sound(snd_skeletonrise, true);
+					var statue = instance_create(x, y, obj_statue);
+					statue.dir = get_opposite_dir(push_direction);
+					instance_destroy();
+				}
+				else if (contents != noone) { 
 					var new_item = noone;
 					with (global.player) {
 						play_sound(snd_open, true);

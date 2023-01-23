@@ -1,9 +1,22 @@
+Turn off title test mode
+
+Add time based on number of collectables spots
+make bar increase per collectable and not per room cleared?
+
+Worms draw block box under themselves and over their corners now that corners are on begin draw
+
 === REFACTORS ===
 Add more rooms
 - mouth and nose
 - variety pack room
 - easy spider rooms?
 - easy statue rooms?
+- rooms with one direction pushblock turnstyle?
+
+Survey probabilities of different objects at different difficulties
+Set difficulty accorindg to: room with no or light threat = 1, room with two differnt light or one medium threat = 2, room with high threat or two different medium = 3
+
+Set phantom spawn time based on torch distance + difficulty?
 
 rename meat
 
@@ -30,6 +43,7 @@ Make map show if room has key OR chest instead of just if a key spawned there?
 Is lit rooms coloring different on map helpful?
 
 Zelda style portcullis that close and you have to push block or light torch to open?
+Pushable block monster?
 
 Should staff protect against non-corporeal enemies?
 Should you be able to pick up and throw bones?

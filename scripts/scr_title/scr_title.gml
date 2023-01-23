@@ -27,6 +27,8 @@ function get_seed_option_string() {
 function get_max_difficulty() { 
 	var max_difficulty = difficulties.DO_NOT_USE;
 	
+	if (global.TEST_MODE) { return difficulties.very_hard; }
+	
 	var all_difficulties = get_difficulties();
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
@@ -41,7 +43,7 @@ function get_max_difficulty() {
 	return max_difficulty;
 }
 
-/// @function								get_max_difficulty();
+/// @function								draw_death_type_sprite(x_pos, y_pos, obj_index);
 ///	@param		{real} x_pos				The x_pos to draw the sprite at
 ///	@param		{real} y_pos				The y_pos to draw the sprite at
 ///	@param		{object_index} difficulty	The object_index to draw the sprite for

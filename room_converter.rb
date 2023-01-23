@@ -22,8 +22,10 @@ class RoomConverter
         obj_spider
         obj_skeleton
         obj_statue
-        obj_giant_worm
+        obj_giant_worm_body
+        obj_giant_worm_head
         obj_mouth
+        obj_blood
         obj_column
         obj_bones
         obj_lava
@@ -33,8 +35,9 @@ class RoomConverter
         obj_bumper
         obj_block_spot
         obj_stairs_spot
-        obj_collectables_spot
+        obj_collectable_spot
         obj_echo_spot
+        obj_player_corpse
         other
     )
 
@@ -77,7 +80,7 @@ class RoomConverter
             "obj_spider" => 12.00,
             "obj_skeleton" => 15.00,
             "obj_statue" => 5.00,
-            "obj_giant_worm" => 5.00,
+            "obj_giant_worm_body" => 5.00,
             "obj_mouth" => 8.00,
             "obj_column" => 45.00,
             "obj_bones" => 45.00,
@@ -86,10 +89,13 @@ class RoomConverter
             "obj_snake" => 5.00,
             "obj_wall" => 100.00,
             "obj_stairs_spot" => 100.00,
-            "obj_collectables_spot" => 100.00,
+            "obj_collectable_spot" => 100.00,
             "obj_block_spot" => 30.00,
             "obj_echo_spot" => 1.00,
             "obj_bumper" => 5.00,
+            "obj_blood" => 1.00,
+            "obj_giant_worm_head" => 5.00,
+            "obj_player_corpse" => 1.00,
             "other" => 0.00
         }[object_type]
     end
@@ -183,7 +189,6 @@ class RoomConverter
         (1..3).each do |difficulty|
             @object_rooms[difficulty] = OBJECT_TYPES.to_h { |object_type| [object_type, default_mapping] }
         end
-        puts @object_rooms
     end
 
     def translate_file(filename)
@@ -213,18 +218,28 @@ class RoomConverter
         parsed_data = JSON.parse(instance_data)
 
         # Create array of instance information
+        stairs_spot = false;
+        collectable_spot_count = 0;
+
         string = "["
         parsed_data.each do |instance_data|
             object_name = instance_data["objectId"]["name"]
             instance_string = "{\"x\": #{instance_data['x'].to_f().round()}, \"y\": #{instance_data['y'].to_f().round()}, \"name\": \"#{object_name}\"},"
-            #puts instance_string
             string << instance_string
+
+            # Validate Objects
+            puts object_name
+            stairs_spot = true if (object_name == "obj_stairs_spot") 
+            collectable_spot_count += 1 if (object_name == "obj_collectable_spot") 
 
             # Add object name to counts
             (1..3).each do |possible_difficulty|
                 next if possible_difficulty < difficulty
 
                 object_key = (OBJECT_TYPES.include?(object_name)) ? object_name : "other"
+                if (object_key == "other")
+                    raise "UNEXPECTED OBJECT #{object_name} FOUND IN #{filename}"
+                end
 
                 if (!@object_rooms[difficulty][object_key][exit_type].include?(filename))
                     @object_rooms[difficulty][object_key][exit_type] << filename
@@ -232,6 +247,10 @@ class RoomConverter
             end
         end
         string.chop! << "]"
+
+        # Validate Room
+        raise "ROOM MISSING STAIRS SPOT: #{filename}" unless stairs_spot
+        raise "ROOM COLLECTABLE SPOT COUNT (#{collectable_spot_count}) TOO LOW: #{filename}" unless collectable_spot_count >= 2
 
         # Write instance information to json data file
         File.write("./datafiles/#{filename}.json", string, mode: "a")
@@ -246,7 +265,7 @@ class RoomConverter
             # Generate Data Points
             total_count = @total_rooms[difficulty][exit_type].length()
             object_count = @object_rooms[difficulty][object_type][exit_type].length()
-            percentage_of_total = (object_count.to_f/total_count.to_f) * 100.00
+            percentage_of_total = (object_count.to_f/total_count.to_f)
             weighted_percentage_of_total = percentage_of_total * exit_probability(exit_type)
 
             # Update Total Tallies
@@ -257,8 +276,8 @@ class RoomConverter
             # Generate Pretty Strings
             count_string = object_count.to_s.rjust(3)
             total_count_string = total_count.to_s.rjust(3)
-            percentage_of_total_string = (percentage_of_total).round(2).to_s.rjust(5)
-            weighted_percentage_of_total_string = (weighted_percentage_of_total).round(2).to_s.rjust(5)
+            percentage_of_total_string = (percentage_of_total * 100.00).round(2).to_s.rjust(5)
+            weighted_percentage_of_total_string = (weighted_percentage_of_total * 100.00).round(2).to_s.rjust(5)
 
             # Print Output
             puts "\t#{exit_type.ljust(24)} \tcount: #{count_string} / #{total_count_string} = #{percentage_of_total_string} %; Weighted: #{weighted_percentage_of_total_string} %"
@@ -270,8 +289,8 @@ class RoomConverter
         # Generate Pretty Strings for Total Tallies
         count_string = object_count_total.to_s.rjust(3)
         total_count_string = total_count_total.to_s.rjust(3)
-        percentage_of_total_string = (percentage_of_total).round(2).to_s.rjust(5)
-        weighted_percentage_of_total_string = (weighted_object_count_total).round(2).to_s.rjust(5)
+        percentage_of_total_string = (percentage_of_total * 100.00).round(2).to_s.rjust(5)
+        weighted_percentage_of_total_string = (weighted_object_count_total * 100.00).round(2).to_s.rjust(5)
         target_difference_string = (weighted_object_count_total - target_probability(object_type)).round(2).to_s.rjust(5)
 
         puts "\t#{'total'.ljust(24)} \tcount: #{count_string} / #{total_count_string} = #{percentage_of_total_string} %; Weighted: #{weighted_percentage_of_total_string} %; Target Diff: #{target_difference_string} %"

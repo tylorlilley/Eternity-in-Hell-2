@@ -407,7 +407,7 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		
 		var ref = array_random_get(room_list);
-		return rm_two_perpendicular_exits_13//ref;
+		return ref;
 	}
 	
 	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);

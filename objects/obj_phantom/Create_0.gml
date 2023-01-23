@@ -16,7 +16,7 @@ else {
 	for (var i = 0; i < instance_number(obj_lantern); i++) {
 		var lantern = instance_find(obj_lantern, i);
 		
-		if (lantern.light_source == noone) { continue; }
+		if (lantern.light_source != noone) { continue; }
 		
 		lantern_count += 1;
 		total_distance_to_lanterns += point_distance(x, y, lantern.x, lantern.y) / 8.0;
@@ -26,11 +26,8 @@ else {
 	else {
 		// Set spawn timer based on distance to each lantern
 		play_sound(snd_dread, false);
-		steps_to_reach_lanterns = total_distance_to_lanterns/lantern_count;
-		spawn_timer = floor(steps_to_reach_lanterns * (6-global.difficulty)/2);
-		if (spawn_timer > 60) { spawn_timer = 60; } 
-		if (spawn_timer < 12) { spawn_timer = 12; } 
-	
-		show_debug_message(room_get_name(global.controller.current_room.room_reference) + ": " + string(spawn_timer));
+		spawn_timer = ceil(total_distance_to_lanterns) - (global.difficulty*lantern_count)
+		if (spawn_timer > 48) { spawn_timer = 48; } 
+		if (spawn_timer < 16) { spawn_timer = 16; } 
 	}
 }

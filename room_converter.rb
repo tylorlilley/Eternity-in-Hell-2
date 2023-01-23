@@ -16,29 +16,47 @@ class RoomConverter
 
     OBJECT_TYPES = %w(
         obj_lantern
-        obj_door
-        obj_ears
-        obj_bush
-        obj_spider
+        obj_lava
         obj_skeleton
-        obj_statue
+        obj_mouth
+        obj_bumper
         obj_giant_worm_body
         obj_giant_worm_head
-        obj_mouth
-        obj_blood
-        obj_column
-        obj_bones
-        obj_lava
-        obj_eyes
+        obj_statue
+        obj_spider
         obj_snake
-        obj_wall
-        obj_bumper
+        obj_ears
+        obj_eyes
+        obj_echo_spot
+        obj_bones
+        obj_blood
+        obj_player_corpse
+        obj_bush
+        obj_door
         obj_block_spot
+        obj_column
+        obj_wall
         obj_stairs_spot
         obj_collectable_spot
-        obj_echo_spot
-        obj_player_corpse
         other
+    )
+
+    THREAT_TYPES = %w(
+        obj_lantern
+        obj_lava
+        obj_skeleton
+        obj_mouth
+        obj_bumper
+        obj_giant_worm_body
+        obj_giant_worm_head
+        obj_statue
+        obj_spider
+        obj_snake
+        obj_ears
+        obj_eyes
+        obj_echo_spot
+        obj_bones
+        obj_block_spot
     )
 
     def default_mapping()
@@ -63,44 +81,96 @@ class RoomConverter
 
     def exit_probability(exit_type)
         {
-            "one_exit" => 2.00/9.00,
-            "two_perpendicular_exits" => 2.66/9.00,
-            "two_opposite_exits" => 1.33/9.00,
-            "three_exits" => 2.00/9.00,
-            "four_exits" => 1.00/9.00
+            "one_exit" => 6,
+            "two_perpendicular_exits" => 8,
+            "two_opposite_exits" => 4,
+            "three_exits" => 6,
+            "four_exits" => 3
         }[exit_type]
     end
 
     def target_probability(object_type)
         {
-            "obj_lantern" => 40.00,
-            "obj_door" => 10.00,
-            "obj_ears" => 5.00,
-            "obj_bush" => 25.00,
-            "obj_spider" => 12.00,
-            "obj_skeleton" => 15.00,
-            "obj_statue" => 5.00,
-            "obj_giant_worm_body" => 5.00,
-            "obj_mouth" => 8.00,
-            "obj_column" => 45.00,
-            "obj_bones" => 45.00,
-            "obj_lava" => 15.00,
-            "obj_eyes" => 1.00,
-            "obj_snake" => 5.00,
-            "obj_wall" => 100.00,
-            "obj_stairs_spot" => 100.00,
-            "obj_collectable_spot" => 100.00,
-            "obj_block_spot" => 30.00,
-            "obj_echo_spot" => 1.00,
-            "obj_bumper" => 5.00,
-            "obj_blood" => 1.00,
-            "obj_giant_worm_head" => 5.00,
-            "obj_player_corpse" => 1.00,
-            "other" => 0.00
+            "obj_lantern" => 0.40,
+            "obj_door" => 0.10,
+            "obj_ears" => 0.5,
+            "obj_bush" => 0.25,
+            "obj_spider" => 0.12,
+            "obj_skeleton" => 0.15,
+            "obj_statue" => 0.5,
+            "obj_giant_worm_body" => 0.5,
+            "obj_mouth" => 0.8,
+            "obj_column" => 0.45,
+            "obj_bones" => 0.45,
+            "obj_lava" => 0.15,
+            "obj_eyes" => 0.1,
+            "obj_snake" => 0.5,
+            "obj_wall" => 1.00,
+            "obj_stairs_spot" => 1.00,
+            "obj_collectable_spot" => 1.00,
+            "obj_block_spot" => 0.30,
+            "obj_echo_spot" => 0.1,
+            "obj_bumper" => 0.5,
+            "obj_blood" => 0.1,
+            "obj_giant_worm_head" => 0.5,
+            "obj_player_corpse" => 0.1,
+            "other" => 0
         }[object_type]
     end
 
-    def room_difficulty(room_name)
+    def room_threat_level(unflitered_objects)
+        room_objects = unflitered_objects.filter { |obj| THREAT_TYPES.include? obj }
+        threat_level = 0
+
+        # Boolean Threat Levels
+        threat_level += 1 if room_objects.include? "obj_lava"
+        threat_level += 1 if room_objects.include? "obj_lantern"
+        threat_level += 1 if room_objects.include? "obj_bumper"
+        threat_level += 8 if room_objects.include? "obj_echo_spot"
+        threat_level += 8 if room_objects.include? "obj_eyes"
+        threat_level += 4 if room_objects.include? "obj_ears"
+        threat_level += 4 if room_objects.include? "obj_mouth"
+        threat_level += 1 if room_objects.include? "obj_snake"
+
+        # Threats Per Instance
+        threat_level += room_objects.count("obj_mouth")
+        threat_level += 0.05 * room_objects.count("obj_block_spot")
+        threat_level += 0.25 * room_objects.count("obj_bones")
+        threat_level += 0.25 * room_objects.count("obj_giant_worm_head")
+        threat_level += 0.05 * room_objects.count("obj_giant_worm_body")
+
+        # Threats Per Group Instance 
+        threat_level += (room_objects.count("obj_statue") * 0.25).ceil
+        threat_level += (room_objects.count("obj_skeleton") * 0.33).ceil
+        threat_level += (room_objects.count("obj_spider") * 1.5).ceil
+        threat_level += (room_objects.count("obj_snake") * 0.5).ceil
+
+        return threat_level.round(2)
+    end
+
+    def room_difficulty_override(room_name)
+        {
+            "rm_four_exits_11" => 2,
+            "rm_four_exits_12" => 3,
+            "rm_four_exits_7" => 2,
+            "rm_one_exit_16" => 2,
+            "rm_one_exit_17" => 1,
+            "rm_one_exit_18" => 2,
+            "rm_three_exits_5" => 1,
+        }[room_name]
+    end
+
+    def room_difficulty(room_name, room_objects)
+        threat_level = room_threat_level(room_objects)
+
+        difficulty = 1
+        difficulty = 2 if threat_level > 2
+        difficulty = 3 if threat_level > 4
+
+        return room_difficulty_override(room_name) || difficulty
+    end
+
+    def room_difficulty_old(room_name)
         return 1 if %w(
             rm_no_exits_1
             rm_one_exit_2
@@ -191,109 +261,120 @@ class RoomConverter
         end
     end
 
-    def translate_file(filename)
-        puts filename
+    def translate_file(file_name)
+        room_name = file_name[0..-4]
+        file_path = "./rooms/#{room_name}/#{room_name}.yy"
+        return unless File.exist?(file_path)
 
-        filename.chop!.chop!.chop!
-        exit_type = filename.gsub(/ *\d+$/, '')[3..-2]
+        exit_type = room_name.gsub(/ *\d+$/, '')[3..-2]
         return unless EXIT_TYPES.include? exit_type
 
-        difficulty = room_difficulty(filename)
-
-        (1..3).each do |possible_difficulty|
-            next if possible_difficulty < difficulty
-
-            if (!@total_rooms[possible_difficulty][exit_type].include?(filename))
-                @total_rooms[possible_difficulty][exit_type] << filename 
-            end
-        end
-
-        # Write room difficulty to file
-        difficulty_string = "difficulty: #{difficulty},\n"
-        File.write("./datafiles/#{filename}.json", difficulty_string)
-
         # Read in data from file
-        file_data = File.read("./rooms/#{filename}/#{filename}.yy")
+        file_data = File.read(file_path)
         instance_data = file_data.split('"instances":')[1].split('],"visible"').first.gsub(",}", "}").chop!.chop!.chop!.chop!.chop!.chop!.chop!.chop! + ']'
         parsed_data = JSON.parse(instance_data)
 
         # Create array of instance information
-        stairs_spot = false;
-        collectable_spot_count = 0;
-
+        room_objects = []
         string = "["
         parsed_data.each do |instance_data|
             object_name = instance_data["objectId"]["name"]
             instance_string = "{\"x\": #{instance_data['x'].to_f().round()}, \"y\": #{instance_data['y'].to_f().round()}, \"name\": \"#{object_name}\"},"
             string << instance_string
 
-            # Validate Objects
-            puts object_name
-            stairs_spot = true if (object_name == "obj_stairs_spot") 
-            collectable_spot_count += 1 if (object_name == "obj_collectable_spot") 
-
-            # Add object name to counts
-            (1..3).each do |possible_difficulty|
-                next if possible_difficulty < difficulty
-
-                object_key = (OBJECT_TYPES.include?(object_name)) ? object_name : "other"
-                if (object_key == "other")
-                    raise "UNEXPECTED OBJECT #{object_name} FOUND IN #{filename}"
-                end
-
-                if (!@object_rooms[possible_difficulty][object_key][exit_type].include?(filename))
-                    @object_rooms[possible_difficulty][object_key][exit_type] << filename
-                end
+            # Determine object key
+            object_key = (OBJECT_TYPES.include?(object_name)) ? object_name : "other"
+            if (object_key == "other")
+                raise "UNEXPECTED OBJECT #{object_name} FOUND IN #{room_name}"
             end
+            room_objects << object_key
         end
         string.chop! << "]"
 
         # Validate Room
-        raise "ROOM MISSING STAIRS SPOT: #{filename}" unless stairs_spot
-        raise "ROOM COLLECTABLE SPOT COUNT (#{collectable_spot_count}) TOO LOW: #{filename}" unless collectable_spot_count >= 2
+        raise "ROOM MISSING STAIRS SPOT: #{room_name}" unless room_objects.include? "obj_stairs_spot"
+        raise "ROOM COLLECTABLE SPOT COUNT (#{collectable_spot_count}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
+        raise "ROOM CONTAINS WORM HEAD BUT NOT BODY: #{room_name}" unless room_objects.include?("obj_giant_worm_head") == room_objects.include?("obj_giant_worm_body")
+        
+        # Determine difficulty level
+        difficulty = room_difficulty(room_name, room_objects)
+        room_objects.each do |object_key| 
+            # Add object name to counts
+            (1..3).each do |possible_difficulty|
+                next if possible_difficulty < difficulty
 
-        # Write instance information to json data file
-        File.write("./datafiles/#{filename}.json", string, mode: "a")
+                if (!@total_rooms[possible_difficulty][exit_type].include?(room_name))
+                    @total_rooms[possible_difficulty][exit_type] << room_name 
+                end
+
+                if (!@object_rooms[possible_difficulty][object_key][exit_type].include?(room_name))
+                    @object_rooms[possible_difficulty][object_key][exit_type] << room_name
+                end
+            end
+        end
+
+        old_difficulty = room_difficulty_old(room_name)
+        if (old_difficulty != difficulty)
+            puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - old #{old_difficulty}; new - #{difficulty}"
+        end
+
+        # Write to room file
+        difficulty_string = "difficulty: #{difficulty},\n"
+        File.write("./datafiles/#{room_name}.json", difficulty_string)
+        File.write("./datafiles/#{room_name}.json", string, mode: "a")
+    end
+
+    def pretty_string(number)
+        number.to_s.rjust(3)
+    end
+
+    def pretty_percentage(number)
+        (number * 100).round(2).to_s.rjust(5)
     end
 
     def count_objects(object_type, difficulty)
         object_count_total = 0;
         weighted_object_count_total = 0;
         total_count_total = 0;
+        weighted_total_count_total = 0;
         
         EXIT_TYPES.each do |exit_type|
             # Generate Data Points
             total_count = @total_rooms[difficulty][exit_type].length()
             object_count = @object_rooms[difficulty][object_type][exit_type].length()
-            percentage_of_total = (object_count.to_f/total_count.to_f)
-            weighted_percentage_of_total = percentage_of_total * exit_probability(exit_type)
+            weighted_object_count = (object_count * exit_probability(exit_type))
+            weighted_total_count = (total_count * exit_probability(exit_type))
 
             # Update Total Tallies
             object_count_total += object_count
-            weighted_object_count_total += weighted_percentage_of_total
+            weighted_object_count_total += weighted_object_count
             total_count_total += total_count
+            weighted_total_count_total += weighted_total_count
 
-            # Generate Pretty Strings
-            count_string = object_count.to_s.rjust(3)
-            total_count_string = total_count.to_s.rjust(3)
-            percentage_of_total_string = (percentage_of_total * 100.00).round(2).to_s.rjust(5)
-            weighted_percentage_of_total_string = (weighted_percentage_of_total * 100.00).round(2).to_s.rjust(5)
+            # Generate Data Points for Exit Type
+            percentage_of_total = object_count.to_f / total_count.to_f
+            weighted_percentage_of_total = weighted_object_count.to_f / weighted_total_count.to_f
 
             # Print Output
-            puts "\t#{exit_type.ljust(24)} \tcount: #{count_string} / #{total_count_string} = #{percentage_of_total_string} %; Weighted: #{weighted_percentage_of_total_string} %"
+            puts "\t#{exit_type.ljust(24)} \tcount: #{pretty_string(object_count)} / #{pretty_string(total_count)} = #{pretty_percentage(percentage_of_total)} %; Weighted: #{pretty_percentage(weighted_percentage_of_total)} %"
         end
 
-        # Generate Data Points
-        percentage_of_total = (object_count_total.to_f/total_count_total.to_f)
+        # Generate Data Points for Total
+        percentage_of_total = object_count_total.to_f / total_count_total.to_f
+        weighted_percentage_of_total = weighted_object_count_total.to_f / weighted_total_count_total.to_f         
 
-        # Generate Pretty Strings for Total Tallies
-        count_string = object_count_total.to_s.rjust(3)
-        total_count_string = total_count_total.to_s.rjust(3)
-        percentage_of_total_string = (percentage_of_total * 100.00).round(2).to_s.rjust(5)
-        weighted_percentage_of_total_string = (weighted_object_count_total * 100.00).round(2).to_s.rjust(5)
-        target_difference_string = (weighted_object_count_total * 100.00 - target_probability(object_type)).round(2).to_s.rjust(5)
+        puts "\t#{'total'.ljust(24)} \tcount: #{pretty_string(object_count_total)} / #{pretty_string(total_count_total)} = #{pretty_percentage(percentage_of_total)} %; Weighted: #{pretty_percentage(weighted_percentage_of_total)} %"
+        puts "\t\t\t\t\t\t\t\t#{' Target Diff:'} #{pretty_percentage(weighted_percentage_of_total - target_probability(object_type))} %"
+    end
 
-        puts "\t#{'total'.ljust(24)} \tcount: #{count_string} / #{total_count_string} = #{percentage_of_total_string} %; Weighted: #{weighted_percentage_of_total_string} %; Target Diff: #{target_difference_string} %"
+    def count_all_object_types
+        OBJECT_TYPES.each do |object_type|
+            puts "\n\n\n=== #{object_type} ==="
+            (1..3).each do |difficulty|
+                puts "\n\tDifficulty: #{difficulty}"
+                count_objects(object_type, difficulty)
+            end
+        end
     end
 end
 
@@ -304,16 +385,7 @@ converter = RoomConverter.new
 filenames.each do |filename|
     next if (filename == '.' or filename == '..')
     sub_file_names = Dir.entries("./rooms/#{filename}")
-    sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) unless ['.', '..', 'rm_start.yy', 'rm_title.yy', 'rm_finish.yy', 'rm_four_exits_13.yy', 'rm_four_exits_14.yy', 'rm_four_exits_15.yy', 'rm_four_exits_16.yy', 'rm_four_exits_17.yy'].include?(sub_file_name) }
+    sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) } #unless ['.', '..', 'rm_start.yy', 'rm_title.yy', 'rm_finish.yy', 'rm_four_exits_13.yy', 'rm_four_exits_14.yy', 'rm_four_exits_15.yy', 'rm_four_exits_16.yy', 'rm_four_exits_17.yy'].include?(sub_file_name) }
 end
 
-
-#object_type = "obj_lantern"
-RoomConverter::OBJECT_TYPES.each do |object_type|
-    puts "\n\n\n=== #{object_type} ==="
-    (1..3).each do |difficulty|
-        puts "\n\tDifficulty: #{difficulty}"
-        converter.count_objects(object_type, difficulty)
-    end
-end
-
+#converter.count_all_object_types()

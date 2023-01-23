@@ -413,6 +413,13 @@ function game_room_start() {
 			if (get_random_chance_out_of(NOSE_PROBABILITY*2)) { instance_create(8, 8, obj_nose); }
 			if (get_random_chance_out_of(NOSE_PROBABILITY*3)) { instance_create(8, 8, obj_nose); }
 		}
+		
+		// If room has mouth, spawn more mouths
+		for (var i = 0; i < instance_number(obj_mouth); i++) {
+			for (var j = 0; j < global.difficulty; j++) {
+				with (obj_mouth) { instance_create(x, y, obj_mouth); }
+			}
+		}
 	
 		// Mark room as one that has been visited at some point during this game
 		current_room.visited = true;

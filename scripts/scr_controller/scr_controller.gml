@@ -415,11 +415,8 @@ function game_room_start() {
 		}
 		
 		// If room has mouth, spawn more mouths
-		for (var i = 0; i < instance_number(obj_mouth); i++) {
-			for (var j = 0; j < global.difficulty; j++) {
-				with (obj_mouth) { instance_create(x, y, obj_mouth); }
-			}
-		}
+		var target_number_of_mouths = instance_number(obj_mouth) * (1+global.difficulty);
+		while (instance_number(obj_mouth) < target_number_of_mouths) { instance_create(x, y, obj_mouth); }
 	
 		// Mark room as one that has been visited at some point during this game
 		current_room.visited = true;

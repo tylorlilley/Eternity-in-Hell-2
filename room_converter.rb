@@ -314,7 +314,7 @@ class RoomConverter
         end
 
         old_difficulty = room_difficulty_old(room_name)
-        if (old_difficulty != difficulty)
+        if (difficulty == 3)
             puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - old #{old_difficulty}; new - #{difficulty}"
         end
 

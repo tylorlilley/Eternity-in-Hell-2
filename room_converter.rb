@@ -7,11 +7,11 @@ class RoomConverter
     attr_reader :object_rooms, :total_rooms
 
     EXIT_TYPES = %w(
+        three_exits
+        four_exits
         one_exit
         two_opposite_exits
         two_perpendicular_exits
-        three_exits
-        four_exits
     )
 
     OBJECT_TYPES = %w(
@@ -129,7 +129,6 @@ class RoomConverter
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"
         threat_level += 1 if room_objects.include? "obj_spider"
-        threat_level += 1 if room_objects.include? "obj_mouth"
 
         # Threats Per Instance
 
@@ -315,6 +314,7 @@ class RoomConverter
             end
         end
 
+        puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - #{difficulty}"
         #old_difficulty = room_difficulty_old(room_name)
         #if (difficulty != old_difficulty)
         #    puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - old #{old_difficulty}; new - #{difficulty}"

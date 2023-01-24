@@ -47,7 +47,7 @@ function initialize_game_variables() {
 	HAS_COLLECTABLE_PROBABILITY = get_probability_for_difficulty([4, 3, 3, 3, 2]);
 	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([6, 12, 11, 10, 8]); // This happens only after the get stairs fails, so its combined with 4/5
 	TRAP_CHEST_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12])  // This happens only after the get item fails, so its combined with that probability
-	HAS_KEY_PROBABILITY = get_probability_for_difficulty([10, 8, 6, 5, 4]);
+	// HAS_KEY_PROBABILITY = get_probability_for_difficulty([10, 8, 6, 5, 4]);
 	HAS_PORTCULLIS_PROBABILITY = get_probability_for_difficulty([0, 0, 20, 8, 4]);
 	MISLEADING_ROOM_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12]);
 	LOCKED_DOOR_PROBABILITY = get_probability_for_difficulty([0, 8, 6, 5, 4]);
@@ -117,6 +117,7 @@ function initialize_game_variables() {
 	mapped_rooms = array_create(0);
 	rooms_with_collectables = array_create(0);
 	rooms_with_key = array_create(0);
+	rooms_with_item = array_create(0);
 	spawned_items = array_create(0);
 	spawned_special_items = array_create(0);
 
@@ -394,7 +395,7 @@ function game_room_start() {
 			}
 		}
 	
-		// Remove lit status from room if it shouldn't exist
+		// Pre-light room if the room is marked as lit
 		if (current_room.lit) { 
 			if (instance_number(obj_lantern) == 0) { current_room.lit = false; }
 			else { with obj_lantern { light_torch(noone, false); } }
@@ -607,6 +608,7 @@ function set_up_locks_and_keys(keyless_rooms) {
 			// Should never need to reach this clause
 			show_debug_message("WARNING: lock generation screwed up.");
 			reset_map_generation();
+			exit;
 		}
 	
 		visited_all_rooms = is_current_map_possible();

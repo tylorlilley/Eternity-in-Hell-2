@@ -23,6 +23,22 @@ function get_zero_padded_string(value_to_pad, target_length) {
 	return padded_value;
 }
 
+/// @function								get_percentage_string(value_to_pad, target_length);
+/// @param		{real} value				The value to transform into a percentage string
+function get_percentage_string(value) {
+	var percentage_string = "", percentage_value = floor(value), percentage_remainder = floor(frac(value) * 100);
+	
+	//if (percentage_value < 10) { percentage_string = "0"; }
+	percentage_string += string(percentage_value);
+	percentage_string += ".";
+	if (percentage_remainder == 0) { percentage_string = "00"; }
+	else if (percentage_remainder < 10) { percentage_string = "0"; }
+	percentage_string += string(percentage_remainder);
+	percentage_string += " %";
+	
+	return percentage_string;
+}
+
 /// @function								get_opposite_dir(dir);
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {

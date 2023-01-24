@@ -353,7 +353,7 @@
     "PhysicsWorldPixToMetres": 0.1,
   },
   "parent": {
-    "name": "Two Perpendicular Exits",
-    "path": "folders/Rooms/Two Perpendicular Exits.yy",
+    "name": "Rooms",
+    "path": "folders/Rooms.yy",
   },
 }

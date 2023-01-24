@@ -13,7 +13,7 @@ function GameRoom(given_x, given_y) constructor {
 	flip_horizontal = false;
 	flip_vertical = false;
 	rotate = noone;
-	lit = get_random_chance_out_of(global.controller.PRE_LIT_PROBABILITY);
+	lit = false;
 
 	// Room content values
 	has_keys = 0;
@@ -86,14 +86,19 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function								set_up_room_chest();
 	function set_up_room_chest() {
-		var array_to_check = global.controller.spawned_items;
-		stairs_spot_obj = obj_chest;
-		if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { 
-			has_special_item = true; 
-			array_to_check = global.controller.spawned_special_items;
+		// Always add map as the first item
+		var spawned_item = obj_map, array_to_check = global.controller.spawned_items;
+		if (array_length(global.controller.rooms_with_item) > 0) {	
+			spawned_item = get_random_item_type(has_special_item, false)
+			if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { 
+				has_special_item = true; 
+				array_to_check = global.controller.spawned_special_items;
+			}
 		}
-		item_type = get_random_item_type(has_special_item, false)
-		array_push(array_to_check, item_type); 
+		
+		// Set stair object to be a chest and add spawned item to list of spawned items
+		stairs_spot_obj = obj_chest;
+		array_push(array_to_check, spawned_item); 
 	}
 	
 	/// @function								set_up_room_key();

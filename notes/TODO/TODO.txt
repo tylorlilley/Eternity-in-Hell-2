@@ -1,8 +1,3 @@
-Make maps singleton
-Always display .00 in percentages at end screen?
-Turn off title test mode
-Finish adjusting rooms for probability
-
 Add time based on number of collectables spots
 make bar increase per collectable and not per room cleared?
 Should phantoms spawn in ears rooms?

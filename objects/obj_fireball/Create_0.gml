@@ -9,7 +9,7 @@ destructive = false;
 // Torch Variables
 torch = instance_create(x, y, obj_torch);
 torch.special = true;
-torch.holder = id//global.controller;
+torch.holder = id;
 torch.time_to_remain_lit = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT;
 torch.special = true;
 torch.lighting_range = 5;

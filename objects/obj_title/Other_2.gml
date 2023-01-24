@@ -34,13 +34,28 @@ global.can_access_farmer_mode = false;
 
 // Setup generic arrays
 
-global.difficulties_array = array_create(0);
-array_push(global.difficulties_array, difficulties.easy);
-array_push(global.difficulties_array, difficulties.medium); // Medium Only
-array_push(global.difficulties_array, difficulties.hard);
-array_push(global.difficulties_array, difficulties.very_hard);
+global.difficulties_array = [1, 2, 3, 4];
+global.death_types_array = [
+	obj_controller,
+	obj_bomb,
+	obj_lava,
+	obj_bones,
+	obj_skeleton,
+	obj_mouth,
+	obj_bumper,
+	obj_phantom,
+	obj_spider,
+	obj_statue,
+	obj_giant_worm_body,
+	obj_snake,
+	obj_nose,
+	obj_hands,
+	obj_ears,
+	obj_eyes,
+	obj_echo,
+]
 
-global.death_types_array = array_create(0);
+/*
 // Easy 
 array_push(global.death_types_array, obj_controller);
 array_push(global.death_types_array, obj_bomb); // Medium Only
@@ -61,4 +76,4 @@ array_push(global.death_types_array, obj_ears);
 // Hard
 array_push(global.death_types_array, obj_eyes);
 array_push(global.death_types_array, obj_echo);
-
+*/

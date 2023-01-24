@@ -147,5 +147,5 @@ function get_best_score(difficulty) {
 /// @function								get_best_score_string(difficulty);
 ///	@param		{difficulty} difficulty		The difficulty to return a count for
 function get_best_score_string(difficulty) { 
-	return "Highest Grade: " + string(get_best_score(difficulty)) + "%";
+	return "Highest Grade: " + get_percentage_string(get_best_score(difficulty));
 }

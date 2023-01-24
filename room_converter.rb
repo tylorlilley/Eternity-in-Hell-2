@@ -100,8 +100,8 @@ class RoomConverter
             "obj_statue" => 0.05,
             "obj_giant_worm_body" => 0.08,
             "obj_mouth" => 0.08,
-            "obj_column" => 0.5,
-            "obj_bones" => 0.40,
+            "obj_column" => 0.50,
+            "obj_bones" => 0.35,
             "obj_lava" => 0.15,
             "obj_eyes" => 0.01,
             "obj_snake" => 0.08,
@@ -134,16 +134,16 @@ class RoomConverter
 
         # Threats Per Instance 
         threat_level += room_objects.count("obj_mouth")
-        threat_level += 0.08 * room_objects.count("obj_block_spot")
-        threat_level += (room_objects.count("obj_lava") * 0.02).ceil
+        threat_level += (0.08 * room_objects.count("obj_block_spot")).floor
+        threat_level += (0.01 * room_objects.count("obj_lava")).ceil
         threat_level += (room_objects.count("obj_spider") * 0.50).ceil
         threat_level += (room_objects.count("obj_bones") * 0.05).ceil
-        threat_level += (room_objects.count("obj_statue") * 0.33).ceil
+        threat_level += (room_objects.count("obj_statue") * 0.25).ceil
         threat_level += (room_objects.count("obj_skeleton") * 0.33).ceil
         threat_level += (room_objects.count("obj_snake") * 0.66).ceil
         threat_level += (0.25 * room_objects.count("obj_giant_worm_head") + 0.10 * room_objects.count("obj_giant_worm_body")).ceil
 
-        return threat_level.round(2)
+        return threat_level.round()
     end
 
     def room_difficulty_override(room_name)

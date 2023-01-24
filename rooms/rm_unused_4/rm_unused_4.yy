@@ -287,7 +287,7 @@
     "PhysicsWorldPixToMetres": 0.1,
   },
   "parent": {
-    "name": "Four Exits",
-    "path": "folders/Rooms/Four Exits.yy",
+    "name": "Rooms",
+    "path": "folders/Rooms.yy",
   },
 }

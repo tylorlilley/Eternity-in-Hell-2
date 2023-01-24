@@ -464,6 +464,23 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.controller.bg_color; }
 	
 	// Run room start event for specific objects
+	with (obj_bumper) {
+		xstart = global.player.x;
+		ystart = global.player.y;
+			
+		switch (global.controller.transition) {		
+			case directions.up: { ystart -= 32; break; }
+			case directions.right: { xstart += 32; break; }
+			case directions.down: { ystart += 32; break; }
+			case directions.left: { xstart -= 32; break; }
+			default: { 
+				teleport_near_player();
+				xstart = x;
+				ystart = y;
+				break; 
+			}
+		}
+	}
 	with (obj_bush) { occupier = noone; occupied = false; }
 	with (obj_bones) { if (!is_solid_at_position(x, y)) { trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } }
 	with (obj_stairs) { active = false; }

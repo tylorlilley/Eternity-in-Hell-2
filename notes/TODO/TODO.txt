@@ -1,9 +1,9 @@
-Update spider rooms for portcullis??
-Make bumper appear based on how room was entered
-Should phantoms spawn in ears rooms?
-Always display .00 in percentages at end screen?
-
+Always spawn at least one map
+Always display .00 in percentages at end screen
 Turn off title test mode
+Finish adding rooms for probability sake
+
+Should phantoms spawn in ears rooms?
 
 Add time based on number of collectables spots
 make bar increase per collectable and not per room cleared?

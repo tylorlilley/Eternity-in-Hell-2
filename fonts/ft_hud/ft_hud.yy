@@ -1,8 +1,12 @@
 {
+  "resourceType": "GMFont",
+  "resourceVersion": "1.0",
+  "name": "ft_hud",
   "hinting": 0,
   "glyphOperations": 0,
   "interpreter": 0,
   "pointRounding": 0,
+  "applyKerning": 0,
   "fontName": "SimSun",
   "styleName": "Regular",
   "size": 12.0,
@@ -20,6 +24,7 @@
     "path": "texturegroups/Default",
   },
   "ascenderOffset": 0,
+  "ascender": 0,
   "glyphs": {
     "32": {"x":12,"y":2,"w":8,"h":16,"character":32,"shift":8,"offset":0,},
     "33": {"x":32,"y":106,"w":1,"h":14,"character":33,"shift":8,"offset":3,},
@@ -129,8 +134,4 @@
     "name": "Fonts",
     "path": "folders/Fonts.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "ft_hud",
-  "tags": [],
-  "resourceType": "GMFont",
 }

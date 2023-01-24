@@ -8,8 +8,8 @@ class RoomConverter
 
     EXIT_TYPES = %w(
         one_exit
-        two_perpendicular_exits
         two_opposite_exits
+        two_perpendicular_exits
         three_exits
         four_exits
     )
@@ -91,29 +91,29 @@ class RoomConverter
 
     def target_probability(object_type)
         {
-            "obj_lantern" => 0.40,
-            "obj_door" => 0.10,
-            "obj_ears" => 0.5,
+            "obj_lantern" => 0.35,
+            "obj_door" => 0.15,
+            "obj_ears" => 0.05,
             "obj_bush" => 0.25,
             "obj_spider" => 0.12,
             "obj_skeleton" => 0.15,
-            "obj_statue" => 0.5,
-            "obj_giant_worm_body" => 0.5,
-            "obj_mouth" => 0.8,
-            "obj_column" => 0.45,
-            "obj_bones" => 0.45,
+            "obj_statue" => 0.05,
+            "obj_giant_worm_body" => 0.08,
+            "obj_mouth" => 0.08,
+            "obj_column" => 0.5,
+            "obj_bones" => 0.40,
             "obj_lava" => 0.15,
-            "obj_eyes" => 0.1,
-            "obj_snake" => 0.5,
+            "obj_eyes" => 0.01,
+            "obj_snake" => 0.08,
             "obj_wall" => 1.00,
             "obj_stairs_spot" => 1.00,
             "obj_collectable_spot" => 1.00,
-            "obj_block_spot" => 0.30,
-            "obj_echo_spot" => 0.1,
-            "obj_bumper" => 0.5,
-            "obj_blood" => 0.1,
-            "obj_giant_worm_head" => 0.5,
-            "obj_player_corpse" => 0.1,
+            "obj_block_spot" => 0.25,
+            "obj_echo_spot" => 0.01,
+            "obj_bumper" => 0.05,
+            "obj_blood" => 0.01,
+            "obj_giant_worm_head" => 0.08,
+            "obj_player_corpse" => 0.01,
             "other" => 0
         }[object_type]
     end
@@ -123,27 +123,26 @@ class RoomConverter
         threat_level = 0
 
         # Boolean Threat Levels
-        threat_level += 1 if room_objects.include? "obj_lava"
         threat_level += 1 if room_objects.include? "obj_lantern"
         threat_level += 1 if room_objects.include? "obj_bumper"
-        threat_level += 8 if room_objects.include? "obj_echo_spot"
-        threat_level += 8 if room_objects.include? "obj_eyes"
+        threat_level += 5 if room_objects.include? "obj_echo_spot"
+        threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"
-        threat_level += 4 if room_objects.include? "obj_mouth"
-        threat_level += 1 if room_objects.include? "obj_snake"
+        threat_level += 1 if room_objects.include? "obj_spider"
+        threat_level += 1 if room_objects.include? "obj_mouth"
 
         # Threats Per Instance
-        threat_level += room_objects.count("obj_mouth")
-        threat_level += 0.05 * room_objects.count("obj_block_spot")
-        threat_level += 0.25 * room_objects.count("obj_bones")
-        threat_level += 0.25 * room_objects.count("obj_giant_worm_head")
-        threat_level += 0.05 * room_objects.count("obj_giant_worm_body")
 
-        # Threats Per Group Instance 
-        threat_level += (room_objects.count("obj_statue") * 0.25).ceil
+        # Threats Per Instance 
+        threat_level += room_objects.count("obj_mouth")
+        threat_level += 0.08 * room_objects.count("obj_block_spot")
+        threat_level += (room_objects.count("obj_lava") * 0.02).ceil
+        threat_level += (room_objects.count("obj_spider") * 0.50).ceil
+        threat_level += (room_objects.count("obj_bones") * 0.05).ceil
+        threat_level += (room_objects.count("obj_statue") * 0.33).ceil
         threat_level += (room_objects.count("obj_skeleton") * 0.33).ceil
-        threat_level += (room_objects.count("obj_spider") * 1.5).ceil
-        threat_level += (room_objects.count("obj_snake") * 0.5).ceil
+        threat_level += (room_objects.count("obj_snake") * 0.66).ceil
+        threat_level += (0.25 * room_objects.count("obj_giant_worm_head") + 0.10 * room_objects.count("obj_giant_worm_body")).ceil
 
         return threat_level.round(2)
     end
@@ -167,7 +166,8 @@ class RoomConverter
         difficulty = 2 if threat_level > 2
         difficulty = 3 if threat_level > 4
 
-        return room_difficulty_override(room_name) || difficulty
+        return difficulty
+        #return room_difficulty_override(room_name) || difficulty
     end
 
     def room_difficulty_old(room_name)
@@ -290,11 +290,13 @@ class RoomConverter
             room_objects << object_key
         end
         string.chop! << "]"
+        threat_level = room_threat_level(room_objects)
 
         # Validate Room
         raise "ROOM MISSING STAIRS SPOT: #{room_name}" unless room_objects.include? "obj_stairs_spot"
         raise "ROOM COLLECTABLE SPOT COUNT (#{collectable_spot_count}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
         raise "ROOM CONTAINS WORM HEAD BUT NOT BODY: #{room_name}" unless room_objects.include?("obj_giant_worm_head") == room_objects.include?("obj_giant_worm_body")
+        raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 6
         
         # Determine difficulty level
         difficulty = room_difficulty(room_name, room_objects)
@@ -313,10 +315,10 @@ class RoomConverter
             end
         end
 
-        old_difficulty = room_difficulty_old(room_name)
-        if (difficulty == 3)
-            puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - old #{old_difficulty}; new - #{difficulty}"
-        end
+        #old_difficulty = room_difficulty_old(room_name)
+        #if (difficulty != old_difficulty)
+        #    puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - old #{old_difficulty}; new - #{difficulty}"
+        #end
 
         # Write to room file
         difficulty_string = "difficulty: #{difficulty},\n"
@@ -388,4 +390,4 @@ filenames.each do |filename|
     sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) } #unless ['.', '..', 'rm_start.yy', 'rm_title.yy', 'rm_finish.yy', 'rm_four_exits_13.yy', 'rm_four_exits_14.yy', 'rm_four_exits_15.yy', 'rm_four_exits_16.yy', 'rm_four_exits_17.yy'].include?(sub_file_name) }
 end
 
-#converter.count_all_object_types()
+converter.count_all_object_types()

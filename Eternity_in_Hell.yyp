@@ -305,7 +305,6 @@
     {"id":{"name":"scr_lighting","path":"scripts/scr_lighting/scr_lighting.yy",},"order":2,},
     {"id":{"name":"snd_ears","path":"sounds/snd_ears/snd_ears.yy",},"order":53,},
     {"id":{"name":"rm_four_exits_5","path":"rooms/rm_four_exits_5/rm_four_exits_5.yy",},"order":4,},
-    {"id":{"name":"Script17","path":"scripts/Script17/Script17.yy",},"order":21,},
     {"id":{"name":"rm_unused_2","path":"rooms/rm_unused_2/rm_unused_2.yy",},"order":5,},
     {"id":{"name":"spr_meat","path":"sprites/spr_meat/spr_meat.yy",},"order":74,},
     {"id":{"name":"rm_four_exits_7","path":"rooms/rm_four_exits_7/rm_four_exits_7.yy",},"order":6,},

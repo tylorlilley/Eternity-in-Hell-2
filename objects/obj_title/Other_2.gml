@@ -26,8 +26,8 @@ enum seed_options {
 
 // global variables to represent the various input styles
 enum inputs {
-	keyboard_default,
 	keyboard_wasd,
+	keyboard_default,
 	gamepad
 }
 
@@ -66,3 +66,4 @@ global.death_types_array = [
 global.input = inputs.keyboard_default;
 set_max_window_size();
 set_window_size();
+determine_gamepad();

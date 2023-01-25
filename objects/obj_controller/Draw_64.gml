@@ -28,7 +28,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
         draw_set_color(c_white);
         draw_set_halign(fa_left);
         draw_text(4, 12, string_hash_to_newline("Progress: "));
-        draw_rectangle(84, 6, (room_width-4), 18+os_offset, true);
+        draw_rectangle(84, 6, (room_width-8), 18+os_offset, true);
 
         if (collectables_collected > 0 || array_length(mapped_rooms) > 1) { 
 			draw_rectangle(84, 6, get_scaling_amount(84, (room_width-8), (5*collectables_collected)+array_length(mapped_rooms)-1, (5*total_number_of_rooms_with_collectables)+array_length(game_rooms)-1), 18, false); 

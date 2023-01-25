@@ -97,7 +97,7 @@ function get_input_z_key_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "Z"; }
 		case inputs.keyboard_wasd: { return "J"; }
-		case inputs.gamepad: { return "B1"; }
+		case inputs.gamepad: { return "A / L1"; }
 	}
 }
 
@@ -106,7 +106,7 @@ function get_input_x_key_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "X"; }
 		case inputs.keyboard_wasd: { return "K"; }
-		case inputs.gamepad: { return "B2"; }
+		case inputs.gamepad: { return "B / R1"; }
 	}
 }
 
@@ -115,7 +115,7 @@ function get_input_space_key_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "Space"; }
 		case inputs.keyboard_wasd: { return "Space"; }
-		case inputs.gamepad: { return "B3"; }
+		case inputs.gamepad: { return "X / Y / R2 / L2"; }
 	}
 }
 
@@ -124,6 +124,16 @@ function get_input_enter_key_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "Enter"; }
 		case inputs.keyboard_wasd: { return "Enter"; }
-		case inputs.gamepad: { return "Start"; }
+		case inputs.gamepad: { return "Start / Select"; }
 	}
+}
+
+/// @function								determine_gamepad();
+function determine_gamepad() {
+	var gp_num = gamepad_get_device_count();
+	global.gamepad = noone;
+	for (var i = 0; i < gp_num; i++;) {
+	    if (gamepad_is_connected(i)) { global.gamepad = i; break; }
+	}
+	return global.gamepad;
 }

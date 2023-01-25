@@ -31,8 +31,7 @@ function get_percentage_string(value) {
 	//if (percentage_value < 10) { percentage_string = "0"; }
 	percentage_string += string(percentage_value);
 	percentage_string += ".";
-	if (percentage_remainder == 0) { percentage_string = "00"; }
-	else if (percentage_remainder < 10) { percentage_string = "0"; }
+	if (percentage_remainder < 10) { percentage_string += "0"; }
 	percentage_string += string(percentage_remainder);
 	percentage_string += " %";
 	

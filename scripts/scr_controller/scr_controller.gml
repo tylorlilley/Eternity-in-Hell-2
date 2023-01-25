@@ -291,32 +291,32 @@ function get_keyboard_wasd_inputs() {
 
 /// @function								get_gamepad_inputs();
 function get_gamepad_inputs() {
-	key_up = key_up || gamepad_button_check(0, gp_padu);
-	key_down = key_down || gamepad_button_check(0, gp_padd);
-	key_left = key_left || gamepad_button_check(0, gp_padl);
-	key_right = key_right || gamepad_button_check(0, gp_padr);
-	key_space = key_space || gamepad_button_check(0, gp_shoulderlb) || gamepad_button_check(0, gp_shoulderrb) || gamepad_button_check(0, gp_face3) || gamepad_button_check(0, gp_face4);
-	key_enter = key_enter || gamepad_button_check(0, gp_start) || gamepad_button_check(0, gp_select);
-	key_z = key_z || gamepad_button_check(0, gp_face1) || gamepad_button_check(0, gp_shoulderl);
-	key_x = key_x || gamepad_button_check(0, gp_face2)  || gamepad_button_check(0, gp_shoulderr);
+	key_up = key_up || gamepad_button_check(global.gamepad, gp_padu);
+	key_down = key_down || gamepad_button_check(global.gamepad, gp_padd);
+	key_left = key_left || gamepad_button_check(global.gamepad, gp_padl);
+	key_right = key_right || gamepad_button_check(global.gamepad, gp_padr);
+	key_space = key_space || gamepad_button_check(global.gamepad, gp_shoulderlb) || gamepad_button_check(global.gamepad, gp_shoulderrb) || gamepad_button_check(global.gamepad, gp_face3) || gamepad_button_check(global.gamepad, gp_face4);
+	key_enter = key_enter || gamepad_button_check(global.gamepad, gp_start) || gamepad_button_check(global.gamepad, gp_select);
+	key_z = key_z || gamepad_button_check(global.gamepad, gp_face1) || gamepad_button_check(global.gamepad, gp_shoulderl);
+	key_x = key_x || gamepad_button_check(global.gamepad, gp_face2)  || gamepad_button_check(global.gamepad, gp_shoulderr);
 	
-	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(0, gp_padu);
-	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(0, gp_padd);
-	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(0, gp_padl);
-	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(0, gp_padr);
-	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(0, gp_shoulderlb) || gamepad_button_check_pressed(0, gp_shoulderrb) || gamepad_button_check_pressed(0, gp_face3) || gamepad_button_check_pressed(0, gp_face4);
-	key_enter_pressed = key_enter_pressed || gamepad_button_check(0, gp_start) || gamepad_button_check_pressed(0, gp_select)
-	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(0, gp_face1) || gamepad_button_check_pressed(0, gp_shoulderl);
-	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(0, gp_face2) || gamepad_button_check_pressed(0, gp_shoulderr);
+	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(global.gamepad, gp_padu);
+	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(global.gamepad, gp_padd);
+	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(global.gamepad, gp_padl);
+	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(global.gamepad, gp_padr);
+	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(global.gamepad, gp_shoulderlb) || gamepad_button_check_pressed(global.gamepad, gp_shoulderrb) || gamepad_button_check_pressed(global.gamepad, gp_face3) || gamepad_button_check_pressed(global.gamepad, gp_face4);
+	key_enter_pressed = key_enter_pressed || gamepad_button_check_pressed(global.gamepad, gp_start) || gamepad_button_check_pressed(global.gamepad, gp_select)
+	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(global.gamepad, gp_face1) || gamepad_button_check_pressed(global.gamepad, gp_shoulderl);
+	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(global.gamepad, gp_face2) || gamepad_button_check_pressed(global.gamepad, gp_shoulderr);
 	
-	key_up_released = key_up_released || gamepad_button_check_released(0, gp_padu);
-	key_down_released = key_down_released || gamepad_button_check_released(0, gp_padd);
-	key_left_released = key_left_released || gamepad_button_check_released(0, gp_padl);
-	key_right_released = key_right_released || gamepad_button_check_released(0, gp_padr);	
-	key_space_released = key_space_released ||  gamepad_button_check_released(0, gp_shoulderlb) || gamepad_button_check_released(0, gp_shoulderrb) || gamepad_button_check_released(0, gp_face3) || gamepad_button_check_released(0, gp_face4);
-	key_enter_released = key_enter_released || gamepad_button_check_released(0, gp_start) || gamepad_button_check_released(0, gp_select);
-	key_z_released = key_z_released || gamepad_button_check_released(0, gp_face1) || gamepad_button_check_pressed(0, gp_shoulderl);
-	key_x_released = key_x_released || gamepad_button_check_released(0, gp_face2) || gamepad_button_check_pressed(0, gp_shoulderr);
+	key_up_released = key_up_released || gamepad_button_check_released(global.gamepad, gp_padu);
+	key_down_released = key_down_released || gamepad_button_check_released(global.gamepad, gp_padd);
+	key_left_released = key_left_released || gamepad_button_check_released(global.gamepad, gp_padl);
+	key_right_released = key_right_released || gamepad_button_check_released(global.gamepad, gp_padr);	
+	key_space_released = key_space_released ||  gamepad_button_check_released(global.gamepad, gp_shoulderlb) || gamepad_button_check_released(global.gamepad, gp_shoulderrb) || gamepad_button_check_released(global.gamepad, gp_face3) || gamepad_button_check_released(global.gamepad, gp_face4);
+	key_enter_released = key_enter_released || gamepad_button_check_released(global.gamepad, gp_start) || gamepad_button_check_released(global.gamepad, gp_select);
+	key_z_released = key_z_released || gamepad_button_check_released(global.gamepad, gp_face1) || gamepad_button_check_pressed(global.gamepad, gp_shoulderl);
+	key_x_released = key_x_released || gamepad_button_check_released(global.gamepad, gp_face2) || gamepad_button_check_pressed(global.gamepad, gp_shoulderr);
 }
 
 
@@ -466,7 +466,11 @@ function game_room_start() {
 	
 		// Pre-light room if the room is marked as lit
 		if (current_room.lit) { 
-			if (instance_number(obj_lantern) == 0) { current_room.lit = false; }
+			if (instance_number(obj_lantern) == 0) { 
+				// Should never need to reach this clause
+				show_debug_message("WARNING: room with NO torches marked as lit.");
+				current_room.lit = false; 
+			}
 			else { with obj_lantern { light_torch(noone, false); } }
 		}
 		else

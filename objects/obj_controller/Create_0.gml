@@ -182,7 +182,7 @@ for (var i = 0; i < array_length(rooms_with_lanterns); i++) {
 // Ensure at least one room is pre-lit
 if (!lit_room_exists) {
 	var random_pos = irandom(array_length(rooms_with_lanterns)-1);
-	given_room = game_rooms[random_pos];
+	given_room = rooms_with_lanterns[random_pos];
 	given_room.lit = true;
 }
 

@@ -259,7 +259,13 @@ function GameRoom(given_x, given_y) constructor {
 			var room_color = lit ? red_color : white_color;
 			var inverse_color = lit ? white_color : red_color;
 		    if (global.controller.current_room == self && blink_frame) { room_color = bg_color; }
-			draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, room_color, 1);
+			if (lit) { 
+				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, inverse_color, 1);
+				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.75, 0.75, 0, room_color, 1);
+			}
+			else {
+				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, room_color, 1);
+			}
 
 		    // Draw Room's Exits on Map
 			for (var i = 0; i < 4; i++) {

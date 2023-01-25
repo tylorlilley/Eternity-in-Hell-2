@@ -5,6 +5,7 @@
   "resources": [
     {"id":{"name":"spr_map_cross","path":"sprites/spr_map_cross/spr_map_cross.yy",},"order":37,},
     {"id":{"name":"rm_one_exit_13","path":"rooms/rm_one_exit_13/rm_one_exit_13.yy",},"order":12,},
+    {"id":{"name":"spr_dpad","path":"sprites/spr_dpad/spr_dpad.yy",},"order":98,},
     {"id":{"name":"spr_box","path":"sprites/spr_box/spr_box.yy",},"order":0,},
     {"id":{"name":"spr_map","path":"sprites/spr_map/spr_map.yy",},"order":33,},
     {"id":{"name":"spr_collectable_farmer","path":"sprites/spr_collectable_farmer/spr_collectable_farmer.yy",},"order":66,},
@@ -152,6 +153,7 @@
     {"id":{"name":"obj_key","path":"objects/obj_key/obj_key.yy",},"order":3,},
     {"id":{"name":"scr_controller","path":"scripts/scr_controller/scr_controller.yy",},"order":0,},
     {"id":{"name":"rm_one_exit_18","path":"rooms/rm_one_exit_18/rm_one_exit_18.yy",},"order":15,},
+    {"id":{"name":"spr_large_button","path":"sprites/spr_large_button/spr_large_button.yy",},"order":97,},
     {"id":{"name":"spr_ears_awake","path":"sprites/spr_ears_awake/spr_ears_awake.yy",},"order":47,},
     {"id":{"name":"obj_sword_in_ground","path":"objects/obj_sword_in_ground/obj_sword_in_ground.yy",},"order":8,},
     {"id":{"name":"obj_echo","path":"objects/obj_echo/obj_echo.yy",},"order":11,},
@@ -220,6 +222,7 @@
     {"id":{"name":"obj_cross","path":"objects/obj_cross/obj_cross.yy",},"order":9,},
     {"id":{"name":"obj_shovel","path":"objects/obj_shovel/obj_shovel.yy",},"order":9,},
     {"id":{"name":"rm_four_exits_13","path":"rooms/rm_four_exits_13/rm_four_exits_13.yy",},"order":16,},
+    {"id":{"name":"spr_small_button","path":"sprites/spr_small_button/spr_small_button.yy",},"order":96,},
     {"id":{"name":"rm_two_perpendicular_exits_27","path":"rooms/rm_two_perpendicular_exits_27/rm_two_perpendicular_exits_27.yy",},"order":27,},
     {"id":{"name":"rm_two_opposite_exits_6","path":"rooms/rm_two_opposite_exits_6/rm_two_opposite_exits_6.yy",},"order":3,},
     {"id":{"name":"obj_ears","path":"objects/obj_ears/obj_ears.yy",},"order":10,},

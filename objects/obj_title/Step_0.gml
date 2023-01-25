@@ -20,6 +20,8 @@ if (key_x_pressed) {
 }
 
 if (options_screen) {
+	determine_gamepad();
+	
 	// Move Up and Down Through Option Selections
 	if ((key_up_pressed) && (options_pos > 0)) { options_pos -= 1; play_sound(snd_mana, false); }
 	else if (key_down_pressed && (options_pos < 2)) { options_pos += 1; play_sound(snd_mana, false); }
@@ -33,20 +35,17 @@ if (options_screen) {
 	
 	// Adjust Pixel Scaling Option
 	if (options_pos == 1) {
-		//if (window_get_fullscreen() && (key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-		//else {
-			if (global.window_scaling > 1 && key_left_pressed) { 
-				global.window_scaling -= 1; 
-				play_sound(snd_move, false); 
-				set_window_size();
-			}
-			else if (global.window_scaling < global.max_window_scaling && key_right_pressed) { 
-				global.window_scaling += 1; 
-				play_sound(snd_move, false);
-				set_window_size();
-			}
-			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
-		//}
+		if (global.window_scaling > 1 && key_left_pressed) { 
+			global.window_scaling -= 1; 
+			play_sound(snd_move, false); 
+			set_window_size();
+		}
+		else if (global.window_scaling < global.max_window_scaling && key_right_pressed) { 
+			global.window_scaling += 1; 
+			play_sound(snd_move, false);
+			set_window_size();
+		}
+		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
 	}
 	
 	// Adjust Control Option
@@ -55,7 +54,7 @@ if (options_screen) {
 			global.input -= 1; 
 			play_sound(snd_move, false);
 		}
-		else if ((global.input < 2 || (gamepad_is_connected(0) && global.input < 3)) && key_right_pressed) { 
+		else if ((global.input < 1 || (global.input == 1 && gamepad_is_connected(global.gamepad))) && key_right_pressed) {
 			global.input += 1; 
 			play_sound(snd_move, false);
 		}

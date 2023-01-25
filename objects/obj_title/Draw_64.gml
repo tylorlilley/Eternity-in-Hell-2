@@ -13,7 +13,7 @@ else if (options_screen) {
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_center);
 	
-	var column_width = room_width/3, y_pos = 32;
+	var column_width = room_width/3, y_pos = 32, x_pos = room_width-80;
 	
 	// Draw General OIptions Info
 	title_y_pos = room_height*2;
@@ -24,36 +24,40 @@ else if (options_screen) {
 	
 	// Draw Fullscreen Option
 	var is_full_screen = window_get_fullscreen()
-	draw_text(column_width, y_pos, "Fullscreen: ");
-	draw_text(column_width*2, y_pos, ((is_full_screen) ? "ON" : "OFF"));
+	draw_set_halign(fa_left);
+	draw_text(32, y_pos, "Fullscreen: ");
+	draw_set_halign(fa_center);
+	draw_text(x_pos, y_pos, ((is_full_screen) ? "ON" : "OFF"));
 	if (blink && options_pos == 0) {
-		if (is_full_screen) { draw_sprite_ext(spr_title_arrow, 0, column_width*2+24, y_pos+8, -1, 1, 0, c_white, 1); }
-		else { draw_sprite_ext(spr_title_arrow, 0, column_width*2-24, y_pos+8, 1, 1, 0, c_white, 1); }
+		if (is_full_screen) { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
+		else { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
 	}
 	
 	// Draw Screen Scale Option
-	y_pos += 24;
-	var color = (is_full_screen) ? c_gray : c_white;
+	y_pos += 32;
+	var color = c_white; //(is_full_screen) ? c_gray : c_white;
 	draw_set_color(color);
-	draw_text(column_width, y_pos, "Window Size: ");
-	draw_text(column_width*2, y_pos, "x "+ string(global.window_scaling));
-	if (!is_full_screen && blink && options_pos == 1) {
-		if (global.window_scaling < global.max_window_scaling) { draw_sprite_ext(spr_title_arrow, 0, column_width*2+24, y_pos+8, -1, 1, 0, color, 1); }
-		if (global.window_scaling > 1) { draw_sprite_ext(spr_title_arrow, 0, column_width*2-24, y_pos+8, 1, 1, 0, color, 1); }
+	draw_set_halign(fa_left);
+	draw_text(32, y_pos, "Window Size: ");
+	draw_set_halign(fa_center);
+	draw_text(x_pos, y_pos, "x "+ string(global.window_scaling));
+	if (blink && options_pos == 1) {
+		if (global.window_scaling < global.max_window_scaling) { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, color, 1); }
+		if (global.window_scaling > 1) { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, color, 1); }
 	}
 	
 	// Draw Controls Option
 	y_pos += 24;
-	var color = (is_full_screen) ? c_gray : c_white;
-	draw_set_color(color);
-	draw_text(column_width, y_pos, "Control Type: ");
-	draw_text(column_width*2, y_pos, get_input_string());
-	if (!is_full_screen && blink && options_pos == 1) {
-		if (global.input < 1 || (global.input < 2 && gamepad_is_connected(0))) { draw_sprite_ext(spr_title_arrow, 0, column_width*2+24, y_pos+8, -1, 1, 0, color, 1); }
-		if (global.input > 1) { draw_sprite_ext(spr_title_arrow, 0, column_width*2-24, y_pos+8, 1, 1, 0, color, 1); }
+	draw_set_halign(fa_left);
+	draw_text(32, y_pos, "Controls: ");
+	draw_set_halign(fa_center);
+	draw_text(x_pos, y_pos, get_input_string());
+	if (blink && options_pos == 2) {
+		if (global.input < 2 || (global.input < 3 && gamepad_is_connected(0))) { draw_sprite_ext(spr_title_arrow, 0, x_pos+48, y_pos+8, -1, 1, 0, color, 1); }
+		if (global.input > 0) { draw_sprite_ext(spr_title_arrow, 0, x_pos-48, y_pos+8, 1, 1, 0, color, 1); }
 	}
 }
-else if keyboard_check(vk_space) {
+else if key_space {
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
@@ -79,7 +83,7 @@ else if keyboard_check(vk_space) {
 	draw_set_halign(fa_right);
 	draw_text(room_width, 16, "v." + string(GM_version));
 }
-else if (keyboard_check(ord("Z")) && death_count_string != noone) {
+else if (key_z && death_count_string != noone) {
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);

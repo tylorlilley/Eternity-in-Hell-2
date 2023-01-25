@@ -13,7 +13,7 @@ if (blink_timer == 0) {
 else { blink_timer -= 1; }
 
 // Make Sounds for X key
-if (keyboard_check_pressed(ord("X"))) {
+if (key_x_pressed) {
 	if (options_screen) { play_sound(snd_putdown, false); }
 	else { play_sound(snd_pickup, false); }
 	options_screen = !options_screen;
@@ -22,7 +22,7 @@ if (keyboard_check_pressed(ord("X"))) {
 if (options_screen) {
 	// Move Up and Down Through Option Selections
 	if ((key_up_pressed) && (options_pos > 0)) { options_pos -= 1; play_sound(snd_mana, false); }
-	else if (key_down_pressed && (options_pos < 1)) { options_pos += 1; play_sound(snd_mana, false); }
+	else if (key_down_pressed && (options_pos < 2)) { options_pos += 1; play_sound(snd_mana, false); }
 	
 	// Adjust Fullscreen vs Window
 	if (options_pos == 0) {
@@ -33,8 +33,8 @@ if (options_screen) {
 	
 	// Adjust Pixel Scaling Option
 	if (options_pos == 1) {
-		if (window_get_fullscreen() && (key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-		else {
+		//if (window_get_fullscreen() && (key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+		//else {
 			if (global.window_scaling > 1 && key_left_pressed) { 
 				global.window_scaling -= 1; 
 				play_sound(snd_move, false); 
@@ -46,39 +46,34 @@ if (options_screen) {
 				set_window_size();
 			}
 			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
-		}
+		//}
 	}
 	
 	// Adjust Control Option
 	if (options_pos == 2) {
-		if (global.input > 1 && key_left_pressed) { 
-			global.input += 1; 
-			play_sound(snd_move, false); 
-			set_window_size();
+		if (global.input > 0 && key_left_pressed) { 
+			global.input -= 1; 
+			play_sound(snd_move, false);
 		}
-		else if ((global.input < 1 || (gamepad_is_connected(0) && global.input < 2)) && key_right_pressed) { 
+		else if ((global.input < 2 || (gamepad_is_connected(0) && global.input < 3)) && key_right_pressed) { 
 			global.input += 1; 
 			play_sound(snd_move, false);
-			set_window_size();
 		}
 		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
 	}
 }
 else {
-
 	// Make sounds for space bar
 	if (key_space_pressed) { play_sound(snd_pickup, false); }
-	if (key_space_released) { play_sound(snd_putdown, false); }
+	else if (key_space_released) { play_sound(snd_putdown, false); }
 
 	// Make sounds for Z key
 	var death_count = get_total_death_count(global.difficulty);
 	if (death_count > 0) {
 		if (key_z_pressed) { play_sound(snd_pickup, false); }
-		if (key_z_released) { play_sound(snd_putdown, false); }
+		else if (key_z_released) { play_sound(snd_putdown, false); }
 	}
 	else if (key_z_pressed) { play_sound(snd_locked, false); }
-
-
 
 	// Draw main title screen
 	if (key_space || ((pos > 0 && key_z) && death_count > 0)) {

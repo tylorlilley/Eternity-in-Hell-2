@@ -255,11 +255,11 @@ function get_keyboard_default_inputs() {
 	key_right_released = key_right_released || keyboard_check_released(vk_right);	
 	key_space_released = key_space_released || keyboard_check_released(vk_space);
 	key_enter_released = key_enter_released || keyboard_check_released(vk_enter);
-	key_z_released = key_z_released || keyboard_check(ord("Z"));
-	key_x_released = key_x_released || keyboard_check(ord("X"));
+	key_z_released = key_z_released || keyboard_check_released(ord("Z"));
+	key_x_released = key_x_released || keyboard_check_released(ord("X"));
 }
 
-/// @function								get_keyboard_default_inputs();
+/// @function								get_keyboard_wasd_inputs();
 function get_keyboard_wasd_inputs() {
 	key_up = key_up || keyboard_check(ord("W"));
 	key_down = key_down || keyboard_check(ord("S"));
@@ -285,11 +285,11 @@ function get_keyboard_wasd_inputs() {
 	key_right_released = key_right_released || keyboard_check_released(ord("D"));	
 	key_space_released = key_space_released || keyboard_check_released(vk_space);
 	key_enter_released = key_enter_released || keyboard_check_released(vk_enter);
-	key_z_released = key_z_released || keyboard_check(ord("J"));
-	key_x_released = key_x_released || keyboard_check(ord("K"));
+	key_z_released = key_z_released || keyboard_check_released(ord("J"));
+	key_x_released = key_x_released || keyboard_check_released(ord("K"));
 }
 
-/// @function								get_keyboard_default_inputs();
+/// @function								get_gamepad_inputs();
 function get_gamepad_inputs() {
 	key_up = key_up || gamepad_button_check(0, gp_padu);
 	key_down = key_down || gamepad_button_check(0, gp_padd);

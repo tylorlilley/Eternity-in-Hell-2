@@ -67,15 +67,15 @@ else {
 	else if (key_space_released) { play_sound(snd_putdown, false); }
 
 	// Make sounds for Z key
-	var death_count = get_total_death_count(global.difficulty);
-	if (death_count > 0) {
+	var completed_attempts_count = get_total_death_count(global.difficulty) + get_win_count(global.difficulty);
+	if (completed_attempts_count > 0) {
 		if (key_z_pressed) { play_sound(snd_pickup, false); }
 		else if (key_z_released) { play_sound(snd_putdown, false); }
 	}
 	else if (key_z_pressed) { play_sound(snd_locked, false); }
 
 	// Draw main title screen
-	if (key_space || ((pos > 0 && key_z) && death_count > 0)) {
+	if (key_space || ((pos > 0 && key_z) && completed_attempts_count > 0)) {
 		// do nothing
 	}
 	else {

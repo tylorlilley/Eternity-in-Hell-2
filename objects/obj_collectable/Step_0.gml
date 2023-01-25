@@ -6,7 +6,7 @@ if (can_process_this_frame()) {
 				current_room.has_collectables = false;
 				array_remove(rooms_with_collectables, current_room);
 				if (are_all_collectables_collected()) { 
-					play_sound(snd_win, false); 
+					play_sound(snd_shatter, false); 
 					global.controller.completion_amount += 1;
 				}
 			}

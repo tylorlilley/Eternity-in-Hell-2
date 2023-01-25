@@ -51,7 +51,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 	        var message;
 	        if has_won { draw_set_color(c_white); message = "YOU WIN!" }
 	        if has_lost { 
-				draw_set_color(c_white); message = "Killed By:   "
+				draw_set_color(c_white); message = "Killed By:    "
 				draw_death_type_sprite(room_width/2+40, room_height-216, killed_by);
 			}
 	        draw_text(room_width/2, room_height-216, string_hash_to_newline(message));

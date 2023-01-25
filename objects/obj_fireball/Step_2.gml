@@ -30,7 +30,7 @@ if (!global.player.dead && place_meeting(x, y, global.player) && get_distance_to
 	blocked = true;
 	with (global.player) {
 		if (!is_carrying_item(obj_staff)) {
-			play_sound(snd_extinguish, true);
+			play_sound(snd_extinguish, false);
 			kill_player(other.creator.object_index);
 		}
 	}

@@ -7,6 +7,7 @@ if (can_process_this_frame()) {
 	if (!dead && is_solid_at_position(x, y)) {
 		var killed_by = instance_place(x, y, obj_solid).object_index;
 		killed_by = (killed_by == obj_giant_worm_head) ? obj_giant_worm_body : killed_by;
+		play_sound(snd_crunch, false);
 		kill_player(killed_by);
 	}
 	if (!dead && !is_game_won() && !is_game_lost()) {   

@@ -21,6 +21,7 @@ function create_room_lists() {
 		var room_to_add = i, room_name = room_get_name(room_to_add);
 		
 		if (room_name = "rm_start" || room_name = "rm_finish" || room_name = "rm_title") { continue; }
+		if (string_starts_with(room_name, "rm_unused") || string_starts_with(room_name, "rm_no_exits")) { continue; }
 		if (difficulty_for_room_reference(room_to_add) > global.difficulty) { continue; }
 		
 		if (string_pos("one_exit", room_name) != 0) { array_push(rooms_with_one_exit, room_to_add); }
@@ -45,23 +46,23 @@ function initialize_game_variables() {
 	NUMBER_OF_EXITS_PROBABILITY = 9;
 	HAS_STAIRS_PROBABILITY = 5;
 	HAS_COLLECTABLE_PROBABILITY = get_probability_for_difficulty([4, 3, 3, 3, 2]);
-	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([6, 12, 11, 10, 8]); // This happens only after the get stairs fails, so its combined with 4/5
-	TRAP_CHEST_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12])  // This happens only after the get item fails, so its combined with that probability
+	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([6, 5, 4, 3, 2]); // This happens only after the get stairs fails, so its combined with 4/5
+	TRAP_CHEST_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 8])  // This happens only after the get item fails, so its combined with that probability
 	// HAS_KEY_PROBABILITY = get_probability_for_difficulty([10, 8, 6, 5, 4]);
 	HAS_PORTCULLIS_PROBABILITY = get_probability_for_difficulty([0, 0, 20, 8, 4]);
 	MISLEADING_ROOM_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12]);
-	LOCKED_DOOR_PROBABILITY = get_probability_for_difficulty([0, 8, 6, 5, 4]);
+	LOCKED_DOOR_PROBABILITY = get_probability_for_difficulty([0, 8, 6, 4, 3]);
 	PRE_LIT_PROBABILITY = get_probability_for_difficulty([1, 4, 6, 8, 12]);
-	SPECIAL_ITEM_PROBABILITY = get_probability_for_difficulty([0, 24, 20, 18, 16]);
+	SPECIAL_ITEM_PROBABILITY = get_probability_for_difficulty([0, 24, 16, 12, 8]);
 	SPECIAL_ITEM_LIMIT = global.difficulty;
 	
 	// Initilize room start probability constants
-	ROOM_KEY_IN_CHEST_PROBABILITY = 3;
+	//ROOM_KEY_IN_CHEST_PROBABILITY = 3;
 	DIRT_PROBABILITY = get_probability_for_difficulty([0, 16, 20, 24, 28]);
 	NOSE_PROBABILITY = get_probability_for_difficulty([0, 0, 3, 2, 1]);
-	PHANTOM_PROBABILITY = get_probability_for_difficulty([0, 5, 4, 3, 2]);
-	SPIDER_PROBABILITY = get_probability_for_difficulty([0, 4, 2, 2, 1]);
-	HANDS_PROBABILITY = get_probability_for_difficulty([0, 0, 12, 8, 4]);
+	PHANTOM_PROBABILITY = get_probability_for_difficulty([0, 3, 2, 2, 2]); // Only occurs if room has lanterns AND not pre-lit
+	SPIDER_PROBABILITY = get_probability_for_difficulty([0, 3, 3, 2, 1]);
+	HANDS_PROBABILITY = get_probability_for_difficulty([0, 0, 8, 4, 3]);
 	SNAKE_PROBABILITY =  get_probability_for_difficulty([0, 0, 24, 16, 8]);
 	EYES_PROBABILITY =  get_probability_for_difficulty([0, 0, 0, 64, 46]);
 	FAST_SKELETON_PROBABILITY = get_probability_for_difficulty([0, 0, 16, 14, 12]);
@@ -126,8 +127,6 @@ function initialize_game_variables() {
 	last_hole = noone;
 	start_room = noone;
 	total_number_of_rooms_with_collectables = 0;
-	//rooms_with_collectables_collected = 0;
-	//spawned_special_items = array_create(0);
 	death_timer = 0;
 	completion_amount = 0;
 	sounds_to_play = array_create(0);
@@ -361,18 +360,11 @@ function game_room_start() {
 		with (obj_giant_worm_head) { connect_segments(); }
 		
 		// Create key in room if it should exist
-		var key_in_chest = current_room.has_special_item;
-		if (current_room.has_keys > 0) {
-			if (!current_room.stairs_spot_obj && get_random_chance_out_of(ROOM_KEY_IN_CHEST_PROBABILITY)) { 	
-				key_in_chest = true;
-				current_room.item_type = obj_key;
-				current_room.stairs_spot_obj = obj_chest;
-			}
-			else {
-				with get_random_instance(obj_collectable_spot) {
-					instance_create(x, y, obj_key);
-					instance_destroy();
-				} 
+		var key_in_chest = (current_room.item_type == obj_key);
+		if (current_room.has_keys > 0 && !key_in_chest) {
+			with get_random_instance(obj_collectable_spot) {
+				instance_create(x, y, obj_key);
+				instance_destroy();
 			}
 		}
 		

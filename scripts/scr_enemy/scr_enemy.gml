@@ -111,7 +111,8 @@ function shoot_fireball(target_x, target_y, make_destructive) {
 /// @function								try_to_see_player();
 function try_to_see_player() {
 	var target = noone, dropped_meat = get_dropped_meat();
-	if (!global.player.dead) { target = global.player; }
+	if (global.player.dead) { state = WAITING; dir = -1; return; } 
+	else { target = global.player; }
 	
 	if (state != SCREECHING) {
 		var new_dir = noone, offset = (state == ATTACKING) ? 8 : 0
@@ -293,6 +294,7 @@ function check_for_player_collision() {
 		else if (object_index == obj_death) { 
 			with (global.player) { 
 				if (!is_carrying_item(obj_staff)) { 
+					play_sound(snd_extinguish, false);
 					kill_player(other.creator.object_index);
 				} 
 			} 
@@ -300,6 +302,7 @@ function check_for_player_collision() {
 		else {
 			var killer = object_index;
 			if (killer == obj_skeleton && spawn_timer > 0) { killer = obj_bones; }
+			if (corporeal) { play_sound(snd_crunch, false); }
 			kill_player(killer); 
 		}
 	}

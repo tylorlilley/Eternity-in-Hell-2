@@ -78,6 +78,7 @@ if (start_room == noone) {
 	exit;
 }
 
+start_room.has_collectables = false;
 start_room.has_portcullis = false;
 current_room.calculate_distance_to_current_room(0);
 
@@ -94,7 +95,6 @@ while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
 	new_collectables_room.has_collectables = true;
 	array_push(rooms_with_collectables, new_collectables_room);
 }
-total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 
 // Walk the Map and tweak it until map is possible
 keyless_rooms = set_up_locks_and_keys(keyless_rooms);
@@ -118,11 +118,14 @@ for (var i = 0; i < total_rooms; i++) {
 
 // Lock all exits to heart room
 with array_random_pop(farthest_rooms) {
+	has_collectables = true;
+	array_push(global.controller.rooms_with_collectables, self);
 	stairs_spot_obj = obj_encased_heart;
 	for (var i = 0; i <= 3; i += 1;) {
 		if (exits[i]) { create_locked_exit(i); }
 	}
 }
+total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 
 // Set up locks and keys again to ensure the heart room is always accesable
 keyless_rooms = set_up_locks_and_keys(keyless_rooms);
@@ -174,22 +177,20 @@ if (!item_spawned && array_length(rooms_without_stairs_spot_object) == 0) {
 // Pre-light some rooms
 var lit_room_exists = false;
 for (var i = 0; i < array_length(rooms_with_lanterns); i++) {
-	var given_room = game_rooms[i];
+	var given_room = rooms_with_lanterns[i];
 	given_room.lit = get_random_chance_out_of(PRE_LIT_PROBABILITY);
 	if (given_room.lit) { lit_room_exists = true; }
 }
 
 // Ensure at least one room is pre-lit
 if (!lit_room_exists) {
-	var random_pos = irandom(array_length(rooms_with_lanterns)-1);
-	given_room = rooms_with_lanterns[random_pos];
+	var given_room = array_random_get(rooms_with_lanterns);
 	given_room.lit = true;
 }
 
 // Ensure at least one room has item
 if (!item_spawned) {
-	var random_pos = irandom(array_length(rooms_without_stairs_spot_object)-1);
-	given_room = game_rooms[random_pos];
+	var given_room = array_random_get(rooms_without_stairs_spot_object);
 	with given_room { set_up_room_chest(); }
 }
 

@@ -1,4 +1,7 @@
-Update Controls graphics to display based on input
+84040056 - Two Maps?
+No phantoms spawning?
+No Chests spawning?
+Dont spawn collectbles in first room
 
 Add time based on number of collectables spots
 make bar increase per collectable and not per room cleared?

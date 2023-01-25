@@ -87,25 +87,42 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								set_up_room_chest();
 	function set_up_room_chest() {
 		// Always add map as the first item
-		var spawned_item = obj_map, array_to_check = global.controller.spawned_items;
+		var spawned_item = obj_map, spawned_items_array = global.controller.spawned_items;
 		if (array_length(global.controller.rooms_with_item) > 0) {	
-			spawned_item = get_random_item_type(has_special_item, false)
+			spawned_item = get_random_item_type(has_special_item, true)
 			if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { 
 				has_special_item = true; 
-				array_to_check = global.controller.spawned_special_items;
+				spawned_items_array = global.controller.spawned_special_items;
 			}
 		}
+		else {
+			// Spawned item will be a regular map
+		}
+		
 		
 		// Set stair object to be a chest and add spawned item to list of spawned items
 		stairs_spot_obj = obj_chest;
-		array_push(array_to_check, spawned_item); 
+		if (spawned_item == obj_key) {
+			// Handle keys explicitly since we need to know which rooms have them
+			// in order to walk the map as part of map generation
+			set_up_room_key();
+			item_type = obj_key;
+		}
+		else {
+			array_push(spawned_items_array, spawned_item); 
+			array_push(global.controller.rooms_with_item, spawned_item);
+		}
+		
+		show_debug_message("SPAWNED " + ((has_special_item) ? "RED " : "") + object_get_name(spawned_item));
 	}
 	
 	/// @function								set_up_room_key();
 	function set_up_room_key() {
+		/*
 		// Determine if it should be a red key
 		if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY) && 
 			get_random_chance_out_of(global.controller.HAS_ITEM_PROBABILITY) &&
+			!get_random_chance_out_of(global.controller.HAS_STAIRS_PROBABILITY) &&
 			stairs_spot_obj != obj_stairs &&
 			can_spawn_special_item(obj_key)) {
 				stairs_spot_obj = obj_chest;
@@ -114,7 +131,7 @@ function GameRoom(given_x, given_y) constructor {
 				array_push(global.controller.spawned_special_items, item_type); 
 				show_debug_message("SPAWNED RED obj_key");
 		}
-			
+		*/
 		has_keys = 1; 
 		array_push(global.controller.rooms_with_key, self); 
 	}

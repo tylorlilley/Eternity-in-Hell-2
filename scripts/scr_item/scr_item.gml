@@ -158,7 +158,5 @@ function get_random_item_type(special_item, include_key) {
 		else if (chosen_type == obj_shovel && spawned_item_count >= 2) { chosen_type = noone; } 
 	}
 	
-	show_debug_message("SPAWNED " + ((special_item) ? "RED " : "") + object_get_name(chosen_type));
-	
 	return chosen_type;
 }

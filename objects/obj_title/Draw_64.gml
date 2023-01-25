@@ -1,13 +1,13 @@
 /// @description Insert description here
 // You can write your code in this editor
-var death_count_string = get_death_count_string(global.difficulty);
+var death_count_string = get_death_count_string(global.difficulty), win_count_string = get_win_count_string(global.difficulty);
 var title_y_pos = room_height/4+16, title_scale = 0.125;
 
 // Draw background
 draw_set_color(c_black);
 draw_rectangle(0, 0, room_width, room_height, false);
 
-if (loading) { title_y_pos = room_height/2; title_scale = 0.25; }
+if (loading) { title_y_pos = room_height*2; title_scale = 0.25; }
 else if (options_screen) {
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
@@ -110,7 +110,7 @@ else if key_space {
 	draw_set_halign(fa_right);
 	draw_text(room_width-8, 16, "v." + string(GM_version));
 }
-else if (key_z && death_count_string != noone) {
+else if (key_z && (death_count_string != noone || win_count_string != noone)) {
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
@@ -118,10 +118,11 @@ else if (key_z && death_count_string != noone) {
 	title_y_pos = room_height*2;
 	
 	// Draw General Log Info
-	var win_count_string = get_win_count_string(global.difficulty), best_score_string = get_best_score_string(global.difficulty);
+	var best_score_string = get_best_score_string(global.difficulty);
 	draw_text(room_width/2, 16, get_difficulty_string(global.difficulty));
 
 	if (death_count_string != noone) { draw_text(room_width/2, 16*2, death_count_string); }
+	else { draw_text(room_width/2, 16*2, "Death Count: 0"); }
 	if (win_count_string != noone) { draw_text(room_width/2, room_height-16, win_count_string); }
 	if (best_score_string != noone) { draw_text(room_width/2, room_height-16-16, best_score_string); }
 	
@@ -161,7 +162,7 @@ else {
 	
 	// Draw Settings Switch Messages
 	var message_y_pos = room_height - 48, messages_y_offset = 0;
-	if (death_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(room_width/2, message_y_pos, + get_input_z_key_string() + ": View Death Log"); }
+	if (death_count_string != noone || win_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(room_width/2, message_y_pos, + get_input_z_key_string() + ": View Death Log"); }
 	draw_text(room_width/2, message_y_pos+messages_y_offset, get_input_space_key_string() + ": View Controls");
 	draw_text(room_width/2, message_y_pos+messages_y_offset+16, get_input_x_key_string() + ": Game Options");
 	draw_text(room_width/2, message_y_pos+messages_y_offset+32, get_input_enter_key_string() + ": Begin Game");

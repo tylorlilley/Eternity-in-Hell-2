@@ -23,6 +23,7 @@
 5 bones
 6 cross
 6 lantern
+6 encased heart plate
 7 blood
 8 button
 8 dirt spawned by pushable block moved into lava

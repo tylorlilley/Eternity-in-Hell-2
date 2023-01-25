@@ -131,7 +131,7 @@ keyless_rooms = set_up_locks_and_keys(keyless_rooms);
 create_room_lists();
 time_provided = 0;
 
-var item_spawned = false, rooms_with_lanterns = array_create(), rooms_without_stairs_spot_object = array_create();
+var item_spawned = false, rooms_with_lanterns = array_create(0), rooms_without_stairs_spot_object = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
 	// Assign room reference from list
 	var given_room = game_rooms[i];

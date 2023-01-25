@@ -24,6 +24,13 @@ enum seed_options {
 	specified
 }
 
+// global variables to represent the various input styles
+enum inputs {
+	keyboard_default,
+	keyboard_wasd,
+	gamepad
+}
+
 // Setup global variables for title screen
 global.difficulty = difficulties.easy;
 global.seed_option = seed_options.rand;
@@ -55,25 +62,7 @@ global.death_types_array = [
 	obj_echo,
 ]
 
-/*
-// Easy 
-array_push(global.death_types_array, obj_controller);
-array_push(global.death_types_array, obj_bomb); // Medium Only
-array_push(global.death_types_array, obj_lava);
-array_push(global.death_types_array, obj_bones);
-array_push(global.death_types_array, obj_skeleton);
-array_push(global.death_types_array, obj_mouth);
-array_push(global.death_types_array, obj_bumper);
-array_push(global.death_types_array, obj_phantom);
-// Medium
-array_push(global.death_types_array, obj_spider); // Currently Medium Only
-array_push(global.death_types_array, obj_statue); // Currently Medium Only
-array_push(global.death_types_array, obj_giant_worm_body);
-array_push(global.death_types_array, obj_snake);
-array_push(global.death_types_array, obj_nose);
-array_push(global.death_types_array, obj_hands);
-array_push(global.death_types_array, obj_ears);
-// Hard
-array_push(global.death_types_array, obj_eyes);
-array_push(global.death_types_array, obj_echo);
-*/
+// Set up drawing surface variables
+global.input = inputs.keyboard_default;
+set_max_window_size();
+set_window_size();

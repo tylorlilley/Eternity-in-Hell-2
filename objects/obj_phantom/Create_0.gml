@@ -12,7 +12,7 @@ if (global.controller.current_room.lit) { instance_destroy(); }
 else if (global.controller.entered_from_spawn) { spawn_timer = -1; }
 else {
 	// Check distance to each unlit lantern
-	var lantern_count = 0, total_distance_to_lanterns = 0, steps_to_reach_lanterns = 0;
+	var lantern_count = 0, total_distance_to_lanterns = 0;
 	for (var i = 0; i < instance_number(obj_lantern); i++) {
 		var lantern = instance_find(obj_lantern, i);
 		

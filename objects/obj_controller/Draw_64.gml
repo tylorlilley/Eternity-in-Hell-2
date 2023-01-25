@@ -31,7 +31,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
         draw_rectangle(84, 6, (room_width-4), 18+os_offset, true);
 
         if (collectables_collected > 0 || array_length(mapped_rooms) > 1) { 
-			draw_rectangle(84, 6, get_scaling_amount(84, (room_width-4), (5*collectables_collected)+array_length(mapped_rooms)-1, (5*total_number_of_rooms_with_collectables)+array_length(game_rooms)-1), 18, false); 
+			draw_rectangle(84, 6, get_scaling_amount(84, (room_width-8), (5*collectables_collected)+array_length(mapped_rooms)-1, (5*total_number_of_rooms_with_collectables)+array_length(game_rooms)-1), 18, false); 
 		}
 		
 		// Draw elapsed time
@@ -51,8 +51,8 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 	        var message;
 	        if has_won { draw_set_color(c_white); message = "YOU WIN!" }
 	        if has_lost { 
-				draw_set_color(c_white); message = "Killed By:    "
-				draw_death_type_sprite(room_width/2+48, room_height-216, killed_by);
+				draw_set_color(c_white); message = "Killed By:   "
+				draw_death_type_sprite(room_width/2+40, room_height-216, killed_by);
 			}
 	        draw_text(room_width/2, room_height-216, string_hash_to_newline(message));
 	        hud_x_pos = room_width/2;

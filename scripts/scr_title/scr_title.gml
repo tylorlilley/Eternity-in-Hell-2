@@ -62,4 +62,68 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 	}
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
-		
+
+
+/// @function								set_max_window_size();
+function set_max_window_size() {
+	var monitor_width = display_get_width(), monitor_height = display_get_height();
+	global.max_window_scaling = 1;
+	for (var i = 2; i <= 8; i++) {
+		if (monitor_width >= (room_width*i) && monitor_height >= (room_height*i)) {
+			global.max_window_scaling = i;
+		}
+	}
+	global.window_scaling = 2;
+}
+
+/// @function								set_window_size();
+function set_window_size() {
+	// Resize the drawing surface
+	var draw_surface_width = (room_width*global.window_scaling), draw_surface_height = (room_height*global.window_scaling)
+	window_set_size(draw_surface_width, draw_surface_height);
+}
+
+/// @function								set_window_size();
+function get_input_string() {
+	switch (global.input) {
+		case inputs.keyboard_default: { return "Arrow Keys"; }
+		case inputs.keyboard_wasd: { return "WASD Keys"; }
+		case inputs.gamepad: { return "Gamepad"; }
+	}
+}
+
+/// @function								set_window_size();
+function get_input_z_key_string() {
+	switch (global.input) {
+		case inputs.keyboard_default: { return "Z"; }
+		case inputs.keyboard_wasd: { return "J"; }
+		case inputs.gamepad: { return "B1"; }
+	}
+}
+
+/// @function								set_window_size();
+function get_input_x_key_string() {
+	switch (global.input) {
+		case inputs.keyboard_default: { return "X"; }
+		case inputs.keyboard_wasd: { return "K"; }
+		case inputs.gamepad: { return "B2"; }
+	}
+}
+
+/// @function								set_window_size();
+function get_input_space_key_string() {
+	switch (global.input) {
+		case inputs.keyboard_default: { return "Space"; }
+		case inputs.keyboard_wasd: { return "Space"; }
+		case inputs.gamepad: { return "B3"; }
+	}
+}
+
+/// @function								set_window_size();
+function get_input_enter_key_string() {
+	switch (global.input) {
+		case inputs.keyboard_default: { return "Enter"; }
+		case inputs.keyboard_wasd: { return "Enter"; }
+		case inputs.gamepad: { return "Start"; }
+	}
+}

@@ -1,5 +1,7 @@
 randomize();
 audio_group_load(audiogroup_default);
+options_screen = false;
+options_pos = 0;
 loading = false;
 blink = false;
 pos = -2;

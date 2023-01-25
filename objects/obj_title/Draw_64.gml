@@ -8,9 +8,52 @@ draw_set_color(c_black);
 draw_rectangle(0, 0, room_width, room_height, false);
 
 if (loading) { title_y_pos = room_height/2; title_scale = 0.25; }
+else if (options_screen) {
+	draw_set_color(c_white);
+	draw_set_font(ft_hud);
+	draw_set_valign(fa_center);
+	
+	var column_width = room_width/3, y_pos = 32;
+	
+	// Draw General OIptions Info
+	title_y_pos = room_height*2;
+	
+	draw_text(room_width/2, 16, "Options");	
+	draw_text(room_width/2, room_height-24, get_input_x_key_string() + ": Return");
+	draw_set_valign(fa_left);
+	
+	// Draw Fullscreen Option
+	var is_full_screen = window_get_fullscreen()
+	draw_text(column_width, y_pos, "Fullscreen: ");
+	draw_text(column_width*2, y_pos, ((is_full_screen) ? "ON" : "OFF"));
+	if (blink && options_pos == 0) {
+		if (is_full_screen) { draw_sprite_ext(spr_title_arrow, 0, column_width*2+24, y_pos+8, -1, 1, 0, c_white, 1); }
+		else { draw_sprite_ext(spr_title_arrow, 0, column_width*2-24, y_pos+8, 1, 1, 0, c_white, 1); }
+	}
+	
+	// Draw Screen Scale Option
+	y_pos += 24;
+	var color = (is_full_screen) ? c_gray : c_white;
+	draw_set_color(color);
+	draw_text(column_width, y_pos, "Window Size: ");
+	draw_text(column_width*2, y_pos, "x "+ string(global.window_scaling));
+	if (!is_full_screen && blink && options_pos == 1) {
+		if (global.window_scaling < global.max_window_scaling) { draw_sprite_ext(spr_title_arrow, 0, column_width*2+24, y_pos+8, -1, 1, 0, color, 1); }
+		if (global.window_scaling > 1) { draw_sprite_ext(spr_title_arrow, 0, column_width*2-24, y_pos+8, 1, 1, 0, color, 1); }
+	}
+	
+	// Draw Controls Option
+	y_pos += 24;
+	var color = (is_full_screen) ? c_gray : c_white;
+	draw_set_color(color);
+	draw_text(column_width, y_pos, "Control Type: ");
+	draw_text(column_width*2, y_pos, get_input_string());
+	if (!is_full_screen && blink && options_pos == 1) {
+		if (global.input < 1 || (global.input < 2 && gamepad_is_connected(0))) { draw_sprite_ext(spr_title_arrow, 0, column_width*2+24, y_pos+8, -1, 1, 0, color, 1); }
+		if (global.input > 1) { draw_sprite_ext(spr_title_arrow, 0, column_width*2-24, y_pos+8, 1, 1, 0, color, 1); }
+	}
+}
 else if keyboard_check(vk_space) {
-	draw_set_color(c_black);
-	draw_rectangle(0, 0, room_width, room_height, false);
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
@@ -37,8 +80,6 @@ else if keyboard_check(vk_space) {
 	draw_text(room_width, 16, "v." + string(GM_version));
 }
 else if (keyboard_check(ord("Z")) && death_count_string != noone) {
-	draw_set_color(c_black);
-	draw_rectangle(0, 0, room_width, room_height, false);
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
@@ -53,7 +94,6 @@ else if (keyboard_check(ord("Z")) && death_count_string != noone) {
 	if (death_count_string != noone) { draw_text(room_width/2, 16*2, death_count_string); }
 	if (win_count_string != noone) { draw_text(room_width/2, room_height-16, win_count_string); }
 	if (best_score_string != noone) { draw_text(room_width/2, room_height-16-16, best_score_string); }
-	
 	
 	// Create list of all deaths to display
 	var death_types = get_death_types(), deaths_to_display = array_create(0),
@@ -90,10 +130,11 @@ else {
 	draw_set_halign(fa_center);
 	
 	// Draw Settings Switch Messages
-	var message_y_pos = room_height - 40, messages_y_offset = 0;
-	if (death_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(room_width/2, message_y_pos, "Hold Z: View Death Log"); }
-	draw_text(room_width/2, message_y_pos+messages_y_offset, "Hold Space: View Controls");
-	draw_text(room_width/2, message_y_pos+messages_y_offset+16, "Press Enter: Begin Game");
+	var message_y_pos = room_height - 48, messages_y_offset = 0;
+	if (death_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(room_width/2, message_y_pos, "Hold " + get_input_z_key_string() + ": View Death Log"); }
+	draw_text(room_width/2, message_y_pos+messages_y_offset, "Hold " + get_input_space_key_string() + ": View Controls");
+	draw_text(room_width/2, message_y_pos+messages_y_offset+16, "Press " + get_input_x_key_string() + ": Game Options");
+	draw_text(room_width/2, message_y_pos+messages_y_offset+32, "Press " + get_input_enter_key_string() + ": Begin Game");
 	
 	// Draw difficulty selection
 	if (global.seed_option == seed_options.specified) { title_y_pos -= 16; }

@@ -58,6 +58,7 @@ function initialize_game_variables() {
 	
 	// Initilize room start probability constants
 	//ROOM_KEY_IN_CHEST_PROBABILITY = 3;
+	HAS_BUG_PROBABILITY = get_probability_for_difficulty([512, 256, 128, 64, 28]);
 	DIRT_PROBABILITY = get_probability_for_difficulty([0, 16, 20, 24, 28]);
 	NOSE_PROBABILITY = get_probability_for_difficulty([0, 0, 3, 2, 1]);
 	PHANTOM_PROBABILITY = get_probability_for_difficulty([0, 3, 2, 2, 2]); // Only occurs if room has lanterns AND not pre-lit
@@ -547,8 +548,22 @@ function game_room_start() {
 			}
 		}
 	}
-	with (obj_bush) { occupier = noone; occupied = false; }
-	with (obj_bones) { if (!is_solid_at_position(x, y)) { trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } }
+	with (obj_bug) { instance_destroy(); }
+	with (obj_dirt) {
+		if (!is_solid_at_position(x, y)) { 
+			has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
+		}
+	}
+	with (obj_bush) { 
+		occupier = noone; 
+		occupied = false;
+		has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
+	}
+	with (obj_bones) { 
+		if (!is_solid_at_position(x, y)) {
+			has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
+			trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } 
+		}
 	with (obj_stairs) { active = false; }
 	with (obj_hole) { active = false; }
 	with (obj_door) { 

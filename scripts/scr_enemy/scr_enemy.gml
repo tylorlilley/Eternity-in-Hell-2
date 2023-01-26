@@ -30,14 +30,15 @@ function kill_with_sword(sword) {
 	kill_enemy(snd_crunch);
 }
 
-/// @function								run_away_from_player(ignore_solid, ignore_death);
+/// @function								run_away_from_player(ignore_solid, ignore_death, make_sound);
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function run_away_from_player(ignore_solid, ignore_death) {
+function run_away_from_player(ignore_solid, ignore_death, make_sound) {
 	var dir = irandom(3);
 	if (is_direction_toward(dir, global.player)) { dir = get_opposite_dir(dir); }
 	if (get_random_chance_out_of(3)) { dir = 4; }
-	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, true); }
+	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, make_sound);  return dir; }
+	return noone;
 }
 
 /// @function								teleport_to_empty_space()

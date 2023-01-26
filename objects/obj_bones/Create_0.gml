@@ -4,6 +4,7 @@ depth = 5;
 image_index = irandom(5);
 
 trap = false;
+has_bug = false;
 
 flip_sprite_at_random(true);
 if (get_random_chance_out_of(global.controller.BLOOD_REPLACEMENT_PROBABILITY)) { 

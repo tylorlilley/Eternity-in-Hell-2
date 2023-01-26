@@ -17,7 +17,7 @@ if (can_process_this_frame()) {
 
 	// If this is a moving collectable, choose a random direction and move in that 
 	// direction or its opposite if the opposite is away from the player
-	if moving { run_away_from_player(false, false); }
+	if moving { run_away_from_player(false, false, true); }
 
 	event_inherited();
 }

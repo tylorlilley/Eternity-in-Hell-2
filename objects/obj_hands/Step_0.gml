@@ -16,7 +16,7 @@ if (can_process_this_frame()) {
 			for (var i = 0; i < 2; i++) {
 				if (target_item == noone) {
 					// Run Away From Player While Carrying Target
-					run_away_from_player(!corporeal, fire_resistant);
+					run_away_from_player(!corporeal, fire_resistant, true);
 				}
 				else if (instance_exists(target_item) && (target_item.holder == noone || target_item.holder == id)) {
 					if (x == target_item.x && y == target_item.y) {

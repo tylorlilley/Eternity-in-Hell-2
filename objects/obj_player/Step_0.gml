@@ -3,6 +3,26 @@ if (can_process_this_frame()) {
 	y_prev = y;
 	dir_prev = dir;
 	if (dir_prev == noone) { dir_prev = irandom(3); }
+	
+	// Spawn Bugs in nearby dirt and bushes
+	with (obj_bones) { 
+		if ((has_bug) && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+			instance_create(x, y, obj_bug);
+			has_bug = false;
+		}
+	}
+	with (obj_dirt) { 
+		if ((has_bug) && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+			instance_create(x, y, obj_bug);
+			has_bug = false;
+		}
+	}
+	with (obj_bush) { 
+		if ((has_bug) && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+			instance_create(x, y, obj_bug);
+			has_bug = false;
+		}
+	}
 
 	if (!dead && is_solid_at_position(x, y)) {
 		var killed_by = instance_place(x, y, obj_solid).object_index;

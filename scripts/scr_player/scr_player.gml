@@ -127,6 +127,7 @@ function create_item_in_hand(dir, obj_index) {
 function kill_player(killed_by) {
 	if (!global.player.dead) {
 		// Set variables to mark death
+		global.player.depth = 4;
 		global.player.dead = true;
 		global.controller.death_timer = global.controller.RESPAWN_FREQUENCY;
 		play_sound(snd_lose, true);

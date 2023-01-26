@@ -45,6 +45,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 					y = -8;
 					dead = false;
 					image_index = 0;
+					depth = -10;
 					var player_corpse = instance_create(x, y, obj_player_corpse);
 					player_corpse.image_xscale = image_xscale;
 				}				

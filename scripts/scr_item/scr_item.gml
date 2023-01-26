@@ -86,7 +86,7 @@ function can_dig_hole() {
 
 /// @function								dig_hole();
 function dig_hole() {
-	if (can_dig_hole()) {
+	if (can_dig_hole() && dropped_by_digger) {
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
 		var new_hole = instance_create(x, y, obj_hole);

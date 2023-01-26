@@ -1,6 +1,12 @@
 if (can_process_this_frame()) {
 	event_inherited();
-
+	
+	thump();
+	
+	var push_direction = get_direction_pushed_against();
+	if (push_direction != noone) { play_sound(snd_locked, false); }
+	
+	
 	if (are_all_collectables_collected()) {
 		instance_create(x, y, obj_dirt);
 		instance_create(x, y, obj_heart_plate);
@@ -9,9 +15,4 @@ if (can_process_this_frame()) {
 		new_heart.thump_timer = thump_timer;
 		instance_destroy();
 	}
-
-	var push_direction = get_direction_pushed_against();
-	if (push_direction != noone) { play_sound(snd_locked, false); }
-	
-	thump();
 }

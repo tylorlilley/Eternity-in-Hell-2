@@ -89,11 +89,11 @@ function GameRoom(given_x, given_y) constructor {
 		// Always add map as the first item
 		var spawned_item = obj_map, spawned_items_array = global.controller.spawned_items;
 		if (array_length(global.controller.rooms_with_item) > 0) {	
-			spawned_item = get_random_item_type(has_special_item, true)
 			if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { 
 				has_special_item = true; 
 				spawned_items_array = global.controller.spawned_special_items;
 			}
+			spawned_item = get_random_item_type(has_special_item, true)
 		}
 		else {
 			// Spawned item will be a regular map
@@ -101,6 +101,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		
 		// Set stair object to be a chest and add spawned item to list of spawned items
+		array_push(spawned_items_array, spawned_item); 
 		stairs_spot_obj = obj_chest;
 		if (spawned_item == obj_key) {
 			// Handle keys explicitly since we need to know which rooms have them
@@ -109,7 +110,6 @@ function GameRoom(given_x, given_y) constructor {
 			item_type = obj_key;
 		}
 		else {
-			array_push(spawned_items_array, spawned_item); 
 			array_push(global.controller.rooms_with_item, spawned_item);
 		}
 		
@@ -118,20 +118,6 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function								set_up_room_key();
 	function set_up_room_key() {
-		/*
-		// Determine if it should be a red key
-		if (get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY) && 
-			get_random_chance_out_of(global.controller.HAS_ITEM_PROBABILITY) &&
-			!get_random_chance_out_of(global.controller.HAS_STAIRS_PROBABILITY) &&
-			stairs_spot_obj != obj_stairs &&
-			can_spawn_special_item(obj_key)) {
-				stairs_spot_obj = obj_chest;
-				item_type = obj_key;
-				has_special_item = true;
-				array_push(global.controller.spawned_special_items, item_type); 
-				show_debug_message("SPAWNED RED obj_key");
-		}
-		*/
 		has_keys = 1; 
 		array_push(global.controller.rooms_with_key, self); 
 	}
@@ -313,14 +299,14 @@ function GameRoom(given_x, given_y) constructor {
 			// Draw collectables if the map is special
 			var collectable_color = inverse_color;
 		    if (show_collectables) { 
-				if (blink_frame && has_collectables) {
-					draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
-				}
 				if (!blink_frame && stairs_spot_obj == obj_encased_heart) {
 					draw_sprite_ext(spr_map_heart, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
 				}
-				if (!blink_frame && stairs_spot_obj == obj_cross) {
+				else if (!blink_frame && stairs_spot_obj == obj_cross) {
 					draw_sprite_ext(spr_map_cross, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
+				}
+				else if (blink_frame && has_collectables) {
+					draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
 				}
 			}
     

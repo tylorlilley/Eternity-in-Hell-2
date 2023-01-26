@@ -78,7 +78,10 @@ if (start_room == noone) {
 	exit;
 }
 
-start_room.has_collectables = false;
+if (start_room.has_collectables) {
+	start_room.has_collectables = false;
+	array_remove(rooms_with_collectables, array_get_index(rooms_with_collectables, start_room));
+}
 start_room.has_portcullis = false;
 current_room.calculate_distance_to_current_room(0);
 
@@ -92,8 +95,12 @@ for (var i = 0; i < total_rooms; i++) {
 // Randomly spawn a minimum number of collectables rooms
 while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
 	var new_collectables_room = array_random_get(game_rooms);
-	new_collectables_room.has_collectables = true;
-	array_push(rooms_with_collectables, new_collectables_room);
+	if (new_collectables_room == start_room) { continue; }
+	
+	if (!new_collectables_room.has_collectables) {
+		new_collectables_room.has_collectables = true;
+		array_push(rooms_with_collectables, new_collectables_room);
+	}
 }
 
 // Walk the Map and tweak it until map is possible
@@ -118,8 +125,10 @@ for (var i = 0; i < total_rooms; i++) {
 
 // Lock all exits to heart room
 with array_random_pop(farthest_rooms) {
-	has_collectables = true;
-	array_push(global.controller.rooms_with_collectables, self);
+	if (!has_collectables) {
+		has_collectables = true;
+		array_push(global.controller.rooms_with_collectables, self);
+	}
 	stairs_spot_obj = obj_encased_heart;
 	for (var i = 0; i <= 3; i += 1;) {
 		if (exits[i]) { create_locked_exit(i); }

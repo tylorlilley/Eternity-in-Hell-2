@@ -2,7 +2,6 @@ if (can_process_this_frame()) {
 	x_prev = x;
 	y_prev = y;
 	dir_prev = dir;
-	moved_by_self = false;
 	if (dir_prev == noone) { dir_prev = irandom(3); }
 	
 	// Spawn Bugs in nearby dirt and bushes
@@ -56,8 +55,7 @@ if (can_process_this_frame()) {
 			}
 			
 		    // Move player in chosen direction if possible
-		    if (!moved_by_other_object && dir != noone && can_move_in_direction(dir, false, true)) { move_player(dir); moved_by_self = true; }
-			moved_by_other_object = false;
+		    if (moved_by == noone && dir != noone && can_move_in_direction(dir, false, true)) { move_player(dir); moved_by = id; }
 		}
 		
 		// Increase lighting range if carrying a rosary

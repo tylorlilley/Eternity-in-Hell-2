@@ -452,8 +452,10 @@ function game_room_start() {
 			}
 			if (instance_number(obj_collectable) == 0) { 
 				// This should never happen if every room has 2+ collectable spots
+				show_debug_message("WARNING: room with NO room to spawn collectables.");
 				current_room.has_collectables = false;
 				array_remove(rooms_with_collectables, array_get_index(rooms_with_collectables, current_room));
+				total_number_of_rooms_with_collectables -= 1;
 			}
 		}
 	
@@ -536,10 +538,10 @@ function game_room_start() {
 		ystart = global.player.y;
 			
 		switch (global.controller.transition) {		
-			case directions.up: { ystart -= global.controller.TRAP_DISTANCE; break; }
-			case directions.right: { xstart += global.controller.TRAP_DISTANCE; break; }
-			case directions.down: { ystart += global.controller.TRAP_DISTANCE; break; }
-			case directions.left: { xstart -= global.controller.TRAP_DISTANCE; break; }
+			case directions.up: { ystart -= global.controller.TRAP_RANGE; break; }
+			case directions.right: { xstart += global.controller.TRAP_RANGE; break; }
+			case directions.down: { ystart += global.controller.TRAP_RANGE; break; }
+			case directions.left: { xstart -= global.controller.TRAP_RANGE; break; }
 			default: { 
 				teleport_near_player();
 				xstart = x;

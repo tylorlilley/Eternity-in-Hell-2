@@ -177,7 +177,7 @@ function draw_player_hat() {
 /// @function				snap_player_to_position(dir);
 /// @param		{dir} dir	The direction to snap the player opposite to
 function snap_player_to_position(dir) {
-	global.player.moved_by_other_object = true;
+	global.player.moved_by = id;
 	global.player.x = x;
 	global.player.y = y;
 	switch (dir) {

@@ -127,7 +127,7 @@ function play_sound(snd, loud_sound) {
 	if (loud_sound) {
 		with (obj_ears) {
 			if id != other.id {
-				if (target_x != other.x || target_y != other.y) {
+				if ((target_x != other.x || target_y != other.y) && !instance_place(target_x, target_y, obj_meat)) {
 					target_x = other.x;
 					target_y = other.y;
 					awake = true;

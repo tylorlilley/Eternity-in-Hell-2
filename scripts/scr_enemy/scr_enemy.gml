@@ -103,7 +103,7 @@ function shoot_fireball(target_x, target_y, make_destructive) {
 	play_sound(snd_shoot, false);
 	var fireball = instance_create(x, y, obj_fireball);
 	with (fireball) {
-		creator = other.id;
+		creator = other.object_index;
 		destructive = make_destructive;
 		move_towards_point(target_x, target_y, 2); 
 	}	
@@ -112,8 +112,8 @@ function shoot_fireball(target_x, target_y, make_destructive) {
 /// @function								try_to_see_player();
 function try_to_see_player() {
 	var target = noone, dropped_meat = get_dropped_meat();
-	if (global.player.dead) { state = WAITING; dir = -1; return; } 
-	else { target = global.player; }
+	if (is_instance_at_coordinates(global.player.x, global.player.y)) { state = WAITING; dir = -1; return; } 
+	else if (!global.player.dead) { target = global.player; }
 	
 	if (state != SCREECHING) {
 		var new_dir = noone, offset = (state == ATTACKING) ? 8 : 0
@@ -296,7 +296,7 @@ function check_for_player_collision() {
 			with (global.player) { 
 				if (!is_carrying_item(obj_staff)) { 
 					play_sound(snd_extinguish, false);
-					kill_player(other.creator.object_index);
+					kill_player(other.object_index);
 				} 
 			} 
 		}

@@ -1,4 +1,4 @@
-55187327
+Survey instance_destroy for bugs
 
 Add time based on number of collectables spots
 make bar increase per collectable and not per room cleared?

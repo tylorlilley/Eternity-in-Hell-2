@@ -12,7 +12,7 @@ function convert_to_multiple_death_boxes() {
 		death_boxes[i] = instance_create(x_pos, y_pos, obj_death);
 		death_boxes[i].image_xscale = 0.5;
 		death_boxes[i].image_yscale = 0.5;
-		death_boxes[i].creator = id;
+		death_boxes[i].creator = object_index;
 	}
 }
 

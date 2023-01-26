@@ -6,7 +6,7 @@ if (can_process_this_frame()) {
 		var push_direction = get_direction_pushed_against();
 		var carrying_key = false;
 		with (global.player) { carrying_key = is_carrying_item(obj_key); }
-		if (!global.player.moved_by_self && !global.player.moved_by_other_object && push_direction != noone) {
+		if (global.player.moved_by == noone && push_direction != noone) {
 		    if (!unlocked_by_key || (locked && !carrying_key)) { play_sound(snd_locked, false); }
 		    else {
 				play_sound(snd_open, true);

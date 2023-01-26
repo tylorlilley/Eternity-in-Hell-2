@@ -536,10 +536,10 @@ function game_room_start() {
 		ystart = global.player.y;
 			
 		switch (global.controller.transition) {		
-			case directions.up: { ystart -= 32; break; }
-			case directions.right: { xstart += 32; break; }
-			case directions.down: { ystart += 32; break; }
-			case directions.left: { xstart -= 32; break; }
+			case directions.up: { ystart -= global.controller.TRAP_DISTANCE; break; }
+			case directions.right: { xstart += global.controller.TRAP_DISTANCE; break; }
+			case directions.down: { ystart += global.controller.TRAP_DISTANCE; break; }
+			case directions.left: { xstart -= global.controller.TRAP_DISTANCE; break; }
 			default: { 
 				teleport_near_player();
 				xstart = x;

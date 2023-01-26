@@ -21,8 +21,8 @@ function GameRoom(given_x, given_y) constructor {
 	has_collectables = false;
 	has_portcullis = false;
 	misleading_room = false;
-	stairs_spot_obj = noone;
-	chest_obj = noone;
+	stairs_spot_obj = -1;
+	chest_obj = -1;
 
 	// Initialize room topography information
 	exits = [false, false, false, false, false];
@@ -54,7 +54,7 @@ function GameRoom(given_x, given_y) constructor {
 		else if (get_random_chance_out_of(global.controller.TRAP_CHEST_PROBABILITY)) { chest_obj = obj_statue; stairs_spot_obj = obj_chest; }
 		
 		// Decide what to spawn in collectables spots
-		//if (get_random_chance_out_of(global.controller.HAS_KEY_PROBABILITY) && chest_obj == noone) { set_up_room_key(); }
+		//if (get_random_chance_out_of(global.controller.HAS_KEY_PROBABILITY) && chest_obj == -1) { set_up_room_key(); }
 		if (get_random_chance_out_of(global.controller.HAS_COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
 		if (get_random_chance_out_of(global.controller.HAS_PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
 	
@@ -239,16 +239,16 @@ function GameRoom(given_x, given_y) constructor {
 		
 		if (show_detailed_map || visited) {
 			// Set up colors to draw this room with
-			var fade_amount = distance_to_current_room / global.controller.MAX_MAP_DRAW_DISTANCE;
+			var fade_amount = 0; //distance_to_current_room / global.controller.MAX_MAP_DRAW_DISTANCE;
 			var blink_frame = global.controller.number_of_frames_since_game_began mod 12 <= 5;
-			var bg_color = global.controller.bg_color;
+			var bg_color = global.bg_color;
 			var white_color = merge_color(c_white, bg_color, fade_amount);
 			var red_color = merge_color(c_red, bg_color, fade_amount);
 		
 			// Darken the colors of unvisited rooms on the map
 			if (!visited) {
-				white_color = merge_color(white_color, bg_color, 0.5);
-				red_color = merge_color(red_color, bg_color, 0.5);
+				white_color = merge_color(white_color, bg_color, 0.25);
+				red_color = merge_color(red_color, bg_color, 0.25);
 			}
 			
 		    // Draw Room on Map
@@ -314,13 +314,12 @@ function GameRoom(given_x, given_y) constructor {
 
 		// Mark the room as having been drawn, then draw each of its applicable neighbors
 		drawn = true;
-		if (distance_to_current_room < global.controller.MAX_MAP_DRAW_DISTANCE || is_game_lost() || is_game_won()) {
-		  if (adj_rooms[0] && !adj_rooms[0].drawn && y_pos-16 >= 0) with adj_rooms[0] { draw_room(x_pos, y_pos-16); }
-		  if (adj_rooms[1] && !adj_rooms[1].drawn && x_pos+16 <= room_width) with adj_rooms[1] { draw_room(x_pos+16, y_pos); }
-		  if (adj_rooms[2] && !adj_rooms[2].drawn && y_pos+16 <= room_height) with adj_rooms[2] { draw_room(x_pos, y_pos+16); }
-		  if (adj_rooms[3] && !adj_rooms[3].drawn && x_pos-16 >= 0) with adj_rooms[3] { draw_room(x_pos-16, y_pos); }
-		  // if (adj_rooms[4] && !adj_rooms[4].drawn) with adj_rooms[4] { draw_room(x_pos+(virtual_x - adj_rooms[4].virtual_x), y_pos+(virtual_y - adj_rooms[4].virtual_y)); }
-		}
+		//if (distance_to_current_room < global.controller.MAX_MAP_DRAW_DISTANCE || is_game_lost() || is_game_won()) { 
+		if (adj_rooms[0] && !adj_rooms[0].drawn && y_pos-16 >= 0) with adj_rooms[0] { draw_room(x_pos, y_pos-16); }
+		if (adj_rooms[1] && !adj_rooms[1].drawn && x_pos+16 <= room_width) with adj_rooms[1] { draw_room(x_pos+16, y_pos); }
+		if (adj_rooms[2] && !adj_rooms[2].drawn && y_pos+16 <= room_height) with adj_rooms[2] { draw_room(x_pos, y_pos+16); }
+		if (adj_rooms[3] && !adj_rooms[3].drawn && x_pos-16 >= 0) with adj_rooms[3] { draw_room(x_pos-16, y_pos); }
+		// if (adj_rooms[4] && !adj_rooms[4].drawn) with adj_rooms[4] { draw_room(x_pos+(virtual_x - adj_rooms[4].virtual_x), y_pos+(virtual_y - adj_rooms[4].virtual_y)); }
 	}
 	
 	/// @fucntion								get_adjacent_room(dir);
@@ -431,7 +430,8 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									initialize_from_room_reference()
 	function initialize_from_room_reference() {
-		var reference_instances = instances_for_room_reference(room_reference);
+		// CHANGE ROOM HERE FOR TESTING
+		var reference_instances = room_reference;
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
 			instance_create(ref.x, ref.y, asset_get_index(ref.name));

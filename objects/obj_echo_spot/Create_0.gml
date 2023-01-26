@@ -1,5 +1,5 @@
 singleton_instance();
 
-initialized = false;
-spawn_timer = 32;
+spawning = false;
+spawn_timer = 16;
 moves = array_create(0);

@@ -36,7 +36,7 @@ function kill_with_sword(sword) {
 function run_away_from_player(ignore_solid, ignore_death, make_sound) {
 	var dir = irandom(3);
 	if (is_direction_toward(dir, global.player)) { dir = get_opposite_dir(dir); }
-	if (get_random_chance_out_of(3)) { dir = 4; }
+	if (get_random_chance_out_of(3)) { dir = directions.none; }
 	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, make_sound);  return dir; }
 	
 	return directions.none;
@@ -293,15 +293,17 @@ function check_for_player_collision() {
 		var carried_sword = noone;
 		with (global.player) { carried_sword = get_carried_item(obj_sword); }
 		if (is_existing_instance(carried_sword) && corporeal) { kill_with_sword(carried_sword); }
-		else if (object_index == obj_death) { 
+		else if (object_index == obj_death) {
+			// Kill player from lava
 			with (global.player) { 
 				if (!is_carrying_item(obj_staff)) { 
 					play_sound(snd_extinguish, false);
-					kill_player(other.object_index);
+					kill_player(other.creator_obj);
 				} 
 			} 
 		}
 		else {
+			// Kill player from enemy
 			var killer = object_index;
 			if (killer == obj_skeleton && spawn_timer > 0) { killer = obj_bones; }
 			if (corporeal) { play_sound(snd_crunch, false); }

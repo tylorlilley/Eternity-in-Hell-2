@@ -128,10 +128,10 @@ function get_random_item_obj(special_item, include_key) {
 	var array_to_check = (special_item) ? global.controller.spawned_special_items : global.controller.spawned_items;
 	var available_item_objs = (global.difficulty == difficulties.easy) ? 2 : 5;
 	if (global.difficulty > difficulties.medium) { available_item_objs += 3; }
-	var chosen_item_obj = noone;
+	var chosen_item_obj = -1;
 	
 	// Decide which item to spawn based on previous item spawns
-	while (chosen_item_obj == noone) {
+	while (chosen_item_obj == -1) {
 		var rand = irandom(available_item_objs);
 		if (!include_key) { rand += 1; }
 
@@ -150,12 +150,12 @@ function get_random_item_obj(special_item, include_key) {
 			
 		var spawned_item_count = array_count_occurances(array_to_check, chosen_item_obj);
 			
-		if (special_item && spawned_item_count >= 1) { chosen_item_obj = noone; }
-		else if (chosen_item_obj == obj_map && spawned_item_count >= 1) { chosen_item_obj = noone; } 
-		else if (chosen_item_obj == obj_staff && spawned_item_count >= 1) { chosen_item_obj = noone; } 
-		else if (chosen_item_obj == obj_torch && spawned_item_count >= 2) { chosen_item_obj = noone; } 
-		else if (chosen_item_obj == obj_clock && spawned_item_count >= 2) { chosen_item_obj = noone; } 
-		else if (chosen_item_obj == obj_shovel && spawned_item_count >= 2) { chosen_item_obj = noone; } 
+		if (special_item && spawned_item_count >= 1) { chosen_item_obj = -1; }
+		else if (chosen_item_obj == obj_map && spawned_item_count >= 1) { chosen_item_obj = -1; } 
+		else if (chosen_item_obj == obj_staff && spawned_item_count >= 1) { chosen_item_obj = -1; } 
+		else if (chosen_item_obj == obj_torch && spawned_item_count >= 2) { chosen_item_obj = -1; } 
+		else if (chosen_item_obj == obj_clock && spawned_item_count >= 2) { chosen_item_obj = -1; } 
+		else if (chosen_item_obj == obj_shovel && spawned_item_count >= 2) { chosen_item_obj = -1; } 
 	}
 	
 	return chosen_item_obj;

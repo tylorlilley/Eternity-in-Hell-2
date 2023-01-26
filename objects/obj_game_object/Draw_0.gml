@@ -1,4 +1,4 @@
-if (sprite_index) {
+if (sprite_index != -1) {
 
 	var is_solid = (object_index == obj_solid || object_is_ancestor(object_index, obj_solid));
 	var solid_at_quadrant = get_instance_at_each_quadrant(obj_solid);
@@ -15,8 +15,10 @@ if (sprite_index) {
 	if ((!is_solid && !is_bush && covered_by_bush) || (!is_solid && covered_by_solid)) { covered = true; }
 	
 	// Draw box underneath solids to partially cover things under them
-	if (is_solid) { draw_sprite_ext(spr_box, 0, x, y, 1, 1, 0, global.controller.bg_color, 1); }
+	if (is_solid) { draw_sprite_ext(spr_box, 0, x, y, 1, 1, 0, global.bg_color, 1); }
 	
 	// Draw main sprite
-	if (!covered) { draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
+	if (!covered) { 
+		draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); 
+	}
 }

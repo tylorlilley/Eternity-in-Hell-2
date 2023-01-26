@@ -1,41 +1,25 @@
-Survey instance_destroy for bugs
-
-Add time based on number of collectables spots
-make bar increase per collectable and not per room cleared?
-Should phantoms spawn in ears rooms?
-Worms draw block box under themselves and over their corners now that corners are on begin draw
-
 === REFACTORS ===
-Add more rooms
-- mouth and nose
-- variety pack room
-- easy spider rooms?
-- easy statue rooms?
-- rooms with one direction pushblock turnstyle?
 
-Survey probabilities of different objects at different difficulties
-Set difficulty accorindg to: room with no or light threat = 1, room with two differnt light or one medium threat = 2, room with high threat or two different medium = 3
+Update stairs to be generated and connected the same way holes are to remove special/different logic between holes and stairs
 
-Set phantom spawn time based on torch distance + difficulty?
-
-rename meat
+Implement smarter pathfinding for move_towards_coordinates
+Worms draw block box under themselves and over their corners now that corners are on begin draw
 
 Remove all commented out code that we don't need anymore
 Examine remaining TODO comments
 
-Update stairs to be generated and connected the same way holes are to remove special/different logic between holes and stairs
-utilize reading in of room data to build up profiles of each room reference to work with. This lets us assign times based on # of collectables, etc.
 Update room reference data to include non-instance information like intelligent sections for adding/removing exits for misleading rooms and specialized amounts of base time that that room itself should add, etc
-Implement smarter pathfinding for move_towards_coordinates
+
+Add time based on number of collectables spots?
+- Better to make it a per - room time value in the json file to better reflect how long it takes to get all collectables in a room
+make bar increase per collectable and not per room cleared?
+Should phantoms spawn in ears rooms?
 
 === NEW FETAURES ===
 level editor
-
-OPTIONS MENU:
-Pixel Scaling 1x, 2x, 4x, full
-options for control bindings
-gamepad support
+option for replace red with another color
 options for light flicker intensity
+options for deepest black (0, 0, 0 vs 20, 20 , 20)
 
 Put an "are you sure" on the enter button?
 
@@ -47,7 +31,6 @@ Pushable block monster?
 
 Should staff protect against non-corporeal enemies?
 Should you be able to pick up and throw bones?
-Should phantom time depend on distance to the torches in the room somehow?
 Should mouths be drawn toward dropped items and collectables somehow?
 
 === BUGS TO FIX ===

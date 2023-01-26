@@ -1,5 +1,5 @@
 if (can_process_this_frame()) {
-	dir = run_away_from_player(false, true, false);
+	var dir = run_away_from_player(false, true, false);
 	switch (dir) {
 		case directions.up: { y += 4; break; }
 		case directions.right: { x -= 4; break; }
@@ -15,7 +15,7 @@ if (can_process_this_frame()) {
 		place_meeting(x, y, obj_death) ||
 		place_meeting(x, y, obj_solid)) {
 			instance_destroy();
-			play_sound(snd_move, false);
+			play_sound(snd_thud, false);
 	}
 }
 

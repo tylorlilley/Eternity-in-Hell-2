@@ -42,7 +42,7 @@ for (var i = 0; i < total_rooms; i++) {
 if (array_length(rooms_with_stairs_spot) mod 2 != 0) {
 	var odd_room_out = array_random_pop(rooms_with_stairs_spot);
 	odd_room_out.exits[4] = false;
-	odd_room_out.stairs_spot_obj = noone;
+	odd_room_out.stairs_spot_obj = -1;
 	array_remove(rooms_with_stairs_spot, odd_room_out);
 }
 while (array_length(rooms_with_stairs_spot) > 0) {
@@ -68,7 +68,7 @@ for (var i = 0; i < total_rooms; i++) {
 	var current_pos = (i+start_pos) % total_rooms;
 
 	current_room = game_rooms[current_pos];
-	if (current_room.stairs_spot_obj == noone) { start_room = current_room; break; }
+	if (current_room.stairs_spot_obj == -1) { start_room = current_room; break; }
 }
 			
 if (start_room == noone) {
@@ -152,8 +152,8 @@ for (var i = 0; i < total_rooms; i++) {
 	// Add room to approprite room lists
 	with (given_room) {
 		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); }
-		if (stairs_spot_obj == noone) {  array_push(rooms_without_stairs_spot_obj, self); }
-		else if (chest_obj == noone && stairs_spot_obj = obj_chest) { item_spawned = true; }
+		if (stairs_spot_obj == -1) {  array_push(rooms_without_stairs_spot_obj, self); }
+		else if (chest_obj == -1 && stairs_spot_obj = obj_chest) { item_spawned = true; }
 	}
 	
 	// Add game time based on assigned room reference

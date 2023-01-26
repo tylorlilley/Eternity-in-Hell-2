@@ -98,6 +98,7 @@ function initialize_game_variables() {
 	BLOCK_ITEM_PROBABILITY = get_probability_for_difficulty([0, 64, 32, 30, 28]);
 	NOSE_SELF_DESTRUCT_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 256, 128]);
 	RESPAWN_FREQUENCY = 40;
+	ECHO_SPAWN_FREQUENCY = 48;
 
 	// Initialize score constants and variables
 	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
@@ -135,7 +136,6 @@ function initialize_game_variables() {
 	current_score = 0;
 
 	// initialize room transition values
-	bg_color = make_color_rgb(0, 0, 0); // make_color_rgb(20, 20, 20);
 	number_of_frames_since_game_began = 0;
 	entered_from_stairs = true;
 	entered_from_spawn = true;
@@ -173,12 +173,12 @@ function are_all_collectables_collected() {
 /// @function								transition_to_room(new_room);
 function transition_to_room(new_room) {
 	// Set room transition variables
-	entered_from_stairs = (transition >= 4);
-	entered_from_spawn = (transition > 4);
+	entered_from_stairs = (transition == directions.stairs || transition == directions.respawn);
+	entered_from_spawn = (transition == directions.respawn);
 			
 	// Play transition sound
-	if (transition == 5) { play_sound(snd_win, false); }
-	else if (transition == 4) { play_sound(snd_stairs, false); }
+	if (transition == directions.respawn) { play_sound(snd_win, false); }
+	else if (transition == directions.stairs) { play_sound(snd_stairs, false); }
 	else { play_sound(snd_move, false); }
 	
 	// Change room
@@ -380,7 +380,7 @@ function game_room_start() {
 		if (current_room.has_portcullis) {
 			// Set up spots where button could spawn
 			var possible_spots = array_create(0);
-			if (current_room.stairs_spot_obj == noone) { array_push(possible_spots, stairs_spot); }
+			if (current_room.stairs_spot_obj == -1) { array_push(possible_spots, stairs_spot); }
 			if (!current_room.has_collectables || (current_room.has_keys == 0 || key_in_chest)) { 
 				with (obj_collectable_spot) { array_push(possible_spots, id); }
 			}
@@ -443,7 +443,7 @@ function game_room_start() {
 		}
 	
 		// Create room's stairs_spot object
-		if (current_room.stairs_spot_obj != noone) {
+		if (current_room.stairs_spot_obj != -1) {
 		    instance_create(stairs_spot.x, stairs_spot.y, current_room.stairs_spot_obj);
 		}
     
@@ -501,17 +501,17 @@ function game_room_start() {
 		
 		// Usurp some skeletons
 		with (obj_skeleton) {
-			var usurper_obj = noone;
+			var usurper_obj = -1;
 			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurper_obj = obj_eyes; }
 			else if (get_random_chance_out_of(global.controller.SNAKE_PROBABILITY) && global.difficulty >= difficulties.hard) { usurper_obj = obj_snake; }
 			else if (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBABILITY) && global.difficulty >= difficulties.medium) { skeleton_speed = global.controller.FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
-			if (usurper_obj != noone) { instance_create(x, y, usurper_obj); instance_destroy(); }
+			if (usurper_obj != -1) { instance_create(x, y, usurper_obj); instance_destroy(); }
 		}
 	}
 
 	// Every Time Setup
 	//background_id = layer_background_get_id(layer_get_id("Background"));
-	//layer_background_blend( background_id, bg_color);
+	//layer_background_blend( background_id, global.bg_color);
 	for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].distance_to_current_room = 9999; }
 	with current_room { calculate_distance_to_current_room(0); }
 
@@ -534,7 +534,7 @@ function game_room_start() {
 	global.player.pause_movement = FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
 
 	// Set initial lighting to darkness
-	with obj_game_object { image_blend = global.controller.bg_color; }
+	with obj_game_object { image_blend = global.bg_color; }
 	
 	// Run room start event for specific objects
 	with (obj_bumper) {
@@ -612,7 +612,7 @@ function game_room_start() {
 		var new_worm_body = instance_create(xstart, ystart, object_index);
 		new_worm_body.xstart = xstart;
 		new_worm_body.ystart = ystart;
-		new_worm_body.image_blend = global.controller.bg_color;
+		new_worm_body.image_blend = global.bg_color;
 		instance_destroy(id, false);
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
@@ -620,7 +620,7 @@ function game_room_start() {
 		if (global.controller.entered_from_stairs && global.controller.current_room == global.controller.start_room) { instance_destroy(); }
 		else {
 			play_sound(snd_echo, false); 
-			spawn_timer = 128;
+			spawn_timer = 16;
 			moves = array_create(0);
 			x = global.player.x;
 			y = global.player.y;

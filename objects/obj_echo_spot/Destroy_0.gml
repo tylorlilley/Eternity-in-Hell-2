@@ -1,4 +1,7 @@
-with (obj_echo) { instance_destroy(); }
+with (obj_echo) { 
+	instance_destroy();
+	if (global.player.dead) { play_sound(snd_stairs, false); }
+}
 with (obj_cross) {
 	if (!global.controller.entered_from_stairs) {
 		var item_obj = get_random_item_obj(true, true);

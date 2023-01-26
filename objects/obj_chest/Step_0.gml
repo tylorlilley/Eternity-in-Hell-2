@@ -20,7 +20,7 @@ if (can_process_this_frame()) {
 					statue.dir = get_opposite_dir(push_direction);
 					instance_destroy();
 				}
-				else if (contents_obj != noone) { 
+				else if (contents_obj != -1) { 
 					var new_item = noone;
 					with (global.player) {
 						play_sound(snd_open, true);
@@ -38,7 +38,7 @@ if (can_process_this_frame()) {
 			
 			//ds_list_destroy(free_hands);
 		}
-		else if (contents_obj == noone) { 
+		else if (contents_obj == -1) { 
 			closed = false;
 			image_index = 1;
 		}

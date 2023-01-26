@@ -7,7 +7,7 @@ var collectables_collected = total_number_of_rooms_with_collectables - array_len
 
 if (transition != directions.none || has_won || has_timed_out || is_looking_at_map) {
 	// Draw background over entire screen
-	draw_set_color(bg_color);
+	draw_set_color(global.bg_color);
 	draw_rectangle(0, 0, room_width-1, room_height-1, false);
 
     // Draw map of rooms if applicable
@@ -18,10 +18,6 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
         with current_room {
             draw_room(room_width/2, (room_height/2));
         }
-
-        draw_set_color(bg_color);
-        draw_rectangle(0, 0, room_width, 24, false);
-        draw_rectangle(0, room_height-40, room_width, room_height, false);
 
         // Draw progress bar
 		var os_offset = (os_type == os_windows) ? 0: 1

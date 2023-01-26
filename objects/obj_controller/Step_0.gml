@@ -66,7 +66,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	}
 	
 	// Update background color
-	bg_color = make_color_rgb(floor(get_scaling_amount(0, 255, power(1-(time_remaining/time_provided), 8), 1)), 0, 0); //make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(time_remaining/time_provided), 8), 1)), 20, 20);
+	global.bg_color = make_color_rgb(floor(get_scaling_amount(20, 255, power(1-(time_remaining/time_provided), 8), 1)), 20, 20);
 	
 	// Restart game if necessary
 	if key_enter_released { 

@@ -4,10 +4,10 @@ var death_count_string = get_death_count_string(global.difficulty), win_count_st
 var title_y_pos = room_height/4+16, title_scale = 0.125;
 
 // Draw background
-draw_set_color(c_black);
-draw_rectangle(0, 0, room_width, room_height, false);
+draw_set_color(global.bg_color);
+draw_rectangle(0, 0, room_width-1, room_height-1, false);
 
-if (loading) { title_y_pos = room_height/2; title_scale = 0.25; }
+if (loading) { title_y_pos = room_height*2; title_scale = 0.25; }
 else if (options_screen) {
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);

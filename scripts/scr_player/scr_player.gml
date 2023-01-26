@@ -1,6 +1,8 @@
 /// @function								move_player(dir);
 /// @param		{direction} dir				The direction to move the player instance
 function move_player(dir) {
+	if (dir == directions.none) { return; }
+	
 	with global.player {
 		// Move player
 		if (dir != directions.stairs) {
@@ -133,7 +135,7 @@ function kill_player(killed_by_obj) {
 			if (is_existing_instance(left_hand_item) && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false); }
 		}
 		
-		global.controller.killed_by = (killed_by_obj == noone) ? other.object_index : killed_by_obj;
+		global.controller.killed_by = (killed_by_obj == -1) ? other.object_index : killed_by_obj;
 		update_death_log(global.controller.killed_by, global.difficulty);
 	}
 }
@@ -155,12 +157,12 @@ function draw_staff_box() {
 			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 
 			if (is_existing_instance(lava_at_quadrant[i]) || is_existing_instance(wall_at_quadrant[i]) || is_existing_instance(column_at_quadrant[i])) {
-			    draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1);
+			    draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.bg_color, 1);
 			}
 		}
+		
+		draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 	}
-	
-	draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 }
 
 /// @function				draw_player_hat();

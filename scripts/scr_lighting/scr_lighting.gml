@@ -26,5 +26,5 @@ function get_image_blend(maximum_intensity) {
 	}
 
 	if greatest_lighting_intensity > maximum_intensity { greatest_lighting_intensity = maximum_intensity; }
-	return merge_color(global.controller.bg_color, c_white, greatest_lighting_intensity);
+	return merge_color(global.bg_color, c_white, greatest_lighting_intensity);
 }

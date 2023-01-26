@@ -1,15 +1,16 @@
 event_inherited();
 
-if (spawn_timer > 0) { 
-	spawn_timer -= 1;
-	if (spawn_timer == 0) { 
-		if (array_length(moves) > 1) {
+if (can_process_this_frame()) {
+	if (!spawning) { 
+		spawning = (array_length(moves) > 1); 
+	}
+	else if (spawn_timer > 0) { 
+		spawn_timer -= 1;
+		if (spawn_timer == 0) {
 			var echo = instance_create(x, y, obj_echo);
 			echo.generator = id;
-			play_sound(initialized ? snd_announce : snd_echo, false);
-			initialized = true;
-			spawn_timer = 128+56;
+			play_sound(snd_echo, false);
+			spawn_timer = global.controller.ECHO_SPAWN_FREQUENCY;
 		}
-		else { spawn_timer = 16; }
 	}
 }

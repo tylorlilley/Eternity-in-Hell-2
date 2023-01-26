@@ -33,6 +33,7 @@ enum inputs {
 }
 
 // Setup global variables for title screen
+global.bg_color = make_color_rgb(20, 20, 20); //make_color_rgb(0, 0, 0);
 global.difficulty = difficulties.easy;
 global.seed_option = seed_options.rand;
 global.seed = noone;

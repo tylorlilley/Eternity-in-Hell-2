@@ -160,7 +160,6 @@ function move_in_direction(dir, make_noise) {
 		play_sound(snd, false); 
 	}
 	
-
 }
 
 

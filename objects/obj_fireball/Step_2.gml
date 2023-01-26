@@ -4,7 +4,9 @@ var blocked = false;
 // Destroy doors
 var door = instance_place(x, y, obj_door);
 if (destructive) {
-	with (door) { instance_destroy(); play_sound(snd_crunch, true); }
+	with (door) { 
+		if (closed != noone) { instance_destroy(); play_sound(snd_crunch, true); }
+	}
 }
 
 // Kill Enemies

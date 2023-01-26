@@ -6,7 +6,7 @@ if (can_process_this_frame()) {
 	var enemies_at_position = instance_place_all(x, y, obj_enemy);
 	while (array_length(enemies_at_position) > 0) {
 		var enemy = array_random_pop(enemies_at_position);
-		if (enemy.activated) { new_occupier = enemy; break; }
+		if (enemy.activated && enemy.corporeal) { new_occupier = enemy; break; }
 	}
 	if (new_occupier == noone && place_meeting(x, y, global.player)) { new_occupier = global.player; }
 	occupier = new_occupier;

@@ -108,7 +108,7 @@ keyless_rooms = set_up_locks_and_keys(keyless_rooms);
 
 // Create heart in farthest room
 for (var i = 0; i < total_rooms; i++) {
-	if (!game_rooms[i].exits[4] && !game_rooms[i].stairs_spot_obj) {
+	if (game_rooms[i].exits[4] == noone && game_rooms[i].stairs_spot_obj == -1) {
 		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, game_rooms[i]); }
 		else {
 			var distance = array_get(farthest_rooms, 0).distance_from_start_room;
@@ -153,7 +153,7 @@ for (var i = 0; i < total_rooms; i++) {
 	with (given_room) {
 		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); }
 		if (stairs_spot_obj == -1) {  array_push(rooms_without_stairs_spot_obj, self); }
-		else if (chest_obj == -1 && stairs_spot_obj = obj_chest) { item_spawned = true; }
+		else if (chest_obj == -1 && stairs_spot_obj == obj_chest) { item_spawned = true; }
 	}
 	
 	// Add game time based on assigned room reference

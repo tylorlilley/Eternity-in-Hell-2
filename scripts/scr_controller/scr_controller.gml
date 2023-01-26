@@ -559,11 +559,13 @@ function game_room_start() {
 		occupied = false;
 		has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
 	}
+	with (obj_player_corpse) {  has_bug = true; }
 	with (obj_bones) { 
 		if (!is_solid_at_position(x, y)) {
 			has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
-			trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); } 
-		}
+			trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); 
+		} 
+	}
 	with (obj_stairs) { active = false; }
 	with (obj_hole) { active = false; }
 	with (obj_door) { 

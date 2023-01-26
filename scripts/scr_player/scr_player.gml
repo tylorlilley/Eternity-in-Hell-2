@@ -173,3 +173,17 @@ function draw_staff_box() {
 function draw_player_hat() {
 	if (global.FARM_MODE) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
 }
+
+/// @function				snap_player_to_position(dir);
+/// @param		{dir} dir	The direction to snap the player opposite to
+function snap_player_to_position(dir) {
+	global.player.moved_by_other_object = true;
+	global.player.x = x;
+	global.player.y = y;
+	switch (dir) {
+		case directions.up: { global.player.y += 16; break; }
+		case directions.down: { global.player.y -= 16; break; }
+		case directions.left: { global.player.x += 16; break; }
+		case directions.right: { global.player.x -= 16; break; }
+	}
+}

@@ -8,8 +8,9 @@ if (can_process_this_frame()) {
 	else if global.controller.key_left && !global.controller.key_right && (global.controller.key_left_pressed || !global.controller.key_left_released) { dir = directions.left; }
 	else if global.controller.key_right && !global.controller.key_left && (global.controller.key_right_pressed || !global.controller.key_right_released) { dir = directions.right; }
 		
-	if (dir != noone && get_direction_pushed_against() == dir && can_move_in_direction(dir, false, true)) { 
+	if (!global.player.moved_by_self && !global.player.moved_by_other_object && dir != noone && get_direction_pushed_against() == dir && can_move_in_direction(dir, false, true)) { 
 		play_sound(snd_thud, false);
+		snap_player_to_position(dir);
 		move_in_direction(dir, false); 
 		move_player(dir);
 	}

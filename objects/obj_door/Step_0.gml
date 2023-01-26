@@ -6,18 +6,11 @@ if (can_process_this_frame()) {
 		var push_direction = get_direction_pushed_against();
 		var carrying_key = false;
 		with (global.player) { carrying_key = is_carrying_item(obj_key); }
-		if (push_direction != noone) {
+		if (!global.player.moved_by_self && !global.player.moved_by_other_object && push_direction != noone) {
 		    if (!unlocked_by_key || (locked && !carrying_key)) { play_sound(snd_locked, false); }
 		    else {
 				play_sound(snd_open, true);
-				global.player.x = x;
-				global.player.y = y;
-				switch (push_direction) {
-					case directions.up: { global.player.y += 16; break; }
-					case directions.down: { global.player.y -= 16; break; }
-					case directions.left: { global.player.x += 16; break; }
-					case directions.right: { global.player.x -= 16; break; }
-				}
+				snap_player_to_position(push_direction);
 				move_player(push_direction);
 				open_door();
 			}

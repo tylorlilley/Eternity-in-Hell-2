@@ -2,23 +2,31 @@ if (can_process_this_frame()) {
 	x_prev = x;
 	y_prev = y;
 	dir_prev = dir;
+	moved_by_self = false;
 	if (dir_prev == noone) { dir_prev = irandom(3); }
 	
 	// Spawn Bugs in nearby dirt and bushes
+	with (obj_player_corpse) { 
+		if (has_bug && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+			instance_create(x, y, obj_bug);
+			instance_create(x, y, obj_bug);
+			has_bug = false;
+		}
+	}
 	with (obj_bones) { 
-		if ((has_bug) && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+		if (has_bug && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_dirt) { 
-		if ((has_bug) && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+		if (has_bug && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_bush) { 
-		if ((has_bug) && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+		if (has_bug && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
@@ -48,7 +56,8 @@ if (can_process_this_frame()) {
 			}
 			
 		    // Move player in chosen direction if possible
-		    if (dir != noone && can_move_in_direction(dir, false, true)) { move_player(dir); }
+		    if (!moved_by_other_object && dir != noone && can_move_in_direction(dir, false, true)) { move_player(dir); moved_by_self = true; }
+			moved_by_other_object = false;
 		}
 		
 		// Increase lighting range if carrying a rosary

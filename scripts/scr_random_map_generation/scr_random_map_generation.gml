@@ -67,7 +67,7 @@ function walk_the_map(unlocked_exits) {
 			// If the exit in the chosen direction from the chosen room is not locked or is but is in the given list of unlocked_exits
 			if (!chosen_room.locked_exits[chosen_dir] || array_contains(unlocked_exits, chosen_room.locked_exits[chosen_dir])) {
 				// Walk through the target room
-				if (target_room.has_keys > 0) { keys_found += (target_room.has_special_item && (target_room.item_type = obj_key || target_room.item_type == noone)) ? 9999 : 1; } //if (keys_found >= 9999) { show_debug_message("SPECIAL KEY FOUND ON WALK"); } }
+				if (target_room.has_keys > 0) { keys_found += (target_room.has_special_item && (target_room.item_type == obj_key || target_room.item_type == noone)) ? 9999 : 1; } //if (keys_found >= 9999) { show_debug_message("SPECIAL KEY FOUND ON WALK"); } }
 				with target_room { walk_through_room(visited_rooms, exits_to_walk_through); }
 			}
 			// If the exit in the chosen direction from the chosen room is locked

@@ -124,7 +124,7 @@ class RoomConverter
 
         # Boolean Threat Levels
         threat_level += 1 if room_objects.include? "obj_lantern"
-        threat_level += 1 if room_objects.include? "obj_bumper"
+        threat_level += 1.5 if room_objects.include? "obj_bumper"
         threat_level += 5 if room_objects.include? "obj_echo_spot"
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"

@@ -111,13 +111,7 @@ function create_item_in_hand(dir, obj_index) {
 		if (dir == directions.right) { right_hand_item = new_item; new_item.image_xscale = -1; }
 		else if (dir == directions.left) { left_hand_item = new_item; new_item.image_xscale =1; }
 		
-		with (new_item) {
-			// Become carried
-			holder = other.id;
-			persistent = other.persistent;
-			depth = -5;
-		}
-		
+		with (new_item) { become_carried(other.id); }
 		return new_item;
 	}
 }

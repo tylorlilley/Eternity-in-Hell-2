@@ -1,6 +1,6 @@
 if (can_process_this_frame()) {
 	// Determine initial direction if not set
-	if (dir == noone) {
+	if (dir == directions.none) {
 		if (!place_meeting(x, y-8, obj_solid)) { dir = directions.up; } 
 		else if (!place_meeting(x+8, y, obj_solid)) { dir = directions.right; } 
 		else if (!place_meeting(x, y+8, obj_solid)) { dir = directions.down; } 

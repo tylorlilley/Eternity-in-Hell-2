@@ -1,11 +1,10 @@
 event_inherited();
 
 closed = true;
-contents = global.controller.current_room.item_type;
-special = global.controller.current_room.has_special_item;
+contents_obj = global.controller.current_room.chest_obj;
 
-while (contents == noone) {
-	var array_to_check = (special) ? global.controller.spawned_special_items : global.controller.spawned_items;
-	contents = array_random_pop(array_to_check);
-	if (contents == obj_key) { contents = noone; }
+while (contents_obj == noone) {
+	var array_to_check = (global.controller.current_room.has_special_item) ? global.controller.spawned_special_items : global.controller.spawned_items;
+	contents_obj = array_random_pop(array_to_check);
+	if (contents_obj == obj_key) { contents_obj = noone; }
 }

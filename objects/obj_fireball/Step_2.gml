@@ -1,11 +1,11 @@
-if (instance_exists(torch)) { set_instance_to_same_position(torch);  torch.image_xscale = 0.5; }
+if (is_existing_instance(torch)) { set_instance_to_same_position(torch);  torch.image_xscale = 0.5; }
 var blocked = false;
 
 // Destroy doors
 var door = instance_place(x, y, obj_door);
 if (destructive) {
 	with (door) { 
-		if (closed != noone) { instance_destroy(); play_sound(snd_crunch, true); }
+		if (is_existing_instance(closed)) { instance_destroy(); play_sound(snd_crunch, true); }
 	}
 }
 
@@ -33,7 +33,7 @@ if (!global.player.dead && place_meeting(x, y, global.player) && get_distance_to
 	with (global.player) {
 		if (!is_carrying_item(obj_staff)) {
 			play_sound(snd_extinguish, false);
-			kill_player(other.object_index);
+			kill_player(other.creator_obj);
 		}
 	}
 }
@@ -43,7 +43,7 @@ if (!blocked) {
 	var solids_at_position = instance_place_all(x, y, obj_solid);
 	while (array_length(solids_at_position) > 0) {
 		var blocking_solid = array_random_pop(solids_at_position);
-		if (blocking_solid != noone && blocking_solid.object_index != creator) { blocked = true; break; }
+		if (is_existing_instance(blocking_solid) && blocking_solid.object_index != creator_obj) { blocked = true; break; }
 	}
 }
 

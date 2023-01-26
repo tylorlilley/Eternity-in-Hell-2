@@ -54,6 +54,7 @@
     {"id":{"name":"spr_spider","path":"sprites/spr_spider/spr_spider.yy",},"order":17,},
     {"id":{"name":"spr_rosary","path":"sprites/spr_rosary/spr_rosary.yy",},"order":34,},
     {"id":{"name":"scr_lava","path":"scripts/scr_lava/scr_lava.yy",},"order":9,},
+    {"id":{"name":"obj_loading_title","path":"objects/obj_loading_title/obj_loading_title.yy",},"order":3,},
     {"id":{"name":"obj_giant_worm_head","path":"objects/obj_giant_worm_head/obj_giant_worm_head.yy",},"order":13,},
     {"id":{"name":"rm_four_exits_2","path":"rooms/rm_four_exits_2/rm_four_exits_2.yy",},"order":15,},
     {"id":{"name":"spr_phantom","path":"sprites/spr_phantom/spr_phantom.yy",},"order":18,},

@@ -2,7 +2,7 @@ if (can_process_this_frame()) {
 	x_prev = x;
 	y_prev = y;
 	dir_prev = dir;
-	if (dir_prev == noone) { dir_prev = irandom(3); }
+	if (dir_prev == directions.none) { dir_prev = irandom(3); }
 	
 	// Spawn Bugs in nearby dirt and bushes
 	with (obj_player_corpse) { 
@@ -32,10 +32,10 @@ if (can_process_this_frame()) {
 	}
 
 	if (!dead && is_solid_at_position(x, y)) {
-		var killed_by = instance_place(x, y, obj_solid).object_index;
-		killed_by = (killed_by == obj_giant_worm_head) ? obj_giant_worm_body : killed_by;
+		var killed_by_obj = instance_place(x, y, obj_solid).object_index;
+		killed_by_obj = (killed_by_obj == obj_giant_worm_head) ? obj_giant_worm_body : killed_by_obj;
 		play_sound(snd_crunch, false);
-		kill_player(killed_by);
+		kill_player(killed_by_obj);
 	}
 	if (!dead && !is_game_won() && !is_game_lost()) {   
 	    // Get input from player
@@ -55,7 +55,7 @@ if (can_process_this_frame()) {
 			}
 			
 		    // Move player in chosen direction if possible
-		    if (moved_by == noone && dir != noone && can_move_in_direction(dir, false, true)) { move_player(dir); moved_by = id; }
+		    if (!is_existing_instance(moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) { move_player(dir); moved_by = id; }
 		}
 		
 		// Increase lighting range if carrying a rosary
@@ -64,8 +64,8 @@ if (can_process_this_frame()) {
 		is_flickering_light_source = false;
 		
 		// Increase lighting range if carrying two torches
-		if (is_carrying_item_in_right_hand(obj_torch) && right_hand_item.light_source != noone &&
-			is_carrying_item_in_left_hand(obj_torch) && left_hand_item.light_source != noone) { 
+		if (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source) &&
+			is_carrying_item_in_left_hand(obj_torch) && is_existing_instance(left_hand_item.light_source)) { 
 				if (lighting_range < right_hand_item.light_source.lighting_range+4) { 
 					lighting_range = right_hand_item.light_source.lighting_range+4;
 					is_flickering_light_source = true;
@@ -78,8 +78,8 @@ if (can_process_this_frame()) {
     
 	    // Transition to new room depending on player position
 	    var stairs = instance_place(x, y, obj_stairs), hole = instance_place(x, y, obj_hole);
-		if (stairs != noone && stairs.active && is_instance_at_coordinates(x, y, stairs)) { global.controller.transition = directions.stairs; }
-		if (hole != noone && hole.active && hole.connected_hole != noone && is_instance_at_coordinates(x, y, hole)) { global.controller.transition = directions.stairs; global.controller.transition_hole = hole; }
+		if (is_existing_instance(stairs) && stairs.active && is_instance_at_coordinates(x, y, stairs)) { global.controller.transition = directions.stairs; }
+		if (is_existing_instance(hole) && hole.active && is_existing_instance(hole.connected_hole) && is_instance_at_coordinates(x, y, hole)) { global.controller.transition = directions.stairs; global.controller.transition_hole = hole; }
 	    else if x < 0 { global.controller.transition = directions.left; }
 	    else if x > room_width { global.controller.transition = directions.right; }
 	    else if y < 0 { global.controller.transition = directions.up; }

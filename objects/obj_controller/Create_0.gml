@@ -14,15 +14,15 @@ with current_room { initialize_room(uninitialized_rooms); }
 // Generate More Rooms until minimum number is met.
 var target_number_of_rooms = MINIMUM_NUMBER_OF_ROOMS + irandom(ADDITIONAL_ROOMS);
 while (array_length(game_rooms) < target_number_of_rooms) {
-    var random_room = array_random_get(game_rooms);
-    with random_room { add_random_exit(true, uninitialized_rooms); }
+	var random_room = array_random_get(game_rooms);
+	with random_room { add_random_exit(true, uninitialized_rooms); }
 	//show_debug_message("Added room exit to game room " + string(random_room.id))
 }
 
 // Generate and initialize rooms until all rooms have been initialized
 while (array_length(uninitialized_rooms) > 0) {
-    var random_uninitialized_room = array_random_pop(uninitialized_rooms);
-    with random_uninitialized_room { initialize_room(uninitialized_rooms); }
+	var random_uninitialized_room = array_random_pop(uninitialized_rooms);
+	with random_uninitialized_room { initialize_room(uninitialized_rooms); }
 }
 
 // Restart Room Spawning if room count is too high
@@ -37,29 +37,29 @@ else {
 // Generate stairs Connections
 var rooms_with_stairs_spot = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
-    if (game_rooms[i].exits[4]) { array_push(rooms_with_stairs_spot, game_rooms[i]); }
+	if (game_rooms[i].exits[4]) { array_push(rooms_with_stairs_spot, game_rooms[i]); }
 }
 if (array_length(rooms_with_stairs_spot) mod 2 != 0) {
-    var odd_room_out = array_random_pop(rooms_with_stairs_spot);
-    odd_room_out.exits[4] = false;
+	var odd_room_out = array_random_pop(rooms_with_stairs_spot);
+	odd_room_out.exits[4] = false;
 	odd_room_out.stairs_spot_obj = noone;
-    array_remove(rooms_with_stairs_spot, odd_room_out);
+	array_remove(rooms_with_stairs_spot, odd_room_out);
 }
 while (array_length(rooms_with_stairs_spot) > 0) {
 	var first_room = array_random_pop(rooms_with_stairs_spot);
-    var second_room = array_random_pop(rooms_with_stairs_spot);
-    first_room.adj_rooms[4] = second_room;
-    second_room.adj_rooms[4] = first_room;
+	var second_room = array_random_pop(rooms_with_stairs_spot);
+	first_room.adj_rooms[4] = second_room;
+	second_room.adj_rooms[4] = first_room;
 }
 
 // Lock Random Exits
 locked_exits = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
-    for(var dir = 0; dir <= 3; dir+= 1;) {
-        if (game_rooms[i].exits[dir] && get_random_chance_out_of(LOCKED_DOOR_PROBABILITY)) { 
-           array_push(locked_exits, game_rooms[i].create_locked_exit(dir));
-        }
-    }
+	for(var dir = 0; dir <= 3; dir+= 1;) {
+	    if (game_rooms[i].exits[dir] && get_random_chance_out_of(LOCKED_DOOR_PROBABILITY)) { 
+	        array_push(locked_exits, game_rooms[i].create_locked_exit(dir));
+	    }
+	}
 }
 
 // Begin Game in Random Room that has no stairs in it
@@ -89,7 +89,7 @@ current_room.calculate_distance_to_current_room(0);
 var keyless_rooms = array_create(0), farthest_rooms = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
 	// Determine if room has a key or not
-    if (!game_rooms[i].has_keys > 0 && game_rooms[i] != current_room) { array_push(keyless_rooms, game_rooms[i]); }
+	if (!game_rooms[i].has_keys > 0 && game_rooms[i] != current_room) { array_push(keyless_rooms, game_rooms[i]); }
 }
 
 // Randomly spawn a minimum number of collectables rooms
@@ -143,17 +143,17 @@ keyless_rooms = set_up_locks_and_keys(keyless_rooms);
 create_room_lists();
 time_provided = 0;
 
-var item_spawned = false, rooms_with_lanterns = array_create(0), rooms_without_stairs_spot_object = array_create(0);
+var item_spawned = false, rooms_with_lanterns = array_create(0), rooms_without_stairs_spot_obj = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
 	// Assign room reference from list
 	var given_room = game_rooms[i];
 	given_room.room_reference = given_room.get_room_from_room_lists();
    
-    // Add room to approprite room lists
+	// Add room to approprite room lists
 	with (given_room) {
 		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); }
-		if (stairs_spot_obj == noone) {  array_push(rooms_without_stairs_spot_object, self); }
-		else if (item_type == noone && stairs_spot_obj = obj_chest) { item_spawned = true; }
+		if (stairs_spot_obj == noone) {  array_push(rooms_without_stairs_spot_obj, self); }
+		else if (chest_obj == noone && stairs_spot_obj = obj_chest) { item_spawned = true; }
 	}
 	
 	// Add game time based on assigned room reference
@@ -177,7 +177,7 @@ if (array_length(rooms_with_lanterns) == 0) {
 }
 
 // Ensure at least one item room exists
-if (!item_spawned && array_length(rooms_without_stairs_spot_object) == 0) {
+if (!item_spawned && array_length(rooms_without_stairs_spot_obj) == 0) {
 	show_debug_message("WARNING: no item chest generated and no rooms where one can be generated.");
 	reset_map_generation();
 	exit;
@@ -199,7 +199,7 @@ if (!lit_room_exists) {
 
 // Ensure at least one room has item
 if (!item_spawned) {
-	var given_room = array_random_get(rooms_without_stairs_spot_object);
+	var given_room = array_random_get(rooms_without_stairs_spot_obj);
 	with given_room { set_up_room_chest(); }
 }
 
@@ -232,4 +232,5 @@ for (var i = 0; i < total_rooms; i++) {
 avg_exits = avg_exits / total_rooms;
 */
 }
+
 

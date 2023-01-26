@@ -16,7 +16,7 @@ else {
 	for (var i = 0; i < instance_number(obj_lantern); i++) {
 		var lantern = instance_find(obj_lantern, i);
 		
-		if (lantern.light_source != noone) { continue; }
+		if (is_existing_instance(lantern) && is_existing_instance(lantern.light_source)) { continue; }
 		
 		lantern_count += 1;
 		total_distance_to_lanterns += point_distance(x, y, lantern.x, lantern.y) / 8.0;

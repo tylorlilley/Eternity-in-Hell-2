@@ -2,6 +2,7 @@ if (can_process_this_frame()) {
 	event_inherited();
 	
 	visible = activated;
+	
 	if (activated) {
 		if (corporeal) {
 			var death_sound = noone;

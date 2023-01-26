@@ -5,10 +5,10 @@ if (can_process_this_frame()) {
 	if ((get_distance_to_instance(global.player) < global.controller.TRAP_RANGE) != activated) {
 		var dropped_meat = get_dropped_meat();
 		
-		if (dropped_meat == noone || (is_instance_at_coordinates(x, y, dropped_meat))) {
+		if (!is_existing_instance(dropped_meat) || (is_instance_at_coordinates(x, y, dropped_meat))) {
 			activated = !activated;
 			play_sound(snd_squelch, true);
-			if (!activated && dropped_meat == noone) { teleport_to_empty_space(); }
+			if (!activated && !is_existing_instance(dropped_meat)) { teleport_to_empty_space(); }
 		}
 		else { 
 			x = dropped_meat.x; 

@@ -12,7 +12,7 @@ function convert_to_multiple_death_boxes() {
 		death_boxes[i] = instance_create(x_pos, y_pos, obj_death);
 		death_boxes[i].image_xscale = 0.5;
 		death_boxes[i].image_yscale = 0.5;
-		death_boxes[i].creator = object_index;
+		death_boxes[i].creator_obj = object_index;
 	}
 }
 
@@ -58,11 +58,11 @@ function get_lava_at_each_quadrant() {
 	// Check each quadrant for death boxes
 	for (var i = 0; i <= 3; i++) {
 		var lava = lava_at_quadrant[i], missing_death_box = true, x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
-		if (lava != noone && lava.death_box == noone) {
+		if (is_existing_instance(lava) && !is_existing_instance(lava.death_box)) {
 			// mark the lava as not missing a death box if a death box is at the right quadrant position
 			for (var j = 0; j <= 3; j++) {
 				var death_box = lava.death_boxes[j]
-				if (death_box != noone && death_box.x == x_pos && death_box.y == y_pos) { missing_death_box = false; break; }
+				if (is_existing_instance(death_box) && death_box.x == x_pos && death_box.y == y_pos) { missing_death_box = false; break; }
 			}
 		
 			// Override lava at this quadrant with noone if death box is missing

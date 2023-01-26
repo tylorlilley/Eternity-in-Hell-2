@@ -18,7 +18,7 @@ function light_torch(lighting_torch, make_noise) {
 
 		light_source = instance_create(x, y, obj_light_source);
 		light_source.lighting_range = lighting_range;
-		light_source.persistent = (holder != noone);
+		light_source.persistent = (is_existing_instance(holder));
 		
 		// Mark room as lit if this was the last lantern in the room
 		if (object_index == obj_lantern) {
@@ -64,8 +64,8 @@ function interact_with_other_torches() {
 	while (array_length(torches) > 0) {
 		var other_torch = array_random_pop(torches);
 		
-		if (((other_torch.holder != noone && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
-			var not_carried = (holder == noone), other_not_carried = (other_torch.holder == noone);
+		if (((is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
+			var not_carried = (!is_existing_instance(holder)), other_not_carried = (!is_existing_instance(other_torch) || !is_existing_instance(other_torch.holder));
 			if (other_torch.light_source && not_carried != other_not_carried) { 
 				light_torch(other_torch, true);		
 				actively_lit = true;

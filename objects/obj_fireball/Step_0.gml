@@ -3,5 +3,5 @@ if (can_process_this_frame()) {
 	
 	image_xscale = 1;
 	image_angle = direction+270;
-	if (instance_exists(torch)) { torch.image_xscale = 0.5; }
+	if (is_existing_instance(torch)) { torch.image_xscale = 0.5; }
 }

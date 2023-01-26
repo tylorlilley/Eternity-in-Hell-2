@@ -9,10 +9,10 @@ with (left_hand_item) { draw_while_carried(); }
 with (right_hand_item) { draw_while_carried(); } 
 
 // Draw Hands
-if ((image_xscale == 1 && left_hand_item != noone) || (image_xscale == -1 && right_hand_item != noone)) {
+if ((image_xscale == 1 && is_existing_instance(left_hand_item)) || (image_xscale == -1 && is_existing_instance(right_hand_item))) {
 	draw_sprite_ext(spr_player_left_hand, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 }
-if ((image_xscale == -1 && left_hand_item != noone) || (image_xscale == 1 && right_hand_item != noone)) {
+if ((image_xscale == -1 && is_existing_instance(left_hand_item)) || (image_xscale == 1 && is_existing_instance(right_hand_item))) {
 	draw_sprite_ext(spr_player_right_hand, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 }
 

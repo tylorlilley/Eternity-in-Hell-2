@@ -4,7 +4,7 @@ if (can_process_this_frame()) {
 	thump();
 	
 	var push_direction = get_direction_pushed_against();
-	if (push_direction != noone) { play_sound(snd_locked, false); }
+	if (push_direction != directions.none) { play_sound(snd_locked, false); }
 	
 	
 	if (are_all_collectables_collected()) {

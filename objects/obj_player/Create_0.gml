@@ -10,8 +10,8 @@ lighting_range = global.controller.PLAYER_LIGHT_RANGE;
 is_flickering_light_source = false;
 flicker_value = 0;
 
-dir = noone;
-dir_prev = noone;
+dir = directions.none;
+dir_prev = directions.none;
 moved_by = noone;
 x_prev = x;
 y_prev = y;

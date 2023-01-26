@@ -16,7 +16,7 @@ if (can_process_this_frame()) {
 			if (get_random_chance_out_of(global.controller.NOSE_SELF_DESTRUCT_PROBABILITY)) { explode(true); } 
 			else {
 				var target = get_dropped_meat();
-				if (target == noone) { target = global.player; }
+				if (!is_existing_instance(target)) { target = global.player; }
 				shoot_fireball(target.x, target.y, false);
 				image_index = 0;
 				activated = false;

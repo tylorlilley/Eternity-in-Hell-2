@@ -7,7 +7,7 @@ var title_y_pos = room_height/4+16, title_scale = 0.125;
 draw_set_color(c_black);
 draw_rectangle(0, 0, room_width, room_height, false);
 
-if (loading) { title_y_pos = room_height*2; title_scale = 0.25; }
+if (loading) { title_y_pos = room_height/2; title_scale = 0.25; }
 else if (options_screen) {
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
@@ -143,10 +143,10 @@ else if (key_z && (death_count_string != noone || win_count_string != noone)) {
 	draw_set_halign(fa_left);
 	var y_initial = (16*3)+8, x_columns = (array_length(deaths_to_display) <= 9) ? 3 : 5, x_initial = room_width/x_columns, y_pos = y_initial, x_pos = x_initial;
 	while (array_length(deaths_to_display) > 0) {
-		var death_to_display = array_pop(deaths_to_display), death_object = death_to_display[0], death_count = death_to_display[1];
+		var death_to_display = array_pop(deaths_to_display), death_obj = death_to_display[0], death_count = death_to_display[1];
 		
 		// Draw Death Sprite and Count
-		draw_death_type_sprite(x_pos, y_pos, death_object);
+		draw_death_type_sprite(x_pos, y_pos, death_obj);
 		draw_text(x_pos+x_initial, y_pos, string(death_count));
 		
 		// Increase Draw Position

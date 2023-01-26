@@ -5,7 +5,8 @@ enum directions {
 	down,
 	left,
 	stairs,
-	respawn
+	respawn,
+	none
 }
 
 // global variables to represent the various game difficulty settings

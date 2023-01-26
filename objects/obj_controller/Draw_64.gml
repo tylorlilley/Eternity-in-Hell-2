@@ -5,14 +5,14 @@ var has_timed_out = is_time_up();
 var is_looking_at_map = key_space && !has_lost;
 var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 
-if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
+if (transition != directions.none || has_won || has_timed_out || is_looking_at_map) {
 	// Draw background over entire screen
 	draw_set_color(bg_color);
 	draw_rectangle(0, 0, room_width-1, room_height-1, false);
 
     // Draw map of rooms if applicable
 	var hud_x_pos = 4;
-    if (is_looking_at_map && !has_won && !has_lost && transition == noone) {
+    if (is_looking_at_map && !has_won && !has_lost && transition == directions.none) {
         // Draw each visited room
        for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].drawn = false; }
         with current_room {
@@ -88,7 +88,7 @@ if (transition != noone || has_won || has_timed_out || is_looking_at_map) {
 if (global.TEST_MODE) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
-	if (global.player != noone) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }
+	if (is_existing_instance(global.player)) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
 	//draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));

@@ -1,7 +1,7 @@
 event_inherited();
 
 // Setup corner drawing
-if (head && head.x != x && head.y != y) {
+if (is_existing_instance(head) && head.x != x && head.y != y) {
 	corner_x = x;
 	corner_y = y;
 	corner_x_scale = 1; 

@@ -104,12 +104,10 @@ function instance_place_all(x_pos, y_pos, obj_type) {
         var potential_match_id = id;
         with (calling_instance_id) {
             var potential_match = instance_place(x_pos, y_pos, potential_match_id);
-            if (potential_match != noone) { array_push(list_of_matches, potential_match); }
+            if (is_existing_instance(potential_match)) { array_push(list_of_matches, potential_match); }
         }
     }
-    //if (array_length(list_of_matches) == 0) {
-    //    list_of_matches = noone;
-    //}
+	
     return list_of_matches;
 }
 
@@ -144,4 +142,10 @@ function play_sound(snd, loud_sound) {
 ///	@param		{object_index} difficulty	The object_index to create an instance of
 function instance_create(x_pos, y_pos, obj_index) {
 	return instance_create_depth(x_pos, y_pos, 0, obj_index);
+}
+
+/// @function								is_existing_instance(x_pos, y_pos, obj_index);
+///	@param		{id} insty					The instance to check existance for
+function is_existing_instance(inst) {
+	return (inst != noone && instance_exists(inst));
 }

@@ -6,7 +6,7 @@ if (can_process_this_frame()) {
 		if (dir != -1 && is_direction_free(dir, false, true)) { 
 			move_in_direction(dir, false);
 			play_sound(snd_walk, false)
-			with tail { move_segments(other.dir); }
+			with (tail) { move_segments(other.dir); }
 		}
 		else { dir = -1; }
 		
@@ -17,7 +17,7 @@ if (can_process_this_frame()) {
 			while (array_length(new_directions) > 0) {
 				var new_dir = array_random_pop(new_directions);
 				var target = get_dropped_meat();
-				if (target == noone) { target = global.player; }
+				if (!is_existing_instance(target)) { target = global.player; }
 				if (is_direction_free(new_dir, false, true)) { 
 					if (dir == -1 || is_direction_toward(new_dir, target)) { dir = new_dir; }
 				}

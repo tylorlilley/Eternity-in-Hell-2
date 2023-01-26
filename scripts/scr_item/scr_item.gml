@@ -1,6 +1,6 @@
 /// @function								draw_while_carried();
 function draw_while_carried() {
-	if (holder == noone) { return; }
+	if (!is_existing_instance(holder)) { return; }
 	
 	var x_offset = image_xscale * -8;
 
@@ -49,7 +49,7 @@ function become_dropped(dropper) {
 	
 	// Alert interested obj_hands to come grab it
 	with (obj_hands) { 
-		if (dropper != id && activated && !is_carrying_item(obj_meat) && (right_hand_item == noone || dropper == global.player)) { target_item = other.id; } 
+		if (dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || dropper == global.player)) { target_item = other.id; } 
 	}
 }
 
@@ -90,7 +90,7 @@ function dig_hole() {
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
 		var new_hole = instance_create(x, y, obj_hole);
-		if (global.controller.last_hole == noone) { global.controller.last_hole = new_hole; }
+		if (!is_existing_instance(global.controller.last_hole)) { global.controller.last_hole = new_hole; }
 		else { 
 			new_hole.connected_hole = global.controller.last_hole; 
 			global.controller.last_hole.connected_hole = new_hole;
@@ -117,46 +117,46 @@ function mark_heart_carried() {
 /// @function								get_dropped_meat();
 function get_dropped_meat() {
 	var dropped_meat = noone
-	with (obj_meat) { if (holder == noone) { dropped_meat = id; } }
+	with (obj_meat) { if (!is_existing_instance(holder)) { dropped_meat = id; } }
 	return dropped_meat;
 }
 
-/// @function								get_random_item_type(special_item, include_key);
+/// @function								get_random_item_obj(special_item, include_key);
 /// @param		{bool} special_item			Whether to check against the spawned specialitems or not
 /// @param		{bool} include_key			Whether to include the key in what can be returned or not
-function get_random_item_type(special_item, include_key) {
+function get_random_item_obj(special_item, include_key) {
 	var array_to_check = (special_item) ? global.controller.spawned_special_items : global.controller.spawned_items;
-	var available_item_types = (global.difficulty == difficulties.easy) ? 2 : 5;
-	if (global.difficulty > difficulties.medium) { available_item_types += 3; }
-	var chosen_type = noone;
+	var available_item_objs = (global.difficulty == difficulties.easy) ? 2 : 5;
+	if (global.difficulty > difficulties.medium) { available_item_objs += 3; }
+	var chosen_item_obj = noone;
 	
 	// Decide which item to spawn based on previous item spawns
-	while (chosen_type == noone) {
-		var rand = irandom(available_item_types);
+	while (chosen_item_obj == noone) {
+		var rand = irandom(available_item_objs);
 		if (!include_key) { rand += 1; }
 
 		switch (rand) {
-			case 0: { chosen_type = obj_key; break; }
-			case 1: { chosen_type = obj_torch; break; }
-			case 2: { chosen_type = obj_sword; break; }
-			case 3: { chosen_type = obj_map; break; }
-			case 4: { chosen_type = obj_rosary; break; }
-			case 5: { chosen_type = obj_staff; break; }
-			case 6: { chosen_type = obj_bomb; break; }
-			case 7: { chosen_type = obj_meat; break; }
-			case 8: { chosen_type = obj_shovel; break; }
-			case 9: { chosen_type = obj_clock; break; }
+			case 0: { chosen_item_obj = obj_key; break; }
+			case 1: { chosen_item_obj = obj_torch; break; }
+			case 2: { chosen_item_obj = obj_sword; break; }
+			case 3: { chosen_item_obj = obj_map; break; }
+			case 4: { chosen_item_obj = obj_rosary; break; }
+			case 5: { chosen_item_obj = obj_staff; break; }
+			case 6: { chosen_item_obj = obj_bomb; break; }
+			case 7: { chosen_item_obj = obj_meat; break; }
+			case 8: { chosen_item_obj = obj_shovel; break; }
+			case 9: { chosen_item_obj = obj_clock; break; }
 		}
 			
-		var spawned_item_count = array_count_occurances(array_to_check, chosen_type);
+		var spawned_item_count = array_count_occurances(array_to_check, chosen_item_obj);
 			
-		if (special_item && spawned_item_count >= 1) { chosen_type = noone; }
-		else if (chosen_type == obj_map && spawned_item_count >= 1) { chosen_type = noone; } 
-		else if (chosen_type == obj_staff && spawned_item_count >= 1) { chosen_type = noone; } 
-		else if (chosen_type == obj_torch && spawned_item_count >= 2) { chosen_type = noone; } 
-		else if (chosen_type == obj_clock && spawned_item_count >= 2) { chosen_type = noone; } 
-		else if (chosen_type == obj_shovel && spawned_item_count >= 2) { chosen_type = noone; } 
+		if (special_item && spawned_item_count >= 1) { chosen_item_obj = noone; }
+		else if (chosen_item_obj == obj_map && spawned_item_count >= 1) { chosen_item_obj = noone; } 
+		else if (chosen_item_obj == obj_staff && spawned_item_count >= 1) { chosen_item_obj = noone; } 
+		else if (chosen_item_obj == obj_torch && spawned_item_count >= 2) { chosen_item_obj = noone; } 
+		else if (chosen_item_obj == obj_clock && spawned_item_count >= 2) { chosen_item_obj = noone; } 
+		else if (chosen_item_obj == obj_shovel && spawned_item_count >= 2) { chosen_item_obj = noone; } 
 	}
 	
-	return chosen_type;
+	return chosen_item_obj;
 }

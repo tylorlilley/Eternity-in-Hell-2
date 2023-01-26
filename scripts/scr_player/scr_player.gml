@@ -10,11 +10,11 @@ function move_player(dir) {
 			with (obj_echo_spot) { array_push(moves, dir); }
 		}
 		// Move carried items
-		if (right_hand_item != noone) {
+		if (is_existing_instance(right_hand_item)) {
 			set_instance_to_same_position(right_hand_item);
 			if (is_carrying_item_in_right_hand(obj_torch)) { set_instance_to_same_position(right_hand_item.light_source); }
 		}
-		if (left_hand_item != noone) {
+		if (is_existing_instance(left_hand_item)) {
 			set_instance_to_same_position(left_hand_item);
 			if (is_carrying_item_in_left_hand(obj_torch)) { set_instance_to_same_position(left_hand_item.light_source); }
 		}
@@ -28,13 +28,13 @@ function pick_up_or_put_down_item(dir) {
 	if (dir == directions.right) { carried_item = right_hand_item; }
 	else if (dir == directions.left) { carried_item = left_hand_item; }
 	
-	if (carried_item != noone) { put_down_item(carried_item, true); }
+	if (is_existing_instance(carried_item)) { put_down_item(carried_item, true); }
 	else {
 		// Cycle through the items you could be possibly picking up
 		var dropped_items = instance_place_all(x, y, obj_item);
 		while (array_length(dropped_items) > 0) {
 			var dropped_item = array_random_pop(dropped_items);
-			if (dropped_item && dropped_item.holder == noone && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
+			if (is_existing_instance(dropped_item) && !is_existing_instance(dropped_item.holder) && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
 				pick_up_item(dropped_item, true, dir);
 				break;
 			}
@@ -72,7 +72,7 @@ function put_down_item(item, make_noise) {
 function get_carried_item(obj_index) {
 	var carried_item = noone;
 	if (is_carrying_item_in_right_hand(obj_index)) { carried_item = right_hand_item; }
-	if (is_carrying_item_in_left_hand(obj_index) && (carried_item == noone || left_hand_item.special)) { carried_item = left_hand_item; }
+	if (is_carrying_item_in_left_hand(obj_index) && (!is_existing_instance(carried_item) || left_hand_item.special)) { carried_item = left_hand_item; }
 	return carried_item;
 }
 
@@ -85,20 +85,20 @@ function is_carrying_item(obj_index) {
 /// @function								is_carrying_item_in_right_hand(obj_index);
 /// @param		{index} obj_index			The object type to check the carried items for
 function is_carrying_item_in_right_hand(obj_index) {
-	return (right_hand_item != noone && right_hand_item.object_index == obj_index);
+	return (is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_index);
 }
 
 /// @function								is_carrying_item_in_left_hand(obj_index);
 /// @param		{index} obj_index			The object type to check the carried items for
 function is_carrying_item_in_left_hand(obj_index) {
-	return (left_hand_item != noone && left_hand_item.object_index == obj_index);
+	return (is_existing_instance(left_hand_item) && left_hand_item.object_index == obj_index);
 }
 
 /// @function								is_carrying_special_item(dir);
 /// @param		{index} obj_index			The object type to check the carried items for
 function is_carrying_special_item(obj_index) {
 	var item = get_carried_item(obj_index)
-	return (item != noone && item.special);
+	return (is_existing_instance(item) && item.special);
 }
 
 /// @function								create_item_in_hand(dir, obj_index);
@@ -116,9 +116,9 @@ function create_item_in_hand(dir, obj_index) {
 	}
 }
 
-/// @function								kill_player(killed_by);
-/// @param		{obj} killed_by				The object_index of the thing killing the player
-function kill_player(killed_by) {
+/// @function								kill_player(killed_by_obj);
+/// @param		{obj} killed_by_obj				The object_index of the thing killing the player
+function kill_player(killed_by_obj) {
 	if (!global.player.dead) {
 		// Set variables to mark death
 		global.player.depth = 4;
@@ -129,11 +129,11 @@ function kill_player(killed_by) {
 		
 		// Put down carried items other than rosary
 		with (global.player) {
-			if (right_hand_item != noone && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false); }
-			if (left_hand_item != noone && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false); }
+			if (is_existing_instance(right_hand_item) && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false); }
+			if (is_existing_instance(left_hand_item) && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false); }
 		}
 		
-		global.controller.killed_by = (killed_by == noone) ? other.object_index : killed_by;
+		global.controller.killed_by = (killed_by_obj == noone) ? other.object_index : killed_by_obj;
 		update_death_log(global.controller.killed_by, global.difficulty);
 	}
 }
@@ -141,7 +141,7 @@ function kill_player(killed_by) {
 /// @function					can_drop_item(item)
 /// @param		{inst} item		The item you are trying to drop
 function can_drop_item(item) {
-	if (item == noone) { return true; }
+	if (!is_existing_instance(item)) { return true; }
 	if (is_outside_room(x, y)) { return false; }
 	if (item.object_index == obj_shovel) { return can_dig_hole(); }
 	else { return (!place_meeting(x, y, obj_solid)); }
@@ -154,7 +154,7 @@ function draw_staff_box() {
 		for (var i = 0; i <= 3; i +=1;) {
 			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 
-			if (lava_at_quadrant[i] != noone || wall_at_quadrant[i] != noone || column_at_quadrant[i] != noone) {
+			if (is_existing_instance(lava_at_quadrant[i]) || is_existing_instance(wall_at_quadrant[i]) || is_existing_instance(column_at_quadrant[i])) {
 			    draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.controller.bg_color, 1);
 			}
 		}

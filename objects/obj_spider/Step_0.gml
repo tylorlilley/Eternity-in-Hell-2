@@ -20,7 +20,7 @@ if (can_process_this_frame()) {
 			
 			if (get_random_chance_out_of(16)) {
 				image_xscale *= -1;
-				if (!place_meeting(x, y, obj_bush)) { play_sound(snd_walk); }
+				if (!place_meeting(x, y, obj_bush)) { play_sound(snd_walk, false); }
 			}
 		}
 		

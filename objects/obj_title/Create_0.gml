@@ -1,13 +1,15 @@
 randomize();
 audio_group_load(audiogroup_default);
-options_screen = false;
-options_pos = 0;
-loading = false;
-blink = false;
-pos = -2;
-current_seed = noone;
-draw_set_color(c_black);
-global.id_counter = 0;
-blink_timer = 15;
 room_speed = 60;
-//window_set_fullscreen(false);
+
+global.id_counter = 0;
+global.controller = noone;
+
+current_seed = noone;
+
+pos = -2;
+options_pos = 0;
+options_screen = false;
+loading = false;
+blink_timer = 15;
+blink = false;

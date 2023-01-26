@@ -85,7 +85,7 @@ function initialize_game_variables() {
 	PLAYER_LIGHT_RANGE = 6;
 	
 	// Initilaize other gameplay constants
-	BUSH_RUSTLE_PROBABILITY = 2056;
+	JUST_THE_WIND_PROBABILITY = 2056;
 	BUSH_RUSTLE_FREQUENCY = 16;
 	SKELETON_MOVE_FREQUENCY = 12;
 	FAST_SKELETON_MOVE_FREQUENCY = 4;
@@ -94,7 +94,7 @@ function initialize_game_variables() {
 	BLOOD_REPLACEMENT_PROBABILITY = 32;
 	CORPSE_REPLACEMENT_PROBABILITY = 1024;
 	TRAP_RANGE = 40;
-	BOMB_DUB_PROBABILITY = 64
+	BOMB_DUD_PROBABILITY = 64
 	BLOCK_ITEM_PROBABILITY = get_probability_for_difficulty([0, 64, 32, 30, 28]);
 	NOSE_SELF_DESTRUCT_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 256, 128]);
 	RESPAWN_FREQUENCY = 40;
@@ -135,7 +135,7 @@ function initialize_game_variables() {
 	current_score = 0;
 
 	// initialize room transition values
-	bg_color = make_color_rgb(20, 20, 20);
+	bg_color = make_color_rgb(0, 0, 0); // make_color_rgb(20, 20, 20);
 	number_of_frames_since_game_began = 0;
 	entered_from_stairs = true;
 	entered_from_spawn = true;
@@ -187,7 +187,7 @@ function transition_to_room(new_room) {
 
 /// @function								can_process_this_frame();
 function can_process_this_frame() {
-	return (global.controller.transition == noone && global.controller.number_of_frames_since_game_began % global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
+	return (global.controller.transition == directions.none && global.controller.number_of_frames_since_game_began % global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
 }
 
 /// @function								set_up_inputs_for_next_frame();
@@ -346,6 +346,10 @@ function game_room_start() {
 		with obj_placeholder { image_angle = 0; }
 		
 		// Update enemies in room to reflect new x, y position as initial position
+		with (obj_block) {
+			xstart = x;
+			ystart = y;
+		}
 		with (obj_item) {
 			xstart = x;
 			ystart = y;
@@ -361,7 +365,7 @@ function game_room_start() {
 		with (obj_giant_worm_head) { connect_segments(); }
 		
 		// Create key in room if it should exist
-		var key_in_chest = (current_room.item_type == obj_key);
+		var key_in_chest = (current_room.chest_obj == obj_key);
 		if (current_room.has_keys > 0 && !key_in_chest) {
 			with get_random_instance(obj_collectable_spot) {
 				instance_create(x, y, obj_key);
@@ -416,7 +420,7 @@ function game_room_start() {
 			// Create locked exits if they should exist
 		    var exit_to_create_door_for = current_room.locked_exits[i];
 		    if (exit_to_create_door_for != noone) {
-		        if (door == noone) { door = instance_create(x_pos, y_pos, obj_door); }
+		        if (!is_existing_instance(door)) { door = instance_create(x_pos, y_pos, obj_door); }
 		        door.door_for_exit = exit_to_create_door_for;
 		        door.locked = exit_to_create_door_for.locked;
 		    }
@@ -497,11 +501,11 @@ function game_room_start() {
 		
 		// Usurp some skeletons
 		with (obj_skeleton) {
-			var usurped = noone;
-			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurped = obj_eyes; }
-			else if (get_random_chance_out_of(global.controller.SNAKE_PROBABILITY) && global.difficulty >= difficulties.hard) { usurped = obj_snake; }
+			var usurper_obj = noone;
+			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurper_obj = obj_eyes; }
+			else if (get_random_chance_out_of(global.controller.SNAKE_PROBABILITY) && global.difficulty >= difficulties.hard) { usurper_obj = obj_snake; }
 			else if (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBABILITY) && global.difficulty >= difficulties.medium) { skeleton_speed = global.controller.FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
-			if (usurped != noone) { instance_create(x, y, usurped); instance_destroy(); }
+			if (usurper_obj != noone) { instance_create(x, y, usurper_obj); instance_destroy(); }
 		}
 	}
 
@@ -513,7 +517,7 @@ function game_room_start() {
 
 	// Change position if necessary
 	if entered_from_stairs {
-		if (transition_hole == noone) {
+		if (!is_existing_instance(transition_hole)) {
 			global.player.x = stairs_spot.x;
 			global.player.y = stairs_spot.y;
 		}
@@ -558,7 +562,7 @@ function game_room_start() {
 	}
 	with (obj_bush) { 
 		occupier = noone; 
-		occupied = false;
+		is_occupied = false;
 		has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
 	}
 	with (obj_player_corpse) {  has_bug = true; }
@@ -582,13 +586,13 @@ function game_room_start() {
 	with (obj_echo) { instance_destroy(); }
 	with (obj_fireball) { instance_destroy(); }
 	with (obj_bomb) { 
-		if (holder == noone && fuse_timer > 0) {
+		if (!is_existing_instance(holder) && fuse_timer > 0) {
 			if (special) { fuse_timer = 0; } 
 			else { instance_destroy(); }
 		}
 	}
 	with (obj_meat) {
-		if (holder == noone || holder.object_index == obj_hands) { 
+		if (!is_existing_instance(holder) || holder.object_index == obj_hands) { 
 			if (!special) {
 				instance_create(x, y, obj_bones); 
 				instance_destroy();
@@ -601,7 +605,7 @@ function game_room_start() {
 	}
 	
 	//// Reset instances to their start positions
-	with (obj_block) { x = starting_spot.x; y = starting_spot.y; }
+	with (obj_block) { x = xstart; y = ystart; }
 	with (obj_item) { x = xstart; y = ystart; }
 	with (obj_enemy) { if (object_index != obj_hands && object_index != obj_statue) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
 	with (obj_giant_worm_body) {
@@ -613,7 +617,7 @@ function game_room_start() {
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
 	with (obj_echo_spot) {
-		if (global.controller.entered_from_stairs && global.controller.current_room == global.controller.start_room) { instance_destroy(id, false); }
+		if (global.controller.entered_from_stairs && global.controller.current_room == global.controller.start_room) { instance_destroy(); }
 		else {
 			play_sound(snd_echo, false); 
 			spawn_timer = 128;
@@ -627,7 +631,7 @@ function game_room_start() {
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
 		var potential_items = array_create(0);
-		with (obj_item) { if (holder == noone && can_pick_up && object_index != obj_heart && object_index != obj_meat && !is_solid_at_position(x, y) && !place_meeting(x, y, obj_hands)) { 
+		with (obj_item) { if (!is_existing_instance(holder) && can_pick_up && object_index != obj_heart && object_index != obj_meat && !is_solid_at_position(x, y) && !place_meeting(x, y, obj_hands)) { 
 			array_push(potential_items, id); } 
 		}
 		// Spawn a hand on each potential item if probability is met
@@ -648,7 +652,7 @@ function game_room_start() {
 		activated = false;
 		visible = false;
 		
-		if (right_hand_item == noone) { instance_destroy(); }
+		if (!is_existing_instance(right_hand_item)) { instance_destroy(); }
 		else {
 			target_item = right_hand_item;
 			put_down_item(right_hand_item, false);
@@ -748,7 +752,7 @@ function get_probability_for_difficulty(probability_list) {
 /// @param		{bool} key_pressed_only		Whether to only count if the key has been pressed this frame
 function get_direction_input(key_pressed_only) {
 	// Return no input if player is dead or looking at map
-	if (global.player.dead || global.controller.key_space) { return noone; }
+	if (global.player.dead || global.controller.key_space) { return directions.none; }
 	
 	// Starting with the previous direction, check each direction for inputs
 	var possible_directions = array_create(0);
@@ -790,6 +794,6 @@ function get_direction_input(key_pressed_only) {
 		}
 	}
 	
-	if (array_length(possible_directions) == 0) { return noone; }
+	if (array_length(possible_directions) == 0) { return directions.none; }
 	return possible_directions[0];
 }

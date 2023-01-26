@@ -38,7 +38,8 @@ function run_away_from_player(ignore_solid, ignore_death, make_sound) {
 	if (is_direction_toward(dir, global.player)) { dir = get_opposite_dir(dir); }
 	if (get_random_chance_out_of(3)) { dir = 4; }
 	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, make_sound);  return dir; }
-	return noone;
+	
+	return directions.none;
 }
 
 /// @function								teleport_to_empty_space()
@@ -103,7 +104,7 @@ function shoot_fireball(target_x, target_y, make_destructive) {
 	play_sound(snd_shoot, false);
 	var fireball = instance_create(x, y, obj_fireball);
 	with (fireball) {
-		creator = other.object_index;
+		creator_obj = other.object_index;
 		destructive = make_destructive;
 		move_towards_point(target_x, target_y, 2); 
 	}	
@@ -112,15 +113,15 @@ function shoot_fireball(target_x, target_y, make_destructive) {
 /// @function								try_to_see_player();
 function try_to_see_player() {
 	var target = noone, dropped_meat = get_dropped_meat();
-	if (is_instance_at_coordinates(global.player.x, global.player.y)) { state = WAITING; dir = -1; return; } 
+	if (global.player.dead && (x == global.player.x || y == global.player.y)) { state = WAITING; dir = -1; return; } 
 	else if (!global.player.dead) { target = global.player; }
 	
 	if (state != SCREECHING) {
-		var new_dir = noone, offset = (state == ATTACKING) ? 8 : 0
+		var new_dir = directions.none, offset = (state == ATTACKING) ? 8 : 0
 		
-		if (dropped_meat != noone) {
+		if (is_existing_instance(dropped_meat)) {
 			new_dir = get_random_possible_direction(dropped_meat.x, dropped_meat.y, false, true);
-			if (new_dir != noone) { target = dropped_meat; }
+			if (new_dir != directions.none) { target = dropped_meat; }
 		}
 			
 		if (target == global.player) {   
@@ -134,7 +135,7 @@ function try_to_see_player() {
 			}
 		}
 			
-		if (new_dir != noone && new_dir != dir && (target != global.player || can_move_in_direction_and_reach(new_dir, target, false, true))) {
+		if (new_dir != directions.none && new_dir != dir && (target != global.player || can_move_in_direction_and_reach(new_dir, target, false, true))) {
 			dir = new_dir;
 			state = SCREECHING;
 			screech_timer = 3;
@@ -291,7 +292,7 @@ function check_for_player_collision() {
 	if (activated && place_meeting(x, y, global.player) && !global.player.dead) {
 		var carried_sword = noone;
 		with (global.player) { carried_sword = get_carried_item(obj_sword); }
-		if (carried_sword != noone && corporeal) { kill_with_sword(carried_sword); }
+		if (is_existing_instance(carried_sword) && corporeal) { kill_with_sword(carried_sword); }
 		else if (object_index == obj_death) { 
 			with (global.player) { 
 				if (!is_carrying_item(obj_staff)) { 

@@ -14,24 +14,24 @@ if (can_process_this_frame()) {
 				
 			// Move Around
 			for (var i = 0; i < 2; i++) {
-				if (target_item == noone) {
+				if (!is_existing_instance(target_item)) {
 					// Run Away From Player While Carrying Target
 					run_away_from_player(!corporeal, fire_resistant, true);
 				}
-				else if (instance_exists(target_item) && (target_item.holder == noone || target_item.holder == id)) {
+				else if (is_existing_instance(target_item) && (!is_existing_instance(target_item.holder) || target_item.holder == id)) {
 					if (x == target_item.x && y == target_item.y) {
 						// Pick Up New Item and Drop Current
 						play_sound(snd_laugh, true);
-						if (right_hand_item != noone) { put_down_item(right_hand_item, false); }
+						if (is_existing_instance(right_hand_item)) { put_down_item(right_hand_item, false); }
 						pick_up_item(target_item, false, directions.right);
 						target_item = noone;
 						xstart = x;
 						ystart = y;
 					}
-					else if (target_item.holder == noone) {
+					else if (!is_existing_instance(target_item.holder)) {
 						// Move Towards New Target if still possible to pick it up
 						var move_dir = move_towards_coordinates(target_item.x, target_item.y, !corporeal, fire_resistant);
-						if (move_dir == noone) { target_item = noone; play_sound(snd_give_up, false); }
+						if (move_dir == directions.none) { target_item = noone; play_sound(snd_give_up, false); }
 					}
 					else { target_item = noone; }
 				}
@@ -45,7 +45,7 @@ if (can_process_this_frame()) {
 						if (enemy == id || !enemy.corporeal) { continue; }
 				
 						with (enemy) { kill_with_sword(other.right_hand_item); }
-						if (instance_exists(right_hand_item)) { continue; }
+						if (is_existing_instance(right_hand_item)) { continue; }
 						else { break; }
 					}
 				}
@@ -56,10 +56,10 @@ if (can_process_this_frame()) {
 		}
 	
 		// Make any dropped meat that can be moved towards a target
-		if (right_hand_item == noone || !is_carrying_item(obj_meat)) {
-			var dropped_meat = noone;
+		if (!is_existing_instance(right_hand_item) || !is_carrying_item(obj_meat)) {
+			var dropped_meat = get_dropped_meat();
 			
-			if (dropped_meat != noone && target_item != dropped_meat) { 
+			if (is_existing_instance(dropped_meat) && target_item != dropped_meat) { 
 				if (!activated) { play_sound(snd_laugh, true); }
 				target_item = dropped_meat; 
 				activated = true;

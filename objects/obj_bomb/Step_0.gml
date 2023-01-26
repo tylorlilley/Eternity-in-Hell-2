@@ -1,5 +1,5 @@
 if can_process_this_frame() {
-	if (holder == noone) {
+	if (!is_existing_instance(holder)) {
 		if (fuse_timer > 0) {
 			fuse_timer -= 1;
 			if (fuse_timer % 4 == 0) { 
@@ -7,7 +7,7 @@ if can_process_this_frame() {
 			}
 			else { visible = true; }
 			if (fuse_timer == 0) {
-				if (!special && get_random_chance_out_of(global.controller.BOMB_DUB_PROBABILITY)) { play_sound(snd_move, false); }
+				if (!special && get_random_chance_out_of(global.controller.BOMB_DUD_PROBABILITY)) { play_sound(snd_move, false); }
 				else { explode(!special); instance_create(x, y, obj_dirt); }
 			}
 		}
@@ -17,7 +17,7 @@ if can_process_this_frame() {
 			var torches_at_position = instance_place_all(x, y, obj_torch);
 			while (array_length(torches_at_position) > 0) {
 				var torch = array_random_pop(torches_at_position);
-				if (torch.light_source != noone && is_instance_at_coordinates(x, y, torch)) {
+				if (is_existing_instance(torch) && is_existing_instance(torch.light_source) && is_instance_at_coordinates(x, y, torch)) {
 					play_sound(snd_torchlight, true);
 					fuse_timer = 4*irandom_range(5,8);
 					break;

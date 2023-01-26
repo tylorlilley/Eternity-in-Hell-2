@@ -1,7 +1,7 @@
 /// @function								get_distance_to_instance(instance);
 /// @param		{index} instance			The instance whose distance away from the calling instance is to be calculated
 function get_distance_to_instance(instance) {
-	if (!instance_exists(instance)) { return -1; }
+	if (!is_existing_instance(instance)) { return -1; }
 	if (id == instance) { return 0; }
 
 	return point_distance(x, y, instance.x, instance.y);//sqrt((sqr(instance.x - x) + sqr(instance.y - y)));
@@ -175,9 +175,9 @@ function set_instance_to_same_position(instance) {
 
 /// @function								get_direction_pushed_against();
 function get_direction_pushed_against() {
-	var dir = noone, x_pos = global.player.x_prev, y_pos = global.player.y_prev;
+	var dir = directions.none, x_pos = global.player.x_prev, y_pos = global.player.y_prev;
 	dir = get_direction_input(true);
-	if (dir == noone) { return dir; }
+	if (dir == directions.none) { return dir; }
 	
 	switch (dir) {
 		case directions.up: { y_pos -= 16; break; }
@@ -187,7 +187,7 @@ function get_direction_pushed_against() {
 	}
 	
 	if (!is_instance_at_coordinates(x_pos, y_pos, id)) { 
-		dir = noone; 
+		dir = directions.none; 
 	}
 	
 	return dir;
@@ -198,7 +198,7 @@ function rotate_sprite_to_random_angle() {
 	image_angle = irandom(3) * 90;
 }
 
-/// @function								flip_sprite_at_random();
+/// @function								flip_sprite_at_random(flip_vertical);
 /// @param		{boolean} flip_vertical		Whether or not to also randomly flip the sprite vertically
 function flip_sprite_at_random(flip_vertical) {
 	image_xscale = get_coin_flip() ? 1 : -1;
@@ -228,10 +228,10 @@ function is_covered_at_each_quadrant_by(obj_index) {
 	var presence_at_quadrant = (obj_index == obj_lava) ? get_lava_at_each_quadrant() : get_instance_at_each_quadrant(obj_index);
 	
 	return (
-		presence_at_quadrant[0] != noone &&
-		presence_at_quadrant[1] != noone &&
-		presence_at_quadrant[2] != noone &&
-		presence_at_quadrant[3] != noone
+		is_existing_instance(presence_at_quadrant[0]) &&
+		is_existing_instance(presence_at_quadrant[1]) &&
+		is_existing_instance(presence_at_quadrant[2]) &&
+		is_existing_instance(presence_at_quadrant[3])
 	);
 }
 
@@ -242,7 +242,7 @@ function is_covered_at_each_quadrant_by(obj_index) {
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death) {
 	var move_dir = get_random_possible_direction(target_x, target_y, ignore_solid, ignore_death);
-	if (move_dir != noone) { move_in_direction(move_dir, true); }
+	if (move_dir != directions.none) { move_in_direction(move_dir, true); }
 	
 	return move_dir;
 }
@@ -267,7 +267,7 @@ function get_random_possible_direction(target_x, target_y, ignore_solid, ignore_
 	if (x > target_x && can_move_left) { array_push(possible_directions, directions.left); }
 	
 	// Return a random direction from among those possible
-	var move_dir = array_length(possible_directions) > 0 ? array_random_get(possible_directions) : noone;
+	var move_dir = array_length(possible_directions) > 0 ? array_random_get(possible_directions) : directions.none;
 	return move_dir;
 }
 

@@ -75,7 +75,7 @@ function initialize_game_variables() {
 	MAX_WALKING_DEPTH = 16 * global.difficulty;
 	MINIMUM_NUMBER_OF_ROOMS = get_probability_for_difficulty([4, 8, 12, 14, 15]);
 	ADDITIONAL_ROOMS = 3 * global.difficulty;
-	MAX_MAP_DRAW_DISTANCE = 8;
+	//MAX_MAP_DRAW_DISTANCE = 8;
 	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
 
 	// Initialize lighting constants
@@ -83,6 +83,8 @@ function initialize_game_variables() {
 	LANTERN_LIGHT_RANGE = 14;
 	TORCH_LIGHT_RANGE = 11;
 	PLAYER_LIGHT_RANGE = 6;
+	LAVA_LIGHT_RANGE = 18; // This one is in pixels and not steps of 8 pixels
+	SCREEN_FLASH_DURATION = 6;
 	
 	// Initilaize other gameplay constants
 	JUST_THE_WIND_PROBABILITY = 2056;
@@ -134,6 +136,7 @@ function initialize_game_variables() {
 	sounds_to_play = array_create(0);
 	carried_heart = false;
 	current_score = 0;
+	flash_time = 0;
 
 	// initialize room transition values
 	number_of_frames_since_game_began = 0;
@@ -802,4 +805,12 @@ function get_direction_input(key_pressed_only) {
 	
 	if (array_length(possible_directions) == 0) { return directions.none; }
 	return possible_directions[0];
+}
+
+/// @function								screen_flash();
+function screen_flash() {
+	with (global.controller) {
+		flash_time = SCREEN_FLASH_DURATION;
+		global.bg_color = c_white;
+	}
 }

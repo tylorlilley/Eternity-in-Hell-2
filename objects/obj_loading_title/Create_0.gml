@@ -8,3 +8,4 @@ image_yscale = 0.25;
 
 timer = 2;
 shader_color = shader_get_uniform(sh_eih, "new_color");
+shader_bg_color = shader_get_uniform(sh_eih, "bg_color");

@@ -6,7 +6,8 @@ if (can_process_this_frame()) {
 			with global.controller {
 				current_room.has_collectables = false;
 				array_remove(rooms_with_collectables, current_room);
-				if (are_all_collectables_collected()) { 
+				if (are_all_collectables_collected()) {
+					screen_flash();
 					play_sound(snd_shatter, false); 
 					global.controller.completion_amount += 1;
 				}

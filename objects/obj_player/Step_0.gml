@@ -6,26 +6,26 @@ if (can_process_this_frame()) {
 	
 	// Spawn Bugs in nearby dirt and bushes
 	with (obj_player_corpse) { 
-		if (has_bug && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(global.player) <= global.controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_bones) { 
-		if (has_bug && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(global.player) <= global.controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_dirt) { 
-		if (has_bug && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(global.player) <= global.controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_bush) { 
-		if (has_bug && point_distance(x, y, global.player.x, global.player.y) <= global.controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(global.player) <= global.controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}

@@ -1,4 +1,5 @@
-29049108
+Screen Flash On/Off Option
+Audio impared accessibility option
 
 === REFACTORS ===
 

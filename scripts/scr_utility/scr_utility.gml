@@ -150,29 +150,29 @@ function is_existing_instance(inst) {
 	return (inst != noone && instance_exists(inst));
 }
 
-/// @function								hex_string_to_color(hex_string);
-///	@param		{string} hex_string			The string to convert to a color
-function hex_string_to_color(hex_string) {
-	var red = hex_string_to_decimal(string_copy(hex_string, 1, 2));
-	var green = hex_string_to_decimal(string_copy(hex_string, 3, 2));
-	var blue = hex_string_to_decimal(string_copy(hex_string, 5, 2));
+/// @function								get_shader_color_from_gms_color(given_color);
+///	@param		{real} given_color			The gms color to convert to a shader color
+function get_shader_color_from_gms_color(given_color) {
+	var red = color_get_red(given_color);
+	var green = color_get_green(given_color);
+	var blue = color_get_blue(given_color);
 	
 	return [red/255.0, green/255.0, blue/255.0, 1.0];
 }
 
-/// @function								hex_string_to_gms_color(hex_string);
+/// @function								get_gms_color_from_hex_string(hex_string);
 ///	@param		{string} hex_string			The string to convert to a color
-function hex_string_to_gms_color(hex_string) {
-	var red = hex_string_to_decimal(string_copy(hex_string, 1, 2));
-	var green = hex_string_to_decimal(string_copy(hex_string, 3, 2));
-	var blue = hex_string_to_decimal(string_copy(hex_string, 5, 2));
+function get_gms_color_from_hex_string(hex_string) {
+	var red = get_decimal_from_hex_string(string_copy(hex_string, 1, 2));
+	var green = get_decimal_from_hex_string(string_copy(hex_string, 3, 2));
+	var blue = get_decimal_from_hex_string(string_copy(hex_string, 5, 2));
 	
 	return make_color_rgb(red, green, blue);
 }
 
-/// @function								hex_string_to_decimal(hex_string);
+/// @function								get_decimal_from_hex_string(hex_string);
 ///	@param		{string} hex_string			The string to convert to a decimal value
-function hex_string_to_decimal(hex_string) {
+function get_decimal_from_hex_string(hex_string) {
 	var result = 0;
 	var ZERO = ord("0");
 	var NINE = ord("9");

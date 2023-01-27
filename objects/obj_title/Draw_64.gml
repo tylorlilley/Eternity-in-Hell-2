@@ -1,6 +1,7 @@
 shader_set(sh_eih);
 
 shader_set_uniform_f_array(shader_color, global.game_color);
+shader_set_uniform_f_array(shader_bg_color, get_shader_color_from_gms_color(global.bg_color));
 
 /// @description Insert description here
 // You can write your code in this editor
@@ -69,10 +70,10 @@ else if (options_screen) {
 		padded_game_color_string = "0"+padded_game_color_string;
 	}
 	if (options_pos != 3 || blink) {
-		draw_text(x_pos, y_pos, "#" + padded_game_color_string);
+		draw_text(x_pos-12, y_pos, "#" + padded_game_color_string);
 	}
-	draw_sprite_ext(spr_box, 0, x_pos + 40, y_pos+8, 1, 1, 0, c_white, 1);
-	draw_sprite_ext(spr_box, 0, x_pos + 40, y_pos+8, 0.875, 0.875, 0, hex_string_to_gms_color(padded_game_color_string), 1);
+	draw_sprite_ext(spr_box, 0, x_pos + 30, y_pos+8, 1, 1, 0, c_white, 1);
+	draw_sprite_ext(spr_box, 0, x_pos + 30, y_pos+8, 0.875, 0.875, 0, get_gms_color_from_hex_string(padded_game_color_string), 1);
 }
 else if key_space {
 	draw_set_color(c_white);

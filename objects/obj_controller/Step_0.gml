@@ -66,7 +66,13 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	}
 	
 	// Update background color
-	global.bg_color = make_color_rgb(floor(get_scaling_amount(0, 255, power(1-(time_remaining/time_provided), 8), 1)), 0, 0);
+	var new_color = make_color_rgb(floor(get_scaling_amount(0, 255, power(1-(time_remaining/time_provided), 8), 1)), 0, 0);
+	if (flash_time > 0) { 
+		new_color = merge_color(new_color, c_white, power(flash_time, 2)/power(SCREEN_FLASH_DURATION, 2));
+		flash_time -= 1;
+		if (flash_time == SCREEN_FLASH_DURATION) { screen_flash = false; }
+	}
+	global.bg_color = new_color;
 	
 	// Restart game if necessary
 	if key_enter_released { 

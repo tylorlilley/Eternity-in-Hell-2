@@ -19,7 +19,7 @@ else {
 		if (is_existing_instance(lantern) && is_existing_instance(lantern.light_source)) { continue; }
 		
 		lantern_count += 1;
-		total_distance_to_lanterns += point_distance(x, y, lantern.x, lantern.y) / 8.0;
+		total_distance_to_lanterns += get_distance_to_instance(lantern) / 8.0;
 	}
 	
 	if (lantern_count == 0) { instance_destroy(); }

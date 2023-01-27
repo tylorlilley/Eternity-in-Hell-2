@@ -269,6 +269,8 @@ function move_segments(new_dir) {
 ///	@param		{Sound}	  destroy_self		Whether to destroy the calling instance or not
 function explode(destroy_self) {
 	play_sound(snd_explosion, true);
+	screen_flash();
+	
 	shoot_fireball(x-8, y-8, true);
 	shoot_fireball(x+0, y-8, true);
 	shoot_fireball(x+8, y-8, true);
@@ -284,6 +286,7 @@ function explode(destroy_self) {
 	shoot_fireball(x-8, y+8, true);
 	shoot_fireball(x+0, y+8, true);
 	shoot_fireball(x+8, y+8, true);
+	
 	if (destroy_self) { instance_destroy(); }
 }
 

@@ -8,6 +8,7 @@ global.bg_color = make_color_rgb(0, 0, 0);
 
 current_seed = noone;
 shader_color = shader_get_uniform(sh_eih, "new_color");
+shader_bg_color = shader_get_uniform(sh_eih, "bg_color");
 
 pos = -2;
 options_pos = 0;

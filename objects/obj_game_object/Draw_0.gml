@@ -14,7 +14,7 @@ if (sprite_index != -1) {
 	if ((!is_solid && !is_bush && covered_by_bush) || (!is_solid && covered_by_solid)) { covered = true; }
 	
 	// Draw box underneath solids to partially cover things under them
-	if (is_solid) { draw_sprite_ext(spr_box, 0, x, y, 1, 1, 0, global.bg_color, 1); }
+	// if (is_solid) { draw_sprite_ext(spr_box, 0, x, y, 1, 1, 0, global.bg_color, 1); }
 	
 	// Draw main sprite
 	if (!covered) { 

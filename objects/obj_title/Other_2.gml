@@ -33,13 +33,15 @@ enum inputs {
 }
 
 // Setup global variables for title screen
-global.bg_color = make_color_rgb(20, 20, 20);
+global.bg_color = make_color_rgb(0, 0, 0);
 global.difficulty = difficulties.easy;
 global.seed_option = seed_options.rand;
 global.seed = noone;
 global.FARM_MODE = false;
 global.TEST_MODE = false;
 global.can_access_farmer_mode = false;
+global.game_color_string = "32A852";
+global.game_color = hex_to_color(global.game_color_string)
 
 // Setup generic arrays
 

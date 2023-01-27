@@ -149,3 +149,22 @@ function instance_create(x_pos, y_pos, obj_index) {
 function is_existing_instance(inst) {
 	return (inst != noone && instance_exists(inst));
 }
+
+/// @function								hex_to_color(hex_string);
+///	@param		{string} hex_string			The string to convert to a color
+function hex_to_color(hex_string) {
+	var color_str = "";
+	var color = 0;
+
+	for (var i = 0; i < 6; i++) {
+	    color_str += string_copy(hex_string, i+1, 1);
+	    color = (color << 4) + i;
+	}
+
+	var red = color >> 16;
+	var green = (color >> 8) & $FF;
+	var blue = color & $FF;
+	var gms_color = make_color_rgb(red, green, blue);
+	
+	return [red/255.0, green/255.0, blue/255.0, 1.0];
+}

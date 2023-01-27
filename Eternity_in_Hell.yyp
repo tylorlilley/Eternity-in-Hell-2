@@ -299,6 +299,7 @@
     {"id":{"name":"rm_three_exits_6","path":"rooms/rm_three_exits_6/rm_three_exits_6.yy",},"order":5,},
     {"id":{"name":"rm_two_perpendicular_exits_29","path":"rooms/rm_two_perpendicular_exits_29/rm_two_perpendicular_exits_29.yy",},"order":33,},
     {"id":{"name":"snd_fuse","path":"sounds/snd_fuse/snd_fuse.yy",},"order":59,},
+    {"id":{"name":"sh_eih","path":"shaders/sh_eih/sh_eih.yy",},"order":0,},
     {"id":{"name":"rm_three_exits_7","path":"rooms/rm_three_exits_7/rm_three_exits_7.yy",},"order":6,},
     {"id":{"name":"obj_blood","path":"objects/obj_blood/obj_blood.yy",},"order":7,},
     {"id":{"name":"spr_heart_case","path":"sprites/spr_heart_case/spr_heart_case.yy",},"order":39,},

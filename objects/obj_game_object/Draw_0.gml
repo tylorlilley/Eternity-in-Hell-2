@@ -1,5 +1,4 @@
 if (sprite_index != -1) {
-
 	var is_solid = (object_index == obj_solid || object_is_ancestor(object_index, obj_solid));
 	var solid_at_quadrant = get_instance_at_each_quadrant(obj_solid);
 	var covered_by_solid = ((is_existing_instance(solid_at_quadrant[0]) && solid_at_quadrant[0].visible) &&
@@ -19,6 +18,6 @@ if (sprite_index != -1) {
 	
 	// Draw main sprite
 	if (!covered) { 
-		draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); 
+		draw_self();
 	}
 }

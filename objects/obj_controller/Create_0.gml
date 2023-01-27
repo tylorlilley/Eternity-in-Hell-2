@@ -1,4 +1,5 @@
 // Initialize global values
+shader_color = shader_get_uniform(sh_eih, "new_color");
 random_set_seed(global.seed);
 show_debug_message("SEED: "+string(random_get_seed()));
 clear_inputs_for_next_frame();

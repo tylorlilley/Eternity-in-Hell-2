@@ -1,3 +1,7 @@
+shader_set(sh_eih);
+
+shader_set_uniform_f_array(shader_color, global.game_color);
+
 draw_set_font(ft_hud);
 var has_won = is_game_won();
 var has_lost = is_game_lost();
@@ -90,3 +94,4 @@ if (global.TEST_MODE) {
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
 }
 
+shader_reset();

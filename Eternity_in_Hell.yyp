@@ -159,6 +159,7 @@
     {"id":{"name":"spr_ears_awake","path":"sprites/spr_ears_awake/spr_ears_awake.yy",},"order":47,},
     {"id":{"name":"obj_sword_in_ground","path":"objects/obj_sword_in_ground/obj_sword_in_ground.yy",},"order":8,},
     {"id":{"name":"obj_echo","path":"objects/obj_echo/obj_echo.yy",},"order":11,},
+    {"id":{"name":"snd_mana2","path":"sounds/snd_mana2/snd_mana2.yy",},"order":64,},
     {"id":{"name":"obj_eyes","path":"objects/obj_eyes/obj_eyes.yy",},"order":6,},
     {"id":{"name":"spr_block","path":"sprites/spr_block/spr_block.yy",},"order":27,},
     {"id":{"name":"obj_stairs_spot","path":"objects/obj_stairs_spot/obj_stairs_spot.yy",},"order":2,},

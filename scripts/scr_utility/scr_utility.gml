@@ -150,21 +150,47 @@ function is_existing_instance(inst) {
 	return (inst != noone && instance_exists(inst));
 }
 
-/// @function								hex_to_color(hex_string);
+/// @function								hex_string_to_color(hex_string);
 ///	@param		{string} hex_string			The string to convert to a color
-function hex_to_color(hex_string) {
-	var color_str = "";
-	var color = 0;
-
-	for (var i = 0; i < 6; i++) {
-	    color_str += string_copy(hex_string, i+1, 1);
-	    color = (color << 4) + i;
-	}
-
-	var red = color >> 16;
-	var green = (color >> 8) & $FF;
-	var blue = color & $FF;
-	var gms_color = make_color_rgb(red, green, blue);
+function hex_string_to_color(hex_string) {
+	var red = hex_string_to_decimal(string_copy(hex_string, 1, 2));
+	var green = hex_string_to_decimal(string_copy(hex_string, 3, 2));
+	var blue = hex_string_to_decimal(string_copy(hex_string, 5, 2));
 	
 	return [red/255.0, green/255.0, blue/255.0, 1.0];
+}
+
+/// @function								hex_string_to_gms_color(hex_string);
+///	@param		{string} hex_string			The string to convert to a color
+function hex_string_to_gms_color(hex_string) {
+	var red = hex_string_to_decimal(string_copy(hex_string, 1, 2));
+	var green = hex_string_to_decimal(string_copy(hex_string, 3, 2));
+	var blue = hex_string_to_decimal(string_copy(hex_string, 5, 2));
+	
+	return make_color_rgb(red, green, blue);
+}
+
+/// @function								hex_string_to_decimal(hex_string);
+///	@param		{string} hex_string			The string to convert to a decimal value
+function hex_string_to_decimal(hex_string) {
+	var result = 0;
+	var ZERO = ord("0");
+	var NINE = ord("9");
+	var A = ord("A");
+	var F = ord("F");
+ 
+	for (var i = 1; i <= string_length(hex_string); i++) {
+	    var c = ord(string_char_at(string_upper(hex_string), i));
+	    // you could also multiply by 16 but you get more nerd points for bitshifts
+	    var result = result << 4;
+	    // if the character is a number or letter, add the value
+	    // it represents to the total
+	    if (c >= ZERO && c <= NINE) {
+	        result = result + (c - ZERO);
+	    } else if (c >= A && c <= F ) {
+	        result = result + (c - A + 10);
+	    } 
+	}
+ 
+	return result;
 }

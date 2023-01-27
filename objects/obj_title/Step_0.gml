@@ -24,7 +24,7 @@ if (options_screen) {
 	
 	// Move Up and Down Through Option Selections
 	if ((key_up_pressed) && (options_pos > 0)) { options_pos -= 1; play_sound(snd_mana, false); }
-	else if (key_down_pressed && (options_pos < 2)) { options_pos += 1; play_sound(snd_mana, false); }
+	else if (key_down_pressed && (options_pos < 3)) { options_pos += 1; play_sound(snd_mana, false); }
 	
 	// Adjust Fullscreen vs Window
 	if (options_pos == 0) {
@@ -59,6 +59,57 @@ if (options_screen) {
 			play_sound(snd_move, false);
 		}
 		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+	}
+	
+	// Adjust Color Option
+	if (options_pos == 3) {
+		if (keyboard_check_pressed(vk_backspace)) { 
+			if (global.game_color_string != "") {
+				global.game_color_string = string_delete(global.game_color_string, string_length(global.game_color_string), 1);
+				play_sound(snd_move, false);
+			}
+			else { play_sound(snd_crunch, false); }
+		}
+		else if (string_length(global.game_color_string) < 6) {
+			if (keyboard_check_pressed(ord("1"))) { global.game_color_string += "1"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("2"))) { global.game_color_string += "2"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("3"))) { global.game_color_string += "3"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("4"))) { global.game_color_string += "4"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("5"))) { global.game_color_string += "5"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("6"))) { global.game_color_string += "6"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("7"))) { global.game_color_string += "7"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("8"))) { global.game_color_string += "8"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("9"))) { global.game_color_string += "9"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("A"))) { global.game_color_string += "A"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("B"))) { global.game_color_string += "B"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("C"))) { global.game_color_string += "C"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("D"))) { global.game_color_string += "D"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("E"))) { global.game_color_string += "E"; play_sound(snd_move, false);  }
+			else if (keyboard_check_pressed(ord("F"))) { global.game_color_string += "F"; play_sound(snd_move, false);  }
+			if (global.game_color_string != "" && keyboard_check_pressed(ord("0"))) { global.game_color_string += "0"; play_sound(snd_move, false); }
+		}
+		else {
+			if (keyboard_check_pressed(ord("1"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("2"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("3"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("4"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("5"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("6"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("7"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("8"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("9"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("A"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("B"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("C"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("D"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("E"))) { play_sound(snd_locked, false);  }
+			else if (keyboard_check_pressed(ord("F"))) { play_sound(snd_locked, false);  }
+		}
+		var padded_game_color_string = global.game_color_string;
+			while (string_length(padded_game_color_string) < 6) {
+		    padded_game_color_string = "0"+padded_game_color_string;
+		}
+		global.game_color = hex_string_to_color(padded_game_color_string);
 	}
 }
 else {

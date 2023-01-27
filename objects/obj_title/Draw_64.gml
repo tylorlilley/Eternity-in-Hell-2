@@ -58,6 +58,21 @@ else if (options_screen) {
 		if (global.input < 1 || (global.input == 1 && gamepad_is_connected(global.gamepad))) { draw_sprite_ext(spr_title_arrow, 0, x_pos+48, y_pos+8, -1, 1, 0, c_white, 1); }
 		if (global.input > 0) { draw_sprite_ext(spr_title_arrow, 0, x_pos-48, y_pos+8, 1, 1, 0, c_white, 1); }
 	}
+	
+	// Draw Color Option
+	y_pos += 24;
+	draw_set_halign(fa_left);
+	draw_text(32, y_pos, "Color: ");
+	draw_set_halign(fa_center);
+	var padded_game_color_string = global.game_color_string;
+		while (string_length(padded_game_color_string) < 6) {
+		padded_game_color_string = "0"+padded_game_color_string;
+	}
+	if (options_pos != 3 || blink) {
+		draw_text(x_pos, y_pos, "#" + padded_game_color_string);
+	}
+	draw_sprite_ext(spr_box, 0, x_pos + 40, y_pos+8, 1, 1, 0, c_white, 1);
+	draw_sprite_ext(spr_box, 0, x_pos + 40, y_pos+8, 0.875, 0.875, 0, hex_string_to_gms_color(padded_game_color_string), 1);
 }
 else if key_space {
 	draw_set_color(c_white);

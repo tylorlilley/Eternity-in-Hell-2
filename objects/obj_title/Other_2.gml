@@ -40,8 +40,8 @@ global.seed = noone;
 global.FARM_MODE = false;
 global.TEST_MODE = false;
 global.can_access_farmer_mode = false;
-global.game_color_string = "32A852";
-global.game_color = hex_to_color(global.game_color_string)
+global.game_color_string = "FF0000";
+global.game_color = hex_string_to_color(global.game_color_string)
 
 // Setup generic arrays
 

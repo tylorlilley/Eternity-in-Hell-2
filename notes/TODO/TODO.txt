@@ -1,12 +1,9 @@
-Screen Flash On/Off Option
-Audio impared accessibility option
-
 === REFACTORS ===
 
+Add drawing outline tiles to lava?
 Update stairs to be generated and connected the same way holes are to remove special/different logic between holes and stairs
 
 Implement smarter pathfinding for move_towards_coordinates
-Worms draw block box under themselves and over their corners now that corners are on begin draw
 
 Remove all commented out code that we don't need anymore
 Examine remaining TODO comments
@@ -23,6 +20,7 @@ level editor
 option for replace red with another color
 options for light flicker intensity
 options for deepest black (0, 0, 0 vs 20, 20 , 20)
+Audio impared accessibility option
 
 Put an "are you sure" on the enter button?
 

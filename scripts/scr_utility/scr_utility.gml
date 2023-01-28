@@ -216,7 +216,7 @@ function reset_settings_to_defaults() {
 	global.window_scaling = 2;
 	global.input = inputs.keyboard_default;
 	global.can_screen_flash = true;
-	global.game_color_fade = 12;
+	global.game_color_fade = 10;
 	global.game_color_string = "FF0000";
 	
 	update_setting("fullscreen", global.fullscreen);

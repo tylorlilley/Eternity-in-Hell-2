@@ -151,7 +151,7 @@ function get_best_score_string(difficulty) {
 }
 
 /// @function								update_setting(obj_index, setting_name, new_value);
-///	@param		{string} diffsetting_name	The setting to update the value for
+///	@param		{string} setting_name	The setting to update the value for
 ///	@param		{real} new_value			The new value for the setting
 function update_setting(setting_name, new_value) {
 	ini_open("player_data.ini");
@@ -161,7 +161,8 @@ function update_setting(setting_name, new_value) {
 }
 
 /// @function								get_setting(setting_name, default_value);
-///	@param		{string} diffsetting_name	The setting to get the value of
+///	@param		{string} setting_name		The setting to get the value of
+///	@param		{real} new_value			The default value for the setting
 function get_setting(setting_name, default_value) { 
 	var setting_value = default_value;
 	

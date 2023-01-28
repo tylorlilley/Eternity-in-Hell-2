@@ -194,3 +194,47 @@ function get_decimal_from_hex_string(hex_string) {
  
 	return result;
 }
+
+/// @function								initialize_shader_pointers();
+function initialize_shader_pointers() {
+	shader_color = shader_get_uniform(sh_eih, "new_color");
+	shader_bg_color = shader_get_uniform(sh_eih, "bg_color");
+	shader_color_fade = shader_get_uniform(sh_eih, "color_fade");
+}
+
+/// @function								set_eih_shader();
+function set_eih_shader() {
+	shader_set(sh_eih);
+	shader_set_uniform_f_array(shader_color, global.game_color);
+	shader_set_uniform_f_array(shader_bg_color, get_shader_color_from_gms_color(global.bg_color));
+	shader_set_uniform_f(shader_color_fade, global.game_color_fade);
+}
+
+/// @function								reset_settings_to_defaults();
+function reset_settings_to_defaults() {
+	global.fullscreen = true;
+	global.window_scaling = 2;
+	global.input = inputs.keyboard_default;
+	global.can_screen_flash = true;
+	global.game_color_fade = 12;
+	global.game_color_string = "FF0000";
+	
+	update_setting("fullscreen", global.fullscreen);
+	update_setting("window_size", global.window_scaling);
+	update_setting("input", global.input);
+	update_setting("can_screen_flash", global.can_screen_flash );
+	update_setting("game_color_fade", global.game_color_fade);
+	update_setting("game_color", global.game_color_string);
+	
+	set_game_color();
+}
+
+/// @function								set_game_color();
+function set_game_color() {
+	var padded_game_color_string = global.game_color_string;
+	while (string_length(padded_game_color_string) < 6) {
+		padded_game_color_string = "0"+padded_game_color_string;
+	}
+	var new_color = get_gms_color_from_hex_string(padded_game_color_string);
+	global.game_color = get_shader_color_from_gms_color(new_color);
+}

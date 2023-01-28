@@ -1,7 +1,4 @@
-shader_set(sh_eih);
-
-shader_set_uniform_f_array(shader_color, global.game_color);
-shader_set_uniform_f_array(shader_bg_color, get_shader_color_from_gms_color(global.bg_color));
+set_eih_shader();
 
 /// @description Insert description here
 // You can write your code in this editor
@@ -18,19 +15,20 @@ else if (options_screen) {
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_center);
 	
-	var y_pos = 32, x_pos = room_width-80;
+	var y_pos = 32, x_pos = room_width-56;
 	
 	// Draw General Options Info
 	title_y_pos = room_height*2;
 	
 	draw_text(room_width/2, 16, "Options");	
-	draw_text(room_width/2, room_height-24, get_input_x_key_string() + ": Return");
+	draw_text(room_width/2, room_height-32, get_input_z_key_string() + ": Reset to Defaults");
+	draw_text(room_width/2, room_height-16, get_input_x_key_string() + ": Return");
 	draw_set_valign(fa_left);
 	
 	// Draw Fullscreen Option
 	var is_full_screen = window_get_fullscreen()
 	draw_set_halign(fa_left);
-	draw_text(32, y_pos, "Fullscreen: ");
+	draw_text(16, y_pos, "Fullscreen: ");
 	draw_set_halign(fa_center);
 	draw_text(x_pos, y_pos, ((is_full_screen) ? "ON" : "OFF"));
 	if (blink && options_pos == 0) {
@@ -41,7 +39,7 @@ else if (options_screen) {
 	// Draw Screen Scale Option
 	y_pos += 24;
 	draw_set_halign(fa_left);
-	draw_text(32, y_pos, "Window Size: ");
+	draw_text(16, y_pos, "Window Size: ");
 	draw_set_halign(fa_center);
 	draw_text(x_pos, y_pos, "x "+ string(global.window_scaling));
 	if (blink && options_pos == 1) {
@@ -52,7 +50,7 @@ else if (options_screen) {
 	// Draw Controls Option
 	y_pos += 24;
 	draw_set_halign(fa_left);
-	draw_text(32, y_pos, "Controls: ");
+	draw_text(16, y_pos, "Controls: ");
 	draw_set_halign(fa_center);
 	draw_text(x_pos, y_pos, get_input_string());
 	if (blink && options_pos == 2) {
@@ -60,20 +58,47 @@ else if (options_screen) {
 		if (global.input > 0) { draw_sprite_ext(spr_title_arrow, 0, x_pos-48, y_pos+8, 1, 1, 0, c_white, 1); }
 	}
 	
+	// Draw Screen Flash Option
+	y_pos += 24;
+	draw_set_halign(fa_left);
+	draw_text(16, y_pos, "Screen Flash: ");
+	draw_set_halign(fa_center);
+	draw_text(x_pos, y_pos, ((global.can_screen_flash) ? "ON" : "OFF"));
+	if (blink && options_pos == 3) {
+		if (!global.can_screen_flash) { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
+		else { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
+	}
+	
 	// Draw Color Option
 	y_pos += 24;
 	draw_set_halign(fa_left);
-	draw_text(32, y_pos, "Color: ");
+	draw_text(16, y_pos, "Color: ");
 	draw_set_halign(fa_center);
 	var padded_game_color_string = global.game_color_string;
-		while (string_length(padded_game_color_string) < 6) {
+	while (string_length(padded_game_color_string) < 6) {
 		padded_game_color_string = "0"+padded_game_color_string;
 	}
-	if (options_pos != 3 || blink) {
-		draw_text(x_pos-12, y_pos, "#" + padded_game_color_string);
+	draw_text(x_pos-16, y_pos, "#       ");
+	if (options_pos != 4 || blink) {
+		draw_text(x_pos-16, y_pos, "  " + padded_game_color_string);
 	}
-	draw_sprite_ext(spr_box, 0, x_pos + 30, y_pos+8, 1, 1, 0, c_white, 1);
-	draw_sprite_ext(spr_box, 0, x_pos + 30, y_pos+8, 0.875, 0.875, 0, get_gms_color_from_hex_string(padded_game_color_string), 1);
+	var new_color = get_gms_color_from_hex_string(padded_game_color_string);
+	draw_sprite_ext(spr_box, 0, x_pos + 40, y_pos+8, 1, 1, 0, c_white, 1);
+	draw_sprite_ext(spr_box, 0, x_pos + 40, y_pos+8, 0.875, 0.875, 0, new_color, 1);
+	
+	// Draw Minimum Fade Option
+	y_pos += 24;
+	draw_set_halign(fa_left);
+	draw_text(16, y_pos, "Min. Brightness: ");
+	draw_set_halign(fa_center);
+	draw_text(x_pos-12, y_pos, get_percentage_string(global.game_color_fade));
+	if (blink && options_pos == 5) {
+		if (global.game_color_fade < 100) { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
+		if (global.game_color_fade > 0) { draw_sprite_ext(spr_title_arrow, 0, x_pos-48, y_pos+8, 1, 1, 0, c_white, 1); }
+	}
+	var new_color_minimum_fade = make_color_rgb(global.game_color_fade/100.0 * color_get_red(new_color), global.game_color_fade/100.0 * color_get_green(new_color), global.game_color_fade/100.0 * color_get_blue(new_color));
+	draw_sprite_ext(spr_box, 0, x_pos + 40, y_pos+8, 1, 1, 0, c_white, 1);
+	draw_sprite_ext(spr_box, 0, x_pos + 40, y_pos+8, 0.875, 0.875, 0, new_color_minimum_fade, 1);
 }
 else if key_space {
 	draw_set_color(c_white);

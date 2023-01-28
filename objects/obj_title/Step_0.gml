@@ -4,6 +4,7 @@ set_up_inputs_for_next_frame();
 if (pos == -2) { 
 	global.can_access_farmer_mode = (get_win_count(difficulties.very_hard) > 0);
 	pos = (global.can_access_farmer_mode) ? -1 : 0;
+	update_setting("can_access_extra_mode", global.can_access_farmer_mode);
 }
 
 if (blink_timer == 0) {
@@ -24,13 +25,14 @@ if (options_screen) {
 	
 	// Move Up and Down Through Option Selections
 	if ((key_up_pressed) && (options_pos > 0)) { options_pos -= 1; play_sound(snd_mana, false); }
-	else if (key_down_pressed && (options_pos < 3)) { options_pos += 1; play_sound(snd_mana, false); }
+	else if (key_down_pressed && (options_pos < 5)) { options_pos += 1; play_sound(snd_mana, false); }
 	
 	// Adjust Fullscreen vs Window
 	if (options_pos == 0) {
-		if (!window_get_fullscreen() && key_left_pressed) { window_set_fullscreen(true); play_sound(snd_putdown, false); }
-		else if (window_get_fullscreen() && key_right_pressed) { window_set_fullscreen(false); play_sound(snd_pickup, false); }
+		if (!window_get_fullscreen() && key_left_pressed) { window_set_fullscreen(true); play_sound(snd_pickup, false); }
+		else if (window_get_fullscreen() && key_right_pressed) { window_set_fullscreen(false); play_sound(snd_putdown, false); }
 		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+		update_setting("fullscreen", window_get_fullscreen());
 	}
 	
 	// Adjust Pixel Scaling Option
@@ -46,6 +48,7 @@ if (options_screen) {
 			set_window_size();
 		}
 		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+		update_setting("window_size", global.window_scaling);
 	}
 	
 	// Adjust Control Option
@@ -59,10 +62,19 @@ if (options_screen) {
 			play_sound(snd_move, false);
 		}
 		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+		update_setting("input", global.input);
+	}
+	
+	// Adjust Screen Flash Option
+	if (options_pos == 3) {
+		if (!global.can_screen_flash && key_left_pressed) { global.can_screen_flash = true; play_sound(snd_pickup, false); }
+		else if (global.can_screen_flash && key_right_pressed) { global.can_screen_flash = false; play_sound(snd_putdown, false); }
+		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+		update_setting("can_screen_flash", global.can_screen_flash);
 	}
 	
 	// Adjust Color Option
-	if (options_pos == 3) {
+	if (options_pos == 4) {
 		if (keyboard_check_pressed(vk_backspace)) { 
 			if (global.game_color_string != "") {
 				global.game_color_string = string_delete(global.game_color_string, string_length(global.game_color_string), 1);
@@ -105,12 +117,22 @@ if (options_screen) {
 			else if (keyboard_check_pressed(ord("E"))) { play_sound(snd_locked, false);  }
 			else if (keyboard_check_pressed(ord("F"))) { play_sound(snd_locked, false);  }
 		}
-		var padded_game_color_string = global.game_color_string;
-			while (string_length(padded_game_color_string) < 6) {
-		    padded_game_color_string = "0"+padded_game_color_string;
-		}
-		var new_color = get_gms_color_from_hex_string(padded_game_color_string);
-		global.game_color = get_shader_color_from_gms_color(new_color);
+		set_game_color();
+		update_setting("game_color", global.game_color_string);
+	}
+	
+	// Adjust Minimum Fade Option
+	if (options_pos == 5) {
+		if (global.game_color_fade > 0 && key_left_pressed) { global.game_color_fade -= 2; play_sound(snd_move, false); }
+		else if (global.game_color_fade < 100 && key_right_pressed) { global.game_color_fade += 2; play_sound(snd_move, false); }
+		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+		update_setting("game_color_fade", global.game_color_fade);
+	}
+	
+	// Reset settings when z is pressed
+	if (key_z_pressed) {
+		play_sound(snd_stairs, false);
+		reset_settings_to_defaults();
 	}
 }
 else {
@@ -141,6 +163,7 @@ else {
 		if (pos == -1) {
 			if (global.FARM_MODE && key_left_pressed) { global.FARM_MODE = false; play_sound(snd_putdown, false); }
 			else if (!global.FARM_MODE && key_right_pressed) { global.FARM_MODE = true; play_sound(snd_pickup, false); }
+			update_setting("extra_mode", global.FARM_MODE);
 		}
 
 		// Adjust Difficulty Settings
@@ -159,6 +182,7 @@ else {
 				}
 				if (difficulty_sound) { play_sound(difficulty_sound, false); }
 			}
+			update_setting("difficulty", global.difficulty);
 		}
 
 		// Adjust Seed Option Settings
@@ -166,11 +190,12 @@ else {
 			if ((global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) && key_left_pressed) { global.seed_option -= 1; play_sound(snd_mana, false); }
 			else if (global.seed_option < seed_options.specified && key_right_pressed) { global.seed_option += 1; play_sound(snd_mana, false); }
 			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+			update_setting("seed_option", global.seed_option);
 		}
 
 		// Adjust Seed Manually
 		if (current_seed == noone) { current_seed = global.seed ? global.seed : irandom_range(0,99999999); }
-		else if (pos == 2) {
+		if (pos == 2) {
 			if (keyboard_check_pressed(vk_backspace)) { 
 				if (current_seed > 0) {
 					current_seed = floor(current_seed / 10); 
@@ -209,6 +234,7 @@ else {
 			play_sound(snd_move, false);
 			if (global.seed_option == seed_options.specified) { global.seed = current_seed; }
 			else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0,99999999); }
+			update_setting("last_seed", global.seed);
 			room_goto(rm_start);
 		}
 	}

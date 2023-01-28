@@ -33,16 +33,22 @@ enum inputs {
 }
 
 // Setup global variables for title screen
-global.bg_color = make_color_rgb(0, 0, 0);
-global.difficulty = difficulties.easy;
-global.seed_option = seed_options.rand;
-global.seed = noone;
-global.FARM_MODE = false;
 global.TEST_MODE = false;
-global.can_access_farmer_mode = false;
-global.game_color_string = "FF0000";
-var new_color = get_gms_color_from_hex_string(global.game_color_string);
-global.game_color = get_shader_color_from_gms_color(new_color);
+
+global.difficulty = get_setting("difficulty", difficulties.easy);
+global.seed_option = get_setting("seed_option", seed_options.rand);
+global.seed = get_setting("last_seed", noone);
+global.FARM_MODE = get_setting("extra_mode", false);
+
+global.fullscreen = get_setting("fullscreen", true);
+global.window_scaling = get_setting("window_size", 2);
+global.input = get_setting("input", inputs.keyboard_default);
+global.can_screen_flash = get_setting("can_screen_flash", true);
+global.can_access_farmer_mode = get_setting("can_access_extra_mode", true);
+global.game_color_fade = get_setting("game_color_fade", 12);
+global.game_color_string = get_setting("game_color", "FF0000");
+
+global.bg_color = make_color_rgb(0, 0, 0);
 
 // Setup generic arrays
 
@@ -68,7 +74,8 @@ global.death_types_array = [
 ]
 
 // Set up drawing surface variables
-global.input = inputs.keyboard_default;
+window_set_fullscreen(global.fullscreen);
 set_max_window_size();
 set_window_size();
+set_game_color();
 determine_gamepad();

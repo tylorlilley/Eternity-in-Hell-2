@@ -809,8 +809,10 @@ function get_direction_input(key_pressed_only) {
 
 /// @function								screen_flash();
 function screen_flash() {
-	with (global.controller) {
-		flash_time = SCREEN_FLASH_DURATION;
-		global.bg_color = c_white;
+	if (global.can_screen_flash) {
+		with (global.controller) {
+			flash_time = SCREEN_FLASH_DURATION;
+			global.bg_color = c_white;
+		}
 	}
 }

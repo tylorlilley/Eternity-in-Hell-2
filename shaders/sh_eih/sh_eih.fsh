@@ -6,11 +6,13 @@ varying vec4 v_vColour; // The image_blend color
 
 uniform vec4 new_color;
 uniform vec4 bg_color;
+uniform float color_fade;
 
 void main()
 {
 	// Set up defaults
 	vec4 texColor = texture2D(gm_BaseTexture, v_vTexcoord);
+	float new_color_minimum = (color_fade / 100.0);
 	
 	// Set a minimum so that the highlight color still shows up in the dark
 	vec4 newBlend = vec4(v_vColour.rgb, texColor.a);
@@ -18,9 +20,9 @@ void main()
 	vec4 pixelColor = newBlend * texture2D( gm_BaseTexture, v_vTexcoord );
 	if (texColor.r == 1.0 && texColor.g == 0.0 && texColor.b == 0.0 && texColor.a == 1.0) {
 		// If the original sprite pixel is bright red, replace it with the new color and apply the image blend
-		if (newBlend.r < 20.0/255.0) { newBlend.r = 20.0/255.0; }		
-		if (newBlend.g < 20.0/255.0) { newBlend.g = 20.0/255.0; }
-		if (newBlend.b < 20.0/255.0) { newBlend.b = 20.0/255.0; }
+		if (newBlend.r < new_color_minimum) { newBlend.r = new_color_minimum; }		
+		if (newBlend.g < new_color_minimum) { newBlend.g = new_color_minimum; }
+		if (newBlend.b < new_color_minimum) { newBlend.b = new_color_minimum; }
 		
 		pixelColor = newBlend * new_color;
 	}

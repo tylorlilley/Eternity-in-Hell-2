@@ -247,8 +247,8 @@ function GameRoom(given_x, given_y) constructor {
 		
 			// Darken the colors of unvisited rooms on the map
 			if (!visited) {
-				white_color = merge_color(white_color, bg_color, 0.25);
-				red_color = merge_color(red_color, bg_color, 0.25);
+				white_color = merge_color(white_color, bg_color, 0.75);
+				red_color = merge_color(red_color, bg_color, 0.75);
 			}
 			
 		    // Draw Room on Map

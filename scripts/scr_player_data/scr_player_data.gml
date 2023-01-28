@@ -149,3 +149,26 @@ function get_best_score(difficulty) {
 function get_best_score_string(difficulty) { 
 	return "Highest Grade: " + get_percentage_string(get_best_score(difficulty));
 }
+
+/// @function								update_setting(obj_index, setting_name, new_value);
+///	@param		{string} diffsetting_name	The setting to update the value for
+///	@param		{real} new_value			The new value for the setting
+function update_setting(setting_name, new_value) {
+	ini_open("player_data.ini");
+	if (is_string(new_value)) { ini_write_string("Settings", setting_name, new_value); }
+	else { ini_write_real("Settings", setting_name, new_value); }
+	ini_close();
+}
+
+/// @function								get_setting(setting_name, default_value);
+///	@param		{string} diffsetting_name	The setting to get the value of
+function get_setting(setting_name, default_value) { 
+	var setting_value = default_value;
+	
+	ini_open("player_data.ini");
+	if (is_string(default_value)) { setting_value = ini_read_string("Settings", setting_name, default_value); }
+	else { setting_value = ini_read_real("Settings", setting_name, default_value); }
+	ini_close();
+	
+	return setting_value;
+}

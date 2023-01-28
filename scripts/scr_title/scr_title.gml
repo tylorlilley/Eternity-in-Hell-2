@@ -73,7 +73,6 @@ function set_max_window_size() {
 			global.max_window_scaling = i;
 		}
 	}
-	global.window_scaling = 2;
 }
 
 /// @function								set_window_size();
@@ -83,7 +82,7 @@ function set_window_size() {
 	window_set_size(draw_surface_width, draw_surface_height);
 }
 
-/// @function								set_window_size();
+/// @function								get_input_string();
 function get_input_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "Arrow Keys"; }
@@ -92,7 +91,7 @@ function get_input_string() {
 	}
 }
 
-/// @function								set_window_size();
+/// @function								get_input_z_key_string();
 function get_input_z_key_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "Z"; }
@@ -101,7 +100,7 @@ function get_input_z_key_string() {
 	}
 }
 
-/// @function								set_window_size();
+/// @function								get_input_x_key_string();
 function get_input_x_key_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "X"; }
@@ -110,7 +109,7 @@ function get_input_x_key_string() {
 	}
 }
 
-/// @function								set_window_size();
+/// @function								get_input_space_key_string();
 function get_input_space_key_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "Space"; }
@@ -135,5 +134,6 @@ function determine_gamepad() {
 	for (var i = 0; i < gp_num; i++;) {
 	    if (gamepad_is_connected(i)) { global.gamepad = i; break; }
 	}
+	if (global.gamepad == noone && global.input == inputs.gamepad) { global.input = inputs.keyboard_default; }
 	return global.gamepad;
 }

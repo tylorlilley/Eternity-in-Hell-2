@@ -145,7 +145,7 @@ function initialize_game_variables() {
 	entered_from_spawn = true;
 	blackout = true;
 	transition = directions.respawn;
-	transition_hole = noone;
+	transitioned_from = noone;
 	clear_inputs_for_next_frame();
 }
 
@@ -529,14 +529,9 @@ function game_room_start() {
 
 	// Change position if necessary
 	if entered_from_stairs {
-		if (!is_existing_instance(transition_hole)) {
-			global.player.x = stairs_spot.x;
-			global.player.y = stairs_spot.y;
-		}
-		else {
-			global.player.x = transition_hole.connected_hole.x;
-			global.player.y = transition_hole.connected_hole.y;
-		}
+		var start_spot = (transitioned_from != noone && transitioned_from.connected_to != noone) ? transitioned_from.connected_to : stairs_spot;
+		global.player.x = start_spot.x;
+		global.player.y = start_spot.y;
 	}
 
 	// Move character into position
@@ -585,7 +580,6 @@ function game_room_start() {
 		} 
 	}
 	with (obj_stairs) { active = false; }
-	with (obj_hole) { active = false; }
 	with (obj_door) { 
 		if (door_for_exit != noone) {
 			locked = ( door_for_exit.locked);

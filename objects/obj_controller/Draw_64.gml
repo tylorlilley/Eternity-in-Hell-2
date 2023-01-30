@@ -1,5 +1,3 @@
-set_eih_shader();
-
 draw_set_font(ft_hud);
 var has_won = is_game_won();
 var has_lost = is_game_lost();

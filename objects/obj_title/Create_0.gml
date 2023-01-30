@@ -1,6 +1,4 @@
 randomize();
-audio_group_load(audiogroup_default);
-initialize_shader_pointers();
 
 room_speed = 60;
 

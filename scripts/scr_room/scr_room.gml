@@ -478,7 +478,7 @@ function GameRoom(given_x, given_y) constructor {
 			game_room_start();
 			blackout = false;
 			transition = directions.none;
-			transition_hole = noone;
+			transitioned_from = noone;
 		}
 	}
 	
@@ -486,7 +486,7 @@ function GameRoom(given_x, given_y) constructor {
 	function mark_exit_visited() {
 		var exit_dir = global.controller.transition, other_room = global.controller.current_room;
 		if (exit_dir == directions.stairs) {
-			if (!is_existing_instance(global.controller.transition_hole)) {
+			if (global.controller.transitioned_from.object_index == obj_stairs) {
 				other_room.visited_exits[directions.stairs] = true;
 				visited_exits[directions.stairs] = true;
 			}

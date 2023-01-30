@@ -80,7 +80,6 @@ function can_dig_hole() {
 			!place_meeting(x, y, obj_lantern) &&
 			!place_meeting(x, y, obj_cross) &&
 			!place_meeting(x, y, obj_bush) &&
-			!place_meeting(x, y, obj_hole) &&
 			!place_meeting(x, y, obj_block_spot));
 }
 
@@ -90,11 +89,14 @@ function dig_hole() {
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
 		var new_hole = instance_create(x, y, obj_hole);
-		if (!is_existing_instance(global.controller.last_hole)) { global.controller.last_hole = new_hole; }
+		if (global.controller.last_hole == noone) { global.controller.last_hole = new_hole; }
 		else { 
-			new_hole.connected_hole = global.controller.last_hole; 
-			global.controller.last_hole.connected_hole = new_hole;
+			new_hole.connected_to = global.controller.last_hole;
+			//var activated_instance = is_existing_instance()
+			//instance_activate_object(global.controller.last_hole);
+			global.controller.last_hole.connected_to = new_hole;
 			global.controller.last_hole = noone;
+			//instance_activate_object(global.controller.last_hole);
 		}
 	}
 }

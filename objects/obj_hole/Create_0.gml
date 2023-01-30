@@ -1,11 +1,10 @@
 event_inherited();
 
 depth = 10;
-image_index = 0
-
-active = false;
-connected_hole = noone;
-connected_room = global.controller.current_room;
+image_index = 0;
+sprite_index = spr_hole;
 
 flip_sprite_at_random(true);
 rotate_sprite_to_random_angle();
+
+

@@ -77,13 +77,18 @@ if (can_process_this_frame()) {
 		}
     
 	    // Transition to new room depending on player position
-	    var stairs = instance_place(x, y, obj_stairs), hole = instance_place(x, y, obj_hole);
-		if (is_existing_instance(stairs) && stairs.active && is_instance_at_coordinates(x, y, stairs)) { global.controller.transition = directions.stairs; }
-		if (is_existing_instance(hole) && hole.active && is_existing_instance(hole.connected_hole) && is_instance_at_coordinates(x, y, hole)) { global.controller.transition = directions.stairs; global.controller.transition_hole = hole; }
-	    else if x < 0 { global.controller.transition = directions.left; }
-	    else if x > room_width { global.controller.transition = directions.right; }
-	    else if y < 0 { global.controller.transition = directions.up; }
-	    else if y > room_height { global.controller.transition = directions.down; }
+		with (instance_place(x, y, obj_stairs)) {
+			if (active && is_instance_at_coordinates(x, y, global.player) && (connected_to != noone || object_index == obj_stairs)) { 
+					global.controller.transition = directions.stairs; 
+					global.controller.transitioned_from = id;
+			}
+		}
+		if (global.controller.transition == directions.none) {
+		    if x < 0 { global.controller.transition = directions.left; }
+		    else if x > room_width { global.controller.transition = directions.right; }
+		    else if y < 0 { global.controller.transition = directions.up; }
+		    else if y > room_height { global.controller.transition = directions.down; }
+		}
 	}
 	else if dead image_index = 2;
 

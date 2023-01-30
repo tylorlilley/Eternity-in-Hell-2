@@ -1,5 +1,3 @@
-set_eih_shader();
-
 /// @description Insert description here
 // You can write your code in this editor
 var death_count_string = get_death_count_string(global.difficulty), win_count_string = get_win_count_string(global.difficulty);
@@ -248,5 +246,3 @@ else {
 
 // Draw Logo 
 draw_sprite_ext(spr_logo, (global.FARM_MODE) ? 1 : 0, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);
-
-shader_reset();

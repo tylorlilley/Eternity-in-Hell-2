@@ -106,7 +106,7 @@
     {"id":{"name":"spr_echo_farmer","path":"sprites/spr_echo_farmer/spr_echo_farmer.yy",},"order":94,},
     {"id":{"name":"snd_win","path":"sounds/snd_win/snd_win.yy",},"order":25,},
     {"id":{"name":"spr_large_key","path":"sprites/spr_large_key/spr_large_key.yy",},"order":50,},
-    {"id":{"name":"obj_sound_manager","path":"objects/obj_sound_manager/obj_sound_manager.yy",},"order":2,},
+    {"id":{"name":"obj_game_manager","path":"objects/obj_game_manager/obj_game_manager.yy",},"order":2,},
     {"id":{"name":"spr_bones_farmer","path":"sprites/spr_bones_farmer/spr_bones_farmer.yy",},"order":93,},
     {"id":{"name":"snd_walk","path":"sounds/snd_walk/snd_walk.yy",},"order":27,},
     {"id":{"name":"snd_bush","path":"sounds/snd_bush/snd_bush.yy",},"order":29,},

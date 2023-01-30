@@ -331,18 +331,3 @@ function get_sprite_to_use(regular_sprite) {
 	
 	return regular_sprite;
 }
-
-/// @function								initialize_shader_pointers();
-function initialize_shader_pointers() {
-	shader_color = shader_get_uniform(sh_eih, "new_color");
-	shader_bg_color = shader_get_uniform(sh_eih, "bg_color");
-	shader_color_fade = shader_get_uniform(sh_eih, "color_fade");
-}
-
-/// @function								set_eih_shader();
-function set_eih_shader() {
-	shader_set(sh_eih);
-	shader_set_uniform_f_array(shader_color, global.game_color);
-	shader_set_uniform_f_array(shader_bg_color, get_shader_color_from_gms_color(global.bg_color));
-	shader_set_uniform_f(shader_color_fade, global.game_color_fade);
-}

@@ -1,4 +1,5 @@
 Is screen flash for phantom and/or hidden chests too much?
+Fix too many rooms generated warning
 
 === REFACTORS ===
 

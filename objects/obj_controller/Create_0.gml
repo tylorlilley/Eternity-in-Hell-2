@@ -1,5 +1,4 @@
 // Initialize global values
-initialize_shader_pointers();
 random_set_seed(global.seed);
 show_debug_message("SEED: "+string(random_get_seed()));
 clear_inputs_for_next_frame();

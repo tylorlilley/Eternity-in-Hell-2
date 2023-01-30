@@ -48,6 +48,7 @@ function initialize_game_variables() {
 	HAS_COLLECTABLE_PROBABILITY = get_probability_for_difficulty([4, 3, 3, 3, 2]);
 	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([6, 5, 4, 3, 2]); // This happens only after the get stairs fails, so its combined with 4/5
 	TRAP_CHEST_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 8])  // This happens only after the get item fails, so its combined with that probability
+	HIDDEN_CHEST_PROBABILITY = get_probability_for_difficulty([0, 4, 3, 2, 1])  // This happens only after the get item succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 	// HAS_KEY_PROBABILITY = get_probability_for_difficulty([10, 8, 6, 5, 4]);
 	HAS_PORTCULLIS_PROBABILITY = get_probability_for_difficulty([0, 0, 20, 8, 4]);
 	MISLEADING_ROOM_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12]);
@@ -450,11 +451,6 @@ function game_room_start() {
 				instance_create(x_pos_2, y_pos_2, obj_wall);
 			}
 		}
-	
-		// Create room's stairs_spot object
-		if (current_room.stairs_spot_obj != -1) {
-		    instance_create(stairs_spot.x, stairs_spot.y, current_room.stairs_spot_obj);
-		}
     
 		// Create collectables in room if they should exist
 		if (current_room.has_collectables) {
@@ -481,12 +477,19 @@ function game_room_start() {
 			}
 			else { with obj_lantern { light_torch(noone, false); } }
 		}
-		else
-		{
-			// If room is unlit but has the potential to be lit, consider spawning phantom
-			if (instance_number(obj_lantern) > 0 && instance_number(obj_eyes) == 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
+		else if (instance_number(obj_lantern) > 0) {
+			// If room hsa lanterns but is not pre-lit, consider spawning phantom OR making chest hidden
+			if (instance_number(obj_eyes) == 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
 				instance_create(8, 8, obj_phantom);
 			}
+			else if (current_room.stairs_spot_obj == obj_chest && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY)) {
+				current_room.stairs_spot_obj = obj_hidden_chest;
+			}
+		}
+
+		// Create room's stairs_spot object
+		if (current_room.stairs_spot_obj != -1) {
+		    instance_create(stairs_spot.x, stairs_spot.y, current_room.stairs_spot_obj);
 		}
 		
 		// If room has lava, consider spawning nose

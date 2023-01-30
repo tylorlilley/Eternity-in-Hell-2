@@ -146,7 +146,7 @@ function try_to_see_player() {
 
 /// @function								move_snake(iterations);
 ///	@param		{int}	iterations			The number of times to move in one frame
-function move_snake(iterations){
+function move_snake(iterations) {
 	var prev_dir = (dir == -1) ? irandom(3) : dir;
 	for (var i = 0; i < iterations; i +=1) {
 		if (dir != -1 && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
@@ -301,7 +301,9 @@ function check_for_player_collision() {
 			with (global.player) { 
 				if (!is_carrying_item(obj_staff)) { 
 					play_sound(snd_extinguish, false);
-					kill_player(other.creator_obj);
+					var killer = obj_lava;
+					if (is_existing_instance(other.creator)) { killer = other.creator.object_index; }
+					kill_player(killer);
 				} 
 			} 
 		}

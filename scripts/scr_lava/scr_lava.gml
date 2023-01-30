@@ -12,7 +12,7 @@ function convert_to_multiple_death_boxes() {
 		death_boxes[i] = instance_create(x_pos, y_pos, obj_death);
 		death_boxes[i].image_xscale = 0.5;
 		death_boxes[i].image_yscale = 0.5;
-		death_boxes[i].creator_obj = object_index;
+		death_boxes[i].creator = id;
 	}
 }
 
@@ -82,12 +82,57 @@ function consume_lava(require_all) {
 		for (var i = 0; i <= 3; i++) {
 			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 			
-			with lava_at_quadrant[i] { consumed = destroy_lava_at_position(x_pos, y_pos) || consumed; }
+			with lava_at_quadrant[i] { 
+				consumed = destroy_lava_at_position(x_pos, y_pos) || consumed; 
+				destroy_self_if_all_death_boxes_are_destroyed();
+			}
 		}
+		
 		if (consumed) {
 			play_sound(snd_splash, false);
+			with (obj_lava) {
+				if (point_distance(x, y, other.x, other.y) <= 32) {
+					set_up_lava_edge_visibility(true);
+				}
+			}
 			return true;
 		}
 	}
 	return false;
+}
+
+/// @ function								destroy_self_if_all_death_boxes_are_destroyed();
+function destroy_self_if_all_death_boxes_are_destroyed() {
+	if (!is_existing_instance(death_box) &&
+		!is_existing_instance(death_boxes[0]) &&
+		!is_existing_instance(death_boxes[1]) &&
+		!is_existing_instance(death_boxes[2]) &&
+		!is_existing_instance(death_boxes[3])) { 
+			instance_destroy(); 
+	}
+}
+
+/// @ function								set_up_lava_edge_visibility(require_all);
+/// @param		{bool} visibility_only		Only change the visibility status
+function set_up_lava_edge_visibility(visibility_only) {
+	for (var quadrant = 0; quadrant < 4; quadrant++) {
+		for (var dir = 0; dir < 4; dir++) {
+			var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+			switch (dir) {
+				case directions.up: { y_pos -= 8; break; }
+				case directions.right: { x_pos += 8; break; }
+				case directions.down: { y_pos += 8; break; }
+				case directions.left: { x_pos -= 8; break; }
+			}
+			
+			sprite_index = spr_collectable;
+			lava_edge_visible[quadrant][dir] = !is_lava_at_position(x_pos, y_pos);
+			if (!is_existing_instance(death_box) && !is_existing_instance(death_boxes[quadrant])) { lava_edge_visible[quadrant][dir] = false; }
+			if (!visibility_only) { 
+				lava_edge_image_indexes[quadrant][dir] = irandom(7);
+				lava_edge_image_xscales[quadrant][dir] = (get_coin_flip()) ? 1 : -1;
+			}
+			sprite_index = spr_lava;
+		}
+	}
 }

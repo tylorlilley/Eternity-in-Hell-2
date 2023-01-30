@@ -79,7 +79,7 @@ function is_lava_at_position(x_pos, y_pos) {
 	var death_at_position = instance_place_all(x_pos, y_pos, obj_death);
 	while (array_length(death_at_position) > 0) {
 		var death = array_random_pop(death_at_position);
-		if (death.object_index == obj_death) { return true; }
+		if (death.object_index == obj_death && (!is_existing_instance(death.creator) || death.creator.id != id)) { return true; }
 	}
 	return false;
 }
@@ -330,4 +330,19 @@ function get_sprite_to_use(regular_sprite) {
 	}
 	
 	return regular_sprite;
+}
+
+/// @function								initialize_shader_pointers();
+function initialize_shader_pointers() {
+	shader_color = shader_get_uniform(sh_eih, "new_color");
+	shader_bg_color = shader_get_uniform(sh_eih, "bg_color");
+	shader_color_fade = shader_get_uniform(sh_eih, "color_fade");
+}
+
+/// @function								set_eih_shader();
+function set_eih_shader() {
+	shader_set(sh_eih);
+	shader_set_uniform_f_array(shader_color, global.game_color);
+	shader_set_uniform_f_array(shader_bg_color, get_shader_color_from_gms_color(global.bg_color));
+	shader_set_uniform_f(shader_color_fade, global.game_color_fade);
 }

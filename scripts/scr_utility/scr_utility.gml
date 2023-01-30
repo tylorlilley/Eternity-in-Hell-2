@@ -42,21 +42,21 @@ function get_percentage_string(value) {
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {
 	if (dir < 0 || dir > 3) { return -1; }
-	else { return (dir+2) mod 4; }
+	else { return modulo((dir+2), 4); }
 }
 
 /// @function								get_turn_right_dir(dir);
 /// @param		{direction}	dir				The direction to return the direction to the right of
 function get_turn_right_dir(dir) {
 	if (dir < 0 || dir > 3) { return -1; }
-	else { return (dir+1) mod 4; }
+	else { return modulo((dir+1), 4); }
 }
 
 /// @function								get_turn_left_dir(dir);
 /// @param		{direction}	dir				The direction to return the direction to the left of
 function get_turn_left_dir(dir) {
 	if (dir < 0 || dir > 3) { return -1; }
-	else { return (dir-1) mod 4; }
+	else { return modulo((dir-1), 4); }
 }
 
 /// @function								get_random_instance(obj_index);
@@ -82,7 +82,7 @@ function get_coin_flip() {
 /// @function								get_quadrant_x_pos(quadrant_number);
 /// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
 function get_quadrant_x_pos(quadrant_number) {
-    if (quadrant_number mod 2 == 0) { return x-4; }
+    if (modulo(quadrant_number, 2) == 0) { return x-4; }
 	else { return x+4; }
 }
 
@@ -195,21 +195,6 @@ function get_decimal_from_hex_string(hex_string) {
 	return result;
 }
 
-/// @function								initialize_shader_pointers();
-function initialize_shader_pointers() {
-	shader_color = shader_get_uniform(sh_eih, "new_color");
-	shader_bg_color = shader_get_uniform(sh_eih, "bg_color");
-	shader_color_fade = shader_get_uniform(sh_eih, "color_fade");
-}
-
-/// @function								set_eih_shader();
-function set_eih_shader() {
-	shader_set(sh_eih);
-	shader_set_uniform_f_array(shader_color, global.game_color);
-	shader_set_uniform_f_array(shader_bg_color, get_shader_color_from_gms_color(global.bg_color));
-	shader_set_uniform_f(shader_color_fade, global.game_color_fade);
-}
-
 /// @function								reset_settings_to_defaults();
 function reset_settings_to_defaults() {
 	global.fullscreen = true;
@@ -237,4 +222,13 @@ function set_game_color() {
 	}
 	var new_color = get_gms_color_from_hex_string(padded_game_color_string);
 	global.game_color = get_shader_color_from_gms_color(new_color);
+}
+
+
+/// @function								modulo(a, b);
+///	@param		{number} a					The number to perform the mod on
+///	@param		{number} b					The number to perform the mod with
+function modulo(a, b) {
+	var Q = (b < 0) ? ceil(a/b) : floor(a/b);
+	return a - (Q * b)
 }

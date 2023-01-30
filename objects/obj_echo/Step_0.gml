@@ -7,7 +7,7 @@ if (can_process_this_frame()) {
 			if (dir != directions.none) {
 				move_in_direction(dir, false);
 				play_sound(snd_walk, false);
-				image_index = move_pos mod 2;
+				image_index = modulo(move_pos, 2);
 			}
 			move_pos += 1;
 		}

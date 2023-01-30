@@ -32,7 +32,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								get_virtual_quadrant_x_pos(quadrant_number);
 	/// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
 	function get_virtual_quadrant_x_pos(quadrant_number) {
-	    if (quadrant_number mod 2 == 0) { return virtual_x-4; }
+	    if (modulo(quadrant_number, 2) == 0) { return virtual_x-4; }
 		else { return virtual_x+4; }
 	}
 
@@ -180,7 +180,7 @@ function GameRoom(given_x, given_y) constructor {
 
 		// Randomly determine where the next exit position will be
 		var next_exit_pos = irandom(3);
-		do { next_exit_pos = (next_exit_pos+1) mod 4; }
+		do { next_exit_pos = modulo((next_exit_pos+1), 4); }
 		until (must_create_new && !get_adjacent_room(next_exit_pos) ||
 		       !must_create_new && !exits[next_exit_pos])
 
@@ -240,7 +240,7 @@ function GameRoom(given_x, given_y) constructor {
 		if (show_detailed_map || visited) {
 			// Set up colors to draw this room with
 			var fade_amount = 0; //distance_to_current_room / global.controller.MAX_MAP_DRAW_DISTANCE;
-			var blink_frame = global.controller.number_of_frames_since_game_began mod 12 <= 5;
+			var blink_frame = modulo(global.controller.number_of_frames_since_game_began, 12) <= 5;
 			var bg_color = global.bg_color;
 			var white_color = merge_color(c_white, bg_color, fade_amount);
 			var red_color = merge_color(c_red, bg_color, fade_amount);
@@ -430,8 +430,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									initialize_from_room_reference()
 	function initialize_from_room_reference() {
-		// CHANGE ROOM HERE FOR TESTING
-		var reference_instances = instances_for_room_reference(room_reference);
+		var reference_instances = instances_for_room_reference(room_reference); // CHANGE ROOM REFERENCE HERE FOR TESTING
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
 			instance_create(ref.x, ref.y, asset_get_index(ref.name));

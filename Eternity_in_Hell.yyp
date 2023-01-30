@@ -177,6 +177,7 @@
     {"id":{"name":"snd_give_up","path":"sounds/snd_give_up/snd_give_up.yy",},"order":55,},
     {"id":{"name":"spr_player_farmer","path":"sprites/spr_player_farmer/spr_player_farmer.yy",},"order":52,},
     {"id":{"name":"obj_item","path":"objects/obj_item/obj_item.yy",},"order":5,},
+    {"id":{"name":"spr_lava_edge","path":"sprites/spr_lava_edge/spr_lava_edge.yy",},"order":101,},
     {"id":{"name":"obj_torch","path":"objects/obj_torch/obj_torch.yy",},"order":8,},
     {"id":{"name":"spr_portcullis_farmer","path":"sprites/spr_portcullis_farmer/spr_portcullis_farmer.yy",},"order":95,},
     {"id":{"name":"spr_mimic","path":"sprites/spr_mimic/spr_mimic.yy",},"order":25,},

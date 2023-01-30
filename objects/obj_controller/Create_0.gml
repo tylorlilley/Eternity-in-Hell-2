@@ -40,7 +40,7 @@ var rooms_with_stairs_spot = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
 	if (game_rooms[i].exits[4]) { array_push(rooms_with_stairs_spot, game_rooms[i]); }
 }
-if (array_length(rooms_with_stairs_spot) mod 2 != 0) {
+if (modulo(array_length(rooms_with_stairs_spot), 2) != 0) {
 	var odd_room_out = array_random_pop(rooms_with_stairs_spot);
 	odd_room_out.exits[4] = false;
 	odd_room_out.stairs_spot_obj = -1;
@@ -109,7 +109,7 @@ keyless_rooms = set_up_locks_and_keys(keyless_rooms);
 
 // Create heart in farthest room
 for (var i = 0; i < total_rooms; i++) {
-	if (game_rooms[i].exits[4] == noone && game_rooms[i].stairs_spot_obj == -1) {
+	if (game_rooms[i].exits[4] == false && game_rooms[i].stairs_spot_obj == -1) {
 		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, game_rooms[i]); }
 		else {
 			var distance = array_get(farthest_rooms, 0).distance_from_start_room;

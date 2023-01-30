@@ -34,7 +34,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		
 		// Draw elapsed time
 		var time_elapsed = (time_provided - time_remaining);
-		draw_text(hud_x_pos, room_height-12, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(time_elapsed mod 60), 2)));
+		draw_text(hud_x_pos, room_height-12, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2)));
 		
 		// Draw game version
 		draw_set_halign(fa_right);
@@ -77,7 +77,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 			draw_text(hud_x_pos, room_height-112-16-16, string_hash_to_newline("Mapped: "+get_percentage_string(percentage_of_rooms_mapped)));
 			draw_text(hud_x_pos, room_height-96-16-16, string_hash_to_newline("Time Left: "+get_percentage_string(percentage_of_time_remaining))); 
 			if (completion_amount > 0) { draw_text(hud_x_pos, room_height-96-16, string_hash_to_newline("Victory: "+get_percentage_string(bonus_for_winning_game))); }
-			draw_text(hud_x_pos, room_height-160-16-16, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(time_elapsed mod 60), 2)));
+			draw_text(hud_x_pos, room_height-160-16-16, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2)));
 		}
 	}
 

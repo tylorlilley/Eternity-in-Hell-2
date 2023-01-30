@@ -6,7 +6,11 @@ if (can_process_this_frame()) {
 		case directions.down: { y -= 4; break; }
 		case directions.left: { x += 4; break; }
 	}
-	if (dir != directions.none) { image_angle = 90 * dir; }
+	if (dir != directions.none) { 
+		image_angle = 90 * dir; 
+		image_index += 1;
+		if (image_index > 3) { image_index = 0; }
+	}
 	image_xscale = 1;
 
 	event_inherited();

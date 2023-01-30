@@ -13,7 +13,7 @@ function become_carried(new_holder) {
 	// Become carried
 	holder = new_holder;
 	persistent = new_holder.persistent;
-	depth = -5;
+	depth = -250;
 	
 	// Perform individual item pick-up actions
 	switch (object_index) {

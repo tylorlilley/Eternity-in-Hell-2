@@ -35,7 +35,7 @@ function is_current_map_possible() {
 			}
 		}
 		// Cut off caluculations if it is becoming too complex
-		if (array_length(unlocked_exit_lists_to_verify) > global.controller.MAX_WALKING_DEPTH) { map_is_possible = false; }
+		if (array_length(unlocked_exit_lists_to_verify) > MAX_WALKING_DEPTH) { map_is_possible = false; }
 		//show_debug_message(array_length(unlocked_exit_lists_to_verify));
 	}
 	until (array_length(unlocked_exit_lists_to_verify) == 0)

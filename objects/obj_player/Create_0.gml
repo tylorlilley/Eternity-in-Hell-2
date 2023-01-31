@@ -6,7 +6,7 @@ depth = -10;
 right_hand_item = noone;
 left_hand_item = noone;
 
-lighting_range = global.controller.PLAYER_LIGHT_RANGE;
+lighting_range = PLAYER_LIGHT_RANGE;
 is_flickering_light_source = false;
 flicker_value = 0;
 

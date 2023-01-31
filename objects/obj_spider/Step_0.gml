@@ -9,8 +9,8 @@ if (can_process_this_frame()) {
 			else { state = ATTACKING; }
 		}
 	    else if (state == ATTACKING && can_move_in_direction(dir, false, true)) {
-			var controller = global.controller;
-			if (modulo(controller.number_of_frames_since_game_began, (controller.FRAMES_TO_WAIT_BEFORE_PROCESSING * 2)) == 0) { image_xscale *= -1; }
+			var game_manager = global.game_manager;
+			if (modulo(game_manager.number_of_frames_since_game_began, (game_manager.FRAMES_TO_WAIT_BEFORE_PROCESSING * 2)) == 0) { image_xscale *= -1; }
 	        if (can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
 			try_to_see_player();
 	        if (state == ATTACKING && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }

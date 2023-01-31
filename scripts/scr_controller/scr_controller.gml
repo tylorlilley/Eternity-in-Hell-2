@@ -34,8 +34,6 @@ function create_room_lists() {
 		
 /// @function								initialize_game_variables();
 function initialize_game_variables() {
-	var difficulty = global.difficulty;
-	
 	display_reset(0, false);
 	layer_force_draw_depth(true,0);
 	game_set_speed(60, gamespeed_fps);
@@ -43,83 +41,6 @@ function initialize_game_variables() {
 	// Set up global shortcut references
 	global.controller = id;
 	global.player = noone;
-
-	// Initialize room probability constants
-	NUMBER_OF_EXITS_PROBABILITY = 9;
-	HAS_STAIRS_PROBABILITY = 5;
-	HAS_COLLECTABLE_PROBABILITY = get_probability_for_difficulty([4, 3, 3, 3, 2]);
-	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([6, 5, 4, 3, 2]); // This happens only after the get stairs fails, so its combined with 4/5
-	TRAP_CHEST_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 8])  // This happens only after the get item fails, so its combined with that probability
-	HIDDEN_CHEST_PROBABILITY = get_probability_for_difficulty([0, 4, 3, 2, 1])  // This happens only after the get item succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
-	HAS_KEY_PROBABILITY = get_probability_for_difficulty([4, 4, 8, 10, 12]);
-	HAS_PORTCULLIS_PROBABILITY = get_probability_for_difficulty([0, 0, 20, 8, 4]);
-	MISLEADING_ROOM_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12]);
-	LOCKED_DOOR_PROBABILITY = get_probability_for_difficulty([0, 8, 6, 4, 3]);
-	PRE_LIT_PROBABILITY = get_probability_for_difficulty([1, 4, 6, 8, 12]);
-	SPECIAL_ITEM_PROBABILITY = get_probability_for_difficulty([0, 24, 16, 12, 8]);
-	SPECIAL_ITEM_LIMIT = difficulty;
-	
-	// Initilize room start probability constants
-	//ROOM_KEY_IN_CHEST_PROBABILITY = 3;
-	HAS_BUG_PROBABILITY = get_probability_for_difficulty([512, 256, 128, 64, 28]);
-	DIRT_PROBABILITY = get_probability_for_difficulty([0, 16, 20, 24, 28]);
-	NOSE_PROBABILITY = get_probability_for_difficulty([0, 0, 3, 2, 1]);
-	PHANTOM_PROBABILITY = get_probability_for_difficulty([0, 3, 2, 2, 2]); // Only occurs if room has lanterns AND not pre-lit
-	SPIDER_PROBABILITY = get_probability_for_difficulty([0, 3, 3, 2, 1]);
-	HANDS_PROBABILITY = get_probability_for_difficulty([0, 0, 8, 4, 3]);
-	SNAKE_PROBABILITY =  get_probability_for_difficulty([0, 0, 24, 16, 8]);
-	EYES_PROBABILITY =  get_probability_for_difficulty([0, 0, 0, 64, 46]);
-	FAST_SKELETON_PROBABILITY = get_probability_for_difficulty([0, 0, 16, 14, 12]);
-	TRAP_BONES_PROBABILITY = get_probability_for_difficulty([0, 36, 30, 28, 24]);
-	MOVING_COLLECTABLE_PROBABILITY = get_probability_for_difficulty([0, 0, 32, 28, 24]);
-
-	// Initialize map drawing constants
-	FARM_MODE = global.FARM_MODE;
-	MAX_WALKING_DEPTH = 16 * difficulty;
-	MINIMUM_NUMBER_OF_ROOMS = get_probability_for_difficulty([4, 8, 12, 14, 15]);
-	ADDITIONAL_ROOMS = 3 * difficulty;
-	//MAX_MAP_DRAW_DISTANCE = 8;
-	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
-
-	// Initialize lighting constants
-	DIMMING_RATE = 8;
-	LANTERN_LIGHT_RANGE = 14;
-	TORCH_LIGHT_RANGE = 11;
-	PLAYER_LIGHT_RANGE = 6;
-	LAVA_LIGHT_RANGE = 18; // This one is in pixels and not steps of 8 pixels
-	SCREEN_FLASH_DURATION = 6;
-	
-	// Initilaize other gameplay constants
-	JUST_THE_WIND_PROBABILITY = 2056;
-	BUSH_RUSTLE_FREQUENCY = 16;
-	SKELETON_MOVE_FREQUENCY = 12;
-	FAST_SKELETON_MOVE_FREQUENCY = 4;
-	SNAKE_HISS_FREQUENCY = 32;
-	SNAKE_MOVE_FREQUENCY = 4;
-	BLOOD_REPLACEMENT_PROBABILITY = 32;
-	CORPSE_REPLACEMENT_PROBABILITY = 1024;
-	CORPSE_DISINTEGRATE_PROBABILITY = 8;
-	TRAP_RANGE = 40;
-	BOMB_DUD_PROBABILITY = 64
-	BLOCK_ITEM_PROBABILITY = get_probability_for_difficulty([0, 64, 32, 30, 28]);
-	NOSE_SELF_DESTRUCT_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 256, 128]);
-	RESPAWN_FREQUENCY = 40;
-	ECHO_SPAWN_FREQUENCY = 48;
-
-	// Initialize score constants and variables
-	FRAMES_TO_WAIT_BEFORE_PROCESSING = 6;
-	FRAMES_TO_WAIT_UPON_ENTERING_ROOM = 2;
-	MAX_TORCH_TIME_TO_REMAIN_LIT = get_probability_for_difficulty([100, 75, 65, 60, 50]); // minutes * 60 = total seconds for torch to remain lit
-	TIME_PROVIDED_PER_ROOM = get_probability_for_difficulty([40, 38, 34, 30, 28]);
-	TIME_PROVIDED_PER_EASY_ROOM = -5;
-	TIME_PROVIDED_PER_HARD_ROOM = 15;
-	TIME_PROVIDED_PER_DEAD_END = 10;
-	TIME_PROVIDED_PER_COLLECTABLE = get_probability_for_difficulty([40, 25, 20, 16, 12]);
-	TIME_PROVIEDED_PER_LOCK = 15;
-	TOTAL_COMPLETION_AMOUNT = 4;
-	//INITIAL_SCORE = 6+(20*60); // minutes * 60 = total seconds for game to run
-	time_remaining = 1;
-	time_provided = 1;
 	
 	// initialize room list values
 	game_rooms = array_create(0);
@@ -131,6 +52,8 @@ function initialize_game_variables() {
 	spawned_special_items = array_create(0);
 
 	// initialize game state values
+	time_remaining = 1;
+	time_provided = 1;
 	current_room = noone;
 	last_hole = noone;
 	start_room = noone;
@@ -143,7 +66,6 @@ function initialize_game_variables() {
 	flash_time = 0;
 
 	// initialize room transition values
-	number_of_frames_since_game_began = 0;
 	entered_from_stairs = true;
 	entered_from_spawn = true;
 	blackout = true;
@@ -154,13 +76,13 @@ function initialize_game_variables() {
 
 /// @function								get_one_unit_of_game_time();
 function get_one_unit_of_game_time() {
-	return (global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING/game_get_speed(gamespeed_fps));
+	return (global.game_manager.FRAMES_TO_WAIT_BEFORE_PROCESSING/game_get_speed(gamespeed_fps));
 }
 
 /// @function								is_game_won();
 function is_game_won() {
 	var controller = global.controller;
-	return (controller.completion_amount >= controller.TOTAL_COMPLETION_AMOUNT);
+	return (controller.completion_amount >= TOTAL_COMPLETION_AMOUNT);
 }
 
 /// @function								is_game_lost();
@@ -196,8 +118,8 @@ function transition_to_room(new_room) {
 
 /// @function								can_process_this_frame();
 function can_process_this_frame() {
-	var controller = global.controller;
-	return (controller.transition == directions.none && controller.number_of_frames_since_game_began % controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
+	var controller = global.controller, game_manager = global.game_manager;
+	return ((!is_existing_instance(controller) || controller.transition == directions.none) && game_manager.number_of_frames_since_game_began % game_manager.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
 }
 
 /// @function								set_up_inputs_for_next_frame();
@@ -463,7 +385,7 @@ function game_room_start() {
 		if (current_room.has_collectables) {
 		    with obj_collectable_spot { 
 				var new_collectable = instance_create(x, y, obj_collectable);
-				if (get_random_chance_out_of(other.MOVING_COLLECTABLE_PROBABILITY)) { new_collectable.moving = true; }
+				if (get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY)) { new_collectable.moving = true; }
 				instance_destroy(); 
 			}
 			if (instance_number(obj_collectable) == 0) { 
@@ -521,9 +443,9 @@ function game_room_start() {
 		// Usurp some skeletons
 		with (obj_skeleton) {
 			var usurper_obj = -1;
-			if (get_random_chance_out_of(other.EYES_PROBABILITY) && difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurper_obj = obj_eyes; }
-			else if (get_random_chance_out_of(other.SNAKE_PROBABILITY) && difficulty >= difficulties.hard) { usurper_obj = obj_snake; }
-			else if (get_random_chance_out_of(other.FAST_SKELETON_PROBABILITY) && difficulty >= difficulties.medium) { skeleton_speed = other.FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
+			if (get_random_chance_out_of(EYES_PROBABILITY) && difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurper_obj = obj_eyes; }
+			else if (get_random_chance_out_of(SNAKE_PROBABILITY) && difficulty >= difficulties.hard) { usurper_obj = obj_snake; }
+			else if (get_random_chance_out_of(FAST_SKELETON_PROBABILITY) && difficulty >= difficulties.medium) { skeleton_speed = FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
 			if (usurper_obj != -1) { instance_create(x, y, usurper_obj); instance_destroy(); }
 		}
 		
@@ -559,10 +481,10 @@ function game_room_start() {
 		ystart = player.y;
 			
 		switch (other.transition) {		
-			case directions.up: { ystart -= other.TRAP_RANGE; break; }
-			case directions.right: { xstart += other.TRAP_RANGE; break; }
-			case directions.down: { ystart += other.TRAP_RANGE; break; }
-			case directions.left: { xstart -= other.TRAP_RANGE; break; }
+			case directions.up: { ystart -= TRAP_RANGE; break; }
+			case directions.right: { xstart += TRAP_RANGE; break; }
+			case directions.down: { ystart += TRAP_RANGE; break; }
+			case directions.left: { xstart -= TRAP_RANGE; break; }
 			default: { 
 				teleport_near_player();
 				xstart = x;
@@ -574,19 +496,19 @@ function game_room_start() {
 	with (obj_bug) { instance_destroy(); }
 	with (obj_dirt) {
 		if (!is_solid_at_position(x, y)) { 
-			has_bug = get_random_chance_out_of(other.HAS_BUG_PROBABILITY);
+			has_bug = get_random_chance_out_of(HAS_BUG_PROBABILITY);
 		}
 	}
 	with (obj_bush) { 
 		occupier = noone; 
 		is_occupied = false;
-		has_bug = get_random_chance_out_of(other.HAS_BUG_PROBABILITY);
+		has_bug = get_random_chance_out_of(HAS_BUG_PROBABILITY);
 	}
-	with (obj_player_corpse) { has_bug = true; if (get_random_chance_out_of(other.CORPSE_DISINTEGRATE_PROBABILITY)) { instance_destroy(); } }
+	with (obj_player_corpse) { has_bug = true; if (get_random_chance_out_of(CORPSE_DISINTEGRATE_PROBABILITY)) { instance_destroy(); } }
 	with (obj_bones) { 
 		if (!is_solid_at_position(x, y)) {
-			has_bug = get_random_chance_out_of(other.HAS_BUG_PROBABILITY);
-			trap = (get_random_chance_out_of(other.TRAP_BONES_PROBABILITY)); 
+			has_bug = get_random_chance_out_of(HAS_BUG_PROBABILITY);
+			trap = (get_random_chance_out_of(TRAP_BONES_PROBABILITY)); 
 		} 
 	}
 	with (obj_stairs) { active = false; }
@@ -759,8 +681,8 @@ function get_current_score() {
 	return controller.current_score;  
 }
 
-/// @function								get_best_score_string(difficulty);
-///	@param		{array} probabilities		A 5 position array containing the probabilities for each difficulty
+/// @function								get_probability_for_difficulty(probability_list);
+///	@param		{array} probability_list	A 5 position array containing the probabilities for each difficulty
 function get_probability_for_difficulty(probability_list) {
 	return probability_list[global.difficulty];
 }

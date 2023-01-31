@@ -82,7 +82,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 }
 
 /*
-if (global.TEST_MODE) { 
+if (global.is_test_mode) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
 	if (is_existing_instance(global.player)) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }

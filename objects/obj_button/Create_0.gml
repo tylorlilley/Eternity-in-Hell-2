@@ -11,6 +11,6 @@ if (can_press_button()) {
 	global.controller.current_room.has_portcullis = false;
 }
 else {
-	var dirt_to_spawn = irandom(global.controller.DIRT_PROBABILITY/2);
+	var dirt_to_spawn = irandom(DIRT_PROBABILITY/2);
 	for (var i = 0; i < dirt_to_spawn; i++) { spawn_dirt(); }
 }

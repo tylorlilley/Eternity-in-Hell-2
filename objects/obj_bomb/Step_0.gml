@@ -7,7 +7,7 @@ if can_process_this_frame() {
 			}
 			else { visible = true; }
 			if (fuse_timer == 0) {
-				if (!special && get_random_chance_out_of(global.controller.BOMB_DUD_PROBABILITY)) { play_sound(snd_move, false); }
+				if (!special && get_random_chance_out_of(BOMB_DUD_PROBABILITY)) { play_sound(snd_move, false); }
 				else { explode(!special); instance_create(x, y, obj_dirt); }
 			}
 		}

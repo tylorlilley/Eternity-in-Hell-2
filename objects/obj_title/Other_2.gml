@@ -32,18 +32,28 @@ enum inputs {
 	gamepad
 }
 
+// global variables to represent the various lava edge types
+enum lava_edge_types {
+	none,
+	fuzzy_still,
+	fuzzy_animated,
+	wavy_still,
+	wavy_animated,
+}
+
 // Setup global variables for title screen
-global.TEST_MODE = false;
+global.is_test_mode = false;
 
 global.difficulty = get_setting("difficulty", difficulties.easy);
 global.seed_option = get_setting("seed_option", seed_options.rand);
 global.seed = get_setting("last_seed", noone);
-global.FARM_MODE = get_setting("extra_mode", false);
+global.is_farm_mode = get_setting("extra_mode", false);
 
 global.fullscreen = get_setting("fullscreen", true);
 global.window_scaling = get_setting("window_size", 2);
 global.input = get_setting("input", inputs.keyboard_default);
 global.can_screen_flash = get_setting("can_screen_flash", true);
+global.lava_edge_type = get_setting("lava_edge_type", lava_edge_types.fuzzy_still);
 global.game_color_fade = get_setting("game_color_fade", 10);
 global.game_color_string = get_setting("game_color", "FF0000");
 

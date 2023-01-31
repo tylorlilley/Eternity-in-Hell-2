@@ -13,7 +13,7 @@ if (can_process_this_frame()) {
 			image_index = 1;
 		}
 		else if (shoot_timer == 0) {
-			if (get_random_chance_out_of(global.controller.NOSE_SELF_DESTRUCT_PROBABILITY)) { explode(true); } 
+			if (get_random_chance_out_of(NOSE_SELF_DESTRUCT_PROBABILITY)) { explode(true); } 
 			else {
 				var target = get_dropped_meat();
 				if (!is_existing_instance(target)) { target = global.player; }

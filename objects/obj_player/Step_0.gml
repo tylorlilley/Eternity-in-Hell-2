@@ -7,26 +7,26 @@ if (can_process_this_frame()) {
 	// Spawn Bugs in nearby dirt and bushes
 	var controller = global.controller;
 	with (obj_player_corpse) { 
-		if (has_bug && get_distance_to_instance(other) <= controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(other) <= TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_bones) { 
-		if (has_bug && get_distance_to_instance(other) <= controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(other) <= TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_dirt) { 
-		if (has_bug && get_distance_to_instance(other) <= controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(other) <= TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_bush) { 
-		if (has_bug && get_distance_to_instance(other) <= controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(other) <= TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
@@ -60,7 +60,7 @@ if (can_process_this_frame()) {
 		}
 		
 		// Increase lighting range if carrying a rosary
-		lighting_range = controller.PLAYER_LIGHT_RANGE;
+		lighting_range = PLAYER_LIGHT_RANGE;
 		if (is_carrying_item(obj_rosary)) { lighting_range += (is_carrying_special_item(obj_rosary)) ? 2 : 1; }
 		is_flickering_light_source = false;
 		

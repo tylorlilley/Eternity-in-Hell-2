@@ -121,7 +121,7 @@ function get_new_id() {
 ///	@param		{Sound}	  snd				The sound to play
 ///	@param		{Boolean} loud_soun			Whether the sound is heard by ears or not
 function play_sound(snd, loud_sound) {
-	array_push(global.sound_manager.sounds_to_play, snd);
+	array_push(global.game_manager.sounds_to_play, snd);
 	if (loud_sound) {
 		with (obj_ears) {
 			if id != other.id {
@@ -214,10 +214,13 @@ function get_decimal_from_hex_string(hex_string) {
 function reset_settings_to_defaults() {
 	var fullscreen_default = true, window_scaling_default = 2, input_default = inputs.keyboard_default;
 	var can_screen_flash_default = true, game_color_fade_default = 10, game_color_string_default = "FF0000";
+	var lava_edge_type_default = lava_edge_types.fuzzy_still;
+	
 	global.fullscreen = fullscreen_default;
 	global.window_scaling = window_scaling_default;
 	global.input = input_default;
 	global.can_screen_flash = can_screen_flash_default;
+	global.lava_edge_type = lava_edge_type_default;
 	global.game_color_fade = game_color_fade_default;
 	global.game_color_string = game_color_string_default;
 	
@@ -225,6 +228,7 @@ function reset_settings_to_defaults() {
 	update_setting("window_size", window_scaling_default);
 	update_setting("input", input_default);
 	update_setting("can_screen_flash", can_screen_flash_default);
+	update_setting("lava_edge_type", lava_edge_type_default);
 	update_setting("game_color_fade", game_color_fade_default);
 	update_setting("game_color", game_color_string_default);
 	

@@ -10,7 +10,7 @@ function kill_enemy(death_sound) {
 		with (right_hand_item) {
 			if (object_index == obj_rosary) {
 				var new_hands = instance_create(other.xstart, other.ystart, obj_hands);
-				new_hands.death_timer = global.controller.RESPAWN_FREQUENCY;
+				new_hands.death_timer = RESPAWN_FREQUENCY;
 				if (!special) { instance_destroy(); }
 				else { new_hands.target_item = id; }
 			}
@@ -44,7 +44,7 @@ function run_away_from_player(ignore_solid, ignore_death, make_sound) {
 
 /// @function								teleport_to_empty_space()
 function teleport_to_empty_space() {
-	var player = global.player, trap_range = global.controller.TRAP_RANGE;
+	var player = global.player;
 	do {
 		x = irandom(room_width/8)*8;
 		y = irandom(room_height/8)*8;
@@ -54,7 +54,7 @@ function teleport_to_empty_space() {
 			!place_meeting(x, y, obj_stairs_spot) && 
 			!place_meeting(x, y, obj_player) &&
 			!is_outside_room(x, y) &&
-			get_distance_to_instance(player) >= trap_range);
+			get_distance_to_instance(player) >= TRAP_RANGE);
 }
 
 /// @function								teleport_to_lava()

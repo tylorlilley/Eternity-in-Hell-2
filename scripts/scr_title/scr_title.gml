@@ -27,7 +27,7 @@ function get_seed_option_string() {
 function get_max_difficulty() { 
 	var max_difficulty = difficulties.DO_NOT_USE;
 	
-	if (global.TEST_MODE) { return difficulties.very_hard; }
+	if (global.is_test_mode) { return difficulties.very_hard; }
 	
 	var all_difficulties = get_difficulties();
 	while (array_length(all_difficulties) > 0) {
@@ -89,6 +89,16 @@ function get_input_string() {
 		case inputs.keyboard_default: { return "Arrow Keys"; }
 		case inputs.keyboard_wasd: { return "WASD Keys"; }
 		case inputs.gamepad: { return "Gamepad"; }
+	}
+}
+
+function get_lava_edge_type_string() {
+	switch (global.lava_edge_type) {
+		case lava_edge_types.none: { return "None"; }
+		case lava_edge_types.fuzzy_still: { return "Type 1"; }
+		case lava_edge_types.fuzzy_animated: { return "Type 2"; }
+		case lava_edge_types.wavy_still: { return "Type 3"; }
+		case lava_edge_types.wavy_animated: { return "Type 4"; }
 	}
 }
 

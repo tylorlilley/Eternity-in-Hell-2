@@ -14,7 +14,5 @@ if (sprite_index != -1) {
 	if ((!is_solid && !is_bush && covered_by_bush) || (!is_solid && covered_by_solid)) { covered = true; }
 
 	// Draw main sprite
-	if (!covered) { 
-		draw_self();
-	}
+	if (!covered) { draw_self(); }
 }

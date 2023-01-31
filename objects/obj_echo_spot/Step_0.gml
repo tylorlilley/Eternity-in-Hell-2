@@ -10,7 +10,7 @@ if (can_process_this_frame()) {
 			var echo = instance_create(x, y, obj_echo);
 			echo.generator = id;
 			play_sound(snd_echo, false);
-			spawn_timer = global.controller.ECHO_SPAWN_FREQUENCY;
+			spawn_timer = ECHO_SPAWN_FREQUENCY;
 		}
 	}
 }

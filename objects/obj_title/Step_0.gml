@@ -14,8 +14,15 @@ else { blink_timer -= 1; }
 
 // Make Sounds for X key
 if (key_x_pressed) {
-	if (options_screen) { play_sound(snd_putdown, false); }
-	else { play_sound(snd_pickup, false); }
+	if (options_screen) { 
+		play_sound(snd_putdown, false); 
+		with (obj_lava) { instance_destroy(); } 
+	}
+	else { 
+		play_sound(snd_pickup, false); 
+		instance_create(184+56, 136, obj_lava); 
+		with (obj_lava) { set_up_lava_edge_visibility(true); }
+	}
 	options_screen = !options_screen;
 }
 
@@ -24,7 +31,7 @@ if (options_screen) {
 	
 	// Move Up and Down Through Option Selections
 	if ((key_up_pressed) && (options_pos > 0)) { options_pos -= 1; play_sound(snd_mana, false); }
-	else if (key_down_pressed && (options_pos < 5)) { options_pos += 1; play_sound(snd_mana, false); }
+	else if (key_down_pressed && (options_pos < 6)) { options_pos += 1; play_sound(snd_mana, false); }
 	
 	// Adjust Fullscreen vs Window
 	if (options_pos == 0) {
@@ -72,8 +79,24 @@ if (options_screen) {
 		update_setting("can_screen_flash", global.can_screen_flash);
 	}
 	
-	// Adjust Color Option
+	// Adjust Lava Edge Type Option
 	if (options_pos == 4) {
+		if (global.lava_edge_type > lava_edge_types.none && key_left_pressed) { 
+			global.lava_edge_type -= 1; 
+			play_sound(snd_move, false);
+			with (obj_lava) { set_up_lava_edge_visibility(true); }
+		}
+		else if (global.lava_edge_type < lava_edge_types.wavy_animated && key_right_pressed) { 
+			global.lava_edge_type += 1; 
+			play_sound(snd_move, false); 
+			with (obj_lava) { set_up_lava_edge_visibility(true); }
+		}
+		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+		update_setting("lava_edge_type", global.lava_edge_type);
+	}
+	
+	// Adjust Color Option
+	if (options_pos == 5) {
 		if (keyboard_check_pressed(vk_backspace)) { 
 			if (global.game_color_string != "") {
 				global.game_color_string = string_delete(global.game_color_string, string_length(global.game_color_string), 1);
@@ -121,7 +144,7 @@ if (options_screen) {
 	}
 	
 	// Adjust Minimum Fade Option
-	if (options_pos == 5) {
+	if (options_pos == 6) {
 		if (global.game_color_fade > 0 && key_left_pressed) { global.game_color_fade -= 2; play_sound(snd_move, false); }
 		else if (global.game_color_fade < 100 && key_right_pressed) { global.game_color_fade += 2; play_sound(snd_move, false); }
 		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
@@ -153,16 +176,16 @@ else {
 	}
 	else {
 		// Adjust selected setting
-		var can_access_seed_options = global.TEST_MODE;
+		var can_access_seed_options = global.is_test_mode;
 		if (key_up_pressed && (pos > 0 || (pos > -1 && can_access_farmer_mode))) { pos -= 1; play_sound(snd_mana, false); }
 		else if (key_down_pressed && (pos < ((can_access_seed_options) ? 1 : 0) || (pos < 2 && global.seed_option == seed_options.specified))) { pos += 1; play_sound(snd_mana, false); }
 	
 		// Adjust Farmer Mode Settings
 		var prev_difficulty = global.difficulty;
 		if (pos == -1) {
-			if (global.FARM_MODE && key_left_pressed) { global.FARM_MODE = false; play_sound(snd_putdown, false); }
-			else if (!global.FARM_MODE && key_right_pressed) { global.FARM_MODE = true; play_sound(snd_pickup, false); }
-			update_setting("extra_mode", global.FARM_MODE);
+			if (global.is_farm_mode && key_left_pressed) { global.is_farm_mode = false; play_sound(snd_putdown, false); }
+			else if (!global.is_farm_mode && key_right_pressed) { global.is_farm_mode = true; play_sound(snd_pickup, false); }
+			update_setting("extra_mode", global.is_farm_mode);
 		}
 
 		// Adjust Difficulty Settings

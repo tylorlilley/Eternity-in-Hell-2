@@ -3,7 +3,7 @@
 ///	@param		{boolean}	make_noise		Whether or not lighting this torch should play a sound
 function light_torch(lighting_torch, make_noise) {
 	// Set remaining torch time for the calling instance to new lit amount
-	var controller = global.controller, new_lit_amount = controller.MAX_TORCH_TIME_TO_REMAIN_LIT, newly_lit = false;
+	var controller = global.controller, new_lit_amount = MAX_TORCH_TIME_TO_REMAIN_LIT, newly_lit = false;
 	if (lighting_torch && lighting_torch.time_to_remain_lit) { new_lit_amount = lighting_torch.time_to_remain_lit; }
 	if (time_to_remain_lit < new_lit_amount && time_to_remain_lit >= 0) {
 		time_to_remain_lit = new_lit_amount;
@@ -64,7 +64,7 @@ function interact_with_other_torches() {
 	while (array_length(torches) > 0) {
 		var other_torch = array_random_pop(torches);
 		
-		if (((is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
+		if (((is_existing_instance(other_torch) && is_existing_instance(holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
 			var not_carried = (!is_existing_instance(holder)), other_not_carried = (!is_existing_instance(other_torch) || !is_existing_instance(other_torch.holder));
 			if (other_torch.light_source && not_carried != other_not_carried) { 
 				light_torch(other_torch, true);		
@@ -75,9 +75,8 @@ function interact_with_other_torches() {
 	
 	// Decrement time remaining if not actively_lit
 	if (!actively_lit && !special && time_to_remain_lit > 0) {
-		var controller = global.controller;
 		time_to_remain_lit -= get_one_unit_of_game_time();
-		if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(controller.PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, controller.MAX_TORCH_TIME_TO_REMAIN_LIT)); }
+		if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, MAX_TORCH_TIME_TO_REMAIN_LIT)); }
 		if (!time_to_remain_lit && image_speed > 0) { extinguish_torch(); }
 	}
 }

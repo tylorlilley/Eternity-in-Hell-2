@@ -126,7 +126,7 @@ function kill_player(killed_by_obj) {
 		// Set variables to mark death
 		player.depth = 4;
 		player.dead = true;
-		controller.death_timer = controller.RESPAWN_FREQUENCY;
+		controller.death_timer = RESPAWN_FREQUENCY;
 		play_sound(snd_lose, true);
 		with (obj_echo_spot) { instance_destroy(); }
 		
@@ -168,7 +168,7 @@ function draw_staff_box() {
 
 /// @function				draw_player_hat();
 function draw_player_hat() {
-	if (global.FARM_MODE) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
+	if (global.is_farm_mode) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
 }
 
 /// @function				snap_player_to_position(dir);

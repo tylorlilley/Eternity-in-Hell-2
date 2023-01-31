@@ -2,7 +2,7 @@
 draw_texture_flush();
 sprite_prefetch(spr_collectable);
 sprite_prefetch(spr_player);
-if (global.FARM_MODE) { sprite_prefetch(spr_player_farmer); }
+if (global.is_farm_mode) { sprite_prefetch(spr_player_farmer); }
 
 // Initialize global values
 random_set_seed(global.seed);

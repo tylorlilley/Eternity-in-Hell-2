@@ -1,1 +1,1 @@
-//global.TEST_MODE = !global.TEST_MODE;
+//global.is_test_mode = !global.is_test_mode;

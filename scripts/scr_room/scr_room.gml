@@ -50,17 +50,17 @@ function GameRoom(given_x, given_y) constructor {
 		var controller = global.controller;
 		
 		// Decide what to spawn in stairs_spot
-		if (get_random_chance_out_of(controller.HAS_STAIRS_PROBABILITY)) { exits[4] = true; stairs_spot_obj = obj_stairs; }
-		else if (get_random_chance_out_of(controller.HAS_ITEM_PROBABILITY)) { set_up_room_chest(); }
-		else if (get_random_chance_out_of(controller.TRAP_CHEST_PROBABILITY)) { chest_obj = obj_statue; stairs_spot_obj = obj_chest; }
+		if (get_random_chance_out_of(HAS_STAIRS_PROBABILITY)) { exits[4] = true; stairs_spot_obj = obj_stairs; }
+		else if (get_random_chance_out_of(HAS_ITEM_PROBABILITY)) { set_up_room_chest(); }
+		else if (get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) { chest_obj = obj_statue; stairs_spot_obj = obj_chest; }
 		
 		// Decide what to spawn in collectables spots
 		//if (get_random_chance_out_of(controller.HAS_KEY_PROBABILITY) && chest_obj == -1) { set_up_room_key(); }
-		if (get_random_chance_out_of(controller.HAS_COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(controller.rooms_with_collectables, self); }
-		if (get_random_chance_out_of(controller.HAS_PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
+		if (get_random_chance_out_of(HAS_COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(controller.rooms_with_collectables, self); }
+		if (get_random_chance_out_of(HAS_PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
 	
 		// Randomly determine the number of exits this room should have based on probability weighting
-		var target_number_of_exits = irandom(controller.NUMBER_OF_EXITS_PROBABILITY);
+		var target_number_of_exits = irandom(NUMBER_OF_EXITS_PROBABILITY);
 		if (target_number_of_exits == 0 || target_number_of_exits > 3) { target_number_of_exits = 2; }
 	
 		// Take care of exits that must exist based on adjacent rooms and decrement number of exits accordingly
@@ -89,7 +89,7 @@ function GameRoom(given_x, given_y) constructor {
 	function set_up_room_chest() {
 		var controller = global.controller;
 		// Determine if spawning a special item
-		if (array_length(controller.spawned_special_items) < controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(controller.SPECIAL_ITEM_PROBABILITY)) { 
+		if (array_length(controller.spawned_special_items) < SPECIAL_ITEM_LIMIT && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { 
 			has_special_item = true; 
 			var spawned_item_obj = get_random_item_obj(true, true);
 			array_push(controller.spawned_special_items, spawned_item_obj);
@@ -97,7 +97,7 @@ function GameRoom(given_x, given_y) constructor {
 			chest_obj = spawned_item_obj;
 		}
 		// Chance to spawn a regular key
-		else if (get_random_chance_out_of(controller.HAS_KEY_PROBABILITY)) {
+		else if (get_random_chance_out_of(HAS_KEY_PROBABILITY)) {
 			set_up_room_key();
 			chest_obj = obj_key;
 		}
@@ -222,16 +222,16 @@ function GameRoom(given_x, given_y) constructor {
 	function draw_room(x_pos, y_pos) {
 
 		// Only draw the room if the room has been visited at least once, or game is in test mode
-		var show_detailed_map = false, show_collectables = false, controller = global.controller, is_test_mode_on = global.TEST_MODE;
+		var show_detailed_map = false, show_collectables = false, controller = global.controller, is_is_test_mode_on = global.is_test_mode;
 		with (global.player) {
-			show_detailed_map = (is_test_mode_on || is_carrying_item(obj_map));
-			show_collectables = (is_test_mode_on || is_carrying_special_item(obj_map));
+			show_detailed_map = (is_is_test_mode_on || is_carrying_item(obj_map));
+			show_collectables = (is_is_test_mode_on || is_carrying_special_item(obj_map));
 		}
 		
 		if (show_detailed_map || visited) {
 			// Set up colors to draw this room with
 			var fade_amount = 0; //distance_to_current_room / controller.MAX_MAP_DRAW_DISTANCE;
-			var blink_frame = modulo(controller.number_of_frames_since_game_began, 12) <= 5;
+			var blink_frame = modulo(global.game_manager.number_of_frames_since_game_began, 12) <= 5;
 			var bg_color = global.bg_color;
 			var white_color = merge_color(c_white, bg_color, fade_amount);
 			var red_color = merge_color(c_red, bg_color, fade_amount);
@@ -295,7 +295,7 @@ function GameRoom(given_x, given_y) constructor {
 			}
     
 		    // Draw distance information if testing
-		    //if (TEST_MODE) {
+		    //if (is_test_mode) {
 		    //   draw_set_color(c_lime);
 		    //    draw_set_halign(fa_center);
 		    //    draw_set_valign(fa_middle);
@@ -344,7 +344,7 @@ function GameRoom(given_x, given_y) constructor {
 		var rand2 = get_coin_flip();
 		var room_list = noone;
 		
-		while(get_random_chance_out_of(controller.MISLEADING_ROOM_PROBABILITY) && number_of_exits < 4) {
+		while(get_random_chance_out_of(MISLEADING_ROOM_PROBABILITY) && number_of_exits < 4) {
 			misleading_room = true;
 			number_of_exits += 1;
 		}

@@ -115,15 +115,26 @@ function destroy_self_if_all_death_boxes_are_destroyed() {
 /// @ function								set_up_lava_edge_visibility(require_all);
 /// @param		{bool} visibility_only		Only change the visibility status
 function set_up_lava_edge_visibility(first_time_setup) {
+	var edge_type = global.lava_edge_type, is_wavy_edge_type = (edge_type == lava_edge_types.wavy_still || edge_type == lava_edge_types.wavy_animated)
+	if (edge_type == lava_edge_types.none) { return; }
+	else if (first_time_setup) { lava_edge_sprite_index = (is_wavy_edge_type) ? spr_lava_edge3 : spr_lava_edge; }
+	
 	sprite_index = spr_collectable;
 	for (var quadrant = 0; quadrant < 4; quadrant++) {
 		for (var dir = 0; dir < 4; dir++) {
 			if (first_time_setup) { 
-				lava_edge_image_indexes[quadrant][dir] = irandom(7);
-				lava_edge_image_xscales[quadrant][dir] = (get_coin_flip()) ? 1 : -1;
+				var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+				
+				if (!is_wavy_edge_type) {
+					lava_edge_image_indexes[quadrant][dir] = irandom(7);
+					lava_edge_image_xscales[quadrant][dir] = (get_coin_flip()) ? 1 : -1;
+				}
+				else {
+					lava_edge_image_indexes[quadrant][dir] = (((x_pos-4)/8) % 4) + (((y_pos-4)/8) % 4) % 7;
+					lava_edge_image_xscales[quadrant][dir] = 1;
+				}
 			
 				// Skip edges within the lava object on first time setup
-				var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 				if ((quadrant == 0 && (dir == directions.right || dir == directions.down)) ||
 					(quadrant == 1 && (dir == directions.left || dir == directions.down)) ||
 					(quadrant == 2 && (dir == directions.right || dir == directions.up)) ||

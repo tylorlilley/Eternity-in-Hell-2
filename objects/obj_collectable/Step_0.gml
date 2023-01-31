@@ -9,7 +9,7 @@ if (can_process_this_frame()) {
 				if (are_all_collectables_collected()) {
 					screen_flash();
 					play_sound(snd_shatter, false); 
-					global.controller.completion_amount += 1;
+					completion_amount += 1;
 				}
 			}
 	    }

@@ -81,6 +81,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 
 }
 
+/*
 if (global.TEST_MODE) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
@@ -89,5 +90,4 @@ if (global.TEST_MODE) {
 	//draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
 }
-
-shader_reset();
+*/

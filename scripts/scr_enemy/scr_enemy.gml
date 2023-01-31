@@ -34,8 +34,8 @@ function kill_with_sword(sword) {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function run_away_from_player(ignore_solid, ignore_death, make_sound) {
-	var dir = irandom(3);
-	if (is_direction_toward(dir, global.player)) { dir = get_opposite_dir(dir); }
+	var dir = irandom(3), player = global.player;
+	if (is_direction_toward(dir, player)) { dir = get_opposite_dir(dir); }
 	if (get_random_chance_out_of(3)) { dir = directions.none; }
 	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, make_sound);  return dir; }
 	
@@ -44,6 +44,7 @@ function run_away_from_player(ignore_solid, ignore_death, make_sound) {
 
 /// @function								teleport_to_empty_space()
 function teleport_to_empty_space() {
+	var player = global.player, trap_range = global.controller.TRAP_RANGE;
 	do {
 		x = irandom(room_width/8)*8;
 		y = irandom(room_height/8)*8;
@@ -53,12 +54,12 @@ function teleport_to_empty_space() {
 			!place_meeting(x, y, obj_stairs_spot) && 
 			!place_meeting(x, y, obj_player) &&
 			!is_outside_room(x, y) &&
-			get_distance_to_instance(global.player) >= global.controller.TRAP_RANGE);
+			get_distance_to_instance(player) >= trap_range);
 }
 
 /// @function								teleport_to_lava()
 function teleport_to_lava() {
-	var total_lava = instance_number(obj_lava)-1, count = 0, current_pos = irandom(total_lava);
+	var total_lava = instance_number(obj_lava)-1, count = 0, current_pos = irandom(total_lava), player = global.player;
 	while (count < total_lava) {
 		var lava = instance_find(obj_lava, current_pos);
 
@@ -80,7 +81,7 @@ function teleport_to_lava() {
 			if (is_covered_at_each_quadrant_by(obj_lava) &&
 				!is_outside_room(x, y) &&
 				!is_covered_at_each_quadrant_by(obj_solid) &&
-				!place_meeting(x, y, global.player)) {
+				!place_meeting(x, y, player)) {
 				  return lava;
 			  }
 		}
@@ -112,9 +113,9 @@ function shoot_fireball(target_x, target_y, make_destructive) {
 
 /// @function								try_to_see_player();
 function try_to_see_player() {
-	var target = noone, dropped_meat = get_dropped_meat();
-	if (global.player.dead && (x == global.player.x || y == global.player.y)) { state = WAITING; dir = -1; return; } 
-	else if (!global.player.dead) { target = global.player; }
+	var target = noone, dropped_meat = get_dropped_meat(), player = global.player;
+	if (player.dead && (x == player.x || y == player.y)) { state = WAITING; dir = -1; return; } 
+	else if (!player.dead) { target = player; }
 	
 	if (state != SCREECHING) {
 		var new_dir = directions.none, offset = (state == ATTACKING) ? 8 : 0
@@ -124,7 +125,7 @@ function try_to_see_player() {
 			if (new_dir != directions.none) { target = dropped_meat; }
 		}
 			
-		if (target == global.player) {   
+		if (target == player) {   
 			if (target.x - offset <= x && target.x + offset >= x) {
 			    if (target.y > y) { new_dir = directions.down; }
 			    else if (target.y < y) { new_dir = directions.up; }
@@ -135,11 +136,11 @@ function try_to_see_player() {
 			}
 		}
 			
-		if (new_dir != directions.none && new_dir != dir && (target != global.player || can_move_in_direction_and_reach(new_dir, target, false, true))) {
+		if (new_dir != directions.none && new_dir != dir && (target != player || can_move_in_direction_and_reach(new_dir, target, false, true))) {
 			dir = new_dir;
 			state = SCREECHING;
 			screech_timer = 3;
-			if (target == global.player) { play_sound(snd_lose, true); }
+			if (target == player) { play_sound(snd_lose, true); }
 		}
 	}
 }
@@ -292,13 +293,14 @@ function explode(destroy_self) {
 
 /// @function								check_for_player_collision();
 function check_for_player_collision() {
-	if (activated && place_meeting(x, y, global.player) && !global.player.dead) {
+	var player = global.player;
+	if (activated && place_meeting(x, y, player) && !player.dead) {
 		var carried_sword = noone;
-		with (global.player) { carried_sword = get_carried_item(obj_sword); }
+		with (player) { carried_sword = get_carried_item(obj_sword); }
 		if (is_existing_instance(carried_sword) && corporeal) { kill_with_sword(carried_sword); }
 		else if (object_index == obj_death) {
 			// Kill player from lava
-			with (global.player) { 
+			with (player) { 
 				if (!is_carrying_item(obj_staff)) { 
 					play_sound(snd_extinguish, false);
 					var killer = obj_lava;

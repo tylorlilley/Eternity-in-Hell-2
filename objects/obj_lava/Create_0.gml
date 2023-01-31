@@ -1,5 +1,5 @@
 event_inherited();
-depth = 9;
+depth = 12;
 
 // Set up single death box for normal use case
 death_box = instance_create(x, y, obj_death);
@@ -10,5 +10,3 @@ death_boxes = noone;
 lava_edge_image_indexes = [[noone, noone, noone, noone], [noone, noone, noone, noone], [noone, noone, noone, noone], [noone, noone, noone, noone]];
 lava_edge_image_xscales = [[noone, noone, noone, noone], [noone, noone, noone, noone], [noone, noone, noone, noone], [noone, noone, noone, noone]];
 lava_edge_visible = [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]];
-
-initialized = false;

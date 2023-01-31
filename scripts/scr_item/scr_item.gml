@@ -27,9 +27,11 @@ function become_carried(new_holder) {
 /// @function								become_dropped(dropper);
 /// @param		{inst} dropper				The instance dropping this item
 function become_dropped(dropper) {
+	var player = global.player;
+	
 	// Perform individual item drop actions
 	switch (object_index) {
-		case obj_key: { if (dropper == global.player) { global.controller.current_room.has_keys += 1; } break; }
+		case obj_key: { if (dropper == player) { global.controller.current_room.has_keys += 1; } break; }
 		case obj_meat: { with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } break; }
 		case obj_shovel: { dropped_by_digger = true; break; }
 	}
@@ -42,14 +44,14 @@ function become_dropped(dropper) {
 	y = dropper.y;
 	
 	// Perform individual actions based on dropper
-	if (dropper == global.player) {
+	if (dropper == player) {
 		xstart = x;
 		ystart = y;
 	}
 	
 	// Alert interested obj_hands to come grab it
 	with (obj_hands) { 
-		if (dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || dropper == global.player)) { target_item = other.id; } 
+		if (dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || dropper == player)) { target_item = other.id; } 
 	}
 }
 
@@ -86,17 +88,15 @@ function can_dig_hole() {
 /// @function								dig_hole();
 function dig_hole() {
 	if (can_dig_hole() && dropped_by_digger) {
+		var controller = global.controller;
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
 		var new_hole = instance_create(x, y, obj_hole);
-		if (global.controller.last_hole == noone) { global.controller.last_hole = new_hole; }
+		if (controller.last_hole == noone) { controller.last_hole = new_hole; }
 		else { 
-			new_hole.connected_to = global.controller.last_hole;
-			//var activated_instance = is_existing_instance()
-			//instance_activate_object(global.controller.last_hole);
-			global.controller.last_hole.connected_to = new_hole;
-			global.controller.last_hole = noone;
-			//instance_activate_object(global.controller.last_hole);
+			new_hole.connected_to = controller.last_hole;
+			controller.last_hole.connected_to = new_hole;
+			controller.last_hole = noone;
 		}
 	}
 }
@@ -110,9 +110,10 @@ function thump() {
 
 /// @function								mark_heart_carried();
 function mark_heart_carried() {
-	if (!global.controller.carried_heart && holder == global.player) { 
-		global.controller.completion_amount += 1;
-		global.controller.carried_heart = true;
+	var controller = global.controller;
+	if (!controller.carried_heart && holder == global.player) { 
+		controller.completion_amount += 1;
+		controller.carried_heart = true;
 	}
 }
 
@@ -127,9 +128,10 @@ function get_dropped_meat() {
 /// @param		{bool} special_item			Whether to check against the spawned specialitems or not
 /// @param		{bool} include_key			Whether to include the key in what can be returned or not
 function get_random_item_obj(special_item, include_key) {
-	var array_to_check = (special_item) ? global.controller.spawned_special_items : global.controller.spawned_items;
-	var available_item_objs = (global.difficulty == difficulties.easy) ? 2 : 5;
-	if (global.difficulty > difficulties.medium) { available_item_objs += 3; }
+	var controller = global.controller, difficulty = global.difficulty;
+	var array_to_check = (special_item) ? controller.spawned_special_items : controller.spawned_items;
+	var available_item_objs = (difficulty == difficulties.easy) ? 2 : 5;
+	if (difficulty > difficulties.medium) { available_item_objs += 3; }
 	var chosen_item_obj = -1;
 	
 	// Decide which item to spawn based on previous item spawns

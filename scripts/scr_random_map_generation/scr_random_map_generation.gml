@@ -47,11 +47,11 @@ function is_current_map_possible() {
 /// @param		{index} unlocked_exits			The list of exits that have been unlocked by the player on this walk of the map.
 function walk_the_map(unlocked_exits) {
 	var visited_rooms = array_create(0), exits_to_walk_through = array_create(0), locked_exits = array_create(0);
-	var keys_found = 0;
+	var keys_found = 0, controller = global.controller;
 	
 	// Add the initial room to the visited rooms
 	// Add each of that rooms exits to the list of exits to walk through
-	with global.controller.current_room { 
+	with controller.current_room { 
 		distance_from_start_room = 0;
 		walk_through_room(visited_rooms, exits_to_walk_through); 
 	}
@@ -80,7 +80,7 @@ function walk_the_map(unlocked_exits) {
 	
 	// return whether all rooms were visited or not
 	// TODO: Return struct with keys and not ordered array
-	var visited_all_rooms = (array_length(visited_rooms) == array_length(global.controller.game_rooms));
+	var visited_all_rooms = (array_length(visited_rooms) == array_length(controller.game_rooms));
 	//var test = 2;
 	return [visited_all_rooms, keys_found, locked_exits];
 }

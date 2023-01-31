@@ -1,5 +1,6 @@
-var collectables_collected = global.controller.total_number_of_rooms_with_collectables - array_length(global.controller.rooms_with_collectables);
-var img_index = floor(5 * (collectables_collected / global.controller.total_number_of_rooms_with_collectables));
+var controller = global.controller;
+var collectables_collected = controller.total_number_of_rooms_with_collectables - array_length(controller.rooms_with_collectables);
+var img_index = floor(5 * (collectables_collected / controller.total_number_of_rooms_with_collectables));
 
 event_inherited();
 

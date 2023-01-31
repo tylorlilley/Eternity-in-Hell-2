@@ -82,7 +82,7 @@ function get_coin_flip() {
 /// @function								get_quadrant_x_pos(quadrant_number);
 /// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
 function get_quadrant_x_pos(quadrant_number) {
-    if (modulo(quadrant_number, 2) == 0) { return x-4; }
+    if (quadrant_number mod 2 == 0) { return x-4; }
 	else { return x+4; }
 }
 
@@ -212,19 +212,21 @@ function get_decimal_from_hex_string(hex_string) {
 
 /// @function								reset_settings_to_defaults();
 function reset_settings_to_defaults() {
-	global.fullscreen = true;
-	global.window_scaling = 2;
-	global.input = inputs.keyboard_default;
-	global.can_screen_flash = true;
-	global.game_color_fade = 10;
-	global.game_color_string = "FF0000";
+	var fullscreen_default = true, window_scaling_default = 2, input_default = inputs.keyboard_default;
+	var can_screen_flash_default = true, game_color_fade_default = 10, game_color_string_default = "FF0000";
+	global.fullscreen = fullscreen_default;
+	global.window_scaling = window_scaling_default;
+	global.input = input_default;
+	global.can_screen_flash = can_screen_flash_default;
+	global.game_color_fade = game_color_fade_default;
+	global.game_color_string = game_color_string_default;
 	
-	update_setting("fullscreen", global.fullscreen);
-	update_setting("window_size", global.window_scaling);
-	update_setting("input", global.input);
-	update_setting("can_screen_flash", global.can_screen_flash );
-	update_setting("game_color_fade", global.game_color_fade);
-	update_setting("game_color", global.game_color_string);
+	update_setting("fullscreen", fullscreen_default);
+	update_setting("window_size", window_scaling_default);
+	update_setting("input", input_default);
+	update_setting("can_screen_flash", can_screen_flash_default);
+	update_setting("game_color_fade", game_color_fade_default);
+	update_setting("game_color", game_color_string_default);
 	
 	set_game_color();
 }

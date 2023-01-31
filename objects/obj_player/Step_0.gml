@@ -5,27 +5,28 @@ if (can_process_this_frame()) {
 	if (dir_prev == directions.none) { dir_prev = irandom(3); }
 	
 	// Spawn Bugs in nearby dirt and bushes
+	var controller = global.controller;
 	with (obj_player_corpse) { 
-		if (has_bug && get_distance_to_instance(global.player) <= global.controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(other) <= controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_bones) { 
-		if (has_bug && get_distance_to_instance(global.player) <= global.controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(other) <= controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_dirt) { 
-		if (has_bug && get_distance_to_instance(global.player) <= global.controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(other) <= controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
 	}
 	with (obj_bush) { 
-		if (has_bug && get_distance_to_instance(global.player) <= global.controller.TRAP_RANGE) {
+		if (has_bug && get_distance_to_instance(other) <= controller.TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
 			has_bug = false;
 		}
@@ -45,11 +46,11 @@ if (can_process_this_frame()) {
 		if (pause_movement > 0) { pause_movement -= 1; }
 		else {
 			// Handle inventory management
-			if (global.controller.key_z_pressed) { 
+			if (controller.key_z_pressed) { 
 				if (!can_drop_item(left_hand_item)) { play_sound(snd_locked, false); }
 				else { pick_up_or_put_down_item(directions.left); }
 			}
-			if (global.controller.key_x_pressed) { 
+			if (controller.key_x_pressed) { 
 				if (!can_drop_item(right_hand_item)) { play_sound(snd_locked, false); }
 				else { pick_up_or_put_down_item(directions.right); }
 			}
@@ -59,7 +60,7 @@ if (can_process_this_frame()) {
 		}
 		
 		// Increase lighting range if carrying a rosary
-		lighting_range = global.controller.PLAYER_LIGHT_RANGE;
+		lighting_range = controller.PLAYER_LIGHT_RANGE;
 		if (is_carrying_item(obj_rosary)) { lighting_range += (is_carrying_special_item(obj_rosary)) ? 2 : 1; }
 		is_flickering_light_source = false;
 		
@@ -78,16 +79,16 @@ if (can_process_this_frame()) {
     
 	    // Transition to new room depending on player position
 		with (instance_place(x, y, obj_stairs)) {
-			if (active && is_instance_at_coordinates(x, y, global.player) && (connected_to != noone || object_index == obj_stairs)) { 
-					global.controller.transition = directions.stairs; 
-					global.controller.transitioned_from = id;
+			if (active && is_instance_at_coordinates(x, y, other) && (connected_to != noone || object_index == obj_stairs)) { 
+					controller.transition = directions.stairs; 
+					controller.transitioned_from = id;
 			}
 		}
-		if (global.controller.transition == directions.none) {
-		    if x < 0 { global.controller.transition = directions.left; }
-		    else if x > room_width { global.controller.transition = directions.right; }
-		    else if y < 0 { global.controller.transition = directions.up; }
-		    else if y > room_height { global.controller.transition = directions.down; }
+		if (controller.transition == directions.none) {
+		    if x < 0 { controller.transition = directions.left; }
+		    else if x > room_width { controller.transition = directions.right; }
+		    else if y < 0 { controller.transition = directions.up; }
+		    else if y > room_height { controller.transition = directions.down; }
 		}
 	}
 	else if dead image_index = 2;

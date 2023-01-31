@@ -1,10 +1,9 @@
 clear_inputs_for_next_frame();
 set_up_inputs_for_next_frame();
 
-if (pos == -2) { 
-	global.can_access_farmer_mode = (get_win_count(difficulties.very_hard) > 0);
-	pos = (global.can_access_farmer_mode) ? -1 : 0;
-	update_setting("can_access_extra_mode", global.can_access_farmer_mode);
+if (pos == -2) {
+	can_access_farmer_mode = (get_win_count(difficulties.very_hard) > 0)
+	pos = (can_access_farmer_mode) ? -1 : 0;
 }
 
 if (blink_timer == 0) {
@@ -155,7 +154,7 @@ else {
 	else {
 		// Adjust selected setting
 		var can_access_seed_options = global.TEST_MODE;
-		if (key_up_pressed && (pos > 0 || (pos > -1 && global.can_access_farmer_mode))) { pos -= 1; play_sound(snd_mana, false); }
+		if (key_up_pressed && (pos > 0 || (pos > -1 && can_access_farmer_mode))) { pos -= 1; play_sound(snd_mana, false); }
 		else if (key_down_pressed && (pos < ((can_access_seed_options) ? 1 : 0) || (pos < 2 && global.seed_option == seed_options.specified))) { pos += 1; play_sound(snd_mana, false); }
 	
 		// Adjust Farmer Mode Settings

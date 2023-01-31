@@ -1,3 +1,9 @@
+// Update game graphics textures
+draw_texture_flush();
+sprite_prefetch(spr_collectable);
+sprite_prefetch(spr_player);
+if (global.FARM_MODE) { sprite_prefetch(spr_player_farmer); }
+
 // Initialize global values
 random_set_seed(global.seed);
 show_debug_message("SEED: "+string(random_get_seed()));
@@ -127,7 +133,7 @@ for (var i = 0; i < total_rooms; i++) {
 with array_random_pop(farthest_rooms) {
 	if (!has_collectables) {
 		has_collectables = true;
-		array_push(global.controller.rooms_with_collectables, self);
+		array_push(other.rooms_with_collectables, self);
 	}
 	stairs_spot_obj = obj_encased_heart;
 	for (var i = 0; i <= 3; i += 1;) {

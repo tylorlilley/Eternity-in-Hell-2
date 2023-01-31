@@ -3,8 +3,6 @@ Fix too many rooms generated warning
 
 === REFACTORS ===
 
-Update stairs to be generated and connected the same way holes are to remove special/different logic between holes and stairs
-
 Implement smarter pathfinding for move_towards_coordinates
 
 Remove all commented out code that we don't need anymore

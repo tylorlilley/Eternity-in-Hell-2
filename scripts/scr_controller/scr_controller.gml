@@ -34,6 +34,8 @@ function create_room_lists() {
 		
 /// @function								initialize_game_variables();
 function initialize_game_variables() {
+	var difficulty = global.difficulty;
+	
 	display_reset(0, false);
 	layer_force_draw_depth(true,0);
 	game_set_speed(60, gamespeed_fps);
@@ -55,7 +57,7 @@ function initialize_game_variables() {
 	LOCKED_DOOR_PROBABILITY = get_probability_for_difficulty([0, 8, 6, 4, 3]);
 	PRE_LIT_PROBABILITY = get_probability_for_difficulty([1, 4, 6, 8, 12]);
 	SPECIAL_ITEM_PROBABILITY = get_probability_for_difficulty([0, 24, 16, 12, 8]);
-	SPECIAL_ITEM_LIMIT = global.difficulty;
+	SPECIAL_ITEM_LIMIT = difficulty;
 	
 	// Initilize room start probability constants
 	//ROOM_KEY_IN_CHEST_PROBABILITY = 3;
@@ -73,9 +75,9 @@ function initialize_game_variables() {
 
 	// Initialize map drawing constants
 	FARM_MODE = global.FARM_MODE;
-	MAX_WALKING_DEPTH = 16 * global.difficulty;
+	MAX_WALKING_DEPTH = 16 * difficulty;
 	MINIMUM_NUMBER_OF_ROOMS = get_probability_for_difficulty([4, 8, 12, 14, 15]);
-	ADDITIONAL_ROOMS = 3 * global.difficulty;
+	ADDITIONAL_ROOMS = 3 * difficulty;
 	//MAX_MAP_DRAW_DISTANCE = 8;
 	MINIMUM_COLLECTABLES_ROOMS = MINIMUM_NUMBER_OF_ROOMS / 4;
 
@@ -156,7 +158,8 @@ function get_one_unit_of_game_time() {
 
 /// @function								is_game_won();
 function is_game_won() {
-	return (global.controller.completion_amount >= global.controller.TOTAL_COMPLETION_AMOUNT);
+	var controller = global.controller;
+	return (controller.completion_amount >= controller.TOTAL_COMPLETION_AMOUNT);
 }
 
 /// @function								is_game_lost();
@@ -166,7 +169,8 @@ function is_game_lost() {
 
 /// @function								is_time_up();
 function is_time_up() {
-	return (ceil(global.controller.time_remaining) <= 0 || (global.player.dead && global.controller.death_timer == 0));
+	var controller = global.controller;
+	return (ceil(controller.time_remaining) <= 0 || (global.player.dead && controller.death_timer == 0));
 }
 
 /// @function								are_all_collectables_collected();
@@ -191,7 +195,8 @@ function transition_to_room(new_room) {
 
 /// @function								can_process_this_frame();
 function can_process_this_frame() {
-	return (global.controller.transition == directions.none && global.controller.number_of_frames_since_game_began % global.controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
+	var controller = global.controller;
+	return (controller.transition == directions.none && controller.number_of_frames_since_game_began % controller.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
 }
 
 /// @function								set_up_inputs_for_next_frame();
@@ -295,32 +300,33 @@ function get_keyboard_wasd_inputs() {
 
 /// @function								get_gamepad_inputs();
 function get_gamepad_inputs() {
-	key_up = key_up || gamepad_button_check(global.gamepad, gp_padu);
-	key_down = key_down || gamepad_button_check(global.gamepad, gp_padd);
-	key_left = key_left || gamepad_button_check(global.gamepad, gp_padl);
-	key_right = key_right || gamepad_button_check(global.gamepad, gp_padr);
-	key_space = key_space || gamepad_button_check(global.gamepad, gp_shoulderlb) || gamepad_button_check(global.gamepad, gp_shoulderrb) || gamepad_button_check(global.gamepad, gp_face3) || gamepad_button_check(global.gamepad, gp_face4);
-	key_enter = key_enter || gamepad_button_check(global.gamepad, gp_start) || gamepad_button_check(global.gamepad, gp_select);
-	key_z = key_z || gamepad_button_check(global.gamepad, gp_face1) || gamepad_button_check(global.gamepad, gp_shoulderl);
-	key_x = key_x || gamepad_button_check(global.gamepad, gp_face2)  || gamepad_button_check(global.gamepad, gp_shoulderr);
+	var gamepad = global.gamepad;
+	key_up = key_up || gamepad_button_check(gamepad, gp_padu);
+	key_down = key_down || gamepad_button_check(gamepad, gp_padd);
+	key_left = key_left || gamepad_button_check(gamepad, gp_padl);
+	key_right = key_right || gamepad_button_check(gamepad, gp_padr);
+	key_space = key_space || gamepad_button_check(gamepad, gp_shoulderlb) || gamepad_button_check(gamepad, gp_shoulderrb) || gamepad_button_check(gamepad, gp_face3) || gamepad_button_check(gamepad, gp_face4);
+	key_enter = key_enter || gamepad_button_check(gamepad, gp_start) || gamepad_button_check(gamepad, gp_select);
+	key_z = key_z || gamepad_button_check(gamepad, gp_face1) || gamepad_button_check(gamepad, gp_shoulderl);
+	key_x = key_x || gamepad_button_check(gamepad, gp_face2)  || gamepad_button_check(gamepad, gp_shoulderr);
 	
-	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(global.gamepad, gp_padu);
-	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(global.gamepad, gp_padd);
-	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(global.gamepad, gp_padl);
-	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(global.gamepad, gp_padr);
-	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(global.gamepad, gp_shoulderlb) || gamepad_button_check_pressed(global.gamepad, gp_shoulderrb) || gamepad_button_check_pressed(global.gamepad, gp_face3) || gamepad_button_check_pressed(global.gamepad, gp_face4);
-	key_enter_pressed = key_enter_pressed || gamepad_button_check_pressed(global.gamepad, gp_start) || gamepad_button_check_pressed(global.gamepad, gp_select)
-	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(global.gamepad, gp_face1) || gamepad_button_check_pressed(global.gamepad, gp_shoulderl);
-	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(global.gamepad, gp_face2) || gamepad_button_check_pressed(global.gamepad, gp_shoulderr);
+	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(gamepad, gp_padu);
+	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(gamepad, gp_padd);
+	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(gamepad, gp_padl);
+	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(gamepad, gp_padr);
+	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(gamepad, gp_shoulderlb) || gamepad_button_check_pressed(gamepad, gp_shoulderrb) || gamepad_button_check_pressed(gamepad, gp_face3) || gamepad_button_check_pressed(gamepad, gp_face4);
+	key_enter_pressed = key_enter_pressed || gamepad_button_check_pressed(gamepad, gp_start) || gamepad_button_check_pressed(gamepad, gp_select)
+	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_shoulderl);
+	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(gamepad, gp_face2) || gamepad_button_check_pressed(gamepad, gp_shoulderr);
 	
-	key_up_released = key_up_released || gamepad_button_check_released(global.gamepad, gp_padu);
-	key_down_released = key_down_released || gamepad_button_check_released(global.gamepad, gp_padd);
-	key_left_released = key_left_released || gamepad_button_check_released(global.gamepad, gp_padl);
-	key_right_released = key_right_released || gamepad_button_check_released(global.gamepad, gp_padr);	
-	key_space_released = key_space_released ||  gamepad_button_check_released(global.gamepad, gp_shoulderlb) || gamepad_button_check_released(global.gamepad, gp_shoulderrb) || gamepad_button_check_released(global.gamepad, gp_face3) || gamepad_button_check_released(global.gamepad, gp_face4);
-	key_enter_released = key_enter_released || gamepad_button_check_released(global.gamepad, gp_start) || gamepad_button_check_released(global.gamepad, gp_select);
-	key_z_released = key_z_released || gamepad_button_check_released(global.gamepad, gp_face1) || gamepad_button_check_pressed(global.gamepad, gp_shoulderl);
-	key_x_released = key_x_released || gamepad_button_check_released(global.gamepad, gp_face2) || gamepad_button_check_pressed(global.gamepad, gp_shoulderr);
+	key_up_released = key_up_released || gamepad_button_check_released(gamepad, gp_padu);
+	key_down_released = key_down_released || gamepad_button_check_released(gamepad, gp_padd);
+	key_left_released = key_left_released || gamepad_button_check_released(gamepad, gp_padl);
+	key_right_released = key_right_released || gamepad_button_check_released(gamepad, gp_padr);	
+	key_space_released = key_space_released ||  gamepad_button_check_released(gamepad, gp_shoulderlb) || gamepad_button_check_released(gamepad, gp_shoulderrb) || gamepad_button_check_released(gamepad, gp_face3) || gamepad_button_check_released(gamepad, gp_face4);
+	key_enter_released = key_enter_released || gamepad_button_check_released(gamepad, gp_start) || gamepad_button_check_released(gamepad, gp_select);
+	key_z_released = key_z_released || gamepad_button_check_released(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_shoulderl);
+	key_x_released = key_x_released || gamepad_button_check_released(gamepad, gp_face2) || gamepad_button_check_pressed(gamepad, gp_shoulderr);
 }
 
 
@@ -328,7 +334,7 @@ function get_gamepad_inputs() {
 function game_room_start() {
 	audio_stop_sound( snd_dread );
 	
-	var stairs_spot = instance_find(obj_stairs_spot, 0);
+	var stairs_spot = instance_find(obj_stairs_spot, 0), player = global.player, difficulty = global.difficulty;
 	if (stairs_spot == noone) {
 		// This should never happen if every room has a stairs spot
 		show_debug_message("WARNING: room with NO room to spawn stairs spot object: " + room_get_name(current_room.room_reference));
@@ -337,10 +343,10 @@ function game_room_start() {
 
 	// Reposition player
 	switch (transition) {
-		case directions.up: { global.player.y = room_height-8; global.player.x = room_width/2; break; }
-		case directions.right: { global.player.x = 8; global.player.y = room_height/2; break; }
-		case directions.down: { global.player.y = 8; global.player.x = room_width/2; break; }
-		case directions.left: { global.player.x = room_width-8; global.player.y = room_height/2; break; }
+		case directions.up: { player.y = room_height-8; player.x = room_width/2; break; }
+		case directions.right: { player.x = 8; player.y = room_height/2; break; }
+		case directions.down: { player.y = 8; player.x = room_width/2; break; }
+		case directions.left: { player.x = room_width-8; player.y = room_height/2; break; }
 	}
 	
 	// Move player to current position
@@ -456,7 +462,7 @@ function game_room_start() {
 		if (current_room.has_collectables) {
 		    with obj_collectable_spot { 
 				var new_collectable = instance_create(x, y, obj_collectable);
-				if (get_random_chance_out_of(global.controller.MOVING_COLLECTABLE_PROBABILITY)) { new_collectable.moving = true; }
+				if (get_random_chance_out_of(other.MOVING_COLLECTABLE_PROBABILITY)) { new_collectable.moving = true; }
 				instance_destroy(); 
 			}
 			if (instance_number(obj_collectable) == 0) { 
@@ -500,7 +506,7 @@ function game_room_start() {
 		}
 		
 		// If room has mouth, spawn more mouths
-		var target_number_of_mouths = instance_number(obj_mouth) * (1+global.difficulty);
+		var target_number_of_mouths = instance_number(obj_mouth) * (1+difficulty);
 		while (instance_number(obj_mouth) < target_number_of_mouths) { instance_create(x, y, obj_mouth); }
 	
 		// Mark room as one that has been visited at some point during this game
@@ -508,17 +514,20 @@ function game_room_start() {
 		array_push(mapped_rooms, current_room);
 		
 		// Spawn some dirt
-		var dirt_to_spawn = irandom(global.controller.DIRT_PROBABILITY*2) - global.controller.DIRT_PROBABILITY;
+		var dirt_to_spawn = irandom(DIRT_PROBABILITY*2) - DIRT_PROBABILITY;
 		for (var i = 0; i < dirt_to_spawn; i++) { spawn_dirt(); }
 		
 		// Usurp some skeletons
 		with (obj_skeleton) {
 			var usurper_obj = -1;
-			if (get_random_chance_out_of(global.controller.EYES_PROBABILITY) && global.difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurper_obj = obj_eyes; }
-			else if (get_random_chance_out_of(global.controller.SNAKE_PROBABILITY) && global.difficulty >= difficulties.hard) { usurper_obj = obj_snake; }
-			else if (get_random_chance_out_of(global.controller.FAST_SKELETON_PROBABILITY) && global.difficulty >= difficulties.medium) { skeleton_speed = global.controller.FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
+			if (get_random_chance_out_of(other.EYES_PROBABILITY) && difficulty >= difficulties.hard && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurper_obj = obj_eyes; }
+			else if (get_random_chance_out_of(other.SNAKE_PROBABILITY) && difficulty >= difficulties.hard) { usurper_obj = obj_snake; }
+			else if (get_random_chance_out_of(other.FAST_SKELETON_PROBABILITY) && difficulty >= difficulties.medium) { skeleton_speed = other.FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
 			if (usurper_obj != -1) { instance_create(x, y, usurper_obj); instance_destroy(); }
 		}
+		
+		// Set up Lava Edge Drawing
+		with (obj_lava) { set_up_lava_edge_visibility(true); }
 	}
 
 	// Every Time Setup
@@ -530,29 +539,29 @@ function game_room_start() {
 	// Change position if necessary
 	if entered_from_stairs {
 		var start_spot = (transitioned_from != noone && transitioned_from.connected_to != noone) ? transitioned_from.connected_to : stairs_spot;
-		global.player.x = start_spot.x;
-		global.player.y = start_spot.y;
+		player.x = start_spot.x;
+		player.y = start_spot.y;
 	}
 
 	// Move character into position
 	move_player(4);
 
 	// Add a small pause when entering a room
-	global.player.pause_movement = FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
+	player.pause_movement = FRAMES_TO_WAIT_UPON_ENTERING_ROOM;
 
 	// Set initial lighting to darkness
 	with obj_game_object { image_blend = global.bg_color; }
 	
 	// Run room start event for specific objects
 	with (obj_bumper) {
-		xstart = global.player.x;
-		ystart = global.player.y;
+		xstart = player.x;
+		ystart = player.y;
 			
-		switch (global.controller.transition) {		
-			case directions.up: { ystart -= global.controller.TRAP_RANGE; break; }
-			case directions.right: { xstart += global.controller.TRAP_RANGE; break; }
-			case directions.down: { ystart += global.controller.TRAP_RANGE; break; }
-			case directions.left: { xstart -= global.controller.TRAP_RANGE; break; }
+		switch (other.transition) {		
+			case directions.up: { ystart -= other.TRAP_RANGE; break; }
+			case directions.right: { xstart += other.TRAP_RANGE; break; }
+			case directions.down: { ystart += other.TRAP_RANGE; break; }
+			case directions.left: { xstart -= other.TRAP_RANGE; break; }
 			default: { 
 				teleport_near_player();
 				xstart = x;
@@ -564,19 +573,19 @@ function game_room_start() {
 	with (obj_bug) { instance_destroy(); }
 	with (obj_dirt) {
 		if (!is_solid_at_position(x, y)) { 
-			has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
+			has_bug = get_random_chance_out_of(other.HAS_BUG_PROBABILITY);
 		}
 	}
 	with (obj_bush) { 
 		occupier = noone; 
 		is_occupied = false;
-		has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
+		has_bug = get_random_chance_out_of(other.HAS_BUG_PROBABILITY);
 	}
 	with (obj_player_corpse) {  has_bug = true; }
 	with (obj_bones) { 
 		if (!is_solid_at_position(x, y)) {
-			has_bug = get_random_chance_out_of(global.controller.HAS_BUG_PROBABILITY);
-			trap = (get_random_chance_out_of(global.controller.TRAP_BONES_PROBABILITY)); 
+			has_bug = get_random_chance_out_of(other.HAS_BUG_PROBABILITY);
+			trap = (get_random_chance_out_of(other.TRAP_BONES_PROBABILITY)); 
 		} 
 	}
 	with (obj_stairs) { active = false; }
@@ -585,7 +594,7 @@ function game_room_start() {
 			locked = ( door_for_exit.locked);
 			if (door_for_exit.destroyed) { instance_destroy(); }
 		}
-		if (place_meeting(x, y, global.player)) { open_door(); }
+		if (place_meeting(x, y, player)) { open_door(); }
 	}
 	
 	//// Destroy instances that shouldn't persist after leaving the room
@@ -623,13 +632,13 @@ function game_room_start() {
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
 	with (obj_echo_spot) {
-		if (global.controller.entered_from_stairs && global.controller.current_room == global.controller.start_room) { instance_destroy(); }
+		if (other.entered_from_stairs && other.current_room == other.start_room) { instance_destroy(); }
 		else {
 			play_sound(snd_echo, false); 
 			spawn_timer = 16;
 			moves = array_create(0);
-			x = global.player.x;
-			y = global.player.y;
+			x = player.x;
+			y = player.y;
 		}
 	}
 	
@@ -737,7 +746,8 @@ function spawn_dirt() {
 
 /// @function								get_current_score()
 function get_current_score() {
-	with (global.controller) {
+	var controller = global.controller;
+	with (controller) {
 		var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
 		var percentage_of_time_remaining = (is_game_won()) ? 100*(time_remaining / time_provided) : 0;
@@ -745,7 +755,7 @@ function get_current_score() {
 		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
 		current_score = floor(percentage_of_collectables_collected + percentage_of_victory + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
 	}
-	return global.controller.current_score;  
+	return controller.current_score;  
 }
 
 /// @function								get_best_score_string(difficulty);
@@ -757,13 +767,14 @@ function get_probability_for_difficulty(probability_list) {
 /// @function								get_direction_input(key_pressed_only)
 /// @param		{bool} key_pressed_only		Whether to only count if the key has been pressed this frame
 function get_direction_input(key_pressed_only) {
+	var player = global.player, controller = global.controller;
 	// Return no input if player is dead or looking at map
-	if (global.player.dead || global.controller.key_space) { return directions.none; }
+	if (player.dead || controller.key_space) { return directions.none; }
 	
 	// Starting with the previous direction, check each direction for inputs
 	var possible_directions = array_create(0);
 	for (var i = 0; i < 4; i++) {
-		var current_dir = (i+global.player.dir_prev) % 4;
+		var current_dir = (i+player.dir_prev) % 4;
 		
 		// For the player object, skip directions that block movement
 		// This allows doors, chests, blocks, etc. to evaluate ignoring blocking objects
@@ -771,31 +782,31 @@ function get_direction_input(key_pressed_only) {
 		if (object_index == obj_player && !can_move_in_direction(current_dir, false, true)) { continue; }
 		
 		if current_dir == directions.up &&
-			global.controller.key_up && 
-			!global.controller.key_down &&
-			(global.controller.key_up_pressed || !global.controller.key_up_released) &&
-			(!key_pressed_only || global.controller.key_up_pressed) { 
+			controller.key_up && 
+			!controller.key_down &&
+			(controller.key_up_pressed || !controller.key_up_released) &&
+			(!key_pressed_only || controller.key_up_pressed) { 
 				array_push(possible_directions, directions.up); 
 		}
 		else if current_dir == directions.down &&
-				global.controller.key_down && 
-				!global.controller.key_up &&
-				(global.controller.key_down_pressed || !global.controller.key_down_released) &&
-				(!key_pressed_only || global.controller.key_down_pressed) { 
+				controller.key_down && 
+				!controller.key_up &&
+				(controller.key_down_pressed || !controller.key_down_released) &&
+				(!key_pressed_only || controller.key_down_pressed) { 
 					array_push(possible_directions, directions.down);  
 		}
 		else if current_dir == directions.left &&
-				global.controller.key_left && 
-				!global.controller.key_right &&
-				(global.controller.key_left_pressed || !global.controller.key_left_released) &&
-				(!key_pressed_only || global.controller.key_left_pressed) { 
+				controller.key_left && 
+				!controller.key_right &&
+				(controller.key_left_pressed || !controller.key_left_released) &&
+				(!key_pressed_only || controller.key_left_pressed) { 
 					array_push(possible_directions, directions.left); 
 		}
 		else if current_dir == directions.right &&
-				global.controller.key_right && 
-				!global.controller.key_left &&
-				(global.controller.key_right_pressed || !global.controller.key_right_released) && 
-				(!key_pressed_only || global.controller.key_right_pressed) { 
+				controller.key_right && 
+				!controller.key_left &&
+				(controller.key_right_pressed || !controller.key_right_released) && 
+				(!key_pressed_only || controller.key_right_pressed) { 
 					array_push(possible_directions, directions.right); 
 		}
 	}

@@ -1,6 +1,7 @@
+var controller = global.controller;
 var sand_sprite_index = (special) ? spr_sand_red : spr_sand;
-var time_elapsed = global.controller.time_provided - global.controller.time_remaining;
-var time_per_grain = (time_elapsed / global.controller.time_provided)
+var time_elapsed = controller.time_provided - controller.time_remaining;
+var time_per_grain = (time_elapsed / controller.time_provided)
 var sand_image_index = floor(abs((time_per_grain*8) - (time_per_grain*3/4)));
 var sand_y = y, sand_x = x;
 if (is_existing_instance(holder)) {

@@ -78,7 +78,8 @@ function set_max_window_size() {
 /// @function								set_window_size();
 function set_window_size() {
 	// Resize the drawing surface
-	var draw_surface_width = (room_width*global.window_scaling), draw_surface_height = (room_height*global.window_scaling)
+	var window_scaling = global.window_scaling;
+	var draw_surface_width = (room_width*window_scaling), draw_surface_height = (room_height*window_scaling)
 	window_set_size(draw_surface_width, draw_surface_height);
 }
 

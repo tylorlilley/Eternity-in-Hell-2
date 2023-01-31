@@ -35,11 +35,11 @@ function destroy_lava_at_position(x_pos, y_pos) {
 /// @function								get_lava_at_each_quadrant();
 function get_lava_at_each_quadrant() {
 	// Get the actual lava objects at each lava quadrant
-	var lava_at_quadrant = [noone, noone, noone, noone];
+	var lava_at_quadrant = [noone, noone, noone, noone], player = global.player;
 	
 	// mark the lava as missing a death box if a player or hands is holding a staff at the quadrant position
-	if (instance_place(x, y, global.player)) {
-		with (global.player) { if (is_carrying_item(obj_staff)) { return lava_at_quadrant; } }
+	if (instance_place(x, y, player)) {
+		with (player) { if (is_carrying_item(obj_staff)) { return lava_at_quadrant; } }
 	}
 	var hands = instance_place_all(x, y, obj_hands);
 	while (array_length(hands) > 0) { 
@@ -92,7 +92,7 @@ function consume_lava(require_all) {
 			play_sound(snd_splash, false);
 			with (obj_lava) {
 				if (point_distance(x, y, other.x, other.y) <= 32) {
-					set_up_lava_edge_visibility(true);
+					set_up_lava_edge_visibility(false);
 				}
 			}
 			return true;
@@ -114,9 +114,24 @@ function destroy_self_if_all_death_boxes_are_destroyed() {
 
 /// @ function								set_up_lava_edge_visibility(require_all);
 /// @param		{bool} visibility_only		Only change the visibility status
-function set_up_lava_edge_visibility(visibility_only) {
+function set_up_lava_edge_visibility(first_time_setup) {
+	sprite_index = spr_collectable;
 	for (var quadrant = 0; quadrant < 4; quadrant++) {
 		for (var dir = 0; dir < 4; dir++) {
+			if (first_time_setup) { 
+				lava_edge_image_indexes[quadrant][dir] = irandom(7);
+				lava_edge_image_xscales[quadrant][dir] = (get_coin_flip()) ? 1 : -1;
+			
+				// Skip edges within the lava object on first time setup
+				var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+				if ((quadrant == 0 && (dir == directions.right || dir == directions.down)) ||
+					(quadrant == 1 && (dir == directions.left || dir == directions.down)) ||
+					(quadrant == 2 && (dir == directions.right || dir == directions.up)) ||
+					(quadrant == 3 && (dir == directions.left || dir == directions.up))) {
+					continue; 
+				}
+			}
+			
 			var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 			switch (dir) {
 				case directions.up: { y_pos -= 8; break; }
@@ -125,14 +140,9 @@ function set_up_lava_edge_visibility(visibility_only) {
 				case directions.left: { x_pos -= 8; break; }
 			}
 			
-			sprite_index = spr_collectable;
 			lava_edge_visible[quadrant][dir] = !is_lava_at_position(x_pos, y_pos);
 			if (!is_existing_instance(death_box) && !is_existing_instance(death_boxes[quadrant])) { lava_edge_visible[quadrant][dir] = false; }
-			if (!visibility_only) { 
-				lava_edge_image_indexes[quadrant][dir] = irandom(7);
-				lava_edge_image_xscales[quadrant][dir] = (get_coin_flip()) ? 1 : -1;
-			}
-			sprite_index = spr_lava;
 		}
 	}
+	sprite_index = spr_lava;
 }

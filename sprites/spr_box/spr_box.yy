@@ -21,8 +21,8 @@
   "width": 16,
   "height": 16,
   "textureGroupId": {
-    "name": "Default",
-    "path": "texturegroups/Default",
+    "name": "HUD",
+    "path": "texturegroups/HUD",
   },
   "swatchColours": null,
   "gridX": 0,

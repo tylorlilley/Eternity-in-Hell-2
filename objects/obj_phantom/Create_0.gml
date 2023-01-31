@@ -1,15 +1,16 @@
 event_inherited();
 
-x = global.player.x;
-y = global.player.y;
+var player = global.player, controller = global.controller;
+x = player.x;
+y = player.y;
 
 activated = false;
 corporeal = false;
 
 spawn_timer = 0;
 
-if (global.controller.current_room.lit) { instance_destroy(); }
-else if (global.controller.entered_from_spawn) { spawn_timer = -1; }
+if (controller.current_room.lit) { instance_destroy(); }
+else if (controller.entered_from_spawn) { spawn_timer = -1; }
 else {
 	// Check distance to each unlit lantern
 	var lantern_count = 0, total_distance_to_lanterns = 0;

@@ -28,9 +28,10 @@
 6 mouth
 7 blood
 8 button
-8 dirt spawned by pushable block moved into lava
-9 lava
+
 10 stairs
 10 hole
+11 dirt spawned by pushable block moved into lava
+12 lava
 
 20 dirt

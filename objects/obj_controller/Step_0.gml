@@ -1,5 +1,6 @@
 // If this frame should be processed
 if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
+	var player = global.player, difficulty = global.difficulty;
 	if (!is_game_lost() && !is_game_won()) {
 		// Play map Sound Effects
 		if key_space_pressed { play_sound( snd_pickup, false ); }
@@ -7,7 +8,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
     
 		// Update per frame values
 		var time_to_decrement = get_one_unit_of_game_time();
-		with (global.player) {
+		with (player) {
 			if (is_carrying_item_in_right_hand(obj_clock)) { time_to_decrement/= 2; }
 			if (is_carrying_item_in_left_hand(obj_clock)) { time_to_decrement/= 2; }
 			if (is_carrying_special_item(obj_clock)) { time_to_decrement = 0; }
@@ -15,7 +16,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 		time_remaining -= time_to_decrement;
 		if (is_time_up()) {
 			killed_by = obj_controller;
-			update_death_log(global.controller.killed_by, global.difficulty);
+			update_death_log(killed_by, difficulty);
 			time_remaining = 0; 
 			play_sound(snd_lose, false); 
 		}
@@ -34,15 +35,15 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	if (room != rm_finish && (is_game_lost() || is_game_won())) {
 		if (is_game_won() || is_time_up() || death_timer == 0) {
 			var carried_rosary = noone, carried_dir = directions.none;
-			with (global.player) { 
+			with (player) { 
 				carried_rosary = get_carried_item(obj_rosary);
 				carried_dir = (right_hand_item == carried_rosary) ? directions.right : directions.left;
 				put_down_item(right_hand_item, false);
 				put_down_item(left_hand_item, false);
 			}
-			if (is_existing_instance(carried_rosary) && global.player.dead) {
+			if (is_existing_instance(carried_rosary) && player.dead) {
 				// Revive and respawn player
-				with (global.player) {
+				with (player) {
 					var player_corpse = instance_create(x, y, obj_player_corpse);
 					player_corpse.image_xscale = image_xscale;
 					x = -8;
@@ -54,11 +55,11 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 				transition = directions.respawn;
 				// Destroy or pick up rosary
 				if (!carried_rosary.special) { instance_destroy(carried_rosary); } 
-				else { with (global.player) { pick_up_item(carried_rosary, false, carried_dir); } }
+				else { with (player) { pick_up_item(carried_rosary, false, carried_dir); } }
 			}
 			else {
-				if (is_game_won()) { update_win_log(global.difficulty); }
-				with (global.player) {
+				if (is_game_won()) { update_win_log(difficulty); }
+				with (player) {
 					visible = false;
 					room_goto(rm_finish);
 				}

@@ -20,8 +20,8 @@
   "includeTTF": false,
   "TTFName": "",
   "textureGroupId": {
-    "name": "Default",
-    "path": "texturegroups/Default",
+    "name": "HUD",
+    "path": "texturegroups/HUD",
   },
   "ascenderOffset": 0,
   "ascender": 0,

@@ -3,7 +3,7 @@
 ///	@param		{boolean}	make_noise		Whether or not lighting this torch should play a sound
 function light_torch(lighting_torch, make_noise) {
 	// Set remaining torch time for the calling instance to new lit amount
-	var new_lit_amount = global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT, newly_lit = false;
+	var controller = global.controller, new_lit_amount = controller.MAX_TORCH_TIME_TO_REMAIN_LIT, newly_lit = false;
 	if (lighting_torch && lighting_torch.time_to_remain_lit) { new_lit_amount = lighting_torch.time_to_remain_lit; }
 	if (time_to_remain_lit < new_lit_amount && time_to_remain_lit >= 0) {
 		time_to_remain_lit = new_lit_amount;
@@ -24,7 +24,7 @@ function light_torch(lighting_torch, make_noise) {
 		if (object_index == obj_lantern) {
 			var last_lantern = true;
 		    with obj_lantern { if (!light_source) { last_lantern = false; } }
-		    global.controller.current_room.lit = last_lantern;
+		    controller.current_room.lit = last_lantern;
 		}
 	}
 	// Light the lighting torch in response if necessary
@@ -74,9 +74,10 @@ function interact_with_other_torches() {
 	}	
 	
 	// Decrement time remaining if not actively_lit
-	if (!actively_lit && !special && time_to_remain_lit > 0) { 
+	if (!actively_lit && !special && time_to_remain_lit > 0) {
+		var controller = global.controller;
 		time_to_remain_lit -= get_one_unit_of_game_time();
-		if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(global.controller.PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, global.controller.MAX_TORCH_TIME_TO_REMAIN_LIT)); }
+		if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(controller.PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, controller.MAX_TORCH_TIME_TO_REMAIN_LIT)); }
 		if (!time_to_remain_lit && image_speed > 0) { extinguish_torch(); }
 	}
 }

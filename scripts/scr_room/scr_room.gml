@@ -47,19 +47,20 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param	{index}	list_of_rooms			The list of available rooms
 	function initialize_room(list_of_rooms) {
 		// Randomly decide if room will have collectables, stairs, keys, items, etc
+		var controller = global.controller;
 		
 		// Decide what to spawn in stairs_spot
-		if (get_random_chance_out_of(global.controller.HAS_STAIRS_PROBABILITY)) { exits[4] = true; stairs_spot_obj = obj_stairs; }
-		else if (get_random_chance_out_of(global.controller.HAS_ITEM_PROBABILITY)) { set_up_room_chest(); }
-		else if (get_random_chance_out_of(global.controller.TRAP_CHEST_PROBABILITY)) { chest_obj = obj_statue; stairs_spot_obj = obj_chest; }
+		if (get_random_chance_out_of(controller.HAS_STAIRS_PROBABILITY)) { exits[4] = true; stairs_spot_obj = obj_stairs; }
+		else if (get_random_chance_out_of(controller.HAS_ITEM_PROBABILITY)) { set_up_room_chest(); }
+		else if (get_random_chance_out_of(controller.TRAP_CHEST_PROBABILITY)) { chest_obj = obj_statue; stairs_spot_obj = obj_chest; }
 		
 		// Decide what to spawn in collectables spots
-		//if (get_random_chance_out_of(global.controller.HAS_KEY_PROBABILITY) && chest_obj == -1) { set_up_room_key(); }
-		if (get_random_chance_out_of(global.controller.HAS_COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(global.controller.rooms_with_collectables, self); }
-		if (get_random_chance_out_of(global.controller.HAS_PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
+		//if (get_random_chance_out_of(controller.HAS_KEY_PROBABILITY) && chest_obj == -1) { set_up_room_key(); }
+		if (get_random_chance_out_of(controller.HAS_COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(controller.rooms_with_collectables, self); }
+		if (get_random_chance_out_of(controller.HAS_PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
 	
 		// Randomly determine the number of exits this room should have based on probability weighting
-		var target_number_of_exits = irandom(global.controller.NUMBER_OF_EXITS_PROBABILITY);
+		var target_number_of_exits = irandom(controller.NUMBER_OF_EXITS_PROBABILITY);
 		if (target_number_of_exits == 0 || target_number_of_exits > 3) { target_number_of_exits = 2; }
 	
 		// Take care of exits that must exist based on adjacent rooms and decrement number of exits accordingly
@@ -87,11 +88,11 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								set_up_room_chest();
 	function set_up_room_chest() {
 		// Always add map as the first item
-		var spawned_item_obj = obj_map, spawned_items_array = global.controller.spawned_items;
-		if (array_length(global.controller.rooms_with_item) > 0) {	
-			if (array_length(global.controller.spawned_special_items) < global.controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(global.controller.SPECIAL_ITEM_PROBABILITY)) { 
+		var spawned_item_obj = obj_map, controller = global.controller, spawned_items_array = controller.spawned_items;
+		if (array_length(controller.rooms_with_item) > 0) {	
+			if (array_length(controller.spawned_special_items) < controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(controller.SPECIAL_ITEM_PROBABILITY)) { 
 				has_special_item = true; 
-				spawned_items_array = global.controller.spawned_special_items;
+				spawned_items_array = controller.spawned_special_items;
 			}
 			spawned_item_obj = get_random_item_obj(has_special_item, true)
 		}
@@ -110,7 +111,7 @@ function GameRoom(given_x, given_y) constructor {
 			chest_obj = obj_key;
 		}
 		else {
-			array_push(global.controller.rooms_with_item, spawned_item_obj);
+			array_push(controller.rooms_with_item, spawned_item_obj);
 		}
 		
 		show_debug_message("SPAWNED " + ((has_special_item) ? "RED " : "") + object_get_name(spawned_item_obj));
@@ -231,16 +232,16 @@ function GameRoom(given_x, given_y) constructor {
 	function draw_room(x_pos, y_pos) {
 
 		// Only draw the room if the room has been visited at least once, or game is in test mode
-		var show_detailed_map = false, show_collectables = false;
+		var show_detailed_map = false, show_collectables = false, controller = global.controller, is_test_mode_on = global.TEST_MODE;
 		with (global.player) {
-			show_detailed_map = (global.TEST_MODE || is_carrying_item(obj_map));
-			show_collectables = (global.TEST_MODE || is_carrying_special_item(obj_map));
+			show_detailed_map = (is_test_mode_on || is_carrying_item(obj_map));
+			show_collectables = (is_test_mode_on || is_carrying_special_item(obj_map));
 		}
 		
 		if (show_detailed_map || visited) {
 			// Set up colors to draw this room with
-			var fade_amount = 0; //distance_to_current_room / global.controller.MAX_MAP_DRAW_DISTANCE;
-			var blink_frame = modulo(global.controller.number_of_frames_since_game_began, 12) <= 5;
+			var fade_amount = 0; //distance_to_current_room / controller.MAX_MAP_DRAW_DISTANCE;
+			var blink_frame = modulo(controller.number_of_frames_since_game_began, 12) <= 5;
 			var bg_color = global.bg_color;
 			var white_color = merge_color(c_white, bg_color, fade_amount);
 			var red_color = merge_color(c_red, bg_color, fade_amount);
@@ -254,7 +255,7 @@ function GameRoom(given_x, given_y) constructor {
 		    // Draw Room on Map
 			var room_color = lit ? red_color : white_color;
 			var inverse_color = lit ? white_color : red_color;
-		    if (global.controller.current_room == self && blink_frame) { room_color = bg_color; }
+		    if (controller.current_room == self && blink_frame) { room_color = bg_color; }
 			if (lit) { 
 				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, inverse_color, 1);
 				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.75, 0.75, 0, room_color, 1);
@@ -304,7 +305,7 @@ function GameRoom(given_x, given_y) constructor {
 			}
     
 		    // Draw distance information if testing
-		    //if (global.TEST_MODE) {
+		    //if (TEST_MODE) {
 		    //   draw_set_color(c_lime);
 		    //    draw_set_halign(fa_center);
 		    //    draw_set_valign(fa_middle);
@@ -314,7 +315,7 @@ function GameRoom(given_x, given_y) constructor {
 
 		// Mark the room as having been drawn, then draw each of its applicable neighbors
 		drawn = true;
-		//if (distance_to_current_room < global.controller.MAX_MAP_DRAW_DISTANCE || is_game_lost() || is_game_won()) { 
+		//if (distance_to_current_room < controller.MAX_MAP_DRAW_DISTANCE || is_game_lost() || is_game_won()) { 
 		if (adj_rooms[0] && !adj_rooms[0].drawn && y_pos-16 >= 0) with adj_rooms[0] { draw_room(x_pos, y_pos-16); }
 		if (adj_rooms[1] && !adj_rooms[1].drawn && x_pos+16 <= room_width) with adj_rooms[1] { draw_room(x_pos+16, y_pos); }
 		if (adj_rooms[2] && !adj_rooms[2].drawn && y_pos+16 <= room_height) with adj_rooms[2] { draw_room(x_pos, y_pos+16); }
@@ -325,8 +326,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @fucntion								get_adjacent_room(dir);
 	/// @param		{direction}	dir				The direction from this room to the adjacent room to get
 	function get_adjacent_room(dir) {
-		var x_pos = 0;
-		var y_pos = 0;
+		var x_pos = 0, y_pos = 0, controller = global.controller;
 
 		switch (dir)
 		{
@@ -337,8 +337,8 @@ function GameRoom(given_x, given_y) constructor {
 		}
 
 		// TODO: Make this work without having to traverse the whole array
-		for (var i = 0; i < array_length(global.controller.game_rooms); i++) {
-			var possible_match = global.controller.game_rooms[i];
+		for (var i = 0; i < array_length(controller.game_rooms); i++) {
+			var possible_match = controller.game_rooms[i];
 			if (possible_match.virtual_x == virtual_x+x_pos && possible_match.virtual_y == virtual_y+y_pos) {
 				return possible_match;
 			}
@@ -348,32 +348,33 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function								get_room_from_room_lists();
 	function get_room_from_room_lists() {
+		var controller = global.controller;
 		var number_of_exits = get_exits_count();
 		var rand1 = get_coin_flip();
 		var rand2 = get_coin_flip();
 		var room_list = noone;
 		
-		while(get_random_chance_out_of(global.controller.MISLEADING_ROOM_PROBABILITY) && number_of_exits < 4) {
+		while(get_random_chance_out_of(controller.MISLEADING_ROOM_PROBABILITY) && number_of_exits < 4) {
 			misleading_room = true;
 			number_of_exits += 1;
 		}
 		
 		switch(number_of_exits) {
 			case 0: 
-				room_list = global.controller.rooms_with_no_exits; 
+				room_list = controller.rooms_with_no_exits; 
 				break;
 			case 1: 
-				room_list = global.controller.rooms_with_one_exit; 
+				room_list = controller.rooms_with_one_exit; 
 				break;
 			case 2: 
-				room_list = global.controller.rooms_with_two_perpendicular_exits;
-				if ((exits[0] && exits[2]) || (exits[1] && exits[3])) { room_list = global.controller.rooms_with_two_opposite_exits; }
+				room_list = controller.rooms_with_two_perpendicular_exits;
+				if ((exits[0] && exits[2]) || (exits[1] && exits[3])) { room_list = controller.rooms_with_two_opposite_exits; }
 				break;
 			case 3: 
-				room_list = global.controller.rooms_with_three_exits; 
+				room_list = controller.rooms_with_three_exits; 
 				break;
 			case 4: 
-				room_list = global.controller.rooms_with_four_exits; 
+				room_list = controller.rooms_with_four_exits; 
 				break;
 		}
 
@@ -471,10 +472,11 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									go_to_room()
 	function go_to_room() {
+		var controller = global.controller;
 		mark_exit_visited();
-		global.controller.current_room.leave_room();
+		controller.current_room.leave_room();
 		enter_room();
-		with (global.controller) { 
+		with (controller) { 
 			game_room_start();
 			blackout = false;
 			transition = directions.none;
@@ -484,9 +486,10 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									mark_exit_visited()
 	function mark_exit_visited() {
-		var exit_dir = global.controller.transition, other_room = global.controller.current_room;
+		var controller = global.controller;
+		var exit_dir = controller.transition, other_room = controller.current_room;
 		if (exit_dir == directions.stairs) {
-			if (global.controller.transitioned_from.object_index == obj_stairs) {
+			if (controller.transitioned_from.object_index == obj_stairs) {
 				other_room.visited_exits[directions.stairs] = true;
 				visited_exits[directions.stairs] = true;
 			}

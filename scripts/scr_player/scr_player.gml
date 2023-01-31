@@ -121,22 +121,23 @@ function create_item_in_hand(dir, obj_index) {
 /// @function								kill_player(killed_by_obj);
 /// @param		{obj} killed_by_obj				The object_index of the thing killing the player
 function kill_player(killed_by_obj) {
-	if (!global.player.dead) {
+	var player = global.player, controller = global.controller;
+	if (!player.dead) {
 		// Set variables to mark death
-		global.player.depth = 4;
-		global.player.dead = true;
-		global.controller.death_timer = global.controller.RESPAWN_FREQUENCY;
+		player.depth = 4;
+		player.dead = true;
+		controller.death_timer = controller.RESPAWN_FREQUENCY;
 		play_sound(snd_lose, true);
 		with (obj_echo_spot) { instance_destroy(); }
 		
 		// Put down carried items other than rosary
-		with (global.player) {
+		with (player) {
 			if (is_existing_instance(right_hand_item) && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false); }
 			if (is_existing_instance(left_hand_item) && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false); }
 		}
 		
-		global.controller.killed_by = (killed_by_obj == -1) ? other.object_index : killed_by_obj;
-		update_death_log(global.controller.killed_by, global.difficulty);
+		controller.killed_by = (killed_by_obj == -1) ? other.object_index : killed_by_obj;
+		update_death_log(controller.killed_by, global.difficulty);
 	}
 }
 
@@ -173,13 +174,14 @@ function draw_player_hat() {
 /// @function				snap_player_to_position(dir);
 /// @param		{dir} dir	The direction to snap the player opposite to
 function snap_player_to_position(dir) {
-	global.player.moved_by = id;
-	global.player.x = x;
-	global.player.y = y;
+	var player = global.player;
+	player.moved_by = id;
+	player.x = x;
+	player.y = y;
 	switch (dir) {
-		case directions.up: { global.player.y += 16; break; }
-		case directions.down: { global.player.y -= 16; break; }
-		case directions.left: { global.player.x += 16; break; }
-		case directions.right: { global.player.x -= 16; break; }
+		case directions.up: { player.y += 16; break; }
+		case directions.down: { player.y -= 16; break; }
+		case directions.left: { player.x += 16; break; }
+		case directions.right: { player.x -= 16; break; }
 	}
 }

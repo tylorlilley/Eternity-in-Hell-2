@@ -33,6 +33,7 @@ function turn_to_face_player() {
 
 /// @function  							teleport_near_player();
 function teleport_near_player() {
+	var player = global.player;
 	play_sound(snd_flicker, false);
 
 	do {
@@ -40,10 +41,10 @@ function teleport_near_player() {
 	    var y_pos = (8*irandom(3));
 	    if (get_coin_flip()) { x_pos *= -1; }
 	    if (get_coin_flip()) { y_pos *= -1; }
-	    x = global.player.x + x_pos;
-	    y = global.player.y + y_pos;
+	    x = player.x + x_pos;
+	    y = player.y + y_pos;
 	}
-	until (get_distance_to_instance(global.player) >= 24 && !is_outside_room(x,y));
+	until (get_distance_to_instance(player) >= 24 && !is_outside_room(x,y));
 }
 
 
@@ -174,7 +175,7 @@ function set_instance_to_same_position(instance) {
 
 /// @function								get_direction_pushed_against();
 function get_direction_pushed_against() {
-	var dir = directions.none, x_pos = global.player.x_prev, y_pos = global.player.y_prev;
+	var dir = directions.none, player = global.player, x_pos = player.x_prev, y_pos = player.y_prev;
 	dir = get_direction_input(true);
 	if (dir == directions.none) { return dir; }
 	

@@ -28,9 +28,10 @@ while (array_length(enemies_at_position) > 0) {
 }
 
 // Kill Player
-if (!global.player.dead && place_meeting(x, y, global.player) && get_distance_to_instance(global.player) <= 8) { 
+var player = global.player;
+if (!player.dead && place_meeting(x, y, player) && get_distance_to_instance(player) <= 8) { 
 	blocked = true;
-	with (global.player) {
+	with (player) {
 		if (!is_carrying_item(obj_staff)) {
 			play_sound(snd_extinguish, false);
 			kill_player(other.creator_obj);

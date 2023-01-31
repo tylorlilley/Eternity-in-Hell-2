@@ -232,6 +232,7 @@ function reset_settings_to_defaults() {
 	update_setting("game_color_fade", game_color_fade_default);
 	update_setting("game_color", game_color_string_default);
 	
+	with (obj_lava) { set_up_lava_edge_visibility(true); }
 	set_game_color();
 }
 

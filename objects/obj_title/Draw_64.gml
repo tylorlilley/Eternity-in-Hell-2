@@ -9,7 +9,7 @@ else if (options_screen) {
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_center);
 	
-	var y_pos = 32, x_pos = room_width-56-16;
+	var y_pos = 32, x_pos = room_width-56-8;
 	
 	// Draw General Options Info
 	title_y_pos = room_height*2;
@@ -64,6 +64,7 @@ else if (options_screen) {
 	}
 	
 	// Draw Lava Edge Type Option
+	x_pos -= 8;
 	y_pos += 24;
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Lava Edge: ");
@@ -98,7 +99,7 @@ else if (options_screen) {
 	draw_set_halign(fa_center);
 	draw_text(x_pos+4, y_pos, get_percentage_string(global.game_color_fade));
 	if (blink && options_pos == 6) {
-		if (global.game_color_fade < 100) { draw_sprite_ext(spr_title_arrow, 0, x_pos+32, y_pos+8, -1, 1, 0, c_white, 1); }
+		if (global.game_color_fade < 100) { draw_sprite_ext(spr_title_arrow, 0, x_pos+32+8, y_pos+8, -1, 1, 0, c_white, 1); }
 		if (global.game_color_fade > 0) { draw_sprite_ext(spr_title_arrow, 0, x_pos-32, y_pos+8, 1, 1, 0, c_white, 1); }
 	}
 	var new_color_minimum_fade = make_color_rgb(global.game_color_fade/100.0 * color_get_red(new_color), global.game_color_fade/100.0 * color_get_green(new_color), global.game_color_fade/100.0 * color_get_blue(new_color));

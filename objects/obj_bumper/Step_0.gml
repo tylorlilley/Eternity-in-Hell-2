@@ -1,9 +1,9 @@
 if (can_process_this_frame()) {
-	var controller = global.controller;
-	if (controller.key_up_pressed || 
-		controller.key_down_pressed || 
-		controller.key_right_pressed || 
-		controller.key_left_pressed) {
+	var game_manager = global.game_manager;
+	if (game_manager.key_up_pressed || 
+		game_manager.key_down_pressed || 
+		game_manager.key_right_pressed || 
+		game_manager.key_left_pressed) {
 	    teleport_near_player();
 	}
 

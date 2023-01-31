@@ -9,11 +9,11 @@ if (can_process_this_frame()) {
 		activated = !activated;
 	}
 	
-	var player = global.player, controller = global.controller;
-	image_index = (controller.key_up || 
-				   controller.key_down || 
-				   controller.key_left || 
-				   controller.key_right) ? 1 : 0;
+	var player = global.player, game_manager = global.game_manager;
+	image_index = (game_manager.key_up || 
+				   game_manager.key_down || 
+				   game_manager.key_left || 
+				   game_manager.key_right) ? 1 : 0;
 	if (activated && image_index == 1) {
 		blink_amount = irandom_range(12, 32);
 		turn_to_face_player();

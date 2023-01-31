@@ -71,12 +71,11 @@ function initialize_game_variables() {
 	blackout = true;
 	transition = directions.respawn;
 	transitioned_from = noone;
-	clear_inputs_for_next_frame();
 }
 
 /// @function								get_one_unit_of_game_time();
 function get_one_unit_of_game_time() {
-	return (global.game_manager.FRAMES_TO_WAIT_BEFORE_PROCESSING/game_get_speed(gamespeed_fps));
+	return (FRAMES_TO_WAIT_BEFORE_PROCESSING/game_get_speed(gamespeed_fps));
 }
 
 /// @function								is_game_won();
@@ -118,140 +117,9 @@ function transition_to_room(new_room) {
 
 /// @function								can_process_this_frame();
 function can_process_this_frame() {
-	var controller = global.controller, game_manager = global.game_manager;
-	return ((!is_existing_instance(controller) || controller.transition == directions.none) && game_manager.number_of_frames_since_game_began % game_manager.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
+	var controller = global.controller;
+	return ((!is_existing_instance(controller) || controller.transition == directions.none) && global.game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0);
 }
-
-/// @function								set_up_inputs_for_next_frame();
-function set_up_inputs_for_next_frame() {
-	switch (global.input) {
-		case inputs.keyboard_default: { get_keyboard_default_inputs(); break; }
-		case inputs.keyboard_wasd: { get_keyboard_wasd_inputs(); break; }
-		case inputs.gamepad: { get_gamepad_inputs(); break; }
-	}
-}
-
-/// @function								clear_inputs_for_next_frame();
-function clear_inputs_for_next_frame() {
-	key_up = false;
-	key_down = false;
-	key_left = false;
-	key_right = false;
-	key_space = false;
-	key_enter = false;
-	key_z = false;
-	key_x = false;
-	
-	key_up_pressed = false;
-	key_down_pressed = false;
-	key_left_pressed = false;
-	key_right_pressed = false;
-	key_space_pressed = false;
-	key_enter_pressed = false;
-	key_z_pressed = false;
-	key_x_pressed = false;
-	
-	key_up_released = false;
-	key_down_released = false;
-	key_left_released = false;
-	key_right_released = false;
-	key_space_released = false;
-	key_enter_released = false;
-	key_z_released = false;
-	key_x_released = false;
-}
-
-/// @function								get_keyboard_default_inputs();
-function get_keyboard_default_inputs() {
-	key_up = key_up || keyboard_check(vk_up);
-	key_down = key_down || keyboard_check(vk_down);
-	key_left = key_left || keyboard_check(vk_left);
-	key_right = key_right || keyboard_check(vk_right);
-	key_space = key_space|| keyboard_check(vk_space);
-	key_enter = key_enter|| keyboard_check(vk_enter);
-	key_z = key_z || keyboard_check(ord("Z"));
-	key_x = key_x || keyboard_check(ord("X"));
-	
-	key_up_pressed = key_up_pressed || keyboard_check_pressed(vk_up);
-	key_down_pressed = key_down_pressed || keyboard_check_pressed(vk_down);
-	key_left_pressed = key_left_pressed || keyboard_check_pressed(vk_left);
-	key_right_pressed = key_right_pressed || keyboard_check_pressed(vk_right);
-	key_space_pressed = key_space_pressed || keyboard_check_pressed(vk_space);
-	key_enter_pressed = key_enter_pressed || keyboard_check_pressed(vk_enter);
-	key_z_pressed  = key_z_pressed || keyboard_check_pressed (ord("Z"));
-	key_x_pressed  = key_x_pressed || keyboard_check_pressed (ord("X"));
-	
-	key_up_released = key_up_released || keyboard_check_released(vk_up);
-	key_down_released = key_down_released || keyboard_check_released(vk_down);
-	key_left_released = key_left_released || keyboard_check_released(vk_left);
-	key_right_released = key_right_released || keyboard_check_released(vk_right);	
-	key_space_released = key_space_released || keyboard_check_released(vk_space);
-	key_enter_released = key_enter_released || keyboard_check_released(vk_enter);
-	key_z_released = key_z_released || keyboard_check_released(ord("Z"));
-	key_x_released = key_x_released || keyboard_check_released(ord("X"));
-}
-
-/// @function								get_keyboard_wasd_inputs();
-function get_keyboard_wasd_inputs() {
-	key_up = key_up || keyboard_check(ord("W"));
-	key_down = key_down || keyboard_check(ord("S"));
-	key_left = key_left || keyboard_check(ord("A"));
-	key_right = key_right || keyboard_check(ord("D"));
-	key_space = key_space|| keyboard_check(vk_space);
-	key_enter = key_enter|| keyboard_check(vk_enter);
-	key_z = key_z || keyboard_check(ord("J"));
-	key_x = key_x || keyboard_check(ord("K"));
-	
-	key_up_pressed = key_up_pressed || keyboard_check_pressed(ord("W"));
-	key_down_pressed = key_down_pressed || keyboard_check_pressed(ord("S"));
-	key_left_pressed = key_left_pressed || keyboard_check_pressed(ord("A"));
-	key_right_pressed = key_right_pressed || keyboard_check_pressed(ord("D"));
-	key_space_pressed = key_space_pressed || keyboard_check_pressed(vk_space);
-	key_enter_pressed = key_enter_pressed || keyboard_check_pressed(vk_enter);
-	key_z_pressed  = key_z_pressed || keyboard_check_pressed (ord("J"));
-	key_x_pressed  = key_x_pressed || keyboard_check_pressed (ord("K"));
-	
-	key_up_released = key_up_released || keyboard_check_released(ord("W"));
-	key_down_released = key_down_released || keyboard_check_released(ord("S"));
-	key_left_released = key_left_released || keyboard_check_released(ord("A"));
-	key_right_released = key_right_released || keyboard_check_released(ord("D"));	
-	key_space_released = key_space_released || keyboard_check_released(vk_space);
-	key_enter_released = key_enter_released || keyboard_check_released(vk_enter);
-	key_z_released = key_z_released || keyboard_check_released(ord("J"));
-	key_x_released = key_x_released || keyboard_check_released(ord("K"));
-}
-
-/// @function								get_gamepad_inputs();
-function get_gamepad_inputs() {
-	var gamepad = global.gamepad;
-	key_up = key_up || gamepad_button_check(gamepad, gp_padu);
-	key_down = key_down || gamepad_button_check(gamepad, gp_padd);
-	key_left = key_left || gamepad_button_check(gamepad, gp_padl);
-	key_right = key_right || gamepad_button_check(gamepad, gp_padr);
-	key_space = key_space || gamepad_button_check(gamepad, gp_shoulderlb) || gamepad_button_check(gamepad, gp_shoulderrb) || gamepad_button_check(gamepad, gp_face3) || gamepad_button_check(gamepad, gp_face4);
-	key_enter = key_enter || gamepad_button_check(gamepad, gp_start) || gamepad_button_check(gamepad, gp_select);
-	key_z = key_z || gamepad_button_check(gamepad, gp_face1) || gamepad_button_check(gamepad, gp_shoulderl);
-	key_x = key_x || gamepad_button_check(gamepad, gp_face2)  || gamepad_button_check(gamepad, gp_shoulderr);
-	
-	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(gamepad, gp_padu);
-	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(gamepad, gp_padd);
-	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(gamepad, gp_padl);
-	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(gamepad, gp_padr);
-	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(gamepad, gp_shoulderlb) || gamepad_button_check_pressed(gamepad, gp_shoulderrb) || gamepad_button_check_pressed(gamepad, gp_face3) || gamepad_button_check_pressed(gamepad, gp_face4);
-	key_enter_pressed = key_enter_pressed || gamepad_button_check_pressed(gamepad, gp_start) || gamepad_button_check_pressed(gamepad, gp_select)
-	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_shoulderl);
-	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(gamepad, gp_face2) || gamepad_button_check_pressed(gamepad, gp_shoulderr);
-	
-	key_up_released = key_up_released || gamepad_button_check_released(gamepad, gp_padu);
-	key_down_released = key_down_released || gamepad_button_check_released(gamepad, gp_padd);
-	key_left_released = key_left_released || gamepad_button_check_released(gamepad, gp_padl);
-	key_right_released = key_right_released || gamepad_button_check_released(gamepad, gp_padr);	
-	key_space_released = key_space_released ||  gamepad_button_check_released(gamepad, gp_shoulderlb) || gamepad_button_check_released(gamepad, gp_shoulderrb) || gamepad_button_check_released(gamepad, gp_face3) || gamepad_button_check_released(gamepad, gp_face4);
-	key_enter_released = key_enter_released || gamepad_button_check_released(gamepad, gp_start) || gamepad_button_check_released(gamepad, gp_select);
-	key_z_released = key_z_released || gamepad_button_check_released(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_shoulderl);
-	key_x_released = key_x_released || gamepad_button_check_released(gamepad, gp_face2) || gamepad_button_check_pressed(gamepad, gp_shoulderr);
-}
-
 
 /// @function								game_room_start();
 function game_room_start() {
@@ -690,9 +558,9 @@ function get_probability_for_difficulty(probability_list) {
 /// @function								get_direction_input(key_pressed_only)
 /// @param		{bool} key_pressed_only		Whether to only count if the key has been pressed this frame
 function get_direction_input(key_pressed_only) {
-	var player = global.player, controller = global.controller;
+	var player = global.player, game_manager = global.game_manager;
 	// Return no input if player is dead or looking at map
-	if (player.dead || controller.key_space) { return directions.none; }
+	if (player.dead || game_manager.key_space) { return directions.none; }
 	
 	// Starting with the previous direction, check each direction for inputs
 	var possible_directions = array_create(0);
@@ -705,31 +573,31 @@ function get_direction_input(key_pressed_only) {
 		if (object_index == obj_player && !can_move_in_direction(current_dir, false, true)) { continue; }
 		
 		if current_dir == directions.up &&
-			controller.key_up && 
-			!controller.key_down &&
-			(controller.key_up_pressed || !controller.key_up_released) &&
-			(!key_pressed_only || controller.key_up_pressed) { 
+			game_manager.key_up && 
+			!game_manager.key_down &&
+			(game_manager.key_up_pressed || !game_manager.key_up_released) &&
+			(!key_pressed_only || game_manager.key_up_pressed) { 
 				array_push(possible_directions, directions.up); 
 		}
 		else if current_dir == directions.down &&
-				controller.key_down && 
-				!controller.key_up &&
-				(controller.key_down_pressed || !controller.key_down_released) &&
-				(!key_pressed_only || controller.key_down_pressed) { 
+				game_manager.key_down && 
+				!game_manager.key_up &&
+				(game_manager.key_down_pressed || !game_manager.key_down_released) &&
+				(!key_pressed_only || game_manager.key_down_pressed) { 
 					array_push(possible_directions, directions.down);  
 		}
 		else if current_dir == directions.left &&
-				controller.key_left && 
-				!controller.key_right &&
-				(controller.key_left_pressed || !controller.key_left_released) &&
-				(!key_pressed_only || controller.key_left_pressed) { 
+				game_manager.key_left && 
+				!game_manager.key_right &&
+				(game_manager.key_left_pressed || !game_manager.key_left_released) &&
+				(!key_pressed_only || game_manager.key_left_pressed) { 
 					array_push(possible_directions, directions.left); 
 		}
 		else if current_dir == directions.right &&
-				controller.key_right && 
-				!controller.key_left &&
-				(controller.key_right_pressed || !controller.key_right_released) && 
-				(!key_pressed_only || controller.key_right_pressed) { 
+				game_manager.key_right && 
+				!game_manager.key_left &&
+				(game_manager.key_right_pressed || !game_manager.key_right_released) && 
+				(!key_pressed_only || game_manager.key_right_pressed) { 
 					array_push(possible_directions, directions.right); 
 		}
 	}

@@ -1,5 +1,5 @@
-/// @description Insert description here
-// You can write your code in this editor
+var game_manager = global.game_manager;
+var key_space = game_manager.key_space, key_z = game_manager.key_z;
 var death_count_string = get_death_count_string(global.difficulty), win_count_string = get_win_count_string(global.difficulty);
 var title_y_pos = room_height/4+16, title_scale = 0.125;
 

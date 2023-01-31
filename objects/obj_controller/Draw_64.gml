@@ -1,3 +1,7 @@
+// If this frame should be processed
+var game_manager = global.game_manager;
+var key_space = game_manager.key_space;
+
 draw_set_font(ft_hud);
 var has_won = is_game_won();
 var has_lost = is_game_lost();
@@ -81,13 +85,13 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 
 }
 
-/*
+
+
 if (global.is_test_mode) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
-	if (is_existing_instance(global.player)) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }
+	//if (is_existing_instance(global.player)) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
 	//draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
-	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
+	draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id));
 }
-*/

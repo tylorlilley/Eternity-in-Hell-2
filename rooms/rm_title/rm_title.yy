@@ -25,8 +25,8 @@
   "creationCodeFile": "${project_dir}/rooms/rm_title/RoomCreationCode.gml",
   "inheritCode": false,
   "instanceCreationOrder": [
-    {"name":"inst_31767CFF","path":"rooms/rm_title/rm_title.yy",},
     {"name":"inst_71D2E715","path":"rooms/rm_title/rm_title.yy",},
+    {"name":"inst_31767CFF","path":"rooms/rm_title/rm_title.yy",},
   ],
   "inheritCreationOrder": false,
   "sequenceId": null,

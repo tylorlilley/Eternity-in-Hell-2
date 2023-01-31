@@ -64,7 +64,7 @@ function interact_with_other_torches() {
 	while (array_length(torches) > 0) {
 		var other_torch = array_random_pop(torches);
 		
-		if (((is_existing_instance(other_torch) && is_existing_instance(holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
+		if (((is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
 			var not_carried = (!is_existing_instance(holder)), other_not_carried = (!is_existing_instance(other_torch) || !is_existing_instance(other_torch.holder));
 			if (other_torch.light_source && not_carried != other_not_carried) { 
 				light_torch(other_torch, true);		

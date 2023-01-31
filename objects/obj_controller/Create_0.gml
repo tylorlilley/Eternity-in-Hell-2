@@ -7,7 +7,6 @@ if (global.is_farm_mode) { sprite_prefetch(spr_player_farmer); }
 // Initialize global values
 random_set_seed(global.seed);
 show_debug_message("SEED: "+string(random_get_seed()));
-clear_inputs_for_next_frame();
 initialize_game_variables();
 
 // Generate Initial Room with Four Exits

@@ -243,6 +243,7 @@
     {"id":{"name":"obj_player_corpse","path":"objects/obj_player_corpse/obj_player_corpse.yy",},"order":12,},
     {"id":{"name":"obj_echo_spot","path":"objects/obj_echo_spot/obj_echo_spot.yy",},"order":4,},
     {"id":{"name":"spr_hands_farmer","path":"sprites/spr_hands_farmer/spr_hands_farmer.yy",},"order":59,},
+    {"id":{"name":"scr_game_manager","path":"scripts/scr_game_manager/scr_game_manager.yy",},"order":6,},
     {"id":{"name":"master_depth_list","path":"notes/master_depth_list/master_depth_list.yy",},"order":4,},
     {"id":{"name":"spr_blood","path":"sprites/spr_blood/spr_blood.yy",},"order":16,},
     {"id":{"name":"snd_appear","path":"sounds/snd_appear/snd_appear.yy",},"order":65,},

@@ -13,8 +13,7 @@ if (can_process_this_frame()) {
 		}
 		else {
 			// Flicker sprite if not corporeal
-			var game_manager = global.game_manager
-			visible = (modulo(game_manager.number_of_frames_since_game_began, (game_manager.FRAMES_TO_WAIT_BEFORE_PROCESSING * 2)) == 0);
+			visible = (modulo(global.game_manager.number_of_frames_since_game_began, (FRAMES_TO_WAIT_BEFORE_PROCESSING * 2)) == 0);
 		}
 	}
 }

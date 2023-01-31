@@ -5,7 +5,6 @@ if (can_process_this_frame()) {
 	if (dir_prev == directions.none) { dir_prev = irandom(3); }
 	
 	// Spawn Bugs in nearby dirt and bushes
-	var controller = global.controller;
 	with (obj_player_corpse) { 
 		if (has_bug && get_distance_to_instance(other) <= TRAP_RANGE) {
 			instance_create(x, y, obj_bug);
@@ -40,17 +39,18 @@ if (can_process_this_frame()) {
 	}
 	if (!dead && !is_game_won() && !is_game_lost()) {   
 	    // Get input from player
+		var game_manager = global.game_manager;
 	    dir = get_direction_input(false);
 		
 		// Handle movement pause
 		if (pause_movement > 0) { pause_movement -= 1; }
 		else {
 			// Handle inventory management
-			if (controller.key_z_pressed) { 
+			if (game_manager.key_z_pressed) { 
 				if (!can_drop_item(left_hand_item)) { play_sound(snd_locked, false); }
 				else { pick_up_or_put_down_item(directions.left); }
 			}
-			if (controller.key_x_pressed) { 
+			if (game_manager.key_x_pressed) { 
 				if (!can_drop_item(right_hand_item)) { play_sound(snd_locked, false); }
 				else { pick_up_or_put_down_item(directions.right); }
 			}
@@ -78,6 +78,7 @@ if (can_process_this_frame()) {
 		}
     
 	    // Transition to new room depending on player position
+		var controller = global.controller;
 		with (instance_place(x, y, obj_stairs)) {
 			if (active && is_instance_at_coordinates(x, y, other) && (connected_to != noone || object_index == obj_stairs)) { 
 					controller.transition = directions.stairs; 

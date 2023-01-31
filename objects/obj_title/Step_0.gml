@@ -1,5 +1,6 @@
-clear_inputs_for_next_frame();
-set_up_inputs_for_next_frame();
+var game_manager = global.game_manager;
+var key_x_pressed = game_manager.key_x_pressed, key_z_pressed = game_manager.key_z_pressed, key_z_released = game_manager.key_z_released, key_space_pressed = game_manager.key_space_pressed, key_space_released = game_manager.key_space_released;
+var key_left_pressed = game_manager.key_left_pressed, key_right_pressed = game_manager.key_right_pressed , key_up_pressed = game_manager.key_up_pressed, key_down_pressed = game_manager.key_down_pressed, key_z = game_manager.key_z, key_space = game_manager.key_space, key_enter_released = game_manager.key_enter_released;
 
 if (pos == -2) {
 	can_access_farmer_mode = (get_win_count(difficulties.very_hard) > 0)

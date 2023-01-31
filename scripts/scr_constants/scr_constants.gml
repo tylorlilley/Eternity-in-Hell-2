@@ -3,7 +3,6 @@
 #macro HAS_STAIRS_PROBABILITY 5 
 #macro HAS_COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
 #macro HAS_ITEM_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the get stairs fails, so its combined with 4/5
-
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 8])  // This happens only after the get item fails, so its combined with that probability
 #macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1])  // This happens only after the get item succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 #macro HAS_KEY_PROBABILITY get_probability_for_difficulty([4, 4, 8, 10, 12]) 
@@ -44,6 +43,7 @@
 #macro SCREEN_FLASH_DURATION 6 
 	
 // Initilaize other gameplay constants
+#macro FRAMES_TO_WAIT_BEFORE_PROCESSING 6
 #macro JUST_THE_WIND_PROBABILITY 2056 
 #macro BUSH_RUSTLE_FREQUENCY 16 
 #macro SKELETON_MOVE_FREQUENCY 12 

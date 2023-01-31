@@ -1,6 +1,8 @@
 // If this frame should be processed
 var game_manager = global.game_manager;
-if (game_manager.number_of_frames_since_game_began % game_manager.FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
+var key_space_pressed = game_manager.key_space_pressed, key_space_released = game_manager.key_space_released, key_enter_released = game_manager.key_enter_released;
+
+if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	var player = global.player, difficulty = global.difficulty;
 	if (!is_game_lost() && !is_game_won()) {
 		// Play map Sound Effects
@@ -83,10 +85,4 @@ if (game_manager.number_of_frames_since_game_began % game_manager.FRAMES_TO_WAIT
 		play_sound(snd_move, false);
 		restart_game();
 	}
-	
-	// ALL CODE CHECKING FOR KEYS DURING THIS FRAME MUST HAPPEN BEFORE THIS POINT
-	clear_inputs_for_next_frame();
 }
-
-// Record inputs that happen between frames to apply to the next frame
-set_up_inputs_for_next_frame();

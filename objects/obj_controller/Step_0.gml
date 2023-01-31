@@ -45,7 +45,7 @@ if (number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 				// Revive and respawn player
 				with (player) {
 					var player_corpse = instance_create(x, y, obj_player_corpse);
-					player_corpse.image_xscale = image_xscale;
+					if (is_existing_instance(player_corpse)) { player_corpse.image_xscale = image_xscale; }
 					x = -8;
 					y = -8;
 					dead = false;

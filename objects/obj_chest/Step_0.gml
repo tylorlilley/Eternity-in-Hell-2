@@ -22,16 +22,19 @@ if (can_process_this_frame()) {
 				}
 				else if (contents_obj != -1) { 
 					var new_item = noone;
+					
 					with (player) {
 						play_sound(snd_open, true);
 						play_sound(snd_pickup, false);
 					}
+					
 					if (array_length(free_hands) == 0) { 
 						new_item = instance_create(player.x, player.y, contents_obj);
 					}
 					else {
 						new_item = create_item_in_hand(array_random_pop(free_hands), contents_obj);
 					}
+					
 					if (global.controller.current_room.has_special_item) { with new_item { make_item_special(); } }
 				}
 			}

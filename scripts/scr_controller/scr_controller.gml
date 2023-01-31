@@ -51,7 +51,7 @@ function initialize_game_variables() {
 	HAS_ITEM_PROBABILITY =  get_probability_for_difficulty([6, 5, 4, 3, 2]); // This happens only after the get stairs fails, so its combined with 4/5
 	TRAP_CHEST_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 8])  // This happens only after the get item fails, so its combined with that probability
 	HIDDEN_CHEST_PROBABILITY = get_probability_for_difficulty([0, 4, 3, 2, 1])  // This happens only after the get item succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
-	// HAS_KEY_PROBABILITY = get_probability_for_difficulty([10, 8, 6, 5, 4]);
+	HAS_KEY_PROBABILITY = get_probability_for_difficulty([4, 4, 8, 10, 12]);
 	HAS_PORTCULLIS_PROBABILITY = get_probability_for_difficulty([0, 0, 20, 8, 4]);
 	MISLEADING_ROOM_PROBABILITY = get_probability_for_difficulty([0, 0, 0, 24, 12]);
 	LOCKED_DOOR_PROBABILITY = get_probability_for_difficulty([0, 8, 6, 4, 3]);
@@ -98,6 +98,7 @@ function initialize_game_variables() {
 	SNAKE_MOVE_FREQUENCY = 4;
 	BLOOD_REPLACEMENT_PROBABILITY = 32;
 	CORPSE_REPLACEMENT_PROBABILITY = 1024;
+	CORPSE_DISINTEGRATE_PROBABILITY = 8;
 	TRAP_RANGE = 40;
 	BOMB_DUD_PROBABILITY = 64
 	BLOCK_ITEM_PROBABILITY = get_probability_for_difficulty([0, 64, 32, 30, 28]);
@@ -581,7 +582,7 @@ function game_room_start() {
 		is_occupied = false;
 		has_bug = get_random_chance_out_of(other.HAS_BUG_PROBABILITY);
 	}
-	with (obj_player_corpse) {  has_bug = true; }
+	with (obj_player_corpse) { has_bug = true; if (get_random_chance_out_of(other.CORPSE_DISINTEGRATE_PROBABILITY)) { instance_destroy(); } }
 	with (obj_bones) { 
 		if (!is_solid_at_position(x, y)) {
 			has_bug = get_random_chance_out_of(other.HAS_BUG_PROBABILITY);

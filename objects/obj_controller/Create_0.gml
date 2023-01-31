@@ -209,6 +209,12 @@ if (!item_spawned) {
 	with given_room { set_up_room_chest(); }
 }
 
+// Spawn an item for each room that needs it
+for (var i = 0; i < array_length(rooms_with_item); i++) {
+	var spawned_item_obj = (i == 0) ? obj_map : get_random_item_obj(false, false);
+	array_push(spawned_items, spawned_item_obj);
+	show_debug_message("SPAWNED " + object_get_name(spawned_item_obj));
+}
 
 // Create player object and change room to current room's referenced room
 time_remaining = time_provided;

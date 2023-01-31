@@ -87,34 +87,24 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function								set_up_room_chest();
 	function set_up_room_chest() {
-		// Always add map as the first item
-		var spawned_item_obj = obj_map, controller = global.controller, spawned_items_array = controller.spawned_items;
-		if (array_length(controller.rooms_with_item) > 0) {	
-			if (array_length(controller.spawned_special_items) < controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(controller.SPECIAL_ITEM_PROBABILITY)) { 
-				has_special_item = true; 
-				spawned_items_array = controller.spawned_special_items;
-			}
-			spawned_item_obj = get_random_item_obj(has_special_item, true)
+		var controller = global.controller;
+		// Determine if spawning a special item
+		if (array_length(controller.spawned_special_items) < controller.SPECIAL_ITEM_LIMIT && get_random_chance_out_of(controller.SPECIAL_ITEM_PROBABILITY)) { 
+			has_special_item = true; 
+			var spawned_item_obj = get_random_item_obj(true, true);
+			array_push(controller.spawned_special_items, spawned_item_obj);
+			show_debug_message("SPAWNED RED " + object_get_name(spawned_item_obj));
+			chest_obj = spawned_item_obj;
 		}
-		else {
-			// Spawned item will be a regular map
-		}
-		
-		
-		// Set stair object to be a chest and add spawned item to list of spawned items
-		array_push(spawned_items_array, spawned_item_obj); 
-		stairs_spot_obj = obj_chest;
-		if (spawned_item_obj == obj_key) {
-			// Handle keys explicitly since we need to know which rooms have them
-			// in order to walk the map as part of map generation
+		// Chance to spawn a regular key
+		else if (get_random_chance_out_of(controller.HAS_KEY_PROBABILITY)) {
 			set_up_room_key();
 			chest_obj = obj_key;
 		}
-		else {
-			array_push(controller.rooms_with_item, spawned_item_obj);
-		}
-		
-		show_debug_message("SPAWNED " + ((has_special_item) ? "RED " : "") + object_get_name(spawned_item_obj));
+		// Leave chest object open to spawn later
+		else { array_push(controller.rooms_with_item, self); }
+				
+		stairs_spot_obj = obj_chest;
 	}
 	
 	/// @function								set_up_room_key();

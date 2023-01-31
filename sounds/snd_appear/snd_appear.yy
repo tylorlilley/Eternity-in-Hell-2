@@ -4,7 +4,7 @@
   "name": "snd_appear",
   "conversionMode": 0,
   "compression": 0,
-  "volume": 0.4,
+  "volume": 0.6,
   "preload": false,
   "bitRate": 128,
   "sampleRate": 44100,

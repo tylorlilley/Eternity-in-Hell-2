@@ -129,9 +129,9 @@ function get_dropped_meat() {
 /// @param		{bool} include_key			Whether to include the key in what can be returned or not
 function get_random_item_obj(special_item, include_key) {
 	var controller = global.controller, difficulty = global.difficulty;
-	var array_to_check = (special_item) ? controller.spawned_special_items : controller.spawned_items;
 	var available_item_objs = (difficulty == difficulties.easy) ? 2 : 5;
 	if (difficulty > difficulties.medium) { available_item_objs += 3; }
+	if (include_key) { available_item_objs += 1; }
 	var chosen_item_obj = -1;
 	
 	// Decide which item to spawn based on previous item spawns
@@ -152,14 +152,17 @@ function get_random_item_obj(special_item, include_key) {
 			case 9: { chosen_item_obj = obj_clock; break; }
 		}
 			
-		var spawned_item_count = array_count_occurances(array_to_check, chosen_item_obj);
+		var special_item_count = array_count_occurances(controller.spawned_special_items, chosen_item_obj)
 			
-		if (special_item && spawned_item_count >= 1) { chosen_item_obj = -1; }
-		else if (chosen_item_obj == obj_map && spawned_item_count >= 1) { chosen_item_obj = -1; } 
-		else if (chosen_item_obj == obj_staff && spawned_item_count >= 1) { chosen_item_obj = -1; } 
-		else if (chosen_item_obj == obj_torch && spawned_item_count >= 2) { chosen_item_obj = -1; } 
-		else if (chosen_item_obj == obj_clock && spawned_item_count >= 2) { chosen_item_obj = -1; } 
-		else if (chosen_item_obj == obj_shovel && spawned_item_count >= 2) { chosen_item_obj = -1; } 
+		if (special_item_count >= 1) { chosen_item_obj = -1; }
+		else if (!special_item) {
+			var spawned_item_count = array_count_occurances(controller.spawned_items, chosen_item_obj);
+			if (chosen_item_obj == obj_map && spawned_item_count >= 1) { chosen_item_obj = -1; }
+			else if (chosen_item_obj == obj_staff && spawned_item_count >= 1) { chosen_item_obj = -1; }
+			else if (chosen_item_obj == obj_clock && spawned_item_count >= 2) { chosen_item_obj = -1; }
+			else if (chosen_item_obj == obj_shovel && spawned_item_count >= 2) { chosen_item_obj = -1; }
+			else if (chosen_item_obj == obj_torch && spawned_item_count >= 2 && array_length(controller.spawned_special_items) == 0) { chosen_item_obj = -1; }
+		}
 	}
 	
 	return chosen_item_obj;

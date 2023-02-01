@@ -15,7 +15,7 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_appear.wav",
-  "duration": 1.181905,
+  "duration": 0.729705,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",

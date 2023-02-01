@@ -33,12 +33,22 @@ function pick_up_or_put_down_item(dir) {
 	if (is_existing_instance(carried_item)) { put_down_item(carried_item, true, true); }
 	else {
 		// Cycle through the items you could be possibly picking up
-		var dropped_items = instance_place_all(x, y, obj_item);
+		var dropped_items = instance_place_all(x, y, obj_item), 
 		while (array_length(dropped_items) > 0) {
 			var dropped_item = array_random_pop(dropped_items);
 			if (is_existing_instance(dropped_item) && !is_existing_instance(dropped_item.holder) && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
 				pick_up_item(dropped_item, true, dir);
-				break;
+				return dropped_item;
+			}
+		}
+		var corpses = instance_place_all(x, y, obj_player_corpse);
+		while (array_length(corpses) > 0) {
+			var corpse = array_random_pop(corpses);
+			if (is_existing_instance(corpse) && is_instance_at_coordinates(x, y, corpse) && !corpse.headless) {
+				var new_item = create_item_in_hand(dir, obj_meat);
+				corpse.headless = true;
+				play_sound(snd_crunch, true);
+				return new_item;
 			}
 		}
 	}

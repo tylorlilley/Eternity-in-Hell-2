@@ -199,7 +199,7 @@ function get_decimal_from_hex_string(hex_string) {
 function reset_settings_to_defaults() {
 	var fullscreen_default = true, window_scaling_default = 2, input_default = inputs.keyboard_default;
 	var can_screen_flash_default = true, game_color_fade_default = 10, game_color_string_default = "FF0000";
-	var lava_edge_type_default = lava_edge_types.fuzzy_still;
+	var lava_edge_type_default = lava_edge_types.wavy_animated;
 	
 	global.fullscreen = fullscreen_default;
 	global.window_scaling = window_scaling_default;

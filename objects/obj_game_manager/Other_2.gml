@@ -53,7 +53,7 @@ global.fullscreen = get_setting("fullscreen", true);
 global.window_scaling = get_setting("window_size", 2);
 global.input = get_setting("input", inputs.keyboard_default);
 global.can_screen_flash = get_setting("can_screen_flash", true);
-global.lava_edge_type = get_setting("lava_edge_type", lava_edge_types.fuzzy_still);
+global.lava_edge_type = get_setting("lava_edge_type", lava_edge_types.wavy_animated);
 global.game_color_fade = get_setting("game_color_fade", 10);
 global.game_color_string = get_setting("game_color", "FF0000");
 

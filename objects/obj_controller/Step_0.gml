@@ -41,8 +41,8 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 			with (player) { 
 				carried_rosary = get_carried_item(obj_rosary);
 				carried_dir = (right_hand_item == carried_rosary) ? directions.right : directions.left;
-				put_down_item(right_hand_item, false);
-				put_down_item(left_hand_item, false);
+				put_down_item(right_hand_item, false, true);
+				put_down_item(left_hand_item, false, true);
 			}
 			if (is_existing_instance(carried_rosary) && player.dead) {
 				// Revive and respawn player

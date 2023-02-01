@@ -13,8 +13,6 @@ flicker_value = 0;
 dir = directions.none;
 dir_prev = directions.none;
 moved_by = noone;
-x_prev = x;
-y_prev = y;
 dead = false;
 pause_movement = 0;
 

@@ -175,7 +175,7 @@ function set_instance_to_same_position(instance) {
 
 /// @function								get_direction_pushed_against();
 function get_direction_pushed_against() {
-	var dir = directions.none, player = global.player, x_pos = player.x_prev, y_pos = player.y_prev;
+	var dir = directions.none, player = global.player, x_pos = player.x, y_pos = player.y;
 	dir = get_direction_input(true);
 	if (dir == directions.none) { return dir; }
 	

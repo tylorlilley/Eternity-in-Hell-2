@@ -30,7 +30,7 @@ function pick_up_or_put_down_item(dir) {
 	if (dir == directions.right) { carried_item = right_hand_item; }
 	else if (dir == directions.left) { carried_item = left_hand_item; }
 	
-	if (is_existing_instance(carried_item)) { put_down_item(carried_item, true); }
+	if (is_existing_instance(carried_item)) { put_down_item(carried_item, true, true); }
 	else {
 		// Cycle through the items you could be possibly picking up
 		var dropped_items = instance_place_all(x, y, obj_item);
@@ -59,14 +59,15 @@ function pick_up_item(item, make_noise, dir) {
 
 /// @function								put_down_item(dir);
 /// @param		{instance} item				The item to pick up
-/// @param		{boolean} make_noise		Whether or not to make a noise as part of picking up the item.
-function put_down_item(item, make_noise) {
+/// @param		{boolean} make_noise		Whether or not to make a noise as part of putting down the item.
+/// @param		{boolean} do_effects		Whether or not do item specific drop effects as part of putting down the item.
+function put_down_item(item, make_noise, do_effects) {
 	if (make_noise) { play_sound(snd_putdown, true); }
 	
 	if (right_hand_item == item) { right_hand_item = noone; }
 	else if (left_hand_item == item) { left_hand_item = noone; }
 	
-	with item { become_dropped(other.id); }
+	with item { become_dropped(other.id, do_effects); }
 }
 
 /// @function								get_carried_item(dir);
@@ -132,8 +133,8 @@ function kill_player(killed_by_obj) {
 		
 		// Put down carried items other than rosary
 		with (player) {
-			if (is_existing_instance(right_hand_item) && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false); }
-			if (is_existing_instance(left_hand_item) && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false); }
+			if (is_existing_instance(right_hand_item) && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false, true); }
+			if (is_existing_instance(left_hand_item) && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false, true); }
 		}
 		
 		controller.killed_by = (killed_by_obj == -1) ? other.object_index : killed_by_obj;

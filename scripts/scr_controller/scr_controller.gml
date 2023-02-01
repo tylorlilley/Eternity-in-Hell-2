@@ -461,7 +461,7 @@ function game_room_start() {
 		if (!is_existing_instance(right_hand_item)) { instance_destroy(); }
 		else {
 			target_item = right_hand_item;
-			put_down_item(right_hand_item, false);
+			put_down_item(right_hand_item, false, true);
 			target_item.holder = id;
 			right_hand_item = target_item;
 		}

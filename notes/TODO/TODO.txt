@@ -1,3 +1,8 @@
+Snake spawner
+Fake stairs that lead to stomach
+guy with really long arms
+bear trap/sticky that you must move with tap only to escape
+
 Is screen flash for phantom and/or hidden chests too much?
 Fix too many rooms generated warning
 

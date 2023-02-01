@@ -1,6 +1,4 @@
 if (can_process_this_frame()) {
-	x_prev = x;
-	y_prev = y;
 	dir_prev = dir;
 	if (dir_prev == directions.none) { dir_prev = irandom(3); }
 	
@@ -56,7 +54,10 @@ if (can_process_this_frame()) {
 			}
 			
 		    // Move player in chosen direction if possible
-		    if (!is_existing_instance(moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) { move_player(dir); moved_by = id; }
+		    if (!is_existing_instance(moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) { 
+				move_player(dir); 
+				moved_by = id; 
+			}
 		}
 		
 		// Increase lighting range if carrying a rosary

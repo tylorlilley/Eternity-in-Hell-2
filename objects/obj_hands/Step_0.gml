@@ -22,7 +22,7 @@ if (can_process_this_frame()) {
 					if (x == target_item.x && y == target_item.y) {
 						// Pick Up New Item and Drop Current
 						play_sound(snd_laugh, true);
-						if (is_existing_instance(right_hand_item)) { put_down_item(right_hand_item, false); }
+						if (is_existing_instance(right_hand_item)) { put_down_item(right_hand_item, false, true); }
 						pick_up_item(target_item, false, directions.right);
 						target_item = noone;
 						xstart = x;

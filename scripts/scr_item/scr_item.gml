@@ -24,16 +24,19 @@ function become_carried(new_holder) {
 	}
 }
 
-/// @function								become_dropped(dropper);
+/// @function								become_dropped(dropper, do_effects);
 /// @param		{inst} dropper				The instance dropping this item
-function become_dropped(dropper) {
+/// @param		{bool} do_effects			Whether or not to do the item specific effects
+function become_dropped(dropper, do_effects) {
 	var player = global.player;
 	
 	// Perform individual item drop actions
-	switch (object_index) {
-		case obj_key: { if (dropper == player) { global.controller.current_room.has_keys += 1; } break; }
-		case obj_meat: { with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } break; }
-		case obj_shovel: { dropped_by_digger = true; break; }
+	if (do_effects) {
+		switch (object_index) {
+			case obj_key: { if (dropper == player) { global.controller.current_room.has_keys += 1; } break; }
+			case obj_meat: { with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } break; }
+			case obj_shovel: { dropped_by_digger = true; break; }
+		}
 	}
 	
 	// Become dropped

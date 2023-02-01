@@ -66,7 +66,7 @@ function interact_with_other_torches() {
 		
 		if (((is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
 			var not_carried = (!is_existing_instance(holder)), other_not_carried = (!is_existing_instance(other_torch) || !is_existing_instance(other_torch.holder));
-			if (other_torch.light_source && not_carried != other_not_carried) { 
+			if (is_existing_instance(other_torch.light_source) && not_carried != other_not_carried) { 
 				light_torch(other_torch, true);		
 				actively_lit = true;
 			}
@@ -76,7 +76,7 @@ function interact_with_other_torches() {
 	// Decrement time remaining if not actively_lit
 	if (!actively_lit && !special && time_to_remain_lit > 0) {
 		time_to_remain_lit -= get_one_unit_of_game_time();
-		if (light_source) { light_source.lighting_range = ceil(get_scaling_amount(PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, MAX_TORCH_TIME_TO_REMAIN_LIT)); }
+		if (is_existing_instance(light_source)) { light_source.lighting_range = ceil(get_scaling_amount(PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, MAX_TORCH_TIME_TO_REMAIN_LIT)); }
 		if (!time_to_remain_lit && image_speed > 0) { extinguish_torch(); }
 	}
 }

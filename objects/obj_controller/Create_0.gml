@@ -214,6 +214,7 @@ for (var i = 0; i < array_length(rooms_with_item); i++) {
 	array_push(spawned_items, spawned_item_obj);
 	show_debug_message("SPAWNED " + object_get_name(spawned_item_obj));
 }
+total_items = array_length(spawned_items) + array_length(spawned_special_items);
 
 // Create player object and change room to current room's referenced room
 time_remaining = time_provided;

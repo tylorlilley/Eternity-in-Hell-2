@@ -64,6 +64,9 @@ function initialize_game_variables() {
 	carried_heart = false;
 	current_score = 0;
 	flash_time = 0;
+	death_count = 0;
+	used_special_items = 0;
+	total_items = 0;
 
 	// initialize room transition values
 	entered_from_stairs = true;
@@ -344,6 +347,12 @@ function game_room_start() {
 	with obj_game_object { image_blend = global.bg_color; }
 	
 	// Run room start event for specific objects
+	with (obj_item) {
+		if (special && is_existing_instance(holder) && holder == player && !counted) {
+			other.used_special_items += 1;
+			counted = true;
+		}
+	}
 	with (obj_bumper) {
 		xstart = player.x;
 		ystart = player.y;
@@ -361,7 +370,6 @@ function game_room_start() {
 			}
 		}
 	}
-	with (obj_bug) { instance_destroy(); }
 	with (obj_dirt) {
 		if (!is_solid_at_position(x, y)) { 
 			has_bug = get_random_chance_out_of(HAS_BUG_PROBABILITY);
@@ -389,6 +397,7 @@ function game_room_start() {
 	}
 	
 	//// Destroy instances that shouldn't persist after leaving the room
+	with (obj_bug) { instance_destroy(); }
 	with (obj_echo) { instance_destroy(); }
 	with (obj_fireball) { instance_destroy(); }
 	with (obj_bomb) { 
@@ -544,7 +553,14 @@ function get_current_score() {
 		var percentage_of_time_remaining = (is_game_won()) ? 100*(time_remaining / time_provided) : 0;
 		var percentage_of_victory = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
 		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
+		var death_count_penalty = 2 * death_count;
+		var special_item_penalty = 5 * used_special_items;
+		var spawned_item_bonus = 10 - total_items;
+		if (spawned_item_bonus < 0 || !is_game_won()) { spawned_item_bonus = 0; }
 		current_score = floor(percentage_of_collectables_collected + percentage_of_victory + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
+		current_score += spawned_item_bonus;
+		current_score -= death_count_penalty + special_item_penalty;
+		if (current_score < 0) { current_score = 0; }
 	}
 	return controller.current_score;  
 }

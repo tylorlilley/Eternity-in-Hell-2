@@ -138,6 +138,7 @@ function kill_player(killed_by_obj) {
 		player.depth = 4;
 		player.dead = true;
 		controller.death_timer = RESPAWN_FREQUENCY;
+		controller.death_count += 1;
 		play_sound(snd_lose, true);
 		with (obj_echo_spot) { instance_destroy(); }
 		

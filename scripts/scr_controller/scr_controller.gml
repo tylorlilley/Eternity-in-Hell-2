@@ -282,7 +282,7 @@ function game_room_start() {
 			if (instance_number(obj_eyes) == 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
 				instance_create(8, 8, obj_phantom);
 			}
-			else if (current_room.stairs_spot_obj == obj_chest && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY)) {
+			else if (current_room.stairs_spot_obj == obj_chest && current_room.chest_obj != obj_statue && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY)) {
 				current_room.stairs_spot_obj = obj_hidden_chest;
 			}
 		}

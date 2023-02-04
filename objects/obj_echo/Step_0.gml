@@ -1,7 +1,9 @@
 if (can_process_this_frame()) {
+	var dropped_meat = get_dropped_meat();
+	
 	if (walk_timer > 0) { walk_timer -= 1; }
-	else {
-		walk_timer = 2;
+	else if (!is_existing_instance(dropped_meat) || !is_instance_at_coordinates(x, y, dropped_meat)) {
+		walk_timer = 1;
 		if (array_length(generator.moves) > move_pos) {
 			var dir = generator.moves[move_pos]
 			if (dir != directions.none) {

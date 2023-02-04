@@ -9,17 +9,19 @@ if (can_process_this_frame()) {
 		activated = !activated;
 	}
 	
-	var player = global.player, game_manager = global.game_manager;
-	image_index = (game_manager.key_up || 
-				   game_manager.key_down || 
-				   game_manager.key_left || 
-				   game_manager.key_right) ? 1 : 0;
-	if (activated && image_index == 1) {
-		blink_amount = irandom_range(12, 32);
-		turn_to_face_player();
-		// TODO: Explore making corporeal if we create better pathfinding for this function
-		move_towards_coordinates(player.x, player.y, true, true);
-		move_towards_coordinates(player.x, player.y, true, true);
+	if (!is_existing_instance(get_dropped_meat())) {
+		var player = global.player, game_manager = global.game_manager;
+		image_index = (game_manager.key_up || 
+					   game_manager.key_down || 
+					   game_manager.key_left || 
+					   game_manager.key_right) ? 1 : 0;
+		if (activated && image_index == 1) {
+			blink_amount = irandom_range(12, 32);
+			turn_to_face_player();
+			// TODO: Explore making corporeal if we create better pathfinding for this function
+			move_towards_coordinates(player.x, player.y, true, true);
+			move_towards_coordinates(player.x, player.y, true, true);
+		}
 	}
 	
 	event_inherited();

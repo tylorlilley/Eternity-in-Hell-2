@@ -1,6 +1,3 @@
-Should phantoms go for dropped heads (should all monsters)?
-
-
 Snake spawner
 Fake stairs that lead to stomach
 guy with really long arms

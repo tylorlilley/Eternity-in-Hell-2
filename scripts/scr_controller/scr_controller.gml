@@ -354,8 +354,11 @@ function game_room_start() {
 		}
 	}
 	with (obj_bumper) {
-		xstart = player.x;
-		ystart = player.y;
+		var target = get_dropped_meat();
+		if (!is_existing_instance(target)) { target = player; }
+		
+		xstart = target.x;
+		ystart = target.y;
 			
 		switch (other.transition) {		
 			case directions.up: { ystart -= TRAP_RANGE; break; }

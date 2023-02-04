@@ -31,7 +31,10 @@ if (can_process_this_frame()) {
 					else if (!is_existing_instance(target_item.holder)) {
 						// Move Towards New Target if still possible to pick it up
 						var move_dir = move_towards_coordinates(target_item.x, target_item.y, !corporeal, fire_resistant);
-						if (move_dir == directions.none) { target_item = noone; play_sound(snd_give_up, false); }
+						if (move_dir == directions.none) { 
+							if (target_item.object_index != obj_meat) { play_sound(snd_give_up, false); }
+							target_item = noone;  
+						}
 					}
 					else { target_item = noone; }
 				}

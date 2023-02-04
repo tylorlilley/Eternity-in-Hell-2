@@ -27,13 +27,17 @@ function is_direction_toward(dir, obj) {
 
 /// @function								turn_to_face_player();
 function turn_to_face_player() {
-	if (is_direction_toward(1, global.player)) { image_xscale = -1; }
+	var target = get_dropped_meat();
+	if (!is_existing_instance(target)) { target = global.player; }
+	if (is_direction_toward(1, target)) { image_xscale = -1; }
 	else { image_xscale = 1; }
 }
 
 /// @function  							teleport_near_player();
 function teleport_near_player() {
-	var player = global.player;
+	var target = get_dropped_meat();
+	if (!is_existing_instance(target)) { target = global.player; }
+	
 	play_sound(snd_flicker, false);
 
 	do {
@@ -41,10 +45,10 @@ function teleport_near_player() {
 	    var y_pos = (8*irandom(3));
 	    if (get_coin_flip()) { x_pos *= -1; }
 	    if (get_coin_flip()) { y_pos *= -1; }
-	    x = player.x + x_pos;
-	    y = player.y + y_pos;
+	    x = target.x + x_pos;
+	    y = target.y + y_pos;
 	}
-	until (get_distance_to_instance(player) >= 24 && !is_outside_room(x,y));
+	until (get_distance_to_instance(target) >= 24 && !is_outside_room(x,y));
 }
 
 

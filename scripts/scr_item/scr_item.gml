@@ -35,8 +35,8 @@ function become_dropped(dropper, do_effects) {
 		switch (object_index) {
 			case obj_key: { if (dropper == player) { global.controller.current_room.has_keys += 1; } break; }
 			case obj_meat: { 
-				instance_create(x, y, obj_blood);
-				play_sound(snd_thud, false);
+				//instance_create(x, y, obj_blood);
+				//play_sound(snd_thud, false);
 				with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } 
 				break; 
 			}

@@ -36,10 +36,11 @@ if (options_screen) {
 	
 	// Adjust Fullscreen vs Window
 	if (options_pos == 0) {
-		if (!window_get_fullscreen() && key_left_pressed) { window_set_fullscreen(true); play_sound(snd_pickup, false); }
-		else if (window_get_fullscreen() && key_right_pressed) { window_set_fullscreen(false); play_sound(snd_putdown, false); }
+		if (!global.fullscreen && key_left_pressed) { global.fullscreen = true; play_sound(snd_pickup, false); }
+		else if (global.fullscreen && key_right_pressed) { global.fullscreen = false; play_sound(snd_putdown, false); }
 		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-		update_setting("fullscreen", window_get_fullscreen());
+		window_set_fullscreen(global.fullscreen);
+		update_setting("fullscreen", global.fullscreen);
 	}
 	
 	// Adjust Pixel Scaling Option

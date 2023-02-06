@@ -219,6 +219,8 @@ function reset_settings_to_defaults() {
 	
 	with (obj_lava) { set_up_lava_edge_visibility(true); }
 	set_game_color();
+	set_window_size();
+	window_set_fullscreen(global.fullscreen);
 }
 
 /// @function								set_game_color();

@@ -3,8 +3,8 @@
 function get_difficulty_string(difficulty) {
 	var result = "";
 	switch (difficulty) {
-		case difficulties.easy: { result = "Moment"; break; }
-		case difficulties.medium: { result = "Lifetime"; break; }
+		case difficulties.easy: { result = "Encounter"; break; }
+		case difficulties.medium: { result = "Expedition"; break; }
 		case difficulties.hard: { result = "Eons"; break; }
 		case difficulties.very_hard: { result = "Eternity"; break; }
 	}

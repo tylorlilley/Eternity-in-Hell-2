@@ -15,9 +15,14 @@ function become_carried(new_holder) {
 	persistent = new_holder.persistent;
 	depth = -250;
 	
+	// Update room key and item counts
+	if (holder == global.player) { 
+		if (object_index == obj_key) { global.controller.current_room.has_keys -= 1; }
+		else { global.controller.current_room.has_items -= 1;  }
+	}
+	
 	// Perform individual item pick-up actions
 	switch (object_index) {
-		case obj_key: { if (holder == global.player) { global.controller.current_room.has_keys -= 1; } break; }
 		case obj_bomb: { defuse_bomb(); break; }
 		case obj_shovel: { dig_hole(); break; }
 		case obj_heart: { mark_heart_carried(); break; }
@@ -30,10 +35,15 @@ function become_carried(new_holder) {
 function become_dropped(dropper, do_effects) {
 	var player = global.player;
 	
-	// Perform individual item drop actions
 	if (do_effects) {
+		// Update room item and key counts
+		if (dropper == player) { 
+			if (object_index == obj_key) { global.controller.current_room.has_keys += 1; }
+			else { global.controller.current_room.has_items += 1;  }
+		}
+	
+		// Perform individual item drop actions
 		switch (object_index) {
-			case obj_key: { if (dropper == player) { global.controller.current_room.has_keys += 1; } break; }
 			case obj_meat: { 
 				//instance_create(x, y, obj_blood);
 				//play_sound(snd_thud, false);

@@ -88,6 +88,7 @@ if (start_room.has_collectables) {
 	array_remove(rooms_with_collectables, array_get_index(rooms_with_collectables, start_room));
 }
 start_room.has_portcullis = false;
+start_room.stairs_spot_obj = obj_cross;
 current_room.calculate_distance_to_current_room(0);
 
 // Set up lists used to walk the map
@@ -218,7 +219,6 @@ total_items = array_length(spawned_items) + array_length(spawned_special_items);
 
 // Create player object and change room to current room's referenced room
 time_remaining = time_provided;
-current_room.stairs_spot_obj = obj_cross;
 global.player = instance_create(8, 8, obj_player);
 current_room.go_to_room();
 

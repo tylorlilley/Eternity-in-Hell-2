@@ -3,7 +3,7 @@ if (can_process_this_frame()) {
 	
 	var dir = get_direction_pushed_against();
 	
-	if (!is_existing_instance(global.player.moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) { 
+	if (dir != directions.none && can_move_in_direction(dir, false, true)) { 
 		play_sound(snd_thud, false);
 		snap_player_to_position(dir);
 		move_in_direction(dir, false); 

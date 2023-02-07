@@ -35,6 +35,7 @@ if (can_process_this_frame()) {
 		play_sound(snd_crunch, false);
 		kill_player(killed_by_obj);
 	}
+	
 	if (!dead && !is_game_won() && !is_game_lost()) {   
 	    // Get input from player
 		var game_manager = global.game_manager;

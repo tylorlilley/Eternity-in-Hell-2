@@ -180,6 +180,11 @@ function set_instance_to_same_position(instance) {
 /// @function								get_direction_pushed_against();
 function get_direction_pushed_against() {
 	var dir = directions.none, player = global.player, x_pos = player.x, y_pos = player.y;
+	
+	if (is_existing_instance(player.moved_by)) { 
+		return directions.none; 
+	}
+	
 	dir = get_direction_input(true);
 	if (dir == directions.none) { return dir; }
 	

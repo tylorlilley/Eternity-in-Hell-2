@@ -1,3 +1,7 @@
+Update maps to show white pixels wherever a solid object is instead of just an empty room? 
+- Update keys and items to show pixels where they are dropped?
+- Would need to account for objects that are not on the grid and are offset by 8x8
+
 Snake spawner
 Fake stairs that lead to stomach
 guy with really long arms
@@ -18,7 +22,6 @@ Update room reference data to include non-instance information like intelligent 
 Add time based on number of collectables spots?
 - Better to make it a per - room time value in the json file to better reflect how long it takes to get all collectables in a room
 make bar increase per collectable and not per room cleared?
-Should phantoms spawn in ears rooms?
 
 === NEW FETAURES ===
 level editor
@@ -26,9 +29,6 @@ options for light flicker intensity
 Audio impared accessibility option
 
 Put an "are you sure" on the enter button?
-
-Make map show if room has key OR chest instead of just if a key spawned there?
-Is lit rooms coloring different on map helpful?
 
 Pushable block monster?
 

@@ -3,6 +3,7 @@
 
 -250 carried item
 
+-225 incorporeal enemies
 
 -200 giant worm
 
@@ -16,7 +17,7 @@
 -4 hands when carrying staff
 
 -1 solid
-0 enemies and anything else
+0 corporeal enemies and anything else
 1 dropped item
 2 collectable
 3 sword in ground

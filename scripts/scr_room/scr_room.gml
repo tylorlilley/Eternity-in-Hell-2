@@ -17,6 +17,7 @@ function GameRoom(given_x, given_y) constructor {
 
 	// Room content values
 	has_keys = 0;
+	has_items = 0;
 	has_special_item = false;
 	has_collectables = false;
 	has_portcullis = false;
@@ -102,7 +103,10 @@ function GameRoom(given_x, given_y) constructor {
 			chest_obj = obj_key;
 		}
 		// Leave chest object open to spawn later
-		else { array_push(controller.rooms_with_item, self); }
+		else { 
+			has_items = 1;
+			array_push(controller.rooms_with_item, self); 
+		}
 				
 		stairs_spot_obj = obj_chest;
 	}
@@ -243,15 +247,11 @@ function GameRoom(given_x, given_y) constructor {
 			}
 			
 		    // Draw Room on Map
-			var room_color = lit ? red_color : white_color;
+			var room_color = lit ? red_color : bg_color;
 			var inverse_color = lit ? white_color : red_color;
-		    if (controller.current_room == self && blink_frame) { room_color = bg_color; }
-			if (lit) { 
-				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, inverse_color, 1);
+		    if (controller.current_room != self || !blink_frame) {
+				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, white_color, 1);
 				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.75, 0.75, 0, room_color, 1);
-			}
-			else {
-				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, room_color, 1);
 			}
 
 		    // Draw Room's Exits on Map
@@ -270,11 +270,12 @@ function GameRoom(given_x, given_y) constructor {
 			}
 		
 		    // Draw Room's Stairs
-			var stair_color = bg_color;
+			var stair_color = white_color;// bg_color;
 		    if (exits[4] && (visited_exits[4] || show_detailed_map)) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.125, 0.125, 0, stair_color, 1); }
 		
 		    // Draw Room's Keys if game is in test mode
-		    if (show_detailed_map && has_keys > 0) { 
+			var show_item = (has_keys > 0 || has_items > 0);
+		    if (show_detailed_map && show_item) { 
 				var x_offset = get_virtual_quadrant_x_pos(rotate)-virtual_x, y_offset = get_virtual_quadrant_y_pos(rotate)-virtual_y;
 				var key_color = inverse_color;
 				draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, 0.125, 0.125, 0, key_color, 1); 

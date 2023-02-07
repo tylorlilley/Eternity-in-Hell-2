@@ -7,3 +7,4 @@ teleport_to_empty_space();
 
 activated = false;
 consume_block = true;
+fire_resistant = true;

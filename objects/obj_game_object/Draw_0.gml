@@ -5,7 +5,8 @@ if (sprite_index != -1) {
 							(is_existing_instance(solid_at_quadrant[1]) && solid_at_quadrant[1].visible) &&
 							(is_existing_instance(solid_at_quadrant[2]) && solid_at_quadrant[2].visible) &&
 							(is_existing_instance(solid_at_quadrant[3]) && solid_at_quadrant[3].visible))
-							
+	
+	var is_incorporeal_enemy = (object_is_ancestor(object_index, obj_enemy) && !corporeal);
 	var is_bush = (object_index == obj_bush);
 	var covered_by_bush = is_covered_at_each_quadrant_by(obj_bush);
 
@@ -14,5 +15,5 @@ if (sprite_index != -1) {
 	if ((!is_solid && !is_bush && covered_by_bush) || (!is_solid && covered_by_solid)) { covered = true; }
 
 	// Draw main sprite
-	if (!covered) { draw_self(); }
+	if (!covered || is_incorporeal_enemy) { draw_self(); }
 }

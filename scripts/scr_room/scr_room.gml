@@ -4,6 +4,7 @@ function GameRoom(given_x, given_y) constructor {
 	virtual_x = given_x;
 	virtual_y = given_y;
 	id = get_new_id();
+	distance_to_start_room = 9999;
 	distance_to_current_room = 9999;
 
 	// Initialize room state values
@@ -106,7 +107,9 @@ function GameRoom(given_x, given_y) constructor {
 			has_locked_chest = true;
 			var spawned_item_obj = get_random_item_obj(true, true);
 			show_debug_message("SPAWNED RED " + object_get_name(spawned_item_obj));
-			if (spawned_item_obj == obj_key) { set_up_room_key(); }
+			if (spawned_item_obj == obj_key) { 
+				set_up_room_key(); 
+			}
 			else {
 				array_push(controller.spawned_special_items, spawned_item_obj);
 				chest_obj = spawned_item_obj;
@@ -121,6 +124,17 @@ function GameRoom(given_x, given_y) constructor {
 		}
 				
 		stairs_spot_obj = obj_chest;
+	}
+	
+	function remove_room_chest() {
+		var controller = global.controller;
+		
+		stairs_spot_obj = -1;
+		chest_obj = -1;
+		has_locked_chest = false;
+		has_special_item = false;
+		array_remove(controller.rooms_with_item, self); 
+		array_remove(controller.spawned_special_items, self);
 	}
 	
 	/// @function								set_up_room_key();
@@ -255,10 +269,10 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{real}	y_pos				The y position to draw this room at
 	function draw_room(x_pos, y_pos) {
 		// Only draw the room if the room has been visited at least once, or game is in test mode
-		var show_detailed_map = false, show_collectables = false, controller = global.controller, is_is_test_mode_on = global.is_test_mode;
+		var show_detailed_map = false, show_collectables = false, controller = global.controller, is_test_mode_on = global.is_test_mode;
 		with (global.player) {
-			show_detailed_map = (is_is_test_mode_on || is_carrying_item(obj_map));
-			show_collectables = (is_is_test_mode_on || is_carrying_special_item(obj_map));
+			show_detailed_map = (is_test_mode_on || is_carrying_item(obj_map));
+			show_collectables = (is_test_mode_on || is_carrying_special_item(obj_map));
 		}
 		
 		if (show_detailed_map || visited) {
@@ -341,12 +355,12 @@ function GameRoom(given_x, given_y) constructor {
 			}
     
 		    // Draw distance information if testing
-		    //if (is_test_mode) {
-		    //   draw_set_color(c_lime);
-		    //    draw_set_halign(fa_center);
-		    //    draw_set_valign(fa_middle);
-		    //    draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_from_start_room)));
-		    //}
+		    if (is_test_mode_on && global.player.left_hand_item != noone) {
+		       draw_set_color(c_lime);
+		        draw_set_halign(fa_center);
+		        draw_set_valign(fa_middle);
+		        draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_to_start_room)));
+		    }
 		}
 
 		// Mark the room as having been drawn, then draw each of its applicable neighbors

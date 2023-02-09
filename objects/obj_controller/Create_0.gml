@@ -98,18 +98,31 @@ var map_walker = set_up_locks_and_keys()
 if (!map_walker.has_visited_all_rooms()) {
 	// Should never need to reach this clause
 	show_debug_message("WARNING: lock generation screwed up.");
-	//reset_map_generation();
-	//exit;
+	reset_map_generation();
+	exit;
 }
 
+// Determine the farthest rooms
+for (var dir = 0; dir <= directions.stairs; dir++) { get_new_map_walk_attempt(dir); }
+
 // Create a heart room
-var possible_heart_rooms = array_intersection(map_walker.keyless_visited_rooms, map_walker.farthest_visited_rooms);
-if (array_length(possible_heart_rooms) == 0) { possible_heart_rooms = map_walker.farthest_visited_rooms; }
-array_remove(possible_heart_rooms, start_room);
-heart_room = array_random_pop(possible_heart_rooms);
+var farthest_rooms = array_create(0);
+for (var i = 0; i < total_rooms; i++) {
+	if (game_rooms[i].exits[4] == false && (!game_rooms[i].has_special_item || !game_rooms[i].chest_obj == obj_key)) {
+		// Room is eligibile to host the heart
+		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, game_rooms[i]); }
+		else {
+			var distance = array_get(farthest_rooms, 0).distance_to_start_room;
+			if (game_rooms[i].distance_to_start_room > distance) { farthest_rooms = array_create(0); }
+			if (game_rooms[i].distance_to_start_room >= distance) { array_push(farthest_rooms, game_rooms[i]); }
+		}
+	}
+}
+heart_room = array_random_pop(farthest_rooms);
 
 // Set up the heart room
 with (heart_room) {
+	remove_room_chest();
 	has_portcullis = false;
 	stairs_spot_obj = obj_encased_heart;
 	if (has_key) { remove_room_key(); }
@@ -134,13 +147,13 @@ while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
 }
 total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 
-// Walk the Map again
+// Spawn more keys to handle new locks
 var map_walker = set_up_locks_and_keys()
 if (!map_walker.has_visited_all_rooms()) {
 	// Should never need to reach this clause
 	show_debug_message("WARNING: lock generation screwed up.");
-	//reset_map_generation();
-	//exit;
+	reset_map_generation();
+	exit;
 }
 
 // Setup room references

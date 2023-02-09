@@ -29,12 +29,11 @@ function array_duplicate(list, source_list) {
 /// @param		{index}		list				List to remove the value from
 /// @param		{value}		value_to_remove		Value to remove from the array
 function array_remove(list, value_to_remove) {
-	var new_list = array_create(0);
-	for (var i = 0; i < array_length(list); i++) {
-		if (list[i] != value_to_remove) { array_push(new_list, list[i]); }
-	    //else if (list[i].id != value_to_remove.id) { array_push(new_list, list[i]); }
+	var list_pos = array_get_index(list, value_to_remove);
+	while(list_pos != -1) {
+		array_delete(list, list_pos, 1);
+		list_pos = array_get_index(list, value_to_remove);
 	}
-	array_duplicate(list, new_list);
 }
 
 /// @function									array_count_occurances(list, value_to_count);

@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = 4;
+depth = CORPSE_DEPTH;
 image_index = 2;
 sprite_index = get_sprite_to_use(spr_player);
 

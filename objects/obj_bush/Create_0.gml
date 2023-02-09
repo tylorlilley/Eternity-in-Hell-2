@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = -20;
+depth = BUSH_DEPTH;
 
 has_bug = false;
 is_occupied = false;

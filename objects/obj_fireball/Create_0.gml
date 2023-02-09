@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = -300;
+depth = FIREBALL_DEPTH;
 image_speed = get_one_unit_of_game_time();
 
 creator_obj = -1;

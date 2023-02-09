@@ -12,7 +12,7 @@ if (can_process_this_frame()) {
 		instance_create(x, y, obj_heart_plate);
 		var new_heart = instance_create(x, y, obj_heart);
 		new_heart.image_index = image_index;
-		new_heart.thump_timer = thump_timer;
+		global.controller.current_room.add_to_instances_at_map_positions(new_heart);
 		instance_destroy();
 	}
 }

@@ -1,6 +1,9 @@
 // If room becomes fully lit, destroy self
-if (global.controller.current_room.lit) {
-	instance_create(x, y, obj_chest);
+var controller = global.controller;
+if (controller.current_room.lit) {
+	var new_inst = instance_create(x, y, obj_chest);
+	controller.current_room.remove_from_instances_at_map_positions(id);
+	controller.current_room.add_to_instances_at_map_positions(new_inst);
 	play_sound(snd_appear, false);
 	screen_flash();
 	instance_destroy();

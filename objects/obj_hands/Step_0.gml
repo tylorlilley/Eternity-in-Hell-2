@@ -10,7 +10,7 @@ if (can_process_this_frame()) {
 		}
 		if (activated) {
 			fire_resistant = is_carrying_item(obj_staff);
-			depth = (fire_resistant) ? -4 : 0;
+			depth = (fire_resistant) ? HANDS_WITH_STAFF_DEPTH : STANDARD_DEPTH;
 				
 			// Move Around
 			for (var i = 0; i < 2; i++) {
@@ -22,7 +22,7 @@ if (can_process_this_frame()) {
 					if (x == target_item.x && y == target_item.y) {
 						// Pick Up New Item and Drop Current
 						play_sound(snd_laugh, true);
-						if (is_existing_instance(right_hand_item)) { put_down_item(right_hand_item, false, true); }
+						put_down_item(right_hand_item, false, true);
 						pick_up_item(target_item, false, directions.right);
 						target_item = noone;
 						xstart = x;

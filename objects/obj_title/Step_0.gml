@@ -218,7 +218,7 @@ else {
 		}
 
 		// Adjust Seed Manually
-		if (current_seed == noone) { current_seed = global.seed ? global.seed : irandom_range(0,99999999); }
+		if (current_seed == noone) { current_seed = global.seed ? global.seed : irandom_range(0, MAX_SEED); }
 		if (pos == 2) {
 			if (keyboard_check_pressed(vk_backspace)) { 
 				if (current_seed > 0) {
@@ -228,7 +228,7 @@ else {
 				else { play_sound(snd_crunch, false); }
 			}
 			else if (current_seed > 0 && key_left_pressed) { current_seed -= 1; play_sound(snd_move, false); }
-			else if (current_seed < 99999999 && key_right_pressed) { current_seed += 1; play_sound(snd_move, false); }
+			else if (current_seed < MAX_SEED && key_right_pressed) { current_seed += 1; play_sound(snd_move, false); }
 			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
 			else {
 				var new_number = noone;
@@ -243,7 +243,7 @@ else {
 				else if (keyboard_check_pressed(ord("9"))) { new_number = 9; }
 				else if (keyboard_check_pressed(ord("0"))) { new_number = 0; }
 				if (new_number != noone) {
-					if (current_seed < 99999999) {
+					if (current_seed < MAX_SEED) {
 						current_seed = (current_seed * 10) + new_number;
 						play_sound(snd_move, false);
 					}
@@ -257,7 +257,7 @@ else {
 		else if (loading) {
 			play_sound(snd_move, false);
 			if (global.seed_option == seed_options.specified) { global.seed = current_seed; }
-			else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0,99999999); }
+			else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0, MAX_SEED); }
 			update_setting("last_seed", global.seed);
 			room_goto(rm_start);
 		}

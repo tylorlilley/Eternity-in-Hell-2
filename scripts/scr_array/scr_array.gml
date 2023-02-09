@@ -17,32 +17,12 @@ function array_random_pop(list) {
 	return popped_value;
 }
 
-/// @function									array_get_index(list, value_to_find);
-/// @param		{index}		list				Array to check for the value in
-/// @param		{value}		value_to_find		Value to check to see if the array contains
-function array_get_index(list, value_to_find) {
-	// This returns whether the index of the item in the list
-	for(var i = 0; i < array_length(list); i += 1) {
-	    if (list[i] == value_to_find) { return list[i]; }
-	}
-	return noone;
-}
-
 /// @function								array_duplicate(list, source_id);
 /// @param		{index}	list				Array to add the values to
 /// @param		{index}	source_list			Array to take the values being added from
 function array_duplicate(list, source_list) {
 	// This replaces the first array with a copy of the second array.
-	array_resize(list, 0);
 	array_copy(list, 0, source_list, 0, array_length(source_list));
-}
-
-/// @function								array_contains(list, value_to_find);
-/// @param		{index}		list			List to check for the value in
-/// @param		{value}		value_to_find	Value to check to see if the list contains
-function array_contains(list, value_to_find) {
-	// This returns whether the list contains a given value
-	return (array_get_index(list, value_to_find) != noone);
 }
 
 /// @function									array_remove(list, value_to_find);
@@ -51,7 +31,8 @@ function array_contains(list, value_to_find) {
 function array_remove(list, value_to_remove) {
 	var new_list = array_create(0);
 	for (var i = 0; i < array_length(list); i++) {
-	    if (list[i].id != value_to_remove.id) { array_push(new_list, list[i]); }
+		if (list[i] != value_to_remove) { array_push(new_list, list[i]); }
+	    //else if (list[i].id != value_to_remove.id) { array_push(new_list, list[i]); }
 	}
 	array_duplicate(list, new_list);
 }
@@ -67,5 +48,3 @@ function array_count_occurances(list, value_to_count) {
 	
 	 return count;
 }
-
-

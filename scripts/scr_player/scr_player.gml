@@ -62,22 +62,22 @@ function pick_up_item(item, make_noise, dir) {
 	if (make_noise) { play_sound(snd_pickup, true); }
 	
 	if (dir == directions.right) { right_hand_item = item; item.image_xscale = -1; }
-	else if (dir == directions.left) { left_hand_item = item; item.image_xscale =1; }
+	else if (dir == directions.left) { left_hand_item = item; item.image_xscale = 1; }
 	
 	with (item) { become_carried(other.id); }
 }
 
-/// @function								put_down_item(dir);
+/// @function								put_down_item(item, make_noise, dropped);
 /// @param		{instance} item				The item to pick up
 /// @param		{boolean} make_noise		Whether or not to make a noise as part of putting down the item.
-/// @param		{boolean} do_effects		Whether or not do item specific drop effects as part of putting down the item.
-function put_down_item(item, make_noise, do_effects) {
+/// @param		{boolean} dropped			Whether or not this item is being dropped and not destroyed
+function put_down_item(item, make_noise, dropped) {
 	if (make_noise) { play_sound(snd_putdown, true); }
 	
 	if (right_hand_item == item) { right_hand_item = noone; }
 	else if (left_hand_item == item) { left_hand_item = noone; }
 	
-	with item { become_dropped(other.id, do_effects); }
+	if (dropped) { with item { become_dropped(other.id); } }
 }
 
 /// @function								get_carried_item(dir);
@@ -135,7 +135,7 @@ function kill_player(killed_by_obj) {
 	var player = global.player, controller = global.controller;
 	if (!player.dead) {
 		// Set variables to mark death
-		player.depth = 4;
+		player.depth = CORPSE_DEPTH;
 		player.dead = true;
 		controller.death_timer = RESPAWN_FREQUENCY;
 		controller.death_count += 1;

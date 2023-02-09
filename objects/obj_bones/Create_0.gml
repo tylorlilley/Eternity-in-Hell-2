@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = 5;
+depth = BONES_DEPTH;
 image_index = irandom(5);
 
 trap = false;

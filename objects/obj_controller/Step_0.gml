@@ -53,8 +53,8 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 					y = -8;
 					dead = false;
 					image_index = 0;
-					depth = -10;
-				}				
+					depth = PLAYER_DEPTH;
+				}
 				transition = directions.respawn;
 				// Destroy or pick up rosary
 				if (!carried_rosary.special) { instance_destroy(carried_rosary); } 

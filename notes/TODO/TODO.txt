@@ -1,3 +1,6 @@
+Should show portcullis as locked doors on map?
+farmer clock hands flip xscale direction
+
 Update maps to show white pixels wherever a solid object is instead of just an empty room? 
 - Update keys and items to show pixels where they are dropped?
 - Would need to account for objects that are not on the grid and are offset by 8x8
@@ -38,7 +41,6 @@ Should mouths be drawn toward dropped items and collectables somehow?
 
 === BUGS TO FIX ===
 leave ghost room shows vible ghost before its spawned
-Why do seeds play out differently in terms of what gets spawned or not?
  
 === NEW ROOM GENERATION ALGORITHM ===
 Rooms need to know about themselves:

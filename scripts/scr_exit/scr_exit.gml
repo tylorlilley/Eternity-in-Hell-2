@@ -16,4 +16,10 @@ function RoomExit(given_room, dir) constructor {
 		room_1.locked_exits[room_1_dir] = noone;
 		room_2.locked_exits[room_2_dir] = noone;
 	}
+	function get_room_in_direction(dir) {
+		if (dir == room_1_dir) { return room_1; }
+		else if (dir == room_2_dir) { return room_2; }
+		
+		return noone;
+	}
 }

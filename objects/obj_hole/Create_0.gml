@@ -1,6 +1,5 @@
 event_inherited();
 
-depth = 10;
 image_index = 0;
 sprite_index = spr_hole;
 

@@ -58,7 +58,7 @@ function get_death_count_string(difficulty) {
 function get_difficulties() {
 	var difficulties_array = global.difficulties_array;
 	var new_array = array_create(array_length(difficulties_array));
-	array_copy(new_array, 0, difficulties_array, 0, array_length(difficulties_array));
+	array_duplicate(new_array, difficulties_array);
 	return new_array;
 }
 
@@ -66,7 +66,7 @@ function get_difficulties() {
 function get_death_types() {
 	var death_types_array = global.death_types_array;
 	var new_array = array_create(array_length(death_types_array));
-	array_copy(new_array, 0, death_types_array, 0, array_length(death_types_array));
+	array_duplicate(new_array, death_types_array);
 	return new_array;
 
 }

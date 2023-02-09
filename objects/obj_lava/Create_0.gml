@@ -1,5 +1,5 @@
 event_inherited();
-depth = 12;
+depth = LAVA_DEPTH;
 
 // Set up single death box for normal use case
 death_box = global.game_manager; 

@@ -1,17 +1,20 @@
 // Initialize room probability constants
+#macro MAX_SEED 99999999
 #macro NUMBER_OF_EXITS_PROBABILITY 9 
-#macro HAS_STAIRS_PROBABILITY 5 
-#macro HAS_COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
-#macro HAS_ITEM_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the get stairs fails, so its combined with 4/5
-#macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 8])  // This happens only after the get item fails, so its combined with that probability
-#macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1])  // This happens only after the get item succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
-#macro HAS_KEY_PROBABILITY get_probability_for_difficulty([4, 4, 8, 10, 12]) 
-#macro HAS_PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 20, 8, 4]) 
+#macro STAIRS_PROBABILITY 5 
+#macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 24, 12, 10, 6])
+#macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
+//#macro KEY_PROBABILITY get_probability_for_difficulty([4, 4, 8, 10, 12]) // This happens only after the chest probability succeeds, so its combined with that probability.
+#macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])  // This happens only after the chest probability succeeds, so its combined with that probability.
+#macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
+#macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
+#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 20, 8, 4]) 
 #macro MISLEADING_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 12]) 
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 8, 6, 4, 3]) 
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
 #macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 24, 16, 12, 8]) 
-#macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3]) 
+#macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])
+#macro KEY_IN_CHEST_PROBABILITY 4
 	
 // Initilize room start probability constants
 //ROOM_KEY_IN_CHEST_PROBABILITY 3 
@@ -26,10 +29,12 @@
 #macro FAST_SKELETON_PROBABILITY get_probability_for_difficulty([0, 0, 16, 14, 12]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 36, 30, 28, 24]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 32, 28, 24]) 
+#macro MOUTHS_PER_MOUTH (1+global.difficulty)
 
 // Initialize map drawing constants
 #macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
-#macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 14, 16]) 
+#macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 14, 16])
+#macro MAXIMUM_NUMBER_OF_ROOMS (MINIMUM_NUMBER_OF_ROOMS * 1.5)
 #macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 
 #macro MINIMUM_COLLECTABLES_ROOMS get_probability_for_difficulty([1, 2, 3, 3.5, 4]) 
 //#macro MAX_MAP_DRAW_DISTANCE 8 
@@ -44,6 +49,7 @@
 	
 // Initilaize other gameplay constants
 #macro FRAMES_TO_WAIT_BEFORE_PROCESSING 6
+#macro FRAMES_FOR_HEART_THUMP 12
 #macro JUST_THE_WIND_PROBABILITY 2056 
 #macro BUSH_RUSTLE_FREQUENCY 16 
 #macro SKELETON_MOVE_FREQUENCY 12 
@@ -70,3 +76,28 @@
 #macro TIME_PROVIDED_PER_COLLECTABLE get_probability_for_difficulty([40, 25, 20, 16, 12]) 
 #macro TIME_PROVIEDED_PER_LOCK 15 
 #macro TOTAL_COMPLETION_AMOUNT 4 
+
+// Depth Constants
+#macro FIREBALL_DEPTH -300
+#macro CARRIED_ITEM_DEPTH -250
+#macro INCORPOREAL_ENEMY_DEPTH -225
+#macro GIANT_WORM_DEPTH -200
+#macro PUSH_BLOCK_DEPTH -30
+#macro BUSH_DEPTH -20
+#macro PLAYER_DEPTH -10
+#macro HANDS_WITH_STAFF_DEPTH -4
+#macro SOLID_DEPTH -1
+#macro STANDARD_DEPTH 0
+#macro DROPPED_ITEM_DEPTH 1
+#macro COLLECTABLE_DEPTH 2
+#macro SWORD_IN_GROUND_DEPTH 3
+#macro CORPSE_DEPTH 4
+#macro BONES_DEPTH 5
+#macro CROSS_DEPTH 6
+#macro MOUTH_DEPTH 7
+#macro BLOOD_DEPTH 8
+#macro BUTTON_DEPTH 9
+#macro STAIRS_DEPTH 10
+#macro DIRT_OVER_LAVA_DEPTH 11
+#macro LAVA_DEPTH 12
+#macro DIRT_DEPTH 20

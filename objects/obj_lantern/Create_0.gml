@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = 6;
+depth = CROSS_DEPTH;
 
 special = true;
 can_pick_up = false;

@@ -13,13 +13,10 @@ function become_carried(new_holder) {
 	// Become carried
 	holder = new_holder;
 	persistent = new_holder.persistent;
-	depth = -250;
+	depth = CARRIED_ITEM_DEPTH;
 	
-	// Update room key and item counts
-	if (holder == global.player) { 
-		if (object_index == obj_key) { global.controller.current_room.has_keys -= 1; }
-		else { global.controller.current_room.has_items -= 1;  }
-	}
+	// Update player map
+	if (holder == global.player) { global.controller.current_room.remove_from_instances_at_map_positions(id); }
 	
 	// Perform individual item pick-up actions
 	switch (object_index) {
@@ -29,35 +26,29 @@ function become_carried(new_holder) {
 	}
 }
 
-/// @function								become_dropped(dropper, do_effects);
+/// @function								become_dropped(dropper);
 /// @param		{inst} dropper				The instance dropping this item
-/// @param		{bool} do_effects			Whether or not to do the item specific effects
-function become_dropped(dropper, do_effects) {
+function become_dropped(dropper) {
 	var player = global.player;
 	
-	if (do_effects) {
-		// Update room item and key counts
-		if (dropper == player) { 
-			if (object_index == obj_key) { global.controller.current_room.has_keys += 1; }
-			else { global.controller.current_room.has_items += 1;  }
-		}
+	// Update player map
+	if (dropper == player) { global.controller.current_room.add_to_instances_at_map_positions(id); }
 	
-		// Perform individual item drop actions
-		switch (object_index) {
-			case obj_meat: { 
-				//instance_create(x, y, obj_blood);
-				//play_sound(snd_thud, false);
-				with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } 
-				break; 
-			}
-			case obj_shovel: { dropped_by_digger = true; break; }
+	// Perform individual item drop actions
+	switch (object_index) {
+		case obj_meat: { 
+			//instance_create(x, y, obj_blood);
+			//play_sound(snd_thud, false);
+			with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } 
+			break; 
 		}
+		case obj_shovel: { dropped_by_digger = true; break; }
 	}
 	
 	// Become dropped
 	holder = noone;
 	persistent = false;
-	depth = 1;
+	depth = DROPPED_ITEM_DEPTH;
 	x = dropper.x;
 	y = dropper.y;
 	
@@ -82,6 +73,7 @@ function make_item_special() {
 		lighting_range = TORCH_LIGHT_RANGE*2;
 		sprite_index = get_sprite_to_use(spr_special_torch); 
 	}
+	else if (object_index == obj_clock) { sprite_index = get_sprite_to_use(spr_special_clock); }
 }
 
 /// @function								defuse_bomb();
@@ -121,9 +113,10 @@ function dig_hole() {
 
 /// @function								thump();
 function thump() {
-	thump_timer -= 1;
-	if (thump_timer == 3) { play_sound(snd_thump, false); image_index = 1; }
-	if (thump_timer == 0) { thump_timer = 12; image_index = 0; }
+	if (is_thump_frame()) {
+		if (image_index == 0) { play_sound(snd_thump, false); image_index = 1; }
+	}
+	else { image_index = 0; }
 }
 
 /// @function								mark_heart_carried();
@@ -184,4 +177,15 @@ function get_random_item_obj(special_item, include_key) {
 	}
 	
 	return chosen_item_obj;
+}
+
+
+/// @function								get_clock_image_index();
+function get_clock_image_index() {
+	var controller = global.controller;
+	var time_elapsed = controller.time_provided - controller.time_remaining;
+	var time_per_grain = (time_elapsed / controller.time_provided)
+	var sand_image_index = floor(abs((time_per_grain*8) - (time_per_grain*3/4)));
+
+	return sand_image_index;
 }

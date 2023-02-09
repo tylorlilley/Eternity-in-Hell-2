@@ -4,16 +4,16 @@ if (sprite_index != -1) {
 	var covered_by_solid = ((is_existing_instance(solid_at_quadrant[0]) && solid_at_quadrant[0].visible) &&
 							(is_existing_instance(solid_at_quadrant[1]) && solid_at_quadrant[1].visible) &&
 							(is_existing_instance(solid_at_quadrant[2]) && solid_at_quadrant[2].visible) &&
-							(is_existing_instance(solid_at_quadrant[3]) && solid_at_quadrant[3].visible))
+							(is_existing_instance(solid_at_quadrant[3]) && solid_at_quadrant[3].visible) &&
+							depth > GIANT_WORM_DEPTH)
 	
-	var is_incorporeal_enemy = (object_is_ancestor(object_index, obj_enemy) && !corporeal);
 	var is_bush = (object_index == obj_bush);
-	var covered_by_bush = is_covered_at_each_quadrant_by(obj_bush);
+	var covered_by_bush = (depth > BUSH_DEPTH && is_covered_at_each_quadrant_by(obj_bush));
 
 	// Skip drawing sprite completely if covered by a bush or solid
     var covered = false;
 	if ((!is_solid && !is_bush && covered_by_bush) || (!is_solid && covered_by_solid)) { covered = true; }
 
 	// Draw main sprite
-	if (!covered || is_incorporeal_enemy) { draw_self(); }
+	if (!covered) { draw_self(); }
 }

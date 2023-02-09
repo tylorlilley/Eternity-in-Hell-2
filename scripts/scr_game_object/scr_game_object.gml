@@ -337,6 +337,8 @@ function get_sprite_to_use(regular_sprite) {
 		case spr_meat: { return spr_meat_farmer; }
 		case spr_bomb: { return spr_bomb_farmer; }
 		case spr_heart: { return spr_heart_farmer; }
+		case spr_clock: { return spr_clock_farmer; }
+		case spr_special_clock: { return spr_special_clock_farmer; }
 	}
 	
 	return regular_sprite;

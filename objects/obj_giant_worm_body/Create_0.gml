@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = -200;
+depth = GIANT_WORM_DEPTH;
 
 head = noone;
 tail = noone;

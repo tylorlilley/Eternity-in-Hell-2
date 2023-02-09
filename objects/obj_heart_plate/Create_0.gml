@@ -1,5 +1,5 @@
 event_inherited();
 
-depth = 6;
+depth = CROSS_DEPTH;
 
 flip_sprite_at_random(false);

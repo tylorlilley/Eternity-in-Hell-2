@@ -10,11 +10,11 @@ if (can_process_this_frame()) {
 			else if (corporeal && is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) { death_sound = snd_crunch; }
 			
 			if (death_sound != noone) { kill_enemy(death_sound); }
-			depth = 0;
+			depth = STANDARD_DEPTH;
 		}
 		else {
 			// Flicker sprite if not corporeal
-			depth = -225;
+			depth = INCORPOREAL_ENEMY_DEPTH;
 			visible = (modulo(global.game_manager.number_of_frames_since_game_began, (FRAMES_TO_WAIT_BEFORE_PROCESSING * 2)) == 0);
 		}
 	}

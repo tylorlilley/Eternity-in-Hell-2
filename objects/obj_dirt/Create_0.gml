@@ -1,5 +1,5 @@
 event_inherited();
 
-depth = 20;
+depth = DIRT_DEPTH;
 randomize_image(7);
 has_bug = false;

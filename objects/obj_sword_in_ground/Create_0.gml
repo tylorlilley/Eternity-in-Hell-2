@@ -1,3 +1,3 @@
 event_inherited();
 
-depth = 3;
+depth = SWORD_IN_GROUND_DEPTH;

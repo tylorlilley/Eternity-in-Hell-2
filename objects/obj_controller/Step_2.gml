@@ -1,0 +1,1 @@
+if (transition == directions.none && !blackout && global.is_test_mode && global.seed_testing_mode) { global.test_passed = true; }

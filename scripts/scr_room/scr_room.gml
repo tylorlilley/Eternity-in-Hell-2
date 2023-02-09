@@ -5,7 +5,6 @@ function GameRoom(given_x, given_y) constructor {
 	virtual_y = given_y;
 	id = get_new_id();
 	distance_to_current_room = 9999;
-	distance_from_start_room = 9999;
 
 	// Initialize room state values
 	visited = false;
@@ -16,8 +15,9 @@ function GameRoom(given_x, given_y) constructor {
 	lit = false;
 
 	// Room content values
-	has_keys = 0;
-	has_items = 0;
+	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
+	has_key = false;
+	has_locked_chest = false;
 	has_special_item = false;
 	has_collectables = false;
 	has_portcullis = false;
@@ -30,18 +30,31 @@ function GameRoom(given_x, given_y) constructor {
 	locked_exits = [noone, noone, noone, noone, noone];
 	adj_rooms = [noone, noone, noone, noone, noone];
 	
-	/// @function								get_virtual_quadrant_x_pos(quadrant_number);
-	/// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
-	function get_virtual_quadrant_x_pos(quadrant_number) {
-	    if (modulo(quadrant_number, 2) == 0) { return virtual_x-4; }
-		else { return virtual_x+4; }
+	/// @function								add_to_instances_at_map_positions(inst);
+	/// @param		{real} inst					The instance id to add to the room map position
+	function add_to_instances_at_map_positions(inst) {
+		var room_map_pos = get_room_map_position(inst);
+		array_push(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst);
 	}
 
-	/// @function								get_virtual_quadrant_y_pos(quadrant_number);
-	/// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
-	function get_virtual_quadrant_y_pos(quadrant_number) {
-	    if (quadrant_number < 2) { return virtual_y-4; }
-		else { return virtual_y+4; }
+	/// @function								remove_from_instances_at_map_positions(inst);
+	/// @param		{real} inst					The instance id to remove from the room map position
+	function remove_from_instances_at_map_positions(inst) {
+		var room_map_pos = get_room_map_position(inst);
+		array_remove(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst);
+	}
+
+	/// @function								get_room_map_position(inst);
+	/// @param		{real} inst					The instance id to return a room map position for
+	function get_room_map_position(inst) {
+		// Set up room map positions
+		var x_pos = 1, y_pos = 1;
+		if (inst.y < room_height/2-16) { y_pos = 0; }
+		else if (inst.y > room_height/2+16) { y_pos = 2; }
+		if (inst.x < room_width/2-16) { x_pos = 0; }
+		else if (inst.x > room_width/2+16) { x_pos = 2; }
+	
+		return [x_pos, y_pos]
 	}
 	
 	/// @function								initialize_room(list_of_rooms);
@@ -51,18 +64,12 @@ function GameRoom(given_x, given_y) constructor {
 		var controller = global.controller;
 		
 		// Decide what to spawn in stairs_spot
-		if (get_random_chance_out_of(HAS_STAIRS_PROBABILITY)) { exits[4] = true; stairs_spot_obj = obj_stairs; }
-		else if (get_random_chance_out_of(HAS_ITEM_PROBABILITY)) { set_up_room_chest(); }
-		else if (get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) { chest_obj = obj_statue; stairs_spot_obj = obj_chest; }
+		if (get_random_chance_out_of(STAIRS_PROBABILITY)) { exits[4] = true; stairs_spot_obj = obj_stairs; }
+		else if (get_random_chance_out_of(CHEST_PROBABILITY)) { set_up_room_chest(); }
 		
 		// Decide what to spawn in collectables spots
-		//if (get_random_chance_out_of(controller.HAS_KEY_PROBABILITY) && chest_obj == -1) { set_up_room_key(); }
-		if (get_random_chance_out_of(HAS_COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(controller.rooms_with_collectables, self); }
-		if (get_random_chance_out_of(HAS_PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
-	
-		// Randomly determine the number of exits this room should have based on probability weighting
-		var target_number_of_exits = irandom(NUMBER_OF_EXITS_PROBABILITY);
-		if (target_number_of_exits == 0 || target_number_of_exits > 3) { target_number_of_exits = 2; }
+		if (get_random_chance_out_of(COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(controller.rooms_with_collectables, self); }
+		if (get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
 	
 		// Take care of exits that must exist based on adjacent rooms and decrement number of exits accordingly
 		for (var i = 0; i < 4; i++) {
@@ -74,10 +81,14 @@ function GameRoom(given_x, given_y) constructor {
 		    }
 		    else if (exits[i]) {
 		        // Create adjoining room if this room has an exit in that direction but not an adjoining room.
-		        // This really only happens for the first room, where exits are set to true by the controller.
 		        create_adjoining_room(i, list_of_rooms);
 		    }
 		}
+		
+		// Randomly determine the number of exits this room should have based on probability weighting
+		var target_number_of_exits = irandom(NUMBER_OF_EXITS_PROBABILITY);
+		if (target_number_of_exits == 0 || target_number_of_exits > 3) { target_number_of_exits = 2; }
+		while(array_length(controller.game_rooms) + target_number_of_exits > MINIMUM_NUMBER_OF_ROOMS) { target_number_of_exits -= 1; }
 
 		// Generate some number of random additional exits
 		while (get_exits_count() < target_number_of_exits) {
@@ -91,20 +102,21 @@ function GameRoom(given_x, given_y) constructor {
 		var controller = global.controller;
 		// Determine if spawning a special item
 		if (array_length(controller.spawned_special_items) < SPECIAL_ITEM_LIMIT && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { 
-			has_special_item = true; 
+			has_special_item = true;
+			has_locked_chest = true;
 			var spawned_item_obj = get_random_item_obj(true, true);
-			array_push(controller.spawned_special_items, spawned_item_obj);
 			show_debug_message("SPAWNED RED " + object_get_name(spawned_item_obj));
-			chest_obj = spawned_item_obj;
+			if (spawned_item_obj == obj_key) { set_up_room_key(); }
+			else {
+				array_push(controller.spawned_special_items, spawned_item_obj);
+				chest_obj = spawned_item_obj;
+			}
 		}
-		// Chance to spawn a regular key
-		else if (get_random_chance_out_of(HAS_KEY_PROBABILITY)) {
-			set_up_room_key();
-			chest_obj = obj_key;
-		}
-		// Leave chest object open to spawn later
-		else { 
-			has_items = 1;
+		// Spawn a trap chest instead of an item
+		else if (get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) { chest_obj = obj_statue; }
+		// Leave chest object open to spawn non-special, non-key item later
+		else {
+			has_locked_chest = get_random_chance_out_of(LOCKED_CHEST_PROBABILITY);
 			array_push(controller.rooms_with_item, self); 
 		}
 				
@@ -113,8 +125,26 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function								set_up_room_key();
 	function set_up_room_key() {
-		has_keys = 1; 
-		array_push(global.controller.rooms_with_key, self); 
+		var controller = global.controller;
+		if (has_special_item || (stairs_spot_obj == -1 && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY))) {
+			stairs_spot_obj = obj_chest;
+			chest_obj = obj_key;
+			if (has_special_item) { array_push(controller.spawned_special_items, obj_key); }
+		}
+		has_key = true; 
+		array_push(controller.rooms_with_key, self); 
+	}
+	
+	/// @function								remove_room_key();
+	function remove_room_key() {
+		var controller = global.controller;
+		if (chest_obj == obj_key && stairs_spot_obj == obj_chest) {
+			stairs_spot_obj = -1;
+			chest_obj = -1;
+			if (has_special_item) { array_remove(controller.spawned_special_items, obj_key); }
+		}
+		has_key = false; 
+		array_remove(controller.rooms_with_key, self); 
 	}
 	
 	/// @function								create_locked_exit(dir);
@@ -224,7 +254,6 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{real}	x_pos				The x position to draw this room at
 	/// @param		{real}	y_pos				The y position to draw this room at
 	function draw_room(x_pos, y_pos) {
-
 		// Only draw the room if the room has been visited at least once, or game is in test mode
 		var show_detailed_map = false, show_collectables = false, controller = global.controller, is_is_test_mode_on = global.is_test_mode;
 		with (global.player) {
@@ -242,13 +271,13 @@ function GameRoom(given_x, given_y) constructor {
 		
 			// Darken the colors of unvisited rooms on the map
 			if (!visited) {
-				white_color = merge_color(white_color, bg_color, 0.75);
-				red_color = merge_color(red_color, bg_color, 0.75);
+				white_color = merge_color(white_color, bg_color, 0.66);
+				red_color = merge_color(red_color, bg_color, 0.66);
 			}
 			
 		    // Draw Room on Map
 			var room_color = lit ? red_color : bg_color;
-			var inverse_color = lit ? white_color : red_color;
+			var inverse_color = lit ? bg_color : red_color;
 		    if (controller.current_room != self || !blink_frame) {
 				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, white_color, 1);
 				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.75, 0.75, 0, room_color, 1);
@@ -257,7 +286,7 @@ function GameRoom(given_x, given_y) constructor {
 		    // Draw Room's Exits on Map
 			for (var i = 0; i < 4; i++) {
 				var x_offset = 0, y_offset = 0, x_size = 0.25, y_size = 0.25, exit_color = bg_color;
-				if (show_detailed_map && blink_frame && locked_exits[i] && locked_exits[i].locked) { exit_color = red_color; }
+				if (show_detailed_map && !blink_frame && locked_exits[i] && locked_exits[i].locked) { exit_color = red_color; }
 
 				switch i {
 					case 0: { y_offset = -8; y_size += 0.125; break; } 
@@ -268,31 +297,47 @@ function GameRoom(given_x, given_y) constructor {
 
 			    if (exits[i] && (visited_exits[i] || show_detailed_map)) { draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, x_size, y_size, 0, exit_color, 1); }
 			}
-		
-		    // Draw Room's Stairs
-			var stair_color = white_color;// bg_color;
-		    if (exits[4] && (visited_exits[4] || show_detailed_map)) { draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.125, 0.125, 0, stair_color, 1); }
-		
-		    // Draw Room's Keys if game is in test mode
-			var show_item = (has_keys > 0 || has_items > 0);
-		    if (show_detailed_map && show_item) { 
-				var x_offset = get_virtual_quadrant_x_pos(rotate)-virtual_x, y_offset = get_virtual_quadrant_y_pos(rotate)-virtual_y;
-				var key_color = inverse_color;
-				draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, 0.125, 0.125, 0, key_color, 1); 
+			
+			// Draw room's map position objects
+			for (var yy = 0; yy < 3; yy++) {
+				for (var xx = 0; xx < 3; xx++) {
+					// Check if any map positions exist at this part of the map and draw them if so
+					var room_map_pos_array = instances_at_map_positions[xx][yy];
+					if (array_length(room_map_pos_array) > 0) {
+						// Get color of instance to draw
+						var pos_color = -1, pos_sprite = spr_box, pos_image = 0, pos_scale = 0.125;
+						for (var i = 0; i < array_length(room_map_pos_array); i++) { 
+							var room_map_inst = room_map_pos_array[i];
+							
+							if (room_map_inst.object_index == obj_stairs && (show_detailed_map || visited_exits[directions.stairs])) { pos_color = white_color; break; }
+							else if (room_map_inst.object_index == obj_cross && show_collectables) { pos_color = white_color; pos_sprite = spr_map_cross; pos_scale = 1; break; }
+							else if ((room_map_inst.object_index == obj_encased_heart || room_map_inst.object_index == obj_heart) && show_collectables) { 
+								pos_image = (is_thump_frame()) ? 1 : 0;
+								pos_color = inverse_color; 
+								pos_sprite = spr_map_heart; 
+								pos_scale = 1; 
+								break; 
+							}
+							//else if (has_key && ((chest_obj == obj_key && (room_map_inst.object_index == obj_chest || room_map_inst.object_index == obj_hidden_chest)) || room_map_inst.object_index == obj_key)) { pos_color = c_lime; break; }
+							else if (show_detailed_map) { pos_color = inverse_color; }
+						}
+						
+						// Draw obj at pos
+						if (pos_color != -1) {
+							var x_offset = 0, y_offset = 0;
+							if (xx == 0) { x_offset -= 3; }
+							else if (xx == 2) { x_offset += 3; }
+							if (yy == 0) { y_offset -= 3; }
+							else if (yy == 2) { y_offset += 3; }
+							draw_sprite_ext(pos_sprite, pos_image, x_pos+x_offset, y_pos+y_offset, pos_scale, pos_scale, 0, pos_color, 1); 
+						}
+					}
+				}
 			}
 		
 			// Draw collectables if the map is special
-			var collectable_color = inverse_color;
-		    if (show_collectables) { 
-				if (!blink_frame && stairs_spot_obj == obj_encased_heart) {
-					draw_sprite_ext(spr_map_heart, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
-				}
-				else if (!blink_frame && stairs_spot_obj == obj_cross) {
-					draw_sprite_ext(spr_map_cross, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
-				}
-				else if (blink_frame && has_collectables) {
-					draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, collectable_color, 1); 
-				}
+		    if (show_collectables && has_collectables && !blink_frame) {
+				draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, white_color, 1); 
 			}
     
 		    // Draw distance information if testing
@@ -408,18 +453,6 @@ function GameRoom(given_x, given_y) constructor {
 		return ref;
 	}
 	
-	/// @function									walk_through_room(visited_rooms, exits_to_walk_through);
-	/// @param		{index} visited_rooms			The list of rooms that have been visited on this walk of the map.
-	/// @param		{index} exits_to_walk_through	The list of exits that need to be walked through to finish this walk of the map.
-	function walk_through_room(visited_rooms, exits_to_walk_through) {
-		// Add this room to the list of visited rooms
-		array_push(visited_rooms, self);
-		// Add each of this room's exsiting exits to the list of exits to try walking through at some point
-		for (var i = 0; i <= 4; i += 1;) {
-			if (exits[i] && adj_rooms[i]) { array_push(exits_to_walk_through, [self, i]); }
-		}
-	}
-	
 	/// @function									initialize_from_room_reference()
 	function initialize_from_room_reference() {
 		var reference_instances = instances_for_room_reference(room_reference); // CHANGE ROOM REFERENCE HERE FOR TESTING
@@ -462,13 +495,17 @@ function GameRoom(given_x, given_y) constructor {
 	}
 	
 	/// @function									go_to_room()
-	function go_to_room() {
+	/// @param		{bool}	visited_by_player		Whether it is the player or the game visiting this room
+	function go_to_room(visited_by_player) {
 		var controller = global.controller;
-		mark_exit_visited();
+		
+		if (visited_by_player) { mark_exit_visited(); }
 		controller.current_room.leave_room();
 		enter_room();
-		with (controller) { 
-			game_room_start();
+		
+		with (controller) {
+			if (!visited_by_player) { game_room_initialize(); }
+			else { game_room_start(); }
 			blackout = false;
 			transition = directions.none;
 			transitioned_from = noone;

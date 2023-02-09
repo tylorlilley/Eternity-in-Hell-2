@@ -82,6 +82,9 @@ global.death_types_array = [
 	obj_echo,
 ]
 
+global.seed_testing_mode = false;
+global.test_passed = false;
+
 // Set up drawing surface variables
 window_set_fullscreen(global.fullscreen);
 set_max_window_size();

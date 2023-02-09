@@ -240,7 +240,7 @@ else {
 		// Draw seed
 		if (global.seed_option == seed_options.specified) { draw_text(room_width/2, seed_y_pos+16, get_zero_padded_string(current_seed, 9)); }
 		if (blink && pos == 2) {
-			if (current_seed < 99999999) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, seed_y_pos+16, -1, 1, 0, c_white, 1); }
+			if (current_seed < MAX_SEED) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, seed_y_pos+16, -1, 1, 0, c_white, 1); }
 		    if (current_seed > 0) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, seed_y_pos+16, 1, 1, 0, c_white, 1); }
 		}
 	}

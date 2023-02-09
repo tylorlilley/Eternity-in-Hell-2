@@ -142,3 +142,9 @@ function set_eih_shader() {
 	shader_set_uniform_f_array(shader_bg_color, get_shader_color_from_gms_color(global.bg_color));
 	shader_set_uniform_f(shader_color_fade, global.game_color_fade);
 }
+
+/// @function								is_thump_frame();
+function is_thump_frame() {
+	var thump_timer = (global.game_manager.number_of_frames_since_game_began/FRAMES_TO_WAIT_BEFORE_PROCESSING) % FRAMES_FOR_HEART_THUMP;
+	return (thump_timer > 0 && thump_timer <= 3);
+}

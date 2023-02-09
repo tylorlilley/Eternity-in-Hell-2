@@ -2,7 +2,7 @@ event_inherited();
 
 
 visible = false;
-depth = 8;
+depth = BUTTON_DEPTH;
 
 // Destroy button and portcullis if button begins pressed
 if (can_press_button()) { 

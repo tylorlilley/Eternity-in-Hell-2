@@ -35,14 +35,16 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{real} inst					The instance id to add to the room map position
 	function add_to_instances_at_map_positions(inst) {
 		var room_map_pos = get_room_map_position(inst);
-		array_push(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst);
+		show_debug_message("added to room " + string(id) + "at" + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
+		array_push(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst.object_index);
 	}
 
 	/// @function								remove_from_instances_at_map_positions(inst);
 	/// @param		{real} inst					The instance id to remove from the room map position
 	function remove_from_instances_at_map_positions(inst) {
 		var room_map_pos = get_room_map_position(inst);
-		array_remove(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst);
+		show_debug_message("removed from room " + string(id) + "at" + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
+		array_remove(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst.object_index);
 	}
 
 	/// @function								get_room_map_position(inst);
@@ -128,13 +130,13 @@ function GameRoom(given_x, given_y) constructor {
 	
 	function remove_room_chest() {
 		var controller = global.controller;
+		array_remove(controller.rooms_with_item, self); 
+		array_remove(controller.spawned_special_items, chest_obj);
 		
 		stairs_spot_obj = -1;
 		chest_obj = -1;
 		has_locked_chest = false;
 		has_special_item = false;
-		array_remove(controller.rooms_with_item, self); 
-		array_remove(controller.spawned_special_items, self);
 	}
 	
 	/// @function								set_up_room_key();
@@ -321,11 +323,11 @@ function GameRoom(given_x, given_y) constructor {
 						// Get color of instance to draw
 						var pos_color = -1, pos_sprite = spr_box, pos_image = 0, pos_scale = 0.125;
 						for (var i = 0; i < array_length(room_map_pos_array); i++) { 
-							var room_map_inst = room_map_pos_array[i];
-							
-							if (room_map_inst.object_index == obj_stairs && (show_detailed_map || visited_exits[directions.stairs])) { pos_color = white_color; break; }
-							else if (room_map_inst.object_index == obj_cross && show_collectables) { pos_color = white_color; pos_sprite = spr_map_cross; pos_scale = 1; break; }
-							else if ((room_map_inst.object_index == obj_encased_heart || room_map_inst.object_index == obj_heart) && show_collectables) { 
+							var room_map_obj = room_map_pos_array[i];
+				
+							if (room_map_obj == obj_stairs && (show_detailed_map || visited_exits[directions.stairs])) { pos_color = white_color; break; }
+							else if (room_map_obj == obj_cross && show_collectables) { pos_color = white_color; pos_sprite = spr_map_cross; pos_scale = 1; break; }
+							else if ((room_map_obj == obj_encased_heart || room_map_obj == obj_heart) && show_collectables) { 
 								pos_image = (is_thump_frame()) ? 1 : 0;
 								pos_color = inverse_color; 
 								pos_sprite = spr_map_heart; 
@@ -355,12 +357,14 @@ function GameRoom(given_x, given_y) constructor {
 			}
     
 		    // Draw distance information if testing
+			/*
 		    if (is_test_mode_on && global.player.left_hand_item != noone) {
 		       draw_set_color(c_lime);
 		        draw_set_halign(fa_center);
 		        draw_set_valign(fa_middle);
 		        draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_to_start_room)));
 		    }
+			*/
 		}
 
 		// Mark the room as having been drawn, then draw each of its applicable neighbors
@@ -513,7 +517,10 @@ function GameRoom(given_x, given_y) constructor {
 	function go_to_room(visited_by_player) {
 		var controller = global.controller;
 		
-		if (visited_by_player) { mark_exit_visited(); }
+		if (visited_by_player) { 
+			mark_exit_visited(); 
+			game_room_end();
+		}
 		controller.current_room.leave_room();
 		enter_room();
 		

@@ -32,7 +32,7 @@
 #macro MOUTHS_PER_MOUTH (1+global.difficulty)
 
 // Initialize map drawing constants
-#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
+//#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 14, 16])
 #macro MAXIMUM_NUMBER_OF_ROOMS (MINIMUM_NUMBER_OF_ROOMS * 1.5)
 #macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 

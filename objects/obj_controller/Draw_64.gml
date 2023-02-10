@@ -36,7 +36,9 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		
 		// Draw elapsed time
 		var time_elapsed = (time_provided - time_remaining);
-		draw_text(hud_x_pos, room_height-12, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2)));
+		draw_text(hud_x_pos, room_height-12, "Time Elapsed: ");
+        draw_set_halign(fa_right);
+		draw_text(room_width-32, room_height-12, string_hash_to_newline(string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2)));
 		draw_sprite(get_sprite_to_use(spr_clock), get_clock_image_index(), room_width-12, room_height-12);
     }
 	

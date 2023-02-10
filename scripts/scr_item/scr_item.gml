@@ -16,7 +16,9 @@ function become_carried(new_holder) {
 	depth = CARRIED_ITEM_DEPTH;
 	
 	// Update player map
-	if (holder == global.player) { global.controller.current_room.remove_from_instances_at_map_positions(id); }
+	//if (holder == global.player) { 
+		global.controller.current_room.remove_from_instances_at_map_positions(id); 
+	//}
 	
 	// Perform individual item pick-up actions
 	switch (object_index) {
@@ -32,7 +34,9 @@ function become_dropped(dropper) {
 	var player = global.player;
 	
 	// Update player map
-	if (dropper == player) { global.controller.current_room.add_to_instances_at_map_positions(id); }
+	//if (dropper == player) { 
+		global.controller.current_room.add_to_instances_at_map_positions(id); 
+	//}
 	
 	// Perform individual item drop actions
 	switch (object_index) {
@@ -53,10 +57,10 @@ function become_dropped(dropper) {
 	y = dropper.y;
 	
 	// Perform individual actions based on dropper
-	if (dropper == player) {
+	//if (dropper == player) {
 		xstart = x;
 		ystart = y;
-	}
+	//}
 	
 	// Alert interested obj_hands to come grab it
 	with (obj_hands) { 

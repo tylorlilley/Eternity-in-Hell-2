@@ -30,10 +30,13 @@ function array_duplicate(list, source_list) {
 /// @param		{value}		value_to_remove		Value to remove from the array
 function array_remove(list, value_to_remove) {
 	var list_pos = array_get_index(list, value_to_remove);
+	/*
 	while(list_pos != -1) {
 		array_delete(list, list_pos, 1);
 		list_pos = array_get_index(list, value_to_remove);
 	}
+	*/
+	if (list_pos != -1) { array_delete(list, list_pos, 1); }
 }
 
 /// @function									array_count_occurances(list, value_to_count);

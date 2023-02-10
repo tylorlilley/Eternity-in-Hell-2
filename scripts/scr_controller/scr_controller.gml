@@ -131,9 +131,11 @@ function can_process_this_frame() {
 /// @function										game_room_start();
 function game_room_start() {
 	// Mark room as one that has been visited at some point in this game
-	current_room.visited = true;	
+	if (!current_room.visited) {
+		current_room.visited = true;	
+		array_push(mapped_rooms, current_room);
+	}
 	// Do room entry stuff
-	array_push(mapped_rooms, current_room);
 	audio_stop_all();
 	reset_game_object_image_blend();
 	game_room_start_reposition_player();
@@ -241,29 +243,32 @@ function game_room_start_spawn_instances() {
 			if (!entered_from_spawn && get_random_chance_out_of(HANDS_PROBABILITY)) { 
 				var new_hands = instance_create(potential_item.x, potential_item.y, obj_hands);
 				new_hands.target_item = potential_item;
-				new_hands.right_hand_item = potential_item;
 				new_hands.xstart = potential_item.x;
 				new_hands.ystart = potential_item.y;
 			}
 		}
 	}
-	with (obj_hands) {
-		x = xstart;
-		y = ystart;
-		activated = false;
-		visible = false;
-		
-		if (!is_existing_instance(right_hand_item)) { instance_destroy(); }
-		else {
-			target_item = right_hand_item;
-			put_down_item(right_hand_item, false, true);
-			target_item.holder = id;
-			right_hand_item = target_item;
-		}
-	}
 	
 	/// If room has lava, consider spawning nose
 	if (instance_number(obj_lava) > 0 && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(8, 8, obj_nose); }
+}
+
+/// @function										game_room_end();
+function game_room_end() {
+	with (obj_hands) {
+		if (is_existing_instance(right_hand_item)) {
+			x = xstart;
+			y = ystart;
+			set_instance_to_same_position(right_hand_item);
+			with (right_hand_item) { image_xscale = other.image_xscale; }
+			activated = false;
+			visible = false;
+			target_item = right_hand_item;
+			put_down_item(right_hand_item, false, true);
+			target_item.holder = id;
+		}
+		else { instance_destroy(); }
+	}
 }
 
 /// @function										game_room_start_destroy_instances();
@@ -297,7 +302,7 @@ function game_room_start_reposition_instances() {
 	//// Reset instances to their start positions when returning to the room
 	with (obj_block) { x = xstart; y = ystart; }
 	with (obj_item) { if (holder == noone) { x = xstart; y = ystart; } }
-	with (obj_enemy) { if (object_index != obj_hands && object_index != obj_statue) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
+	with (obj_enemy) { if (object_index != obj_hands) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
 	with (obj_giant_worm_body) {
 		var new_worm_body = instance_create(xstart, ystart, object_index);
 		new_worm_body.xstart = xstart;

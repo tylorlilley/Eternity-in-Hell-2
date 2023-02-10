@@ -270,7 +270,8 @@ class RoomConverter
 
         # Read in data from file
         file_data = File.read(file_path)
-        instance_data = file_data.split('"instances":')[1].split('],"visible"').first.gsub(",}", "}").chop!.chop!.chop!.chop!.chop!.chop!.chop!.chop! + ']'
+        instance_data = file_data.split('"instances":')[1].split('],"layers"').first.gsub(",}", "}").chop!.chop!.chop!.chop!.chop!.chop!.chop!.chop! + ']'
+        #puts instance_data
         parsed_data = JSON.parse(instance_data)
 
         # Create array of instance information

@@ -1,6 +1,6 @@
 event_inherited();
 
-depth = MOUTH_DEPTH;
+start_depth = MOUTH_DEPTH;
 
 play_sound(snd_squelch, false);
 teleport_to_empty_space();

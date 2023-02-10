@@ -35,7 +35,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{real} inst					The instance id to add to the room map position
 	function add_to_instances_at_map_positions(inst) {
 		var room_map_pos = get_room_map_position(inst);
-		show_debug_message("added to room " + string(id) + "at" + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
+		//show_debug_message("added to room " + string(id) + "at" + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
 		array_push(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst.object_index);
 	}
 
@@ -43,7 +43,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{real} inst					The instance id to remove from the room map position
 	function remove_from_instances_at_map_positions(inst) {
 		var room_map_pos = get_room_map_position(inst);
-		show_debug_message("removed from room " + string(id) + "at" + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
+		//show_debug_message("removed from room " + string(id) + "at" + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
 		array_remove(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst.object_index);
 	}
 
@@ -108,7 +108,7 @@ function GameRoom(given_x, given_y) constructor {
 			has_special_item = true;
 			has_locked_chest = true;
 			var spawned_item_obj = get_random_item_obj(true, true);
-			show_debug_message("SPAWNED RED " + object_get_name(spawned_item_obj));
+			show_debug_message("SPAWNED RED " + object_get_name(spawned_item_obj) + " " + string(spawned_item_obj));
 			if (spawned_item_obj == obj_key) { 
 				set_up_room_key(); 
 			}
@@ -325,14 +325,21 @@ function GameRoom(given_x, given_y) constructor {
 						for (var i = 0; i < array_length(room_map_pos_array); i++) { 
 							var room_map_obj = room_map_pos_array[i];
 				
-							if (room_map_obj == obj_stairs && (show_detailed_map || visited_exits[directions.stairs])) { pos_color = white_color; break; }
-							else if (room_map_obj == obj_cross && show_collectables) { pos_color = white_color; pos_sprite = spr_map_cross; pos_scale = 1; break; }
-							else if ((room_map_obj == obj_encased_heart || room_map_obj == obj_heart) && show_collectables) { 
-								pos_image = (is_thump_frame()) ? 1 : 0;
-								pos_color = inverse_color; 
-								pos_sprite = spr_map_heart; 
-								pos_scale = 1; 
-								break; 
+
+							if (room_map_obj == obj_cross) {
+								if (show_collectables) { pos_color = white_color; pos_sprite = spr_map_cross; pos_scale = 1; break; }
+							}
+							else if (room_map_obj == obj_encased_heart || room_map_obj == obj_heart) {
+								if (show_collectables) { 
+									pos_image = (is_thump_frame()) ? 1 : 0;
+									pos_color = inverse_color; 
+									pos_sprite = spr_map_heart; 
+									pos_scale = 1; 
+									break;
+								}
+							}
+							else if (room_map_obj == obj_stairs) {
+								if (show_detailed_map || visited_exits[directions.stairs]) { pos_color = white_color; break; }
 							}
 							//else if (has_key && ((chest_obj == obj_key && (room_map_inst.object_index == obj_chest || room_map_inst.object_index == obj_hidden_chest)) || room_map_inst.object_index == obj_key)) { pos_color = c_lime; break; }
 							else if (show_detailed_map) { pos_color = inverse_color; }

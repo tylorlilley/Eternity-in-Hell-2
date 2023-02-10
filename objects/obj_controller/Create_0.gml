@@ -224,7 +224,7 @@ if (!item_spawned) {
 for (var i = 0; i < array_length(rooms_with_item); i++) {
 	var spawned_item_obj = (i == 0) ? obj_map : get_random_item_obj(false, false);
 	array_push(spawned_items, spawned_item_obj);
-	show_debug_message("SPAWNED " + object_get_name(spawned_item_obj));
+	show_debug_message("SPAWNED " + object_get_name(spawned_item_obj) + " " + string(spawned_item_obj));
 }
 total_items = array_length(spawned_items) + array_length(spawned_special_items);
 

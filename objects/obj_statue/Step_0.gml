@@ -19,7 +19,7 @@ if (can_process_this_frame()) {
 	
 	// Determine whether statue is covered
 	var prev_covered = covered;
-	covered = covered || place_meeting(x_pos, y_pos, obj_solid);
+	covered = place_meeting(x_pos, y_pos, obj_solid);
 	
 	if (!covered) {
 		image_index = 0
@@ -29,6 +29,10 @@ if (can_process_this_frame()) {
 			shoot_timer = irandom_range(8, 24);
 			shoot_fireball(x_pos, y_pos, false);
 		}
+	}
+	else if (image_index == 0) {
+		image_index = 1;
+		play_sound(snd_give_up, false);
 	}
 	
 	event_inherited();

@@ -180,6 +180,7 @@
     {"id":{"name":"spr_player","path":"sprites/spr_player/spr_player.yy",},"order":3,},
     {"id":{"name":"spr_column","path":"sprites/spr_column/spr_column.yy",},"order":6,},
     {"id":{"name":"rm_two_opposite_exits_15","path":"rooms/rm_two_opposite_exits_15/rm_two_opposite_exits_15.yy",},"order":11,},
+    {"id":{"name":"obj_echo_generator","path":"objects/obj_echo_generator/obj_echo_generator.yy",},"order":0,},
     {"id":{"name":"rm_two_perpendicular_exits_25","path":"rooms/rm_two_perpendicular_exits_25/rm_two_perpendicular_exits_25.yy",},"order":23,},
     {"id":{"name":"obj_hands","path":"objects/obj_hands/obj_hands.yy",},"order":9,},
     {"id":{"name":"rm_three_exits_21","path":"rooms/rm_three_exits_21/rm_three_exits_21.yy",},"order":20,},

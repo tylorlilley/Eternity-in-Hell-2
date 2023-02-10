@@ -9,7 +9,7 @@ function move_player(dir) {
 			image_index += 1;
 			if (image_index > 1) { image_index = 0; }
 			move_in_direction(dir, true);
-			with (obj_echo_spot) { array_push(moves, dir); }
+			with (obj_echo_generator) { array_push(moves, dir); }
 		}
 		// Move carried items
 		if (is_existing_instance(right_hand_item)) {
@@ -140,7 +140,7 @@ function kill_player(killed_by_obj) {
 		controller.death_timer = RESPAWN_FREQUENCY;
 		controller.death_count += 1;
 		play_sound(snd_lose, true);
-		with (obj_echo_spot) { instance_destroy(); }
+		with (obj_echo_generator) { instance_destroy(); }
 		
 		// Put down carried items other than rosary
 		with (player) {

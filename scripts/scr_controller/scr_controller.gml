@@ -230,6 +230,8 @@ function game_room_start_other() {
 
 /// @function										game_room_start_spawn_instances();
 function game_room_start_spawn_instances() {
+	with (obj_echo_spot) { instance_create(x, y, obj_echo_generator); instance_destroy(); }
+	
 	//// If room has dropped item, consider spawning hands
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
@@ -311,7 +313,7 @@ function game_room_start_reposition_instances() {
 		instance_destroy(id, false);
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
-	with (obj_echo_spot) {
+	with (obj_echo_generator) {
 		if (other.entered_from_stairs && other.current_room == other.start_room) { instance_destroy(); }
 		else {
 			var player = global.player;

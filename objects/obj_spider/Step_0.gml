@@ -9,10 +9,10 @@ if (can_process_this_frame()) {
 			else { state = ATTACKING; }
 		}
 	    else if (state == ATTACKING && can_move_in_direction(dir, false, true)) {
-			if (modulo(global.game_manager.number_of_frames_since_game_began, (FRAMES_TO_WAIT_BEFORE_PROCESSING * 2)) == 0) { image_xscale *= -1; }
-	        if (can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
+			var prev_xscale = image_xscale;
+	        if (can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); image_xscale = -1 * prev_xscale; }
 			try_to_see_player();
-	        if (state == ATTACKING && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
+	        if (state == ATTACKING && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); image_xscale = -1 * prev_xscale; }
 		 }
 	    else { 
 			state = WAITING;

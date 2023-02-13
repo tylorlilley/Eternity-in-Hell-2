@@ -105,15 +105,15 @@ with (start_room) {
 
 // Walk the map to initialize keys and map distances
 var map_walker = set_up_locks_and_keys()
-if (!map_walker.has_visited_all_rooms()) {
+if (map_walker != noone) {
 	// Should never need to reach this clause
 	show_debug_message("WARNING: key generation screwed up.");
-	reset_map_generation();
-	exit;
+	//reset_map_generation();
+	//exit;
 }
 
 // Determine the farthest rooms
-for (var dir = 0; dir <= directions.stairs; dir++) { get_new_map_walk_attempt(dir); }
+for (var dir = directions.right; dir <= directions.stairs; dir++) { get_failing_map_walker(dir, start_room); }
 
 // Create a heart room
 var farthest_rooms = array_create(0);
@@ -159,11 +159,11 @@ total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 
 // Spawn more keys to handle new locks
 var map_walker = set_up_locks_and_keys()
-if (!map_walker.has_visited_all_rooms()) {
+if (map_walker != noone) {
 	// Should never need to reach this clause
 	show_debug_message("WARNING: second key generation screwed up.");
-	reset_map_generation();
-	exit;
+	//reset_map_generation();
+	//exit;
 }
 
 // Setup room references

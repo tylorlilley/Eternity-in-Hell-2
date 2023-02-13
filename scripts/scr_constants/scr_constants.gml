@@ -3,7 +3,7 @@
 #macro NUMBER_OF_EXITS_PROBABILITY 9 
 #macro STAIRS_PROBABILITY 5 
 #macro NO_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 6, 5, 4, 3]) // This happens only after the stairs probability succeeds, so its combined with 1/5
-#macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 24, 12, 10, 6])
+#macro LOCKED_CHEST_PROBABILITY 0//get_probability_for_difficulty([0, 24, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
 //#macro KEY_PROBABILITY get_probability_for_difficulty([4, 4, 8, 10, 12]) // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])  // This happens only after the chest probability succeeds, so its combined with that probability.

@@ -22,6 +22,7 @@ function array_random_pop(list) {
 /// @param		{index}	source_list			Array to take the values being added from
 function array_duplicate(list, source_list) {
 	// This replaces the first array with a copy of the second array.
+	array_resize(list, 0)
 	array_copy(list, 0, source_list, 0, array_length(source_list));
 }
 

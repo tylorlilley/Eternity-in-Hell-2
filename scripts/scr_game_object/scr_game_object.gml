@@ -41,8 +41,8 @@ function teleport_near_player() {
 	play_sound(snd_flicker, false);
 
 	do {
-	    var x_pos = (8*irandom(3));
-	    var y_pos = (8*irandom(3));
+	    var x_pos = (8*get_random_carindal_dir());
+	    var y_pos = (8*get_random_carindal_dir());
 	    if (get_coin_flip()) { x_pos *= -1; }
 	    if (get_coin_flip()) { y_pos *= -1; }
 	    x = target.x + x_pos;
@@ -103,16 +103,26 @@ function is_direction_free(dir, ignore_solid, ignore_death) {
 		default: { return false; }
 	}
 	
-	// Set up general variables for blocking the given direction
-	var blocked_by_room_boundry = is_outside_room(x_pos, y_pos);
-	var blocked_by_death = (!ignore_death && is_lava_at_position(x_pos, y_pos));
-	var blocked_by_solid = (!ignore_solid && is_solid_at_position(x_pos, y_pos));
+	// Return as not free if blocked by room border
+	var blocked = (is_on_room_border(x_pos, y_pos) && !is_on_room_border(x, y));
+	if (object_index == obj_player) { blocked = false; }
+	if (blocked) { return false; }
 	
-	// The player is allowed to move outside the room while not on any solid
-	if (object_index == obj_player && !place_meeting(x, y, obj_solid)) { blocked_by_room_boundry = false; }
+	// Return as not free if blocked by room boundry
+	blocked = is_outside_room(x_pos, y_pos);
+	if (object_index == obj_player && !place_meeting(x, y, obj_solid)) { blocked = false; }
+	if (blocked) { return false; }
 	
-	// return whether the direction is blocked
-	return (!blocked_by_room_boundry && !blocked_by_solid && !blocked_by_death);
+	// Return as not free if blocked by lava
+	blocked = (!ignore_death && is_lava_at_position(x_pos, y_pos));
+	if (blocked) { return false; }
+	
+	// Return as not free if blocked by solid
+	blocked = (!ignore_solid && is_solid_at_position(x_pos, y_pos));
+	if (blocked) { return false; }
+	
+	// return as free if not blocked by anything
+	return true;
 }
 
 /// @function								is_outside_room(x_pos, y_pos);
@@ -121,6 +131,14 @@ function is_direction_free(dir, ignore_solid, ignore_death) {
 function is_outside_room(x_pos, y_pos) {
 	return (x_pos <= 0 || x_pos >= room_width || y_pos <= 0 || y_pos >= room_height);
 }
+
+/// @function								is_outside_room(x_pos, y_pos);
+/// @param		{int}	x_pos				The x position to check
+/// @param		{int}	y_pos				The y position to check
+function is_on_room_border(x_pos, y_pos) {
+	return (x_pos <= 16 || x_pos >= room_width-16 || y_pos <= 16 || y_pos >= room_height-16);
+}
+
 
 /// @function								can_move_in_direction_and_reach(dir, ignore_solid);
 /// @param		{direction}	dir				The direction to check whether the calling instance can move in
@@ -148,6 +166,13 @@ function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ign
 /// @param		{direction} dir				The direction in which to move the calling instance
 /// @param		{boolean} make_noise		Whether or not to play a movement sound
 function move_in_direction(dir, make_noise) {
+	var is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body));
+	var solid_grid = global.controller.current_room.solid_grid;
+	
+	// Remove old position from mp_grid
+	if (is_solid) { mp_grid_remove(solid_grid); }
+	
+	// Update position
 	if (dir == directions.up) { y -= 8; } 
 	else if (dir == directions.right) { x += 8; image_xscale = -1; }
 	else if (dir == directions.down) { y += 8; }
@@ -158,10 +183,15 @@ function move_in_direction(dir, make_noise) {
 		if (!corporeal) { make_noise = false; }
 	}
 	
+	// Add new position to mp_grid
+	if (is_solid) { mp_grid_add(solid_grid); }
+	
+	// Make movement noises
 	if (make_noise) {
 		var snd = snd_walk;
 		if (is_covered_at_each_quadrant_by(obj_lava)) { snd = snd_splash; }
 		else if (is_covered_at_each_quadrant_by(obj_solid)) { snd = snd_thud; }
+		else if (instance_place(x, y, obj_illusion_wall)) { snd = snd_flicker; }
 		play_sound(snd, false); 
 	}
 	
@@ -204,7 +234,7 @@ function get_direction_pushed_against() {
 
 /// @function								rotate_sprite_to_random_angle();
 function rotate_sprite_to_random_angle() {
-	image_angle = irandom(3) * 90;
+	image_angle = get_random_carindal_dir() * 90;
 }
 
 /// @function								flip_sprite_at_random(flip_vertical);
@@ -219,9 +249,9 @@ function flip_sprite_at_random(flip_vertical) {
 function get_instance_at_each_quadrant(obj_index) {
 	var presence_at_quadrant = [noone, noone, noone, noone];
 	
-	for (var i = 0; i <= 3; i+= 1;) {
-        var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
-		presence_at_quadrant[i] = instance_position(x_pos, y_pos, obj_index);
+	for (var quadrant = 0; quadrant < 4; quadrant++;) {
+        var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+		presence_at_quadrant[quadrant] = instance_position(x_pos, y_pos, obj_index);
     }
 	
 	return presence_at_quadrant;

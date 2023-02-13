@@ -1,18 +1,26 @@
 /// @function								convert_to_multiple_death_boxes();
 function convert_to_multiple_death_boxes() {
+	var lava_grid = global.controller.current_room.lava_grid;
+	
 	// Delete the existing death box
-	with death_box { instance_destroy(); }
+	with death_box {
+		mp_grid_remove(lava_grid);
+		instance_destroy(); 
+	}
 	death_box = noone;
 	
 	// Set up the death box for each quadrant of this lava
 	death_boxes = [noone, noone, noone, noone];
-	for (var i = 0; i <= 3; i+= 1;) {
-		var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+	for (var quadrant = 0; quadrant < 4; quadrant++;) {
+		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 
-		death_boxes[i] = instance_create(x_pos, y_pos, obj_death);
-		death_boxes[i].image_xscale = 0.5;
-		death_boxes[i].image_yscale = 0.5;
-		death_boxes[i].creator = id;
+		death_boxes[quadrant] = instance_create(x_pos, y_pos, obj_death);
+		with (death_boxes[quadrant]) {
+			image_xscale = 0.5;
+			image_yscale = 0.5;
+			creator = id;
+			mp_grid_add(lava_grid);
+		}
 	}
 }
 
@@ -20,12 +28,16 @@ function convert_to_multiple_death_boxes() {
 /// @param		{real} x_pos				The x position of the quadrant to destroy
 /// @param		{real} y_pos				The y position of the quadrant to destroy
 function destroy_lava_at_position(x_pos, y_pos) {
+	var lava_grid = global.controller.current_room.lava_grid;
 	if death_box { convert_to_multiple_death_boxes(); }
 	
-	for (var i = 0; i <= 3; i+=1;) {
-	    if (is_instance_at_coordinates(x_pos, y_pos, death_boxes[i])) {
-	        with death_boxes[i] { instance_destroy(); }
-			death_boxes[i] = noone;
+	for (var quadrant = 0; quadrant < 4; quadrant++;) {
+	    if (is_instance_at_coordinates(x_pos, y_pos, death_boxes[quadrant])) {
+	        with death_boxes[quadrant] {
+				mp_grid_remove(lava_grid);
+				instance_destroy(); 
+			}
+			death_boxes[quadrant] = noone;
 			return true;
 	    }
 	}
@@ -50,23 +62,23 @@ function get_lava_at_each_quadrant() {
 	}
 	
 	// Get the lava object at each quadrant
-	for (var i = 0; i <= 3; i+= 1;) {
-        var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
-		lava_at_quadrant[i] = instance_position(x_pos, y_pos, obj_lava);
+	for (var quadrant = 0; quadrant < 4; quadrant++;) {
+        var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+		lava_at_quadrant[quadrant] = instance_position(x_pos, y_pos, obj_lava);
     }
 	
 	// Check each quadrant for death boxes
-	for (var i = 0; i <= 3; i++) {
-		var lava = lava_at_quadrant[i], missing_death_box = true, x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+	for (var quadrant = 0; quadrant < 4; quadrant++;) {
+		var lava = lava_at_quadrant[quadrant], missing_death_box = true, x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 		if (is_existing_instance(lava) && !is_existing_instance(lava.death_box)) {
 			// mark the lava as not missing a death box if a death box is at the right quadrant position
-			for (var j = 0; j <= 3; j++) {
-				var death_box = lava.death_boxes[j]
+			for (var other_quadrant = 0; other_quadrant < 4; other_quadrant++) {
+				var death_box = lava.death_boxes[other_quadrant]
 				if (is_existing_instance(death_box) && death_box.x == x_pos && death_box.y == y_pos) { missing_death_box = false; break; }
 			}
 		
 			// Override lava at this quadrant with noone if death box is missing
-			if (missing_death_box) { lava_at_quadrant[i] = noone; }
+			if (missing_death_box) { lava_at_quadrant[quadrant] = noone; }
 		}
 	}
 		
@@ -79,10 +91,10 @@ function consume_lava(require_all) {
 	var lava_at_quadrant = get_lava_at_each_quadrant();
 	if (!require_all || is_covered_at_each_quadrant_by(obj_lava)) {
 		var consumed = false;
-		for (var i = 0; i <= 3; i++) {
-			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+		for (var quadrant = 0; quadrant < 4; quadrant++) {
+			var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 			
-			with lava_at_quadrant[i] { 
+			with lava_at_quadrant[quadrant] { 
 				consumed = destroy_lava_at_position(x_pos, y_pos) || consumed; 
 				destroy_self_if_all_death_boxes_are_destroyed();
 			}
@@ -108,6 +120,7 @@ function destroy_self_if_all_death_boxes_are_destroyed() {
 		!is_existing_instance(death_boxes[1]) &&
 		!is_existing_instance(death_boxes[2]) &&
 		!is_existing_instance(death_boxes[3])) { 
+			mp_grid_remove(global.controller.current_room.lava_grid);
 			instance_destroy(); 
 	}
 }
@@ -121,7 +134,7 @@ function set_up_lava_edge_visibility(first_time_setup) {
 	
 	sprite_index = spr_collectable;
 	for (var quadrant = 0; quadrant < 4; quadrant++) {
-		for (var dir = 0; dir < 4; dir++) {
+		for (var dir = directions.up; dir < directions.stairs; dir++) {
 			if (first_time_setup) { 
 				var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 				

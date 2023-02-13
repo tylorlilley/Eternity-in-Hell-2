@@ -2,6 +2,7 @@
 #macro MAX_SEED 99999999
 #macro NUMBER_OF_EXITS_PROBABILITY 9 
 #macro STAIRS_PROBABILITY 5 
+#macro NO_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 6, 5, 4, 3]) // This happens only after the stairs probability succeeds, so its combined with 1/5
 #macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 24, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
 //#macro KEY_PROBABILITY get_probability_for_difficulty([4, 4, 8, 10, 12]) // This happens only after the chest probability succeeds, so its combined with that probability.
@@ -9,7 +10,8 @@
 #macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
 #macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 20, 8, 4]) 
-#macro MISLEADING_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 12]) 
+#macro MISLEADING_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
+#macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 8])
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 8, 6, 4, 3]) 
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
 #macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 24, 16, 12, 8]) 
@@ -23,7 +25,7 @@
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 3, 2, 1]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 3, 2, 2, 2])  // Only occurs if room has lanterns AND not pre-lit
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 3, 3, 2, 1]) 
-#macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 8, 4, 3]) 
+#macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 8, 4, 3])
 #macro SNAKE_PROBABILITY  get_probability_for_difficulty([0, 0, 24, 16, 8]) 
 #macro EYES_PROBABILITY  get_probability_for_difficulty([0, 0, 0, 64, 46]) 
 #macro FAST_SKELETON_PROBABILITY get_probability_for_difficulty([0, 0, 16, 14, 12]) 
@@ -32,6 +34,7 @@
 #macro MOUTHS_PER_MOUTH (1+global.difficulty)
 
 // Initialize map drawing constants
+#macro GRID_SIZE 8
 //#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 14, 16])
 #macro MAXIMUM_NUMBER_OF_ROOMS (MINIMUM_NUMBER_OF_ROOMS * 1.5)
@@ -51,7 +54,8 @@
 #macro FRAMES_TO_WAIT_BEFORE_PROCESSING 6
 #macro FRAMES_FOR_HEART_THUMP 12
 #macro JUST_THE_WIND_PROBABILITY 2056 
-#macro BUSH_RUSTLE_FREQUENCY 16 
+#macro BUSH_RUSTLE_FREQUENCY 16
+#macro ILLUSION_WALL_FLICKER_FREQUENCY 128
 #macro SKELETON_MOVE_FREQUENCY 12 
 #macro FAST_SKELETON_MOVE_FREQUENCY 4 
 #macro SNAKE_HISS_FREQUENCY 32 

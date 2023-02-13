@@ -61,7 +61,7 @@ global.bg_color = make_color_rgb(0, 0, 0);
 
 // Setup generic arrays
 
-global.difficulties_array = [1, 2, 3, 4];
+global.difficulties_array = [difficulties.easy, difficulties.medium, difficulties.hard, difficulties.very_hard];
 global.death_types_array = [
 	obj_controller,
 	obj_bomb,

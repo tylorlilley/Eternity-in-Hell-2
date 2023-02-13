@@ -6,14 +6,15 @@ if (can_process_this_frame()) {
 		if (dir != -1 && is_direction_free(dir, false, true)) { 
 			move_in_direction(dir, false);
 			play_sound(snd_walk, false)
-			with (tail) { move_segments(other.dir); }
+			with (tail) { 
+				move_segments(other.dir); 
+			}
 		}
 		else { dir = -1; }
 		
 		// Turn in a new available direction
 		if (dir == -1) {
-			var new_directions = array_create(0);
-			array_push(new_directions, 0, 1, 2, 3);
+			var new_directions = [directions.up, directions.right, directions.down, directions.left];
 			while (array_length(new_directions) > 0) {
 				var new_dir = array_random_pop(new_directions);
 				var target = get_dropped_meat();

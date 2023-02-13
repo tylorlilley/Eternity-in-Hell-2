@@ -34,7 +34,7 @@ function kill_with_sword(sword) {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function run_away_from_player(ignore_solid, ignore_death, make_sound) {
-	var dir = irandom(3), player = global.player;
+	var dir = get_random_carindal_dir(), player = global.player;
 	if (is_direction_toward(dir, player)) { dir = get_opposite_dir(dir); }
 	if (get_random_chance_out_of(3)) { dir = directions.none; }
 	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, make_sound);  return dir; }
@@ -65,12 +65,12 @@ function teleport_to_lava() {
 
 		// Test this lava and all offsets by 8
 		var start_dir = irandom(4);
-		for (var i = 0; i <= 4; i++) {
+		for (var dir = directions.up; dir<= directions.stairs; dir++) {
 			// Set up lava for this run
 			x = lava.x;
 			y = lava.y;
 			
-			switch ((i+start_dir) % 5) {
+			switch ((dir+start_dir) % 5) {
 				case directions.up: { y -= 8; break; }
 				case directions.right: { x += 8; break; }
 				case directions.down: { y += 8; break; }
@@ -148,7 +148,7 @@ function try_to_see_player() {
 /// @function								move_snake(iterations);
 ///	@param		{int}	iterations			The number of times to move in one frame
 function move_snake(iterations) {
-	var prev_dir = (dir == -1) ? irandom(3) : dir;
+	var prev_dir = (dir == -1) ? get_random_carindal_dir() : dir;
 	for (var i = 0; i < iterations; i +=1) {
 		if (dir != -1 && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); }
 		else { dir = -1; break; }
@@ -184,7 +184,7 @@ function set_segment_image() {
 		flip_sprite_at_random(false);
 		image_index = 0;
 		image_yscale = -1;
-		if (tail.x != x && tail.y != y && (dir >= 0 && dir <= 3)) { image_angle = (dir*-90); }
+		if (tail.x != x && tail.y != y && is_cardinal_direction(dir)) { image_angle = (dir*-90); }
 		else if (tail.x == x) { image_angle = (tail.y < y) ? 180 : 0; }
 		else if (tail.y == y) { image_angle = (tail.x > x) ? 90 : 270; }
 	}
@@ -201,7 +201,7 @@ function set_segment_image() {
 		}
 		//else if (abs(tail.x - x) == 8 && abs(tail.y - y) == 8) {
 			//flip_sprite_at_random(true);
-			//image_angle = irandom(3)*90;
+			//image_angle = get_random_carindal_dir()*90;
 		//	image_index = 3;
 		//}
 		else {
@@ -230,10 +230,10 @@ function set_segment_image() {
 
 /// @function								connect_segments();
 function connect_segments() {
-	for (var i = 0; i < 4; i++) {
+	for (var dir = directions.up; dir < directions.stairs; dir++) {
 		var x_offset = 0, y_offset = 0;
 		
-		switch(i)
+		switch(dir)
 		{
 			case directions.up: { y_offset = -16; break; }
 			case directions.right: { x_offset = 16; break; }
@@ -245,10 +245,10 @@ function connect_segments() {
 		if (potential_tail && potential_tail != head) { 
 			tail = potential_tail;
 			tail.head = id; 
-			tail.dir = get_opposite_dir(i);
-			tail.prev_dir = get_opposite_dir(i);
+			tail.dir = get_opposite_dir(dir);
+			tail.prev_dir = get_opposite_dir(dir);
 			tail.depth = depth + 1;
-			if (!head) { dir = get_opposite_dir(i); prev_dir = get_opposite_dir(i); }
+			if (!head) { dir = get_opposite_dir(dir); prev_dir = get_opposite_dir(dir); }
 			break;
 		}
 	}

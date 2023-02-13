@@ -1,6 +1,6 @@
 if (can_process_this_frame()) {
 	dir_prev = dir;
-	if (dir_prev == directions.none) { dir_prev = irandom(3); }
+	if (dir_prev == directions.none) { dir_prev = get_random_carindal_dir(); }
 	
 	// Spawn Bugs in nearby dirt and bushes
 	with (obj_player_corpse) { 

@@ -166,10 +166,10 @@ function can_drop_item(item) {
 function draw_staff_box() {
 	if (is_carrying_item(obj_staff)) {
 		var lava_at_quadrant = get_instance_at_each_quadrant(obj_lava), wall_at_quadrant = get_instance_at_each_quadrant(obj_wall), column_at_quadrant = get_instance_at_each_quadrant(obj_column);
-		for (var i = 0; i <= 3; i +=1;) {
-			var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
+		for (var quadrant = 0; quadrant < 4; quadrant++;) {
+			var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 
-			if (is_existing_instance(lava_at_quadrant[i]) || is_existing_instance(wall_at_quadrant[i]) || is_existing_instance(column_at_quadrant[i])) {
+			if (is_existing_instance(lava_at_quadrant[quadrant]) || is_existing_instance(wall_at_quadrant[quadrant]) || is_existing_instance(column_at_quadrant[quadrant])) {
 			    draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.bg_color, 1);
 			}
 		}

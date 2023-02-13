@@ -21,10 +21,11 @@ function create_room_lists() {
 		var room_to_add = i, room_name = room_get_name(room_to_add);
 		
 		if (room_name = "rm_start" || room_name = "rm_finish" || room_name = "rm_title") { continue; }
-		if (string_starts_with(room_name, "rm_unused") || string_starts_with(room_name, "rm_no_exits")) { continue; }
+		if (string_starts_with(room_name, "rm_unused")) { continue; }
 		if (difficulty_for_room_reference(room_to_add) > global.difficulty) { continue; }
 		
-		if (string_pos("one_exit", room_name) != 0) { array_push(rooms_with_one_exit, room_to_add); }
+		if (string_pos("no_exits", room_name) != 0) { array_push(rooms_with_no_exits, room_to_add); }
+		else if (string_pos("one_exit", room_name) != 0) { array_push(rooms_with_one_exit, room_to_add); }
 		else if (string_pos("two_opposite_exits", room_name) != 0) { array_push(rooms_with_two_opposite_exits, room_to_add); }
 		else if (string_pos("two_perpendicular_exits", room_name) != 0) { array_push(rooms_with_two_perpendicular_exits, room_to_add); }
 		else if (string_pos("three_exits", room_name) != 0) { array_push(rooms_with_three_exits, room_to_add); }
@@ -45,6 +46,8 @@ function initialize_game_variables() {
 	// initialize room list values
 	game_rooms = array_create(0);
 	mapped_rooms = array_create(0);
+	rooms_with_stairs_and_exits = array_create(0);
+	rooms_with_only_stairs = array_create(0);
 	rooms_with_collectables = array_create(0);
 	rooms_with_key = array_create(0);
 	rooms_with_item = array_create(0); // This is only rooms with non-special, non-key, non-trap chests / items
@@ -130,11 +133,6 @@ function can_process_this_frame() {
 
 /// @function										game_room_start();
 function game_room_start() {
-	// Mark room as one that has been visited at some point in this game
-	if (!current_room.visited) {
-		current_room.visited = true;	
-		array_push(mapped_rooms, current_room);
-	}
 	// Do room entry stuff
 	audio_stop_all();
 	reset_game_object_image_blend();
@@ -143,7 +141,14 @@ function game_room_start() {
 	game_room_start_destroy_instances();
 	game_room_start_reposition_instances();
 	game_room_start_spawn_instances();
-	//game_room_start_reposition_player();
+	
+	// Mark room as one that has been visited at some point in this game
+	current_room.reset_room_solid_grid();
+	//current_room.reset_room_lava_grid();
+	if (!current_room.visited) {
+		current_room.visited = true;
+		array_push(mapped_rooms, current_room);
+	}
 }
 
 /// @function										reset_game_object_image_blend();
@@ -230,7 +235,7 @@ function game_room_start_other() {
 
 /// @function										game_room_start_spawn_instances();
 function game_room_start_spawn_instances() {
-	with (obj_echo_spot) { instance_create(x, y, obj_echo_generator); instance_destroy(); }
+	with (obj_echo_spot) { instance_create(-16, -16, obj_echo_generator); instance_destroy(); }
 	
 	//// If room has dropped item, consider spawning hands
 	if (instance_number(obj_item) > 0) {
@@ -252,7 +257,7 @@ function game_room_start_spawn_instances() {
 	}
 	
 	/// If room has lava, consider spawning nose
-	if (instance_number(obj_lava) > 0 && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(8, 8, obj_nose); }
+	if (instance_number(obj_lava) > 0 && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(-16, -16, obj_nose); }
 }
 
 /// @function										game_room_end();
@@ -305,6 +310,7 @@ function game_room_start_reposition_instances() {
 	with (obj_block) { x = xstart; y = ystart; }
 	with (obj_item) { if (holder == noone) { x = xstart; y = ystart; } }
 	with (obj_enemy) { if (object_index != obj_hands) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
+	with (obj_mouth) { teleport_to_empty_space(); }
 	with (obj_giant_worm_body) {
 		var new_worm_body = instance_create(xstart, ystart, object_index);
 		new_worm_body.xstart = xstart;
@@ -341,6 +347,33 @@ function game_room_initialize() {
 	if (current_room.rotate != -1) { rotate_room_contents_around_room_center(current_room.rotate); }
 	with obj_game_object { image_angle = 0; }
 	with obj_placeholder { image_angle = 0; }
+	
+	// Set up room exit placeholders based on room exits
+	with (obj_exit_placeholder) {
+		var has_exit_in_dir = other.current_room.has_exit_in_dir[exit_dir], existing_exit = other.current_room.exits[exit_dir], destroyed_something = false;
+		
+		if (!has_exit_in_dir) {
+		// Destroy all game objects and placeholders at this spot
+			var game_objects = instance_place_all(x, y, obj_game_object);
+			while (array_length(game_objects) > 0) {
+				var game_object = array_pop(game_objects);
+				instance_destroy(game_object);
+				destroyed_something = true;
+			}
+			var placeholders = instance_place_all(x, y, obj_placeholder);
+			while (array_length(placeholders) > 0) {
+				var placeholder = array_pop(placeholders);
+				instance_destroy(placeholder);
+				destroyed_something = true;
+			}
+		}
+		if (!destroyed_something) {
+			var obj_to_create = (has_exit_in_dir) ? -1 : obj_wall;
+			if (existing_exit != noone && existing_exit.illusion_walls) { obj_to_create = obj_illusion_wall; }
+			if (obj_to_create != -1) { instance_create(x, y, obj_to_create); }
+		}
+		instance_destroy();
+	}
 		
 	// Update objects in room to reflect new x, y position as initial positions
 	with (obj_block) {
@@ -373,8 +406,8 @@ function game_room_initialize() {
 	}
 		
 	// Create portcullis button if it should exist
-	for (var i = 0; i < 4; i++) {
-		if (current_room.locked_exits[i] != noone) { current_room.has_portcullis = false; break; }
+	for (var dir = 0; dir < directions.stairs; dir++) {
+		if (current_room.exits[dir] != noone) { current_room.has_portcullis = false; break; }
 	}
 	if (current_room.has_portcullis) {
 		// Set up spots where button could spawn
@@ -406,39 +439,41 @@ function game_room_initialize() {
 	}
     
 	// Check each of the four exits for doors to create
-	for (var i = 0; i < 4; i++) {
+	for (var dir = directions.up; dir < directions.stairs; dir++) {
 		var x_pos = 0;
 		var y_pos = 0;
         
-		if (i == 0) { x_pos = room_width/2; y_pos = 8; }
-		if (i == 1) { x_pos = room_width-8; y_pos = room_height/2; }
-		if (i == 2) { x_pos = room_width/2; y_pos = room_height-8; }
-		if (i == 3) { x_pos = 8; y_pos = room_height/2; }
+		if (dir == directions.up) { x_pos = room_width/2; y_pos = 8; }
+		else if (dir == directions.right) { x_pos = room_width-8; y_pos = room_height/2; }
+		else if (dir == directions.down) { x_pos = room_width/2; y_pos = room_height-8; }
+		else if (dir == directions.left) { x_pos = 8; y_pos = room_height/2; }
 		var door = instance_position(x_pos, y_pos, obj_door);
         
 		// Create locked exits if they should exist
-		var exit_to_create_door_for = current_room.locked_exits[i];
-		if (exit_to_create_door_for != noone) {
+		var exit_to_create_door_for = current_room.exits[dir];
+		if (exit_to_create_door_for != noone && exit_to_create_door_for.has_door) {
 		    if (!is_existing_instance(door)) { door = instance_create(x_pos, y_pos, obj_door); }
 		    door.door_for_exit = exit_to_create_door_for;
 		    door.locked = exit_to_create_door_for.locked;
 		}
 			
 		// Create portcullis doors if they should exist
-		else if (current_room.has_portcullis && current_room.exits[i]) { instance_create(x_pos, y_pos, obj_portcullis); }
+		else if (current_room.has_portcullis && current_room.has_exit_in_dir[dir]) { instance_create(x_pos, y_pos, obj_portcullis); }
 			
 		// Create blocked exists if they should exist
+		/*
 		var x_pos_1 = 0, y_pos_1 = 0, x_pos_2 = 0, y_pos_2 = 0;
 				
-		if (i == 0) { x_pos_1 = (room_width/2)-8; y_pos_1 = 8; x_pos_2 = (room_width/2)+8; y_pos_2 = 8; }
-		if (i == 1) { x_pos_1 = room_width-8; y_pos_1 = room_height/2-8; x_pos_2 = room_width-8; y_pos_2 =  room_height/2+8; }
-		if (i == 2) { x_pos_1 = (room_width/2)-8; y_pos_1 = room_height-8; x_pos_2 = (room_width/2)+8; y_pos_2 = room_height-8; }
-		if (i == 3) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
+		if (dir == directions.up) { x_pos_1 = (room_width/2)-8; y_pos_1 = 8; x_pos_2 = (room_width/2)+8; y_pos_2 = 8; }
+		else if (dir == directions.right) { x_pos_1 = room_width-8; y_pos_1 = room_height/2-8; x_pos_2 = room_width-8; y_pos_2 =  room_height/2+8; }
+		else if (dir == directions.down) { x_pos_1 = (room_width/2)-8; y_pos_1 = room_height-8; x_pos_2 = (room_width/2)+8; y_pos_2 = room_height-8; }
+		else if (dir == directions.left) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
 					
-		if (!current_room.exits[i] && !place_meeting(x_pos, y_pos, obj_solid)) {   
+		if (!current_room.has_exit_in_dir[dir] && !place_meeting(x_pos, y_pos, obj_solid)) {   
 			instance_create(x_pos_1, y_pos_1, obj_wall);
 			instance_create(x_pos_2, y_pos_2, obj_wall);
 		}
+		*/
 	}
     
 	// Create collectables in room if they should exist
@@ -472,7 +507,7 @@ function game_room_initialize() {
 	else if (instance_number(obj_lantern) > 0) {
 		// If room hsa lanterns but is not pre-lit, consider spawning phantom OR making chest hidden
 		if (instance_number(obj_eyes) == 0 && get_random_chance_out_of(PHANTOM_PROBABILITY)) {
-			instance_create(8, 8, obj_phantom);
+			instance_create(-16, -16, obj_phantom);
 		}
 		else if (current_room.stairs_spot_obj == obj_chest && current_room.chest_obj != obj_statue && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY)) {
 			current_room.stairs_spot_obj = obj_hidden_chest;
@@ -483,7 +518,7 @@ function game_room_initialize() {
 	// Create room's stairs_spot object
 	if (current_room.stairs_spot_obj != -1) { 
 		var stairs_spot_inst = instance_create(stairs_spot.x, stairs_spot.y, current_room.stairs_spot_obj);
-		if (current_room.chest_obj != obj_statue) {
+		if (is_existing_instance(stairs_spot_inst) && current_room.chest_obj != obj_statue) {
 			switch (stairs_spot_inst.object_index) {
 				case obj_stairs:
 				case obj_chest:
@@ -499,14 +534,14 @@ function game_room_initialize() {
 		
 	// If room has lava, consider spawning nose
 	if (instance_number(obj_lava) > 0) { 
-		if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(8, 8, obj_nose); }
-		if (get_random_chance_out_of(NOSE_PROBABILITY*2)) { instance_create(8, 8, obj_nose); }
-		if (get_random_chance_out_of(NOSE_PROBABILITY*3)) { instance_create(8, 8, obj_nose); }
+		if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(-16, -16, obj_nose); }
+		if (get_random_chance_out_of(NOSE_PROBABILITY*2)) { instance_create(-16, -16, obj_nose); }
+		if (get_random_chance_out_of(NOSE_PROBABILITY*3)) { instance_create(-16, -16, obj_nose); }
 	}
 		
 	// If room has mouth, spawn more mouths
 	var target_number_of_mouths = instance_number(obj_mouth) * MOUTHS_PER_MOUTH;
-	while (instance_number(obj_mouth) < target_number_of_mouths) { instance_create(x, y, obj_mouth); }
+	while (instance_number(obj_mouth) < target_number_of_mouths) { instance_create(-16, -16, obj_mouth); }
 		
 	// Spawn some dirt
 	var dirt_to_spawn = irandom(DIRT_PROBABILITY*2) - DIRT_PROBABILITY;
@@ -523,6 +558,10 @@ function game_room_initialize() {
 		
 	// Set up Lava Edge Drawing
 	with (obj_lava) { set_up_lava_edge_visibility(true); }
+	
+	// Set up room grids
+	current_room.reset_room_solid_grid();
+	current_room.reset_room_lava_grid();
 }
 
 /// @function								reset_map_generation();
@@ -585,8 +624,8 @@ function get_direction_input(key_pressed_only) {
 	
 	// Starting with the previous direction, check each direction for inputs
 	var possible_directions = array_create(0);
-	for (var i = 0; i < 4; i++) {
-		var current_dir = (i+player.dir_prev) % 4;
+	for (var dir = directions.up; dir < directions.stairs; dir++) {
+		var current_dir = (dir+player.dir_prev) % 4;
 		
 		// For the player object, skip directions that block movement
 		// This allows doors, chests, blocks, etc. to evaluate ignoring blocking objects

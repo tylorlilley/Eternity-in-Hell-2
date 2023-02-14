@@ -52,7 +52,6 @@
     {"name":"spr_grass","order":8,"path":"sprites/spr_grass/spr_grass.yy",},
     {"name":"spr_sword","order":32,"path":"sprites/spr_sword/spr_sword.yy",},
     {"name":"spr_chest","order":28,"path":"sprites/spr_chest/spr_chest.yy",},
-    {"name":"scr_random_map_generation","order":1,"path":"scripts/scr_random_map_generation/scr_random_map_generation.yy",},
     {"name":"obj_clock","order":10,"path":"objects/obj_clock/obj_clock.yy",},
     {"name":"scr_enemy","order":11,"path":"scripts/scr_enemy/scr_enemy.yy",},
     {"name":"spr_wall_left","order":112,"path":"sprites/spr_wall_left/spr_wall_left.yy",},

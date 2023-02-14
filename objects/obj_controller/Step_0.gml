@@ -31,7 +31,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 			if (transition == directions.stairs && transitioned_from != noone && transitioned_from.connected_to != noone) {
 				next_room = transitioned_from.connected_to.connected_room;
 			}
-			else if (transition != directions.respawn) {  next_room = current_room.adj_rooms[transition]; }
+			else if (transition != directions.respawn) {  next_room = current_room.get_adjoining_room(transition); }
 			transition_to_room(next_room); 
 		}
 	}

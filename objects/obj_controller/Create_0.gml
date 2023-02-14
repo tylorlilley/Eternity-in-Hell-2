@@ -9,172 +9,22 @@ random_set_seed(global.seed);
 show_debug_message("SEED: "+string(random_get_seed()));
 initialize_game_variables();
 
-// Generate Initial Room with Four Exits
-var uninitialized_rooms = array_create(0) // Used by functions called add_random_exit and initialized_room
-current_room = new GameRoom(0,0);
-current_room.has_exit_in_dir = [true, true, true, true, false];
-array_push(game_rooms, current_room);
-with current_room { initialize_room(uninitialized_rooms); }
-
-// Generate More Rooms until minimum number is met.
-var target_number_of_rooms = MINIMUM_NUMBER_OF_ROOMS;
-while (array_length(game_rooms) < target_number_of_rooms) {
-	var random_room = array_random_get(game_rooms);
-	with random_room { add_random_exit(true, uninitialized_rooms); }
-	//show_debug_message("Added room exit to game room " + string(random_room.id))
-}
-
-// Generate and initialize rooms until all rooms have been initialized
-while (array_length(uninitialized_rooms) > 0) {
-	var random_uninitialized_room = array_random_pop(uninitialized_rooms);
-	with random_uninitialized_room { initialize_room(uninitialized_rooms); }
-}
-
-// Restart Room Spawning if room count is too high
-var total_rooms = array_length(game_rooms);
-if (total_rooms > MAXIMUM_NUMBER_OF_ROOMS) {
-	show_debug_message("WARNING: too many rooms required.");
-	reset_map_generation();
-	exit;
-}
-else {
-
-// Remove a stairs room if there are too many
-if (modulo((array_length(rooms_with_stairs_and_exits) + array_length(rooms_with_only_stairs)), 2) != 0) {
-	var odd_room_out = array_random_pop(rooms_with_stairs_and_exits);
-	odd_room_out.remove_room_stairs();
-}
-// Connect rooms with only stairs exits together
-while (array_length(rooms_with_only_stairs) > 0) {
-	var room_without_exits = array_random_pop(rooms_with_only_stairs);
-	var room_with_exits = array_random_pop(rooms_with_stairs_and_exits);
-	if (room_with_exits == noone) {
-		// Should never need to reach this clause
-		show_debug_message("WARNING: not enough rooms with stairs AND exits generated.");
-		reset_map_generation();
-		exit;
-	}
-	else {
-		room_without_exits.adj_rooms[directions.stairs] = room_with_exits;
-		room_with_exits.adj_rooms[directions.stairs] = room_without_exits;
-	}
-}
-// Connect remaining stairs rooms together
-while (array_length(rooms_with_stairs_and_exits) > 0) {
-	var first_room = array_random_pop(rooms_with_stairs_and_exits);
-	var second_room = array_random_pop(rooms_with_stairs_and_exits);
-	first_room.adj_rooms[directions.stairs] = second_room;
-	second_room.adj_rooms[directions.stairs] = first_room;
-}
-
-// Lock Random Exits
-locked_exits = array_create(0);
-for (var i = 0; i < total_rooms; i++) {
-	for(var dir = directions.up; dir < directions.stairs; dir++;) {
-	    if (game_rooms[i].has_exit_in_dir[dir] && get_random_chance_out_of(LOCKED_DOOR_PROBABILITY)) { 
-	        array_push(locked_exits, game_rooms[i].create_locked_exit(dir));
-	    }
-	}
-}
-
-// Choose a start room to begin the game in
-var start_pos = irandom(total_rooms-1);
-for (var i = 0; i < total_rooms; i++) {
-	var current_pos = (i+start_pos) % total_rooms;
-
-	current_room = game_rooms[current_pos];
-	if (current_room.stairs_spot_obj == -1) { start_room = current_room; break; }
-}
-if (start_room == noone) {
-	// Should never need to reach this clause
-	show_debug_message("WARNING: random start room choice messed up.");
-	reset_map_generation();
-	exit;
-}
-
-// Set up the start room
-with (start_room) {
-	has_portcullis = false;
-	stairs_spot_obj = obj_cross;
-	if (has_key) { remove_room_key(); }
-	if (has_collectables) {
-		has_collectables = false;
-		array_remove(other.rooms_with_collectables, self);
-	}
-}
-
-// Walk the map to initialize keys and map distances
-var map_walker = set_up_locks_and_keys()
-if (map_walker != noone) {
-	// Should never need to reach this clause
-	show_debug_message("WARNING: key generation screwed up.");
-	//reset_map_generation();
-	//exit;
-}
-
-// Determine the farthest rooms
-for (var dir = directions.right; dir <= directions.stairs; dir++) { get_failing_map_walker(dir, start_room); }
-
-// Create a heart room
-var farthest_rooms = array_create(0);
-for (var i = 0; i < total_rooms; i++) {
-	if (game_rooms[i].has_exit_in_dir[directions.stairs] == false && (!game_rooms[i].has_special_item || !game_rooms[i].chest_obj == obj_key)) {
-		// Room is eligibile to host the heart
-		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, game_rooms[i]); }
-		else {
-			var distance = array_get(farthest_rooms, 0).distance_to_start_room;
-			if (game_rooms[i].distance_to_start_room > distance) { farthest_rooms = array_create(0); }
-			if (game_rooms[i].distance_to_start_room >= distance) { array_push(farthest_rooms, game_rooms[i]); }
-		}
-	}
-}
-heart_room = array_random_pop(farthest_rooms);
-
-// Set up the heart room
-with (heart_room) {
-	remove_room_chest();
-	has_portcullis = false;
-	stairs_spot_obj = obj_encased_heart;
-	if (has_key) { remove_room_key(); }
-	if (!has_collectables) {
-		has_collectables = true;
-		array_push(other.rooms_with_collectables, self);
-	}
-	for (var dir = directions.up; dir < directions.stairs; dir += 1;) {
-		if (has_exit_in_dir[dir]) { create_locked_exit(dir); }
-	}
-}
-
-// Randomly spawn a minimum number of collectables rooms
-while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
-	var new_collectables_room = array_random_get(game_rooms);
-	if (new_collectables_room == start_room || new_collectables_room == heart_room) { continue; }
-	
-	if (!new_collectables_room.has_collectables) {
-		new_collectables_room.has_collectables = true;
-		array_push(rooms_with_collectables, new_collectables_room);
-	}
-}
-total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
-
-// Spawn more keys to handle new locks
-var map_walker = set_up_locks_and_keys()
-if (map_walker != noone) {
-	// Should never need to reach this clause
-	show_debug_message("WARNING: second key generation screwed up.");
-	//reset_map_generation();
-	//exit;
-}
 
 // Setup room references
+if (create_game_map() == -1) {
+	// Should never reach this clause
+	show_debug_message("WARNING: map generation failed.");
+	reset_map_generation();
+	exit;
+};
 create_room_lists();
-time_provided = 0;
-
+current_room = start_room;
 var item_spawned = false, rooms_with_lanterns = array_create(0), rooms_without_stairs_spot_obj = array_create(0);
-for (var i = 0; i < total_rooms; i++) {
+for (var i = 0; i < array_length(game_rooms); i++) {
 	// Assign room reference from list
 	var given_room = game_rooms[i];
-	given_room.room_reference = given_room.get_room_from_room_lists();
+	given_room.set_room_reference();
+	given_room.initialize_room();
    
 	// Add room to approprite room lists
 	with (given_room) {
@@ -188,13 +38,37 @@ for (var i = 0; i < total_rooms; i++) {
 	var room_time_provided = TIME_PROVIDED_PER_ROOM;
 	if (room_difficulty == difficulties.easy) { room_time_provided += TIME_PROVIDED_PER_EASY_ROOM; }
 	if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }
-	if (current_room.has_collectables) { room_time_provided += TIME_PROVIDED_PER_COLLECTABLE; }
-	if (current_room.misleading_room) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
+	if (given_room.has_collectables) { room_time_provided += TIME_PROVIDED_PER_COLLECTABLE; }
+	if (given_room.misleading_room) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
 	for (var dir = directions.up; dir < directions.stairs; dir++) {
-		if (current_room.exits[dir] != noone) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
+		var given_exit = given_room.exits[dir];
+		if (given_exit != -1 && given_exit.has_lock) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
 	}
 	time_provided += room_time_provided;
 }
+
+// Ensure minimum number of collectables rooms exist
+/*
+while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
+	var new_collectables = -1;
+	array_shuffle(game_rooms);
+	for (var i = 0; i < array_length(game_rooms); i++) {
+		var new_collectables_room = game_rooms[i];
+		new_collectables_room.add_collectables();
+		if (new_collectables != -1) { break; }
+	}
+	if (new_collectables == -1) {
+		// Should never reach this clause
+		show_debug_message("WARNING: not enough collectables rooms generated.");
+		reset_map_generation();
+		exit;
+	}
+	new_collectables_room.add_collectables();
+	time_provided += TIME_PROVIDED_PER_COLLECTABLE;
+	array_push(rooms_with_collectables, new_collectables_room);
+}
+total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
+*/
 
 // Ensure at least one lantern room exists
 if (array_length(rooms_with_lanterns) == 0) {
@@ -250,6 +124,5 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 with (global.game_manager) { sounds_to_play = array_create(0); }
 play_sound(snd_torchlight, false);
 start_room.go_to_room(true);
-}
 
 

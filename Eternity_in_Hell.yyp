@@ -191,7 +191,6 @@
     {"id":{"name":"spr_grass","path":"sprites/spr_grass/spr_grass.yy",},"order":8,},
     {"id":{"name":"spr_sword","path":"sprites/spr_sword/spr_sword.yy",},"order":32,},
     {"id":{"name":"spr_chest","path":"sprites/spr_chest/spr_chest.yy",},"order":28,},
-    {"id":{"name":"scr_random_map_generation","path":"scripts/scr_random_map_generation/scr_random_map_generation.yy",},"order":1,},
     {"id":{"name":"obj_clock","path":"objects/obj_clock/obj_clock.yy",},"order":10,},
     {"id":{"name":"scr_enemy","path":"scripts/scr_enemy/scr_enemy.yy",},"order":11,},
     {"id":{"name":"spr_wall_left","path":"sprites/spr_wall_left/spr_wall_left.yy",},"order":0,},

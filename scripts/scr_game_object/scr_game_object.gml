@@ -373,3 +373,16 @@ function get_sprite_to_use(regular_sprite) {
 	
 	return regular_sprite;
 }
+
+/// @function								get_room_map_position(inst);
+/// @param		{real} inst					The instance id to return a room map position for
+function get_room_map_position(inst) {
+	// Set up room map positions
+	var x_pos = 1, y_pos = 1;
+	if (inst.y < room_height/2-16) { y_pos = 0; }
+	else if (inst.y > room_height/2+16) { y_pos = 2; }
+	if (inst.x < room_width/2-16) { x_pos = 0; }
+	else if (inst.x > room_width/2+16) { x_pos = 2; }
+	
+	return [x_pos, y_pos]
+}

@@ -1,8 +1,8 @@
 // Initialize room probability constants
 #macro MAX_SEED 99999999
-#macro NUMBER_OF_EXITS_PROBABILITY 9 
-#macro STAIRS_PROBABILITY 5 
-#macro NO_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 6, 5, 4, 3]) // This happens only after the stairs probability succeeds, so its combined with 1/5
+//#macro NUMBER_OF_EXITS_PROBABILITY 9 
+//#macro STAIRS_PROBABILITY 5 
+//#macro NO_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 6, 5, 4, 3]) // This happens only after the stairs probability succeeds, so its combined with 1/5
 #macro LOCKED_CHEST_PROBABILITY 0//get_probability_for_difficulty([0, 24, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
 //#macro KEY_PROBABILITY get_probability_for_difficulty([4, 4, 8, 10, 12]) // This happens only after the chest probability succeeds, so its combined with that probability.
@@ -38,7 +38,7 @@
 //#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 14, 16])
 #macro MAXIMUM_NUMBER_OF_ROOMS (MINIMUM_NUMBER_OF_ROOMS * 1.5)
-#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 
+//#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 
 #macro MINIMUM_COLLECTABLES_ROOMS get_probability_for_difficulty([1, 2, 3, 3.5, 4]) 
 //#macro MAX_MAP_DRAW_DISTANCE 8 
 

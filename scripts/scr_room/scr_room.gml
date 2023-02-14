@@ -1,37 +1,199 @@
 function GameRoom(given_x, given_y) constructor {
-	//room_reference = noone;
-	instances = array_create(0);
+	// Map Generation Values
 	virtual_x = given_x;
 	virtual_y = given_y;
-	id = get_new_id();
-	distance_to_start_room = 9999;
-
-	// Initialize room state values
-	visited = false;
-	has_visited_exit_in_dir = [false, false, false, false, false];
+	exits = [-1, -1, -1, -1, -1];
+	distance_to_start = 9999;
+	
+	// Room Initialization Values
 	flip_horizontal = false;
 	flip_vertical = false;
 	rotate = noone;
-	lit = false;
-
-	// Room content values
-	solid_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
-	lava_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
-	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
+	
+	// Room Start Values
+	has_visited_exit_in_dir = [false, false, false, false, false];
 	has_key = false;
 	has_locked_chest = false;
 	has_special_item = false;
 	has_collectables = false;
 	has_portcullis = false;
-	has_only_stairs_exit = false;
+	
+	drawn = false;
+	visited = false;
+	lit = false;
 	misleading_room = false;
 	stairs_spot_obj = -1;
 	chest_obj = -1;
-
-	// Initialize room topography information
-	has_exit_in_dir = [false, false, false, false, false];
-	exits = [noone, noone, noone, noone, noone];
-	adj_rooms = [noone, noone, noone, noone, noone];
+	
+	// Room Content Values
+	instances = array_create(0);
+	solid_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
+	lava_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
+	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
+	
+	function calculate_distance_to_adjoining_rooms(start_distance) {
+		if (start_distance < distance_to_start) { 
+			distance_to_start = start_distance;
+			for (var dir = directions.up; dir <= directions.stairs; dir++;) {
+				var adj_room = get_adjoining_room(dir);
+				adj_room.calculate_distance_to_adjoining_rooms(distance_to_start+1);
+			}
+		}
+	}
+	
+	function has_visited_exit(dir) {
+		return has_visited_exit_in_dir[dir];
+	}
+	
+	function has_exit(dir) {
+		return (exits[dir] != -1);
+	}
+	
+	function get_cardinal_exits_count() {
+		var exit_count = 0;
+		for (var dir = directions.up; dir < directions.stairs; dir++;) { if (has_exit(dir)) { exit_count += 1; } }
+		return exit_count;
+	}
+	
+	function get_adjacent_room(dir) {
+		if (dir >= directions.stairs) { return -1; }
+		
+		var game_rooms = global.controller.game_rooms, x_pos = virtual_x, y_pos = virtual_y, adj_room = -1;
+		x_pos += get_dir_x_offset(dir);
+		y_pos += get_dir_y_offset(dir);
+				
+		for (var i = 0; i < array_length(game_rooms); i++;) {
+			var game_room = game_rooms[i]
+			if (game_room.virtual_x == x_pos && game_room.virtual_y == y_pos) { adj_room = game_room; break; }
+		}
+		return adj_room;
+	}
+	
+	function get_adjoining_room(dir) {
+		return (exits[dir] == -1) ? -1 : exits[dir].get_room_in_direction(dir);
+	}
+	
+	function make_adjoining_room(new_room, dir) {
+		exits[dir] = new RoomExit(self, new_room, dir);
+		return exits[dir];
+	}
+	
+	function create_adjoining_room() {
+		// Get which adjoining directions are empty
+		var empty_directions = array_create(0), game_rooms = global.controller.game_rooms;
+		for (var dir = directions.up; dir <= directions.stairs; dir++;) {
+			if (get_adjoining_room(dir) == -1) { array_push(empty_directions, dir); }
+		}
+		if (array_length(empty_directions) == 0) { return -1; }
+		
+		// Choose a random empty adjoining direction
+		array_shuffle(empty_directions);
+		var chosen_dir = empty_directions[0], new_room = -1;
+		if (chosen_dir == directions.stairs) {
+			// Create room adjacent to any existing room in any open direction
+			array_shuffle(game_rooms);
+			for (var i = 0; i < array_length(game_rooms); i++) {
+				var chosen_room = game_rooms[i];
+				new_room = chosen_room.create_adjacent_room();
+				if (new_room != -1) { break; }
+			}
+			if (new_room == -1) {
+				// SHOULD NEVER REACH THIS POINT
+				show_debug_message("ERROR: Couldn't create adjacent room to any room");
+				return -1;
+			}
+		}
+		else {
+			// Create room adjacent to this room in the chosen direction
+			new_room = create_room_in_dir(chosen_dir);
+		}
+		
+		make_adjoining_room(new_room, chosen_dir);
+		return new_room;
+	}
+	
+	function create_adjacent_room() {
+		// Get which adjacent directions are empty
+		var empty_directions = array_create(0);
+		for (var dir = directions.up; dir < directions.stairs; dir++;) {
+			if (get_adjacent_room(dir) == -1) { array_push(empty_directions, dir); }
+		}
+		if (array_length(empty_directions) == 0) { return -1; }
+		
+		// Choose a random empty adjacent direction and create a new room there
+		array_shuffle(empty_directions);
+		var chosen_dir = empty_directions[0], 
+		return create_room_in_dir(chosen_dir);
+	}
+	
+	function create_room_in_dir(dir) {
+		var x_pos = virtual_x + get_dir_x_offset(dir), y_pos = virtual_y + get_dir_y_offset(dir), new_room = new GameRoom(x_pos, y_pos);
+		array_push(global.controller.game_rooms, new_room);
+		return new_room;
+	}
+	
+	function create_exit() {
+		// Get which directions are not adjoining but do have an adjacent room
+		var possible_directions = array_create(0);
+		for (var dir = directions.up; dir < directions.stairs; dir++;) {
+			if (get_adjoining_room(dir) == -1) {
+				var adjacent_room = get_adjacent_room(dir);
+				if (adjacent_room != -1) { array_push(possible_directions, [dir, adjacent_room]); }
+			}
+		}
+		if (array_length(possible_directions) == 0) { 
+			return -1; 
+		}
+		
+		// Choose a random possible direction and link that room
+		array_shuffle(possible_directions);
+		var chosen_possibility = possible_directions[0], chosen_dir = chosen_possibility[0], chosen_room = chosen_possibility[1]; 
+		var new_exit = make_adjoining_room(chosen_room, chosen_dir);
+		
+		return new_exit;
+	}
+	
+	function lock_exits(must_lock) {
+		var locks_created = 0;
+		for (var dir = directions.up; dir < directions.stairs; dir++;) {
+			var exit_in_dir = exits[dir];
+			if (exit_in_dir != -1) {
+				var should_create_lock = (must_lock || get_random_chance_out_of(LOCKED_DOOR_PROBABILITY));
+				if (should_create_lock) { locks_created += exit_in_dir.lock(); }
+			}
+		}
+		return locks_created;
+	}
+	
+	function add_key() {
+		var controller = global.controller;
+		if (has_key || controller.start_room == self || controller.heart_room == self) { return -1; }
+		
+		has_key = true;
+		return true;
+	}
+	
+	function add_collectables() {
+		var controller = global.controller;
+		if (has_collectables || controller.start_room == self || controller.heart_room == self) { return -1; }
+		
+		has_collectables = true;
+		return true;
+	}
+	
+	/*
+	/// @function								set_up_room_key();
+	function set_up_room_key() {
+		var controller = global.controller;
+		if (has_special_item || (stairs_spot_obj == -1 && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY))) {
+			stairs_spot_obj = obj_chest;
+			chest_obj = obj_key;
+			if (has_special_item) { array_push(controller.spawned_special_items, obj_key); }
+		}
+		has_key = true; 
+		array_push(controller.rooms_with_key, self); 
+	}
+	*/
 	
 	function reset_room_solid_grid() {
 		mp_grid_clear_all(solid_grid);
@@ -58,125 +220,18 @@ function GameRoom(given_x, given_y) constructor {
 		//show_debug_message("removed from room " + string(id) + "at" + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
 		array_remove(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst.object_index);
 	}
-
-	/// @function								get_room_map_position(inst);
-	/// @param		{real} inst					The instance id to return a room map position for
-	function get_room_map_position(inst) {
-		// Set up room map positions
-		var x_pos = 1, y_pos = 1;
-		if (inst.y < room_height/2-16) { y_pos = 0; }
-		else if (inst.y > room_height/2+16) { y_pos = 2; }
-		if (inst.x < room_width/2-16) { x_pos = 0; }
-		else if (inst.x > room_width/2+16) { x_pos = 2; }
 	
-		return [x_pos, y_pos]
-	}
-	
-	/// @function								initialize_room(list_of_rooms);
-	/// @param	{index}	list_of_rooms			The list of available rooms
-	function initialize_room(list_of_rooms) {
-		// Randomly decide if room will have collectables, stairs, keys, items, etc
+	/// @function								initialize_room(); // TODO: RENAME THIS
+	function initialize_room() {
 		var controller = global.controller;
 		
-		// Decide what to spawn in stairs_spot
-		if (has_only_stairs_exit || get_random_chance_out_of(STAIRS_PROBABILITY)) { set_up_room_stairs(list_of_rooms); }
-		else if (get_random_chance_out_of(CHEST_PROBABILITY)) { set_up_room_chest(); }
-		
-		// Decide what to spawn in collectables spots
-		if (has_only_stairs_exit || get_random_chance_out_of(COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(controller.rooms_with_collectables, self); }
+		// Decide what features to randomly spawn
+		if (stairs_spot_obj == -1 && get_random_chance_out_of(CHEST_PROBABILITY)) //{ set_up_room_chest(); }
+		if (get_random_chance_out_of(COLLECTABLE_PROBABILITY)) { has_collectables = true; array_push(controller.rooms_with_collectables, self); }
 		if (get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { has_portcullis = true; }
-	
-		// Take care of exits that must exist based on adjacent rooms and decrement number of exits accordingly
-		for (var dir = directions.up; dir < directions.stairs; dir++) {
-		    if (adj_rooms[dir]) { 
-		        // If this room has an adjoining room in this direction, make sure it also has an exit in that
-		        // direction. Then, link the rooms so they each have the other listed as an adj_room.
-				has_exit_in_dir[dir] = true;
-				link_adjoining_room(adj_rooms[dir], dir);
-		    }
-		    else if (has_exit_in_dir[dir]) {
-		        // Create adjoining room if this room has an exit in that direction but not an adjoining room.
-		        create_adjoining_room(dir, list_of_rooms);
-		    }
-		}
-		
-		// Randomly determine the number of exits this room should have based on probability weighting
-		var target_number_of_exits = irandom(NUMBER_OF_EXITS_PROBABILITY);
-		if (target_number_of_exits == 0 || target_number_of_exits > 3) { target_number_of_exits = 2; }
-		if (has_only_stairs_exit) { target_number_of_exits = 0; }
-		
-		while(array_length(controller.game_rooms) + target_number_of_exits > MINIMUM_NUMBER_OF_ROOMS) { target_number_of_exits -= 1; }
-
-		// Generate some number of random additional exits
-		while (get_exits_count() < target_number_of_exits) {
-		    var new_exit_created = add_random_exit(false, list_of_rooms);
-			if (!new_exit_created) { break; }
-		}
 	}
 	
-	/// @function								set_up_room_stairs();
-	function set_up_room_stairs(list_of_rooms) {
-		var controller = global.controller;
-		has_exit_in_dir[4] = true; 
-		stairs_spot_obj = obj_stairs;
-		if (has_only_stairs_exit) { array_push(controller.rooms_with_only_stairs, self); }
-		else {
-			array_push(controller.rooms_with_stairs_and_exits, self);
-			if (get_random_chance_out_of(NO_EXIT_ROOM_PROBABILITY)) {
-				// Create room with only stairs
-				var new_room = noone, start_pos = irandom(array_length(controller.game_rooms)-1);
-				for (var pos = 0; pos < array_length(controller.game_rooms); pos++;) {
-					var next_pos = (pos + start_pos) % array_length(controller.game_rooms);
-					new_room = controller.game_rooms[next_pos].create_adjacent_exitless_room(list_of_rooms);
-					if (new_room != noone) { break; }
-				}
-				if (new_room == noone) {		
-					// Should never need to reach this clause
-					show_debug_message("WARNING: no possible adjacent position found to create room with only stairs");
-				}
-			}
-		}
-	}
-	
-	/// @function								create_adjoining_room(list_of_rooms);
-	/// @param		{index}		list_of_rooms	The list of all created rooms
-	function create_adjacent_exitless_room(list_of_rooms) {
-		var start_dir = get_random_carindal_dir(), possible_dir = -1;
-		for (var dir = directions.up; dir < directions.stairs; dir++;) {
-			var next_dir = (start_dir + dir) % 4;
-			if (get_adjacent_room(next_dir) == noone) { possible_dir = next_dir; break; }
-		}
-		if (possible_dir == -1) { return noone; }
-
-		// An empty possible direction has been found
-		var controller = global.controller, x_offset = 0, y_offset = 0, 
-		switch(possible_dir)
-		{
-		    case directions.up: { y_offset = -16; break; }
-		    case directions.right: { x_offset = 16; break; }
-		    case directions.down: { y_offset = 16; break; }
-		    case directions.left: { x_offset = -16; break; }
-		}
-
-		var new_room = new GameRoom(virtual_x+x_offset, virtual_y+y_offset);
-		new_room.has_only_stairs_exit = true;
-		array_push(controller.game_rooms, new_room);
-		array_push(list_of_rooms, new_room);
-		
-		return new_room;
-	}
-	
-	/// @function								remove_room_stairs();
-	function remove_room_stairs() {
-		var controller = global.controller;
-		
-		has_only_stairs_exit = false;
-		has_exit_in_dir[4] = false; 
-		stairs_spot_obj = -1;
-		if (has_only_stairs_exit) { array_remove(controller.rooms_with_only_stairs, self); }
-		else { array_remove(controller.rooms_with_stairs_and_exits, self); }
-	}
-	
+	/*
 	/// @function								set_up_room_chest();
 	function set_up_room_chest() {
 		var controller = global.controller;
@@ -204,405 +259,7 @@ function GameRoom(given_x, given_y) constructor {
 				
 		stairs_spot_obj = obj_chest;
 	}
-	
-	function remove_room_chest() {
-		var controller = global.controller;
-		array_remove(controller.rooms_with_item, self); 
-		array_remove(controller.spawned_special_items, chest_obj);
-		
-		stairs_spot_obj = -1;
-		chest_obj = -1;
-		has_locked_chest = false;
-		has_special_item = false;
-	}
-	
-	/// @function								set_up_room_key();
-	function set_up_room_key() {
-		var controller = global.controller;
-		if (has_special_item || (stairs_spot_obj == -1 && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY))) {
-			stairs_spot_obj = obj_chest;
-			chest_obj = obj_key;
-			if (has_special_item) { array_push(controller.spawned_special_items, obj_key); }
-		}
-		has_key = true; 
-		array_push(controller.rooms_with_key, self); 
-	}
-	
-	/// @function								remove_room_key();
-	function remove_room_key() {
-		var controller = global.controller;
-		if (chest_obj == obj_key && stairs_spot_obj == obj_chest) {
-			stairs_spot_obj = -1;
-			chest_obj = -1;
-			if (has_special_item) { array_remove(controller.spawned_special_items, obj_key); }
-		}
-		has_key = false; 
-		array_remove(controller.rooms_with_key, self); 
-	}
-	
-	/// @function								create_exit_for(dir);
-	/// @param		{direction}		dir			The directional exit of the room to create a an exit in
-	function create_exit_for(dir) {
-		var new_exit = new RoomExit(self, dir);
-	
-		new_exit.room_1.exits[new_exit.room_1_dir] = new_exit;
-		new_exit.room_2.exits[new_exit.room_2_dir] = new_exit;
-	
-		return new_exit;
-	}
-	
-	/// @function								create_locked_exit(dir);
-	/// @param		{direction}		dir			The directional exit of the room to create a locked exit in.
-	function create_locked_exit(dir) {
-		var new_exit = create_exit_for(dir);
-	
-		new_exit.locked = true;
-		new_exit.has_door = true;
-	
-		return new_exit;
-	}
-	
-	/// @function								create_illusion_walls_exit(dir);
-	/// @param		{direction}		dir			The directional exit of the room to create a locked exit in.
-	function create_illusion_walls_exit(dir) {
-		var new_exit = create_exit_for(dir);
-	
-		new_exit.illusion_walls = true;
-	
-		return new_exit;
-	}
-	
-	/// @function								create_adjoining_room(dir, list_of_rooms);
-	///	@param		{direction}	dir				The direction from this room in which to create the adjoining room
-	/// @param		{index}		list_of_rooms	The list of all created rooms
-	function create_adjoining_room(dir, list_of_rooms) {
-		var x_offset = 0
-		var y_offset = 0;
-
-		switch(dir)
-		{
-		    case directions.up: { y_offset = -16; break; }
-		    case directions.right: { x_offset = 16; break; }
-		    case directions.down: { y_offset = 16; break; }
-		    case directions.left: { x_offset = -16; break; }
-		}
-
-		var new_room = new GameRoom(virtual_x+x_offset, virtual_y+y_offset);
-		array_push(global.controller.game_rooms, new_room);
-		link_adjoining_room(new_room, dir);
-		array_push(list_of_rooms, new_room);
-		return new_room;
-	}
-	
-	/// @function								link_adjoining_room(adjoining_room, dir);
-	/// @param		{index}		adjoining_room	The adjacent room to link to this one via a new exit
-	/// @param		{direction}	dir				The direction from this room in which the adjoining room lies
-	function link_adjoining_room(adjoining_room, dir) {
-		adj_rooms[dir] = adjoining_room;
-	
-		with adjoining_room {
-		    adj_rooms[get_opposite_dir(dir)] = other;
-		    has_exit_in_dir[get_opposite_dir(dir)] = true;
-		}
-	}
-	
-	/// @function									add_random_exit(must_create_new, list_of_rooms);
-	/// @param		{boolean}	must_create_new		Whether or not an exit must be created as a result of this method
-	/// @param		{index}		list_of_rooms		The list of all created rooms
-	function add_random_exit(must_create_new, list_of_rooms) {
-		/*
-		if (get_exits_count() > 3 || (must_create_new && get_adjacent_rooms_count() > 3)) { 
-		    return false; 
-			// Should never need to reach this clause
-			show_debug_message("WARNING: add random exit called but no possible exits to create.");
-			reset_map_generation();
-			exit;
-		}
-		*/
-		
-		// Randomly determine where the next exit position will be
-		var possible_new_exit_dirs = get_possible_new_exits_dirs(must_create_new), new_exit_dir = -1;
-		if (array_length(possible_new_exit_dirs) == 0) { return false; }
-		var new_exit_dir = array_random_pop(possible_new_exit_dirs);
-
-		// Create an exit at this position, then either link to the adjacent room that is in
-		// that direction or create a new room in that direction
-		has_exit_in_dir[new_exit_dir] = true;
-		var existing_room = get_adjacent_room(new_exit_dir);
-		if (existing_room == noone) { create_adjoining_room(new_exit_dir, list_of_rooms); }
-		else { link_adjoining_room(existing_room, new_exit_dir); }
-		return true;
-	}
-
-	/// @function								get_exits_count();
-	function get_exits_count() {
-		var number_of_exits = 0;
-
-		for (var dir = directions.up; dir < directions.stairs; dir++) {
-		    if (has_exit_in_dir[dir]) { number_of_exits += 1; }
-		}
-		
-		return number_of_exits;
-	}
-
-	/// @function								get_adjacent_rooms_count();
-	function get_adjacent_rooms_count() {
-		var number_of_rooms = 0;
-
-		for (var dir = directions.up; dir < directions.stairs; dir++) {
-		    if (get_adjacent_room(dir)) { number_of_rooms += 1; }
-		}
-	
-		return number_of_rooms;
-	}
-	
-	/// @function									get_possible_new_exits_dirs(must_create_new);
-	/// @param		{boolean}	must_create_new		Whether the possible exit must not have an existing adjacent_room or not
-	function get_possible_new_exits_dirs(must_create_new) {
-		var possible_new_exit_dirs = array_create(0);
-		for (var dir = directions.up; dir < directions.stairs; dir++;) {
-			var potential_room = get_adjacent_room(dir);
-			if (must_create_new && potential_room == noone) { array_push(possible_new_exit_dirs, dir); }
-			else if (!must_create_new && !has_exit_in_dir[dir] && potential_room == noone || !potential_room.has_only_stairs_exit) { array_push(possible_new_exit_dirs, dir); }
-		}
-		return possible_new_exit_dirs;
-	}
-
-	/// @function								calculate_distance_to_current_room(distance)
-	/// @param		{real}	distance			The number of rooms away from this room the current room is
-	/*
-	function calculate_distance_to_current_room(distance) {
-		if (distance < distance_to_current_room) { distance_to_current_room = distance; }
-		for (var dir = directions.up; dir < directions.stairs; dir++) {
-		    if (adj_rooms[dir]) {
-		        if (distance+1 < adj_rooms[dir].distance_to_current_room) with adj_rooms[dir] { calculate_distance_to_current_room(distance+1); }
-		    }
-		}
-	}
 	*/
-
-	/// @function								draw_room(x_pos, y_pos)
-	/// @param		{real}	x_pos				The x position to draw this room at
-	/// @param		{real}	y_pos				The y position to draw this room at
-	function draw_room(x_pos, y_pos) {
-		// Only draw the room if the room has been visited at least once, or game is in test mode
-		var show_detailed_map = false, show_collectables = false, controller = global.controller, is_test_mode_on = global.is_test_mode;
-		with (global.player) {
-			show_detailed_map = (is_test_mode_on || is_carrying_item(obj_map));
-			show_collectables = (is_test_mode_on || is_carrying_special_item(obj_map));
-		}
-		
-		if (show_detailed_map || visited) {
-			// Set up colors to draw this room with
-			var fade_amount = 0; //distance_to_current_room / controller.MAX_MAP_DRAW_DISTANCE;
-			var blink_frame = modulo(global.game_manager.number_of_frames_since_game_began, 12) <= 5;
-			var bg_color = global.bg_color;
-			var white_color = merge_color(c_white, bg_color, fade_amount);
-			var red_color = merge_color(c_red, bg_color, fade_amount);
-		
-			// Darken the colors of unvisited rooms on the map
-			if (!visited) {
-				white_color = merge_color(white_color, bg_color, 0.66);
-				red_color = merge_color(red_color, bg_color, 0.66);
-			}
-			
-		    // Draw Room on Map
-			var room_color = lit ? red_color : bg_color;
-			var inverse_color = lit ? bg_color : red_color;
-		    if (controller.current_room != self || !blink_frame) {
-				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, white_color, 1);
-				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.75, 0.75, 0, room_color, 1);
-			}
-
-		    // Draw Room's Exits on Map
-			for (var dir = directions.up; dir < directions.stairs; dir++) {
-				var x_offset = 0, y_offset = 0, x_size = 0.25, y_size = 0.25, exit_color = bg_color;
-				if (show_detailed_map && !blink_frame && exits[dir] != noone && exits[dir].locked) { exit_color = red_color; }
-
-				switch (dir) {
-					case directions.up: { y_offset = -8; y_size += 0.125; break; } 
-					case directions.right: { x_offset = 8; x_size += 0.125; break; } 
-					case directions.down: { y_offset = 8; y_size += 0.125; break; } 
-					case directions.left: { x_offset = -8; x_size += 0.125; break; } 
-				}
-
-			    if (has_exit_in_dir[dir] && (has_visited_exit_in_dir[dir] || show_detailed_map)) { draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, x_size, y_size, 0, exit_color, 1); }
-			}
-			
-			// Draw room's map position objects
-			for (var yy = 0; yy < 3; yy++) {
-				for (var xx = 0; xx < 3; xx++) {
-					// Check if any map positions exist at this part of the map and draw them if so
-					var room_map_pos_array = instances_at_map_positions[xx][yy];
-					if (array_length(room_map_pos_array) > 0) {
-						// Get color of instance to draw
-						var pos_color = -1, pos_sprite = spr_box, pos_image = 0, pos_scale = 0.125;
-						for (var i = 0; i < array_length(room_map_pos_array); i++) { 
-							var room_map_obj = room_map_pos_array[i];
-				
-
-							if (room_map_obj == obj_cross) {
-								if (show_collectables) { pos_color = white_color; pos_sprite = spr_map_cross; pos_scale = 1; break; }
-							}
-							else if (room_map_obj == obj_encased_heart || room_map_obj == obj_heart) {
-								if (show_collectables) { 
-									pos_image = (is_thump_frame()) ? 1 : 0;
-									pos_color = inverse_color; 
-									pos_sprite = spr_map_heart; 
-									pos_scale = 1; 
-									break;
-								}
-							}
-							else if (room_map_obj == obj_stairs) {
-								if (show_detailed_map || has_visited_exit_in_dir[directions.stairs]) { pos_color = white_color; break; }
-							}
-							else if (is_test_mode_on && has_locked_chest && (room_map_obj == obj_chest || room_map_obj == obj_hidden_chest)) { pos_color = c_aqua; break; }
-							else if (is_test_mode_on && has_key && ((chest_obj == obj_key && (room_map_obj == obj_chest || room_map_obj == obj_hidden_chest)) || room_map_obj == obj_key)) { pos_color = c_lime; break; }
-							else if (show_detailed_map) { pos_color = inverse_color; }
-						}
-						
-						// Draw obj at pos
-						if (pos_color != -1) {
-							var x_offset = 0, y_offset = 0;
-							if (xx == 0) { x_offset -= 3; }
-							else if (xx == 2) { x_offset += 3; }
-							if (yy == 0) { y_offset -= 3; }
-							else if (yy == 2) { y_offset += 3; }
-							draw_sprite_ext(pos_sprite, pos_image, x_pos+x_offset, y_pos+y_offset, pos_scale, pos_scale, 0, pos_color, 1); 
-						}
-					}
-				}
-			}
-		
-			// Draw collectables if the map is special
-		    if (show_collectables && has_collectables && !blink_frame) {
-				draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, white_color, 1); 
-			}
-    
-		    // Draw distance information if testing
-		    if (is_test_mode_on && keyboard_check(vk_f1)) {
-		       draw_set_color(c_lime);
-		        draw_set_halign(fa_center);
-		        draw_set_valign(fa_middle);
-		        draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_to_start_room)));
-		    }
-			
-		}
-
-		// Mark the room as having been drawn, then draw each of its applicable neighbors
-		drawn = true;
-		//if (distance_to_current_room < controller.MAX_MAP_DRAW_DISTANCE || is_game_lost() || is_game_won()) { 
-		if (adj_rooms[directions.up] && !adj_rooms[directions.up].drawn && y_pos-16 >= 0) { with adj_rooms[directions.up] { draw_room(x_pos, y_pos-16); } }
-		if (adj_rooms[directions.right] && !adj_rooms[directions.right].drawn && x_pos+16 <= room_width) { with adj_rooms[directions.right] { draw_room(x_pos+16, y_pos); } }
-		if (adj_rooms[directions.down] && !adj_rooms[directions.down].drawn && y_pos+16 <= room_height) { with adj_rooms[directions.down] { draw_room(x_pos, y_pos+16); } }
-		if (adj_rooms[directions.left] && !adj_rooms[directions.left].drawn && x_pos-16 >= 0) { with adj_rooms[directions.left] { draw_room(x_pos-16, y_pos); } }
-		if (adj_rooms[directions.stairs] && !adj_rooms[directions.stairs].drawn) {
-			var stairs_room = adj_rooms[directions.stairs], other_x_pos = x_pos+(stairs_room.virtual_x - virtual_x), other_y_pos = y_pos+(stairs_room.virtual_y - virtual_y);
-			with (stairs_room) { draw_room(other_x_pos, other_y_pos); }
-		}
-	}
-	
-	/// @fucntion								get_adjacent_room(dir);
-	/// @param		{direction}	dir				The direction from this room to the adjacent room to get
-	function get_adjacent_room(dir) {
-		var x_pos = 0, y_pos = 0, controller = global.controller;
-
-		switch (dir)
-		{
-		    case directions.up: { y_pos = -16; break; }
-		    case directions.right: { x_pos = 16; break; }
-		    case directions.down: { y_pos = 16; break; }
-		    case directions.left: { x_pos = -16; break; }
-		}
-
-		// TODO: Make this work without having to traverse the whole array
-		for (var i = 0; i < array_length(controller.game_rooms); i++) {
-			var possible_match = controller.game_rooms[i];
-			if (possible_match.virtual_x == virtual_x+x_pos && possible_match.virtual_y == virtual_y+y_pos) {
-				return possible_match;
-			}
-		}
-		return noone;
-	}
-	
-	/// @function								get_room_from_room_lists();
-	function get_room_from_room_lists() {
-		var controller = global.controller, number_of_exits = get_exits_count(), room_list_number_of_exits = number_of_exits, room_list = noone,
-		var rand1 = get_coin_flip(), rand2 = get_coin_flip(), misleading_chance = MISLEADING_ROOM_PROBABILITY, misleading_direction = (get_coin_flip()) ? 1 : -1;
-		if (room_list_number_of_exits >= 4) { misleading_direction = -1; }
-		else if (room_list_number_of_exits == 0) { misleading_direction = 1; misleading_chance= floor(misleading_chance/2); }
-		
-		while(get_random_chance_out_of(misleading_chance) && room_list_number_of_exits < 4 && room_list_number_of_exits > 1) {
-			misleading_room = true;
-			room_list_number_of_exits += misleading_direction;
-		}
-		
-		switch(room_list_number_of_exits) {
-			case 0: 
-				room_list = controller.rooms_with_no_exits; 
-				break;
-			case 1: 
-				room_list = controller.rooms_with_one_exit; 
-				break;
-			case 2: 
-				room_list = controller.rooms_with_two_perpendicular_exits;
-				if ((has_exit_in_dir[directions.up] && has_exit_in_dir[directions.down]) || 
-					(has_exit_in_dir[directions.right] && has_exit_in_dir[directions.left])) { room_list = controller.rooms_with_two_opposite_exits; }
-				break;
-			case 3: 
-				room_list = controller.rooms_with_three_exits; 
-				break;
-			case 4: 
-				room_list = controller.rooms_with_four_exits; 
-				break;
-		}
-
-		var 
-		switch (number_of_exits) {
-			case 0: 
-		        flip_horizontal = rand1; 
-		        flip_vertical = rand2;
-				rotate = get_random_carindal_dir();
-				break;
-		    case 1:
-				flip_horizontal = rand1;
-				flip_vertical = false;
-				for (var dir = directions.up; dir < directions.stairs; dir += 1) {
-					if (has_exit_in_dir[dir]) { rotate = dir; break; }
-				}
-				break;
-			case 2:
-		        if (has_exit_in_dir[directions.up] && has_exit_in_dir[directions.down]) { flip_horizontal = rand1; flip_vertical = rand2; }
-		        else if (has_exit_in_dir[directions.right] && has_exit_in_dir[directions.left]) { flip_horizontal = rand1; flip_vertical = rand2; rotate = (get_coin_flip()) ? directions.right : directions.left; }
-		        else if (has_exit_in_dir[directions.up] && has_exit_in_dir[directions.right]) { flip_horizontal = false; flip_vertical = false; }
-		        else if (has_exit_in_dir[directions.up] && has_exit_in_dir[directions.left]) { flip_horizontal = true; flip_vertical = false; }
-		        else if (has_exit_in_dir[directions.right] && has_exit_in_dir[directions.down]) { flip_horizontal = false; flip_vertical = true; }
-		        else if (has_exit_in_dir[directions.left] && has_exit_in_dir[directions.down]){  flip_horizontal = true; flip_vertical = true; }
-				break;
-		    case 3:
-				flip_horizontal = false;
-				flip_vertical = rand1;
-				for (var dir = directions.up; dir < directions.stairs; dir += 1) {
-					if (!has_exit_in_dir[dir]) { rotate = (dir+1 > 4) ? 0 : dir+1; break; }
-				}
-				break;
-		    case 4:
-		        flip_horizontal = rand1; 
-		        flip_vertical = rand2;
-				rotate = get_random_carindal_dir();
-				break;
-		}
-		
-		// Create Illusion Wall Exits
-		for (var dir = directions.up; dir < directions.stairs; dir++) {
-			if (has_exit_in_dir[dir] && other.current_room.exits[dir] == noone && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) {
-				exits[dir] = create_illusion_walls_exit(dir);    
-			}
-		}
-		
-		var ref = array_random_get(room_list);
-		return ref;
-	}
 	
 	/// @function									initialize_from_room_reference()
 	function initialize_from_room_reference() {
@@ -681,6 +338,343 @@ function GameRoom(given_x, given_y) constructor {
 			has_visited_exit_in_dir[get_opposite_dir(exit_dir)] = true;
 		}
 	}
+	
+	/// @function								set_room_reference();
+	function set_room_reference() {
+		var controller = global.controller, number_of_exits = get_cardinal_exits_count(), room_list_number_of_exits = number_of_exits, room_list = noone,
+		var rand1 = get_coin_flip(), rand2 = get_coin_flip(), misleading_chance = MISLEADING_ROOM_PROBABILITY, misleading_direction = (get_coin_flip()) ? 1 : -1;
+		if (room_list_number_of_exits >= 4) { misleading_direction = -1; }
+		else if (room_list_number_of_exits == 0) { misleading_direction = 1; misleading_chance= floor(misleading_chance/2); }
+		
+		while(get_random_chance_out_of(misleading_chance) && room_list_number_of_exits < 4 && room_list_number_of_exits > 1) {
+			misleading_room = true;
+			room_list_number_of_exits += misleading_direction;
+		}
+		
+		switch(room_list_number_of_exits) {
+			case 0: 
+				room_list = controller.rooms_with_no_exits; 
+				break;
+			case 1: 
+				room_list = controller.rooms_with_one_exit; 
+				break;
+			case 2: 
+				room_list = controller.rooms_with_two_perpendicular_exits;
+				if ((has_exit(directions.up) && has_exit(directions.down)) || 
+					(has_exit(directions.right) && has_exit(directions.left))) { room_list = controller.rooms_with_two_opposite_exits; }
+				break;
+			case 3: 
+				room_list = controller.rooms_with_three_exits; 
+				break;
+			case 4: 
+				room_list = controller.rooms_with_four_exits; 
+				break;
+		}
+
+		var 
+		switch (number_of_exits) {
+			case 0: 
+			    flip_horizontal = rand1; 
+			    flip_vertical = rand2;
+				rotate = get_random_carindal_dir();
+				break;
+			case 1:
+				flip_horizontal = rand1;
+				flip_vertical = false;
+				for (var dir = directions.up; dir < directions.stairs; dir += 1) {
+					if (has_exit(dir)) { rotate = dir; break; }
+				}
+				break;
+			case 2:
+			    if (has_exit(directions.up) && has_exit(directions.down)) { flip_horizontal = rand1; flip_vertical = rand2; }
+			    else if (has_exit(directions.right) && has_exit(directions.left)) { flip_horizontal = rand1; flip_vertical = rand2; rotate = (get_coin_flip()) ? directions.right : directions.left; }
+			    else if (has_exit(directions.up) && has_exit(directions.right)) { flip_horizontal = false; flip_vertical = false; }
+			    else if (has_exit(directions.up) && has_exit(directions.left)) { flip_horizontal = true; flip_vertical = false; }
+			    else if (has_exit(directions.right) && has_exit(directions.down)) { flip_horizontal = false; flip_vertical = true; }
+			    else if (has_exit(directions.left) && has_exit(directions.down)){  flip_horizontal = true; flip_vertical = true; }
+				break;
+			case 3:
+				flip_horizontal = false;
+				flip_vertical = rand1;
+				for (var dir = directions.up; dir < directions.stairs; dir += 1) {
+					if (!has_exit(dir)) { rotate = (dir+1 > 4) ? 0 : dir+1; break; }
+				}
+				break;
+			case 4:
+			    flip_horizontal = rand1; 
+			    flip_vertical = rand2;
+				rotate = get_random_carindal_dir();
+				break;
+		}
+		
+		room_reference = array_random_get(room_list);
+	}
+	
+	/// @function					flip_room_contents_horizontally();
+	function flip_room_contents_horizontally() {
+		with obj_game_object {
+		    if (object_index != obj_player) { x = room_width - x; }
+		}
+		with obj_placeholder {
+			x = room_width - x;
+		}
+		with obj_exit_placeholder {
+			if (exit_dir == directions.right || exit_dir == directions.left) { exit_dir = get_opposite_dir(exit_dir); }
+		}
+	}
+
+	/// @function				flip_room_contents_vertically();
+	function flip_room_contents_vertically() {
+		with obj_game_object {
+		    if (object_index != obj_player) { y = room_height - y; }
+		}
+		with obj_placeholder {
+			y = room_height - y;
+		}
+		with obj_exit_placeholder {
+			if (exit_dir == directions.up || exit_dir == directions.down) { exit_dir = get_opposite_dir(exit_dir); }
+		}
+	}
+
+	/// @function									rotate_room_contents_around_room_center(direction_to_face);
+	/// @param		{direction}	direction_to_face	The direction in which the room should face once rotated
+	function rotate_room_contents_around_room_center(direction_to_face) {
+		var angle = direction_to_face * 90;
+	
+		with obj_game_object {
+		    if (object_index != obj_player) { 
+				image_angle = 0;
+				var x_prev = x - room_width/2;
+				var y_prev = y - room_height/2;
+			
+				x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
+				y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
+				if (!place_snapped(4, 4)) { move_snap(4, 4); }
+			}
+		}
+		with obj_placeholder {
+			image_angle = 0;
+			var x_prev = x - room_width/2;
+			var y_prev = y - room_height/2;
+			
+			x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
+			y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
+			if (!place_snapped(4, 4)) { move_snap(4, 4); }
+		}
+		with obj_exit_placeholder {
+			if (direction_to_face == directions.right) { exit_dir = get_turn_right_dir(exit_dir); }
+			else if (direction_to_face == directions.left) { exit_dir = get_turn_left_dir(exit_dir); }
+			else if (direction_to_face == directions.down) { exit_dir = get_opposite_dir(exit_dir); }
+		}
+	}
+	
+	/// @function								draw_room(x_pos, y_pos)
+	/// @param		{real}	x_pos				The x position to draw this room at
+	/// @param		{real}	y_pos				The y position to draw this room at
+	function draw_room(x_pos, y_pos) {
+		// Only draw the room if the room has been visited at least once, or game is in test mode
+		var show_detailed_map = false, show_collectables = false, controller = global.controller, is_test_mode_on = global.is_test_mode;
+		with (global.player) {
+			show_detailed_map = (is_test_mode_on || is_carrying_item(obj_map));
+			show_collectables = (is_test_mode_on || is_carrying_special_item(obj_map));
+		}
+		
+		if (show_detailed_map || visited) {
+			// Set up colors to draw this room with
+			var fade_amount = 0; //distance_to_current_room / controller.MAX_MAP_DRAW_DISTANCE;
+			var blink_frame = modulo(global.game_manager.number_of_frames_since_game_began, 12) <= 5;
+			var bg_color = global.bg_color;
+			var white_color = merge_color(c_white, bg_color, fade_amount);
+			var red_color = merge_color(c_red, bg_color, fade_amount);
+		
+			// Darken the colors of unvisited rooms on the map
+			if (!visited) {
+				white_color = merge_color(white_color, bg_color, 0.66);
+				red_color = merge_color(red_color, bg_color, 0.66);
+			}
+			
+		    // Draw Room on Map
+			var room_color = lit ? red_color : bg_color;
+			var inverse_color = lit ? bg_color : red_color;
+		    if (controller.current_room != self || !blink_frame) {
+				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.875, 0.875, 0, white_color, 1);
+				draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.75, 0.75, 0, room_color, 1);
+			}
+
+		    // Draw Room's Exits on Map
+			for (var dir = directions.up; dir < directions.stairs; dir++) {
+				var x_offset = 0, y_offset = 0, x_size = 0.25, y_size = 0.25, exit_color = bg_color;
+				if (show_detailed_map && !blink_frame && exits[dir] != -1 && exits[dir].has_lock) { exit_color = red_color; }
+
+				switch (dir) {
+					case directions.up: { y_offset = -8; y_size += 0.125; break; } 
+					case directions.right: { x_offset = 8; x_size += 0.125; break; } 
+					case directions.down: { y_offset = 8; y_size += 0.125; break; } 
+					case directions.left: { x_offset = -8; x_size += 0.125; break; } 
+				}
+
+			    if (has_exit(dir) && (has_visited_exit(dir) || show_detailed_map)) { draw_sprite_ext(spr_box, 0, x_pos+x_offset, y_pos+y_offset, x_size, y_size, 0, exit_color, 1); }
+			}
+			
+			// Draw room's map position objects
+			for (var yy = 0; yy < 3; yy++) {
+				for (var xx = 0; xx < 3; xx++) {
+					// Check if any map positions exist at this part of the map and draw them if so
+					var room_map_pos_array = instances_at_map_positions[xx][yy];
+					if (array_length(room_map_pos_array) > 0) {
+						// Get color of instance to draw
+						var pos_color = -1, pos_sprite = spr_box, pos_image = 0, pos_scale = 0.125;
+						for (var i = 0; i < array_length(room_map_pos_array); i++) { 
+							var room_map_obj = room_map_pos_array[i];
+				
+
+							if (room_map_obj == obj_cross) {
+								if (show_collectables) { pos_color = white_color; pos_sprite = spr_map_cross; pos_scale = 1; break; }
+							}
+							else if (room_map_obj == obj_encased_heart || room_map_obj == obj_heart) {
+								if (show_collectables) { 
+									pos_image = (is_thump_frame()) ? 1 : 0;
+									pos_color = inverse_color; 
+									pos_sprite = spr_map_heart; 
+									pos_scale = 1; 
+									break;
+								}
+							}
+							else if (room_map_obj == obj_stairs) {
+								if (show_detailed_map || has_visited_exit(directions.stairs)) { pos_color = white_color; break; }
+							}
+							else if (is_test_mode_on && has_locked_chest && (room_map_obj == obj_chest || room_map_obj == obj_hidden_chest)) { pos_color = c_aqua; break; }
+							else if (is_test_mode_on && has_key && ((chest_obj == obj_key && (room_map_obj == obj_chest || room_map_obj == obj_hidden_chest)) || room_map_obj == obj_key)) { pos_color = c_lime; break; }
+							else if (show_detailed_map) { pos_color = inverse_color; }
+						}
+						
+						// Draw obj at pos
+						if (pos_color != -1) {
+							var x_offset = 0, y_offset = 0;
+							if (xx == 0) { x_offset -= 3; }
+							else if (xx == 2) { x_offset += 3; }
+							if (yy == 0) { y_offset -= 3; }
+							else if (yy == 2) { y_offset += 3; }
+							draw_sprite_ext(pos_sprite, pos_image, x_pos+x_offset, y_pos+y_offset, pos_scale, pos_scale, 0, pos_color, 1); 
+						}
+					}
+				}
+			}
+		
+			// Draw collectables if the map is special
+		    if (show_collectables && has_collectables && !blink_frame) {
+				draw_sprite_ext(spr_collectable, 0, x_pos, y_pos, 1, 1, 0, white_color, 1); 
+			}
+    
+		    // Draw distance information if testing
+		    if (is_test_mode_on && keyboard_check(vk_f1)) {
+		       draw_set_color(c_lime);
+		        draw_set_halign(fa_center);
+		        draw_set_valign(fa_middle);
+		        draw_text(x_pos, y_pos, string_hash_to_newline(string(distance_to_start)));
+		    }
+			
+		}
+
+		// Mark the room as having been drawn, then draw each of its applicable neighbors
+		drawn = true;
+		for (var dir = directions.up; dir <= directions.stairs; dir++;) {
+			var adj_room = get_adjoining_room(dir);
+			if (adj_room != -1 && !adj_room.drawn) {
+				var new_x_pos = x_pos + (16*get_dir_x_offset(dir)), new_y_pos = y_pos + (16*get_dir_y_offset(dir));
+				if (dir == directions.stairs) {
+					new_x_pos = x_pos + (16 * (adj_room.virtual_x - virtual_x));
+					new_y_pos = y_pos + (16 * (adj_room.virtual_y - virtual_y));
+				}
+				
+				//if (new_x_pos > 0 && new_x_pos < room_width && new_y_pos >= 32 && new_y_pos <= room_height-32) { adj_room.draw_room(new_x_pos, new_y_pos); }
+				adj_room.draw_room(new_x_pos, new_y_pos);
+			}
+		}
+	}
+}
+
+function create_game_map() {
+	var target_rooms = MINIMUM_NUMBER_OF_ROOMS + irandom(MAXIMUM_NUMBER_OF_ROOMS - MINIMUM_NUMBER_OF_ROOMS);
+	game_rooms = array_create(0);
+	array_push(game_rooms, new GameRoom(0, 0));
+	
+	// Add rooms to map until target is reached
+	while (array_length(game_rooms) < target_rooms) {
+		array_shuffle(game_rooms);
+		for (var i = 0; i < array_length(game_rooms); i++;) {
+			var room_to_create_adjoining_room_for = game_rooms[i];
+			var new_room = room_to_create_adjoining_room_for.create_adjoining_room();
+			if (new_room != -1) { break; }
+		}
+		if (new_room == -1) {
+			// SHOULD NEVER REACH THIS POINT
+			show_debug_message("ERROR: Couldn't create adjoining room for any room");
+			return -1;
+		}
+	}
+	
+	// Add random additional exits to rooms
+	/*
+	var target_exits = (target_rooms * (20.0/9.0)), current_exits = target_rooms-1;
+	while (current_exits < target_exits) {
+		current_exits += 1;
+		array_shuffle(game_rooms);
+		for (var i = 0; i < array_length(game_rooms); i++;) {
+			var room_to_create_exit_for = game_rooms[i];
+			var new_exit = room_to_create_exit_for.create_exit();
+			if (new_exit != -1) { break; }
+		}		
+		if (new_exit == -1) {
+			// SHOULD NEVER REACH THIS POINT
+			show_debug_message("ERROR: Couldn't create new exit for any room");
+			return -1;
+		}
+	}
+	*/
+	
+	// Choose random start room
+	array_shuffle(game_rooms);
+	start_room = game_rooms[0];
+	
+	// Calculate distance to start room for each other room
+	start_room.calculate_distance_to_adjoining_rooms(0);
+	
+	// Choose random end_room from among the furthest away
+	array_sort(game_rooms, function(elm1, elm2)
+	{
+		if (elm1.distance_to_start == elm2.distance_to_start) { return (get_coin_flip() ? 1 : -1); }
+		else { return elm2.distance_to_start - elm1.distance_to_start; }
+	});
+	heart_room = game_rooms[0];
+
+	// Add keys to rooms
+	/*
+	for (var pos = 0; pos < array_length(game_rooms); pos++;) {
+		// Add some locks
+		var locks_added = game_rooms[pos].lock_exits(pos == 0);
+		
+		// Add some keys
+		if (locks_added > 0) {
+			var possible_key_rooms = array_create(0), keys_added = 0, new_key = -1;
+			array_copy(possible_key_rooms, 0, game_rooms, pos+1, array_length(game_rooms)-(pos+1));
+			while (keys_added < locks_added) {
+				array_shuffle(possible_key_rooms);
+				for (var i = 0; i < array_length(possible_key_rooms); i++;) {
+					var room_to_add_key_to = possible_key_rooms[i];
+					var new_key = room_to_add_key_to.add_key();
+					if (new_key != -1) { break; }
+				}
+				if (new_key == -1) {
+					// SHOULD NEVER REACH THIS POINT
+					show_debug_message("ERROR: Couldn't create a key in any previous room");
+					return -1;
+				}
+				keys_added += 1;
+			}
+		}
+	}
+	*/
 }
 
 /// @function									instances_for_room_reference()
@@ -706,74 +700,4 @@ function difficulty_for_room_reference(room_reference) {
 	var decoded_content = string_digits(file_difficulty_content);          
 	file_text_close(file);
 	return decoded_content;
-}
-
-
-/// @function					flip_room_contents_horizontally();
-function flip_room_contents_horizontally() {
-	with obj_game_object {
-	    if (object_index != obj_player) { x = room_width - x; }
-	}
-	with obj_placeholder {
-		x = room_width - x;
-	}
-	with obj_exit_placeholder {
-		if (exit_dir == directions.right || exit_dir == directions.left) { exit_dir = get_opposite_dir(exit_dir); }
-	}
-}
-
-/// @function				flip_room_contents_vertically();
-function flip_room_contents_vertically() {
-	with obj_game_object {
-	    if (object_index != obj_player) { y = room_height - y; }
-	}
-	with obj_placeholder {
-		y = room_height - y;
-	}
-	with obj_exit_placeholder {
-		if (exit_dir == directions.up || exit_dir == directions.down) { exit_dir = get_opposite_dir(exit_dir); }
-	}
-}
-
-/// @function									rotate_room_contents_around_room_center(direction_to_face);
-/// @param		{direction}	direction_to_face	The direction in which the room should face once rotated
-function rotate_room_contents_around_room_center(direction_to_face) {
-	var angle = direction_to_face * 90;
-	
-	with obj_game_object {
-	    if (object_index != obj_player) { 
-			image_angle = 0;
-			var x_prev = x - room_width/2;
-			var y_prev = y - room_height/2;
-			
-			x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
-			y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
-			if (!place_snapped(4, 4)) { move_snap(4, 4); }
-		}
-	}
-	with obj_placeholder {
-		image_angle = 0;
-		var x_prev = x - room_width/2;
-		var y_prev = y - room_height/2;
-			
-		x = ((x_prev * dcos(angle)) - (y_prev * dsin(angle))) + room_width/2;
-		y = ((y_prev * dcos(angle)) + (x_prev * dsin(angle))) + room_height/2;
-		if (!place_snapped(4, 4)) { move_snap(4, 4); }
-	}
-	with obj_exit_placeholder {
-		if (direction_to_face == directions.right) { exit_dir = get_turn_right_dir(exit_dir); }
-		else if (direction_to_face == directions.left) { exit_dir = get_turn_left_dir(exit_dir); }
-		else if (direction_to_face == directions.down) { exit_dir = get_opposite_dir(exit_dir); }
-	}
-}
-
-function mp_grid_add(grid) {
-	mp_grid_add_instances(grid, self, false);
-}
-
-function mp_grid_remove(grid) {
-	for (var quadrant = 0; quadrant < 4; quadrant++) {
-		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
-		mp_grid_clear_cell(grid, x_pos/GRID_SIZE, y_pos/GRID_SIZE);
-	}
 }

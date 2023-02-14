@@ -1,3 +1,19 @@
+/// @function								get_dir_x_offset(dir);
+/// @param		{dir} dir					The direction to get the x_offset for
+function get_dir_x_offset(dir) {
+	if (dir == directions.right) { return 1; }
+	else if (dir == directions.left) { return -1; }
+	return 0;
+}
+
+/// @function								get_dir_y_offset(dir);
+/// @param		{dir} dir					The direction to get the y_offset for
+function get_dir_y_offset(dir) {
+	if (dir == directions.down) { return 1; }
+	else if (dir == directions.up) { return -1; }
+	return 0;
+}
+	
 /// @function								get_scaling_amount(minimum, maximum, numerator, denominator);
 /// @param		{real}	minimum				The minimum value the scaling amount can be
 /// @param		{real}	maximum				The maximum value the scaling amount can be
@@ -251,4 +267,19 @@ function set_game_color() {
 function modulo(a, b) {
 	var Q = (b < 0) ? ceil(a/b) : floor(a/b);
 	return a - (Q * b)
+}
+
+/// @function								mp_grid_add(grid);
+///	@param		{id} grid					The mp_grid to add to
+function mp_grid_add(grid) {
+	mp_grid_add_instances(grid, self, false);
+}
+
+/// @function								mp_grid_remove(grid);
+///	@param		{id} grid					The mp_grid to remove from
+function mp_grid_remove(grid) {
+	for (var quadrant = 0; quadrant < 4; quadrant++) {
+		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+		mp_grid_clear_cell(grid, x_pos/GRID_SIZE, y_pos/GRID_SIZE);
+	}
 }

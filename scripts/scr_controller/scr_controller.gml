@@ -46,8 +46,6 @@ function initialize_game_variables() {
 	// initialize room list values
 	game_rooms = array_create(0);
 	mapped_rooms = array_create(0);
-	rooms_with_stairs_and_exits = array_create(0);
-	rooms_with_only_stairs = array_create(0);
 	rooms_with_collectables = array_create(0);
 	rooms_with_key = array_create(0);
 	rooms_with_item = array_create(0); // This is only rooms with non-special, non-key, non-trap chests / items
@@ -55,8 +53,8 @@ function initialize_game_variables() {
 	spawned_special_items = array_create(0);
 
 	// initialize game state values
-	time_remaining = 1;
-	time_provided = 1;
+	time_remaining = 0;
+	time_provided = 0;
 	current_room = noone;
 	last_hole = noone;
 	start_room = noone;
@@ -342,15 +340,15 @@ function game_room_initialize() {
 	}
 	
 	// Flip game object positions as necesarry
-	if (current_room.flip_horizontal) { flip_room_contents_horizontally(); }
-	if (current_room.flip_vertical) { flip_room_contents_vertically(); }
-	if (current_room.rotate != -1) { rotate_room_contents_around_room_center(current_room.rotate); }
+	if (current_room.flip_horizontal) { current_room.flip_room_contents_horizontally(); }
+	if (current_room.flip_vertical) { current_room.flip_room_contents_vertically(); }
+	if (current_room.rotate != -1) { current_room.rotate_room_contents_around_room_center(current_room.rotate); }
 	with obj_game_object { image_angle = 0; }
 	with obj_placeholder { image_angle = 0; }
 	
 	// Set up room exit placeholders based on room exits
 	with (obj_exit_placeholder) {
-		var has_exit_in_dir = other.current_room.has_exit_in_dir[exit_dir], existing_exit = other.current_room.exits[exit_dir], destroyed_something = false;
+		var existing_exit = other.current_room.exits[exit_dir], has_exit_in_dir = (existing_exit != -1), destroyed_something = false;
 		
 		if (!has_exit_in_dir) {
 		// Destroy all game objects and placeholders at this spot
@@ -369,7 +367,7 @@ function game_room_initialize() {
 		}
 		if (!destroyed_something) {
 			var obj_to_create = (has_exit_in_dir) ? -1 : obj_wall;
-			if (existing_exit != noone && existing_exit.illusion_walls) { obj_to_create = obj_illusion_wall; }
+			if (existing_exit != -1 && existing_exit.has_illusion_walls) { obj_to_create = obj_illusion_wall; }
 			if (obj_to_create != -1) { instance_create(x, y, obj_to_create); }
 		}
 		instance_destroy();
@@ -407,7 +405,7 @@ function game_room_initialize() {
 		
 	// Create portcullis button if it should exist
 	for (var dir = 0; dir < directions.stairs; dir++) {
-		if (current_room.exits[dir] != noone) { current_room.has_portcullis = false; break; }
+		if (current_room.exits[dir] != -1) { current_room.has_portcullis = false; break; }
 	}
 	if (current_room.has_portcullis) {
 		// Set up spots where button could spawn
@@ -440,40 +438,24 @@ function game_room_initialize() {
     
 	// Check each of the four exits for doors to create
 	for (var dir = directions.up; dir < directions.stairs; dir++) {
-		var x_pos = 0;
-		var y_pos = 0;
+		var x_pos = 0, y_pos = 0;
         
 		if (dir == directions.up) { x_pos = room_width/2; y_pos = 8; }
 		else if (dir == directions.right) { x_pos = room_width-8; y_pos = room_height/2; }
 		else if (dir == directions.down) { x_pos = room_width/2; y_pos = room_height-8; }
 		else if (dir == directions.left) { x_pos = 8; y_pos = room_height/2; }
-		var door = instance_position(x_pos, y_pos, obj_door);
+		//var door = instance_position(x_pos, y_pos, obj_door);
         
 		// Create locked exits if they should exist
-		var exit_to_create_door_for = current_room.exits[dir];
-		if (exit_to_create_door_for != noone && exit_to_create_door_for.has_door) {
-		    if (!is_existing_instance(door)) { door = instance_create(x_pos, y_pos, obj_door); }
-		    door.door_for_exit = exit_to_create_door_for;
-		    door.locked = exit_to_create_door_for.locked;
+		var current_exit = current_room.exits[dir];
+		if (current_exit != -1 && current_exit.has_door) {
+		    var door = instance_create(x_pos, y_pos, obj_door);
+		    door.door_for_exit = current_exit;
+		    door.locked = current_exit.has_lock;
 		}
 			
 		// Create portcullis doors if they should exist
-		else if (current_room.has_portcullis && current_room.has_exit_in_dir[dir]) { instance_create(x_pos, y_pos, obj_portcullis); }
-			
-		// Create blocked exists if they should exist
-		/*
-		var x_pos_1 = 0, y_pos_1 = 0, x_pos_2 = 0, y_pos_2 = 0;
-				
-		if (dir == directions.up) { x_pos_1 = (room_width/2)-8; y_pos_1 = 8; x_pos_2 = (room_width/2)+8; y_pos_2 = 8; }
-		else if (dir == directions.right) { x_pos_1 = room_width-8; y_pos_1 = room_height/2-8; x_pos_2 = room_width-8; y_pos_2 =  room_height/2+8; }
-		else if (dir == directions.down) { x_pos_1 = (room_width/2)-8; y_pos_1 = room_height-8; x_pos_2 = (room_width/2)+8; y_pos_2 = room_height-8; }
-		else if (dir == directions.left) { x_pos_1 = 8; y_pos_1 = room_height/2-8; x_pos_2 = 8; y_pos_2 =  room_height/2+8; }
-					
-		if (!current_room.has_exit_in_dir[dir] && !place_meeting(x_pos, y_pos, obj_solid)) {   
-			instance_create(x_pos_1, y_pos_1, obj_wall);
-			instance_create(x_pos_2, y_pos_2, obj_wall);
-		}
-		*/
+		else if (current_room.has_portcullis && current_room.has_exit(dir)) { instance_create(x_pos, y_pos, obj_portcullis); }
 	}
     
 	// Create collectables in room if they should exist

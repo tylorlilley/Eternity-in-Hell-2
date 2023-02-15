@@ -17,6 +17,7 @@ function RoomExit(current_room, linked_room, linked_room_dir) constructor {
 	room_2_has_portcullis = false;
 	has_illusion_walls = get_random_chance_out_of(ILLUSION_WALL_PROBABILITY);
 	destroyed = false;
+	visited = false;
 	
 	function set_portcullis_for_room(given_room, has_portcullis) {
 		if (given_room == room_1) { room_1_has_portcullis = has_portcullis; }
@@ -43,15 +44,8 @@ function RoomExit(current_room, linked_room, linked_room_dir) constructor {
 	}
 	
 	function get_connected_room(given_room) {
-		if (given_room == room_1) { return room_1; }
-		else if (given_room == room_2) { return room_2; }
-		
-		return -1;
-	}
-	
-	function get_room_in_direction(dir) {
-		if (dir == room_1_dir) { return room_1; }
-		else if (dir == room_2_dir) { return room_2; }
+		if (given_room == room_1) { return room_2; }
+		else if (given_room == room_2) { return room_1; }
 		
 		return -1;
 	}

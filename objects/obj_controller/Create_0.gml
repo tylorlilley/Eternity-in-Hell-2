@@ -17,21 +17,24 @@ if (create_game_map() == -1) {
 	reset_map_generation();
 	exit;
 };
-current_room = start_room;
 
-// TODO: Setup Keys and Locks
+// Set up locks and keys on game map
+if (create_locks_and_keys() == -1) {
+	// Should never reach this clause
+	show_debug_message("WARNING: lock and key generation failed.");
+	reset_map_generation();
+	exit;
+}
 
 // Ensure minimum number of collectables rooms exist
-// TODO: add more than just the minimum number of collectables?
-/*
 while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
 	// Add collectables to random available room
-	game_rooms = array_shuffle(game_rooms);
-	var new_collectables = -1;
-	for (var i = 0; i < array_length(game_rooms); i++) {
+	array_shuffle_ext(game_rooms);
+	var new_collectables = false;
+	for (var i = 0; i < array_length(game_rooms); i++;) {
 		var new_collectables_room = game_rooms[i];
-		new_collectables_room.add_collectables();
-		if (!new_collectables) { break; }
+		new_collectables = new_collectables_room.add_collectables();
+		if (new_collectables) { break; }
 	}
 	if (!new_collectables) {
 		// Should never reach this clause
@@ -40,7 +43,7 @@ while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
 		exit;
 	}
 }
-*/
+
 total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 time_provided += total_number_of_rooms_with_collectables * TIME_PROVIDED_PER_COLLECTABLE;
 
@@ -55,7 +58,6 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	// Add room to approprite room lists
 	with (given_room) {
 		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); }
-		if (given_room.has_exit(directions.stairs)) { given_room.stairs_spot_obj = obj_stairs; }
 		else if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
 	}
 	
@@ -89,14 +91,14 @@ if (array_length(rooms_with_chest_potential) == 0) {
 }
 
 // Pre-light some rooms
-rooms_with_lanterns = array_shuffle(rooms_with_lanterns);
+array_shuffle_ext(rooms_with_lanterns);
 for (var i = 0; i < array_length(rooms_with_lanterns); i++) {
 	var given_room = rooms_with_lanterns[i];
 	given_room.lit = (i == 0 || get_random_chance_out_of(PRE_LIT_PROBABILITY));
 }
 
 // Add chests to potential chest rooms
-rooms_with_chest_potential = array_shuffle(rooms_with_chest_potential);
+array_shuffle_ext(rooms_with_chest_potential);
 for (var i = 0; i < array_length(rooms_with_chest_potential); i++) {
 	var given_room = rooms_with_chest_potential[i];
 	var must_spawn = (i == 0), var item_obj = (must_spawn) ? obj_map : -1;
@@ -112,11 +114,11 @@ time_remaining = time_provided;
 global.player = instance_create(-16, -16, obj_player);
 for (var i = 0; i < array_length(game_rooms); i++) {
 	var next_room = game_rooms[i];
-	next_room.go_to_room(false);
+	transition_to_room(next_room, false);
 	initialize_room_transition_values();
 }
 
 // Transition to start room to begin game
 with (global.game_manager) { sounds_to_play = array_create(0); }
 play_sound(snd_torchlight, false);
-start_room.go_to_room(true);
+transition_to_room(start_room, true);

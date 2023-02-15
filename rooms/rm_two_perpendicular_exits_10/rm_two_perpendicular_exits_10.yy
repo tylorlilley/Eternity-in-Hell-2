@@ -213,6 +213,7 @@
     {"name":"inst_7E983584","path":"rooms/rm_two_perpendicular_exits_10/rm_two_perpendicular_exits_10.yy",},
     {"name":"inst_52FDF9E9","path":"rooms/rm_two_perpendicular_exits_10/rm_two_perpendicular_exits_10.yy",},
     {"name":"inst_1EC55A83","path":"rooms/rm_two_perpendicular_exits_10/rm_two_perpendicular_exits_10.yy",},
+    {"name":"inst_6A8DE54A","path":"rooms/rm_two_perpendicular_exits_10/rm_two_perpendicular_exits_10.yy",},
   ],
   "isDnd": false,
   "layers": [
@@ -423,6 +424,7 @@
         {"resourceType":"GMRInstance","resourceVersion":"1.0","name":"inst_7E983584","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"objectId":{"name":"obj_exit_spot_up","path":"objects/obj_exit_spot_up/obj_exit_spot_up.yy",},"properties":[],"rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":120.0,"y":24.0,},
         {"resourceType":"GMRInstance","resourceVersion":"1.0","name":"inst_52FDF9E9","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"objectId":{"name":"obj_exit_spot_up","path":"objects/obj_exit_spot_up/obj_exit_spot_up.yy",},"properties":[],"rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":136.0,"y":24.0,},
         {"resourceType":"GMRInstance","resourceVersion":"1.0","name":"inst_1EC55A83","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"objectId":{"name":"obj_bush","path":"objects/obj_bush/obj_bush.yy",},"properties":[],"rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":24.0,"y":232.0,},
+        {"resourceType":"GMRInstance","resourceVersion":"1.0","name":"inst_6A8DE54A","colour":4294967295,"frozen":false,"hasCreationCode":false,"ignore":false,"imageIndex":0,"imageSpeed":1.0,"inheritCode":false,"inheritedItemId":null,"inheritItemSettings":false,"isDnd":false,"objectId":{"name":"obj_chest_spot","path":"objects/obj_chest_spot/obj_chest_spot.yy",},"properties":[],"rotation":0.0,"scaleX":1.0,"scaleY":1.0,"x":152.0,"y":152.0,},
       ],"layers":[],"properties":[],"userdefinedDepth":true,"visible":true,},
     {"resourceType":"GMRBackgroundLayer","resourceVersion":"1.0","name":"Background","animationFPS":15.0,"animationSpeedType":0,"colour":4278190080,"depth":2147483600,"effectEnabled":true,"effectType":null,"gridX":32,"gridY":32,"hierarchyFrozen":false,"hspeed":0.0,"htiled":false,"inheritLayerDepth":false,"inheritLayerSettings":false,"inheritSubLayers":true,"inheritVisibility":true,"layers":[],"properties":[],"spriteId":null,"stretch":false,"userdefinedAnimFPS":false,"userdefinedDepth":true,"visible":true,"vspeed":0.0,"vtiled":false,"x":0,"y":0,},
   ],

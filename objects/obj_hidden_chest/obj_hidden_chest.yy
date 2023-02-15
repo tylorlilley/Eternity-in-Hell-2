@@ -9,8 +9,8 @@
   "managed": true,
   "overriddenProperties": [],
   "parent": {
-    "name": "Placeholders",
-    "path": "folders/Objects/Placeholders.yy",
+    "name": "Tiles",
+    "path": "folders/Objects/Tiles.yy",
   },
   "parentObjectId": {
     "name": "obj_placeholder",

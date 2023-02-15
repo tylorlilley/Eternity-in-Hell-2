@@ -84,7 +84,7 @@ if (can_process_this_frame()) {
 		with (instance_place(x, y, obj_stairs)) {
 			if (active && is_instance_at_coordinates(x, y, other) && connected_exit.get_connected_room(controller.current_room) != -1) { 
 				controller.transition = directions.stairs; 
-				controller.transitioned_from = connected_exit;
+				controller.transitioning_exit = connected_exit;
 			}
 		}
 		if (controller.transition == directions.none) {

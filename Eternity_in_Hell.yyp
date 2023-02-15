@@ -160,6 +160,7 @@
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_four_exits_16.json","CopyToMask":-1,"filePath":"datafiles",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_one_exit_24.json","CopyToMask":-1,"filePath":"datafiles",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_no_exits_1.json","CopyToMask":-1,"filePath":"datafiles",},
+    {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_no_exits_2.json","CopyToMask":-1,"filePath":"datafiles",},
   ],
   "isEcma": false,
   "MetaData": {
@@ -259,6 +260,7 @@
     {"id":{"name":"spr_worn_shovel","path":"sprites/spr_worn_shovel/spr_worn_shovel.yy",},"order":82,},
     {"id":{"name":"spr_heart_plate","path":"sprites/spr_heart_plate/spr_heart_plate.yy",},"order":99,},
     {"id":{"name":"snd_eyes","path":"sounds/snd_eyes/snd_eyes.yy",},"order":49,},
+    {"id":{"name":"rm_no_exits_2","path":"rooms/rm_no_exits_2/rm_no_exits_2.yy",},"order":0,},
     {"id":{"name":"rm_three_exits_15","path":"rooms/rm_three_exits_15/rm_three_exits_15.yy",},"order":14,},
     {"id":{"name":"snd_lose","path":"sounds/snd_lose/snd_lose.yy",},"order":17,},
     {"id":{"name":"snd_crunch","path":"sounds/snd_crunch/snd_crunch.yy",},"order":19,},
@@ -663,6 +665,7 @@
     {"roomId":{"name":"rm_one_exit_23","path":"rooms/rm_one_exit_23/rm_one_exit_23.yy",},},
     {"roomId":{"name":"rm_four_exits_16","path":"rooms/rm_four_exits_16/rm_four_exits_16.yy",},},
     {"roomId":{"name":"rm_one_exit_24","path":"rooms/rm_one_exit_24/rm_one_exit_24.yy",},},
+    {"roomId":{"name":"rm_no_exits_2","path":"rooms/rm_no_exits_2/rm_no_exits_2.yy",},},
   ],
   "TextureGroups": [
     {"resourceType":"GMTextureGroup","resourceVersion":"1.3","name":"Default","autocrop":true,"border":2,"compressFormat":"bz2","directory":"","groupParent":null,"isScaled":false,"loadType":"default","mipsToGenerate":0,"targets":-1,},

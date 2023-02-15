@@ -304,6 +304,7 @@ class RoomConverter
 
         # Validate Room
         raise "ROOM MISSING STAIRS SPOT: #{room_name}" unless room_objects.include? "obj_stairs_spot"
+        raise "ROOM MISSING CHEST SPOT: #{room_name}" unless room_objects.include? "obj_chest_spot"
         raise "ROOM COLLECTABLE SPOT COUNT (#{room_objects.count("obj_collectable_spot")}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
         raise "ROOM UP EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_up")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_up") >= 2
         raise "ROOM RIGHT EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_right")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_right") >= 2

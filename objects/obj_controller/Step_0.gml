@@ -28,11 +28,8 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 		if (transition != directions.none && !blackout) { blackout = true; }
 		else if (transition != directions.none && blackout) { 
 			var next_room = start_room; 
-			if (transition == directions.stairs && transitioned_from != -1) {
-				next_room = transitioned_from.get_connected_room(current_room);
-			}
-			else if (transition != directions.respawn) {  next_room = current_room.get_connected_room(transition); }
-			transition_to_room(next_room); 
+			if (transition != directions.respawn) { next_room = current_room.get_connected_room(transition); }
+			transition_to_room(next_room, true); 
 		}
 	}
 	if (room != rm_finish && (is_game_lost() || is_game_won())) {

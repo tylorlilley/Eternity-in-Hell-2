@@ -19,6 +19,7 @@
 #macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 24, 16, 12, 8]) 
 #macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])
 #macro KEY_IN_CHEST_PROBABILITY 4
+#macro USE_CHEST_SPOT_PROBABILITY 4//get_probability_for_difficulty(
 	
 // Initilize room start probability constants
 //ROOM_KEY_IN_CHEST_PROBABILITY 3 
@@ -32,7 +33,7 @@
 #macro EYES_PROBABILITY  get_probability_for_difficulty([0, 0, 0, 64, 46]) 
 #macro FAST_SKELETON_PROBABILITY get_probability_for_difficulty([0, 0, 16, 14, 12]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 36, 30, 28, 24]) 
-#macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 32, 28, 24]) 
+#macro MOVING_COLLECTABLE_PROBABILITY 0//get_probability_for_difficulty([0, 0, 32, 28, 24]) 
 #macro MOUTHS_PER_MOUTH (1+global.difficulty)
 
 // Initialize map drawing constants
@@ -41,7 +42,7 @@
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 14, 16])
 #macro MAXIMUM_NUMBER_OF_ROOMS (MINIMUM_NUMBER_OF_ROOMS * 1.5)
 //#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 
-#macro MINIMUM_COLLECTABLES_ROOMS get_probability_for_difficulty([1, 2, 3, 3.5, 4]) 
+#macro MINIMUM_COLLECTABLES_ROOMS get_probability_for_difficulty([1, 2, 3, 4, 5]) 
 //#macro MAX_MAP_DRAW_DISTANCE 8 
 
 // Initialize lighting constants

@@ -8,7 +8,7 @@ depth = BUTTON_DEPTH;
 if (can_press_button()) { 
 	instance_destroy();
 	with (obj_portcullis) { instance_destroy(); }
-	global.controller.current_room.has_portcullis = false;
+	global.controller.current_room.remove_portcullis();
 }
 else {
 	var dirt_to_spawn = irandom(DIRT_PROBABILITY/2);

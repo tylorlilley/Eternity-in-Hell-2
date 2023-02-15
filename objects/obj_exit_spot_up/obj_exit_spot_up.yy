@@ -1,7 +1,7 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_exit_placeholder_left",
+  "name": "obj_exit_spot_up",
   "eventList": [
     {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,},
   ],
@@ -12,8 +12,8 @@
     "path": "folders/Objects/Placeholders.yy",
   },
   "parentObjectId": {
-    "name": "obj_exit_placeholder",
-    "path": "objects/obj_exit_placeholder/obj_exit_placeholder.yy",
+    "name": "obj_exit_spot",
+    "path": "objects/obj_exit_spot/obj_exit_spot.yy",
   },
   "persistent": false,
   "physicsAngularDamping": 0.1,
@@ -31,8 +31,8 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_wall_left",
-    "path": "sprites/spr_wall_left/spr_wall_left.yy",
+    "name": "spr_wall_up",
+    "path": "sprites/spr_wall_up/spr_wall_up.yy",
   },
   "spriteMaskId": null,
   "visible": false,

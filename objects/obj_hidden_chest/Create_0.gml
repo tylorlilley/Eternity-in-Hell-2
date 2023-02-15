@@ -1,4 +1,3 @@
 event_inherited();
-closed = true;
-locked = global.controller.current_room.has_locked_chest;
+
 show_debug_message(object_get_name(object_index) + string(object_index))

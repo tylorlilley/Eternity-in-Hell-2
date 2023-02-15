@@ -6,9 +6,8 @@ function open_door() {
 	closed = noone;
 	depth = CROSS_DEPTH;
 	
-	if locked {
-		locked = false;
-		with door_for_exit { unlock(); }
+	if (door_for_exit != -1) {
+		door_for_exit.unlock();
 		with (global.player) { 
 			play_sound(snd_mana, true);
 			with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }

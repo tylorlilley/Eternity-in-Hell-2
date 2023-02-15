@@ -1,7 +1,8 @@
 // Initialize room probability constants
 #macro MAX_SEED 99999999
-//#macro NUMBER_OF_EXITS_PROBABILITY 9 
-//#macro STAIRS_PROBABILITY 5 
+//#macro NUMBER_OF_EXITS_PROBABILITY 9
+#macro AVERAGE_NUMBER_OF_ROOM_EXITS (20/9)
+#macro STAIRS_PROBABILITY 5 
 //#macro NO_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 6, 5, 4, 3]) // This happens only after the stairs probability succeeds, so its combined with 1/5
 #macro LOCKED_CHEST_PROBABILITY 0//get_probability_for_difficulty([0, 24, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
@@ -13,6 +14,7 @@
 #macro MISLEADING_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
 #macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 8])
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 8, 6, 4, 3]) 
+#macro OPEN_DOOR_PROBABILITY 0//get_probability_for_difficulty(
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
 #macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 24, 16, 12, 8]) 
 #macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])

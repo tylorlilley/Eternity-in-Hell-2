@@ -102,16 +102,9 @@ function can_dig_hole() {
 /// @function								dig_hole();
 function dig_hole() {
 	if (can_dig_hole() && dropped_by_digger) {
-		var controller = global.controller;
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
-		var new_hole = instance_create(x, y, obj_hole);
-		if (controller.last_hole == noone) { controller.last_hole = new_hole; }
-		else { 
-			new_hole.connected_to = controller.last_hole;
-			controller.last_hole.connected_to = new_hole;
-			controller.last_hole = noone;
-		}
+		instance_create(x, y, obj_hole);
 	}
 }
 

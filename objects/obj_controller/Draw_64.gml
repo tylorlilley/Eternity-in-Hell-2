@@ -18,10 +18,12 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 	var hud_x_pos = 4;
     if (is_looking_at_map && !has_won && !has_lost && transition == directions.none) {
         // Draw each visited room
-       for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].drawn = false; }
-        with current_room {
-            draw_room(room_width/2, (room_height/2));
-        }
+		var x_origin = (room_width/2) - (current_room.virtual_x * 16), y_origin = (room_height/2) - (current_room.virtual_y * 16)
+		for (var i = 0; i < array_length(game_rooms); i++) {
+			var next_room = game_rooms[i];
+			var x_pos = (next_room.virtual_x * 16), y_pos = (next_room.virtual_y * 16);
+			next_room.draw_room(x_origin + x_pos, y_origin + y_pos);
+		}
 
         // Draw progress bar
 		var os_offset = (os_type == os_windows) ? 0: 1

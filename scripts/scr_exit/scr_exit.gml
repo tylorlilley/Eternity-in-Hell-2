@@ -1,19 +1,53 @@
 /// @function								new RoomExit(room, dir);
 /// @param		{real}	given_room			The room to create an exit for
-/// @param		{dir}	dir					The cardinal direction of the adjoining room to link via this exit
+/// @param		{dir}	dir					The cardinal direction of the connected room to link via this exit
 function RoomExit(current_room, linked_room, linked_room_dir) constructor {
 	// Linked Rooms Info
 	room_1 = current_room;
 	room_2 = linked_room;
 	room_1_dir = get_opposite_dir(linked_room_dir);
 	room_2_dir = linked_room_dir;
+	room_1_stairs = noone;
+	room_2_stairs = noone;
 	
 	// Lock Type
-	has_door = false;
+	has_door =  get_random_chance_out_of(OPEN_DOOR_PROBABILITY);
 	has_lock = false;
-	has_portcullis = false;
+	room_1_has_portcullis = false;
+	room_2_has_portcullis = false;
 	has_illusion_walls = get_random_chance_out_of(ILLUSION_WALL_PROBABILITY);
 	destroyed = false;
+	
+	function set_portcullis_for_room(given_room, has_portcullis) {
+		if (given_room == room_1) { room_1_has_portcullis = has_portcullis; }
+		else if (given_room == room_2) { room_2_has_portcullis = has_portcullis; }
+	}
+	
+	function has_portcullis_for_room(given_room) {
+		if (given_room == room_1) { return room_1_has_portcullis; }
+		else if (given_room == room_2) { return room_2_has_portcullis; }
+		
+		return false;
+	}
+	
+	function add_stairs_for_room(given_room, stairs) {
+		if (given_room == room_1) { room_1_stairs = stairs; }
+		else if (given_room == room_2) { room_2_stairs = stairs; }
+	}
+	
+	function get_stairs_for_room(given_room) {
+		if (given_room == room_1) { return room_1_stairs; }
+		else if (given_room == room_2) { return room_2_stairs; }
+		
+		return noone;
+	}
+	
+	function get_connected_room(given_room) {
+		if (given_room == room_1) { return room_1; }
+		else if (given_room == room_2) { return room_2; }
+		
+		return -1;
+	}
 	
 	function get_room_in_direction(dir) {
 		if (dir == room_1_dir) { return room_1; }

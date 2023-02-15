@@ -57,7 +57,7 @@ function get_percentage_string(value) {
 /// @function								get_opposite_dir(dir);
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {
-	if (dir < directions.up || dir > directions.left) { return -1; }
+	if (dir = directions.stairs) { return directions.stairs; }
 	else { return modulo((dir+2), 4); }
 }
 
@@ -136,12 +136,6 @@ function instance_place_all(x_pos, y_pos, obj_type) {
     }
 	
     return list_of_matches;
-}
-
-/// @function								get_new_id();
-function get_new_id() {
-    global.id_counter++;
-    return global.id_counter;
 }
 
 /// @function								play_sound();

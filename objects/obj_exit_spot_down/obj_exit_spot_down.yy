@@ -1,19 +1,19 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_exit_placeholder",
+  "name": "obj_exit_spot_down",
   "eventList": [
     {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,},
   ],
   "managed": true,
   "overriddenProperties": [],
   "parent": {
-    "name": "Parents",
-    "path": "folders/Objects/Parents.yy",
+    "name": "Placeholders",
+    "path": "folders/Objects/Placeholders.yy",
   },
   "parentObjectId": {
-    "name": "obj_placeholder",
-    "path": "objects/obj_placeholder/obj_placeholder.yy",
+    "name": "obj_exit_spot",
+    "path": "objects/obj_exit_spot/obj_exit_spot.yy",
   },
   "persistent": false,
   "physicsAngularDamping": 0.1,
@@ -30,7 +30,10 @@
   "physicsStartAwake": true,
   "properties": [],
   "solid": false,
-  "spriteId": null,
+  "spriteId": {
+    "name": "spr_wall_down",
+    "path": "sprites/spr_wall_down/spr_wall_down.yy",
+  },
   "spriteMaskId": null,
   "visible": false,
 }

@@ -2,7 +2,6 @@ randomize();
 
 room_speed = 60;
 
-global.id_counter = 0;
 global.controller = noone;
 global.bg_color = make_color_rgb(0, 0, 0);
 

@@ -82,9 +82,9 @@ if (can_process_this_frame()) {
 	    // Transition to new room depending on player position
 		var controller = global.controller;
 		with (instance_place(x, y, obj_stairs)) {
-			if (active && is_instance_at_coordinates(x, y, other) && (connected_to != noone || object_index == obj_stairs)) { 
-					controller.transition = directions.stairs; 
-					controller.transitioned_from = id;
+			if (active && is_instance_at_coordinates(x, y, other) && connected_exit.get_connected_room(controller.current_room) != -1) { 
+				controller.transition = directions.stairs; 
+				controller.transitioned_from = connected_exit;
 			}
 		}
 		if (controller.transition == directions.none) {

@@ -28,22 +28,23 @@ class RoomConverter
         obj_snake
         obj_ears
         obj_eyes
-        obj_echo_spot
         obj_bones
         obj_blood
         obj_player_corpse
         obj_bush
         obj_door
-        obj_block_spot
         obj_column
         obj_wall
-        obj_stairs_spot
-        obj_collectable_spot
         obj_gudetama
-        obj_exit_placeholder_up
-        obj_exit_placeholder_down
-        obj_exit_placeholder_left
-        obj_exit_placeholder_right
+        obj_echo_spot
+        obj_block_spot
+        obj_stairs_spot
+        obj_chest_spot
+        obj_collectable_spot
+        obj_exit_spot_up
+        obj_exit_spot_down
+        obj_exit_spot_left
+        obj_exit_spot_right
         other
     )
 
@@ -304,10 +305,10 @@ class RoomConverter
         # Validate Room
         raise "ROOM MISSING STAIRS SPOT: #{room_name}" unless room_objects.include? "obj_stairs_spot"
         raise "ROOM COLLECTABLE SPOT COUNT (#{room_objects.count("obj_collectable_spot")}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
-        raise "ROOM UP EXIT SPOT COUNT (#{room_objects.count("obj_exit_placeholder_up")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_placeholder_up") >= 2
-        raise "ROOM RIGHT EXIT SPOT COUNT (#{room_objects.count("obj_exit_placeholder_right")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_placeholder_right") >= 2
-        raise "ROOM DOWN EXIT SPOT COUNT (#{room_objects.count("obj_exit_placeholder_down")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_placeholder_down") >= 2
-        raise "ROOM LEFT EXIT SPOT COUNT (#{room_objects.count("obj_exit_placeholder_left")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_placeholder_left") >= 2
+        raise "ROOM UP EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_up")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_up") >= 2
+        raise "ROOM RIGHT EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_right")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_right") >= 2
+        raise "ROOM DOWN EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_down")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_down") >= 2
+        raise "ROOM LEFT EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_left")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_left") >= 2
         raise "ROOM CONTAINS WORM HEAD BUT NOT BODY: #{room_name}" unless room_objects.include?("obj_giant_worm_head") == room_objects.include?("obj_giant_worm_body")
         raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 6
         

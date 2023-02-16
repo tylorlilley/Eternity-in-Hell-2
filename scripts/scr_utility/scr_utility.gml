@@ -277,3 +277,17 @@ function mp_grid_remove(grid) {
 		mp_grid_clear_cell(grid, x_pos/GRID_SIZE, y_pos/GRID_SIZE);
 	}
 }
+
+/// @function								destroy_instances_at_position();
+function destroy_instances_at_position() {
+	var game_objects = instance_place_all(x, y, obj_game_object);
+	while (array_length(game_objects) > 0) {
+		var game_object = array_pop(game_objects);
+		if (is_existing_instance(game_object) && game_object.id != id) { instance_destroy(game_object); }
+	}
+	var placeholders = instance_place_all(x, y, obj_placeholder);
+	while (array_length(placeholders) > 0) {
+		var placeholder = array_pop(placeholders);
+		if (is_existing_instance(placeholder) && placeholder.id != id) { instance_destroy(placeholder); }
+	}
+}

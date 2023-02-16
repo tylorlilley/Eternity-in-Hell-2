@@ -386,21 +386,3 @@ function get_room_map_position(inst) {
 	
 	return [x_pos, y_pos]
 }
-
-/// @function								destroy_everything_at_position(should_destroy);
-/// @param		{boolean} should_destroy	The instance id to return a room map position for
-function destroy_everything_at_position(should_destroy) {
-	var game_objects = instance_place_all(x, y, obj_game_object), something_at_position = false;
-		while (array_length(game_objects) > 0) {
-			var game_object = array_pop(game_objects);
-			if (should_destroy && is_existing_instance(game_object) && game_object.id != id) { instance_destroy(game_object); }
-			something_at_position = true;
-		}
-		var placeholders = instance_place_all(x, y, obj_placeholder);
-		while (array_length(placeholders) > 0) {
-			var placeholder = array_pop(placeholders);
-			if (should_destroy && is_existing_instance(placeholder) && placeholder.id != id) { instance_destroy(placeholder); }
-			something_at_position = true;
-		}
-		return something_at_position;
-}

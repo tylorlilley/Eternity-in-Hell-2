@@ -48,6 +48,7 @@ function initialize_game_variables() {
 	mapped_rooms = array_create(0);
 	rooms_with_collectables = array_create(0);
 	rooms_with_key = array_create(0);
+	rooms_with_locked_chest = array_create(0);
 	rooms_with_item = array_create(0); // This is only rooms with non-special, non-key, non-trap chests / items
 	spawned_items = array_create(0);
 	spawned_special_items = array_create(0);
@@ -360,13 +361,20 @@ function game_room_initialize() {
 	
 	// Set up room exits
 	with (obj_exit_spot) {
-		var existing_exit = other.current_room.exits[exit_dir], has_exit_in_dir = (existing_exit != -1);
-		var something_at_position = destroy_everything_at_position(has_exit_in_dir);
-		if (!something_at_position) {
-			var obj_to_create = (has_exit_in_dir) ? -1 : obj_wall;
-			if (existing_exit != -1 && existing_exit.has_illusion_walls) { obj_to_create = obj_illusion_wall; }
-			if (obj_to_create != -1) { instance_create(x, y, obj_to_create); }
+		var existing_exit = other.current_room.exits[exit_dir];
+		var clear_path = (existing_exit != -1);
+		var illulsion_path = clear_path && existing_exit.has_illusion_walls
+		var lava_at_pos = instance_place(x, y, obj_lava);
+		
+		// Destroy things at this spot
+		if (clear_path == lava_at_pos) { destroy_instances_at_position(); }
+		
+		// Spawn walls at this spot
+		if (!lava_at_pos) {
+			var wall_type = (illulsion_path) ? obj_illusion_wall : obj_wall;
+			if (illulsion_path || !clear_path) { instance_create(x, y, wall_type); }
 		}
+		
 		instance_destroy();
 	}
 	
@@ -458,7 +466,7 @@ function game_room_initialize() {
 
 	// Spawn stairs spot obj
 	if (current_room.stairs_spot_obj != -1) {
-		if (spawn_spot == chest_spot) { with (chest_spot) { destroy_everything_at_position(true); } }
+		if (spawn_spot == chest_spot) { with (chest_spot) { destroy_instances_at_position(); } }
 		else { stairs_spot_occupied = true; }
 		
 		var new_inst = instance_create(spawn_spot.x, spawn_spot.y, current_room.stairs_spot_obj);
@@ -487,7 +495,7 @@ function game_room_initialize() {
 		// Determine if button can spawn, and if so, spawn it in a possible spot
 		if (array_length(possible_spots) == 0) { 
 			// Should never reach this clause
-			show_debug_message("WARNING: no possible button spot for portcullis room");
+			show_debug_message("WARNING: no possible button spot for portcullis room: " + room_get_name(current_room.room_reference));
 		}
 		else {
 			var button_spot = array_pop(possible_spots);

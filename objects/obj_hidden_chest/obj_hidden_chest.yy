@@ -32,8 +32,8 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_chest",
-    "path": "sprites/spr_chest/spr_chest.yy",
+    "name": "spr_chest_spot",
+    "path": "sprites/spr_chest_spot/spr_chest_spot.yy",
   },
   "spriteMaskId": null,
   "visible": false,

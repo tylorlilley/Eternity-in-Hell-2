@@ -1,12 +1,10 @@
 /// @function								new RoomExit(room, dir);
 /// @param		{real}	given_room			The room to create an exit for
 /// @param		{dir}	dir					The cardinal direction of the connected room to link via this exit
-function RoomExit(current_room, linked_room, linked_room_dir) constructor {
+function RoomExit(current_room, linked_room) constructor {
 	// Linked Rooms Info
 	room_1 = current_room;
 	room_2 = linked_room;
-	room_1_dir = get_opposite_dir(linked_room_dir);
-	room_2_dir = linked_room_dir;
 	room_1_stairs = noone;
 	room_2_stairs = noone;
 	

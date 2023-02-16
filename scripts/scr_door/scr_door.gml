@@ -6,7 +6,7 @@ function open_door() {
 	closed = noone;
 	depth = CROSS_DEPTH;
 	
-	if (door_for_exit != -1) {
+	if (door_for_exit != -1 && door_for_exit.has_lock) {
 		door_for_exit.unlock();
 		with (global.player) { 
 			play_sound(snd_mana, true);

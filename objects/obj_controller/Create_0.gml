@@ -26,6 +26,7 @@ if (create_locks_and_keys() == -1) {
 	exit;
 }
 
+
 // Ensure minimum number of collectables rooms exist
 while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
 	// Add collectables to random available room
@@ -122,3 +123,4 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 with (global.game_manager) { sounds_to_play = array_create(0); }
 play_sound(snd_torchlight, false);
 transition_to_room(start_room, true);
+with (global.game_manager) { array_remove(sounds_to_play, snd_win); }

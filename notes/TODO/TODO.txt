@@ -1,12 +1,7 @@
-// Key stuff
-
-- Add red key support
-- Add locked chest support
-- Add distance checking
-- Add improvements/shortcuts to algorithm
--- only create branch when number of keys is less than locks encountered
--- spawn more than one key at once if multiple are needed
--- unlock more than one exit at once if multiple are needed
+- Items generating as desired
+- Maps generating possible lock and key combos
+- Illusion walls/misleading exits working as desired
+- Re-add map walker
 
 // Other
 

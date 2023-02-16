@@ -1,5 +1,5 @@
 event_inherited();
 
-depth = CORPSE_DEPTH;
+depth = STANDARD_DEPTH;
 
 flip_sprite_at_random(false);

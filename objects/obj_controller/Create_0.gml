@@ -26,6 +26,39 @@ if (create_locks_and_keys() == -1) {
 	exit;
 }
 
+// Setup room references
+create_room_lists();
+var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0);
+for (var i = 0; i < array_length(game_rooms); i++) {
+	// Assign room reference from list
+	var given_room = game_rooms[i];
+	given_room.set_room_reference();
+	
+	if (get_random_chance_out_of(COLLECTABLE_PROBABILITY)) { given_room.add_collectables(); }
+	
+	// Add room to approprite room lists
+	with (given_room) {
+		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); has_lanterns = true; }
+		else if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
+	}
+	
+	// Add game time based on assigned room reference
+	var room_difficulty = difficulty_for_room_reference(game_rooms[i].room_reference);
+	var room_time_provided = TIME_PROVIDED_PER_ROOM;
+	if (room_difficulty == difficulties.easy) { room_time_provided += TIME_PROVIDED_PER_EASY_ROOM; }
+	if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }
+	if (given_room.misleading_room) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
+	if (given_room.has_locked_chest) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
+	for (var dir = directions.up; dir < directions.stairs; dir++) {
+		var given_exit = given_room.exits[dir];
+		if (given_exit == -1) { continue; }
+		
+		if (given_exit.has_lock) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
+		if (given_exit.has_illusion_walls) { room_time_provided += TIME_PROVIEDED_PER_ILLUSION_WALL; }
+		if (given_exit.has_portcullis_for_room(given_room)) { room_time_provided += TIME_PROVIEDED_PER_PORTCULLIS; }
+	}
+	time_provided += room_time_provided;
+}
 
 // Ensure minimum number of collectables rooms exist
 while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
@@ -44,36 +77,8 @@ while (array_length(rooms_with_collectables) < MINIMUM_COLLECTABLES_ROOMS) {
 		exit;
 	}
 }
-
 total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 time_provided += total_number_of_rooms_with_collectables * TIME_PROVIDED_PER_COLLECTABLE;
-
-// Setup room references
-create_room_lists();
-var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0);
-for (var i = 0; i < array_length(game_rooms); i++) {
-	// Assign room reference from list
-	var given_room = game_rooms[i];
-	given_room.set_room_reference();
-	
-	// Add room to approprite room lists
-	with (given_room) {
-		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); }
-		else if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
-	}
-	
-	// Add game time based on assigned room reference
-	var room_difficulty = difficulty_for_room_reference(game_rooms[i].room_reference);
-	var room_time_provided = TIME_PROVIDED_PER_ROOM;
-	if (room_difficulty == difficulties.easy) { room_time_provided += TIME_PROVIDED_PER_EASY_ROOM; }
-	if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }
-	if (given_room.misleading_room) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
-	for (var dir = directions.up; dir < directions.stairs; dir++) {
-		var given_exit = given_room.exits[dir];
-		if (given_exit != -1 && given_exit.has_lock) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
-	}
-	time_provided += room_time_provided;
-}
 
 // Ensure at least one lantern room exists
 if (array_length(rooms_with_lanterns) == 0) {
@@ -106,6 +111,9 @@ for (var i = 0; i < array_length(rooms_with_chest_potential); i++) {
 	given_room.add_chest(must_spawn, item_obj);
 }
 total_items = array_length(spawned_items) + array_length(spawned_special_items);
+
+// Add keys to account for locked chests
+create_keys_for_locked_chests();
 
 // Add portcullis to some rooms
 for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].add_portcullis(); }

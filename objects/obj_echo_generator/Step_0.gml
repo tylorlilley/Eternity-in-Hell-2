@@ -9,7 +9,7 @@ if (can_process_this_frame()) {
 		if (spawn_timer == 0) {
 			var echo = instance_create(x, y, obj_echo);
 			echo.generator = id;
-			play_sound(snd_echo, false);
+			play_sound(snd_echo_spawn, false);
 			spawn_timer = ECHO_SPAWN_FREQUENCY;
 		}
 	}

@@ -13,7 +13,7 @@ function RoomExit(current_room, linked_room) constructor {
 	has_lock = false;
 	room_1_has_portcullis = false;
 	room_2_has_portcullis = false;
-	has_illusion_walls = get_random_chance_out_of(ILLUSION_WALL_PROBABILITY);
+	has_illusion_walls = (!has_door && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY));
 	destroyed = false;
 	visited = false;
 	

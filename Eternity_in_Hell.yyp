@@ -225,7 +225,7 @@
     {"id":{"name":"rm_four_exits_2","path":"rooms/rm_four_exits_2/rm_four_exits_2.yy",},"order":15,},
     {"id":{"name":"spr_phantom","path":"sprites/spr_phantom/spr_phantom.yy",},"order":18,},
     {"id":{"name":"spr_mouth","path":"sprites/spr_mouth/spr_mouth.yy",},"order":19,},
-    {"id":{"name":"snd_announce","path":"sounds/snd_announce/snd_announce.yy",},"order":57,},
+    {"id":{"name":"snd_echo_spawn","path":"sounds/snd_echo_spawn/snd_echo_spawn.yy",},"order":0,},
     {"id":{"name":"spr_meat_old","path":"sprites/spr_meat_old/spr_meat_old.yy",},"order":79,},
     {"id":{"name":"snd_bumper_room","path":"sounds/snd_bumper_room/snd_bumper_room.yy",},"order":58,},
     {"id":{"name":"spr_eyes","path":"sprites/spr_eyes/spr_eyes.yy",},"order":20,},

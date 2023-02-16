@@ -92,6 +92,9 @@ if (can_process_this_frame()) {
 		    else if x > room_width { controller.transition = directions.right; }
 		    else if y < 0 { controller.transition = directions.up; }
 		    else if y > room_height { controller.transition = directions.down; }
+			if (controller.transition < directions.stairs) {
+				controller.transitioning_exit = controller.current_room.exits[controller.transition];
+			}
 		}
 	}
 	else if dead image_index = 2;

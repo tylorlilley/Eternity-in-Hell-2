@@ -4,10 +4,8 @@ if (can_process_this_frame()) {
 		game_manager.key_down_pressed || 
 		game_manager.key_right_pressed || 
 		game_manager.key_left_pressed) {
-	    teleport_near_player();
+	   teleport_this_frame = true; 
 	}
-
-	turn_to_face_player();
 
 	event_inherited();
 }

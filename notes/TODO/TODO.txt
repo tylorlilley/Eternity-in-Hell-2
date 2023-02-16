@@ -1,16 +1,3 @@
-// Key stuff
-
-- Add red key support
-- Add locked chest support
-- Add distance checking
-- Add improvements/shortcuts to algorithm
--- only create branch when number of keys is less than locks encountered
--- spawn more than one key at once if multiple are needed
--- unlock more than one exit at once if multiple are needed
-
-// Other
-
-
 Should show portcullis as locked doors on map?
 farmer clock hands flip xscale direction
 exit full screen still goes to 1x and not the scale setting

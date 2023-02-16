@@ -1,7 +1,5 @@
 Should show portcullis as locked doors on map?
 farmer clock hands flip xscale direction
-exit full screen still goes to 1x and not the scale setting
-flip roles of x and z on the title screen?
 
 Update maps to show white pixels wherever a solid object is instead of just an empty room? 
 - Update keys and items to show pixels where they are dropped?

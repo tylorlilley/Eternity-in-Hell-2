@@ -4,7 +4,6 @@ function open_door() {
 
 	with closed { instance_destroy(); }
 	closed = noone;
-	depth = CROSS_DEPTH;
 	
 	if locked {
 		locked = false;
@@ -22,5 +21,4 @@ function close_door() {
 	
 	closed = instance_create(x, y, obj_solid);
 	closed.visible = false;
-	depth = SOLID_DEPTH;
 }

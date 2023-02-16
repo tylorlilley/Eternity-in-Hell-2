@@ -16,7 +16,6 @@
 
 -4 hands when carrying staff
 
--1 closed door
 -1 solid
 0 corporeal enemies and anything else
 1 dropped item
@@ -27,7 +26,6 @@
 6 cross
 6 lantern
 6 encased heart plate
-6 open door
 7 mouth
 8 blood
 9 button

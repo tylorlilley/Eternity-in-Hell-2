@@ -41,33 +41,22 @@ function get_percentage_string(value) {
 /// @function								get_opposite_dir(dir);
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {
-	if (dir < directions.up || dir > directions.left) { return -1; }
+	if (dir < 0 || dir > 3) { return -1; }
 	else { return modulo((dir+2), 4); }
 }
 
 /// @function								get_turn_right_dir(dir);
 /// @param		{direction}	dir				The direction to return the direction to the right of
 function get_turn_right_dir(dir) {
-	if (dir < directions.up || dir > directions.left) { return -1; }
+	if (dir < 0 || dir > 3) { return -1; }
 	else { return modulo((dir+1), 4); }
 }
 
 /// @function								get_turn_left_dir(dir);
 /// @param		{direction}	dir				The direction to return the direction to the left of
 function get_turn_left_dir(dir) {
-	if (dir < directions.up || dir > directions.left) { return -1; }
+	if (dir < 0 || dir > 3) { return -1; }
 	else { return modulo((dir-1), 4); }
-}
-
-/// @function								get_random_carindal_dir();
-function get_random_carindal_dir() {
-	return irandom(3);
-}
-
-/// @function								is_cardinal_direction();
-/// @param		{direction}	dir				The direction to return the cardinality of
-function is_cardinal_direction(dir) {
-	return (dir >= directions.up && dir <= directions.left);
 }
 
 /// @function								get_random_instance(obj_index);

@@ -12,12 +12,12 @@ initialize_game_variables();
 // Generate Initial Room with Four Exits
 var uninitialized_rooms = array_create(0) // Used by functions called add_random_exit and initialized_room
 current_room = new GameRoom(0,0);
-current_room.has_exit_in_dir = [true, true, true, true, false];
+current_room.exits = [true, true, true, true, false];
 array_push(game_rooms, current_room);
 with current_room { initialize_room(uninitialized_rooms); }
 
 // Generate More Rooms until minimum number is met.
-var target_number_of_rooms = MINIMUM_NUMBER_OF_ROOMS;
+var target_number_of_rooms = MINIMUM_NUMBER_OF_ROOMS + irandom(ADDITIONAL_ROOMS);
 while (array_length(game_rooms) < target_number_of_rooms) {
 	var random_room = array_random_get(game_rooms);
 	with random_room { add_random_exit(true, uninitialized_rooms); }
@@ -39,39 +39,29 @@ if (total_rooms > MAXIMUM_NUMBER_OF_ROOMS) {
 }
 else {
 
-// Remove a stairs room if there are too many
-if (modulo((array_length(rooms_with_stairs_and_exits) + array_length(rooms_with_only_stairs)), 2) != 0) {
-	var odd_room_out = array_random_pop(rooms_with_stairs_and_exits);
-	odd_room_out.remove_room_stairs();
+// Generate stairs Connections
+var rooms_with_stairs_spot = array_create(0);
+for (var i = 0; i < total_rooms; i++) {
+	if (game_rooms[i].exits[4]) { array_push(rooms_with_stairs_spot, game_rooms[i]); }
 }
-// Connect rooms with only stairs exits together
-while (array_length(rooms_with_only_stairs) > 0) {
-	var room_without_exits = array_random_pop(rooms_with_only_stairs);
-	var room_with_exits = array_random_pop(rooms_with_stairs_and_exits);
-	if (room_with_exits == noone) {
-		// Should never need to reach this clause
-		show_debug_message("WARNING: not enough rooms with stairs AND exits generated.");
-		reset_map_generation();
-		exit;
-	}
-	else {
-		room_without_exits.adj_rooms[directions.stairs] = room_with_exits;
-		room_with_exits.adj_rooms[directions.stairs] = room_without_exits;
-	}
+if (modulo(array_length(rooms_with_stairs_spot), 2) != 0) {
+	var odd_room_out = array_random_pop(rooms_with_stairs_spot);
+	odd_room_out.exits[4] = false;
+	odd_room_out.stairs_spot_obj = -1;
+	array_remove(rooms_with_stairs_spot, odd_room_out);
 }
-// Connect remaining stairs rooms together
-while (array_length(rooms_with_stairs_and_exits) > 0) {
-	var first_room = array_random_pop(rooms_with_stairs_and_exits);
-	var second_room = array_random_pop(rooms_with_stairs_and_exits);
-	first_room.adj_rooms[directions.stairs] = second_room;
-	second_room.adj_rooms[directions.stairs] = first_room;
+while (array_length(rooms_with_stairs_spot) > 0) {
+	var first_room = array_random_pop(rooms_with_stairs_spot);
+	var second_room = array_random_pop(rooms_with_stairs_spot);
+	first_room.adj_rooms[4] = second_room;
+	second_room.adj_rooms[4] = first_room;
 }
 
 // Lock Random Exits
 locked_exits = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
-	for(var dir = directions.up; dir < directions.stairs; dir++;) {
-	    if (game_rooms[i].has_exit_in_dir[dir] && get_random_chance_out_of(LOCKED_DOOR_PROBABILITY)) { 
+	for(var dir = 0; dir <= 3; dir+= 1;) {
+	    if (game_rooms[i].exits[dir] && get_random_chance_out_of(LOCKED_DOOR_PROBABILITY)) { 
 	        array_push(locked_exits, game_rooms[i].create_locked_exit(dir));
 	    }
 	}
@@ -107,7 +97,7 @@ with (start_room) {
 var map_walker = set_up_locks_and_keys()
 if (!map_walker.has_visited_all_rooms()) {
 	// Should never need to reach this clause
-	show_debug_message("WARNING: key generation screwed up.");
+	show_debug_message("WARNING: lock generation screwed up.");
 	reset_map_generation();
 	exit;
 }
@@ -118,7 +108,7 @@ for (var dir = 0; dir <= directions.stairs; dir++) { get_new_map_walk_attempt(di
 // Create a heart room
 var farthest_rooms = array_create(0);
 for (var i = 0; i < total_rooms; i++) {
-	if (game_rooms[i].has_exit_in_dir[directions.stairs] == false && (!game_rooms[i].has_special_item || !game_rooms[i].chest_obj == obj_key)) {
+	if (game_rooms[i].exits[4] == false && (!game_rooms[i].has_special_item || !game_rooms[i].chest_obj == obj_key)) {
 		// Room is eligibile to host the heart
 		if (array_length(farthest_rooms) == 0) { array_push(farthest_rooms, game_rooms[i]); }
 		else {
@@ -140,8 +130,8 @@ with (heart_room) {
 		has_collectables = true;
 		array_push(other.rooms_with_collectables, self);
 	}
-	for (var dir = directions.up; dir < directions.stairs; dir += 1;) {
-		if (has_exit_in_dir[dir]) { create_locked_exit(dir); }
+	for (var i = 0; i <= 3; i += 1;) {
+		if (exits[i]) { create_locked_exit(i); }
 	}
 }
 
@@ -161,7 +151,7 @@ total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 var map_walker = set_up_locks_and_keys()
 if (!map_walker.has_visited_all_rooms()) {
 	// Should never need to reach this clause
-	show_debug_message("WARNING: second key generation screwed up.");
+	show_debug_message("WARNING: lock generation screwed up.");
 	reset_map_generation();
 	exit;
 }
@@ -190,8 +180,8 @@ for (var i = 0; i < total_rooms; i++) {
 	if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }
 	if (current_room.has_collectables) { room_time_provided += TIME_PROVIDED_PER_COLLECTABLE; }
 	if (current_room.misleading_room) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
-	for (var dir = directions.up; dir < directions.stairs; dir++) {
-		if (current_room.exits[dir] != noone) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
+	for (var j = 0; j < 4; j++) {
+		if (current_room.locked_exits[j]) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
 	}
 	time_provided += room_time_provided;
 }
@@ -240,7 +230,7 @@ total_items = array_length(spawned_items) + array_length(spawned_special_items);
 
 // Create player object and change room to current room's referenced room
 time_remaining = time_provided;
-global.player = instance_create(-16, -16, obj_player);
+global.player = instance_create(8, 8, obj_player);
 for (var i = 0; i < array_length(game_rooms); i++) {
 	var next_room = game_rooms[i];
 	next_room.go_to_room(false);

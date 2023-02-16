@@ -1,1 +1,0 @@
-if (is_existing_instance(global.controller)) { mp_grid_remove(global.controller.current_room.solid_grid); }

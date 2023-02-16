@@ -5,10 +5,10 @@ if (!is_existing_instance(death_box)) {
 	var bg_color = global.bg_color;
 	draw_set_color(bg_color);
 	
-	for (var quadrant = 0; quadrant < 4; quadrant++;) {
-	    var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+	for (var i = 0; i <= 3; i +=1;) {
+	    var x_pos = get_quadrant_x_pos(i), y_pos = get_quadrant_y_pos(i);
 
-	    if (!is_existing_instance(death_boxes[quadrant])) {
+	    if (!is_existing_instance(death_boxes[i])) {
 	        draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, bg_color, 1);
 	    }
 	}
@@ -18,7 +18,7 @@ if (!is_existing_instance(death_box)) {
 if (global.lava_edge_type != lava_edge_types.none) {
 	//sprite_index = spr_collectable;
 	for (var quadrant = 0; quadrant < 4; quadrant++) {
-		for (var dir = directions.up; dir < directions.stairs; dir++) {
+		for (var dir = 0; dir < 4; dir++) {
 			var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 			switch (dir) {
 				case directions.up: { y_pos -= 8; break; }

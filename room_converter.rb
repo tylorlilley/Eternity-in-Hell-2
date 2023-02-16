@@ -7,7 +7,6 @@ class RoomConverter
     attr_reader :object_rooms, :total_rooms
 
     EXIT_TYPES = %w(
-        no_exits
         three_exits
         four_exits
         one_exit
@@ -39,11 +38,6 @@ class RoomConverter
         obj_wall
         obj_stairs_spot
         obj_collectable_spot
-        obj_gudetama
-        obj_exit_placeholder_up
-        obj_exit_placeholder_down
-        obj_exit_placeholder_left
-        obj_exit_placeholder_right
         other
     )
 
@@ -67,7 +61,6 @@ class RoomConverter
 
     def default_mapping()
         {
-            "no_exits" => [],
             "one_exit" => [],
             "two_perpendicular_exits" => [],
             "two_opposite_exits" => [],
@@ -78,7 +71,6 @@ class RoomConverter
 
     def default_count_mapping()
         {
-            "no_exits" => 0,
             "one_exit" => 0,
             "two_perpendicular_exits" => 0,
             "two_opposite_exits" => 0,
@@ -89,7 +81,6 @@ class RoomConverter
 
     def exit_probability(exit_type)
         {
-            "no_exits" => 0,
             "one_exit" => 6,
             "two_perpendicular_exits" => 8,
             "two_opposite_exits" => 4,
@@ -303,11 +294,7 @@ class RoomConverter
 
         # Validate Room
         raise "ROOM MISSING STAIRS SPOT: #{room_name}" unless room_objects.include? "obj_stairs_spot"
-        raise "ROOM COLLECTABLE SPOT COUNT (#{room_objects.count("obj_collectable_spot")}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
-        raise "ROOM UP EXIT SPOT COUNT (#{room_objects.count("obj_exit_placeholder_up")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_placeholder_up") >= 2
-        raise "ROOM RIGHT EXIT SPOT COUNT (#{room_objects.count("obj_exit_placeholder_right")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_placeholder_right") >= 2
-        raise "ROOM DOWN EXIT SPOT COUNT (#{room_objects.count("obj_exit_placeholder_down")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_placeholder_down") >= 2
-        raise "ROOM LEFT EXIT SPOT COUNT (#{room_objects.count("obj_exit_placeholder_left")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_placeholder_left") >= 2
+        raise "ROOM COLLECTABLE SPOT COUNT (#{collectable_spot_count}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
         raise "ROOM CONTAINS WORM HEAD BUT NOT BODY: #{room_name}" unless room_objects.include?("obj_giant_worm_head") == room_objects.include?("obj_giant_worm_body")
         raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 6
         
@@ -404,4 +391,4 @@ filenames.each do |filename|
     sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) } #unless ['.', '..', 'rm_start.yy', 'rm_title.yy', 'rm_finish.yy', 'rm_four_exits_13.yy', 'rm_four_exits_14.yy', 'rm_four_exits_15.yy', 'rm_four_exits_16.yy', 'rm_four_exits_17.yy'].include?(sub_file_name) }
 end
 
-#converter.count_all_object_types()
+converter.count_all_object_types()

@@ -17,7 +17,7 @@ if (edge_type != lava_edge_types.none) {
 	lava_edge_image_xscales = [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]];
 	lava_edge_visible = [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]];
 	
-	/*
+	
 	if (edge_type == lava_edge_types.wavy_still || edge_type == lava_edge_types.wavy_animated) {
 		for (var quadrant = 0; quadrant < 4; quadrant++) {
 			for (var dir = 0; dir < 4; dir++) {
@@ -25,5 +25,4 @@ if (edge_type != lava_edge_types.none) {
 			}
 		}
 	}
-	*/
 }

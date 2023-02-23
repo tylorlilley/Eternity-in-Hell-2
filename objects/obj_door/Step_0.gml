@@ -13,7 +13,7 @@ if (can_process_this_frame()) {
 		    if (!unlocked_by_key || (locked && !carrying_key)) { play_sound(snd_locked, false); }
 		    else {
 				// Open Door
-				play_sound(snd_open, true);
+				with (player) { play_sound(snd_open, true); }
 				snap_player_to_position(push_direction);
 				move_player(push_direction);
 				open_door();

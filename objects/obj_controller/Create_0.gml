@@ -3,6 +3,7 @@ draw_texture_flush();
 sprite_prefetch(spr_collectable);
 sprite_prefetch(spr_player);
 if (global.is_farm_mode) { sprite_prefetch(spr_player_farmer); }
+grid_update_timer = 0;
 
 // Initialize global values
 random_set_seed(global.seed);
@@ -19,7 +20,7 @@ if (create_game_map() == -1) {
 };
 
 // Set up locks and keys on game map
-if (create_locks_and_keys() == -1) {
+if (create_locked_exits_and_keys() == -1) {
 	// Should never reach this clause
 	show_debug_message("WARNING: lock and key generation failed.");
 	reset_map_generation();
@@ -39,7 +40,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	// Add room to approprite room lists
 	with (given_room) {
 		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); has_lanterns = true; }
-		else if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
+		if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
 	}
 	
 	// Add game time based on assigned room reference
@@ -47,7 +48,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	var room_time_provided = TIME_PROVIDED_PER_ROOM;
 	if (room_difficulty == difficulties.easy) { room_time_provided += TIME_PROVIDED_PER_EASY_ROOM; }
 	if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }
-	if (given_room.misleading_room) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
+	if (given_room.has_misleading_exits) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
 	if (given_room.has_locked_chest) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
 	for (var dir = directions.up; dir < directions.stairs; dir++) {
 		var given_exit = given_room.exits[dir];
@@ -115,8 +116,14 @@ total_items = array_length(spawned_items) + array_length(spawned_special_items);
 // Add keys to account for locked chests
 create_keys_for_locked_chests();
 
-// Add portcullis to some rooms
-for (var i = 0; i < array_length(game_rooms); i++) { game_rooms[i].add_portcullis(); }
+// Add portcullis and illusion walls to some rooms
+for (var i = 0; i < array_length(game_rooms); i++) {
+	var next_room = game_rooms[i];
+	if (next_room == start_room || next_room == heart_room) { continue; }
+	
+	next_room.add_portcullis(); 
+	next_room.add_illusion_walls();
+}
 
 // Create player object and initialize all game rooms
 time_remaining = time_provided;

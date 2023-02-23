@@ -34,19 +34,14 @@ function become_dropped(dropper) {
 	var player = global.player;
 	
 	// Update player map
-	//if (dropper == player) { 
-		global.controller.current_room.add_to_instances_at_map_positions(id); 
-	//}
+	global.controller.current_room.add_to_instances_at_map_positions(id); 
 	
 	// Perform individual item drop actions
 	switch (object_index) {
-		case obj_meat: { 
-			//instance_create(x, y, obj_blood);
-			//play_sound(snd_thud, false);
-			with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } 
-			break; 
+		case obj_shovel: { 
+			dropped_by_digger = (dropper.object_index == obj_player || dropper.object_index == obj_hands);
+			break;
 		}
-		case obj_shovel: { dropped_by_digger = true; break; }
 	}
 	
 	// Become dropped
@@ -57,14 +52,19 @@ function become_dropped(dropper) {
 	y = dropper.y;
 	
 	// Perform individual actions based on dropper
-	//if (dropper == player) {
-		xstart = x;
-		ystart = y;
-	//}
+	xstart = x;
+	ystart = y;
 	
 	// Alert interested obj_hands to come grab it
 	with (obj_hands) { 
-		if (dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || dropper == player)) { target_item = other.id; } 
+		if (dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || dropper == player || object_is_ancestor(dropper.object_index, obj_item))) {
+			target_item = other.id;
+			target_x = target_item.x;
+			target_y = target_item.y;
+			if (set_automatic_target_path()) { 
+				play_sound(snd_laugh, true);
+			}
+		} 
 	}
 }
 
@@ -83,7 +83,8 @@ function make_item_special() {
 /// @function								defuse_bomb();
 function defuse_bomb() {
 	if (fuse_timer != 0) { play_sound(snd_fuse, false); }
-	fuse_timer = 0; 
+	fuse_timer = 0;
+	visible = true;
 }
 
 /// @function					can_dig_hole()

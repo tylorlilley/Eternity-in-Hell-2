@@ -28,7 +28,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 		if (transition != directions.none && !blackout) { blackout = true; }
 		else if (transition != directions.none && blackout) { 
 			var next_room = start_room; 
-			if (transition != directions.respawn) { next_room = current_room.get_connected_room(transition); }
+			if (transition <= directions.stairs) { next_room = transitioning_exit.get_connected_room(current_room); }
 			transition_to_room(next_room, true); 
 		}
 	}

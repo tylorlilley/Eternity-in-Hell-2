@@ -7,7 +7,7 @@ if (can_process_this_frame()) {
 	var enemies_at_position = instance_place_all(x, y, obj_enemy);
 	while (array_length(enemies_at_position) > 0) {
 		var enemy = array_random_pop(enemies_at_position);
-		if (enemy.activated && enemy.corporeal) { new_occupier = enemy; break; }
+		if (enemy.activated && !enemy.floating) { new_occupier = enemy; break; }
 	}
 	if (!is_existing_instance(new_occupier) && place_meeting(x, y, player)) { new_occupier = player; }
 	occupier = new_occupier;

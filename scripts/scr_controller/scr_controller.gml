@@ -57,7 +57,7 @@ function initialize_game_variables() {
 	time_remaining = 0;
 	time_provided = 0;
 	current_room = noone;
-	last_hole_exit = noone;
+	last_hole_exit = -1;
 	start_room = noone;
 	heart_room = noone;
 	total_number_of_rooms_with_collectables = 0;
@@ -150,11 +150,13 @@ function transition_to_room(new_room, visited_by_player) {
 /// @function										game_room_start();
 function game_room_start() {
 	// Mark room as one that has been visited at some point in this game
-	current_room.reset_room_solid_grid();
 	if (transitioning_exit != -1) { transitioning_exit.visited = true; }
 	if (!current_room.visited) {
 		current_room.visited = true;
 		array_push(mapped_rooms, current_room);
+		if (current_room.stairs_spot_obj == obj_encased_heart) { 
+			global.controller.completion_amount += 1;
+		}
 	}
 	
 	// Do room entry stuff
@@ -165,6 +167,10 @@ function game_room_start() {
 	game_room_start_destroy_instances();
 	game_room_start_reposition_instances();
 	game_room_start_spawn_instances();
+	
+	// Reset mp grids
+	current_room.reset_room_solid_grid();
+	current_room.reset_room_lava_grid();
 }
 
 /// @function										reset_game_object_image_blend();
@@ -181,7 +187,7 @@ function game_room_start_reposition_player() {
 		case directions.down: { player.y = 8; player.x = room_width/2; break; }
 		case directions.left: { player.x = room_width-8; player.y = room_height/2; break; }
 		case directions.stairs: {
-			var start_spot = transitioning_exit.get_stairs_for_room(current_room);	
+			var start_spot = transitioning_exit.get_connected_stairs(transitioning_stairs);	
 			player.x = start_spot.x;
 			player.y = start_spot.y;
 			break;
@@ -248,7 +254,9 @@ function game_room_start_other() {
 	with (obj_door) { 
 		if (door_for_exit != -1 && door_for_exit.destroyed) { instance_destroy(); }
 		else if (place_meeting(x, y, player)) { open_door(); }
+		else if (!is_existing_instance(closed) && !stuck_open) { close_door(); }
 	}
+	with (obj_gudetama) { play_sound(snd_give_up, false); }
 }
 
 /// @function										game_room_start_spawn_instances();
@@ -273,7 +281,7 @@ function game_room_start_spawn_instances() {
 	}
 	
 	/// If room has lava, consider spawning nose
-	if (instance_number(obj_lava) > 0 && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(-16, -16, obj_nose); }
+	if (instance_number(obj_nose) < global.difficulty && instance_number(obj_lava) > 0 && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(-16, -16, obj_nose); }
 }
 
 /// @function										game_room_end();
@@ -326,7 +334,9 @@ function game_room_start_reposition_instances() {
 	with (obj_block) { x = xstart; y = ystart; }
 	with (obj_item) { if (holder == noone) { x = xstart; y = ystart; } }
 	with (obj_enemy) { if (object_index != obj_hands) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
-	with (obj_mouth) { teleport_to_empty_space(); }
+	with (obj_spider) { start_waiting(); }
+	with (obj_mouth) { activated = false; x = -16; y = -16; }
+	with (obj_nose) { activated = false; x = -16; y = -16; }
 	with (obj_giant_worm_body) {
 		var new_worm_body = instance_create(xstart, ystart, object_index);
 		new_worm_body.xstart = xstart;
@@ -335,7 +345,7 @@ function game_room_start_reposition_instances() {
 		instance_destroy(id, false);
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
-	with (obj_echo_spot) { instance_create(-16, -16, obj_echo_generator); instance_destroy(); }
+	with (obj_echo_spot) { if (other.current_room != other.start_room) { instance_create(-16, -16, obj_echo_generator); instance_destroy(); } }
 	with (obj_echo_generator) {
 		var player = global.player;
 		play_sound(snd_echo, false); 
@@ -359,20 +369,24 @@ function game_room_initialize() {
 	with (obj_exit_spot) {
 		var existing_exit = other.current_room.exits[exit_dir];
 		var clear_path = (existing_exit != -1);
-		var illulsion_path = clear_path && existing_exit.has_illusion_walls
-		var lava_at_pos = instance_place(x, y, obj_lava);
+		var illusion_path = clear_path && existing_exit.has_illusion_walls
+		var blocker_at_pos = (instance_place(x, y, obj_solid) || instance_place(x, y, obj_lava));
 		
 		// Destroy things at this spot
-		if (clear_path == lava_at_pos) { destroy_instances_at_position(); }
+		if (clear_path == blocker_at_pos || illusion_path) { destroy_instances_at_position(); }
 		
 		// Spawn walls at this spot
-		if (!lava_at_pos) {
-			var wall_type = (illulsion_path) ? obj_illusion_wall : obj_wall;
-			if (illulsion_path || !clear_path) { instance_create(x, y, wall_type); }
+		if (!blocker_at_pos) {
+			var wall_type = (illusion_path) ? obj_illusion_wall : obj_wall;
+			if (illusion_path || !clear_path) { 
+				instance_create(x, y, wall_type);
+				if (!illusion_path) { instance_destroy(); }
+			}
 		}
-		
-		instance_destroy();
 	}
+	
+	// Close Doors
+	with (obj_door) { close_door(); }
 	
 	// Find room's stairs and chest spots
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
@@ -459,6 +473,7 @@ function game_room_initialize() {
 		current_room.add_to_instances_at_map_positions(new_stairs);
 		spawn_spot = chest_spot; 
 	}
+	else if (current_room.stairs_spot_obj == obj_cross) { spawn_spot = stairs_spot; }
 
 	// Spawn stairs spot obj
 	if (current_room.stairs_spot_obj != -1) {
@@ -497,7 +512,10 @@ function game_room_initialize() {
 			var button_spot = array_pop(possible_spots);
 			instance_create(button_spot.x, button_spot.y, obj_dirt);
 					
-			if (button_spot == stairs_spot) { current_room.stairs_spot_obj = obj_button; }
+			if (button_spot == stairs_spot) { 
+				current_room.stairs_spot_obj = obj_button;
+				instance_create(stairs_spot.x, stairs_spot.y, obj_button);
+			}
 			else {
 				with button_spot {
 					instance_create(x, y, obj_button);
@@ -528,11 +546,11 @@ function game_room_initialize() {
 		}
 	}
 		
-	// If room has lava, consider spawning nose
-	if (instance_number(obj_lava) > 0) { 
-		if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(-16, -16, obj_nose); }
-		if (get_random_chance_out_of(NOSE_PROBABILITY*2)) { instance_create(-16, -16, obj_nose); }
-		if (get_random_chance_out_of(NOSE_PROBABILITY*3)) { instance_create(-16, -16, obj_nose); }
+	// If room has lava, consider spawning up to three noses
+	if (instance_number(obj_lava) > 0) {
+		for (var i = 0; i < global.difficulty; i++;) {
+			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(-16, -16, obj_nose); }
+		}
 	}
 		
 	// If room has mouth, spawn more mouths

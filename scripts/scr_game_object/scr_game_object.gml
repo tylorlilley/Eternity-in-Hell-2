@@ -12,7 +12,7 @@ function get_distance_to_instance(instance) {
 /// @param		{real}  y_pos				The y value to check against the instance's y value
 /// @param		{index} instance			The instance whos positional coordinates are being checked
 function is_instance_at_coordinates(x_pos, y_pos, instance) {
-	return (instance && (instance.x == x_pos && instance.y == y_pos))
+	return (is_existing_instance(instance) && (instance.x == x_pos && instance.y == y_pos))
 }
 
 /// @function								is_direction_toward(dir, obj);
@@ -105,7 +105,7 @@ function is_direction_free(dir, ignore_solid, ignore_death) {
 	
 	// Return as not free if blocked by room border
 	var blocked = (is_on_room_border(x_pos, y_pos) && !is_on_room_border(x, y));
-	if (object_index == obj_player) { blocked = false; }
+	if (!object_is_ancestor(object_index, obj_enemy) || can_move_on_border) { blocked = false; }
 	if (blocked) { return false; }
 	
 	// Return as not free if blocked by room boundry
@@ -136,7 +136,7 @@ function is_outside_room(x_pos, y_pos) {
 /// @param		{int}	x_pos				The x position to check
 /// @param		{int}	y_pos				The y position to check
 function is_on_room_border(x_pos, y_pos) {
-	return (x_pos <= 16 || x_pos >= room_width-16 || y_pos <= 16 || y_pos >= room_height-16);
+	return (instance_place(x_pos, y_pos, obj_exit_spot));
 }
 
 
@@ -166,12 +166,6 @@ function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ign
 /// @param		{direction} dir				The direction in which to move the calling instance
 /// @param		{boolean} make_noise		Whether or not to play a movement sound
 function move_in_direction(dir, make_noise) {
-	var is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body));
-	var solid_grid = global.controller.current_room.solid_grid;
-	
-	// Remove old position from mp_grid
-	if (is_solid) { mp_grid_remove(solid_grid); }
-	
 	// Update position
 	if (dir == directions.up) { y -= 8; } 
 	else if (dir == directions.right) { x += 8; image_xscale = -1; }
@@ -180,11 +174,8 @@ function move_in_direction(dir, make_noise) {
 	
 	if (object_is_ancestor(object_index, obj_enemy)) { 
 		check_for_player_collision();
-		if (!corporeal) { make_noise = false; }
+		if (floating) { make_noise = false; }
 	}
-	
-	// Add new position to mp_grid
-	if (is_solid) { mp_grid_add(solid_grid); }
 	
 	// Make movement noises
 	if (make_noise) {
@@ -195,6 +186,9 @@ function move_in_direction(dir, make_noise) {
 		play_sound(snd, false); 
 	}
 	
+	// Update mp_grids
+	var is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body)), current_room = global.controller.current_room;
+	if (is_solid) { current_room.reset_room_solid_grid(); current_room.reset_room_lava_grid(); }
 }
 
 
@@ -274,12 +268,12 @@ function is_covered_at_each_quadrant_by(obj_index) {
 	);
 }
 
-/// @function								move_towards_coordinates(obj_index);
+/// @function								move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death);
 ///	@param		{int} target_x				The x position to be moving toward
 ///	@param		{int} target_y				The y position to be moving toward
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death) {
+function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death) {	
 	var move_dir = get_random_possible_direction(target_x, target_y, ignore_solid, ignore_death);
 	if (move_dir != directions.none) { move_in_direction(move_dir, true); }
 	
@@ -330,7 +324,7 @@ function can_press_button() {
 		enemies_at_position = instance_place_all(x, y, obj_enemy);
 		while (array_length(enemies_at_position) > 0) {
 			var enemy = array_random_pop(enemies_at_position);
-			if (enemy.corporeal && is_instance_at_coordinates(x, y, enemy)) { pressed = true; break; }
+			if (!enemy.floating && is_instance_at_coordinates(x, y, enemy)) { pressed = true; break; }
 		}
 	}
 	

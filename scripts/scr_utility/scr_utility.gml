@@ -145,12 +145,13 @@ function play_sound(snd, loud_sound) {
 	array_push(global.game_manager.sounds_to_play, snd);
 	if (loud_sound) {
 		with (obj_ears) {
-			if id != other.id {
-				if ((target_x != other.x || target_y != other.y) && !instance_place(target_x, target_y, obj_meat)) {
+			if (id != other.id) {
+				if ((target_x != other.x || target_y != other.y) && !instance_place(x, y, obj_meat) && !instance_place(target_x, target_y, obj_meat)) {
 					target_x = other.x;
 					target_y = other.y;
 					awake = true;
-					play_sound(snd_ears, true);
+					set_automatic_target_path();
+					if (target_path != noone) { play_sound(snd_ears, true); }
 				}
 			}
 		}
@@ -216,45 +217,6 @@ function get_decimal_from_hex_string(hex_string) {
 	return result;
 }
 
-/// @function								reset_settings_to_defaults();
-function reset_settings_to_defaults() {
-	var fullscreen_default = true, window_scaling_default = 2, input_default = inputs.keyboard_default;
-	var can_screen_flash_default = true, game_color_fade_default = 10, game_color_string_default = "FF0000";
-	var lava_edge_type_default = lava_edge_types.wavy_animated;
-	
-	global.fullscreen = fullscreen_default;
-	global.window_scaling = window_scaling_default;
-	global.input = input_default;
-	global.can_screen_flash = can_screen_flash_default;
-	global.lava_edge_type = lava_edge_type_default;
-	global.game_color_fade = game_color_fade_default;
-	global.game_color_string = game_color_string_default;
-	
-	update_setting("fullscreen", fullscreen_default);
-	update_setting("window_size", window_scaling_default);
-	update_setting("input", input_default);
-	update_setting("can_screen_flash", can_screen_flash_default);
-	update_setting("lava_edge_type", lava_edge_type_default);
-	update_setting("game_color_fade", game_color_fade_default);
-	update_setting("game_color", game_color_string_default);
-	
-	with (obj_lava) { set_up_lava_edge_visibility(true); }
-	set_game_color();
-	set_window_size();
-	window_set_fullscreen(global.fullscreen);
-}
-
-/// @function								set_game_color();
-function set_game_color() {
-	var padded_game_color_string = global.game_color_string;
-	while (string_length(padded_game_color_string) < 6) {
-		padded_game_color_string = "0"+padded_game_color_string;
-	}
-	var new_color = get_gms_color_from_hex_string(padded_game_color_string);
-	global.game_color = get_shader_color_from_gms_color(new_color);
-}
-
-
 /// @function								modulo(a, b);
 ///	@param		{number} a					The number to perform the mod on
 ///	@param		{number} b					The number to perform the mod with
@@ -266,16 +228,15 @@ function modulo(a, b) {
 /// @function								mp_grid_add(grid);
 ///	@param		{id} grid					The mp_grid to add to
 function mp_grid_add(grid) {
-	mp_grid_add_instances(grid, self, false);
+	mp_grid_add_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
+	//with (obj_enemy) { if (grid == target_path_grid && can_interrupt_target_path && has_automatic_target_path_generation) { set_automatic_target_path(); } }
 }
 
 /// @function								mp_grid_remove(grid);
 ///	@param		{id} grid					The mp_grid to remove from
 function mp_grid_remove(grid) {
-	for (var quadrant = 0; quadrant < 4; quadrant++) {
-		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
-		mp_grid_clear_cell(grid, x_pos/GRID_SIZE, y_pos/GRID_SIZE);
-	}
+	mp_grid_clear_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
+	//with (obj_enemy) { if (grid == target_path_grid && can_interrupt_target_path && has_automatic_target_path_generation) { set_automatic_target_path(); } }
 }
 
 /// @function								destroy_instances_at_position();
@@ -291,3 +252,15 @@ function destroy_instances_at_position() {
 		if (is_existing_instance(placeholder) && placeholder.id != id) { instance_destroy(placeholder); }
 	}
 }
+
+/*
+function are_coordinates_within_instance(x_pos, y_pos, inst) {
+	var nearest_inst = instance_nearest(x_pos, y_pos, inst);
+	if (!is_existing_instance(nearest_inst)) { return noone; }
+	
+	return (x_pos > nearest_inst.x - nearest_inst.sprite_width / 2 && 
+			x_pos < nearest_inst.x + nearest_inst.sprite_width / 2 &&
+			y_pos > nearest_inst.y - nearest_inst.sprite_height / 2 && 
+			y_pos < nearest_inst.y + nearest_inst.sprite_height / 2) ? nearest_inst : noone;
+}
+*/

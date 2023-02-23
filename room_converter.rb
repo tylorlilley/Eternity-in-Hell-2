@@ -21,21 +21,21 @@ class RoomConverter
         obj_skeleton
         obj_mouth
         obj_bumper
-        obj_giant_worm_body
-        obj_giant_worm_head
         obj_statue
         obj_spider
         obj_snake
-        obj_ears
-        obj_eyes
         obj_bones
-        obj_blood
-        obj_player_corpse
+        obj_gudetama
         obj_bush
         obj_door
         obj_column
         obj_wall
-        obj_gudetama
+        obj_giant_worm_body
+        obj_giant_worm_head
+        obj_blood
+        obj_ears
+        obj_eyes
+        obj_player_corpse
         obj_echo_spot
         obj_block_spot
         obj_stairs_spot
@@ -58,6 +58,7 @@ class RoomConverter
         obj_giant_worm_head
         obj_statue
         obj_spider
+        obj_gudetama
         obj_snake
         obj_ears
         obj_eyes
@@ -90,7 +91,7 @@ class RoomConverter
 
     def exit_probability(exit_type)
         {
-            "no_exits" => 0,
+            "no_exits" => 1,
             "one_exit" => 6,
             "two_perpendicular_exits" => 8,
             "two_opposite_exits" => 4,
@@ -124,6 +125,12 @@ class RoomConverter
             "obj_blood" => 0.01,
             "obj_giant_worm_head" => 0.08,
             "obj_player_corpse" => 0.01,
+            "obj_gudetama" => 0.01,
+            "obj_exit_spot_up" => 1.00,
+            "obj_exit_spot_left" => 1.00,
+            "obj_exit_spot_right" => 1.00,
+            "obj_exit_spot_down" => 1.00,
+            "obj_chest_spot" => 1.00,
             "other" => 0
         }[object_type]
     end
@@ -406,4 +413,4 @@ filenames.each do |filename|
     sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) } #unless ['.', '..', 'rm_start.yy', 'rm_title.yy', 'rm_finish.yy', 'rm_four_exits_13.yy', 'rm_four_exits_14.yy', 'rm_four_exits_15.yy', 'rm_four_exits_16.yy', 'rm_four_exits_17.yy'].include?(sub_file_name) }
 end
 
-#converter.count_all_object_types()
+converter.count_all_object_types()

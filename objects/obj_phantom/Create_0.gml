@@ -6,6 +6,7 @@ y = player.y;
 
 activated = false;
 corporeal = false;
+floating = true
 
 spawn_timer = 0;
 
@@ -29,6 +30,6 @@ else {
 		play_sound(snd_dread, false);
 		spawn_timer = ceil(total_distance_to_lanterns) - (global.difficulty*lantern_count)
 		if (spawn_timer > 48) { spawn_timer = 48; } 
-		if (spawn_timer < 16) { spawn_timer = 16; } 
+		if (spawn_timer < 18) { spawn_timer = 18; } 
 	}
 }

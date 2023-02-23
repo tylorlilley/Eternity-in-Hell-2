@@ -18,4 +18,4 @@ pause_movement = 0;
 
 // Create initial carried torch
 with create_item_in_hand(directions.left, obj_torch) { light_torch(noone, true); };
-//with create_item_in_hand(directions.right, obj_key) { make_item_special(); }
+//with create_item_in_hand(directions.right, obj_sword) {}// { make_item_special(); }

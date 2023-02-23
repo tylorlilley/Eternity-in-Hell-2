@@ -57,7 +57,7 @@ if (can_process_this_frame()) {
 		    // Move player in chosen direction if possible
 		    if (!is_existing_instance(moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) { 
 				move_player(dir); 
-				moved_by = id; 
+				moved_by = id;
 			}
 		}
 		
@@ -85,6 +85,7 @@ if (can_process_this_frame()) {
 			if (active && is_instance_at_coordinates(x, y, other) && connected_exit.get_connected_room(controller.current_room) != -1) { 
 				controller.transition = directions.stairs; 
 				controller.transitioning_exit = connected_exit;
+				controller.transitioning_stairs = id;
 			}
 		}
 		if (controller.transition == directions.none) {

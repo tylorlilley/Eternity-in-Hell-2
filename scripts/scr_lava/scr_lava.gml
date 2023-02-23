@@ -1,10 +1,7 @@
 /// @function								convert_to_multiple_death_boxes();
-function convert_to_multiple_death_boxes() {
-	var lava_grid = global.controller.current_room.lava_grid;
-	
+function convert_to_multiple_death_boxes() { 
 	// Delete the existing death box
 	with death_box {
-		mp_grid_remove(lava_grid);
 		instance_destroy(); 
 	}
 	death_box = noone;
@@ -19,9 +16,11 @@ function convert_to_multiple_death_boxes() {
 			image_xscale = 0.5;
 			image_yscale = 0.5;
 			creator = id;
-			mp_grid_add(lava_grid);
 		}
 	}
+	
+	// Update the room's grid
+	global.controller.grid_update_timer = 1;
 }
 
 /// @function								destroy_lava_at_position(x_pos, y_pos);

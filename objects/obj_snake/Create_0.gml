@@ -1,8 +1,9 @@
 event_inherited();
 
+can_move_on_border = true;
 image_speed = 1;
 
-dir = -1;
+dir = directions.none;
 				
 // Set initial direction to be away from player if possible
 var start_dir = get_random_carindal_dir();

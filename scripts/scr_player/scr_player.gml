@@ -1,9 +1,10 @@
 /// @function								move_player(dir);
 /// @param		{direction} dir				The direction to move the player instance
 function move_player(dir) {
+	var player = global.player, game_manager = global.game_manager;
 	if (dir == directions.none) { return; }
 	
-	with global.player {
+	with (player) {
 		// Move player
 		if (dir != directions.stairs) {
 			image_index += 1;
@@ -19,6 +20,48 @@ function move_player(dir) {
 		if (is_existing_instance(left_hand_item)) {
 			set_instance_to_same_position(left_hand_item);
 			if (is_carrying_item_in_left_hand(obj_torch)) { set_instance_to_same_position(left_hand_item.light_source); }
+		}
+	}
+	
+	var direction_pressed = (game_manager.key_up_pressed || 
+							game_manager.key_down_pressed || 
+							game_manager.key_right_pressed || 
+							game_manager.key_left_pressed);
+	
+	// Update the spiders state
+	with (obj_spider) { try_to_see_player(); }
+	
+	// Update the eyes postition
+	with (obj_eyes) {
+		var target = get_dropped_meat();
+		if (!is_existing_instance(target)) {
+			target = player;
+			
+			if (activated) {
+				if (direction_pressed ||
+					game_manager.key_up || 
+					game_manager.key_down || 
+					game_manager.key_left || 
+					game_manager.key_right) {
+						blink_amount = irandom_range(12, 32);
+						target_x = target.x;
+						target_y = target.y;
+						set_automatic_target_path();
+						move_towards_coordinates_on_path(false, false, 2);
+						if (target_path != noone) { play_sound(snd_thud, false); }
+						if (image_index != 1 && direction_pressed) { play_sound(snd_eyes, true); }
+						image_index = 1;
+				}
+			}
+		}
+		turn_to_face_player();
+	}
+				
+	// Update the bumper position
+	if (direction_pressed) {
+		with (obj_bumper) {
+			teleport_near_player();
+			turn_to_face_player();
 		}
 	}
 }
@@ -133,6 +176,8 @@ function create_item_in_hand(dir, obj_index) {
 /// @param		{obj} killed_by_obj				The object_index of the thing killing the player
 function kill_player(killed_by_obj) {
 	var player = global.player, controller = global.controller;
+	if (global.controller.blackout) { return false; }
+	
 	if (!player.dead) {
 		// Set variables to mark death
 		player.depth = CORPSE_DEPTH;
@@ -151,6 +196,7 @@ function kill_player(killed_by_obj) {
 		controller.killed_by = (killed_by_obj == -1) ? other.object_index : killed_by_obj;
 		update_death_log(controller.killed_by, global.difficulty);
 	}
+	return true;
 }
 
 /// @function					can_drop_item(item)

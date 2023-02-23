@@ -1,5 +1,5 @@
 singleton_instance();
 
 spawning = false;
-spawn_timer = 16;
+spawn_timer = ECHO_SPAWN_FREQUENCY/2;
 moves = array_create(0);

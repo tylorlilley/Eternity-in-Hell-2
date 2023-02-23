@@ -1,3 +1,5 @@
+event_inherited();
+
 if (can_process_this_frame()) {
 	if (!is_existing_instance(moved_by)) {
 		with (obj_echo_generator) { 

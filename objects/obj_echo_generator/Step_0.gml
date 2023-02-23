@@ -1,9 +1,7 @@
 event_inherited();
 
 if (can_process_this_frame()) {
-	if (!spawning) { 
-		spawning = (array_length(moves) > 1); 
-	}
+	if (!spawning) { spawning = (array_length(moves) > 1); }
 	else if (spawn_timer > 0) { 
 		spawn_timer -= 1;
 		if (spawn_timer == 0) {

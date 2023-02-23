@@ -7,28 +7,29 @@
 #macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 24, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])  // This happens only after the chest probability succeeds, so its combined with that probability.
-#macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 6, 4, 3, 2])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
+#macro HIDDEN_CHEST_PROBABILITY 1//get_probability_for_difficulty([0, 2, 2, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
 #macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 20, 8, 4]) 
-#macro MISLEADING_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
-#macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 8])
-#macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 10, 8, 6, 5]) 
+#macro MISLEADING_EXITS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
+#macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 12])
+#macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 8, 6, 5, 4]) 
 #macro OPEN_DOOR_PROBABILITY get_probability_for_difficulty([0, 32, 24, 12, 8])
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
 #macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 24, 16, 12, 8]) 
 #macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])
 #macro KEY_IN_CHEST_PROBABILITY 3
+#macro BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 8, 2, 1])
 #macro USE_CHEST_SPOT_PROBABILITY get_probability_for_difficulty([0, 16, 8, 4, 3])
 	
 // Initilize room start probability constants
 #macro HAS_BUG_PROBABILITY get_probability_for_difficulty([512, 256, 128, 64, 28]) 
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
-#macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 3, 2, 1]) 
+#macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 3, 2, 2, 1])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
-#macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 3, 3, 2, 1]) 
+//#macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 3, 3, 2, 1]) 
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 8, 4, 3])
-#macro SNAKE_PROBABILITY  get_probability_for_difficulty([0, 0, 24, 16, 8]) 
-#macro EYES_PROBABILITY  get_probability_for_difficulty([0, 0, 0, 64, 46]) 
+#macro SNAKE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 16, 8]) 
+#macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 46]) 
 #macro FAST_SKELETON_PROBABILITY get_probability_for_difficulty([0, 0, 16, 14, 12]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 36, 30, 28, 24]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 32, 28, 24]) 
@@ -56,7 +57,7 @@
 #macro FRAMES_FOR_HEART_THUMP 12
 #macro JUST_THE_WIND_PROBABILITY 2056 
 #macro BUSH_RUSTLE_FREQUENCY 16
-#macro ILLUSION_WALL_FLICKER_FREQUENCY 256
+//#macro ILLUSION_WALL_FLICKER_FREQUENCY 256
 #macro SKELETON_MOVE_FREQUENCY 12 
 #macro FAST_SKELETON_MOVE_FREQUENCY 4 
 #macro SNAKE_HISS_FREQUENCY 32 
@@ -69,7 +70,7 @@
 #macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 64, 32, 30, 28]) 
 #macro NOSE_SELF_DESTRUCT_PROBABILITY get_probability_for_difficulty([0, 0, 0, 256, 128]) 
 #macro RESPAWN_FREQUENCY 40 
-#macro ECHO_SPAWN_FREQUENCY 48 
+#macro ECHO_SPAWN_FREQUENCY 64 
 
 // Initialize score constants and variables
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
@@ -90,6 +91,7 @@
 #macro INCORPOREAL_ENEMY_DEPTH -225
 #macro GIANT_WORM_DEPTH -200
 #macro PUSH_BLOCK_DEPTH -30
+#macro FLOATING_ENEMY_DEPTH -25
 #macro BUSH_DEPTH -20
 #macro PLAYER_DEPTH -10
 #macro HANDS_WITH_STAFF_DEPTH -4
@@ -108,3 +110,12 @@
 #macro DIRT_OVER_LAVA_DEPTH 11
 #macro LAVA_DEPTH 12
 #macro DIRT_DEPTH 20
+
+// Default Setting Constants
+#macro FULLSCREEN_DEFAULT true
+#macro WINDOW_SCALING_DEFAULT 2
+#macro INPUT_DEFAULT inputs.keyboard_default
+#macro CAN_SCREEN_FLASH_DEFUALT true
+#macro GAME_COLOR_FADE_DEFAULT 10
+#macro GAME_COLOR_STRING_DEFAULT "FF0000"
+#macro LAVA_EDGE_TYPE_DEFAULT  lava_edge_types.wavy_animated

@@ -13,7 +13,7 @@ function RoomExit(current_room, linked_room) constructor {
 	has_lock = false;
 	room_1_has_portcullis = false;
 	room_2_has_portcullis = false;
-	has_illusion_walls = (!has_door && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY));
+	has_illusion_walls = false;
 	destroyed = false;
 	visited = false;
 	
@@ -30,13 +30,13 @@ function RoomExit(current_room, linked_room) constructor {
 	}
 	
 	function add_stairs_for_room(given_room, stairs) {
-		if (given_room == room_1) { room_1_stairs = stairs; }
-		else if (given_room == room_2) { room_2_stairs = stairs; }
+		if (given_room == room_1 && room_1_stairs == noone) { room_1_stairs = stairs; }
+		else if (given_room == room_2 && room_2_stairs == noone) { room_2_stairs = stairs; }
 	}
 	
-	function get_stairs_for_room(given_room) {
-		if (given_room == room_1) { return room_1_stairs; }
-		else if (given_room == room_2) { return room_2_stairs; }
+	function get_connected_stairs(given_stairs) {
+		if (given_stairs == room_1_stairs) { return room_2_stairs; }
+		else if (given_stairs == room_2_stairs) { return room_1_stairs; }
 		
 		return noone;
 	}

@@ -2,7 +2,7 @@ with (obj_echo) {
 	instance_destroy();
 	if (global.player.dead) { play_sound(snd_impact, false); }
 }
-if (!global.player.dead) {
+if (is_existing_instance(global.player) && !global.player.dead) {
 	with (obj_cross) {
 		var controller = global.controller;
 		var item_obj = get_random_item_obj(true, true);

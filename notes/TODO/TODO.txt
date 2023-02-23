@@ -1,26 +1,21 @@
 === REFACTORS ===
 
 lava to flicker and glow like other light sources?
-mouth on button
 
 Locked chests not being locked very often
 - Re-add map walker and implement smarter locking algorithm using node groupings
 
 Add pathfinding to snakes and skeletons to better pathfind toward dropped meats
+
 farmer clock hands flip xscale direction
+
 change response to no lantern rooms spawning to be spawning a lit lantern room instead of regenerating whole map
-Red staff can go through doors without unlocking them?
+
 Allow portcullis for stairs rooms? This gets weird as they can leave without unlocking portcullis and would need to encounter portcullis from other side
 - yeah but this is needed because shovels can add stairs to a portcullis room anyway
 
 Remove all commented out code that we don't need anymore
-Examine remaining TODO comments
-
-Update room reference data to include non-instance information like intelligent sections for adding/removing exits for misleading rooms and specialized amounts of base time that that room itself should add, etc
-
-Add time based on number of collectables spots?
-- Better to make it a per - room time value in the json file to better reflect how long it takes to get all collectables in a room
-make bar increase per collectable and not per room cleared?
+- Also Examine remaining TODO comments
 
 === NEW FETAURES ===
 level editor
@@ -40,6 +35,7 @@ bear trap/sticky that you must move with tap only to escape
 
 Should you be able to pick up and throw bones?
 Should mouths be drawn toward dropped items and collectables somehow?
+Red staff can go through doors without unlocking them?
  
 === NEW ROOM GENERATION ALGORITHM ===
 Rooms need to know about themselves:

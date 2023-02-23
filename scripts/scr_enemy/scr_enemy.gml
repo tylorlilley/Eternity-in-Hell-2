@@ -495,7 +495,7 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 		}
 	
 		// Move once along the path
-		if (move_dir == directions.none || !can_move_in_direction(move_dir, false, ignore_death)) { move_dir = directions.none; end_target_path(); }
+		if (move_dir == directions.none || !can_move_in_direction(move_dir, false, ignore_death) || target_x < 0 || target_y < 0) { move_dir = directions.none; end_target_path(); }
 		else {
 			move_in_direction(move_dir, true);
 			move_count += 1;
@@ -505,4 +505,61 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 	}
 	
 	return move_dir;
+}
+
+
+/// @function								teleport_to_player();
+function teleport_to_player() {
+	var player = global.player, controller = global.controller;
+	x = player.x;
+	y = player.y;
+
+	activated = false;
+	corporeal = false;
+	floating = true
+
+	spawn_timer = 0;
+
+	if (controller.current_room.lit) { instance_destroy(); }
+	else if (controller.entered_from_spawn) { spawn_timer = -1; }
+	else {
+		// Check distance to each unlit lantern
+		var lantern_count = 0, total_distance_to_lanterns = 0;
+		for (var i = 0; i < instance_number(obj_lantern); i++) {
+			var lantern = instance_find(obj_lantern, i);
+		
+			if (is_existing_instance(lantern) && is_existing_instance(lantern.light_source)) { continue; }
+		
+			lantern_count += 1;
+			total_distance_to_lanterns += get_distance_to_instance(lantern) / 8.0;
+		}
+	
+		if (lantern_count == 0) { instance_destroy(); }
+		else {
+			// Set spawn timer based on distance to each lantern
+			play_sound(snd_dread, false);
+			spawn_timer = ceil(total_distance_to_lanterns) - (global.difficulty*lantern_count)
+			if (spawn_timer > 48) { spawn_timer = 48; } 
+			if (spawn_timer < 18) { spawn_timer = 18; } 
+		}
+	}
+}
+
+/// @function								turn_away_from_player();
+function turn_away_from_player() {
+	// Set initial direction to be away from player if possible
+	var start_dir = get_random_carindal_dir();
+	for (var possible_dir = directions.up; possible_dir < directions.stairs; possible_dir++) {
+		var next_dir = ((possible_dir+start_dir) % 4)
+		if (is_direction_toward(next_dir, global.player)) { dir = get_opposite_dir(next_dir); break; }
+	}
+}
+
+/// @function								move_ears();
+function move_ears() {
+	sprite_index = get_sprite_to_use(spr_ears_awake);
+	image_index = (x > target_x) ? 1 : -1;
+	move_towards_coordinates_on_path(false, true, 4);
+	moved = true;
+	return (target_path == noone);
 }

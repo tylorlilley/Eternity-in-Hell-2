@@ -1,3 +1,5 @@
+if (x < 0 && y < 0 && !activated) { teleport_to_player(); }
+
 if (can_process_this_frame()) {
 	if (spawn_timer > 0) { spawn_timer -= 1;  }
 	else if (spawn_timer == 0) {

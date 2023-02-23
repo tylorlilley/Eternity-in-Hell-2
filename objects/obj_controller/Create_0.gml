@@ -127,7 +127,6 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 
 // Create player object and initialize all game rooms
 time_remaining = time_provided;
-global.player = instance_create(-16, -16, obj_player);
 for (var i = 0; i < array_length(game_rooms); i++) {
 	var next_room = game_rooms[i];
 	transition_to_room(next_room, false);
@@ -137,5 +136,6 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 // Transition to start room to begin game
 with (global.game_manager) { sounds_to_play = array_create(0); }
 play_sound(snd_torchlight, false);
+global.player = instance_create(-16, -16, obj_player);
 transition_to_room(start_room, true);
 with (global.game_manager) { array_remove(sounds_to_play, snd_win); }

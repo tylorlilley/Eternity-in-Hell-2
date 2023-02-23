@@ -146,12 +146,18 @@ function play_sound(snd, loud_sound) {
 	if (loud_sound) {
 		with (obj_ears) {
 			if (id != other.id) {
-				if ((target_x != other.x || target_y != other.y) && !instance_place(x, y, obj_meat) && !instance_place(target_x, target_y, obj_meat)) {
-					target_x = other.x;
-					target_y = other.y;
-					awake = true;
-					set_automatic_target_path();
-					if (target_path != noone) { play_sound(snd_ears, true); }
+				if ((x != other.x || y != other.y) &&
+					(target_x != other.x || target_y != other.y) && 
+					!instance_place(x, y, obj_meat) && 
+					!instance_place(target_x, target_y, obj_meat)) {
+						target_x = other.x;
+						target_y = other.y;
+						awake = true;
+						set_automatic_target_path();
+						if (target_path != noone) { 
+							play_sound(snd_ears, true);
+							if (!moved) { move_ears(); }
+						}
 				}
 			}
 		}

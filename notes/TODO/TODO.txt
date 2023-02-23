@@ -1,5 +1,6 @@
 === REFACTORS ===
 
+lava to flicker and glow like other light sources?
 mouth on button
 
 Locked chests not being locked very often

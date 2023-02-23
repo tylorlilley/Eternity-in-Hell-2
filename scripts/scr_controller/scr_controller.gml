@@ -337,6 +337,8 @@ function game_room_start_reposition_instances() {
 	with (obj_spider) { start_waiting(); }
 	with (obj_mouth) { activated = false; x = -16; y = -16; }
 	with (obj_nose) { activated = false; x = -16; y = -16; }
+	with (obj_phantom) { activated = false; x = -16; y = -16; }
+	with (obj_snake) { turn_away_from_player(); }
 	with (obj_giant_worm_body) {
 		var new_worm_body = instance_create(xstart, ystart, object_index);
 		new_worm_body.xstart = xstart;

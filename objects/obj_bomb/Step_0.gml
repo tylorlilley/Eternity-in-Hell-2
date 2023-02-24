@@ -26,7 +26,7 @@ if can_process_this_frame() {
 		}
 		
 		// Blow up bombs dropped in lava
-		if (is_covered_at_each_quadrant_by(obj_lava)) {
+		if (is_covered_at_each_quadrant_by(obj_lava_part)) {
 			explode(!special);
 		}
 	}

@@ -8,7 +8,7 @@
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY 1//get_probability_for_difficulty([0, 2, 2, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
-#macro COLLECTABLE_PROBABILITY 1//get_probability_for_difficulty([4, 3, 3, 3, 2]) 
+#macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
 #macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 20, 8, 4]) 
 #macro MISLEADING_EXITS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
 #macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 12])
@@ -22,7 +22,8 @@
 #macro USE_CHEST_SPOT_PROBABILITY get_probability_for_difficulty([0, 16, 8, 4, 3])
 	
 // Initilize room start probability constants
-#macro HAS_BUG_PROBABILITY get_probability_for_difficulty([512, 256, 128, 64, 28]) 
+#macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
+#macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 6])
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 3, 2, 2, 1])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
@@ -38,8 +39,8 @@
 // Initialize map drawing constants
 #macro GRID_SIZE 8
 //#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
-#macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 14, 16])
-#macro MAXIMUM_NUMBER_OF_ROOMS (MINIMUM_NUMBER_OF_ROOMS * 1.5)
+#macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
+#macro MAXIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 15, 18, 24])
 //#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 
 #macro MINIMUM_COLLECTABLES_ROOMS get_probability_for_difficulty([1, 2, 3, 4, 5]) 
 //#macro MAX_MAP_DRAW_DISTANCE 8 
@@ -49,8 +50,10 @@
 #macro LANTERN_LIGHT_RANGE 14 
 #macro TORCH_LIGHT_RANGE 11 
 #macro PLAYER_LIGHT_RANGE 6 
-#macro LAVA_LIGHT_RANGE 18  // This one is in pixels and not steps of 8 pixels
+//#macro LAVA_LIGHT_RANGE 18  // This one is in pixels and not steps of 8 pixels
 #macro SCREEN_FLASH_DURATION 6 
+#macro LAVA_LIGHT_RANGE 4
+#macro FIREBALL_LIGHT_RANGE 3
 	
 // Initilaize other gameplay constants
 #macro FRAMES_TO_WAIT_BEFORE_PROCESSING 6
@@ -71,6 +74,7 @@
 #macro NOSE_SELF_DESTRUCT_PROBABILITY get_probability_for_difficulty([0, 0, 0, 256, 128]) 
 #macro RESPAWN_FREQUENCY 40 
 #macro ECHO_SPAWN_FREQUENCY 64 
+#macro PLAYER_INFECTED_TIMER 48
 
 // Initialize score constants and variables
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 

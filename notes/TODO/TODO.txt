@@ -7,7 +7,7 @@ Locked chests not being locked very often
 
 Add pathfinding to snakes and skeletons to better pathfind toward dropped meats
 
-farmer clock hands flip xscale direction
+farmer clock sprie hands flip xscale direction
 
 change response to no lantern rooms spawning to be spawning a lit lantern room instead of regenerating whole map
 
@@ -16,6 +16,18 @@ Allow portcullis for stairs rooms? This gets weird as they can leave without unl
 
 Remove all commented out code that we don't need anymore
 - Also Examine remaining TODO comments
+
+Refactor hands nd collectables that use the run_away_from_player to instead use pathfinidng to find the spot furthest away from the player and run toward that
+- create a seperate red_staff_grid to use for hands that hold red staff since just the lava grid and solid grid don't cut it for that
+
+delete all spot/placeholder objects once room has been initialized?
+- update blockspots and shovel interaction?
+
+Refactor lava to spawn "obj_lava_part" instead of obj_deatbox
+- all interactions for lava can just check for presence of obj_lava_part
+- main lava obj can stay just for coordinating graphics of its own parts
+- make sure all interactions with obj_death like for death_types switch to lava part
+- try to have no step for obj_death anymore; put that check into player obj?
 
 === NEW FETAURES ===
 level editor

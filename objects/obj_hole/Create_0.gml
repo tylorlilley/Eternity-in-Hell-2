@@ -17,4 +17,7 @@ else {
 	connected_exit.room_2 = controller.current_room;
 	connected_exit.add_stairs_for_room(controller.current_room, id);
 	controller.last_hole_exit = -1;
+	
+	with (connected_exit.room_1) { add_to_instances_at_map_positions(other.connected_exit.room_1_stairs); }
+	with (connected_exit.room_2) { add_to_instances_at_map_positions(other.connected_exit.room_2_stairs); }
 }

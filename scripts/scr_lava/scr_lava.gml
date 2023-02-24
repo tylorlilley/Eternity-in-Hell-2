@@ -1,26 +1,28 @@
-/// @function								convert_to_multiple_death_boxes();
-function convert_to_multiple_death_boxes() { 
-	// Delete the existing death box
-	with death_box {
-		instance_destroy(); 
-	}
-	death_box = noone;
-	
+/// @function								initialize_lava();
+function initialize_lava() { 
 	// Set up the death box for each quadrant of this lava
-	death_boxes = [noone, noone, noone, noone];
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
 		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 
-		death_boxes[quadrant] = instance_create(x_pos, y_pos, obj_death);
-		with (death_boxes[quadrant]) {
-			image_xscale = 0.5;
-			image_yscale = 0.5;
-			creator = id;
-		}
+		death_boxes[quadrant] = instance_create(x_pos, y_pos, obj_lava_part);
+		with (death_boxes[quadrant]) { creator = other.id; }
 	}
 	
 	// Update the room's grid
-	global.controller.grid_update_timer = 1;
+	//global.controller.grid_update_timer = 1;
+	
+	// Create light_source
+	/*
+	if (array_length(instance_place_all(x-16, y, obj_lava)) > 0 &&
+		array_length(instance_place_all(x+16, y, obj_lava)) > 0 &&
+		array_length(instance_place_all(x, y-16, obj_lava)) > 0 &&
+		array_length(instance_place_all(x, y+16, obj_lava)) > 0) {
+			light = instance_create(x, y, obj_light_source);
+			light.lighting_range = LAVA_LIGHT_RANGE;
+			light.intensity = 0.45;
+			light.creator = id;
+		}
+	*/
 }
 
 /// @function								destroy_lava_at_position(x_pos, y_pos);
@@ -28,7 +30,6 @@ function convert_to_multiple_death_boxes() {
 /// @param		{real} y_pos				The y position of the quadrant to destroy
 function destroy_lava_at_position(x_pos, y_pos) {
 	var lava_grid = global.controller.current_room.lava_grid;
-	if death_box { convert_to_multiple_death_boxes(); }
 	
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
 	    if (is_instance_at_coordinates(x_pos, y_pos, death_boxes[quadrant])) {
@@ -44,6 +45,7 @@ function destroy_lava_at_position(x_pos, y_pos) {
 }
 
 /// @function								get_lava_at_each_quadrant();
+/*
 function get_lava_at_each_quadrant() {
 	// Get the actual lava objects at each lava quadrant
 	var lava_at_quadrant = [noone, noone, noone, noone], player = global.player;
@@ -83,26 +85,26 @@ function get_lava_at_each_quadrant() {
 		
 	return lava_at_quadrant;
 }
+*/
 
 /// @ function								consume_lava(require_all);
 /// @param		{bool} require_all			Only consume whole chunks of lava at once
 function consume_lava(require_all) {
-	var lava_at_quadrant = get_lava_at_each_quadrant();
+	var lava_at_quadrant = get_instance_at_each_quadrant(obj_lava_part);
 	if (!require_all || is_covered_at_each_quadrant_by(obj_lava)) {
 		var consumed = false;
 		for (var quadrant = 0; quadrant < 4; quadrant++) {
 			var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 			
-			with lava_at_quadrant[quadrant] { 
-				consumed = destroy_lava_at_position(x_pos, y_pos) || consumed; 
-				destroy_self_if_all_death_boxes_are_destroyed();
+			with lava_at_quadrant[quadrant].creator { 
+				consumed = destroy_lava_at_position(x_pos, y_pos) || consumed;
 			}
 		}
 		
 		if (consumed) {
 			play_sound(snd_splash, false);
 			with (obj_lava) {
-				if (point_distance(x, y, other.x, other.y) <= 32) {
+				if (get_distance_to_instance(other) <= 32) {
 					set_up_lava_edge_visibility(false);
 				}
 			}
@@ -113,6 +115,7 @@ function consume_lava(require_all) {
 }
 
 /// @ function								destroy_self_if_all_death_boxes_are_destroyed();
+/*
 function destroy_self_if_all_death_boxes_are_destroyed() {
 	if (!is_existing_instance(death_box) &&
 		!is_existing_instance(death_boxes[0]) &&
@@ -123,6 +126,7 @@ function destroy_self_if_all_death_boxes_are_destroyed() {
 			instance_destroy(); 
 	}
 }
+*/
 
 /// @ function								set_up_lava_edge_visibility(require_all);
 /// @param		{bool} visibility_only		Only change the visibility status

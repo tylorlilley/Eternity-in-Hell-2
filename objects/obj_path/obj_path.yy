@@ -4,6 +4,7 @@
   "name": "obj_path",
   "eventList": [
     {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,},
+    {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","collisionObjectId":null,"eventNum":2,"eventType":3,"isDnD":false,},
   ],
   "managed": true,
   "overriddenProperties": [],
@@ -31,8 +32,8 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_block_tile",
-    "path": "sprites/spr_block_tile/spr_block_tile.yy",
+    "name": "spr_block_tile2",
+    "path": "sprites/spr_block_tile2/spr_block_tile2.yy",
   },
   "spriteMaskId": null,
   "visible": true,

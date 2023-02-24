@@ -278,6 +278,6 @@ if (key_x_pressed && options_screen) {
 else if (key_z_pressed && !options_screen && !death_log_screen && !controls_screen){ 
 	play_sound(snd_pickup, false); 
 	instance_create(184+56, 136, obj_lava); 
-	with (obj_lava) { set_up_lava_edge_visibility(true); }
+	with (obj_lava) { initialize_lava(); set_up_lava_edge_visibility(true); }
 	options_screen = true;
 }

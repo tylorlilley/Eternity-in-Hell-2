@@ -9,7 +9,7 @@ grid_update_timer = 0;
 random_set_seed(global.seed);
 show_debug_message("SEED: "+string(random_get_seed()));
 initialize_game_variables();
-
+dropped_meat = array_create(0);
 
 // Setup physical game map
 if (create_game_map() == -1) {

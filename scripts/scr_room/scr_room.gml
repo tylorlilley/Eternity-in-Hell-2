@@ -208,14 +208,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		mp_grid_clear_all(room_lava_grid);
 		with (obj_solid) { mp_grid_add(room_lava_grid); }
-		with (obj_lava) {
-			with (death_box) { mp_grid_add(room_lava_grid); }
-			if (death_boxes != noone) {
-				for (var i = 0; i < 4; i++;) {
-					with (death_boxes[i]) { mp_grid_add(room_lava_grid); }
-				}
-			}
-		}
+		with (obj_lava_part) { mp_grid_add(room_lava_grid); }
 	}
 	
 	/// @function								add_to_instances_at_map_positions(inst);
@@ -356,6 +349,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function									deactivate_room_instances();
 	function deactivate_room_instances() {
 		instances = array_create(0);
+		with (obj_light_source) { if (!persistent) { array_push(other.instances, id); } }
 		with (obj_game_object) { if (!persistent) { array_push(other.instances, id); } }
 		with (obj_placeholder) { if (!persistent) { array_push(other.instances, id); } }
 		for (var i = 0; i < array_length(instances); i++) { instance_deactivate_object(instances[i]); }
@@ -586,6 +580,7 @@ function GameRoom(given_x, given_y) constructor {
 							else if (room_map_obj == obj_stairs) {
 								if (show_detailed_map || has_visited_exit(directions.stairs)) { pos_color = white_color; break; }
 							}
+							else if (room_map_obj == obj_hole) { pos_color = white_color; break; }
 							else if (is_test_mode_on && has_locked_chest && (room_map_obj == obj_chest || room_map_obj == obj_hidden_chest)) { pos_color = c_aqua; break; }
 							else if (is_test_mode_on && has_hidden_chest && (room_map_obj == obj_chest || room_map_obj == obj_hidden_chest)) { pos_color = c_yellow; break; }
 							else if (is_test_mode_on && has_key && ((chest_obj == obj_key && (room_map_obj == obj_chest || room_map_obj == obj_hidden_chest)) || room_map_obj == obj_key)) { pos_color = c_lime; break; }

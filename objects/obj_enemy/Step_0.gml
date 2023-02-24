@@ -8,7 +8,7 @@ if (can_process_this_frame()) {
 			var death_sound = noone;
 			
 			if (!floating) {
-				if (!fire_resistant && is_covered_at_each_quadrant_by(obj_lava)) { death_sound = snd_extinguish; }
+				if (!fire_resistant && is_covered_at_each_quadrant_by(obj_lava_part)) { death_sound = snd_extinguish; }
 				else if (is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) { death_sound = snd_crunch; }
 			}
 			

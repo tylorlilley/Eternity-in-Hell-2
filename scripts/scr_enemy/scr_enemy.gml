@@ -91,7 +91,7 @@ function teleport_to_lava() {
 			}
 			
 			// return early if this is a good teleported position
-			if (is_covered_at_each_quadrant_by(obj_lava) &&
+			if (is_covered_at_each_quadrant_by(obj_lava_part) &&
 				!is_outside_room(x, y) &&
 				!is_covered_at_each_quadrant_by(obj_solid) &&
 				!place_meeting(x, y, player)) {
@@ -354,8 +354,8 @@ function check_for_player_collision() {
 		var carried_sword = noone;
 		with (player) { carried_sword = get_carried_item(obj_sword); }
 		if (is_existing_instance(carried_sword) && corporeal) { kill_with_sword(carried_sword); }
-		else if (object_index == obj_death) {
-			// Kill player from lava
+		else if (object_index == obj_death || object_index == obj_lava_part) {
+			// Kill player from fireball
 			with (player) { 
 				if (!is_carrying_item(obj_staff)) { 
 					play_sound(snd_extinguish, false);
@@ -449,13 +449,14 @@ function end_target_path() {
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 /// @param		{real} number_of_moves		The number of steps to take
 function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_moves) {
-	if (ignore_solid && ignore_death) { return move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death); }
+	//if (ignore_solid && ignore_death) { return move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death); }
 	if (target_path == noone && !has_automatic_target_path_generation) { return false; }
 	else if (target_path_grid == -1) { return false; }
 	
 	// Update grid to be used for target path
 	var current_room = global.controller.current_room
 	target_path_grid = (ignore_death) ? current_room.solid_grid : current_room.lava_grid;
+	if (ignore_solid) { target_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE); }
 	
 	// Generate new target path if one is needed
 	if (target_path == noone) {
@@ -495,7 +496,11 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 		}
 	
 		// Move once along the path
-		if (move_dir == directions.none || !can_move_in_direction(move_dir, false, ignore_death) || target_x < 0 || target_y < 0) { move_dir = directions.none; end_target_path(); }
+		var blocked = !can_move_in_direction(move_dir, ignore_solid, ignore_death);
+		if (move_dir == directions.none || blocked || target_x < 0 || target_y < 0) { 
+			move_dir = directions.none; 
+			end_target_path(); 
+		}
 		else {
 			move_in_direction(move_dir, true);
 			move_count += 1;
@@ -562,4 +567,22 @@ function move_ears() {
 	move_towards_coordinates_on_path(false, true, 4);
 	moved = true;
 	return (target_path == noone);
+}
+
+/// @function								move_toward_player(ignore_solid, ignore_death, accuracy);
+/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
+///	@param		{real}	accuracy			How often to move correctly
+function move_toward_player(ignore_solid, ignore_death, accuracy) {
+	var dir = irandom(accuracy), target = get_dropped_meat();
+	if (dir >= directions.stairs) { return directions.none; }
+	
+	if (!is_existing_instance(target)) { target = global.player; }
+	if (!is_direction_toward(dir, target)) { dir = get_opposite_dir(dir); }
+	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { 
+		move_in_direction(dir, false); 
+		return dir; 
+	}
+	
+	return directions.none;
 }

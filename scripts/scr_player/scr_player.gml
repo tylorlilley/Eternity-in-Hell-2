@@ -12,6 +12,9 @@ function move_player(dir) {
 			move_in_direction(dir, true);
 			with (obj_echo_generator) { array_push(moves, dir); }
 		}
+		// Move light source
+		set_instance_to_same_position(light);
+		
 		// Move carried items
 		if (is_existing_instance(right_hand_item)) {
 			set_instance_to_same_position(right_hand_item);
@@ -210,23 +213,17 @@ function can_drop_item(item) {
 
 /// @function				draw_staff_box();
 function draw_staff_box() {
-	if (is_carrying_item(obj_staff)) {
-		var lava_at_quadrant = get_instance_at_each_quadrant(obj_lava), wall_at_quadrant = get_instance_at_each_quadrant(obj_wall), column_at_quadrant = get_instance_at_each_quadrant(obj_column);
-		for (var quadrant = 0; quadrant < 4; quadrant++;) {
-			var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
-
-			if (is_existing_instance(lava_at_quadrant[quadrant]) || is_existing_instance(wall_at_quadrant[quadrant]) || is_existing_instance(column_at_quadrant[quadrant])) {
-			    draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, global.bg_color, 1);
-			}
-		}
-		
-		draw_self();
-	}
+	if (is_carrying_item(obj_staff)) { draw_self(); }
 }
 
 /// @function				draw_player_hat();
 function draw_player_hat() {
 	if (global.is_farm_mode) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
+}
+
+/// @function				draw_player_worm();
+function draw_player_worm() {
+	if (infected_timer > 0 && !dead) { draw_sprite_ext(spr_bug_red, bug_image_index, x, y-10+image_index, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
 }
 
 /// @function				snap_player_to_position(dir);

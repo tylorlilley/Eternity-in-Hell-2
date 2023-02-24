@@ -235,18 +235,19 @@ function game_room_start_other() {
 	}
 	with (obj_dirt) {
 		if (!is_solid_at_position(x, y)) { 
-			has_bug = get_random_chance_out_of(HAS_BUG_PROBABILITY);
+			has_bug = get_random_chance_out_of(BUG_PROBABILITY);
 		}
 	}
+	with (obj_button) { dirt.has_bug = true; }
 	with (obj_bush) { 
 		occupier = noone; 
 		is_occupied = false;
-		has_bug = get_random_chance_out_of(HAS_BUG_PROBABILITY);
+		has_bug = get_random_chance_out_of(BUG_PROBABILITY);
 	}
 	with (obj_player_corpse) { has_bug = true; if (get_random_chance_out_of(CORPSE_DISINTEGRATE_PROBABILITY)) { instance_destroy(); } }
 	with (obj_bones) { 
 		if (!is_solid_at_position(x, y)) {
-			has_bug = get_random_chance_out_of(HAS_BUG_PROBABILITY);
+			has_bug = get_random_chance_out_of(BUG_PROBABILITY);
 			trap = (get_random_chance_out_of(TRAP_BONES_PROBABILITY)); 
 		} 
 	}
@@ -390,6 +391,9 @@ function game_room_initialize() {
 	// Close Doors
 	with (obj_door) { close_door(); }
 	
+	// Break lava into parts
+	with (obj_lava) { initialize_lava(); }
+	
 	// Find room's stairs and chest spots
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
 	if (stairs_spot == noone) {
@@ -512,7 +516,6 @@ function game_room_initialize() {
 		}
 		else {
 			var button_spot = array_pop(possible_spots);
-			instance_create(button_spot.x, button_spot.y, obj_dirt);
 					
 			if (button_spot == stairs_spot) { 
 				current_room.stairs_spot_obj = obj_button;

@@ -4,12 +4,8 @@ if (can_process_this_frame()) {
 	if (spawn_timer > 0) { spawn_timer -= 1;  }
 	else if (spawn_timer == 0) {
 	    // Move in a random direction, and turn toward player if that direction is away from player.
-	    var dir = irandom(4), target = get_dropped_meat();
-		if (!is_existing_instance(target)) { target = global.player; }
-		
-	    if (!is_direction_toward(dir, target)) { dir = get_opposite_dir(dir); }
-	    if (can_move_in_direction(dir, true, true)) { move_in_direction(dir, false); }
-	    if (get_coin_flip()) { play_sound(snd_flicker, false); }
+		move_toward_player(true, true, 4);
+		if (get_coin_flip()) { play_sound(snd_flicker, false); }
 		
 		// Become lethal if time is up and it is not lethal yet
 	    if (!activated) { 

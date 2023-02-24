@@ -10,34 +10,36 @@ function draw_while_carried() {
 /// @function								become_carried(new_holder);
 /// @param		{boolean} new_holder		The instance to begin holding the item.
 function become_carried(new_holder) {
+	var controller = global.controller;
+	
 	// Become carried
 	holder = new_holder;
 	persistent = new_holder.persistent;
 	depth = CARRIED_ITEM_DEPTH;
 	
 	// Update player map
-	//if (holder == global.player) { 
-		global.controller.current_room.remove_from_instances_at_map_positions(id); 
-	//}
+	controller.current_room.remove_from_instances_at_map_positions(id); 
 	
 	// Perform individual item pick-up actions
 	switch (object_index) {
 		case obj_bomb: { defuse_bomb(); break; }
 		case obj_shovel: { dig_hole(); break; }
 		case obj_heart: { mark_heart_carried(); break; }
+		case obj_meat: { array_remove(controller.dropped_meat, id); break; }
 	}
 }
 
 /// @function								become_dropped(dropper);
 /// @param		{inst} dropper				The instance dropping this item
 function become_dropped(dropper) {
-	var player = global.player;
+	var player = global.player, controller = global.controller;
 	
 	// Update player map
-	global.controller.current_room.add_to_instances_at_map_positions(id); 
+	controller.current_room.add_to_instances_at_map_positions(id); 
 	
 	// Perform individual item drop actions
 	switch (object_index) {
+		case obj_meat: { array_push(controller.dropped_meat, id); break; }
 		case obj_shovel: { 
 			dropped_by_digger = (dropper.object_index == obj_player || dropper.object_index == obj_hands);
 			break;
@@ -128,9 +130,9 @@ function mark_heart_carried() {
 
 /// @function								get_dropped_meat();
 function get_dropped_meat() {
-	var dropped_meat = noone
-	with (obj_meat) { if (!is_existing_instance(holder)) { dropped_meat = id; } }
-	return dropped_meat;
+	var dropped_meats = global.controller.dropped_meat;
+	if (array_length(dropped_meats) == 0) { return noone; }
+	else { return dropped_meats[array_length(dropped_meats)-1]; }
 }
 
 /// @function								get_random_item_obj(special_item, include_key);

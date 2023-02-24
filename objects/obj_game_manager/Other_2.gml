@@ -82,7 +82,8 @@ global.death_types_array = [
 	obj_ears,
 	obj_eyes,
 	obj_echo,
-	obj_gudetama
+	obj_gudetama,
+	obj_bug
 ]
 
 // Set controls and set up drawing surface variables

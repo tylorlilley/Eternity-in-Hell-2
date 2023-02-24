@@ -58,6 +58,7 @@ function get_percentage_string(value) {
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {
 	if (dir = directions.stairs) { return directions.stairs; }
+	else if (dir = directions.none) { return directions.none; }
 	else { return modulo((dir+2), 4); }
 }
 

@@ -1,3 +1,5 @@
+var game_manager = global.game_manager;
+var key_space = game_manager.key_space, key_z = game_manager.key_z;
 var death_count_string = get_death_count_string(global.difficulty), win_count_string = get_win_count_string(global.difficulty);
 var title_y_pos = room_height/4+16, title_scale = 0.125;
 
@@ -13,8 +15,8 @@ else if (options_screen) {
 	title_y_pos = room_height*2;
 	
 	draw_text(room_width/2, 16, "Options");	
-	draw_text(room_width/2, room_height-32, get_input_x_key_string() + ": Reset to Defaults");
-	draw_text(room_width/2, room_height-16, get_input_z_key_string() + ": Return");
+	draw_text(room_width/2, room_height-32, get_input_z_key_string() + ": Reset to Defaults");
+	draw_text(room_width/2, room_height-16, get_input_x_key_string() + ": Return");
 	draw_set_valign(fa_left);
 	
 	// Draw Fullscreen Option
@@ -104,7 +106,7 @@ else if (options_screen) {
 	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 1, 1, 0, c_white, 1);
 	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 0.875, 0.875, 0, new_color_minimum_fade, 1);
 }
-else if (controls_screen) {
+else if key_space {
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
@@ -159,7 +161,7 @@ else if (controls_screen) {
 	draw_set_halign(fa_right);
 	draw_text(room_width-8, 16, "v." + string(GM_version));
 }
-else if (death_log_screen && (death_count_string != noone || win_count_string != noone)) {
+else if (key_z && (death_count_string != noone || win_count_string != noone)) {
 	draw_set_color(c_white);
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
@@ -172,8 +174,8 @@ else if (death_log_screen && (death_count_string != noone || win_count_string !=
 
 	if (death_count_string != noone) { draw_text(room_width/2, 16*2, death_count_string); }
 	else { draw_text(room_width/2, 16*2, "Death Count: 0"); }
-	if (win_count_string != noone) { draw_text(room_width/2, room_height-16-16, win_count_string); }
-	if (best_score_string != noone) { draw_text(room_width/2, room_height-16, best_score_string); }
+	if (win_count_string != noone) { draw_text(room_width/2, room_height-16, win_count_string); }
+	if (best_score_string != noone) { draw_text(room_width/2, room_height-16-16, best_score_string); }
 	
 	// Create list of all deaths to display
 	var death_types = get_death_types(), deaths_to_display = array_create(0),
@@ -211,9 +213,9 @@ else {
 	
 	// Draw Settings Switch Messages
 	var message_y_pos = room_height - 48, messages_y_offset = 0;
-	if (death_count_string != noone || win_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(room_width/2, message_y_pos, + get_input_x_key_string() + ": View Death Log"); }
+	if (death_count_string != noone || win_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(room_width/2, message_y_pos, + get_input_z_key_string() + ": View Death Log"); }
 	draw_text(room_width/2, message_y_pos+messages_y_offset, get_input_space_key_string() + ": View Controls");
-	draw_text(room_width/2, message_y_pos+messages_y_offset+16, get_input_z_key_string() + ": Game Options");
+	draw_text(room_width/2, message_y_pos+messages_y_offset+16, get_input_x_key_string() + ": Game Options");
 	draw_text(room_width/2, message_y_pos+messages_y_offset+32, get_input_enter_key_string() + ": Begin Game");
 	
 	// Draw difficulty selection

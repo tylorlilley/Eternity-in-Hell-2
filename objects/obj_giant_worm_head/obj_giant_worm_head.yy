@@ -32,8 +32,8 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_giant_wurm_head",
-    "path": "sprites/spr_giant_wurm_head/spr_giant_wurm_head.yy",
+    "name": "spr_highlight",
+    "path": "sprites/spr_highlight/spr_highlight.yy",
   },
   "spriteMaskId": null,
   "visible": true,

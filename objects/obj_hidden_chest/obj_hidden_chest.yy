@@ -4,13 +4,12 @@
   "name": "obj_hidden_chest",
   "eventList": [
     {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,},
-    {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,},
   ],
   "managed": true,
   "overriddenProperties": [],
   "parent": {
-    "name": "Spawnable",
-    "path": "folders/Objects/Tiles/Spawnable.yy",
+    "name": "Placeholders",
+    "path": "folders/Objects/Placeholders.yy",
   },
   "parentObjectId": {
     "name": "obj_placeholder",
@@ -32,8 +31,8 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_chest_spot",
-    "path": "sprites/spr_chest_spot/spr_chest_spot.yy",
+    "name": "spr_highlight",
+    "path": "sprites/spr_highlight/spr_highlight.yy",
   },
   "spriteMaskId": null,
   "visible": false,

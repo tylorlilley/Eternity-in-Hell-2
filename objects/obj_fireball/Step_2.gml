@@ -1,5 +1,3 @@
-event_inherited();
-
 if (is_existing_instance(torch)) { set_instance_to_same_position(torch);  torch.image_xscale = 0.5; }
 var blocked = false;
 
@@ -7,11 +5,7 @@ var blocked = false;
 var door = instance_place(x, y, obj_door);
 if (destructive) {
 	with (door) { 
-		if (is_existing_instance(closed)) { 
-			instance_destroy(); 
-			play_sound(snd_crunch, true);
-			blocked = true;
-		}
+		if (is_existing_instance(closed)) { instance_destroy(); play_sound(snd_crunch, true); }
 	}
 }
 

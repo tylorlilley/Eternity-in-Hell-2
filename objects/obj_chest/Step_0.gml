@@ -44,7 +44,7 @@ if (can_process_this_frame()) {
 						var new_item = noone;
 						if (array_length(free_hands) == 0) { 
 							new_item = instance_create(player.x, player.y, contents_obj);
-							with (new_item) { become_dropped(id); }
+							controller.current_room.add_to_instances_at_map_positions(new_item);
 						}
 						else {
 							new_item = create_item_in_hand(array_random_pop(free_hands), contents_obj);

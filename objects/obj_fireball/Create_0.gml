@@ -1,7 +1,7 @@
 event_inherited();
 
 depth = FIREBALL_DEPTH;
-image_speed = get_one_unit_of_game_time() * 2;
+image_speed = get_one_unit_of_game_time();
 
 creator_obj = -1;
 destructive = false;
@@ -14,7 +14,7 @@ torch.time_to_remain_lit = MAX_TORCH_TIME_TO_REMAIN_LIT;
 torch.special = true;
 torch.lighting_range = 3;
 torch.light_source = instance_create(x, y, obj_light_source);
-torch.light_source.lighting_range = FIREBALL_LIGHT_RANGE;
+torch.light_source.lighting_range = 3;
 torch.visible = false;
 torch.sprite_index = spr_box;
 torch.image_blend = c_lime;

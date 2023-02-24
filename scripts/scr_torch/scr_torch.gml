@@ -54,12 +54,11 @@ function interact_with_other_torches() {
 	var actively_lit = false, torches = instance_place_all(x, y, obj_torch);
 	
 	// Light torches from lava
-	/*
-	if (is_covered_at_each_quadrant_by(obj_lava_part)) {
+	if (is_covered_at_each_quadrant_by(obj_lava)) {
 		light_torch(noone, true);	
 		actively_lit = true;
 	}
-	*/
+
 	
 	// Cycle through and interact with each carried torch on this object
 	while (array_length(torches) > 0) {

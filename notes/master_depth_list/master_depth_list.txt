@@ -10,8 +10,6 @@
 
 -30 pushable block
 
--25 flying enemies
-
 -20 bush
 
 -10 player

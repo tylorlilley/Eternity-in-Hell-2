@@ -1,6 +1,4 @@
 if (can_process_this_frame()) {
-	if (is_flickering_light_source) { flicker = floor((-24 + irandom(50))/25); }
-	lighting_distance = (lighting_range + flicker);
-	
+	if (is_flickering_light_source) { flicker_value = -24 + irandom(50); }
 	event_inherited();
 }

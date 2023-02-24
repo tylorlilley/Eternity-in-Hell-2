@@ -8,8 +8,13 @@ function array_random_get(list) {
 /// @function								array_random_pop(list);
 /// @param		{index} list				The array from which to pop a random value
 function array_random_pop(list) {
-	array_shuffle_ext(list);
-	return array_pop(list);
+	var popped_value = noone;
+	if (array_length(list) > 0) {
+		var pos = irandom(array_length(list)-1);
+		popped_value = list[pos];
+		array_delete(list, pos, 1);
+	}
+	return popped_value;
 }
 
 /// @function								array_duplicate(list, source_id);

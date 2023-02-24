@@ -5,8 +5,8 @@ while (array_length(sounds_to_play) > 0) {
 	audio_play_sound(sound_to_play, 10, false);
 }
 
-if (global.is_test_mode && global.is_seed_testing_mode && global.has_seed_test_passed) {
-	global.has_seed_test_passed = false;
+if (global.is_test_mode && global.seed_testing_mode && global.test_passed) {
+	global.test_passed = false;
 	with (obj_controller) { restart_game(); }
 	global.seed++;
 	update_setting("last_seed", global.seed);

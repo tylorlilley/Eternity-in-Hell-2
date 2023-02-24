@@ -553,7 +553,7 @@ function game_room_initialize() {
 		
 	// If room has lava, consider spawning up to three noses
 	if (instance_number(obj_lava) > 0) {
-		for (var i = 0; i < global.difficulty; i++;) {
+		for (var i = 0; i < global.difficulty-1; i++;) {
 			if (get_random_chance_out_of(NOSE_PROBABILITY)) { instance_create(-16, -16, obj_nose); }
 		}
 	}

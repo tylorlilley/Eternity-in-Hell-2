@@ -145,15 +145,12 @@ class RoomConverter
         threat_level += 5 if room_objects.include? "obj_echo_spot"
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"
-        threat_level += 1 if room_objects.include? "obj_spider"
-
-        # Threats Per Instance
 
         # Threats Per Instance 
         threat_level += room_objects.count("obj_mouth")
         threat_level += (0.08 * room_objects.count("obj_block_spot")).floor
         threat_level += (0.01 * room_objects.count("obj_lava")).ceil
-        threat_level += (room_objects.count("obj_spider") * 0.50).ceil
+        threat_level += (room_objects.count("obj_spider") * 1.2).ceil
         threat_level += (room_objects.count("obj_bones") * 0.05).ceil
         threat_level += (room_objects.count("obj_statue") * 0.25).ceil
         threat_level += (room_objects.count("obj_skeleton") * 0.33).ceil

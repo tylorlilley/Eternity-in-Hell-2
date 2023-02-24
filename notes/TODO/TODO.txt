@@ -25,9 +25,11 @@ delete all spot/placeholder objects once room has been initialized?
 level editor
 "custom": difficulty mode that lets you tweak the frequencies and numbers of different macro variables?
 
+
 Audio impared accessibility option
 
 Put an "are you sure" on the enter button?
+- add a reset data with an "are you sure" to the death log screen
 
 Pushable block monster?
 Snake spawner

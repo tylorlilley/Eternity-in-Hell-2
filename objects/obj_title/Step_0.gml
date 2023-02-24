@@ -1,6 +1,8 @@
 var game_manager = global.game_manager;
-var key_x_pressed = game_manager.key_x_pressed, key_z_pressed = game_manager.key_z_pressed, key_z_released = game_manager.key_z_released, key_space_pressed = game_manager.key_space_pressed, key_space_released = game_manager.key_space_released;
-var key_left_pressed = game_manager.key_left_pressed, key_right_pressed = game_manager.key_right_pressed , key_up_pressed = game_manager.key_up_pressed, key_down_pressed = game_manager.key_down_pressed, key_z = game_manager.key_z, key_space = game_manager.key_space, key_enter_released = game_manager.key_enter_released;
+var key_x = game_manager.key_x, key_x_pressed = game_manager.key_x_pressed, key_x_released = game_manager.key_x_released;
+var key_z = game_manager.key_z, key_z_pressed = game_manager.key_z_pressed, key_enter_released = game_manager.key_enter_released;
+var key_space = game_manager.key_space, key_space_pressed = game_manager.key_space_pressed, key_space_released = game_manager.key_space_released;
+var key_left_pressed = game_manager.key_left_pressed, key_right_pressed = game_manager.key_right_pressed , key_up_pressed = game_manager.key_up_pressed, key_down_pressed = game_manager.key_down_pressed;
 
 if (pos == -2) {
 	can_access_farmer_mode = (get_win_count(difficulties.very_hard) > 0)
@@ -13,20 +15,6 @@ if (blink_timer == 0) {
 }
 else { blink_timer -= 1; }
 
-// Make Sounds for X key
-if (key_x_pressed) {
-	if (options_screen) { 
-		play_sound(snd_putdown, false); 
-		with (obj_lava) { instance_destroy(); } 
-	}
-	else { 
-		play_sound(snd_pickup, false); 
-		instance_create(184+56, 136, obj_lava); 
-		with (obj_lava) { set_up_lava_edge_visibility(true); }
-	}
-	options_screen = !options_screen;
-}
-
 if (options_screen) {
 	determine_gamepad();
 	
@@ -36,27 +24,36 @@ if (options_screen) {
 	
 	// Adjust Fullscreen vs Window
 	if (options_pos == 0) {
-		if (!global.fullscreen && key_left_pressed) { global.fullscreen = true; play_sound(snd_pickup, false); }
-		else if (global.fullscreen && key_right_pressed) { global.fullscreen = false; play_sound(snd_putdown, false); }
+		if (!global.fullscreen && key_left_pressed) { 
+			global.fullscreen = true; 
+			play_sound(snd_pickup, false);		
+			update_setting("fullscreen", global.fullscreen);
+			set_window_size(); 
+		}
+		else if (global.fullscreen && key_right_pressed) { 
+			global.fullscreen = false; 
+			play_sound(snd_putdown, false);	
+			update_setting("fullscreen", global.fullscreen);
+			set_window_size(); 
+		}
 		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-		window_set_fullscreen(global.fullscreen);
-		update_setting("fullscreen", global.fullscreen);
 	}
 	
 	// Adjust Pixel Scaling Option
 	if (options_pos == 1) {
 		if (global.window_scaling > 1 && key_left_pressed) { 
 			global.window_scaling -= 1; 
-			play_sound(snd_move, false); 
+			play_sound(snd_move, false);
+			update_setting("window_size", global.window_scaling);
 			set_window_size();
 		}
 		else if (global.window_scaling < global.max_window_scaling && key_right_pressed) { 
 			global.window_scaling += 1; 
 			play_sound(snd_move, false);
+			update_setting("window_size", global.window_scaling);
 			set_window_size();
 		}
 		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
-		update_setting("window_size", global.window_scaling);
 	}
 	
 	// Adjust Control Option
@@ -106,6 +103,10 @@ if (options_screen) {
 			}
 			else { play_sound(snd_crunch, false); }
 		}
+		else if (keyboard_check_pressed(vk_delete)) {
+			global.game_color_string = "";
+			play_sound(snd_crunch, false);
+		}
 		else if (string_length(global.game_color_string) < 6) {
 			if (keyboard_check_pressed(ord("1"))) { global.game_color_string += "1"; play_sound(snd_move, false);  }
 			else if (keyboard_check_pressed(ord("2"))) { global.game_color_string += "2"; play_sound(snd_move, false);  }
@@ -153,7 +154,7 @@ if (options_screen) {
 		update_setting("game_color_fade", global.game_color_fade);
 	}
 	
-	// Reset settings when z is pressed
+	// Reset settings when x is pressed
 	if (key_z_pressed) {
 		play_sound(snd_stairs, false);
 		reset_settings_to_defaults();
@@ -161,19 +162,19 @@ if (options_screen) {
 }
 else {
 	// Make sounds for space bar
-	if (key_space_pressed) { play_sound(snd_pickup, false); }
-	else if (key_space_released) { play_sound(snd_putdown, false); }
+	if (key_space_pressed && !death_log_screen) { play_sound(snd_pickup, false); controls_screen = true; }
+	else if (key_space_released && controls_screen) { play_sound(snd_putdown, false); controls_screen = false; }
 
-	// Make sounds for Z key
+	// Make sounds for X key
 	var completed_attempts_count = get_total_death_count(global.difficulty) + get_win_count(global.difficulty);
 	if (completed_attempts_count > 0) {
-		if (key_z_pressed) { play_sound(snd_pickup, false); }
-		else if (key_z_released) { play_sound(snd_putdown, false); }
+		if (key_x_pressed && !controls_screen) { play_sound(snd_pickup, false); death_log_screen = true; }
+		else if (key_x_released && death_log_screen) { play_sound(snd_putdown, false); death_log_screen = false; }
 	}
-	else if (key_z_pressed) { play_sound(snd_locked, false); }
+	else if (key_x_pressed) { play_sound(snd_locked, false); }
 
 	// Draw main title screen
-	if (key_space || ((pos > 0 && key_z) && completed_attempts_count > 0)) {
+	if (controls_screen || ((pos > 0 && death_log_screen) && completed_attempts_count > 0)) {
 		// do nothing
 	}
 	else {
@@ -202,7 +203,7 @@ else {
 					case difficulties.easy: { difficulty_sound = snd_pickup; break; }
 					case difficulties.medium: { difficulty_sound = snd_putdown; break; }
 					case difficulties.hard: { difficulty_sound = snd_skeletonrise; break; }
-					case difficulties.very_hard: { difficulty_sound = snd_lose; break; }
+					case difficulties.very_hard: { difficulty_sound = snd_spider; break; }
 				}
 				if (difficulty_sound) { play_sound(difficulty_sound, false); }
 			}
@@ -226,6 +227,10 @@ else {
 					play_sound(snd_move, false);
 				}
 				else { play_sound(snd_crunch, false); }
+			}
+			else if (keyboard_check_pressed(vk_delete)) { 
+				current_seed = 0;
+				play_sound(snd_crunch, false);
 			}
 			else if (current_seed > 0 && key_left_pressed) { current_seed -= 1; play_sound(snd_move, false); }
 			else if (current_seed < MAX_SEED && key_right_pressed) { current_seed += 1; play_sound(snd_move, false); }
@@ -262,4 +267,17 @@ else {
 			room_goto(rm_start);
 		}
 	}
+}
+
+// Switch Between Options Menu
+if (key_x_pressed && options_screen) { 
+	play_sound(snd_putdown, false); 
+	with (obj_lava) { instance_destroy(); } 
+	options_screen = false;
+}
+else if (key_z_pressed && !options_screen && !death_log_screen && !controls_screen){ 
+	play_sound(snd_pickup, false); 
+	instance_create(184+56, 136, obj_lava); 
+	with (obj_lava) { initialize_lava(); set_up_lava_edge_visibility(true); }
+	options_screen = true;
 }

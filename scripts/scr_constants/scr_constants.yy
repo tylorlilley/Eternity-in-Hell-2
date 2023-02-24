@@ -5,7 +5,7 @@
   "isCompatibility": false,
   "isDnD": false,
   "parent": {
-    "name": "Game Flow Scripts",
-    "path": "folders/Scripts/Game Flow Scripts.yy",
+    "name": "Utility Scripts",
+    "path": "folders/Scripts/Utility Scripts.yy",
   },
 }

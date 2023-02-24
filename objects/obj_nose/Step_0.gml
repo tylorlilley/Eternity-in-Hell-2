@@ -1,3 +1,5 @@
+if (x < 0 && y < 0 && !activated) { teleport_to_lava(); }
+
 if (can_process_this_frame()) {
 	if (spawn_timer > 0) { activated = false; spawn_timer -= 1; }
 	else {
@@ -24,8 +26,6 @@ if (can_process_this_frame()) {
 			}
 		}
 	}
-	
-	if (!is_lava_at_position(x,y)) { teleport_to_lava(); }
 	
 	event_inherited();
 }

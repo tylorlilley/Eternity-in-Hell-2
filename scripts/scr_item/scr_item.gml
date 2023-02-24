@@ -10,43 +10,40 @@ function draw_while_carried() {
 /// @function								become_carried(new_holder);
 /// @param		{boolean} new_holder		The instance to begin holding the item.
 function become_carried(new_holder) {
+	var controller = global.controller;
+	
 	// Become carried
 	holder = new_holder;
 	persistent = new_holder.persistent;
 	depth = CARRIED_ITEM_DEPTH;
 	
 	// Update player map
-	//if (holder == global.player) { 
-		global.controller.current_room.remove_from_instances_at_map_positions(id); 
-	//}
+	controller.current_room.remove_from_instances_at_map_positions(id); 
 	
 	// Perform individual item pick-up actions
 	switch (object_index) {
 		case obj_bomb: { defuse_bomb(); break; }
 		case obj_shovel: { dig_hole(); break; }
 		case obj_heart: { mark_heart_carried(); break; }
+		case obj_meat: { array_remove(controller.dropped_meat, id); break; }
 	}
 }
 
 /// @function								become_dropped(dropper);
 /// @param		{inst} dropper				The instance dropping this item
 function become_dropped(dropper) {
-	var player = global.player;
+	var player = global.player, controller = global.controller;
 	
 	// Update player map
-	//if (dropper == player) { 
-		global.controller.current_room.add_to_instances_at_map_positions(id); 
-	//}
+	controller.current_room.add_to_instances_at_map_positions(id); 
 	
 	// Perform individual item drop actions
 	switch (object_index) {
-		case obj_meat: { 
-			//instance_create(x, y, obj_blood);
-			//play_sound(snd_thud, false);
-			with (obj_spider) { if (activated) { play_sound(snd_lose, false); } } 
-			break; 
+		case obj_meat: { array_push(controller.dropped_meat, id); break; }
+		case obj_shovel: { 
+			dropped_by_digger = (dropper.object_index == obj_player || dropper.object_index == obj_hands);
+			break;
 		}
-		case obj_shovel: { dropped_by_digger = true; break; }
 	}
 	
 	// Become dropped
@@ -57,14 +54,19 @@ function become_dropped(dropper) {
 	y = dropper.y;
 	
 	// Perform individual actions based on dropper
-	//if (dropper == player) {
-		xstart = x;
-		ystart = y;
-	//}
+	xstart = x;
+	ystart = y;
 	
 	// Alert interested obj_hands to come grab it
 	with (obj_hands) { 
-		if (dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || dropper == player)) { target_item = other.id; } 
+		if (dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || dropper == player || object_is_ancestor(dropper.object_index, obj_item))) {
+			target_item = other.id;
+			target_x = target_item.x;
+			target_y = target_item.y;
+			if (set_automatic_target_path()) { 
+				play_sound(snd_laugh, true);
+			}
+		} 
 	}
 }
 
@@ -83,7 +85,8 @@ function make_item_special() {
 /// @function								defuse_bomb();
 function defuse_bomb() {
 	if (fuse_timer != 0) { play_sound(snd_fuse, false); }
-	fuse_timer = 0; 
+	fuse_timer = 0;
+	visible = true;
 }
 
 /// @function					can_dig_hole()
@@ -102,16 +105,9 @@ function can_dig_hole() {
 /// @function								dig_hole();
 function dig_hole() {
 	if (can_dig_hole() && dropped_by_digger) {
-		var controller = global.controller;
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
-		var new_hole = instance_create(x, y, obj_hole);
-		if (controller.last_hole == noone) { controller.last_hole = new_hole; }
-		else { 
-			new_hole.connected_to = controller.last_hole;
-			controller.last_hole.connected_to = new_hole;
-			controller.last_hole = noone;
-		}
+		instance_create(x, y, obj_hole);
 	}
 }
 
@@ -134,9 +130,9 @@ function mark_heart_carried() {
 
 /// @function								get_dropped_meat();
 function get_dropped_meat() {
-	var dropped_meat = noone
-	with (obj_meat) { if (!is_existing_instance(holder)) { dropped_meat = id; } }
-	return dropped_meat;
+	var dropped_meats = global.controller.dropped_meat;
+	if (array_length(dropped_meats) == 0) { return noone; }
+	else { return dropped_meats[array_length(dropped_meats)-1]; }
 }
 
 /// @function								get_random_item_obj(special_item, include_key);

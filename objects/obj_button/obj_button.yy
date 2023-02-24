@@ -9,8 +9,8 @@
   "managed": true,
   "overriddenProperties": [],
   "parent": {
-    "name": "Tiles",
-    "path": "folders/Objects/Tiles.yy",
+    "name": "Spawnable",
+    "path": "folders/Objects/Tiles/Spawnable.yy",
   },
   "parentObjectId": {
     "name": "obj_game_object",

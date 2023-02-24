@@ -4,8 +4,8 @@ depth = GIANT_WORM_DEPTH;
 
 head = noone;
 tail = noone;
-dir = -1;
-prev_dir = -1;
+dir = directions.none;
+prev_dir = directions.none;
 
 corner_x = x;
 corner_y = y;

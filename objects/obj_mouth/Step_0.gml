@@ -1,3 +1,5 @@
+if (x < 0 && y < 0 && !activated) { teleport_to_empty_space(); }
+
 if (can_process_this_frame()) {
 	turn_to_face_player();
 

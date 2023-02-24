@@ -1,1 +1,1 @@
-// Do Nothing
+event_inherited();

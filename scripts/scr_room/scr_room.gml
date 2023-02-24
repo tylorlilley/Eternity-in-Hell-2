@@ -327,7 +327,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									initialize_from_room_reference();
 	function initialize_from_room_reference() {
-		var reference_instances = instances_for_room_reference(room_reference); // CHANGE ROOM REFERENCE HERE FOR TESTING
+		var reference_instances = instances_for_room_reference(rm_two_perpendicular_exits_11)//room_reference); // CHANGE ROOM REFERENCE HERE FOR TESTING
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
 			instance_create(ref.x, ref.y, asset_get_index(ref.name));

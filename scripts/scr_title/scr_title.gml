@@ -59,6 +59,7 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		draw_sprite_ext(death_sprite, 0, x_pos-8, y_pos, 1, 1, 270, c_white, 1);
 		draw_sprite_ext(death_sprite, 0, x_pos+8, y_pos, 1, 1, 90, c_white, 1);
 	}
+	else if (obj_index == obj_bug) { draw_sprite(spr_bug_red, 0, x_pos, y_pos); }
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
 

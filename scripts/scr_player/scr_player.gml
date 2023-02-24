@@ -197,6 +197,7 @@ function kill_player(killed_by_obj) {
 		}
 		
 		controller.killed_by = (killed_by_obj == -1) ? other.object_index : killed_by_obj;
+		//if (player.infected_timer > 0 && controller.time_remaining > 0) { controller.killed_by = obj_bug; }
 		update_death_log(controller.killed_by, global.difficulty);
 	}
 	return true;

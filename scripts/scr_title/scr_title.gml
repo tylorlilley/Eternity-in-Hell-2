@@ -59,6 +59,7 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		draw_sprite_ext(death_sprite, 0, x_pos-8, y_pos, 1, 1, 270, c_white, 1);
 		draw_sprite_ext(death_sprite, 0, x_pos+8, y_pos, 1, 1, 90, c_white, 1);
 	}
+	else if (obj_index == obj_bug) { draw_sprite(spr_bug_red, 0, x_pos, y_pos); }
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
 
@@ -76,10 +77,8 @@ function set_max_window_size() {
 
 /// @function								set_window_size();
 function set_window_size() {
-	// Resize the drawing surface
-	var window_scaling = global.window_scaling;
-	var draw_surface_width = (room_width*window_scaling), draw_surface_height = (room_height*window_scaling)
-	window_set_size(draw_surface_width, draw_surface_height);
+	window_set_fullscreen(global.fullscreen);
+	with (obj_game_manager) { if (resize_timer == 0) { resize_timer = 10; } }
 }
 
 /// @function								get_input_string();
@@ -128,7 +127,7 @@ function get_input_space_key_string() {
 	}
 }
 
-/// @function								set_window_size();
+/// @function								get_input_enter_key_string();
 function get_input_enter_key_string() {
 	switch (global.input) {
 		case inputs.keyboard_default: { return "Enter"; }
@@ -146,4 +145,37 @@ function determine_gamepad() {
 	}
 	if (global.gamepad == noone && global.input == inputs.gamepad) { global.input = inputs.keyboard_default; }
 	return global.gamepad;
+}
+
+/// @function								reset_settings_to_defaults();
+function reset_settings_to_defaults() {
+	global.fullscreen = FULLSCREEN_DEFAULT;
+	global.window_scaling = WINDOW_SCALING_DEFAULT;
+	global.input = INPUT_DEFAULT;
+	global.can_screen_flash = CAN_SCREEN_FLASH_DEFUALT;
+	global.lava_edge_type = LAVA_EDGE_TYPE_DEFAULT;
+	global.game_color_fade = GAME_COLOR_FADE_DEFAULT;
+	global.game_color_string = GAME_COLOR_STRING_DEFAULT;
+	
+	update_setting("fullscreen", FULLSCREEN_DEFAULT);
+	update_setting("window_size", WINDOW_SCALING_DEFAULT);
+	update_setting("input", INPUT_DEFAULT);
+	update_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFUALT);
+	update_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);
+	update_setting("game_color_fade", GAME_COLOR_FADE_DEFAULT);
+	update_setting("game_color", GAME_COLOR_STRING_DEFAULT);
+	
+	with (obj_lava) { set_up_lava_edge_visibility(true); }
+	set_game_color();
+	set_window_size();
+}
+
+/// @function								set_game_color();
+function set_game_color() {
+	var padded_game_color_string = global.game_color_string;
+	while (string_length(padded_game_color_string) < 6) {
+		padded_game_color_string = "0"+padded_game_color_string;
+	}
+	var new_color = get_gms_color_from_hex_string(padded_game_color_string);
+	global.game_color = get_shader_color_from_gms_color(new_color);
 }

@@ -20,24 +20,30 @@ class RoomConverter
         obj_skeleton
         obj_mouth
         obj_bumper
-        obj_giant_worm_body
-        obj_giant_worm_head
         obj_statue
         obj_spider
         obj_snake
-        obj_ears
-        obj_eyes
-        obj_echo_spot
         obj_bones
-        obj_blood
-        obj_player_corpse
+        obj_gudetama
         obj_bush
         obj_door
-        obj_block_spot
         obj_column
         obj_wall
+        obj_giant_worm_body
+        obj_giant_worm_head
+        obj_blood
+        obj_ears
+        obj_eyes
+        obj_player_corpse
+        obj_echo_spot
+        obj_block_spot
         obj_stairs_spot
+        obj_chest_spot
         obj_collectable_spot
+        obj_exit_spot_up
+        obj_exit_spot_down
+        obj_exit_spot_left
+        obj_exit_spot_right
         other
     )
 
@@ -51,6 +57,7 @@ class RoomConverter
         obj_giant_worm_head
         obj_statue
         obj_spider
+        obj_gudetama
         obj_snake
         obj_ears
         obj_eyes
@@ -81,6 +88,7 @@ class RoomConverter
 
     def exit_probability(exit_type)
         {
+            "no_exits" => 1,
             "one_exit" => 6,
             "two_perpendicular_exits" => 8,
             "two_opposite_exits" => 4,
@@ -114,6 +122,12 @@ class RoomConverter
             "obj_blood" => 0.01,
             "obj_giant_worm_head" => 0.08,
             "obj_player_corpse" => 0.01,
+            "obj_gudetama" => 0.01,
+            "obj_exit_spot_up" => 1.00,
+            "obj_exit_spot_left" => 1.00,
+            "obj_exit_spot_right" => 1.00,
+            "obj_exit_spot_down" => 1.00,
+            "obj_chest_spot" => 1.00,
             "other" => 0
         }[object_type]
     end
@@ -294,7 +308,12 @@ class RoomConverter
 
         # Validate Room
         raise "ROOM MISSING STAIRS SPOT: #{room_name}" unless room_objects.include? "obj_stairs_spot"
-        raise "ROOM COLLECTABLE SPOT COUNT (#{collectable_spot_count}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
+        raise "ROOM MISSING CHEST SPOT: #{room_name}" unless room_objects.include? "obj_chest_spot"
+        raise "ROOM COLLECTABLE SPOT COUNT (#{room_objects.count("obj_collectable_spot")}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
+        raise "ROOM UP EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_up")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_up") >= 2
+        raise "ROOM RIGHT EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_right")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_right") >= 2
+        raise "ROOM DOWN EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_down")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_down") >= 2
+        raise "ROOM LEFT EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_left")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_left") >= 2
         raise "ROOM CONTAINS WORM HEAD BUT NOT BODY: #{room_name}" unless room_objects.include?("obj_giant_worm_head") == room_objects.include?("obj_giant_worm_body")
         raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 6
         

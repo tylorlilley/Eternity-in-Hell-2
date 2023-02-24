@@ -42,26 +42,28 @@ enum lava_edge_types {
 }
 
 // Setup global variables for title screen
-global.is_test_mode = false;
-
 global.difficulty = get_setting("difficulty", difficulties.easy);
 global.seed_option = get_setting("seed_option", seed_options.rand);
 global.seed = get_setting("last_seed", noone);
-global.is_farm_mode = get_setting("extra_mode", false);
 
-global.fullscreen = get_setting("fullscreen", true);
-global.window_scaling = get_setting("window_size", 2);
-global.input = get_setting("input", inputs.keyboard_default);
-global.can_screen_flash = get_setting("can_screen_flash", true);
-global.lava_edge_type = get_setting("lava_edge_type", lava_edge_types.wavy_animated);
-global.game_color_fade = get_setting("game_color_fade", 10);
-global.game_color_string = get_setting("game_color", "FF0000");
+// Setup global variables for options
+global.fullscreen = get_setting("fullscreen", FULLSCREEN_DEFAULT);
+global.window_scaling = get_setting("window_size", WINDOW_SCALING_DEFAULT);
+global.input = get_setting("input", INPUT_DEFAULT);
+global.can_screen_flash = get_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFUALT);
+global.lava_edge_type = get_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);
+global.game_color_fade = get_setting("game_color_fade", GAME_COLOR_FADE_DEFAULT);
+global.game_color_string = get_setting("game_color", GAME_COLOR_STRING_DEFAULT);
 
+// Setup global game type options
 global.bg_color = make_color_rgb(0, 0, 0);
+global.is_farm_mode = get_setting("extra_mode", false);
+global.is_test_mode = false;
+global.is_seed_testing_mode = false;
+global.has_seed_test_passed = false;
 
 // Setup generic arrays
-
-global.difficulties_array = [1, 2, 3, 4];
+global.difficulties_array = [difficulties.easy, difficulties.medium, difficulties.hard, difficulties.very_hard];
 global.death_types_array = [
 	obj_controller,
 	obj_bomb,
@@ -80,13 +82,12 @@ global.death_types_array = [
 	obj_ears,
 	obj_eyes,
 	obj_echo,
+	obj_gudetama,
+	obj_bug
 ]
 
-global.seed_testing_mode = false;
-global.test_passed = false;
-
-// Set up drawing surface variables
-window_set_fullscreen(global.fullscreen);
+// Set controls and set up drawing surface variables
+resize_timer = 0;
 set_max_window_size();
 set_window_size();
 set_game_color();

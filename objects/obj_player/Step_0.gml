@@ -41,6 +41,15 @@ if (can_process_this_frame()) {
 		var game_manager = global.game_manager;
 	    dir = get_direction_input(false);
 		
+		// Deal with being infected
+		var reduce_infection = false;
+		if (infected_timer > 0) {
+			bug_image_index += 1;
+			if (bug_image_index >= 4) { bug_image_index = 0; }
+			if (dir == get_direction_input(true)) { reduce_infection = true; }
+			dir = irandom(3);
+		}
+		
 		// Handle movement pause
 		if (pause_movement > 0) { pause_movement -= 1; }
 		else {
@@ -57,34 +66,36 @@ if (can_process_this_frame()) {
 		    // Move player in chosen direction if possible
 		    if (!is_existing_instance(moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) { 
 				move_player(dir); 
-				moved_by = id; 
+				moved_by = id;
+				if (reduce_infection) { infected_timer -= 1; }
 			}
 		}
 		
 		// Increase lighting range if carrying a rosary
-		lighting_range = PLAYER_LIGHT_RANGE;
-		if (is_carrying_item(obj_rosary)) { lighting_range += (is_carrying_special_item(obj_rosary)) ? 2 : 1; }
+		light.lighting_range = PLAYER_LIGHT_RANGE;
+		if (is_carrying_item(obj_rosary)) { light.lighting_range += (is_carrying_special_item(obj_rosary)) ? 2 : 1; }
 		is_flickering_light_source = false;
 		
 		// Increase lighting range if carrying two torches
 		if (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source) &&
 			is_carrying_item_in_left_hand(obj_torch) && is_existing_instance(left_hand_item.light_source)) { 
-				if (lighting_range < right_hand_item.light_source.lighting_range+4) { 
-					lighting_range = right_hand_item.light_source.lighting_range+4;
-					is_flickering_light_source = true;
+				if (light.lighting_range < right_hand_item.light_source.lighting_range+4) { 
+					light.lighting_range = right_hand_item.light_source.lighting_range+4;
+					light.is_flickering_light_source = true;
 				}
-				if (lighting_range < left_hand_item.light_source.lighting_range+4) { 
-					lighting_range = left_hand_item.light_source.lighting_range+4;
-					is_flickering_light_source = true;
+				if (light.lighting_range < left_hand_item.light_source.lighting_range+4) { 
+					light.lighting_range = left_hand_item.light_source.lighting_range+4;
+					light.is_flickering_light_source = true;
 				}
 		}
     
 	    // Transition to new room depending on player position
 		var controller = global.controller;
 		with (instance_place(x, y, obj_stairs)) {
-			if (active && is_instance_at_coordinates(x, y, other) && (connected_to != noone || object_index == obj_stairs)) { 
-					controller.transition = directions.stairs; 
-					controller.transitioned_from = id;
+			if (active && is_instance_at_coordinates(x, y, other) && connected_exit.get_connected_room(controller.current_room) != -1) { 
+				controller.transition = directions.stairs; 
+				controller.transitioning_exit = connected_exit;
+				controller.transitioning_stairs = id;
 			}
 		}
 		if (controller.transition == directions.none) {
@@ -92,9 +103,12 @@ if (can_process_this_frame()) {
 		    else if x > room_width { controller.transition = directions.right; }
 		    else if y < 0 { controller.transition = directions.up; }
 		    else if y > room_height { controller.transition = directions.down; }
+			if (controller.transition < directions.stairs) {
+				controller.transitioning_exit = controller.current_room.exits[controller.transition];
+			}
 		}
 	}
-	else if dead image_index = 2;
+	else if (dead) { image_index = 2; }
 
 	event_inherited();
 }

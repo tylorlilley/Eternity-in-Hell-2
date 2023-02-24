@@ -1,6 +1,8 @@
 if (can_process_this_frame()) {
 	event_inherited();
 	
+	lighting_distance = (LAVA_LIGHT_RANGE + floor((-24 + irandom(50))/25));
+	
 	var edge_type = global.lava_edge_type;
 	if (edge_type == lava_edge_types.fuzzy_animated || edge_type == lava_edge_types.wavy_animated) {
 		for (var quadrant = 0; quadrant < 4; quadrant++) {
@@ -20,5 +22,4 @@ if (can_process_this_frame()) {
 	// Randomize visual
 	rotate_sprite_to_random_angle();
 	flip_sprite_at_random(true);
-	destroy_self_if_all_death_boxes_are_destroyed();
 }

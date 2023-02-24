@@ -28,8 +28,15 @@ if (can_process_this_frame()) {
 	
 	// Destroy self and parts of lava if pushed onto lava
 	if (consume_lava(true)) {
-		var dirt = instance_create(x, y, obj_dirt);
-		if (is_existing_instance(dirt)) { dirt.depth = DIRT_OVER_LAVA_DEPTH; }
+		//var dirt = instance_create(x, y, obj_dirt);
+		//if (is_existing_instance(dirt)) { dirt.depth = DIRT_OVER_LAVA_DEPTH; }
+		var tile = instance_create(x, y, obj_path);
+		if (is_existing_instance(tile)) { 
+			tile.depth = DIRT_OVER_LAVA_DEPTH; 
+			tile.image_angle = image_angle;
+			tile.image_xscale = image_xscale;
+			tile.image_yscale = image_yscale;
+		}
 		play_sound(snd_extinguish, true);
 		instance_destroy();
 	}

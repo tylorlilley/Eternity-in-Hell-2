@@ -1,4 +1,4 @@
-global.controller.current_room.remove_from_instances_at_map_positions(id);
+with (global.controller) { current_room.remove_from_instances_at_map_positions(other.id); }
 
 with (holder) {
 	if (object_index == obj_player || object_index == obj_hands) {

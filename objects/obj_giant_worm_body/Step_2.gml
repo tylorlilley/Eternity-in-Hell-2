@@ -26,9 +26,9 @@ if (is_existing_instance(head) && head.x != x && head.y != y) {
 	var x_prev = x, y_prev = y;
 	x = corner_x;
 	y = corner_y;
-	corner_blend = get_image_blend(1);
+	corner_blend = get_image_blend();
 	x = x_prev;
 	y = y_prev;
 }
 
-image_blend = get_image_blend(1);
+image_blend = get_image_blend();

@@ -1,46 +1,43 @@
-Should show portcullis as locked doors on map?
-farmer clock hands flip xscale direction
-
-Update maps to show white pixels wherever a solid object is instead of just an empty room? 
-- Update keys and items to show pixels where they are dropped?
-- Would need to account for objects that are not on the grid and are offset by 8x8
-
-Snake spawner
-Fake stairs that lead to stomach
-guy with really long arms
-bear trap/sticky that you must move with tap only to escape
-
-Is screen flash for phantom and/or hidden chests too much?
-Fix too many rooms generated warning
-
 === REFACTORS ===
 
-Implement smarter pathfinding for move_towards_coordinates
+Locked chests not being locked very often
+- Re-add map walker and implement smarter locking algorithm using node groupings
+
+Add pathfinding to snakes and skeletons to better pathfind toward dropped meats
+
+farmer clock sprie hands flip xscale direction
+
+change response to no lantern rooms spawning to be spawning a lit lantern room instead of regenerating whole map
+
+Allow portcullis for stairs rooms? This gets weird as they can leave without unlocking portcullis and would need to encounter portcullis from other side
+- yeah but this is needed because shovels can add stairs to a portcullis room anyway
 
 Remove all commented out code that we don't need anymore
-Examine remaining TODO comments
+- Also Examine remaining TODO comments
 
-Update room reference data to include non-instance information like intelligent sections for adding/removing exits for misleading rooms and specialized amounts of base time that that room itself should add, etc
+Refactor hands nd collectables that use the run_away_from_player to instead use pathfinidng to find the spot furthest away from the player and run toward that
+- create a seperate red_staff_grid to use for hands that hold red staff since just the lava grid and solid grid don't cut it for that
 
-Add time based on number of collectables spots?
-- Better to make it a per - room time value in the json file to better reflect how long it takes to get all collectables in a room
-make bar increase per collectable and not per room cleared?
+delete all spot/placeholder objects once room has been initialized?
+- update blockspots and shovel interaction?
 
 === NEW FETAURES ===
 level editor
-options for light flicker intensity
+"custom": difficulty mode that lets you tweak the frequencies and numbers of different macro variables?
+
 Audio impared accessibility option
 
 Put an "are you sure" on the enter button?
 
 Pushable block monster?
+Snake spawner
+Fake stairs that lead to stomach
+guy with really long arms
+bear trap/sticky that you must move with tap only to escape
 
-Should staff protect against non-corporeal enemies?
 Should you be able to pick up and throw bones?
 Should mouths be drawn toward dropped items and collectables somehow?
-
-=== BUGS TO FIX ===
-leave ghost room shows vible ghost before its spawned
+Red staff can go through doors without unlocking them?
  
 === NEW ROOM GENERATION ALGORITHM ===
 Rooms need to know about themselves:

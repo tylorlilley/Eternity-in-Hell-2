@@ -1,3 +1,19 @@
+/// @function								get_dir_x_offset(dir);
+/// @param		{dir} dir					The direction to get the x_offset for
+function get_dir_x_offset(dir) {
+	if (dir == directions.right) { return 1; }
+	else if (dir == directions.left) { return -1; }
+	return 0;
+}
+
+/// @function								get_dir_y_offset(dir);
+/// @param		{dir} dir					The direction to get the y_offset for
+function get_dir_y_offset(dir) {
+	if (dir == directions.down) { return 1; }
+	else if (dir == directions.up) { return -1; }
+	return 0;
+}
+	
 /// @function								get_scaling_amount(minimum, maximum, numerator, denominator);
 /// @param		{real}	minimum				The minimum value the scaling amount can be
 /// @param		{real}	maximum				The maximum value the scaling amount can be
@@ -41,7 +57,8 @@ function get_percentage_string(value) {
 /// @function								get_opposite_dir(dir);
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {
-	if (dir < 0 || dir > 3) { return -1; }
+	if (dir = directions.stairs) { return directions.stairs; }
+	else if (dir = directions.none) { return directions.none; }
 	else { return modulo((dir+2), 4); }
 }
 
@@ -111,12 +128,6 @@ function instance_place_all(x_pos, y_pos, obj_type) {
     return list_of_matches;
 }
 
-/// @function								get_new_id();
-function get_new_id() {
-    global.id_counter++;
-    return global.id_counter;
-}
-
 /// @function								play_sound();
 ///	@param		{Sound}	  snd				The sound to play
 ///	@param		{Boolean} loud_soun			Whether the sound is heard by ears or not
@@ -124,12 +135,19 @@ function play_sound(snd, loud_sound) {
 	array_push(global.game_manager.sounds_to_play, snd);
 	if (loud_sound) {
 		with (obj_ears) {
-			if id != other.id {
-				if ((target_x != other.x || target_y != other.y) && !instance_place(target_x, target_y, obj_meat)) {
-					target_x = other.x;
-					target_y = other.y;
-					awake = true;
-					play_sound(snd_ears, true);
+			if (id != other.id) {
+				if ((x != other.x || y != other.y) &&
+					(target_x != other.x || target_y != other.y) && 
+					!instance_place(x, y, obj_meat) && 
+					!instance_place(target_x, target_y, obj_meat)) {
+						target_x = other.x;
+						target_y = other.y;
+						awake = true;
+						set_automatic_target_path();
+						if (target_path != noone) { 
+							play_sound(snd_ears, true);
+							if (!moved) { move_ears(); }
+						}
 				}
 			}
 		}
@@ -195,45 +213,6 @@ function get_decimal_from_hex_string(hex_string) {
 	return result;
 }
 
-/// @function								reset_settings_to_defaults();
-function reset_settings_to_defaults() {
-	var fullscreen_default = true, window_scaling_default = 2, input_default = inputs.keyboard_default;
-	var can_screen_flash_default = true, game_color_fade_default = 10, game_color_string_default = "FF0000";
-	var lava_edge_type_default = lava_edge_types.wavy_animated;
-	
-	global.fullscreen = fullscreen_default;
-	global.window_scaling = window_scaling_default;
-	global.input = input_default;
-	global.can_screen_flash = can_screen_flash_default;
-	global.lava_edge_type = lava_edge_type_default;
-	global.game_color_fade = game_color_fade_default;
-	global.game_color_string = game_color_string_default;
-	
-	update_setting("fullscreen", fullscreen_default);
-	update_setting("window_size", window_scaling_default);
-	update_setting("input", input_default);
-	update_setting("can_screen_flash", can_screen_flash_default);
-	update_setting("lava_edge_type", lava_edge_type_default);
-	update_setting("game_color_fade", game_color_fade_default);
-	update_setting("game_color", game_color_string_default);
-	
-	with (obj_lava) { set_up_lava_edge_visibility(true); }
-	set_game_color();
-	set_window_size();
-	window_set_fullscreen(global.fullscreen);
-}
-
-/// @function								set_game_color();
-function set_game_color() {
-	var padded_game_color_string = global.game_color_string;
-	while (string_length(padded_game_color_string) < 6) {
-		padded_game_color_string = "0"+padded_game_color_string;
-	}
-	var new_color = get_gms_color_from_hex_string(padded_game_color_string);
-	global.game_color = get_shader_color_from_gms_color(new_color);
-}
-
-
 /// @function								modulo(a, b);
 ///	@param		{number} a					The number to perform the mod on
 ///	@param		{number} b					The number to perform the mod with
@@ -241,3 +220,43 @@ function modulo(a, b) {
 	var Q = (b < 0) ? ceil(a/b) : floor(a/b);
 	return a - (Q * b)
 }
+
+/// @function								mp_grid_add(grid);
+///	@param		{id} grid					The mp_grid to add to
+function mp_grid_add(grid) {
+	mp_grid_add_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
+	//with (obj_enemy) { if (grid == target_path_grid && can_interrupt_target_path && has_automatic_target_path_generation) { set_automatic_target_path(); } }
+}
+
+/// @function								mp_grid_remove(grid);
+///	@param		{id} grid					The mp_grid to remove from
+function mp_grid_remove(grid) {
+	mp_grid_clear_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
+	//with (obj_enemy) { if (grid == target_path_grid && can_interrupt_target_path && has_automatic_target_path_generation) { set_automatic_target_path(); } }
+}
+
+/// @function								destroy_instances_at_position();
+function destroy_instances_at_position() {
+	var game_objects = instance_place_all(x, y, obj_game_object);
+	while (array_length(game_objects) > 0) {
+		var game_object = array_pop(game_objects);
+		if (is_existing_instance(game_object) && game_object.id != id) { instance_destroy(game_object); }
+	}
+	var placeholders = instance_place_all(x, y, obj_placeholder);
+	while (array_length(placeholders) > 0) {
+		var placeholder = array_pop(placeholders);
+		if (is_existing_instance(placeholder) && placeholder.id != id) { instance_destroy(placeholder); }
+	}
+}
+
+/*
+function are_coordinates_within_instance(x_pos, y_pos, inst) {
+	var nearest_inst = instance_nearest(x_pos, y_pos, inst);
+	if (!is_existing_instance(nearest_inst)) { return noone; }
+	
+	return (x_pos > nearest_inst.x - nearest_inst.sprite_width / 2 && 
+			x_pos < nearest_inst.x + nearest_inst.sprite_width / 2 &&
+			y_pos > nearest_inst.y - nearest_inst.sprite_height / 2 && 
+			y_pos < nearest_inst.y + nearest_inst.sprite_height / 2) ? nearest_inst : noone;
+}
+*/

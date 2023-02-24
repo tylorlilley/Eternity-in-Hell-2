@@ -57,7 +57,10 @@ function RoomExit(current_room, linked_room) constructor {
 		return 1;
 	}
 	
-	function destroy() { destroyed = true; }
+	function destroy() { 
+		destroyed = true; 
+		has_lock = false;
+	}
 	
 	function unlock() { has_lock = false; }
 }

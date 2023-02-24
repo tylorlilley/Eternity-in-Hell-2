@@ -15,6 +15,12 @@ if (destructive) {
 	}
 }
 
+// Light Bombs
+if (creator_obj != obj_bomb) {
+	var bomb = instance_place(x, y, obj_bomb);
+	with (bomb) { light_bomb(); }
+}
+
 // Kill Enemies
 enemies_at_position = instance_place_all(x, y, obj_enemy);
 while (array_length(enemies_at_position) > 0) {

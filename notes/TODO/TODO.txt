@@ -1,5 +1,8 @@
 === REFACTORS ===
 
+Light Bomb from fireballs from other bombs, just not its own
+Light torch when picked up if carrying lit torch
+
 Locked chests not being locked very often
 - Re-add map walker and implement smarter locking algorithm using node groupings
 
@@ -20,6 +23,8 @@ Refactor hands nd collectables that use the run_away_from_player to instead use 
 
 delete all spot/placeholder objects once room has been initialized?
 - update blockspots and shovel interaction?
+
+Replace step events with custom step event manager in controller?
 
 === NEW FETAURES ===
 level editor

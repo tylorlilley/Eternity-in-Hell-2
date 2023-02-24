@@ -586,3 +586,11 @@ function move_toward_player(ignore_solid, ignore_death, accuracy) {
 	
 	return directions.none;
 }
+
+/// @function								reset_nose();
+function reset_nose() {
+	image_index = 0;
+	activated = false;
+	spawn_timer = irandom_range(8, 64);
+	teleport_to_lava();
+}

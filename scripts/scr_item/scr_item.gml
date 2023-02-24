@@ -26,6 +26,16 @@ function become_carried(new_holder) {
 		case obj_shovel: { dig_hole(); break; }
 		case obj_heart: { mark_heart_carried(); break; }
 		case obj_meat: { array_remove(controller.dropped_meat, id); break; }
+		case obj_torch: {
+			if (!is_existing_instance(light_source)) {
+				var other_lit_torch = noone;
+				if (is_existing_instance(new_holder)) { 
+					with (new_holder) { other_lit_torch = get_carried_lit_torch(); }
+				}
+				if (is_existing_instance(other_lit_torch)) { light_torch(other_lit_torch, true); }
+			}
+			break;
+		}
 	}
 }
 
@@ -40,8 +50,15 @@ function become_dropped(dropper) {
 	// Perform individual item drop actions
 	switch (object_index) {
 		case obj_meat: { array_push(controller.dropped_meat, id); break; }
-		case obj_shovel: { 
-			dropped_by_digger = (dropper.object_index == obj_player || dropper.object_index == obj_hands);
+		case obj_shovel: { dropped_by_digger = (dropper.object_index == obj_player || dropper.object_index == obj_hands); break; }
+		case obj_bomb: {
+			if (is_existing_instance(dropper) && dropper.object_index == obj_player) {
+				var light_bomb = false;
+				with (dropper) { 
+					if (is_carrying_lit_torch(false)) { light_bomb = true; }
+				}
+				if (light_bomb) { light_bomb(); }
+			}
 			break;
 		}
 	}
@@ -188,4 +205,13 @@ function get_clock_image_index() {
 	var sand_image_index = floor(abs((time_per_grain*8) - (time_per_grain*3/4)));
 
 	return sand_image_index;
+}
+
+/// @function								light_bomb();
+function light_bomb() {
+	if (fuse_timer != 0) { return false; }
+	
+	play_sound(snd_torchlight, true);
+	fuse_timer = 4*irandom_range(5,8);
+	return true;
 }

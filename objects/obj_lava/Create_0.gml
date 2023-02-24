@@ -4,7 +4,7 @@ depth = LAVA_DEPTH;
 death_box = noone;
 death_boxes = [noone, noone, noone, noone];
 lighting_distance = LAVA_LIGHT_RANGE;
-intensity = 0.35;
+intensity = 0.125 + irandom(0.35-0.125);
 maximum_intensity = 1;
 minimum_intensity = 0;
 

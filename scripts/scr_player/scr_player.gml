@@ -135,6 +135,20 @@ function get_carried_item(obj_index) {
 	return carried_item;
 }
 
+
+/// @function								get_carried_lit_torch();
+function get_carried_lit_torch() {
+	var lit_torch = noone;
+	
+	if (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source)) { lit_torch = right_hand_item; }
+	if (is_carrying_item_in_left_hand(obj_torch) && is_existing_instance(left_hand_item.light_source)) {
+		if (lit_torch == noone) { lit_torch = left_hand_item; }
+		else if (left_hand_item.special || lit_torch.time_to_remain_lit < left_hand_item.time_to_remain_lit) { lit_torch = left_hand_item; }
+	}
+	
+	return lit_torch;
+}
+
 /// @function								is_carrying_item(obj_index);
 /// @param		{index} obj_index			The object type to check the carried items for
 function is_carrying_item(obj_index) {
@@ -158,6 +172,18 @@ function is_carrying_item_in_left_hand(obj_index) {
 function is_carrying_special_item(obj_index) {
 	var item = get_carried_item(obj_index)
 	return (is_existing_instance(item) && item.special);
+}
+
+/// @function								is_carrying_lit_torch(require_both);
+/// @param		{bool} require_both			Whether to require a lit torch in both hands or not
+function is_carrying_lit_torch(require_both) {
+	var right_hand_lit_torch = false, left_hand_lit_torch = false;
+	
+	right_hand_lit_torch = (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source));
+	left_hand_lit_torch = (is_carrying_item_in_left_hand(obj_torch) && is_existing_instance(left_hand_item.light_source));
+	
+	if (require_both) { return (right_hand_lit_torch && left_hand_lit_torch); }
+	else { return (right_hand_lit_torch || left_hand_lit_torch); }
 }
 
 /// @function								create_item_in_hand(dir, obj_index);

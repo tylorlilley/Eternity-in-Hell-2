@@ -77,8 +77,7 @@ if (can_process_this_frame()) {
 		is_flickering_light_source = false;
 		
 		// Increase lighting range if carrying two torches
-		if (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source) &&
-			is_carrying_item_in_left_hand(obj_torch) && is_existing_instance(left_hand_item.light_source)) { 
+		if (is_carrying_lit_torch(true)) { 
 				if (light.lighting_range < right_hand_item.light_source.lighting_range+4) { 
 					light.lighting_range = right_hand_item.light_source.lighting_range+4;
 					light.is_flickering_light_source = true;

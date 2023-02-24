@@ -1,6 +1,9 @@
 if (can_process_this_frame()) {
 	event_inherited();
 	
+	intensity += (get_coin_flip()) ? random(0.025) : -1 * random(0.025);
+	if (intensity < 0.125) { intensity = 0.125; }
+	else if (intensity > 0.35) { intensity = 0.35; }
 	lighting_distance = (LAVA_LIGHT_RANGE + floor((-24 + irandom(50))/25));
 	
 	var edge_type = global.lava_edge_type;

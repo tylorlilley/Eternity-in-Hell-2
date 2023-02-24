@@ -17,12 +17,13 @@ function get_relative_light_intensity(instance_to_light) {
 	return relative_intensity * intensity;
 }
 
-/// @function									get_image_blend(maximum_intensity);
+/// @function									get_image_blend();
 function get_image_blend() {
 	if (instance_number(obj_title) > 0) { return c_white; }
 	
 	// Get minimum intensity
-	var lava = instance_nearest(x, y, obj_lava), greatest_lighting_intensity = 0;
+	var greatest_lighting_intensity = 0;
+	var lava = instance_nearest(x, y, obj_lava); 
 	with (lava) { 			
 		var lighting_intensity = get_relative_light_intensity(other.id);
 		if (lighting_intensity > greatest_lighting_intensity) { greatest_lighting_intensity = lighting_intensity; }

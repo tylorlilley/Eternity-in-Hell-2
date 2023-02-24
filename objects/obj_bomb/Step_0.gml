@@ -17,9 +17,9 @@ if can_process_this_frame() {
 			var torches_at_position = instance_place_all(x, y, obj_torch);
 			while (array_length(torches_at_position) > 0) {
 				var torch = array_random_pop(torches_at_position);
+				
 				if (is_existing_instance(torch) && is_existing_instance(torch.light_source) && is_instance_at_coordinates(x, y, torch)) {
-					play_sound(snd_torchlight, true);
-					fuse_timer = 4*irandom_range(5,8);
+					light_bomb();
 					break;
 				}
 			}

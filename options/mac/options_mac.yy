@@ -20,7 +20,7 @@
   "option_mac_installer_background_png": "splash/installer_background.png",
   "option_mac_interpolate_pixels": false,
   "option_mac_menu_dock": false,
-  "option_mac_min_version": "3.2.2",
+  "option_mac_min_version": "3.2.3",
   "option_mac_output_dir": "~/GameMaker-Studio/Eternity_in_Hell",
   "option_mac_resize_window": false,
   "option_mac_scale": 0,
@@ -29,7 +29,7 @@
   "option_mac_start_fullscreen": false,
   "option_mac_team_id": "",
   "option_mac_texture_page": "2048x2048",
-  "option_mac_version": "3.2.2",
+  "option_mac_version": "3.2.3",
   "option_mac_vsync": false,
   "option_mac_x86_64": true,
 }

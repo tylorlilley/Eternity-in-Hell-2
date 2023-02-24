@@ -1,7 +1,5 @@
 === REFACTORS ===
 
-lava to flicker and glow like other light sources?
-
 Locked chests not being locked very often
 - Re-add map walker and implement smarter locking algorithm using node groupings
 
@@ -23,12 +21,6 @@ Refactor hands nd collectables that use the run_away_from_player to instead use 
 delete all spot/placeholder objects once room has been initialized?
 - update blockspots and shovel interaction?
 
-Refactor lava to spawn "obj_lava_part" instead of obj_deatbox
-- all interactions for lava can just check for presence of obj_lava_part
-- main lava obj can stay just for coordinating graphics of its own parts
-- make sure all interactions with obj_death like for death_types switch to lava part
-- try to have no step for obj_death anymore; put that check into player obj?
-
 === NEW FETAURES ===
 level editor
 "custom": difficulty mode that lets you tweak the frequencies and numbers of different macro variables?
@@ -36,8 +28,6 @@ level editor
 Audio impared accessibility option
 
 Put an "are you sure" on the enter button?
-
-red worms that spawn in place of obj_bug sometimes and can attach to your head to mess with your controls
 
 Pushable block monster?
 Snake spawner

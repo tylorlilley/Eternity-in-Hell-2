@@ -87,6 +87,7 @@
     {"name":"spr_block_tile","order":115,"path":"sprites/spr_block_tile/spr_block_tile.yy",},
     {"name":"rm_four_exits_2","order":11,"path":"rooms/rm_four_exits_2/rm_four_exits_2.yy",},
     {"name":"spr_phantom","order":18,"path":"sprites/spr_phantom/spr_phantom.yy",},
+    {"name":"scr_map_walker","order":7,"path":"scripts/scr_map_walker/scr_map_walker.yy",},
     {"name":"spr_mouth","order":19,"path":"sprites/spr_mouth/spr_mouth.yy",},
     {"name":"snd_echo_spawn","order":57,"path":"sounds/snd_echo_spawn/snd_echo_spawn.yy",},
     {"name":"spr_meat_old","order":79,"path":"sprites/spr_meat_old/spr_meat_old.yy",},

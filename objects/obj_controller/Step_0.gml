@@ -69,7 +69,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 	}
 	
 	// Update background color
-	var new_color = make_color_rgb(floor(get_scaling_amount(0, 255, power(1-(time_remaining/time_provided), 8), 1)), 0, 0);
+	var tint_amount = power(1-(time_remaining/time_provided), 8), new_color = merge_color(c_black, get_game_color(), tint_amount);
 	if (flash_time > 0) { 
 		new_color = merge_color(new_color, c_white, power(flash_time, 2)/power(SCREEN_FLASH_DURATION, 2));
 		flash_time -= 1;

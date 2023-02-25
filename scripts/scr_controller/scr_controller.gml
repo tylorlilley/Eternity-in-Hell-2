@@ -621,7 +621,7 @@ function get_current_score() {
 		//var spawned_item_bonus = 10 - total_items;
 		//if (spawned_item_bonus < 0 || !is_game_won()) { spawned_item_bonus = 0; }
 		current_score = floor(percentage_of_collectables_collected + percentage_of_victory + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
-		//current_score += spawned_item_bonus;
+		current_score += spawned_item_bonus;
 		current_score -= death_count_penalty// + special_item_penalty;
 		if (current_score < 0) { current_score = 0; }
 	}

@@ -25,6 +25,7 @@ replace keyboard input backspace with automatic clearing
 
 Map is still drawn with red color even when color is changed?
 
+When screen flash is off its harder to tell when stuff happens without some other indicator
 
 === REFACTORS ===
 

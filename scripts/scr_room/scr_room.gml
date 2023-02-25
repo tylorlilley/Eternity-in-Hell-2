@@ -511,16 +511,11 @@ function GameRoom(given_x, given_y) constructor {
 		
 		if (show_detailed_map || visited) {
 			// Set up colors to draw this room with
-			var padded_game_color_string = global.game_color_string;
-			while (string_length(padded_game_color_string) < 6) {
-				padded_game_color_string = "0"+padded_game_color_string;
-			}
-			var game_color = get_gms_color_from_hex_string(padded_game_color_string);
 			var fade_amount = 0; //distance_to_current_room / controller.MAX_MAP_DRAW_DISTANCE;
 			var blink_frame = modulo(global.game_manager.number_of_frames_since_game_began, 12) <= 5;
 			var bg_color = global.bg_color;
 			var white_color = merge_color(c_white, bg_color, fade_amount);
-			var red_color = merge_color(game_color, bg_color, fade_amount);
+			var red_color = merge_color(get_game_color(), bg_color, fade_amount);
 		
 			// Darken the colors of unvisited rooms on the map
 			if (!visited) {

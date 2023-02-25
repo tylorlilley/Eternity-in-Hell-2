@@ -189,6 +189,13 @@ function get_shader_color_from_gms_color(given_color) {
 	return [red/255.0, green/255.0, blue/255.0, 1.0];
 }
 
+/// @function								get_game_color();
+function get_game_color() {
+	var padded_game_color_string = global.game_color_string;
+	while (string_length(padded_game_color_string) < 6) { padded_game_color_string = "0"+padded_game_color_string; }
+	return get_gms_color_from_hex_string(padded_game_color_string);
+}
+
 /// @function								get_gms_color_from_hex_string(hex_string);
 ///	@param		{string} hex_string			The string to convert to a color
 function get_gms_color_from_hex_string(hex_string) {

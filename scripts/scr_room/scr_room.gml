@@ -536,7 +536,7 @@ function GameRoom(given_x, given_y) constructor {
 				if (!has_exit(dir)) { continue; }
 				
 				var exit_color = bg_color;
-				if (show_detailed_map && !blink_frame) {
+				if (!blink_frame) {
 					if (exits[dir].has_lock) { exit_color = red_color; }
 					else if (exits[dir].has_portcullis_for_room(controller.current_room)) { exit_color = (is_test_mode_on) ? c_fuchsia : red_color; }
 					else if (exits[dir].has_illusion_walls) { exit_color = (is_test_mode_on) ? c_teal : bg_color; }

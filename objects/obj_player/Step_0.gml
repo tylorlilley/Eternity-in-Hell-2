@@ -55,18 +55,19 @@ if (can_process_this_frame()) {
 		else {
 			// Handle inventory management
 			if (game_manager.key_z_pressed) { 
-				if (!can_drop_item(left_hand_item)) { play_sound(snd_locked, false); }
-				else { pick_up_or_put_down_item(directions.left); }
+				if (!can_drop_item(left_hand_item)) { play_sound(snd_locked, false); visible = true; }
+				else { pick_up_or_put_down_item(directions.left); visible = true; }
 			}
 			if (game_manager.key_x_pressed) { 
-				if (!can_drop_item(right_hand_item)) { play_sound(snd_locked, false); }
-				else { pick_up_or_put_down_item(directions.right); }
+				if (!can_drop_item(right_hand_item)) { play_sound(snd_locked, false); visible = true; }
+				else { pick_up_or_put_down_item(directions.right); visible = true; }
 			}
 			
 		    // Move player in chosen direction if possible
 		    if (!is_existing_instance(moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) { 
 				move_player(dir); 
 				moved_by = id;
+				visible = true;
 				if (reduce_infection) { infected_timer -= 1; }
 			}
 		}

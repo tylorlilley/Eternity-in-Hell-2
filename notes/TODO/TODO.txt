@@ -1,6 +1,6 @@
 pause button/double opt in on restart
-touching the locked door should add the locked exit to your map
 effect when using staircase to make it easier to see where you've transported to
+prevent stairs from joining with an adjacent room
 
 dead adventurer that gives hints
 add summoning circle that takes to you to a room with a chest but drops your items

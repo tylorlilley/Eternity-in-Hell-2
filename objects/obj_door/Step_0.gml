@@ -10,7 +10,10 @@ if (can_process_this_frame()) {
 		
 		// Door is being pushed against
 		if (push_direction != directions.none) {
-		    if (!unlocked_by_key || (locked && !carrying_key)) { play_sound(snd_locked, false); }
+		    if (!unlocked_by_key || (locked && !carrying_key)) { 
+				play_sound(snd_locked, false);
+				with (door_for_exit) { visited = true; }
+			}
 		    else {
 				// Open Door
 				with (player) { play_sound(snd_open, true); }

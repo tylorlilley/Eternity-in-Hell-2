@@ -410,6 +410,7 @@
     {"id":{"name":"rm_title","path":"rooms/rm_title/rm_title.yy",},"order":0,},
     {"id":{"name":"spr_sword_farmer","path":"sprites/spr_sword_farmer/spr_sword_farmer.yy",},"order":54,},
     {"id":{"name":"rm_start","path":"rooms/rm_start/rm_start.yy",},"order":1,},
+    {"id":{"name":"spr_player_logo","path":"sprites/spr_player_logo/spr_player_logo.yy",},"order":0,},
     {"id":{"name":"rm_two_opposite_exits_1","path":"rooms/rm_two_opposite_exits_1/rm_two_opposite_exits_1.yy",},"order":0,},
     {"id":{"name":"rm_two_opposite_exits_2","path":"rooms/rm_two_opposite_exits_2/rm_two_opposite_exits_2.yy",},"order":1,},
     {"id":{"name":"obj_encased_heart","path":"objects/obj_encased_heart/obj_encased_heart.yy",},"order":11,},

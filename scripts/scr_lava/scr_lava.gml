@@ -132,7 +132,7 @@ function destroy_self_if_all_death_boxes_are_destroyed() {
 /// @param		{bool} visibility_only		Only change the visibility status
 function set_up_lava_edge_visibility(first_time_setup) {
 	var edge_type = global.lava_edge_type, is_wavy_edge_type = (edge_type == lava_edge_types.wavy_still || edge_type == lava_edge_types.wavy_animated)
-	if (edge_type == lava_edge_types.none) { return; }
+	if (edge_type == lava_edge_types.none) { lava_edge_visible = [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]]; return; }
 	else if (first_time_setup) { lava_edge_sprite_index = (is_wavy_edge_type) ? spr_lava_edge3 : spr_lava_edge; }
 	
 	sprite_index = spr_collectable;

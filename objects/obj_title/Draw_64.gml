@@ -13,8 +13,8 @@ else if (options_screen) {
 	title_y_pos = room_height*2;
 	
 	draw_text(room_width/2, 16, "Options");	
-	draw_text(room_width/2, room_height-32, get_input_x_key_string() + ": Reset to Defaults");
-	draw_text(room_width/2, room_height-16, get_input_z_key_string() + ": Return");
+	draw_text(room_width/2, room_height-32, get_input_z_key_string() + ": Reset to Defaults");
+	draw_text(room_width/2, room_height-16, get_input_x_key_string() + ": Return");
 	draw_set_valign(fa_left);
 	
 	// Draw Fullscreen Option

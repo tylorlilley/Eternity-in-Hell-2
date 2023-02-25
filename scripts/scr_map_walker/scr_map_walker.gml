@@ -1,9 +1,8 @@
 
-function RoomGroup() constructor {
-	rooms = array_create(0);
-	potential_key_rooms = array_create(0);
-	keys = 0;
-	internal_locks = 0;
+function RoomGroup(given_rooms, given_keys, given_distance) constructor {
+	rooms = given_rooms;
+	room_group_size = array_create(0);
+	keys = given_keys;
 }
 
 function MapWalker() constructor {
@@ -13,7 +12,7 @@ function MapWalker() constructor {
 	keys = 0;
 	internal_locks = 0;
 	
-	function visit_room(current_room, traveled_distance) {
+	function visit_room(current_room) {
 		// TODO: Update distance to start for current_room based on traveled distance
 		
 		// Only visit unvisited rooms
@@ -27,30 +26,20 @@ function MapWalker() constructor {
 			var next_room = next_exit.get_connected_room(dir);
 			if (next_room.has_key) { keys += 1; }
 			if (next_exit.locked) {
-				if (array_contains(visited_rooms, next_room)) {
-					// Count as internal lock
-					internal_locks += 1;
-					// TODO: remove from locked_exits?
-				}
-				else {
-					// Add to encountered external locks
-					array_push(locked_exits, [next_exit, dir, traveled_distance]);
-					continue;
-				}
+				array_push(locked_exits, [next_exit, dir]);
+				continue;
 			}
 			
-			else {
-				array_push(rooms_to_visit, [next_room, traveled_distance]);
-			}
+			array_push(rooms_to_visit, next_room);
 		}
 	}
 }
 
 function walk_the_map() {
-	var controller = global.controller, walker = new MapWalker();
+	var controller = global.controller, walker = new MapWalker(), visited_room_groups = array_create(0);
 	
 	with (walker) {
-		array_push(rooms_to_visit, [controller.start_room, traveled_distance]);
+		array_push(rooms_to_visit, controller.start_room);
 		
 		while (array_length(rooms_to_visit) < array_length(controller.game_rooms)) {
 			// Visit all rooms in this room group
@@ -61,11 +50,12 @@ function walk_the_map() {
 			}
 		
 			// Make a Room Group out of this walker state
+			//var new_room_group = new RoomGroup(visited_rooms, locked_exits, 
+			while (keys < array_length(locked_exits)) {
+				// Add key to this or previous room groups until map has enough keys for these locks
+				// Remove lock and restart if enough keys can't be added
+			}
 		}
-		
-		// Make a connected graph out of all the room groups gathered
-		
-		// use connected graph to spawn keys or remove locks as needed
 	}
 }
 

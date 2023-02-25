@@ -1,5 +1,5 @@
 //screen_save("shot_"+string(global.seed)+".png")
-
+global.player_outline = !global.player_outline;
 if (global.is_test_mode) {
 	global.is_seed_testing_mode = true;
 	with (obj_controller) { restart_game(); }

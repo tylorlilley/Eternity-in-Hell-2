@@ -15,5 +15,11 @@ if (sprite_index != -1) {
 	if ((!is_solid && !is_bush && covered_by_bush) || (!is_solid && covered_by_solid)) { covered = true; }
 
 	// Draw main sprite
-	if (!covered) { draw_self(); }
+	if (!covered) {
+		if (global.player_outline && object_index = obj_player && global.game_manager.number_of_frames_since_game_began % (FRAMES_TO_WAIT_BEFORE_PROCESSING * 2) == 0) {
+			draw_set_color(c_white);
+			draw_rectangle(x-8, y-8, x+8, y+8, true);
+		}
+		draw_self(); 
+	}
 }

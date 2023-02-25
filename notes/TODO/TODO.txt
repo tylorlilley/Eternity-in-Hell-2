@@ -27,6 +27,9 @@ Map is still drawn with red color even when color is changed?
 
 When screen flash is off its harder to tell when stuff happens without some other indicator
 
+Don't let left and right move the death log when the death log cannot be accessed
+
+
 === REFACTORS ===
 
 Light Bomb from fireballs from other bombs, just not its own

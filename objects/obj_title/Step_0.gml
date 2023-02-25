@@ -194,8 +194,8 @@ else {
 		// Adjust Difficulty Settings
 		var prev_difficulty = global.difficulty;
 		if (pos == 0) {
-			if (global.difficulty > difficulties.easy && key_left_pressed) { global.difficulty -= 1; }
-			else if (global.difficulty < get_max_difficulty() && key_right_pressed) { global.difficulty += 1; }
+			if (global.difficulty > difficulties.easy && key_left_pressed && !death_log_screen) { global.difficulty -= 1; }
+			else if (global.difficulty < get_max_difficulty() && key_right_pressed && !death_log_screen) { global.difficulty += 1; }
 			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
 			if (prev_difficulty != global.difficulty) {
 				var difficulty_sound = noone;

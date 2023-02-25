@@ -4,6 +4,11 @@ var key_space_pressed = game_manager.key_space_pressed, key_space_released = gam
 
 if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	var player = global.player, difficulty = global.difficulty;
+	if (player_appear_timer > 0) {
+		player_appear_timer -= 1;
+		if (player_appear_timer == 0) { player.visible = true; }
+	}
+	
 	if (!is_game_lost() && !is_game_won()) {
 		// Play map Sound Effects
 		if key_space_pressed { play_sound( snd_pickup, false ); }

@@ -7,7 +7,7 @@ else if (options_screen) {
 	draw_set_font(ft_hud);
 	draw_set_valign(fa_center);
 	
-	var y_pos = 32, x_pos = room_width-56-8;
+	var y_pos = 32, x_pos = room_width-56-8, y_offset = 22;
 	
 	// Draw General Options Info
 	title_y_pos = room_height*2;
@@ -29,7 +29,7 @@ else if (options_screen) {
 	}
 	
 	// Draw Screen Scale Option
-	y_pos += 24;
+	y_pos += y_offset;
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Window Size: ");
 	draw_set_halign(fa_center);
@@ -40,7 +40,7 @@ else if (options_screen) {
 	}
 	
 	// Draw Controls Option
-	y_pos += 24;
+	y_pos += y_offset;
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Controls: ");
 	draw_set_halign(fa_center);
@@ -50,31 +50,42 @@ else if (options_screen) {
 		if (global.input > 0) { draw_sprite_ext(spr_title_arrow, 0, x_pos-48, y_pos+8, 1, 1, 0, c_white, 1); }
 	}
 	
+	// Draw Player Outline
+	y_pos += y_offset;
+	draw_set_halign(fa_left);
+	draw_text(16, y_pos, "Player Outline: ");
+	draw_set_halign(fa_center);
+	draw_text(x_pos, y_pos, ((global.player_outline) ? "ON" : "OFF"));
+	if (blink && options_pos == 3) {
+		if (!global.player_outline) { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
+		else { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
+	}
+	
 	// Draw Screen Flash Option
-	y_pos += 24;
+	y_pos += y_offset;
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Screen Flash: ");
 	draw_set_halign(fa_center);
 	draw_text(x_pos, y_pos, ((global.can_screen_flash) ? "ON" : "OFF"));
-	if (blink && options_pos == 3) {
+	if (blink && options_pos == 4) {
 		if (!global.can_screen_flash) { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
 		else { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
 	}
 	
 	// Draw Lava Edge Type Option
 	x_pos -= 8;
-	y_pos += 24;
+	y_pos += y_offset;
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Lava Edge: ");
 	draw_set_halign(fa_center);
 	draw_text(x_pos, y_pos, get_lava_edge_type_string());
-	if (blink && options_pos == 4) {
+	if (blink && options_pos == 5) {
 		if (global.lava_edge_type < lava_edge_types.wavy_animated) { draw_sprite_ext(spr_title_arrow, 0, x_pos+32, y_pos+8, -1, 1, 0, c_white, 1); }
 		if (global.lava_edge_type > lava_edge_types.none) { draw_sprite_ext(spr_title_arrow, 0, x_pos-32, y_pos+8, 1, 1, 0, c_white, 1); }
 	}
 	
 	// Draw Color Option
-	y_pos += 24;
+	y_pos += y_offset;
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Color: ");
 	draw_set_halign(fa_center);
@@ -82,21 +93,20 @@ else if (options_screen) {
 	while (string_length(padded_game_color_string) < 6) {
 		padded_game_color_string = "0"+padded_game_color_string;
 	}
-	draw_text(x_pos, y_pos, "#       ");
-	if (options_pos != 5 || blink) {
-		draw_text(x_pos, y_pos, "  " + padded_game_color_string);
-	}
 	var new_color = get_gms_color_from_hex_string(padded_game_color_string);
+	if (blink && options_pos == 6) { padded_game_color_string = string_delete(padded_game_color_string, 6, 1); padded_game_color_string += "_" }
+	draw_text(x_pos, y_pos, "#       ");
+	draw_text(x_pos+12, y_pos, padded_game_color_string);
 	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 1, 1, 0, c_white, 1);
 	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 0.875, 0.875, 0, new_color, 1);
 	
 	// Draw Minimum Fade Option
-	y_pos += 24;
+	y_pos += y_offset;
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Min. Brightness: ");
 	draw_set_halign(fa_center);
 	draw_text(x_pos+4, y_pos, get_percentage_string(global.game_color_fade));
-	if (blink && options_pos == 6) {
+	if (blink && options_pos == 7) {
 		if (global.game_color_fade < 100) { draw_sprite_ext(spr_title_arrow, 0, x_pos+32+8, y_pos+8, -1, 1, 0, c_white, 1); }
 		if (global.game_color_fade > 0) { draw_sprite_ext(spr_title_arrow, 0, x_pos-32, y_pos+8, 1, 1, 0, c_white, 1); }
 	}

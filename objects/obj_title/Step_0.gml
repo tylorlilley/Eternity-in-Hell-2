@@ -20,7 +20,7 @@ if (options_screen) {
 	
 	// Move Up and Down Through Option Selections
 	if ((key_up_pressed) && (options_pos > 0)) { options_pos -= 1; play_sound(snd_mana, false); }
-	else if (key_down_pressed && (options_pos < 6)) { options_pos += 1; play_sound(snd_mana, false); }
+	else if (key_down_pressed && (options_pos < 7)) { options_pos += 1; play_sound(snd_mana, false); }
 	
 	// Adjust Fullscreen vs Window
 	if (options_pos == 0) {
@@ -70,8 +70,16 @@ if (options_screen) {
 		update_setting("input", global.input);
 	}
 	
-	// Adjust Screen Flash Option
+	// Adjust Player Outline
 	if (options_pos == 3) {
+		if (!global.player_outline && key_left_pressed) { global.player_outline = true; play_sound(snd_pickup, false); }
+		else if (global.player_outline && key_right_pressed) { global.player_outline = false; play_sound(snd_putdown, false); }
+		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+		update_setting("player_outline", global.player_outline);
+	}
+	
+	// Adjust Screen Flash Option
+	if (options_pos == 4) {
 		if (!global.can_screen_flash && key_left_pressed) { global.can_screen_flash = true; play_sound(snd_pickup, false); }
 		else if (global.can_screen_flash && key_right_pressed) { global.can_screen_flash = false; play_sound(snd_putdown, false); }
 		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
@@ -79,7 +87,7 @@ if (options_screen) {
 	}
 	
 	// Adjust Lava Edge Type Option
-	if (options_pos == 4) {
+	if (options_pos == 5) {
 		if (global.lava_edge_type > lava_edge_types.none && key_left_pressed) { 
 			global.lava_edge_type -= 1; 
 			play_sound(snd_move, false);
@@ -95,7 +103,7 @@ if (options_screen) {
 	}
 	
 	// Adjust Color Option
-	if (options_pos == 5) {
+	if (options_pos == 6) {
 		if (keyboard_check_pressed(vk_backspace)) { 
 			if (global.game_color_string != "") {
 				global.game_color_string = string_delete(global.game_color_string, string_length(global.game_color_string), 1);
@@ -147,7 +155,7 @@ if (options_screen) {
 	}
 	
 	// Adjust Minimum Fade Option
-	if (options_pos == 6) {
+	if (options_pos == 7) {
 		if (global.game_color_fade > 0 && key_left_pressed) { global.game_color_fade -= 2; play_sound(snd_move, false); }
 		else if (global.game_color_fade < 100 && key_right_pressed) { global.game_color_fade += 2; play_sound(snd_move, false); }
 		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
@@ -277,7 +285,7 @@ if (key_x_pressed && options_screen) {
 }
 else if (key_z_pressed && !options_screen && !death_log_screen && !controls_screen){ 
 	play_sound(snd_pickup, false); 
-	instance_create(184+56, 136, obj_lava); 
+	instance_create(184+56, 152, obj_lava); 
 	with (obj_lava) { initialize_lava(); set_up_lava_edge_visibility(true); }
 	options_screen = true;
 }

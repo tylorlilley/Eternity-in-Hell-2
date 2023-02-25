@@ -4,6 +4,7 @@ sprite_prefetch(spr_collectable);
 sprite_prefetch(spr_player);
 if (global.is_farm_mode) { sprite_prefetch(spr_player_farmer); }
 grid_update_timer = 0;
+player_appear_timer = 0;
 
 // Initialize global values
 random_set_seed(global.seed);

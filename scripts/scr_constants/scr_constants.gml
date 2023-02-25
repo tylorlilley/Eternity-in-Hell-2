@@ -123,3 +123,4 @@
 #macro GAME_COLOR_FADE_DEFAULT 10
 #macro GAME_COLOR_STRING_DEFAULT "FF0000"
 #macro LAVA_EDGE_TYPE_DEFAULT  lava_edge_types.wavy_animated
+#macro PLAYER_OUTLINE_DEFAULT false

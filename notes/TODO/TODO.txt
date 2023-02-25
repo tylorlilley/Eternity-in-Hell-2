@@ -1,33 +1,22 @@
-pause button
-double opt in on restart
-input settings reset if input doesn't work anymore
+pause button/double opt in on restart
+touching the locked door should add the locked exit to your map
+effect when using staircase to make it easier to see where you've transported to
 
 dead adventurer that gives hints
-touching the locked door should add the locked exit to your map
+add summoning circle that takes to you to a room with a chest but drops your items
 
-analogue stick 
-
-map volume setting
-outline around adventurer option
-
-effect when using staircase to make it easier to see where you've transported to
+always make arrow keys work on menu
+input settings reset if input doesn't work anymore
+analogue stick for gamepad controls
+volume setting?
 
 replace stairs with summoning circles?
 - they are one way stairs
 - they give you a cool item/red item?
 - Spawns enemy next to you?
-add summoning circle that takes to you to a room with a chest but drops your items
-
-always make arrow keys work on menu
-replace keyboard input backspace with automatic clearing
-- Draw the cursor line to show where they are in the string
-- Reset cursor position 
-
-Map is still drawn with red color even when color is changed?
 
 When screen flash is off its harder to tell when stuff happens without some other indicator
-
-Don't let left and right move the death log when the death log cannot be accessed
+Add _ marker to seed option editor as well
 
 
 === REFACTORS ===

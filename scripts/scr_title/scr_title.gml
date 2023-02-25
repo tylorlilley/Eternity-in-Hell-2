@@ -156,6 +156,7 @@ function reset_settings_to_defaults() {
 	global.lava_edge_type = LAVA_EDGE_TYPE_DEFAULT;
 	global.game_color_fade = GAME_COLOR_FADE_DEFAULT;
 	global.game_color_string = GAME_COLOR_STRING_DEFAULT;
+	global.player_outline = PLAYER_OUTLINE_DEFAULT;
 	
 	update_setting("fullscreen", FULLSCREEN_DEFAULT);
 	update_setting("window_size", WINDOW_SCALING_DEFAULT);
@@ -164,6 +165,7 @@ function reset_settings_to_defaults() {
 	update_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);
 	update_setting("game_color_fade", GAME_COLOR_FADE_DEFAULT);
 	update_setting("game_color", GAME_COLOR_STRING_DEFAULT);
+	update_setting("player_outline", PLAYER_OUTLINE_DEFAULT);
 	
 	with (obj_lava) { set_up_lava_edge_visibility(true); }
 	set_game_color();

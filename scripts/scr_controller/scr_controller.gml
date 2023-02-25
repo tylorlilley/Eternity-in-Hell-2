@@ -126,7 +126,7 @@ function transition_to_room(new_room, visited_by_player) {
 			
 	// Play transition sound
 	if (transition == directions.respawn) { play_sound(snd_win, false); }
-	else if (transition == directions.stairs) { play_sound(snd_stairs, false); }
+	else if (transition == directions.stairs) { play_sound(snd_stairs, false); global.player.visible = false; player_appear_timer = 4; }
 	else { play_sound(snd_move, false); }
 	
 	// Run room exit logic for ionstances

@@ -54,7 +54,7 @@ global.can_screen_flash = get_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFUA
 global.lava_edge_type = get_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);
 global.game_color_fade = get_setting("game_color_fade", GAME_COLOR_FADE_DEFAULT);
 global.game_color_string = get_setting("game_color", GAME_COLOR_STRING_DEFAULT);
-global.player_outline = false;
+global.player_outline =  get_setting("player_outline", PLAYER_OUTLINE_DEFAULT);
 
 // Setup global game type options
 global.bg_color = make_color_rgb(0, 0, 0);

@@ -136,11 +136,14 @@ function is_outside_room(x_pos, y_pos) {
 /// @param		{int}	x_pos				The x position to check
 /// @param		{int}	y_pos				The y position to check
 function is_on_room_border(x_pos, y_pos) {
+	/*
 	var on_border = instance_place(x_pos, y_pos, obj_exit_spot);
 	if (object_index == obj_hands && is_existing_instance(right_hand_item) && right_hand_item == obj_staff && right_hand_item.special) { 
 		on_border = false; 
 	}
 	return (on_border);
+	*/
+	return (x_pos <= 16 || x_pos >= room_width-16 || y_pos <= 16 || y_pos >= room_height-16)
 }
 
 

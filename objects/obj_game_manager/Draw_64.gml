@@ -16,6 +16,15 @@ if (paused) {
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_middle);
 	draw_set_font(ft_hud);
-	draw_text(room_width/2, room_height/2-12, "PAUSED");
-	draw_text(room_width/2, room_height/2+12, get_input_z_key_string() + " + " + get_input_x_key_string() + " + " + get_input_enter_key_string() + ": QUIT");	
+	if (global.input != inputs.gamepad) {
+		draw_text(room_width/2, room_height/2-12, "PAUSED");
+		draw_text(room_width/2, room_height/2+12, get_input_z_key_string() + " + " + get_input_x_key_string() + " + " + get_input_enter_key_string() + ": QUIT");
+	}
+	else {
+		draw_text(room_width/2, room_height/2-40+14, "PAUSED");
+		draw_text(room_width/2, room_height/2+12-14, get_input_z_key_string() + " +");
+		draw_text(room_width/2, room_height/2+26-14, get_input_x_key_string() + " +");
+		draw_text(room_width/2, room_height/2+40-14,get_input_enter_key_string() + ": ");
+		draw_text(room_width/2, room_height/2+54-14, "QUIT");
+	}
 }

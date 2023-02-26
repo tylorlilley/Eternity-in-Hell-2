@@ -9,7 +9,7 @@
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY 1//get_probability_for_difficulty([0, 2, 2, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
-#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 20, 8, 4]) 
+#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 2]) 
 #macro MISLEADING_EXITS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
 #macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 12])
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 8, 6, 5, 4]) 

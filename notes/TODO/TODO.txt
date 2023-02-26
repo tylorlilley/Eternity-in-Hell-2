@@ -17,6 +17,8 @@ Add _ marker to seed option editor as well
 
 add is_blink_frame function
 
+Figure out a better way to prevent hands from finding room borders
+
 === REFACTORS ===
 
 Light Bomb from fireballs from other bombs, just not its own

@@ -23,6 +23,6 @@ image_index = 1;
 // Create initial carried torch
 with create_item_in_hand(directions.left, obj_torch) { light_torch(noone, true); };
 //with create_item_in_hand(directions.right, obj_bomb) { make_item_special(); }
-//with create_item_in_hand(directions.right, obj_torch) {}// { make_item_special(); }
+//with create_item_in_hand(directions.right, obj_shovel) {}// { make_item_special(); }
 
 

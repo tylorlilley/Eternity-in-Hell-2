@@ -19,5 +19,5 @@
   "sampleRate": 44100,
   "soundFile": "snd_putdown",
   "type": 0,
-  "volume": 0.6,
+  "volume": 0.3,
 }

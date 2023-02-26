@@ -1,4 +1,3 @@
-prevent stairs from joining with an adjacent room
 
 dead adventurer that gives hints
 add summoning circle that takes to you to a room with a chest but drops your items

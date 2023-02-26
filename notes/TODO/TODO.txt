@@ -1,14 +1,12 @@
-pause button/double opt in on restart
-effect when using staircase to make it easier to see where you've transported to
 prevent stairs from joining with an adjacent room
 
 dead adventurer that gives hints
 add summoning circle that takes to you to a room with a chest but drops your items
 
-always make arrow keys work on menu
 input settings reset if input doesn't work anymore
 analogue stick for gamepad controls
 volume setting?
+preset colors to choose from in options menu with left and right
 
 replace stairs with summoning circles?
 - they are one way stairs
@@ -18,6 +16,7 @@ replace stairs with summoning circles?
 When screen flash is off its harder to tell when stuff happens without some other indicator
 Add _ marker to seed option editor as well
 
+add is_blink_frame function
 
 === REFACTORS ===
 

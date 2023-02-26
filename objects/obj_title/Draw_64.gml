@@ -127,7 +127,7 @@ else if (controls_screen) {
 	draw_text(x_pos, y_pos+y_offset, "Left: Take / Drop");
 	draw_text(x_pos, y_pos+y_offset*2, "Right: Take / Drop");
 	draw_text(x_pos, y_pos+y_offset*3, "View Map");
-	draw_text(x_pos, y_pos+y_offset*4, "Restart Game");
+	draw_text(x_pos, y_pos+y_offset*4, "Pause Game");
 	
 	x_pos = room_width/3 - 40;
 	y_pos = 64;

@@ -135,25 +135,35 @@ function GameRoom(given_x, given_y) constructor {
 		return new_exit;
 	}
 	
+	/// @function									is_adjacent_room(tested_room);
+	/// @param		{GameRoom}	tested_room			The room to test for adjacency
+	function is_adjacent_room(tested_room) {
+		var adjacent_room_directions = get_adjacent_room_directions(false);
+		while (array_length(adjacent_room_directions) > 0) {
+			var adj_dir = array_pop(adjacent_room_directions), adj_room = get_adjacent_room(adj_dir);
+			if (adj_room == tested_room) { return true; }
+		}
+		return false;
+	}
+	
 	/// @function									create_connected_room();
 	function create_connected_room() {
 		// Determine which direction to create a connecting room in
 		var chosen_room = self, connected_dir = directions.stairs, adj_dir = -1, game_rooms = global.controller.game_rooms;
+		// Sometimes connect rooms via stairs
 		if (!has_exit(directions.stairs) && get_random_chance_out_of(STAIRS_PROBABILITY)) {
 			// Create room adjacent to any existing room in any open direction
 			array_shuffle_ext(game_rooms);
 			for (var i = 0; i < array_length(game_rooms); i++) {
 				chosen_room = game_rooms[i];
+				if (is_adjacent_room(chosen_room)) { continue; }
+				
 				adj_dir = chosen_room.get_free_adjacent_room_direction();
 				if (adj_dir != -1) { break; }
 			}
-			if (adj_dir == -1) {
-				// SHOULD NEVER REACH THIS POINT
-				show_debug_message("WARNING: Couldn't create adjacent room to any room");
-				return -1;
-			}
 		}
-		else { 
+		// Determine an adjacent room to connect via cardinal exit
+		if (adj_dir == -1) { 
 			adj_dir = get_free_adjacent_room_direction(); 
 			connected_dir = adj_dir;
 			if (adj_dir == -1) { return -1; }

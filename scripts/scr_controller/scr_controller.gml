@@ -1,6 +1,7 @@
 /// @function								restart_game();
 function restart_game() {
 	// Destroy all instances in this room and in every other room, then go back to the title screen
+	play_sound(snd_stairs, false); 
 	with all { if (object_index != obj_game_manager) { instance_destroy(); } }
 	for (var i = 0; i < array_length(game_rooms); i++) {
 		room_instance_clear(game_rooms[i].room_reference);

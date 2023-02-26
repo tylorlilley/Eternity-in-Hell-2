@@ -88,6 +88,7 @@ global.death_types_array = [
 ]
 
 // Set controls and set up drawing surface variables
+global.player = noone;
 resize_timer = 0;
 set_max_window_size();
 set_window_size();

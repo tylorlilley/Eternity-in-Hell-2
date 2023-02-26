@@ -1,5 +1,7 @@
 /// @function								set_up_inputs_for_next_frame();
 function set_up_inputs_for_next_frame() {
+	if (instance_number(obj_title) > 0) { get_keyboard_default_inputs(); }
+	
 	switch (global.input) {
 		case inputs.keyboard_default: { get_keyboard_default_inputs(); break; }
 		case inputs.keyboard_wasd: { get_keyboard_wasd_inputs(); break; }
@@ -147,4 +149,13 @@ function set_eih_shader() {
 function is_thump_frame() {
 	var thump_timer = (global.game_manager.number_of_frames_since_game_began/FRAMES_TO_WAIT_BEFORE_PROCESSING) % FRAMES_FOR_HEART_THUMP;
 	return (thump_timer > 0 && thump_timer <= 3);
+}
+
+
+/// @function								return_to_title_screen();
+function return_to_title_screen() { 			
+	paused = false;
+	number_of_frames_since_game_began = 0;
+	clear_inputs_for_next_frame();
+	with (obj_controller) { restart_game(); }
 }

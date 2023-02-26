@@ -1,3 +1,4 @@
+/// @description Step
 var player = global.player;
 
 if (infectious && is_existing_instance(player) && get_distance_to_instance(player) <= 4) {

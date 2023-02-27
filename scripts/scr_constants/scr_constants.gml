@@ -117,7 +117,7 @@
 
 // Default Setting Constants
 #macro FULLSCREEN_DEFAULT true
-#macro WINDOW_BORDER_DEFAULT false
+#macro WINDOW_BORDER_DEFAULT (os_type != os_windows)
 #macro WINDOW_SCALING_DEFAULT 2
 #macro INPUT_DEFAULT inputs.keyboard_default
 #macro CAN_SCREEN_FLASH_DEFUALT true

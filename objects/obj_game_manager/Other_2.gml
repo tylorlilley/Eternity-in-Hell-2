@@ -49,6 +49,7 @@ global.seed = get_setting("last_seed", noone);
 // Setup global variables for options
 global.fullscreen = get_setting("fullscreen", FULLSCREEN_DEFAULT);
 global.window_scaling = get_setting("window_size", WINDOW_SCALING_DEFAULT);
+global.window_border = get_setting("window_border", WINDOW_BORDER_DEFAULT);
 global.input = get_setting("input", INPUT_DEFAULT);
 global.can_screen_flash = get_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFUALT);
 global.lava_edge_type = get_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);

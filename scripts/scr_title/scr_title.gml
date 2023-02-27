@@ -77,8 +77,7 @@ function set_max_window_size() {
 
 /// @function								set_window_size();
 function set_window_size() {
-	window_set_fullscreen(global.fullscreen);
-	with (obj_game_manager) { if (resize_timer == 0) { resize_timer = 10; } }
+	with (obj_game_manager) { if (resize_timer == 0) { resize_timer = 30; } }
 }
 
 /// @function								get_input_string();
@@ -151,6 +150,7 @@ function determine_gamepad() {
 function reset_settings_to_defaults() {
 	global.fullscreen = FULLSCREEN_DEFAULT;
 	global.window_scaling = WINDOW_SCALING_DEFAULT;
+	global.window_border = WINDOW_BORDER_DEFAULT;
 	global.input = INPUT_DEFAULT;
 	global.can_screen_flash = CAN_SCREEN_FLASH_DEFUALT;
 	global.lava_edge_type = LAVA_EDGE_TYPE_DEFAULT;
@@ -160,6 +160,7 @@ function reset_settings_to_defaults() {
 	
 	update_setting("fullscreen", FULLSCREEN_DEFAULT);
 	update_setting("window_size", WINDOW_SCALING_DEFAULT);
+	update_setting("window_border", WINDOW_BORDER_DEFAULT);
 	update_setting("input", INPUT_DEFAULT);
 	update_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFUALT);
 	update_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);

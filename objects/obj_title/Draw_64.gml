@@ -18,7 +18,7 @@ else if (options_screen) {
 	draw_set_valign(fa_left);
 	
 	// Draw Fullscreen Option
-	var is_full_screen = window_get_fullscreen()
+	var is_full_screen = global.fullscreen;//window_get_fullscreen()
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Fullscreen: ");
 	draw_set_halign(fa_center);
@@ -28,15 +28,27 @@ else if (options_screen) {
 		else { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
 	}
 	
-	// Draw Screen Scale Option
+	// Draw Screen Scale or Borderless Option
 	y_pos += y_offset;
-	draw_set_halign(fa_left);
-	draw_text(16, y_pos, "Window Size: ");
-	draw_set_halign(fa_center);
-	draw_text(x_pos, y_pos, "x "+ string(global.window_scaling));
-	if (blink && options_pos == 1) {
-		if (global.window_scaling < global.max_window_scaling) { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
-		if (global.window_scaling > 1) { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
+	if (!global.fullscreen) {
+		draw_set_halign(fa_left);
+		draw_text(16, y_pos, "Window Size: ");
+		draw_set_halign(fa_center);
+		draw_text(x_pos, y_pos, "x "+ string(global.window_scaling));
+		if (blink && options_pos == 1) {
+			if (global.window_scaling < global.max_window_scaling) { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
+			if (global.window_scaling > 1) { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
+		}
+	}
+	else {
+		draw_set_halign(fa_left);
+		draw_text(16, y_pos, "Window Border: ");
+		draw_set_halign(fa_center);
+		draw_text(x_pos, y_pos, ((global.window_border) ? "ON" : "OFF"));
+		if (blink && options_pos == 1) {
+			if (global.window_border) { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
+			else { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
+		}
 	}
 	
 	// Draw Controls Option
@@ -199,14 +211,16 @@ else if (death_log_screen && (death_count_string != noone || win_count_string !=
 	array_sort(deaths_to_display, function(elm1, elm2) { return elm1[1] - elm2[1]; });
 	
 	// Cycle through deaths to display
-	draw_set_halign(fa_left);
-	var y_initial = (16*3)+8, x_columns = (array_length(deaths_to_display) <= 9) ? 3 : 5, x_initial = room_width/x_columns, y_pos = y_initial, x_pos = x_initial;
+	draw_set_halign(fa_right);
+	var x_columns = (array_length(deaths_to_display) <= 9) ? 3 : 5;
+	if (array_length(deaths_to_display) > 18) { x_columns = 7; }
+	var y_initial = (16*3)+8, x_initial = room_width/x_columns, y_pos = y_initial, x_pos = x_initial;
 	while (array_length(deaths_to_display) > 0) {
 		var death_to_display = array_pop(deaths_to_display), death_obj = death_to_display[0], death_count = death_to_display[1];
 		
 		// Draw Death Sprite and Count
 		draw_death_type_sprite(x_pos, y_pos, death_obj);
-		draw_text(x_pos+x_initial, y_pos, string(death_count));
+		draw_text(x_pos+x_initial+24, y_pos, string(death_count));
 		
 		// Increase Draw Position
 		y_pos += 18;

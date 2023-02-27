@@ -38,12 +38,23 @@ if (instance_number(obj_title) > 0 || number_of_frames_since_game_began % FRAMES
 // Update frame count
 number_of_frames_since_game_began += 1;
 if (resize_timer > 0) {
+	var use_true_full_screen = (global.fullscreen && global.window_border);
 	resize_timer -= 1;
-	if (resize_timer == 0) {
-		// Resize the drawing surface
-		var window_scaling = global.window_scaling;
-		var draw_surface_width = (room_width*window_scaling), draw_surface_height = (room_height*window_scaling)
-		window_set_size(draw_surface_width, draw_surface_height);
+	if (resize_timer == 29 || 19) { 
+		if (window_get_showborder() != global.window_border) { window_set_showborder(global.window_border); }
 	}
+	if (resize_timer == 25 || 15) { if (window_get_fullscreen() != use_true_full_screen) { window_set_fullscreen(use_true_full_screen); } }
+	if (resize_timer == 1) {
+		// Resize the drawing surface
+		if (global.fullscreen && !global.window_border) { 
+			window_set_size(display_get_width(), display_get_height()); 
+		}
+		else if (!global.fullscreen) { 
+			var window_scaling = global.window_scaling;
+			var draw_surface_width = (room_width * window_scaling), draw_surface_height = (room_height * window_scaling)
+			window_set_size(draw_surface_width, draw_surface_height); 
+		}
+	}
+	else if (resize_timer == 0) { window_center(); }
 }
 set_up_inputs_for_next_frame();

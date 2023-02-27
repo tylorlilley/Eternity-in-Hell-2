@@ -1,7 +1,7 @@
 var game_manager = global.game_manager;
-var key_x = game_manager.key_x, key_x_pressed = game_manager.key_x_pressed, key_x_released = game_manager.key_x_released;
-var key_z = game_manager.key_z, key_z_pressed = game_manager.key_z_pressed, key_enter_released = game_manager.key_enter_released;
-var key_space = game_manager.key_space, key_space_pressed = game_manager.key_space_pressed, key_space_released = game_manager.key_space_released;
+var key_x_pressed = game_manager.key_x_pressed, key_x_released = game_manager.key_x_released;
+var key_z_pressed = game_manager.key_z_pressed, key_enter_released = game_manager.key_enter_released;
+var key_space_pressed = game_manager.key_space_pressed, key_space_released = game_manager.key_space_released;
 var key_left_pressed = game_manager.key_left_pressed, key_right_pressed = game_manager.key_right_pressed , key_up_pressed = game_manager.key_up_pressed, key_down_pressed = game_manager.key_down_pressed;
 
 if (pos == -2) {
@@ -25,35 +25,58 @@ if (options_screen) {
 	// Adjust Fullscreen vs Window
 	if (options_pos == 0) {
 		if (!global.fullscreen && key_left_pressed) { 
-			global.fullscreen = true; 
+			global.fullscreen = true;
+			global.window_border = false;
 			play_sound(snd_pickup, false);		
 			update_setting("fullscreen", global.fullscreen);
+			update_setting("window_border", global.window_border);
 			set_window_size(); 
 		}
 		else if (global.fullscreen && key_right_pressed) { 
-			global.fullscreen = false; 
+			global.fullscreen = false;
+			global.window_border = true;
 			play_sound(snd_putdown, false);	
 			update_setting("fullscreen", global.fullscreen);
+			update_setting("window_border", global.window_border);
 			set_window_size(); 
 		}
 		else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
 	}
 	
-	// Adjust Pixel Scaling Option
+	// Adjust Pixel Scaling Option and Window Border Option
 	if (options_pos == 1) {
-		if (global.window_scaling > 1 && key_left_pressed) { 
-			global.window_scaling -= 1; 
-			play_sound(snd_move, false);
-			update_setting("window_size", global.window_scaling);
-			set_window_size();
+		// Adjust Window Border Option
+		if (global.fullscreen) {
+			if (!global.window_border && key_left_pressed) {
+				global.window_border = true;
+				play_sound(snd_pickup, false);
+				update_setting("window_border", global.window_border);
+				set_window_size(); 
+			}
+			else if (global.window_border && key_right_pressed) {
+				global.window_border = false;
+				play_sound(snd_putdown, false);
+				update_setting("window_border", global.window_border);
+				set_window_size(); 
+			}
+			else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
 		}
-		else if (global.window_scaling < global.max_window_scaling && key_right_pressed) { 
-			global.window_scaling += 1; 
-			play_sound(snd_move, false);
-			update_setting("window_size", global.window_scaling);
-			set_window_size();
+		// Adjust Pixel Scaling Option
+		else {
+			if (global.window_scaling > 1 && key_left_pressed) { 
+				global.window_scaling -= 1; 
+				play_sound(snd_move, false);
+				update_setting("window_size", global.window_scaling);
+				set_window_size();
+			}
+			else if (global.window_scaling < global.max_window_scaling && key_right_pressed) { 
+				global.window_scaling += 1; 
+				play_sound(snd_move, false);
+				update_setting("window_size", global.window_scaling);
+				set_window_size();
+			}
+			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
 		}
-		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
 	}
 	
 	// Adjust Control Option

@@ -359,6 +359,7 @@
     {"name":"rm_three_exits_11","order":10,"path":"rooms/rm_three_exits_11/rm_three_exits_11.yy",},
     {"name":"rm_two_opposite_exits_20","order":18,"path":"rooms/rm_two_opposite_exits_20/rm_two_opposite_exits_20.yy",},
     {"name":"rm_three_exits_12","order":11,"path":"rooms/rm_three_exits_12/rm_three_exits_12.yy",},
+    {"name":"spr_outline","order":119,"path":"sprites/spr_outline/spr_outline.yy",},
     {"name":"rm_unused_4","order":11,"path":"rooms/rm_unused_4/rm_unused_4.yy",},
     {"name":"rm_three_exits_18","order":22,"path":"rooms/rm_three_exits_18/rm_three_exits_18.yy",},
     {"name":"rm_four_exits_3","order":1,"path":"rooms/rm_four_exits_3/rm_four_exits_3.yy",},

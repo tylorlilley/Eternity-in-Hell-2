@@ -22,8 +22,8 @@
 #macro USE_CHEST_SPOT_PROBABILITY get_probability_for_difficulty([0, 16, 8, 4, 3])
 	
 // Initilize room start probability constants
-#macro BUG_PROBABILITY 1//get_probability_for_difficulty([512, 256, 112, 48, 24])
-#macro RED_BUG_PROBABILITY 1//get_probability_for_difficulty([0, 0, 0, 12, 6])
+#macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
+#macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 6])
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest

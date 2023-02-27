@@ -77,7 +77,7 @@ function set_max_window_size() {
 
 /// @function								set_window_size();
 function set_window_size() {
-	with (obj_game_manager) { if (resize_timer == 0) { resize_timer = 30; } }
+	with (obj_game_manager) { if (resize_timer == 0) { resize_timer = 12; } }
 }
 
 /// @function								get_input_string();

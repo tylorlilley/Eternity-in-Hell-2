@@ -26,7 +26,7 @@ if (options_screen) {
 	if (options_pos == 0) {
 		if (!global.fullscreen && key_left_pressed) { 
 			global.fullscreen = true;
-			global.window_border = false;
+			global.window_border =  (os_type == os_windows) ? false : true;
 			play_sound(snd_pickup, false);		
 			update_setting("fullscreen", global.fullscreen);
 			update_setting("window_border", global.window_border);
@@ -53,7 +53,7 @@ if (options_screen) {
 				update_setting("window_border", global.window_border);
 				set_window_size(); 
 			}
-			else if (global.window_border && key_right_pressed) {
+			else if (global.window_border && key_right_pressed && os_type == os_windows) {
 				global.window_border = false;
 				play_sound(snd_putdown, false);
 				update_setting("window_border", global.window_border);

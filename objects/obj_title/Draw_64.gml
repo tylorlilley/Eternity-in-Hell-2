@@ -45,7 +45,7 @@ else if (options_screen) {
 		draw_text(16, y_pos, "Window Border: ");
 		draw_set_halign(fa_center);
 		draw_text(x_pos, y_pos, ((global.window_border) ? "ON" : "OFF"));
-		if (blink && options_pos == 1) {
+		if (blink && options_pos == 1 && os_type == os_windows) {
 			if (global.window_border) { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
 			else { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
 		}

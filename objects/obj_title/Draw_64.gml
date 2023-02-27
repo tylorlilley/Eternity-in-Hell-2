@@ -220,7 +220,7 @@ else if (death_log_screen && (death_count_string != noone || win_count_string !=
 		
 		// Draw Death Sprite and Count
 		draw_death_type_sprite(x_pos, y_pos, death_obj);
-		draw_text(x_pos+x_initial+24, y_pos, string(death_count));
+		draw_text(x_pos+x_initial+16, y_pos, string(death_count));
 		
 		// Increase Draw Position
 		y_pos += 18;

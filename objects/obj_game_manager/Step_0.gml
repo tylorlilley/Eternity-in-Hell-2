@@ -40,10 +40,10 @@ number_of_frames_since_game_began += 1;
 if (resize_timer > 0) {
 	var use_true_full_screen = (global.fullscreen && global.window_border);
 	resize_timer -= 1;
-	if (resize_timer == 10) { 
+	if (resize_timer == 10 || 6) { 
 		if (window_get_showborder() != global.window_border) { window_set_showborder(global.window_border); }
 	}
-	if (resize_timer == 6) { if (window_get_fullscreen() != use_true_full_screen) { window_set_fullscreen(use_true_full_screen); } }
+	if (resize_timer == 8 || 4) { if (window_get_fullscreen() != use_true_full_screen) { window_set_fullscreen(use_true_full_screen); } }
 	if (resize_timer == 1) {
 		// Resize the drawing surface
 		if (global.fullscreen && !global.window_border) { 

@@ -395,6 +395,7 @@
     {"name":"snd_shoot","order":68,"path":"sounds/snd_shoot/snd_shoot.yy",},
     {"name":"spr_hands","order":21,"path":"sprites/spr_hands/spr_hands.yy",},
     {"name":"rm_two_perpendicular_exits_32","order":32,"path":"rooms/rm_two_perpendicular_exits_32/rm_two_perpendicular_exits_32.yy",},
+    {"name":"obj_outline","order":9,"path":"objects/obj_outline/obj_outline.yy",},
     {"name":"rm_no_exits_2","order":4,"path":"rooms/rm_no_exits_2/rm_no_exits_2.yy",},
     {"name":"rm_two_opposite_exits_10","order":7,"path":"rooms/rm_two_opposite_exits_10/rm_two_opposite_exits_10.yy",},
     {"name":"rm_two_opposite_exits_19","order":17,"path":"rooms/rm_two_opposite_exits_19/rm_two_opposite_exits_19.yy",},

@@ -24,6 +24,9 @@ function move_player(dir) {
 			set_instance_to_same_position(left_hand_item);
 			if (is_carrying_item_in_left_hand(obj_torch)) { set_instance_to_same_position(left_hand_item.light_source); }
 		}
+		
+		// Move Outline
+		if (is_existing_instance(outline)) { set_instance_to_same_position(outline); }
 	}
 	
 	var direction_pressed = (game_manager.key_up_pressed || 

@@ -12,6 +12,7 @@ replace stairs with summoning circles?
 
 When screen flash is off its harder to tell when stuff happens without some other indicator
 
+Replace get_probability_for_difficulty to accept floats in order to be able to set up less than 1/2 chances for things
 
 === REFACTORS ===
 

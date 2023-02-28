@@ -9,12 +9,6 @@ if (pos == -2) {
 	pos = (can_access_farmer_mode) ? -1 : 0;
 }
 
-if (blink_timer == 0) {
-	blink = !blink;
-	blink_timer = 15;
-}
-else { blink_timer -= 1; }
-
 if (options_screen) {
 	determine_gamepad();
 	
@@ -46,14 +40,14 @@ if (options_screen) {
 	// Adjust Pixel Scaling Option and Window Border Option
 	if (options_pos == 1) {
 		// Adjust Window Border Option
-		if (global.fullscreen) {
+		if (global.fullscreen && os_type == os_windows) {
 			if (!global.window_border && key_left_pressed) {
 				global.window_border = true;
 				play_sound(snd_pickup, false);
 				update_setting("window_border", global.window_border);
 				set_window_size(); 
 			}
-			else if (global.window_border && key_right_pressed && os_type == os_windows) {
+			else if (global.window_border && key_right_pressed) {
 				global.window_border = false;
 				play_sound(snd_putdown, false);
 				update_setting("window_border", global.window_border);

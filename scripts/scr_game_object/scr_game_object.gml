@@ -391,7 +391,7 @@ function get_room_map_position(inst) {
 /// @function								flicker_sprite_under_instance(inst);
 /// @param		{id} inst					The instance id to check for a collision with
 function flicker_sprite_under_instance(inst) {
-	var blink_frame = (global.game_manager.number_of_frames_since_game_began % (FRAMES_TO_WAIT_BEFORE_PROCESSING * 2) == 0);
+	var blink_frame = is_blink_frame();
 	if (!blink_frame || !instance_place(x, y, inst)) { return false; }
 	
 	if (object_index == obj_lava_part) { lava_visible = false; }

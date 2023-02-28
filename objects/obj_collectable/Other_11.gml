@@ -1,4 +1,6 @@
 /// @description Step
+visible = !is_blink_frame();
+
 if (is_instance_at_coordinates(x, y, global.player)) {
 	if (instance_number(obj_collectable) == 1) {
 	    // You are collecting the final collectable in the room

@@ -1,5 +1,5 @@
 var death_count_string = get_death_count_string(global.difficulty), win_count_string = get_win_count_string(global.difficulty);
-var title_y_pos = room_height/4+16, title_scale = 0.125;
+var title_y_pos = room_height/4+16, title_scale = 0.125, blink = is_blink_frame();
 
 if (loading) { title_y_pos = room_height*2; title_scale = 0.25; }
 else if (options_screen) {
@@ -30,7 +30,7 @@ else if (options_screen) {
 	
 	// Draw Screen Scale or Borderless Option
 	y_pos += y_offset;
-	if (!global.fullscreen) {
+	if (!global.fullscreen || os_type != os_windows) {
 		draw_set_halign(fa_left);
 		draw_text(16, y_pos, "Window Size: ");
 		draw_set_halign(fa_center);
@@ -45,7 +45,7 @@ else if (options_screen) {
 		draw_text(16, y_pos, "Window Border: ");
 		draw_set_halign(fa_center);
 		draw_text(x_pos, y_pos, ((global.window_border) ? "ON" : "OFF"));
-		if (blink && options_pos == 1 && os_type == os_windows) {
+		if (blink && options_pos == 1) {
 			if (global.window_border) { draw_sprite_ext(spr_title_arrow, 0, x_pos+24, y_pos+8, -1, 1, 0, c_white, 1); }
 			else { draw_sprite_ext(spr_title_arrow, 0, x_pos-24, y_pos+8, 1, 1, 0, c_white, 1); }
 		}

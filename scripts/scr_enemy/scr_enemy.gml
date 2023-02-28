@@ -517,17 +517,9 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 function teleport_to_player() {
 	var player = global.player, controller = global.controller;
 	x = player.x;
-	y = player.y;
+	y = player.y;	
 
-	activated = false;
-	corporeal = false;
-	floating = true
-
-	spawn_timer = 0;
-
-	if (controller.current_room.lit) { instance_destroy(); }
-	else if (controller.entered_from_spawn) { spawn_timer = -1; }
-	else {
+	if (!controller.current_room.lit && !controller.entered_from_spawn) {
 		// Check distance to each unlit lantern
 		var lantern_count = 0, total_distance_to_lanterns = 0;
 		for (var i = 0; i < instance_number(obj_lantern); i++) {

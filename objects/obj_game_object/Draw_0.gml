@@ -16,7 +16,7 @@ if (sprite_index != -1) {
 
 	// Draw main sprite
 	if (!covered) {
-		if (global.player_outline && object_index = obj_player && global.game_manager.number_of_frames_since_game_began % (FRAMES_TO_WAIT_BEFORE_PROCESSING * 2) == 0) {
+		if (global.player_outline && object_index = obj_player && is_blink_frame()) {
 			draw_sprite_ext(spr_outline, 0, x, y, image_xscale, image_yscale, image_angle, merge_color(global.bg_color, c_white, 0.5), image_alpha);
 		}
 		draw_self(); 

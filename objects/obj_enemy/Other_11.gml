@@ -18,7 +18,7 @@ if (activated) {
 	else {
 		// Flicker sprite if not corporeal
 		depth = INCORPOREAL_ENEMY_DEPTH;
-		visible = (modulo(global.game_manager.number_of_frames_since_game_began, (FRAMES_TO_WAIT_BEFORE_PROCESSING * 2)) == 0);
+		visible = is_blink_frame();;
 	}
 }
 

@@ -156,6 +156,11 @@ function is_thump_frame() {
 	return (thump_timer > 0 && thump_timer <= 3);
 }
 
+/// @function								is_blink_frame();
+function is_blink_frame() {
+	return (global.game_manager.number_of_frames_since_game_began % 24 >= 12);
+}
+
 
 /// @function								return_to_title_screen();
 function return_to_title_screen() { 			

@@ -75,7 +75,7 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 	// Increase lighting range if carrying a rosary
 	light.lighting_range = PLAYER_LIGHT_RANGE;
 	if (is_carrying_item(obj_rosary)) { light.lighting_range += (is_carrying_special_item(obj_rosary)) ? 2 : 1; }
-	is_flickering_light_source = false;
+	light.is_flickering_light_source = false;
 		
 	// Increase lighting range if carrying two torches
 	if (is_carrying_lit_torch(true)) { 

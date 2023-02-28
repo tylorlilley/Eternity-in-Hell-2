@@ -13,8 +13,6 @@ options_screen = false;
 controls_screen = false;
 death_log_screen = false;
 loading = false;
-blink_timer = 15;
-blink = false;
 
 // Update game graphics textures
 draw_texture_flush();

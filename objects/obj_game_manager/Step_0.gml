@@ -23,9 +23,17 @@
 	if (key_enter_released && can_process && instance_number(obj_title) == 0) {
 		if (!paused) {
 			if (is_game_won() || is_game_lost() || is_time_up()) { return_to_title_screen(); exit; }
-			else { paused = true; play_sound(snd_pickup, false); }
+			else { 
+				paused = true; 
+				play_sound(snd_pickup, false); 
+				with (obj_fireball) { speed = 0; }
+			}
 		}
-		else { paused = false; play_sound(snd_putdown, false); }
+		else { 
+			paused = false; 
+			play_sound(snd_putdown, false); 
+			with (obj_fireball) { speed = 2; }
+		}
 	}
 //}
 

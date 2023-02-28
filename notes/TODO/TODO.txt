@@ -1,8 +1,6 @@
-
-dead adventurer that gives hints
+sdead adventurer that gives hints
 add summoning circle that takes to you to a room with a chest but drops your items
 
-input settings reset if input doesn't work anymore
 analogue stick for gamepad controls
 volume setting?
 preset colors to choose from in options menu with left and right
@@ -13,14 +11,15 @@ replace stairs with summoning circles?
 - Spawns enemy next to you?
 
 When screen flash is off its harder to tell when stuff happens without some other indicator
-Add _ marker to seed option editor as well
 
-Figure out a better way to prevent hands from finding room borders
 
 === REFACTORS ===
 
+Replace walls and columns with solid_part similar to lava and lava_part in order to have the illusion walls and walls when you are on top of them with red staff flicker just the quadrants the player is in
+
+Figure out a better way to prevent hands from moving into room borders
+
 Light Bomb from fireballs from other bombs, just not its own
-Light torch when picked up if carrying lit torch
 
 Locked chests not being locked very often
 - Re-add map walker and implement smarter locking algorithm using node groupings

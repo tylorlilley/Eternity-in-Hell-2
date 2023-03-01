@@ -34,7 +34,7 @@ var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_cr
 for (var i = 0; i < array_length(game_rooms); i++) {
 	// Assign room reference from list
 	var given_room = game_rooms[i];
-	given_room.set_room_reference();
+	given_room.set_room_reference(false);
 	
 	if (get_random_chance_out_of(COLLECTABLE_PROBABILITY)) { given_room.add_collectables(); }
 	
@@ -57,7 +57,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 		
 		if (given_exit.has_lock) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
 		if (given_exit.has_illusion_walls) { room_time_provided += TIME_PROVIEDED_PER_ILLUSION_WALL; }
-		if (given_exit.has_portcullis_for_room(given_room)) { room_time_provided += TIME_PROVIEDED_PER_PORTCULLIS; }
+		if (given_exit.has_closed_portcullis_for_room(given_room)) { room_time_provided += TIME_PROVIEDED_PER_PORTCULLIS; }
 	}
 	time_provided += room_time_provided;
 }
@@ -84,10 +84,17 @@ time_provided += total_number_of_rooms_with_collectables * TIME_PROVIDED_PER_COL
 
 // Ensure at least one lantern room exists
 if (array_length(rooms_with_lanterns) == 0) {
-	// TODO: Reroll some room reference to have lantern instead of reseting map gen
-	show_debug_message("WARNING: no lantern rooms generated.");
-	reset_map_generation();
-	exit;
+	var random_room = array_random_get(game_rooms);
+	with (random_room) { 
+		set_room_reference(true);
+		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); has_lanterns = true; }
+	}
+	if (!random_room.has_lanterns) {
+		// This should NEVER happen
+		show_debug_message("WARNING: no lantern rooms generated.");
+		reset_map_generation();
+		exit;
+	}
 }
 
 // Ensure at least one room with chest potential exists

@@ -1,76 +1,65 @@
-
-
-killed by sprie for lava doesn't reflect edge choices
-text log with last used seed
-
-Display an unkown state for map exits until exploring them solidifies them as open or closed??
-Maybe limit it so no two rooms in the same map are pulled from the same room reference file?
-
-Save an item for the next run?
-option for auto picking up items?
-enemy that eats your arm?
-mirror that bounces back fireballs?
-
-Don't need to spawn keys for exits beyond the first for a given room if that final room can be entered 
-
-
-Should spiders spawn on level 1???
-dead adventurer that gives hints
-add summoning circle that takes to you to a room with a chest but drops your items
-
-volume setting?
-preset colors to choose from in options menu with left and right
-99397221
-replace stairs with summoning circles?
-- they are one way stairs
-- they give you a cool item/red item?
-- Spawns enemy next to you?
-
-When screen flash is off its harder to tell when stuff happens without some other indicator
-
-Replace get_probability_for_difficulty to accept floats in order to be able to set up less than 1/2 chances for things
-
 === REFACTORS ===
-
-Replace walls and columns with solid_part similar to lava and lava_part in order to have the illusion walls and walls when you are on top of them with red staff flicker just the quadrants the player is in
-
-Figure out a better way to prevent hands from moving into room borders
-
-Light Bomb from fireballs from other bombs, just not its own
-
-Locked chests not being locked very often
-- Re-add map walker and implement smarter locking algorithm using node groupings
-
-Add pathfinding to snakes and skeletons to better pathfind toward dropped meats
-
-farmer clock sprie hands flip xscale direction
 
 change response to no lantern rooms spawning to be spawning a lit lantern room instead of regenerating whole map
 
 Allow portcullis for stairs rooms? This gets weird as they can leave without unlocking portcullis and would need to encounter portcullis from other side
 - yeah but this is needed because shovels can add stairs to a portcullis room anyway
 
+Create new title screen with better sub menus
+- Display last seed used?
+- New Options
+-- volume setting?
+-- preset colors to choose from in options menu with left and right for game color
+-- option for auto picking up items?
+
+Replace walls and columns with solid_part similar to lava and lava_part in order to have the illusion walls and walls when you are on top of them with red staff flicker just the quadrants the player is in
+
+Figure out a better way to prevent hands from moving into room borders
+
+Re-add map walker and implement smarter locking algorithm using node groupings
+
+Replace get_probability_for_difficulty to accept floats in order to be able to set up less than 1/2 chances for things
+
+Should map display an unkown state for map exits until exploring them solidifies them as open or closed??
+Should spiders spawn on level 1???
+
+Light Bomb from fireballs from other bombs, just not its own
+
+Add pathfinding to snakes and skeletons to better pathfind toward dropped meats
+
+farmer clock sprie hands flip xscale direction
+
 Remove all commented out code that we don't need anymore
 - Also Examine remaining TODO comments
 
-Refactor hands nd collectables that use the run_away_from_player to instead use pathfinidng to find the spot furthest away from the player and run toward that
+Refactor hands and collectables that use the run_away_from_player to instead use pathfinidng to find the spot furthest away from the player and run toward that
 - create a seperate red_staff_grid to use for hands that hold red staff since just the lava grid and solid grid don't cut it for that
 
 delete all spot/placeholder objects once room has been initialized?
 - update blockspots and shovel interaction?
 
-Replace step events with custom step event manager in controller?
-
 === NEW FETAURES ===
+
+dead adventurer that gives hints
+
+add summoning circle that takes to you to a room with a chest but drops your items
+replace stairs with summoning circles?
+- they are one way stairs
+- they give you a cool item/red item?
+- Spawns enemy next to you?
+
+Ability to somehow save an item for the next run?
+new item: mirror that bounces back fireballs?
+
+
 level editor
 "custom": difficulty mode that lets you tweak the frequencies and numbers of different macro variables?
 
-
 Audio impared accessibility option
 
-Put an "are you sure" on the enter button?
-- add a reset data with an "are you sure" to the death log screen
+add a reset data with an "are you sure" to the death log screen
 
+new enemy: enemy that eats your arm? So you have one less item slot?
 Pushable block monster?
 Snake spawner
 Fake stairs that lead to stomach

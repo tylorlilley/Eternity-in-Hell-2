@@ -5,7 +5,7 @@ image_index = 2;
 sprite_index = get_sprite_to_use(spr_player);
 
 has_bug = false;
-headless = false;
+headless = get_random_chance_out_of(CORPSE_HEADLESS_PROBABILITY);
 
 flip_sprite_at_random(false);
 

@@ -23,3 +23,11 @@ function close_door() {
 	closed.visible = false;
 	depth = SOLID_DEPTH;
 }
+
+/// @function							open_portcullis();
+function open_portcullis() {
+	door_for_exit.open_portcullis();
+	stuck_open = true;
+	open_door();
+}
+

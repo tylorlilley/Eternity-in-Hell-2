@@ -179,8 +179,8 @@ if (options_screen) {
 		update_setting("game_color_fade", global.game_color_fade);
 	}
 	
-	// Reset settings when x is pressed
-	if (key_z_pressed) {
+	// Reset settings when enter is pressed
+	if (key_enter_released) {
 		play_sound(snd_stairs, false);
 		reset_settings_to_defaults();
 	}

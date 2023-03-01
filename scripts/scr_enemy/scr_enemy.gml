@@ -332,13 +332,13 @@ function explode(destroy_self) {
 	shoot_fireball(x+0, y-8, true);
 	shoot_fireball(x+8, y-8, true);
 	shoot_fireball(x-8, y-4, true);
-	shoot_fireball(x+0, y-4, true);
+	//shoot_fireball(x+0, y-4, true);
 	shoot_fireball(x+8, y-4, true);
 	shoot_fireball(x-8, y, true);
 	//shoot_fireball(x+0, y, true);
 	shoot_fireball(x+8, y, true);
 	shoot_fireball(x-8, y+4, true);
-	shoot_fireball(x+0, y+4, true);
+	//shoot_fireball(x+0, y+4, true);
 	shoot_fireball(x+8, y+4, true);
 	shoot_fireball(x-8, y+8, true);
 	shoot_fireball(x+0, y+8, true);

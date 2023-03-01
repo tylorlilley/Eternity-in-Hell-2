@@ -46,6 +46,7 @@ function initialize_game_variables() {
 	
 	// initialize room list values
 	game_rooms = array_create(0);
+	room_references = array_create(0);
 	mapped_rooms = array_create(0);
 	rooms_with_collectables = array_create(0);
 	rooms_with_key = array_create(0);
@@ -208,6 +209,31 @@ function game_room_start_reposition_player() {
 function game_room_start_other() {
 	var player = global.player;
 	
+	// Create portcullis if portcullis for exit has been triggered by another room
+	var has_existing_portcullis = (instance_number(obj_portcullis) == 0);
+	if (!has_existing_portcullis) {
+		for (var dir = directions.up; dir <= directions.stairs; dir++) {
+			var current_exit = current_room.exits[dir]
+			if (current_exit != -1 && current_exit.has_portcullis) {
+				// Set up portcullis position
+				var x_pos = 0, y_pos = 0;
+				if (dir == directions.up) { x_pos = room_width/2; y_pos = 8; }
+				else if (dir == directions.right) { x_pos = room_width-8; y_pos = room_height/2; }
+				else if (dir == directions.down) { x_pos = room_width/2; y_pos = room_height-8; }
+				else if (dir == directions.left) { x_pos = 8; y_pos = room_height/2; }
+				
+				// Create exit door
+				var door = instance_create(x_pos, y_pos, obj_portcullis);
+				door.door_for_exit = current_exit;
+			}
+		}
+	}
+	
+	with (obj_portcullis) {
+		var exit_has_closed_portcullis = door_for_exit.has_closed_portcullis_for_room(global.controller.current_room);
+		if (exit_has_closed_portcullis) { door_for_exit.close_portcullis(); }
+		else if (is_existing_instance(closed)) { open_portcullis(); }
+	}
 	with (obj_item) {
 		if (special && is_existing_instance(holder) && holder == player && !counted) {
 			other.used_special_items += 1;
@@ -431,7 +457,7 @@ function game_room_initialize() {
 	// Check each of the four exits for doors to create
 	var room_has_portcullis = false;
 	for (var dir = directions.up; dir <= directions.stairs; dir++) {
-		var current_exit = current_room.exits[dir], current_exit_has_portcullis = (current_exit != -1 && current_exit.has_portcullis_for_room(current_room));
+		var current_exit = current_room.exits[dir], current_exit_has_portcullis = (current_exit != -1 && current_exit.has_closed_portcullis_for_room(current_room));
 		if (current_exit != -1 && (current_exit.has_door || current_exit_has_portcullis)) {
 			// Set up exit door type
 			var x_pos = 0, y_pos = 0, door_type = obj_door;

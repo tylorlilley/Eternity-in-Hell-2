@@ -16,6 +16,16 @@ if (destructive) {
 	}
 }
 
+// Destroy chests
+var chest = instance_place(x, y, obj_chest);
+if (destructive) {
+	with (chest) {
+		instance_destroy(); 
+		play_sound(snd_crunch, true);
+		blocked = true;
+	}
+}
+
 // Light Bombs
 if (creator_obj != obj_bomb) {
 	var bomb = instance_place(x, y, obj_bomb);

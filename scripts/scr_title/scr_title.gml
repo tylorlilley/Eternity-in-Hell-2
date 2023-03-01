@@ -60,6 +60,11 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		draw_sprite_ext(death_sprite, 0, x_pos+8, y_pos, 1, 1, 90, c_white, 1);
 	}
 	else if (obj_index == obj_bug) { draw_sprite(spr_bug_red, 0, x_pos, y_pos); }
+	else if (obj_index == obj_lava) {
+		if (global.lava_edge_type > lava_edge_types.none && global.lava_edge_type < lava_edge_types.wavy_still) { death_sprite = spr_lava_death_edge2; }
+		if (global.lava_edge_type >= lava_edge_types.wavy_still) { death_sprite = spr_lava_death_edge3; }
+		draw_sprite(death_sprite, 0, x_pos, y_pos);
+	}
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
 

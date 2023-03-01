@@ -9,10 +9,10 @@
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY 1//get_probability_for_difficulty([0, 2, 2, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
-#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 2]) 
+#macro PORTCULLIS_PROBABILITY 1//get_probability_for_difficulty([0, 0, 12, 6, 2]) 
 #macro MISLEADING_EXITS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
 #macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 12])
-#macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 8, 6, 5, 4]) 
+#macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 16, 12, 10, 8]) // Because each exit is checked by the room on either side, this actually happens twice as often
 #macro OPEN_DOOR_PROBABILITY get_probability_for_difficulty([0, 32, 24, 12, 8])
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
 #macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 24, 16, 12, 8]) 
@@ -67,7 +67,8 @@
 #macro SNAKE_MOVE_FREQUENCY 4 
 #macro BLOOD_REPLACEMENT_PROBABILITY 32 
 #macro CORPSE_REPLACEMENT_PROBABILITY 1024 
-#macro CORPSE_DISINTEGRATE_PROBABILITY 8 
+#macro CORPSE_DISINTEGRATE_PROBABILITY 8
+#macro CORPSE_HEADLESS_PROBABILITY 16
 #macro TRAP_RANGE 40 
 #macro BOMB_DUD_PROBABILITY 64
 #macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 64, 32, 30, 28]) 

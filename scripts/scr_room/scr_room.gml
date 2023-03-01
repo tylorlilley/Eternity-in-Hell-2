@@ -732,9 +732,9 @@ function get_earlier_room_without_key(target_dist) {
 /// @function									create_locked_exits_and_keys();
 function create_locked_exits_and_keys() {
 	// Set up a direction to skip some keys spawning for the heart room
-	var heart_room_exit_dir_for_key = noone;
-	while (heart_room_exit_dir_for_key == noone) {
-		heart_room_exit_dir_for_key = array_random_pop(heart_room.get_connected_room_directions(false));
+	var heart_room_exit_dir_for_key = noone, heart_room_exit_dirs = heart_room.get_connected_room_directions(false);
+	while (heart_room_exit_dir_for_key == noone && array_length(heart_room_exit_dirs) > 0) {
+		heart_room_exit_dir_for_key = array_random_pop(heart_room_exit_dirs);
 		if (heart_room_exit_dir_for_key == directions.stairs) { heart_room_exit_dir_for_key = noone; }
 	}
 	
@@ -748,7 +748,7 @@ function create_locked_exits_and_keys() {
 			for (var i = 0; i < array_length(possible_directions); i++;) {
 				// Skip exits that are already locked or the connected room already has key or is farther from start
 				var next_dir = possible_directions[i], next_exit = next_room.exits[next_dir], key_room = get_earlier_room_without_key(next_room.distance_to_start);
-				if (next_exit.has_lock || key_room == -1) { continue; }
+				if (next_dir == directions.stairs || next_exit.has_lock || key_room == -1) { continue; }
 
 				// Lock door
 				var other_room = next_exit.get_connected_room(next_room);

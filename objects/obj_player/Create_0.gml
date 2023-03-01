@@ -6,8 +6,6 @@ depth = PLAYER_DEPTH;
 right_hand_item = noone;
 left_hand_item = noone;
 
-
-
 dir = directions.none;
 dir_prev = directions.none;
 moved_by = noone;
@@ -28,7 +26,8 @@ outline = (global.player_outline) ? instance_create(x, y, obj_outline) : noone;
 
 // Create initial carried torch
 with create_item_in_hand(directions.left, obj_torch) { light_torch(noone, true); };
-with create_item_in_hand(directions.right, obj_shovel) { make_item_special(); }
+//with create_item_in_hand(directions.left, obj_staff) { make_item_special(); }
+//with create_item_in_hand(directions.right, obj_shovel) { make_item_special(); }
 //with create_item_in_hand(directions.right, obj_staff) {}// { make_item_special(); }
 
 

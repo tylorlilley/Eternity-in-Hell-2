@@ -328,7 +328,7 @@ function singleton_instance() {
 function can_press_button() {	
 	var pressed = is_covered_at_each_quadrant_by(obj_solid) || is_instance_at_coordinates(x, y, global.player);
 	if (!pressed) { 
-		enemies_at_position = instance_place_all(x, y, obj_enemy);
+		var enemies_at_position = instance_place_all(x, y, obj_enemy);
 		while (array_length(enemies_at_position) > 0) {
 			var enemy = array_random_pop(enemies_at_position);
 			if (!enemy.floating && is_instance_at_coordinates(x, y, enemy)) { pressed = true; break; }

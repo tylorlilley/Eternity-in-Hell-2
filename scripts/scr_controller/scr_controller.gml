@@ -210,7 +210,7 @@ function game_room_start_other() {
 	var player = global.player;
 	
 	// Create portcullis if portcullis for exit has been triggered by another room
-	var has_existing_portcullis = (instance_number(obj_portcullis) == 0);
+	var has_existing_portcullis = (instance_number(obj_portcullis) > 0);
 	if (!has_existing_portcullis) {
 		for (var dir = directions.up; dir <= directions.stairs; dir++) {
 			var current_exit = current_room.exits[dir]
@@ -232,7 +232,7 @@ function game_room_start_other() {
 	with (obj_portcullis) {
 		var exit_has_closed_portcullis = door_for_exit.has_closed_portcullis_for_room(global.controller.current_room);
 		if (exit_has_closed_portcullis) { door_for_exit.close_portcullis(); }
-		else if (is_existing_instance(closed)) { open_portcullis(); }
+		else { open_portcullis(); }
 	}
 	with (obj_item) {
 		if (special && is_existing_instance(holder) && holder == player && !counted) {

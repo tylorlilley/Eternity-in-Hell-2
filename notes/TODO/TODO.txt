@@ -1,6 +1,4 @@
 
-do lighting lanterns not make sounds????????
-use stick for movement
 
 killed by sprie for lava doesn't reflect edge choices
 text log with last used seed
@@ -20,10 +18,9 @@ Should spiders spawn on level 1???
 dead adventurer that gives hints
 add summoning circle that takes to you to a room with a chest but drops your items
 
-analogue stick for gamepad controls
 volume setting?
 preset colors to choose from in options menu with left and right
-
+99397221
 replace stairs with summoning circles?
 - they are one way stairs
 - they give you a cool item/red item?

@@ -145,6 +145,7 @@ class RoomConverter
         threat_level += 5 if room_objects.include? "obj_echo_spot"
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"
+        threat_level += 4 if room_objects.include? "obj_gudetama"
 
         # Threats Per Instance 
         threat_level += room_objects.count("obj_mouth")

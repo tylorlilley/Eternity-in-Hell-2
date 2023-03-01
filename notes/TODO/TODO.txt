@@ -1,4 +1,23 @@
-sdead adventurer that gives hints
+
+do lighting lanterns not make sounds????????
+use stick for movement
+
+killed by sprie for lava doesn't reflect edge choices
+text log with last used seed
+
+Display an unkown state for map exits until exploring them solidifies them as open or closed??
+Maybe limit it so no two rooms in the same map are pulled from the same room reference file?
+
+Save an item for the next run?
+option for auto picking up items?
+enemy that eats your arm?
+mirror that bounces back fireballs?
+
+Don't need to spawn keys for exits beyond the first for a given room if that final room can be entered 
+
+
+Should spiders spawn on level 1???
+dead adventurer that gives hints
 add summoning circle that takes to you to a room with a chest but drops your items
 
 analogue stick for gamepad controls

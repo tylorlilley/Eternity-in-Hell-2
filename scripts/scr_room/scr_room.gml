@@ -70,7 +70,7 @@ function GameRoom(given_x, given_y) constructor {
 		var adjacent_room_directions = array_create(0);
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var adj_room = get_adjacent_room(dir);
-			if (adj_room.has_no_cardinal_exits) { continue; }
+			if (adj_room != -1 && adj_room.has_no_cardinal_exits) { continue; }
 			if ((adj_room == -1) == is_empty) { array_push(adjacent_room_directions, dir); }
 		}
 		return adjacent_room_directions;
@@ -156,7 +156,7 @@ function GameRoom(given_x, given_y) constructor {
 			array_shuffle_ext(game_rooms);
 			for (var i = 0; i < array_length(game_rooms); i++) {
 				chosen_room = game_rooms[i];
-				if (is_adjacent_room(chosen_room)) { continue; }
+				if (chosen_room == self && is_adjacent_room(chosen_room)) { continue; }
 				
 				adj_dir = chosen_room.get_free_adjacent_room_direction();
 				if (adj_dir != -1) { break; }

@@ -95,3 +95,5 @@ set_max_window_size();
 set_window_size();
 set_game_color();
 determine_gamepad();
+prev_axislv_value = 0;
+prev_axislh_value = 0;

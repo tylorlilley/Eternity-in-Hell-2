@@ -107,19 +107,19 @@ function get_keyboard_wasd_inputs() {
 /// @function								get_gamepad_inputs();
 function get_gamepad_inputs() {
 	var gamepad = global.gamepad;
-	key_up = key_up || gamepad_button_check(gamepad, gp_padu);
-	key_down = key_down || gamepad_button_check(gamepad, gp_padd);
-	key_left = key_left || gamepad_button_check(gamepad, gp_padl);
-	key_right = key_right || gamepad_button_check(gamepad, gp_padr);
+	key_up = key_up || gamepad_button_check(gamepad, gp_padu) || gamepad_axis_value(gamepad, gp_axislv) < -0.5;
+	key_down = key_down || gamepad_button_check(gamepad, gp_padd) || gamepad_axis_value(gamepad, gp_axislv) > 0.5;
+	key_left = key_left || gamepad_button_check(gamepad, gp_padl) || gamepad_axis_value(gamepad, gp_axislh) < -0.5;
+	key_right = key_right || gamepad_button_check(gamepad, gp_padr) || gamepad_axis_value(gamepad, gp_axislh) > 0.5;
 	key_space = key_space || gamepad_button_check(gamepad, gp_shoulderlb) || gamepad_button_check(gamepad, gp_shoulderrb) || gamepad_button_check(gamepad, gp_face3) || gamepad_button_check(gamepad, gp_face4);
 	key_enter = key_enter || gamepad_button_check(gamepad, gp_start) || gamepad_button_check(gamepad, gp_select);
 	key_z = key_z || gamepad_button_check(gamepad, gp_face1) || gamepad_button_check(gamepad, gp_shoulderl);
 	key_x = key_x || gamepad_button_check(gamepad, gp_face2)  || gamepad_button_check(gamepad, gp_shoulderr);
 	
-	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(gamepad, gp_padu);
-	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(gamepad, gp_padd);
-	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(gamepad, gp_padl);
-	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(gamepad, gp_padr);
+	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(gamepad, gp_padu) || (prev_axislv_value >= -0.5 && gamepad_axis_value(gamepad, gp_axislv) < -0.5);
+	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(gamepad, gp_padd) || (prev_axislv_value <= 0.5 && gamepad_axis_value(gamepad, gp_axislv) > 0.5);
+	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(gamepad, gp_padl) || (prev_axislh_value >= -0.5 && gamepad_axis_value(gamepad, gp_axislv) < -0.5);
+	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(gamepad, gp_padr) || (prev_axislh_value <= 0.5 && gamepad_axis_value(gamepad, gp_axislv) > 0.5);
 	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(gamepad, gp_shoulderlb) || gamepad_button_check_pressed(gamepad, gp_shoulderrb) || gamepad_button_check_pressed(gamepad, gp_face3) || gamepad_button_check_pressed(gamepad, gp_face4);
 	key_enter_pressed = key_enter_pressed || gamepad_button_check_pressed(gamepad, gp_start) || gamepad_button_check_pressed(gamepad, gp_select)
 	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_shoulderl);
@@ -133,6 +133,10 @@ function get_gamepad_inputs() {
 	key_enter_released = key_enter_released || gamepad_button_check_released(gamepad, gp_start) || gamepad_button_check_released(gamepad, gp_select);
 	key_z_released = key_z_released || gamepad_button_check_released(gamepad, gp_face1) || gamepad_button_check_released(gamepad, gp_shoulderl);
 	key_x_released = key_x_released || gamepad_button_check_released(gamepad, gp_face2) || gamepad_button_check_released(gamepad, gp_shoulderr);
+	
+	prev_axislv_value = gamepad_axis_value(gamepad, gp_axislv);
+	prev_axislh_value = gamepad_axis_value(gamepad, gp_axislh);
+	
 }
 
 /// @function								initialize_shader_pointers();

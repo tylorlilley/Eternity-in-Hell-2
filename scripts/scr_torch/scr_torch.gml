@@ -3,15 +3,16 @@
 ///	@param		{boolean}	make_noise		Whether or not lighting this torch should play a sound
 function light_torch(lighting_torch, make_noise) {
 	// Set remaining torch time for the calling instance to new lit amount
-	var controller = global.controller, new_lit_amount = MAX_TORCH_TIME_TO_REMAIN_LIT, newly_lit = false;
-	if (lighting_torch && lighting_torch.time_to_remain_lit) { new_lit_amount = lighting_torch.time_to_remain_lit; }
+	var controller = global.controller, new_lit_amount = MAX_TORCH_TIME_TO_REMAIN_LIT;
+	if (is_existing_instance(lighting_torch) && lighting_torch.time_to_remain_lit > 0) { new_lit_amount = lighting_torch.time_to_remain_lit; }
 	if (time_to_remain_lit < new_lit_amount && time_to_remain_lit >= 0) {
 		time_to_remain_lit = new_lit_amount;
-		newly_lit = true;
+		play_sound(snd_torchlight, true);
 	}
+	
 	// Light torch from completely extinguished
-	if (!light_source) {
-		newly_lit = true;
+	if (!is_existing_instance(light_source)) {
+		play_sound(snd_torchlight, true);
 		
 		image_index = 0;
 		image_speed = 1/6;
@@ -28,13 +29,7 @@ function light_torch(lighting_torch, make_noise) {
 		}
 	}
 	// Light the lighting torch in response if necessary
-	if (lighting_torch && time_to_remain_lit > lighting_torch.time_to_remain_lit) {
-		with lighting_torch { light_torch(noone, false); }
-	}
-	// Play sound if a torch is newly lit from this interaction
-	if (make_noise && newly_lit) { 
-		play_sound(snd_torchlight, true); 
-	}
+	with (lighting_torch) { if (other.time_to_remain_lit > time_to_remain_lit) { light_torch(noone, false); } }
 }
 
 /// @function							extinguish_torch();

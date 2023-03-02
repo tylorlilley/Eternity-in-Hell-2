@@ -25,31 +25,36 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 			next_room.draw_room(x_origin + x_pos, y_origin + y_pos);
 		}
 
-        // Draw progress bar
-		var os_offset = (os_type == os_windows) ? 0: 1
+        // Draw progress bar		
+		draw_set_color(global.bg_color);
+		draw_rectangle(0, 0, room_width-1, 24, false);
+		
         draw_set_color(c_white);
         draw_set_halign(fa_left);
         draw_text(4, 12, string_hash_to_newline("Progress: "));
-		draw_sprite_ext(spr_progress_bar, 1, 84, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 96, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 112, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 128, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 144, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 160, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 176, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 192, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 208, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 2, 224, 12, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(spr_progress_bar, 3, 228, 12, 1, 1, 0, c_white, 1);
-       // draw_rectangle(84, 6, (room_width-8), 18+os_offset, true);
+		draw_sprite_ext(spr_progress_bar, 1, 84, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 96, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 112, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 128, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 144, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 160, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 176, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 192, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 208, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 2, 224, 14, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(spr_progress_bar, 3, 228, 14, 1, 1, 0, c_white, 1);
 
         if (collectables_collected > 0 || array_length(mapped_rooms) > 1) {
 			var progress_percentage = ((5*collectables_collected)+array_length(mapped_rooms)-1) / ((5*total_number_of_rooms_with_collectables)+array_length(game_rooms)-1);
-			draw_sprite_ext(spr_progress_bar, 0, 84, 12, 10*progress_percentage, 1, 0, c_white, 1);
+			draw_sprite_ext(spr_progress_bar, 0, 84, 14, 10*progress_percentage, 1, 0, c_white, 1);
 			//draw_rectangle(84, 6, get_scaling_amount(84, (room_width-8), (5*collectables_collected)+array_length(mapped_rooms)-1, (5*total_number_of_rooms_with_collectables)+array_length(game_rooms)-1), 18, false); 
 		}
 		
 		// Draw elapsed time
+		draw_set_color(global.bg_color);
+		draw_rectangle(0, room_height-24, room_width-1, room_height, false);
+        draw_set_color(c_white);
+		
 		var time_elapsed = (time_provided - time_remaining);
 		draw_text(hud_x_pos, room_height-12, "Time Elapsed: ");
         draw_set_halign(fa_right);

@@ -1,4 +1,4 @@
-Figure out a better way to prevent hands from moving into room borders
+Refctor stairs_spot_obj to include chest_spot_obj as well instead of figuring out where to spawn things at room initilization
 
 === REFACTORS ===
 
@@ -14,6 +14,8 @@ Create new title screen with better sub menus
 
 Replace walls and columns with solid_part similar to lava and lava_part in order to have the illusion walls and walls when you are on top of them with red staff flicker just the quadrants the player is in
 - spawn some solid parts next to doors?
+- Update red staff to go through doors (nd update key spawning TODO)
+- Update walls AND illusion walls to only have their parts blink that are covered
 
 
 Re-add map walker and implement smarter locking algorithm using node groupings

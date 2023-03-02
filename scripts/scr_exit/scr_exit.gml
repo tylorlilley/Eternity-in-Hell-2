@@ -77,12 +77,12 @@ function RoomExit(current_room, linked_room) constructor {
 	
 	/// @function								lock();
 	function lock() {
-		if (has_lock) { return 0; }
+		if (has_lock) { return false; }
 		
 		has_lock = true;
 		has_door = true;
 		has_illusion_walls = false;
-		return 1;
+		return true;
 	}
 	
 	/// @function								destroy();

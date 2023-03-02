@@ -4,7 +4,7 @@
 #macro AVERAGE_NUMBER_OF_ROOM_EXITS (20/9)
 #macro STAIRS_PROBABILITY 5 
 #macro NO_CARDINAL_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 12, 8, 6, 4]) // This happens only after the stairs probability succeeds, so its combined with 1/5
-#macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 24, 12, 10, 6])
+#macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY 1//get_probability_for_difficulty([0, 2, 2, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
@@ -28,7 +28,7 @@
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
-#macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 8, 4, 3])
+#macro HANDS_PROBABILITY 1//get_probability_for_difficulty([0, 0, 8, 4, 3])
 #macro SNAKE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 16, 8]) 
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 46]) 
 #macro FAST_SKELETON_PROBABILITY get_probability_for_difficulty([0, 0, 16, 14, 12]) 

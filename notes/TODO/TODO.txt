@@ -1,3 +1,5 @@
+Figure out a better way to prevent hands from moving into room borders
+
 === REFACTORS ===
 
 Updte key spawning to figure out number of needed keys, then spawn them, starting with those with the smallest dist and moving up in order to prevent removing locks as much as possible
@@ -13,7 +15,6 @@ Create new title screen with better sub menus
 Replace walls and columns with solid_part similar to lava and lava_part in order to have the illusion walls and walls when you are on top of them with red staff flicker just the quadrants the player is in
 - spawn some solid parts next to doors?
 
-Figure out a better way to prevent hands from moving into room borders
 
 Re-add map walker and implement smarter locking algorithm using node groupings
 

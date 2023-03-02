@@ -40,6 +40,7 @@ else {
 		for (var i = 0; i < 2; i++) {
 			if (!is_existing_instance(target_item)) {
 				// Run Away From Player While Carrying Target
+				can_move_on_border = false;
 				run_away_from_player(floating, fire_resistant, true);
 			}
 			else if (is_existing_instance(target_item) && (!is_existing_instance(target_item.holder) || target_item.holder == id)) {
@@ -57,6 +58,7 @@ else {
 					// Move Towards New Target if still possible to pick it up
 					target_x = target_item.x;
 					target_y = target_item.y;
+					can_move_on_border = true;
 					var prev_path = target_path, move_dir = move_towards_coordinates_on_path(floating, fire_resistant, 1);
 					if (move_dir == directions.none) {
 						// Give up on unreachable target

@@ -241,9 +241,9 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								add_key();
 	function add_key() {
 		var controller = global.controller;
-		if (has_key || controller.start_room == self || controller.heart_room == self) { return false; }
+		if (has_key) { return false; }
 
-		if (get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY)) {
+		if (controller.heart_room != self && controller.start_room != self && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY)) {
 			var new_item_type = get_random_chance_out_of(BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY) ? obj_bomb : obj_key;
 			add_chest(true, new_item_type); 
 		}
@@ -722,7 +722,7 @@ function get_earlier_room_without_key(target_dist) {
 	var possible_rooms = array_create(0);
 	for (var pos = 0; pos < array_length(game_rooms); pos++;) {
 		var next_room = game_rooms[pos];
-		if (next_room != global.controller.start_room && !next_room.has_key && next_room.distance_to_start < target_dist) { array_push(possible_rooms, next_room); }
+		if (!next_room.has_key && next_room.distance_to_start < target_dist && (next_room != start_room || target_dist <= 1)) { array_push(possible_rooms, next_room); }
 	}
 	if (array_length(possible_rooms) == 0) { return -1; }
 	
@@ -731,54 +731,66 @@ function get_earlier_room_without_key(target_dist) {
 
 /// @function									create_locked_exits_and_keys();
 function create_locked_exits_and_keys() {
-	// Set up a direction to skip some keys spawning for the heart room
-	var heart_room_exit_dir_for_key = noone, heart_room_exit_dirs = heart_room.get_connected_room_directions(false);
-	while (heart_room_exit_dir_for_key == noone && array_length(heart_room_exit_dirs) > 0) {
-		heart_room_exit_dir_for_key = array_random_pop(heart_room_exit_dirs);
-		if (heart_room_exit_dir_for_key == directions.stairs) { heart_room_exit_dir_for_key = noone; }
-	}
-	
 	// Add keys and locks to rooms
+	var exits_to_create_lock_and_key_for = array_create(0), extra_locks = -1;
+	
 	for (var pos = 0; pos < array_length(game_rooms); pos++;) {
-		var next_room = game_rooms[pos], is_heart_room = (next_room == heart_room);
+		var next_room = game_rooms[pos], is_heart_room = (next_room == heart_room), is_start_room = (next_room == start_room);
 		
-		// Consider locking room exits
-		if (is_heart_room || get_random_chance_out_of(LOCKED_DOOR_PROBABILITY)) {
-			var possible_directions = game_rooms[pos].get_connected_room_directions(false);
-			for (var i = 0; i < array_length(possible_directions); i++;) {
-				// Skip exits that are already locked or the connected room already has key or is farther from start
-				var next_dir = possible_directions[i], next_exit = next_room.exits[next_dir], key_room = get_earlier_room_without_key(next_room.distance_to_start);
-				if (next_dir == directions.stairs || next_exit.has_lock || key_room == -1) { continue; }
-
-				// Lock door
-				var other_room = next_exit.get_connected_room(next_room);
-				if (other_room == heart_room) { is_heart_room = true; }
-				var new_key_created = (is_heart_room && next_dir != heart_room_exit_dir_for_key) ? true : key_room.add_key();
-				if (new_key_created) {
-					next_exit.lock();
-				}
+		// Figure out which exits to lock
+		var possible_directions = game_rooms[pos].get_connected_room_directions(false);
+		for (var i = 0; i < array_length(possible_directions); i++;) {
+			var dir = possible_directions[i];
+			
+			// Skip stairs since you can't lock those
+			if (dir == directions.stairs) { continue; }
+			
+			// Check to see if this exit should be locked
+			if (!is_start_room && (is_heart_room || get_random_chance_out_of(LOCKED_DOOR_PROBABILITY))) {
+				// Set this exit up to be locked
+				if (is_heart_room) { extra_locks += 1; }
+				array_push(exits_to_create_lock_and_key_for, [next_room, dir]);
 			}
 		}
-	}
-}
-
-/// @function									create_keys_for_locked_chests();
-function create_keys_for_locked_chests() {
-	for (var pos = 0; pos < array_length(game_rooms); pos++;) {
-		var next_room = game_rooms[pos];
 		
-		// Add key for locked chest or unlock locked chest
-		if (next_room.has_locked_chest) {
-			var key_room = get_earlier_room_without_key(next_room.distance_to_start);
-			if (key_room != -1) {
-				var new_key_created = key_room.add_key();
-				if (!new_key_created) {
-					next_room.has_locked_chest = false;
-				}
+		// Figure out which chests are locked
+		if (next_room.has_locked_chest) { array_push(exits_to_create_lock_and_key_for, [next_room, -1]); }
+	}
+	if (extra_locks < 0) { extra_locks = 0; }
+	
+	// Sort the keys and locks to create by ascending distance from start room
+	array_sort(exits_to_create_lock_and_key_for, function(elm1, elm2)
+	{
+		var dist1 = elm1[0].distance_to_start, dist2 = elm2[0].distance_to_start;
+		return (dist1 == dist2) ? get_coin_flip() : dist1 - dist2;
+	});
+		
+	// Create keys and lock exits
+	var extra_lock_threshold = array_length(exits_to_create_lock_and_key_for)-extra_locks;
+	for(var i = 0; i < array_length(exits_to_create_lock_and_key_for); i++;) {
+		var just_lock = (i >= extra_lock_threshold), next_combo = exits_to_create_lock_and_key_for[i], room_to_lock = next_combo[0], lock_dir = next_combo[1];
+		
+		// Skip this exit if it was already locked by another room
+		if (lock_dir != -1 && room_to_lock.exits[lock_dir].has_lock) { continue; }
+		
+		// If we are only locking or we have found a room to add a key to
+		var key_room = get_earlier_room_without_key(room_to_lock.distance_to_start);
+		if (just_lock || key_room != -1) {
+			// Create key
+			var new_key_created = (just_lock || key_room.add_key());
+			if (new_key_created) {
+				// Lock exit unless key is for a locked chest
+				if (lock_dir != -1) { room_to_lock.exits[lock_dir].lock(); }
 			}
-			else { 
-				next_room.has_locked_chest = false; 
-			}
+			else { key_room = -1; }
+		}
+		
+		// If key room couldn't be found or couldn't be locked
+		if (key_room == -1) {
+			// Unlock chest if key was for a locked chest
+			if (lock_dir == -1) { room_to_lock.has_locked_chest = false; }
+			// Skip locking any exit
+			show_debug_message("WARNING: Couldn't add key for room at (" + string(room_to_lock.virtual_x) + ", " + string(room_to_lock.virtual_y) + ") with dist: " + string(room_to_lock.distance_to_start)); 
 		}
 	}
 }

@@ -7,6 +7,6 @@ if (controller.current_room.lit) {
 	controller.current_room.remove_from_instances_at_map_positions(id);
 	controller.current_room.add_to_instances_at_map_positions(new_inst);
 	play_sound(snd_appear, false);
-	screen_flash();
+	with (new_inst) { screen_flash(); }
 	instance_destroy();
 }

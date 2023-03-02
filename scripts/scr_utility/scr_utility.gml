@@ -196,6 +196,12 @@ function get_game_color() {
 	return get_gms_color_from_hex_string(padded_game_color_string);
 }
 
+/// @function								get_game_bg_color();
+function get_game_bg_color() {
+	var controller = global.controller, tint_amount = power(1-(controller.time_remaining/controller.time_provided), 8);
+	return merge_color(c_black, get_game_color(), tint_amount);
+}
+
 /// @function								get_gms_color_from_hex_string(hex_string);
 ///	@param		{string} hex_string			The string to convert to a color
 function get_gms_color_from_hex_string(hex_string) {

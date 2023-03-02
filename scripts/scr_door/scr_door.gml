@@ -31,3 +31,15 @@ function open_portcullis() {
 	open_door();
 }
 
+/// @function								break_heart_case();
+///	@param		{bool}	  destroy_self		Whether to flash the screen or not
+function break_heart_case(has_screen_flash) {
+	instance_create(x, y, obj_dirt);
+	var new_plate = instance_create(x, y, obj_heart_plate);
+	var new_heart = instance_create(x, y, obj_heart);
+	new_heart.image_index = image_index;
+	global.controller.current_room.add_to_instances_at_map_positions(new_heart);
+	instance_destroy();
+	
+	if (has_screen_flash) { with (new_plate) { screen_flash(); } }
+}

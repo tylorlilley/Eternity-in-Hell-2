@@ -323,7 +323,7 @@ function move_segments(new_dir) {
 }
 
 /// @function								explode(destroy_self);
-///	@param		{Sound}	  destroy_self		Whether to destroy the calling instance or not
+///	@param		{bool}	  destroy_self		Whether to destroy the calling instance or not
 function explode(destroy_self) {
 	play_sound(snd_explosion, true);
 	screen_flash();

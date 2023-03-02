@@ -35,6 +35,11 @@ function get_image_blend() {
 		if (lighting_intensity > greatest_lighting_intensity) { greatest_lighting_intensity = lighting_intensity; }
 	}
 
-	//if greatest_lighting_intensity > maximum_intensity { greatest_lighting_intensity = maximum_intensity; }
-	return merge_color(global.bg_color, c_white, greatest_lighting_intensity);
+	// Invert color if object is causing a screen flash
+	var col = merge_color(global.bg_color, c_white, greatest_lighting_intensity), controller = global.controller;
+	if (controller.flash_obj == id) { 
+		col = merge_color(col, get_game_bg_color(), power(global.controller.flash_time, 2)/power(SCREEN_FLASH_DURATION, 2)); 
+	}
+	
+	return col;
 }

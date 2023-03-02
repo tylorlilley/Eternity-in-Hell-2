@@ -9,7 +9,7 @@ if (is_instance_at_coordinates(x, y, global.player)) {
 			current_room.has_collectables = false;
 			array_remove(rooms_with_collectables, current_room);
 			if (are_all_collectables_collected()) {
-				screen_flash();
+				if (instance_number(obj_encased_heart) == 0) { screen_flash(); }
 				play_sound(snd_shatter, false); 
 				completion_amount += 1;
 			}

@@ -145,6 +145,7 @@
     {"id":{"name":"rm_two_perpendicular_exits_31","path":"rooms/rm_two_perpendicular_exits_31/rm_two_perpendicular_exits_31.yy",},"order":31,},
     {"id":{"name":"rm_one_exit_15","path":"rooms/rm_one_exit_15/rm_one_exit_15.yy",},"order":14,},
     {"id":{"name":"spr_lava_death_edge3","path":"sprites/spr_lava_death_edge3/spr_lava_death_edge3.yy",},"order":108,},
+    {"id":{"name":"spr_progress_bar","path":"sprites/spr_progress_bar/spr_progress_bar.yy",},"order":110,},
     {"id":{"name":"spr_giant_wurm_head","path":"sprites/spr_giant_wurm_head/spr_giant_wurm_head.yy",},"order":0,},
     {"id":{"name":"snd_tick","path":"sounds/snd_tick/snd_tick.yy",},"order":61,},
     {"id":{"name":"spr_player_right_hand","path":"sprites/spr_player_right_hand/spr_player_right_hand.yy",},"order":5,},

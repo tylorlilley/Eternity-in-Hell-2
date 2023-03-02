@@ -74,11 +74,11 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 	}
 	
 	// Update background color
-	var tint_amount = power(1-(time_remaining/time_provided), 8), new_color = merge_color(c_black, get_game_color(), tint_amount);
+	var new_color = get_game_bg_color();
 	if (flash_time > 0) { 
 		new_color = merge_color(new_color, c_white, power(flash_time, 2)/power(SCREEN_FLASH_DURATION, 2));
 		flash_time -= 1;
-		if (flash_time == SCREEN_FLASH_DURATION) { screen_flash = false; }
+		if (flash_time == 0) { flash_obj = noone; }
 	}
 	global.bg_color = new_color;
 }

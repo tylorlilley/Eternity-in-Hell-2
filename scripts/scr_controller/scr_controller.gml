@@ -308,6 +308,8 @@ function game_room_start_spawn_instances() {
 		}
 	}
 	
+	with (obj_encased_heart) { if (are_all_collectables_collected()) { break_heart_case(false); } }
+	
 	/// If room has lava, consider spawning nose
 	if (instance_number(obj_nose) < global.difficulty && instance_number(obj_lava) > 0 && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(-16, -16, obj_nose); }
 }
@@ -643,7 +645,9 @@ function get_current_score() {
 	with (controller) {
 		var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
-		var percentage_of_time_remaining = (is_game_won()) ? 100*((time_remaining + (time_provided/4)) / time_provided) : 0;
+		var percentage_of_possible_rooms = array_length(game_rooms)/MAXIMUM_NUMBER_OF_ROOMS;
+		var minimum_time_to_complete = time_provided * percentage_of_possible_rooms * 0.25;
+		var percentage_of_time_remaining = (is_game_won()) ? 100*((time_remaining + minimum_time_to_complete) / time_provided) : 0;
 		if (percentage_of_time_remaining > 100) { percentage_of_time_remaining = 100; }
 		var percentage_of_victory = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT));
 		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)));
@@ -720,6 +724,7 @@ function get_direction_input(key_pressed_only) {
 function screen_flash() {
 	if (global.can_screen_flash) {
 		with (global.controller) {
+			flash_obj = other.id;
 			flash_time = SCREEN_FLASH_DURATION;
 			global.bg_color = c_white;
 		}

@@ -1,3 +1,15 @@
+Show chest location in addition to the screen flash so player's can tell where it is?
+
+One way doors?
+
+orb summoner item?
+
+Enemy that attacks you if you open the map around it
+
+
+Should a certain amount of difficulty be required to spawn for the harder rooms?
+
+
 === REFACTORS ===
 
 Updte key spawning to figure out number of needed keys, then spawn them, starting with those with the smallest dist and moving up in order to prevent removing locks as much as possible

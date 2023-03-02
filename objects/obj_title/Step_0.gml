@@ -128,7 +128,7 @@ if (options_screen) {
 			}
 			else { play_sound(snd_crunch, false); }
 		}
-		else if (keyboard_check_pressed(vk_delete)) {
+		else if (keyboard_check_pressed(vk_delete) && global.game_color_string != "") {
 			global.game_color_string = "";
 			play_sound(snd_crunch, false);
 		}
@@ -253,7 +253,7 @@ else {
 				}
 				else { play_sound(snd_crunch, false); }
 			}
-			else if (keyboard_check_pressed(vk_delete)) { 
+			else if (keyboard_check_pressed(vk_delete) && current_seed != 0) { 
 				current_seed = 0;
 				play_sound(snd_crunch, false);
 			}

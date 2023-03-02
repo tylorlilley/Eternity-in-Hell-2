@@ -25,6 +25,6 @@ if (is_existing_instance(closed)) {
 }
 else if (!stuck_open && !place_meeting(x, y, player)) {
 	// Close Door
-	play_sound(close_sound, false);
+	if (!is_outside_room(player.x, player.y)) { play_sound(close_sound, false); }
 	close_door();
 }

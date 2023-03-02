@@ -605,6 +605,9 @@ function game_room_initialize() {
 	// Set up Lava Edge Drawing
 	with (obj_lava) { set_up_lava_edge_visibility(true); }
 	
+	// Delete some spiders
+	with (obj_spider) { if (!get_random_chance_out_of(SPIDER_PROBABILITY)) { instance_destroy(); } }
+	
 	// Set up room grids
 	current_room.reset_room_solid_grid();
 	current_room.reset_room_lava_grid();
@@ -640,10 +643,11 @@ function get_current_score() {
 	with (controller) {
 		var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
-		var percentage_of_time_remaining = (is_game_won()) ? 100*(time_remaining / time_provided) : 0;
-		var percentage_of_victory = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
-		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
-		var death_count_penalty = 2 * death_count;
+		var percentage_of_time_remaining = (is_game_won()) ? 100*((time_remaining + (time_provided/4)) / time_provided) : 0;
+		if (percentage_of_time_remaining > 100) { percentage_of_time_remaining = 100; }
+		var percentage_of_victory = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT));
+		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)));
+		var death_count_penalty = 5 * death_count;
 		//var special_item_penalty = 5 * used_special_items;
 		//var spawned_item_bonus = 10 - total_items;
 		//if (spawned_item_bonus < 0 || !is_game_won()) { spawned_item_bonus = 0; }

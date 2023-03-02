@@ -16,7 +16,12 @@ else if (spawn_timer == 0) {
 
 // If room becomes fully lit, destroy self
 if (global.controller.current_room.lit) { 
-	if (spawn_timer >= 0) { play_sound(snd_impact, false); screen_flash(); instance_destroy(); }
+	if (spawn_timer >= 0) {
+		audio_stop_sound(snd_dread);
+		play_sound(snd_impact, false); 
+		screen_flash(); 
+		instance_destroy(); 
+	}
 }
 	
 if (spawn_timer > 0) { activated = false; }

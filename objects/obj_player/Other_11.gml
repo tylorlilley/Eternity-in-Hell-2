@@ -42,12 +42,9 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 	dir = get_direction_input(false);
 		
 	// Deal with being infected
-	var reduce_infection = false;
 	if (infected_timer > 0) {
 		bug_image_index += 1;
 		if (bug_image_index >= 4) { bug_image_index = 0; }
-		if (dir == get_direction_input(true)) { reduce_infection = true; }
-		dir = irandom(3);
 	}
 		
 	// Handle movement pause
@@ -68,7 +65,7 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 			move_player(dir); 
 			moved_by = id;
 			visible = true;
-			if (reduce_infection) { infected_timer -= 1; }
+			infected_timer -= 1;
 		}
 	}
 		

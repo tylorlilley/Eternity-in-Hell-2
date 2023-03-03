@@ -1,3 +1,13 @@
+dirt in front of wall
+columns in spiral room replaced with solid walls?
+can stairs still lead to adjacent rooms?
+instead of size constrain based on amount of difficulty spwned
+destroyed door exit? Without bomgb?
+
+Open portcullis not spwning walls next to it
+red parasite did nothing? WASD controls?
+
+
 === REFACTORS ===
 
 Create new title screen with better sub menus

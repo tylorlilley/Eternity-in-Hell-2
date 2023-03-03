@@ -65,6 +65,7 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		if (global.lava_edge_type >= lava_edge_types.wavy_still) { death_sprite = spr_lava_death_edge3; }
 		draw_sprite(death_sprite, 0, x_pos, y_pos);
 	}
+	else if (obj_index == obj_red_skeleton) { draw_sprite(spr_skeleton, 1, x_pos, y_pos); }
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
 

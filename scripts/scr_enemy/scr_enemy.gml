@@ -368,7 +368,10 @@ function check_for_player_collision() {
 		else {
 			// Kill player from enemy
 			var killer = object_index;
-			if (killer == obj_skeleton && spawn_timer > 0) { killer = obj_bones; }
+			if (killer == obj_skeleton) {
+				if (spawn_timer > 0) { killer = obj_bones; }
+				else if (image_index == 1) { killer = obj_red_skeleton; }
+			}
 			if (corporeal) { play_sound(snd_crunch, false); }
 			if (object_index == obj_hands && is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_sword && !right_hand_item.special) {
 				var sword_in_ground = instance_create(player.x, player.y, obj_sword_in_ground);

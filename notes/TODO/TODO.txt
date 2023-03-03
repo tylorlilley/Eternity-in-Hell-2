@@ -4,7 +4,6 @@ destroyed door exit? Without bomb?
 instead of size constrain based on amount of difficulty spawned
 instead of switching depths for tiles, actually just draw the tiles that you want to draw
 
-save datetime to file for each attempt
 === REFACTORS ===
 
 Create new title screen with better sub menus

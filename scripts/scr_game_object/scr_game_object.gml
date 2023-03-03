@@ -104,7 +104,7 @@ function is_direction_free(dir, ignore_solid, ignore_death) {
 	}
 	
 	// Return as not free if blocked by room border
-	var blocked = (is_on_room_border(x_pos, y_pos) && !is_on_room_border(x, y));
+	var blocked = is_on_room_border(x_pos, y_pos);
 	if (!object_is_ancestor(object_index, obj_enemy) || can_move_on_border) { blocked = false; }
 	if (blocked) { return false; }
 	
@@ -140,21 +140,17 @@ function is_on_room_border(x_pos, y_pos) {
 	if (array_length(target_exit_spots) == 0) { return false; }
 	
 	// Check if target pos is on a type of exit spot this isn't already on
-	var on_exit_spots = instance_place_all(x, y, obj_exit_spot), on_exit_types = array_create(0), target_exit_types = array_create(0);
+	var on_exit_spots = instance_place_all(x, y, obj_exit_spot), on_exit_types = array_create(0);
 	while (array_length(on_exit_spots) > 0) {
 		var next_exit_spot = array_pop(on_exit_spots);
 		array_push(on_exit_types, next_exit_spot.object_index);
 	}
 	var on_border = false;
-		while (array_length(target_exit_types) > 0) {
-		var next_exit_spot = array_pop(target_exit_types);
+		while (array_length(target_exit_spots) > 0) {
+		var next_exit_spot = array_pop(target_exit_spots);
 		if (!array_contains(on_exit_types, next_exit_spot.object_index)) { on_border = true; break; }
 	}
-	/*
-	if (object_index == obj_hands && is_existing_instance(right_hand_item) && right_hand_item == obj_staff && right_hand_item.special) { 
-		on_border = false; 
-	}
-	*/
+
 	return (on_border);
 }
 

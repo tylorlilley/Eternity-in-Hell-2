@@ -28,7 +28,7 @@
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
-#macro HANDS_PROBABILITY 1//get_probability_for_difficulty([0, 0, 8, 4, 3])
+#macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 8, 4, 3])
 #macro SNAKE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 16, 8]) 
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 46]) 
 #macro FAST_SKELETON_PROBABILITY get_probability_for_difficulty([0, 0, 16, 14, 12]) 

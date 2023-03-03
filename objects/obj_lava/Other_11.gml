@@ -1,11 +1,13 @@
 /// @description Step
 event_inherited();
-	
+
+// Update lighting information
 intensity += (get_coin_flip()) ? random(0.025) : -1 * random(0.025);
 if (intensity < 0.125) { intensity = 0.125; }
 else if (intensity > 0.35) { intensity = 0.35; }
 lighting_distance = (LAVA_LIGHT_RANGE + floor((-24 + irandom(50))/25));
-	
+
+// Update edge image information
 var edge_type = global.lava_edge_type;
 if (edge_type == lava_edge_types.fuzzy_animated || edge_type == lava_edge_types.wavy_animated) {
 	for (var quadrant = 0; quadrant < 4; quadrant++) {

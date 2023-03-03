@@ -1,3 +1,45 @@
+/// @function								initialize_wall(is_illusion_wall);
+/// @param		{bool} is_illusion_wall			Whether to initialiize a fake wall or a real wall
+function initialize_wall() {
+	var wall_obj = (object_index == obj_illusion_wall) ? obj_illusion_part : obj_solid_part;
+	
+	// Set up the solid for each quadrant of this wall
+	for (var quadrant = 0; quadrant < 4; quadrant++;) {
+		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+
+		parts[quadrant] = instance_create(x_pos, y_pos, wall_obj);
+	}
+}
+
+/// @function								initialize_door();
+function initialize_door() { 
+	// Create a half wall in each direction of this door that needs it
+	for (var dir = directions.up; dir < directions.stairs; dir++;) {
+		var x_offset = 0, y_offset = 0, quadrants_to_delete = array_create(0);
+		switch (dir) {
+			case directions.up: { y_offset -= 8; quadrants_to_delete = [2, 3]; break; }
+			case directions.down: { y_offset += 8; quadrants_to_delete = [0, 1]; break; }
+			case directions.left: { x_offset -= 8; quadrants_to_delete = [1, 3]; break; }
+			case directions.right: { x_offset += 8; quadrants_to_delete = [0, 2]; break; }
+		}
+		
+		if (!place_meeting(x+(2*x_offset), y+(2*y_offset), obj_solid_part) || place_meeting(x+x_offset, y+y_offset, obj_solid_part)) { continue; }
+
+		// Create a half wall in this direction
+		var wall = instance_create(x+x_offset, y+y_offset, obj_wall);
+		with (wall) { 
+			initialize_wall(false);
+			for (var quadrant = 0; quadrant < directions.stairs; quadrant++;) {
+				var solid_at_quadrant = parts[quadrant], dist_to_solid = point_distance(other.x, other.y, solid_at_quadrant.x, solid_at_quadrant.y);
+				if (dist_to_solid > 8) { continue; }
+				
+				with (solid_at_quadrant) { instance_destroy(); }
+				parts[quadrant] = noone;
+			}
+		}
+	}
+}
+
 /// @function								initialize_lava();
 function initialize_lava() { 
 	// Set up the death box for each quadrant of this lava
@@ -7,85 +49,26 @@ function initialize_lava() {
 		death_boxes[quadrant] = instance_create(x_pos, y_pos, obj_lava_part);
 		with (death_boxes[quadrant]) { creator = other.id; }
 	}
-	
-	// Update the room's grid
-	//global.controller.grid_update_timer = 1;
-	
-	// Create light_source
-	/*
-	if (array_length(instance_place_all(x-16, y, obj_lava)) > 0 &&
-		array_length(instance_place_all(x+16, y, obj_lava)) > 0 &&
-		array_length(instance_place_all(x, y-16, obj_lava)) > 0 &&
-		array_length(instance_place_all(x, y+16, obj_lava)) > 0) {
-			light = instance_create(x, y, obj_light_source);
-			light.lighting_range = LAVA_LIGHT_RANGE;
-			light.intensity = 0.45;
-			light.creator = id;
-		}
-	*/
 }
 
 /// @function								destroy_lava_at_position(x_pos, y_pos);
 /// @param		{real} x_pos				The x position of the quadrant to destroy
 /// @param		{real} y_pos				The y position of the quadrant to destroy
 function destroy_lava_at_position(x_pos, y_pos) {
-	var lava_grid = global.controller.current_room.lava_grid;
-	
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
 	    if (is_instance_at_coordinates(x_pos, y_pos, death_boxes[quadrant])) {
-	        with death_boxes[quadrant] {
-				mp_grid_remove(lava_grid);
+	        with death_boxes[quadrant] { 
+				mp_grid_remove(global.controller.current_room.lava_grid);
+				global.controller.grid_update_timer = 2;
 				instance_destroy(); 
 			}
 			death_boxes[quadrant] = noone;
 			return true;
 	    }
 	}
+	
 	return false;
 }
-
-/// @function								get_lava_at_each_quadrant();
-/*
-function get_lava_at_each_quadrant() {
-	// Get the actual lava objects at each lava quadrant
-	var lava_at_quadrant = [noone, noone, noone, noone], player = global.player;
-	
-	// mark the lava as missing a death box if a player or hands is holding a staff at the quadrant position
-	if (instance_place(x, y, player)) {
-		with (player) { if (is_carrying_item(obj_staff)) { return lava_at_quadrant; } }
-	}
-	var hands = instance_place_all(x, y, obj_hands);
-	while (array_length(hands) > 0) { 
-		var hand = array_pop(hands);
-		if (instance_place(x, y, hand)) {
-			with (hand) { if (is_carrying_item(obj_staff)) { return lava_at_quadrant; } }
-		}
-	}
-	
-	// Get the lava object at each quadrant
-	for (var quadrant = 0; quadrant < 4; quadrant++;) {
-        var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
-		lava_at_quadrant[quadrant] = instance_position(x_pos, y_pos, obj_lava);
-    }
-	
-	// Check each quadrant for death boxes
-	for (var quadrant = 0; quadrant < 4; quadrant++;) {
-		var lava = lava_at_quadrant[quadrant], missing_death_box = true, x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
-		if (is_existing_instance(lava) && !is_existing_instance(lava.death_box)) {
-			// mark the lava as not missing a death box if a death box is at the right quadrant position
-			for (var other_quadrant = 0; other_quadrant < 4; other_quadrant++) {
-				var death_box = lava.death_boxes[other_quadrant]
-				if (is_existing_instance(death_box) && death_box.x == x_pos && death_box.y == y_pos) { missing_death_box = false; break; }
-			}
-		
-			// Override lava at this quadrant with noone if death box is missing
-			if (missing_death_box) { lava_at_quadrant[quadrant] = noone; }
-		}
-	}
-		
-	return lava_at_quadrant;
-}
-*/
 
 /// @ function								consume_lava(require_all);
 /// @param		{bool} require_all			Only consume whole chunks of lava at once
@@ -113,20 +96,6 @@ function consume_lava(require_all) {
 	}
 	return false;
 }
-
-/// @ function								destroy_self_if_all_death_boxes_are_destroyed();
-/*
-function destroy_self_if_all_death_boxes_are_destroyed() {
-	if (!is_existing_instance(death_box) &&
-		!is_existing_instance(death_boxes[0]) &&
-		!is_existing_instance(death_boxes[1]) &&
-		!is_existing_instance(death_boxes[2]) &&
-		!is_existing_instance(death_boxes[3])) { 
-			mp_grid_remove(global.controller.current_room.lava_grid);
-			instance_destroy(); 
-	}
-}
-*/
 
 /// @ function								set_up_lava_edge_visibility(require_all);
 /// @param		{bool} visibility_only		Only change the visibility status
@@ -172,4 +141,50 @@ function set_up_lava_edge_visibility(first_time_setup) {
 		}
 	}
 	sprite_index = spr_lava;
+}
+
+/// @function  							open_door();
+function open_door() {
+	image_index = 1;
+
+	with closed { instance_destroy(); }
+	closed = noone;
+	depth = CROSS_DEPTH;
+	
+	if (door_for_exit != -1 && door_for_exit.has_lock) {
+		door_for_exit.unlock();
+		with (global.player) { 
+			play_sound(snd_mana, true);
+			with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }
+		}
+	}
+}
+
+/// @function							close_door();
+function close_door() {
+	image_index = 0;
+	
+	closed = instance_create(x, y, obj_solid);
+	closed.visible = false;
+	depth = SOLID_DEPTH;
+}
+
+/// @function							open_portcullis();
+function open_portcullis() {
+	door_for_exit.open_portcullis();
+	stuck_open = true;
+	open_door();
+}
+
+/// @function								break_heart_case();
+///	@param		{bool}	  destroy_self		Whether to flash the screen or not
+function break_heart_case(has_screen_flash) {
+	instance_create(x, y, obj_dirt);
+	var new_plate = instance_create(x, y, obj_heart_plate);
+	var new_heart = instance_create(x, y, obj_heart);
+	new_heart.image_index = image_index;
+	global.controller.current_room.add_to_instances_at_map_positions(new_heart);
+	instance_destroy();
+	
+	if (has_screen_flash) { with (new_plate) { screen_flash(); } }
 }

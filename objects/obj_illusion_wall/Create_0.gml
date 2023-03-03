@@ -1,3 +1,4 @@
 event_inherited();
 
-depth = SOLID_DEPTH;
+depth = BG_DEPTH;
+parts = [noone, noone, noone, noone];

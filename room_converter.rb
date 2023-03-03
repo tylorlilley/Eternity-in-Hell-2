@@ -308,6 +308,9 @@ class RoomConverter
         threat_level = room_threat_level(room_objects)
 
         # Validate Room
+        # Chest spot not on top of any collectables or exit spots, etc.
+        # Doors blank on two opposite sides
+        # At least on set of blank space to leave room for doors spawned on exit edges
         raise "ROOM MISSING STAIRS SPOT: #{room_name}" unless room_objects.include? "obj_stairs_spot"
         raise "ROOM MISSING CHEST SPOT: #{room_name}" unless room_objects.include? "obj_chest_spot"
         raise "ROOM COLLECTABLE SPOT COUNT (#{room_objects.count("obj_collectable_spot")}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2

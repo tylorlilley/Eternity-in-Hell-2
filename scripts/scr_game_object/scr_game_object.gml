@@ -70,7 +70,7 @@ function is_solid_at_position(x_pos, y_pos) {
 	
 	while (array_length(solids) > 0) {
 		var current_solid = array_random_pop(solids);
-		if (current_solid != id && (!carrying_special_staff || (current_solid.object_index != obj_wall && current_solid.object_index != obj_column))) { return true; }
+		if (current_solid != id && (!carrying_special_staff || current_solid.object_index != obj_solid_part)) { return true; }
 	}
 	return false;
 }
@@ -403,6 +403,8 @@ function flicker_sprite_under_instance(inst) {
 	if (!blink_frame || !instance_place(x, y, inst)) { return false; }
 	
 	if (object_index == obj_lava_part) { lava_visible = false; }
+	else if (object_index == obj_solid_part) { solid_visible = false; }
+	else if (object_index == obj_illusion_part) { illusion_visible = false; }
 	else { visible = false; }
 	
 	return true;

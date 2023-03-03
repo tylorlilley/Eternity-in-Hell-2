@@ -7,10 +7,8 @@ Create new title screen with better sub menus
 -- preset colors to choose from in options menu with left and right for game color
 -- option for auto picking up items?
 
-Replace walls and columns with solid_part similar to lava and lava_part in order to have the illusion walls and walls when you are on top of them with red staff flicker just the quadrants the player is in
-- spawn some solid parts next to doors?
 - Update red staff to go through doors (nd update key spawning TODO)
-- Update walls AND illusion walls to only have their parts blink that are covered
+
 
 Refctor stairs_spot_obj to include chest_spot_obj as well instead of figuring out where to spawn things at room initilization
 
@@ -20,7 +18,7 @@ Refactor hands and collectables that use the run_away_from_player to instead use
 delete all spot/placeholder objects once room has been initialized?
 - update blockspots and shovel interaction?
 
-Add pathfinding to snakes and skeletons to better pathfind toward dropped meats
+Add pathfinding to snakes to better pathfind toward dropped meats
 
 Replace get_probability_for_difficulty to accept floats in order to be able to set up less than 1/2 chances for things
 

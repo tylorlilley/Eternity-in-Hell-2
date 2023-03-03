@@ -417,11 +417,10 @@ function game_room_initialize() {
 		}
 	}
 	
-	// Close Doors
-	with (obj_door) { close_door(); }
-	
-	// Break lava into parts
+	// Break lava and walls into parts
 	with (obj_lava) { initialize_lava(); }
+	with (obj_wall) { initialize_wall(); }
+	with (obj_illusion_wall) { initialize_wall(); }
 	
 	// Find room's stairs and chest spots
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
@@ -473,10 +472,14 @@ function game_room_initialize() {
 			else if (dir == directions.down) { x_pos = room_width/2; y_pos = room_height-8; }
 			else if (dir == directions.left) { x_pos = 8; y_pos = room_height/2; }
 				
-			// Create exit door
+			// Create door for exit
 			var door = instance_create(x_pos, y_pos, door_type);
 			door.door_for_exit = current_exit;
 		}
+	}
+	with (obj_door) { 
+		initialize_door(); 
+		close_door();
 	}
 		
 	// Create key in room if it should exist

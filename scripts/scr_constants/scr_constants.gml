@@ -115,6 +115,7 @@
 #macro DIRT_OVER_LAVA_DEPTH 11
 #macro LAVA_DEPTH 12
 #macro DIRT_DEPTH 20
+#macro BG_DEPTH 22
 
 // Default Setting Constants
 #macro FULLSCREEN_DEFAULT true

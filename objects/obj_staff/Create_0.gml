@@ -1,3 +1,3 @@
 event_inherited();
 
-draw_y_offset = 0; //2;
+draw_y_offset = 0;

@@ -152,3 +152,4 @@ with (global.game_manager) { array_remove(sounds_to_play, snd_win); }
 
 update_log("seed", global.seed);
 update_log("difficulty", get_difficulty_string(global.difficulty));
+update_log("version", GM_version);

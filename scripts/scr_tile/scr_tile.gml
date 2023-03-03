@@ -1,13 +1,11 @@
-/// @function								initialize_wall(is_illusion_wall);
-/// @param		{bool} is_illusion_wall			Whether to initialiize a fake wall or a real wall
-function initialize_wall() {
-	var wall_obj = (object_index == obj_illusion_wall) ? obj_illusion_part : obj_solid_part;
-	
+/// @function								initialize_tile();
+function initialize_tile() {
 	// Set up the solid for each quadrant of this wall
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
 		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
 
-		parts[quadrant] = instance_create(x_pos, y_pos, wall_obj);
+		parts[quadrant] = instance_create(x_pos, y_pos, part_obj_index);
+		with (parts[quadrant]) { creator = other.id; }
 	}
 }
 
@@ -27,10 +25,13 @@ function initialize_door() {
 
 		// Create a half wall in this direction
 		var wall = instance_create(x+x_offset, y+y_offset, obj_wall);
-		with (wall) { 
-			initialize_wall(false);
+		with (wall) {
+			initialize_tile();
 			for (var quadrant = 0; quadrant < directions.stairs; quadrant++;) {
-				var solid_at_quadrant = parts[quadrant], dist_to_solid = point_distance(other.x, other.y, solid_at_quadrant.x, solid_at_quadrant.y);
+				var solid_at_quadrant = parts[quadrant];
+				if (!is_existing_instance(solid_at_quadrant)) { continue; }
+				
+				var dist_to_solid = point_distance(other.x, other.y, solid_at_quadrant.x, solid_at_quadrant.y);
 				if (dist_to_solid > 8) { continue; }
 				
 				with (solid_at_quadrant) { instance_destroy(); }
@@ -40,29 +41,18 @@ function initialize_door() {
 	}
 }
 
-/// @function								initialize_lava();
-function initialize_lava() { 
-	// Set up the death box for each quadrant of this lava
-	for (var quadrant = 0; quadrant < 4; quadrant++;) {
-		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
-
-		death_boxes[quadrant] = instance_create(x_pos, y_pos, obj_lava_part);
-		with (death_boxes[quadrant]) { creator = other.id; }
-	}
-}
-
 /// @function								destroy_lava_at_position(x_pos, y_pos);
 /// @param		{real} x_pos				The x position of the quadrant to destroy
 /// @param		{real} y_pos				The y position of the quadrant to destroy
 function destroy_lava_at_position(x_pos, y_pos) {
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
-	    if (is_instance_at_coordinates(x_pos, y_pos, death_boxes[quadrant])) {
-	        with death_boxes[quadrant] { 
+	    if (is_instance_at_coordinates(x_pos, y_pos, parts[quadrant])) {
+	        with parts[quadrant] { 
 				mp_grid_remove(global.controller.current_room.lava_grid);
 				global.controller.grid_update_timer = 2;
 				instance_destroy(); 
 			}
-			death_boxes[quadrant] = noone;
+			parts[quadrant] = noone;
 			return true;
 	    }
 	}
@@ -137,7 +127,7 @@ function set_up_lava_edge_visibility(first_time_setup) {
 			}
 			
 			lava_edge_visible[quadrant][dir] = !is_lava_at_position(x_pos, y_pos);
-			if (!is_existing_instance(death_box) && !is_existing_instance(death_boxes[quadrant])) { lava_edge_visible[quadrant][dir] = false; }
+			if (!is_existing_instance(parts[quadrant])) { lava_edge_visible[quadrant][dir] = false; }
 		}
 	}
 	sprite_index = spr_lava;

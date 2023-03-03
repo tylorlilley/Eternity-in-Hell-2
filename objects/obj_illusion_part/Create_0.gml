@@ -1,3 +1,3 @@
 event_inherited();
 
-illusion_visible = true;
+solid_visible = true;

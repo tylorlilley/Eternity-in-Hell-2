@@ -1,4 +1,3 @@
 event_inherited();
 
-depth = BG_DEPTH;
-parts = [noone, noone, noone, noone];
+part_obj_index = obj_illusion_part;

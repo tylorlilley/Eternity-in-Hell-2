@@ -1,8 +1,10 @@
 event_inherited();
+
 depth = LAVA_DEPTH;
 
-death_box = noone;
-death_boxes = [noone, noone, noone, noone];
+part_obj_index = obj_lava_part;
+
+// Set up lighting variables
 lighting_distance = LAVA_LIGHT_RANGE;
 intensity = 0.125 + irandom(0.35-0.125);
 maximum_intensity = 1;

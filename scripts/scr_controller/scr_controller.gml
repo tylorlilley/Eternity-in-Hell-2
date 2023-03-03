@@ -225,6 +225,7 @@ function game_room_start_other() {
 				// Create exit door
 				var door = instance_create(x_pos, y_pos, obj_portcullis);
 				door.door_for_exit = current_exit;
+				with (door) { initialize_door(); }
 			}
 		}
 	}
@@ -402,7 +403,7 @@ function game_room_initialize() {
 		var existing_exit = other.current_room.exits[exit_dir];
 		var clear_path = (existing_exit != -1);
 		var illusion_path = clear_path && existing_exit.has_illusion_walls
-		var blocker_at_pos = (instance_place(x, y, obj_solid) || instance_place(x, y, obj_lava));
+		var blocker_at_pos = (instance_place(x, y, obj_wall) ||instance_place(x, y, obj_solid) || instance_place(x, y, obj_lava));
 		
 		// Destroy things at this spot
 		if (clear_path == blocker_at_pos || illusion_path) { destroy_instances_at_position(); }
@@ -417,10 +418,8 @@ function game_room_initialize() {
 		}
 	}
 	
-	// Break lava and walls into parts
-	with (obj_lava) { initialize_lava(); }
-	with (obj_wall) { initialize_wall(); }
-	with (obj_illusion_wall) { initialize_wall(); }
+	// Break tiles into parts
+	with (obj_tile) { initialize_tile(); }
 	
 	// Find room's stairs and chest spots
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
@@ -603,7 +602,6 @@ function game_room_initialize() {
 		var usurper_obj = -1;
 		if (get_random_chance_out_of(EYES_PROBABILITY) && instance_number(obj_phantom) == 0 && instance_number(obj_eyes) == 0) { usurper_obj = obj_eyes; }
 		else if (get_random_chance_out_of(SNAKE_PROBABILITY)) { usurper_obj = obj_snake; }
-		else if (get_random_chance_out_of(FAST_SKELETON_PROBABILITY)) { skeleton_speed = FAST_SKELETON_MOVE_FREQUENCY; image_speed = 1; }
 		if (usurper_obj != -1) { instance_create(x, y, usurper_obj); instance_destroy(); }
 	}
 		

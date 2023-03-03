@@ -6,6 +6,7 @@ if (global.is_farm_mode) { sprite_prefetch(spr_player_farmer); }
 grid_update_timer = 0;
 player_appear_timer = 0;
 flash_obj = noone;
+global.datetime = string(current_day) + "-" + string(current_month) + "-" + string(current_year) + ":" + string(current_hour) + ":" + string(current_minute);
 
 // Initialize global values
 random_set_seed(global.seed);
@@ -148,3 +149,6 @@ play_sound(snd_torchlight, false);
 global.player = instance_create(-16, -16, obj_player);
 transition_to_room(start_room, true);
 with (global.game_manager) { array_remove(sounds_to_play, snd_win); }
+
+update_log("seed", global.seed);
+update_log("difficulty", get_difficulty_string(global.difficulty));

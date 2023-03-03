@@ -117,6 +117,7 @@
     {"name":"snd_open","order":13,"path":"sounds/snd_open/snd_open.yy",},
     {"name":"snd_shoot_2","order":50,"path":"sounds/snd_shoot_2/snd_shoot_2.yy",},
     {"name":"spr_highlight","order":36,"path":"sprites/spr_highlight/spr_highlight.yy",},
+    {"name":"obj_tile","order":11,"path":"objects/obj_tile/obj_tile.yy",},
     {"name":"snd_extinguish","order":15,"path":"sounds/snd_extinguish/snd_extinguish.yy",},
     {"name":"spr_staff","order":76,"path":"sprites/spr_staff/spr_staff.yy",},
     {"name":"snd_hiss","order":48,"path":"sounds/snd_hiss/snd_hiss.yy",},

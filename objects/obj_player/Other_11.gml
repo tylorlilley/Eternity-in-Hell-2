@@ -65,7 +65,7 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 			move_player(dir); 
 			moved_by = id;
 			visible = true;
-			infected_timer -= 1;
+			if (infected_timer > 0) { infected_timer -= 1; }
 		}
 	}
 		

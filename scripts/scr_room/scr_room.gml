@@ -264,7 +264,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function								add_portcullis();
 	function add_portcullis() {
-		if (exits[directions.stairs] != -1 || (has_key && has_collectables && stairs_spot_obj != -1)) { return false; }
+		if ((has_key && has_collectables && (stairs_spot_obj != -1 || exits[directions.stairs] != -1))) { return false; }
 		
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var next_exit = exits[dir];

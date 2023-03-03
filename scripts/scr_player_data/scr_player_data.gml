@@ -8,6 +8,9 @@ function update_death_log(obj_index, difficulty) {
 	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index), previous_death_count+1);
 	ini_close();
 	
+	update_log("outcome", "lost");
+	update_log("killed_by", object_get_name(obj_index));
+	
 	update_best_score(difficulty);
 }
 
@@ -81,6 +84,8 @@ function update_win_log(difficulty) {
 	ini_write_real(get_difficulty_string(difficulty), "wins", previous_win_count+1);
 	ini_close();
 	
+	update_log("outcome", "won");
+	
 	update_best_score(difficulty)
 }
 
@@ -96,6 +101,8 @@ function update_best_score(difficulty) {
 		ini_write_real(get_difficulty_string(difficulty), "best_score", new_score);
 		ini_close();
 	}
+	
+	update_log("score", new_score);
 }
 
 /// @function								get_win_count(difficulty);
@@ -174,4 +181,14 @@ function get_setting(setting_name, default_value) {
 	ini_close();
 	
 	return setting_value;
+}
+
+/// @function								update_log(line_name, new_value);
+///	@param		{string} line_name			The line to update the date for
+///	@param		{real} new_value			The new value for the setting
+function update_log(line_name, new_value) {
+	ini_open("game_log.ini");
+	if (is_string(new_value)) { ini_write_string(global.datetime, line_name, new_value); }
+	else { ini_write_real(global.datetime, line_name, new_value); }
+	ini_close();
 }

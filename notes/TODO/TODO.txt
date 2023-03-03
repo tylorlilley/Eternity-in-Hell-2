@@ -1,13 +1,10 @@
-dirt in front of wall
-columns in spiral room replaced with solid walls?
 can stairs still lead to adjacent rooms?
-instead of size constrain based on amount of difficulty spwned
-destroyed door exit? Without bomgb?
+destroyed door exit? Without bomb?
 
-Open portcullis not spwning walls next to it
-red parasite did nothing? WASD controls?
+instead of size constrain based on amount of difficulty spawned
+instead of switching depths for tiles, actually just draw the tiles that you want to draw
 
-
+save datetime to file for each attempt
 === REFACTORS ===
 
 Create new title screen with better sub menus

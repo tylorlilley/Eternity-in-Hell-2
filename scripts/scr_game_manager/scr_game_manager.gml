@@ -198,5 +198,8 @@ function return_to_title_screen() {
 	paused = false;
 	number_of_frames_since_game_began = 0;
 	clear_inputs_for_next_frame();
-	with (obj_controller) { restart_game(); }
+	with (obj_controller) {
+		if (!is_game_won() && !is_game_lost()) { update_log("outcome", "reset"); }
+		restart_game(); 
+	}
 }

@@ -402,9 +402,9 @@ function flicker_sprite_under_instance(inst) {
 	var blink_frame = is_blink_frame();
 	if (!blink_frame || !instance_place(x, y, inst)) { return false; }
 	
-	if (object_index == obj_lava_part) { lava_visible = false; }
-	else if (object_index == obj_solid_part) { solid_visible = false; }
-	else if (object_index == obj_illusion_part) { illusion_visible = false; }
+	if (object_index == obj_lava_part) { part_visible = false; }
+	else if (object_index == obj_solid_part) { part_visible = false; }
+	else if (object_index == obj_illusion_part) { part_visible = false; }
 	else { visible = false; }
 	
 	return true;

@@ -1,4 +1,4 @@
 event_inherited();
 
 creator = noone;
-lava_visible = true;
+part_visible = true;

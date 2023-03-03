@@ -14,8 +14,8 @@
     "path": "folders/Objects/Tiles.yy",
   },
   "parentObjectId": {
-    "name": "obj_game_object",
-    "path": "objects/obj_game_object/obj_game_object.yy",
+    "name": "obj_tile",
+    "path": "objects/obj_tile/obj_tile.yy",
   },
   "persistent": false,
   "physicsAngularDamping": 0.1,

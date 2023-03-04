@@ -1,3 +1,3 @@
 event_inherited();
 
-solid_visible = true;
+part_visible = true;

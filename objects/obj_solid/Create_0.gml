@@ -1,4 +1,2 @@
-event_inherited();
-
-depth = SOLID_DEPTH;
-part_visible = true;
+/// @description Insert description here
+// You can write your code in this editor

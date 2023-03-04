@@ -1,7 +1,6 @@
 event_inherited();
 
-depth = LAVA_DEPTH;
-
+start_depth = LAVA_DEPTH;
 part_obj_index = obj_lava_part;
 
 // Set up lighting variables
@@ -11,7 +10,6 @@ maximum_intensity = 1;
 minimum_intensity = 0;
 
 // Set up lava edge tiles
-var edge_type = global.lava_edge_type;
 lava_edge_sprite_index = spr_lava_edge;
 lava_edge_image_indexes = [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]];
 lava_edge_image_xscales = [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]];

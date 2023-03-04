@@ -1,5 +1,5 @@
 event_inherited();
 
-depth = SOLID_DEPTH;
+start_depth = SOLID_DEPTH;
 part_obj_index = obj_solid_part;
 parts = [noone, noone, noone, noone];

@@ -1,4 +1,4 @@
-/// @function  								light_torch();
+/// @function  								light_torch(lighting_torch, make_noise);
 ///	@param		{index}	lighting_torch		The instance that is doing the lighting
 ///	@param		{boolean}	make_noise		Whether or not lighting this torch should play a sound
 function light_torch(lighting_torch, make_noise) {

@@ -180,7 +180,7 @@ if (options_screen) {
 	}
 	
 	// Reset settings when enter is pressed
-	if (key_enter_released) {
+	if (key_space_released) {
 		play_sound(snd_stairs, false);
 		reset_settings_to_defaults();
 	}

@@ -53,14 +53,14 @@ if (resize_timer > 0) {
 	}
 	if (resize_timer == 8 || 4) { if (window_get_fullscreen() != use_true_full_screen) { window_set_fullscreen(use_true_full_screen); } }
 	if (resize_timer == 1) {
-		// Resize the drawing surface
-		if (global.fullscreen && !global.window_border) { 
-			window_set_size(display_get_width(), display_get_height()); 
+		// Resize the window
+		if (global.fullscreen && !use_true_full_screen) { 
+			window_set_size(display_get_width(), display_get_height());
 		}
-		else if (!global.fullscreen) { 
-			var window_scaling = global.window_scaling;
-			var draw_surface_width = (room_width * window_scaling), draw_surface_height = (room_height * window_scaling)
-			window_set_size(draw_surface_width, draw_surface_height); 
+		else {
+			var window_scaling = (global.fullscreen) ? global.max_window_scaling : global.window_scaling;
+			var draw_surface_width = (room_width * window_scaling), draw_surface_height = (room_height * window_scaling);
+			window_set_size(draw_surface_width, draw_surface_height);
 		}
 	}
 	else if (resize_timer == 0) { window_center(); }

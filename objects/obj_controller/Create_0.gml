@@ -7,6 +7,7 @@ grid_update_timer = 0;
 player_appear_timer = 0;
 flash_obj = noone;
 global.datetime = string(current_day) + "-" + string(current_month) + "-" + string(current_year) + ":" + string(current_hour) + ":" + string(current_minute);
+depth = -9999;
 
 // Initialize global values
 random_set_seed(global.seed);

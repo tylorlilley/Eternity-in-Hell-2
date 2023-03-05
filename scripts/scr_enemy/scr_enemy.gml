@@ -328,22 +328,28 @@ function explode(destroy_self) {
 	play_sound(snd_explosion, true);
 	screen_flash();
 	
-	shoot_fireball(x-8, y-8, true);
-	shoot_fireball(x+0, y-8, true);
-	shoot_fireball(x+8, y-8, true);
+	// The Rest
 	shoot_fireball(x-8, y-4, true);
-	//shoot_fireball(x+0, y-4, true);
+	shoot_fireball(x-4, y-8, true);
+	shoot_fireball(x+4, y-8, true);
 	shoot_fireball(x+8, y-4, true);
-	shoot_fireball(x-8, y, true);
-	//shoot_fireball(x+0, y, true);
-	shoot_fireball(x+8, y, true);
 	shoot_fireball(x-8, y+4, true);
-	//shoot_fireball(x+0, y+4, true);
+	shoot_fireball(x-4, y+8, true);
+	shoot_fireball(x+4, y+8, true);
 	shoot_fireball(x+8, y+4, true);
+		
+	// Diagonals
+	shoot_fireball(x-8, y-8, true);
+	shoot_fireball(x+8, y-8, true);
 	shoot_fireball(x-8, y+8, true);
-	shoot_fireball(x+0, y+8, true);
 	shoot_fireball(x+8, y+8, true);
 	
+	// Cardinal Directions
+	shoot_fireball(x+0, y-8, true);
+	shoot_fireball(x+0, y+8, true);
+	shoot_fireball(x-8, y+0, true);
+	shoot_fireball(x+8, y+0, true);
+
 	if (destroy_self) { instance_destroy(); }
 }
 
@@ -458,7 +464,7 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 	
 	// Update grid to be used for target path
 	var current_room = global.controller.current_room
-	target_path_grid = (ignore_death) ? current_room.solid_grid : current_room.lava_grid;
+	target_path_grid = (ignore_death) ? current_room.solid_path_grid : current_room.lava_path_grid;
 	if (ignore_solid) { target_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE); }
 	
 	// Generate new target path if one is needed

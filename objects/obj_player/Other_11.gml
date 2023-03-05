@@ -18,8 +18,13 @@ with (obj_bones) {
 }
 with (obj_dirt) { 
 	if (has_bug && get_distance_to_instance(other) <= TRAP_RANGE) {
-		instance_create(x, y, obj_bug);
+		var bug = instance_create(x, y, obj_bug);
 		has_bug = false;
+		if (no_special_bug) {
+			bug.infectious = false;
+			bug.sprite_index = spr_bug;
+			no_special_bug = false;
+		}
 	}
 }
 with (obj_bush) { 

@@ -1,3 +1,3 @@
 event_inherited();
 
-part_visible = true;
+depth = SOLID_DEPTH;

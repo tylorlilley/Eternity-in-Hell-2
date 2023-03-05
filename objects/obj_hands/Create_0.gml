@@ -8,5 +8,5 @@ left_hand_item = noone; // not used by this enemy; included to keep parity with 
 target_item = noone;
 death_timer = 0;
 
-target_path_grid = global.controller.current_room.lava_grid;
+target_path_grid = global.controller.current_room.lava_path_grid;
 can_interrupt_target_path = true;

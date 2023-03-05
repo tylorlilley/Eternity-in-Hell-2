@@ -168,7 +168,7 @@ function play_sound(snd, loud_sound) {
 /// @function								instance_create(x_pos, y_pos, obj_index);
 ///	@param		{real} x_pos				The x_pos to create the instance at
 ///	@param		{real} y_pos				The y_pos to create the instance at
-///	@param		{object_index} difficulty	The object_index to create an instance of
+///	@param		{object_index} obj_index	The object_index to create an instance of
 function instance_create(x_pos, y_pos, obj_index) {
 	return instance_create_depth(x_pos, y_pos, 0, obj_index);
 }
@@ -245,18 +245,28 @@ function modulo(a, b) {
 	return a - (Q * b)
 }
 
+/// @function								mp_path_grid_add(grid);
+///	@param		{id} grid					The mp_grid to add to
+function mp_path_grid_add(grid) {
+	mp_grid_add_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
+}
+
+/// @function								mp_path_grid_remove(grid);
+///	@param		{id} grid					The mp_grid to remove from
+function mp_path_grid_remove(grid) {
+	mp_grid_clear_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
+}
+
 /// @function								mp_grid_add(grid);
 ///	@param		{id} grid					The mp_grid to add to
 function mp_grid_add(grid) {
-	mp_grid_add_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
-	//with (obj_enemy) { if (grid == target_path_grid && can_interrupt_target_path && has_automatic_target_path_generation) { set_automatic_target_path(); } }
+	mp_grid_add_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2, y + sprite_height/2 );
 }
 
 /// @function								mp_grid_remove(grid);
 ///	@param		{id} grid					The mp_grid to remove from
 function mp_grid_remove(grid) {
-	mp_grid_clear_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
-	//with (obj_enemy) { if (grid == target_path_grid && can_interrupt_target_path && has_automatic_target_path_generation) { set_automatic_target_path(); } }
+	mp_grid_clear_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2, y + sprite_height/2);
 }
 
 /// @function								destroy_instances_at_position();

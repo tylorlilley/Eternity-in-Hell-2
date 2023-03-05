@@ -1,8 +1,18 @@
+full screen borderless cuts off top and bottom of screen
+
 can stairs still lead to adjacent rooms?
 destroyed door exit? Without bomb?
 
-instead of size constrain based on amount of difficulty spawned
-instead of switching depths for tiles, actually just draw the tiles that you want to draw
+instead of size constrain map based on amount of difficulty spawned
+
+Fix lava tile drawing to use image_xscale and image_y_scale and image_rotation appropriately
+
+refactor lava back to a single death that splits into parts like how we refactor walls
+refactor all the places we do a switch statement to get directional or quadrant x and y offsets
+- like spawning doors and tile section drawing
+refactor to use clamp function
+figure out how to make cardinal direction fireballs from explosion checked first?
+- all fireballs that are blocked shouldn't blow up the thing they destroy until the end step/next step?
 
 === REFACTORS ===
 
@@ -39,6 +49,9 @@ Remove all commented out code that we don't need anymore
 Re-add map walker and implement smarter locking algorithm using node groupings
 
 === NEW FETAURES ===
+
+
+spawn button that has no portcullis but opens a walled off passage?
 
 One way doors?
 

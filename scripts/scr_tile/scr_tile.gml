@@ -21,10 +21,10 @@ function initialize_door() {
 			case directions.right: { x_offset += 8; quadrants_to_delete = [0, 2]; break; }
 		}
 		
-		if (!place_meeting(x+(2*x_offset), y+(2*y_offset), obj_solid_part) || place_meeting(x+x_offset, y+y_offset, obj_solid_part)) { continue; }
+		if (!place_meeting(x+(2*x_offset), y+(2*y_offset), obj_solid) || place_meeting(x+x_offset, y+y_offset, obj_solid)) { continue; }
 
 		// Create a half wall in this direction
-		var wall = instance_create(x+x_offset, y+y_offset, obj_wall);
+		var wall = instance_create(x+x_offset, y+y_offset, obj_wall_part);
 		with (wall) {
 			initialize_tile();
 			for (var quadrant = 0; quadrant < directions.stairs; quadrant++;) {
@@ -33,7 +33,7 @@ function initialize_door() {
 				
 				var dist_to_solid = point_distance(other.x, other.y, solid_at_quadrant.x, solid_at_quadrant.y);
 				if (dist_to_solid > 8) { continue; }
-				
+
 				with (solid_at_quadrant) { instance_destroy(); }
 				parts[quadrant] = noone;
 			}
@@ -48,7 +48,7 @@ function destroy_lava_at_position(x_pos, y_pos) {
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
 	    if (is_instance_at_coordinates(x_pos, y_pos, parts[quadrant])) {
 	        with parts[quadrant] { 
-				mp_grid_remove(global.controller.current_room.lava_grid);
+				mp_path_grid_remove(global.controller.current_room.lava_path_grid);
 				global.controller.grid_update_timer = 2;
 				instance_destroy(); 
 			}

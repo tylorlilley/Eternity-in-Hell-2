@@ -29,8 +29,9 @@ function GameRoom(given_x, given_y) constructor {
 	
 	// Room Content Values
 	instances = array_create(0);
+	solid_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
+	lava_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	solid_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
-	lava_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
 	
 	/// @function									calculate_distance_to_connected_rooms(start_distance);
@@ -207,19 +208,23 @@ function GameRoom(given_x, given_y) constructor {
 		return chosen_room;
 	}
 	
-	/// @function								reset_room_solid_grid();
-	function reset_room_solid_grid() {
+	/// @function								reset_room_solid_path_grid();
+	function reset_room_solid_path_grid() {
+		mp_grid_clear_all(solid_path_grid);
 		mp_grid_clear_all(solid_grid);
-		with (obj_solid) { mp_grid_add(other.solid_grid); }
+		with (obj_solid) { 
+			mp_grid_add(other.solid_grid); 
+			mp_path_grid_add(other.solid_path_grid); 
+		}
 	}
 	
-	/// @function								reset_room_lava_grid();
-	function reset_room_lava_grid() {
-		var room_lava_grid = lava_grid;
+	/// @function								reset_room_lava_path_grid();
+	function reset_room_lava_path_grid() {
+		var room_lava_path_grid = lava_path_grid;
 		
-		mp_grid_clear_all(room_lava_grid);
-		with (obj_solid) { mp_grid_add(room_lava_grid); }
-		with (obj_lava_part) { mp_grid_add(room_lava_grid); }
+		mp_grid_clear_all(room_lava_path_grid);
+		with (obj_solid) { mp_path_grid_add(room_lava_path_grid); }
+		with (obj_lava_part) { mp_path_grid_add(room_lava_path_grid); }
 	}
 	
 	/// @function								add_to_instances_at_map_positions(inst);

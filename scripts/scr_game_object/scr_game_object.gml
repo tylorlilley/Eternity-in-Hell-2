@@ -70,7 +70,7 @@ function is_solid_at_position(x_pos, y_pos) {
 	
 	while (array_length(solids) > 0) {
 		var current_solid = array_random_pop(solids);
-		if (current_solid != id && (!carrying_special_staff || current_solid.object_index != obj_solid_part)) { return true; }
+		if (current_solid != id && (!carrying_special_staff || (current_solid.object_index != obj_solid_part && current_solid.object_index != obj_wall && current_solid.object_index != obj_column))) { return true; }
 	}
 	return false;
 }
@@ -203,7 +203,7 @@ function move_in_direction(dir, make_noise) {
 	
 	// Update mp_grids
 	var is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body)), current_room = global.controller.current_room;
-	if (is_solid) { current_room.reset_room_solid_grid(); current_room.reset_room_lava_grid(); }
+	if (is_solid) { current_room.reset_room_solid_path_grid(); current_room.reset_room_lava_path_grid(); }
 }
 
 

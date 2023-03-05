@@ -14,7 +14,7 @@ state = WAITING;
 dir = directions.none;
 
 can_move_on_border = true;
-target_path_grid = global.controller.current_room.lava_grid;
+target_path_grid = global.controller.current_room.lava_path_grid;
 has_automatic_target_path_generation = false;
 start_waiting();
 

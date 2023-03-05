@@ -7,4 +7,4 @@ activated = false;
 can_move_on_border = true;
 
 blink_amount = irandom_range(10, 16);
-target_path_grid = global.controller.current_room.lava_grid;
+target_path_grid = global.controller.current_room.lava_path_grid;

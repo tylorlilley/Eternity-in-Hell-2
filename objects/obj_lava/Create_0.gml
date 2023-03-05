@@ -1,6 +1,6 @@
 event_inherited();
 
-start_depth = LAVA_DEPTH;
+depth = LAVA_DEPTH;
 part_obj_index = obj_lava_part;
 
 // Set up lighting variables

@@ -1,5 +1,17 @@
 draw_self();
 
+// Consider each quadrant of the sprite and draw a blank square over it its corresponding death box has been destroyed
+var bg_color = global.bg_color;
+draw_set_color(bg_color);
+
+for (var quadrant = 0; quadrant < 4; quadrant++;) {
+	var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+
+	if (is_existing_instance(parts[quadrant]) && !parts[quadrant].part_visible) {
+	    draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, bg_color, 1);
+	}
+}
+
 // Draw Quadrant lava edges
 if (global.lava_edge_type != lava_edge_types.none) {
 	for (var quadrant = 0; quadrant < 4; quadrant++) {

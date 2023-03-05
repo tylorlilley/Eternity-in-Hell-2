@@ -12,4 +12,4 @@ moved = false;
 target_x = xstart;
 target_y = ystart;
 
-target_path_grid = global.controller.current_room.solid_grid;
+target_path_grid = global.controller.current_room.solid_path_grid;

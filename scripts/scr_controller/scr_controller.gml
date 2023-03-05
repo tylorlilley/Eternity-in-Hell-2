@@ -152,14 +152,19 @@ function transition_to_room(new_room, visited_by_player) {
 /// @function										game_room_start();
 function game_room_start() {
 	// Mark room as one that has been visited at some point in this game
-	if (transitioning_exit != -1) { transitioning_exit.visited = true; }
 	if (!current_room.visited) {
-		current_room.visited = true;
-		array_push(mapped_rooms, current_room);
+		// Do things only on the first player visit
 		if (current_room.stairs_spot_obj == obj_encased_heart) { 
 			global.controller.completion_amount += 1;
 		}
+		if (global.controller.transition == directions.stairs && instance_number(obj_portcullis) > 0) {
+			play_sound(snd_shovel, false);
+		}
+		// Mark current room and exit as visited
+		current_room.visited = true;
+		array_push(mapped_rooms, current_room);
 	}
+	if (transitioning_exit != -1) { transitioning_exit.visited = true; }
 	
 	// Do room entry stuff
 	audio_stop_all();
@@ -171,8 +176,8 @@ function game_room_start() {
 	game_room_start_spawn_instances();
 	
 	// Reset mp grids
-	current_room.reset_room_solid_grid();
-	current_room.reset_room_lava_grid();
+	current_room.reset_room_solid_path_grid();
+	current_room.reset_room_lava_path_grid();
 }
 
 /// @function										reset_game_object_image_blend();
@@ -210,25 +215,28 @@ function game_room_start_other() {
 	var player = global.player;
 	
 	// Create portcullis if portcullis for exit has been triggered by another room
-	var has_existing_portcullis = (instance_number(obj_portcullis) > 0);
-	if (!has_existing_portcullis) {
-		for (var dir = directions.up; dir <= directions.stairs; dir++) {
-			var current_exit = current_room.exits[dir]
-			if (current_exit != -1 && current_exit.has_portcullis) {
-				// Set up portcullis position
-				var x_pos = 0, y_pos = 0;
-				if (dir == directions.up) { x_pos = room_width/2; y_pos = 8; }
-				else if (dir == directions.right) { x_pos = room_width-8; y_pos = room_height/2; }
-				else if (dir == directions.down) { x_pos = room_width/2; y_pos = room_height-8; }
-				else if (dir == directions.left) { x_pos = 8; y_pos = room_height/2; }
+	for (var dir = directions.up; dir <= directions.stairs; dir++) {
+		var current_exit = current_room.exits[dir]
+		if (current_exit != -1 && current_exit.has_portcullis) {
+			// Set up portcullis position
+			var x_pos = 0, y_pos = 0;
+			if (dir == directions.up) { x_pos = room_width/2; y_pos = 8; }
+			else if (dir == directions.right) { x_pos = room_width-8; y_pos = room_height/2; }
+			else if (dir == directions.down) { x_pos = room_width/2; y_pos = room_height-8; }
+			else if (dir == directions.left) { x_pos = 8; y_pos = room_height/2; }
 				
-				// Create exit door
+			// Create exit doorway
+			if (!place_meeting(x_pos, y_pos, obj_portcullis)) {
 				var door = instance_create(x_pos, y_pos, obj_portcullis);
 				door.door_for_exit = current_exit;
-				with (door) { initialize_door(); }
+				with (door) { 
+					initialize_door(); 
+					if (current_exit.destroyed) { current_exit.has_portcullis = false; instance_destroy(); }
+				}
 			}
 		}
 	}
+
 	
 	with (obj_portcullis) {
 		var exit_has_closed_portcullis = door_for_exit.has_closed_portcullis_for_room(global.controller.current_room);
@@ -454,33 +462,6 @@ function game_room_initialize() {
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
 	
-	// Check each of the four exits for doors to create
-	var room_has_portcullis = false;
-	for (var dir = directions.up; dir <= directions.stairs; dir++) {
-		var current_exit = current_room.exits[dir], current_exit_has_portcullis = (current_exit != -1 && current_exit.has_closed_portcullis_for_room(current_room));
-		if (current_exit != -1 && (current_exit.has_door || current_exit_has_portcullis)) {
-			// Set up exit door type
-			var x_pos = 0, y_pos = 0, door_type = obj_door;
-			if (current_exit_has_portcullis) {
-				door_type = obj_portcullis;
-				room_has_portcullis = true;
-			}
-			// Set up exit door position
-			if (dir == directions.up) { x_pos = room_width/2; y_pos = 8; }
-			else if (dir == directions.right) { x_pos = room_width-8; y_pos = room_height/2; }
-			else if (dir == directions.down) { x_pos = room_width/2; y_pos = room_height-8; }
-			else if (dir == directions.left) { x_pos = 8; y_pos = room_height/2; }
-				
-			// Create door for exit
-			var door = instance_create(x_pos, y_pos, door_type);
-			door.door_for_exit = current_exit;
-		}
-	}
-	with (obj_door) { 
-		initialize_door(); 
-		close_door();
-	}
-		
 	// Create key in room if it should exist
 	var key_in_chest = (current_room.chest_obj == obj_key);
 	if (current_room.has_key && !key_in_chest) {
@@ -531,39 +512,99 @@ function game_room_initialize() {
 		}
 	}
 	
-	// Create portcullis button if it should exist
+		// Check if room has portcullis
+	var room_has_portcullis = false;
+	for (dir = directions.up; dir < directions.stairs; dir++;) {
+		var current_exit = current_room.exits[dir];
+		if (current_exit != -1 && current_exit.has_closed_portcullis_for_room(current_room)) { room_has_portcullis = true; break; }
+	}
+	
+	// Create button
 	if (room_has_portcullis) {
 		// Set up spots where button could spawn
-		var possible_spots = array_create(0);
-		if (!stairs_spot_occupied) { array_push(possible_spots, stairs_spot); }
-		if (!current_room.has_collectables || (!current_room.has_key || key_in_chest)) { 
-			with (obj_collectable_spot) { array_push(possible_spots, id); }
+		var possible_spots = array_create(0), var button = instance_create(-16, -16, obj_button), button_pressed = false;
+		if (!stairs_spot_occupied) {
+			button.x = stairs_spot.x;
+			button.y = stairs_spot.y;
+			button_pressed = false;
+			with (button) { button_pressed = can_press_button(); }
+			if (!button_pressed) { array_push(possible_spots, stairs_spot); }
+		}
+		if (!current_room.has_collectables || (!current_room.has_key || key_in_chest)) {
+			with (obj_collectable_spot) {
+				button.x = x;
+				button.y = y;
+				button_pressed = false;
+				with (button) { button_pressed = can_press_button(); }
+				if (!button_pressed) { array_push(possible_spots, id); }
+			}
 		}
 			
 		// Determine if button can spawn, and if so, spawn it in a possible spot
-		if (array_length(possible_spots) == 0) { 
-			// Should never reach this clause
-			show_debug_message("WARNING: no possible button spot for portcullis room: " + room_get_name(current_room.room_reference));
+		if (array_length(possible_spots) == 0) {
+			// Nowehere for button to go so destroy it
+			with (button) { instance_destroy(); }
+			current_room.remove_portcullis();
 		}
 		else {
 			var button_spot = array_pop(possible_spots);
-					
+			
+			// Move button to correct spot
 			if (button_spot == stairs_spot) { 
 				current_room.stairs_spot_obj = obj_button;
-				instance_create(stairs_spot.x, stairs_spot.y, obj_button);
+				button.x = stairs_spot.x;
+				button.y = stairs_spot.y;
 			}
 			else {
 				with button_spot {
-					instance_create(x, y, obj_button);
+					button.x = x;
+					button.y = y;
 					instance_destroy();
 				}
 			}
-				
+			
+			// If button did succesfully spawn
+			if (is_existing_instance(button)) {
+				with (button) {
+					dirt = instance_create(x, y, obj_dirt);
+					dirt.has_bug = true;
+					dirt.no_special_bug = true;
+					var dirt_to_spawn = irandom(DIRT_PROBABILITY/2);
+					for (var i = 0; i < dirt_to_spawn; i++) { spawn_dirt(); }
+				}
+			}
+			
+			// Add dirt to remaining possible spots
 			while (array_length(possible_spots) > 0) {
 				var button_spot = array_pop(possible_spots);
 				instance_create(button_spot.x, button_spot.y, obj_dirt);
 			}
 		}
+	}
+	
+	// Check each of the four exits for doors to create
+	for (var dir = directions.up; dir <= directions.stairs; dir++) {
+		var current_exit = current_room.exits[dir], current_exit_has_portcullis = (current_exit != -1 && current_exit.has_closed_portcullis_for_room(current_room));
+		if (current_exit != -1 && (current_exit.has_door || current_exit_has_portcullis)) {
+			// Set up exit door type
+			var x_pos = 0, y_pos = 0, door_type = obj_door;
+			if (current_exit_has_portcullis) {
+				door_type = obj_portcullis;
+			}
+			// Set up exit door position
+			if (dir == directions.up) { x_pos = room_width/2; y_pos = 8; }
+			else if (dir == directions.right) { x_pos = room_width-8; y_pos = room_height/2; }
+			else if (dir == directions.down) { x_pos = room_width/2; y_pos = room_height-8; }
+			else if (dir == directions.left) { x_pos = 8; y_pos = room_height/2; }
+				
+			// Create door for exit
+			var door = instance_create(x_pos, y_pos, door_type);
+			door.door_for_exit = current_exit;
+		}
+	}
+	with (obj_door) { 
+		initialize_door(); 
+		close_door();
 	}
     
 	// Create collectables in room if they should exist
@@ -612,8 +653,8 @@ function game_room_initialize() {
 	with (obj_spider) { if (!get_random_chance_out_of(SPIDER_PROBABILITY)) { instance_destroy(); } }
 	
 	// Set up room grids
-	current_room.reset_room_solid_grid();
-	current_room.reset_room_lava_grid();
+	current_room.reset_room_solid_path_grid();
+	current_room.reset_room_lava_path_grid();
 }
 
 /// @function								reset_map_generation();

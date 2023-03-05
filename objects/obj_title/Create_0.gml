@@ -1,5 +1,6 @@
 randomize();
 
+depth = -9999;
 room_speed = 60;
 
 global.controller = noone;

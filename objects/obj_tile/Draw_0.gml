@@ -1,12 +1,16 @@
-event_inherited();
-
-// Consider each quadrant of the sprite and draw a blank square over it its corresponding solid is visible
-var bg_color = global.bg_color;
-draw_set_color(bg_color);
 for (var quadrant = 0; quadrant < 4; quadrant++;) {
-	var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
-
-	if (!is_existing_instance(parts[quadrant]) || !parts[quadrant].part_visible) {
-	    draw_sprite_ext(spr_box, 0, x_pos, y_pos, 0.5, 0.5, 0, bg_color, 1);
+	var x_offset = 0, y_offset = 0;
+	switch (quadrant) {
+		case 0: { y_offset = -8; x_offset = -8; break; }
+		case 1: { y_offset = -8; x_offset = 8; break; }
+		case 2: { y_offset = 8; x_offset = -8; break; }
+		case 3: { y_offset = 8 x_offset = 8; break; }
 	}
+		
+	var prev_sprite_index = sprite_index;
+	if (is_existing_instance(parts[quadrant]) && parts[quadrant].part_visible) {
+		var draw_x_pos = (x_offset < 0) ? -8 : 0, draw_y_pos = (y_offset < 0) ? -8 : 0, sprite_x_pos = (x_offset < 0) ? 0 : 8, sprite_y_pos = (y_offset < 0) ? 0 : 8;
+		draw_sprite_general(prev_sprite_index, image_index, sprite_x_pos, sprite_y_pos, sprite_width/2, sprite_height/2, x+draw_x_pos, y+draw_y_pos, 1, 1, 0, image_blend, image_blend, image_blend, image_blend, image_alpha);
+	}
+	sprite_index = prev_sprite_index;
 }

@@ -18,7 +18,7 @@ else if (options_screen) {
 	draw_set_valign(fa_left);
 	
 	// Draw Fullscreen Option
-	var is_full_screen = global.fullscreen;//window_get_fullscreen()
+	var is_full_screen = global.fullscreen;
 	draw_set_halign(fa_left);
 	draw_text(16, y_pos, "Fullscreen: ");
 	draw_set_halign(fa_center);
@@ -109,7 +109,7 @@ else if (options_screen) {
 	if (blink && options_pos == 6) { padded_game_color_string = string_delete(padded_game_color_string, 6, 1); padded_game_color_string += "_" }
 	draw_text(x_pos, y_pos, "#       ");
 	draw_text(x_pos+12, y_pos, padded_game_color_string);
-	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 1, 1, 0, c_white, 1);
+	//draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 1, 1, 0, c_white, 1);
 	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 0.875, 0.875, 0, new_color, 1);
 	
 	// Draw Minimum Fade Option
@@ -123,7 +123,7 @@ else if (options_screen) {
 		if (global.game_color_fade > 0) { draw_sprite_ext(spr_title_arrow, 0, x_pos-32, y_pos+8, 1, 1, 0, c_white, 1); }
 	}
 	var new_color_minimum_fade = make_color_rgb(global.game_color_fade/100.0 * color_get_red(new_color), global.game_color_fade/100.0 * color_get_green(new_color), global.game_color_fade/100.0 * color_get_blue(new_color));
-	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 1, 1, 0, c_white, 1);
+	//draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 1, 1, 0, c_white, 1);
 	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 0.875, 0.875, 0, new_color_minimum_fade, 1);
 }
 else if (controls_screen) {

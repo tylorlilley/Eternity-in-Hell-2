@@ -25,6 +25,7 @@ function GameRoom(given_x, given_y) constructor {
 	has_special_item = false;
 	has_collectables = false;
 	has_no_cardinal_exits = false;
+	has_portcullis_button = false;
 	has_misleading_exits = get_random_chance_out_of(MISLEADING_EXITS_PROBABILITY);
 	
 	// Room Content Values
@@ -267,25 +268,6 @@ function GameRoom(given_x, given_y) constructor {
 		return true;
 	}
 	
-	/// @function								add_portcullis();
-	function add_portcullis() {
-		if ((has_key && has_collectables && (stairs_spot_obj != -1 || exits[directions.stairs] != -1))) { return false; }
-		
-		for (var dir = directions.up; dir < directions.stairs; dir++;) {
-			var next_exit = exits[dir];
-			if (next_exit != -1 && (next_exit.has_lock || next_exit.has_illusion_walls)) { return false; }
-		}
-		
-		if (!get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { return false; }
-		
-		// Add portcullis to this room's side of each rooms non-stairs exits
-		for (var dir = directions.up; dir < directions.stairs; dir++;) {
-			var next_exit = exits[dir];
-			if (next_exit != -1) { next_exit.set_portcullis_to_trigger_for_room(self, true); }
-		}
-		return true;
-	}
-
 	/// @function								add_illusion_walls();
 	function add_illusion_walls() {
 		var illusion_walls_added = false, controller = global.controller;
@@ -309,16 +291,48 @@ function GameRoom(given_x, given_y) constructor {
 		return illusion_walls_added;
 	}
 	
+	/// @function								add_portcullis();
+	function add_portcullis() {
+		if ((has_key && has_collectables && (stairs_spot_obj != -1 || exits[directions.stairs] != -1))) { return false; }
+		
+		for (var dir = directions.up; dir < directions.stairs; dir++;) {
+			var next_exit = exits[dir];
+			if (next_exit != -1 && (next_exit.has_lock || next_exit.has_illusion_walls || next_exit.get_connected_room(self).has_portcullis_button)) { return false; }
+		}
+		
+		if (!get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { return false; }
+		
+		// Add portcullis to this room's side of each rooms non-stairs exits
+		for (var dir = directions.up; dir < directions.stairs; dir++;) {
+			var next_exit = exits[dir];
+			if (next_exit != -1) { next_exit.set_portcullis_to_trigger_for_room(self, true); }
+		}
+		has_portcullis_button = true;
+		return true;
+	}
+	
+	/// @function								add_unlocked_doors();
+	function add_unlocked_doors() {
+		for (var dir = directions.up; dir < directions.stairs; dir++;) {
+			var next_exit = exits[dir];
+			if (next_exit == -1) { continue; }
+			if (next_exit.has_lock || next_exit.has_illusion_walls || next_exit.get_connected_room(self).has_portcullis_button) { continue; }
+			
+			next_exit.has_door = get_random_chance_out_of(OPEN_DOOR_PROBABILITY*2);
+		}
+	}
+	
 	/// @function								remove_portcullis();
 	function remove_portcullis() {
 		// Remove portcullis to this room's side of each rooms non-stairs exits
+		has_portcullis_button = false;
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var next_exit = exits[dir];
 			if (next_exit != -1) { next_exit.set_portcullis_to_trigger_for_room(self, false); }
 		}
 	}
 	
-	/// @function								remove_portcullis();
+	/// @function								add_chest();
 	function add_chest(must_spawn, given_item_obj) {
 		if (!must_spawn && !get_random_chance_out_of(CHEST_PROBABILITY)) { return -1; }
 		

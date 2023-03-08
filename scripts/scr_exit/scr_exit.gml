@@ -9,7 +9,7 @@ function RoomExit(current_room, linked_room) constructor {
 	room_2_stairs = noone;
 	
 	// Lock Type
-	has_door =  get_random_chance_out_of(OPEN_DOOR_PROBABILITY);
+	has_door = false;
 	has_lock = false;
 	has_portcullis = false;
 	room_1_has_closed_portcullis = false;
@@ -35,18 +35,18 @@ function RoomExit(current_room, linked_room) constructor {
 		return false;
 	}
 	
-	/// @function								close_portcullis();
-	function close_portcullis() {
-		has_portcullis = true;
-		room_1_has_closed_portcullis = true;
-		room_2_has_closed_portcullis = true;
-	}
-	
 	/// @function								open_portcullis();
 	function open_portcullis() {
 		has_portcullis = true;
 		room_1_has_closed_portcullis = false;
 		room_2_has_closed_portcullis = false;
+	}
+	
+	/// @function								close_portcullis();
+	function close_portcullis() {
+		has_portcullis = true;
+		room_1_has_closed_portcullis = true;
+		room_2_has_closed_portcullis = true;
 	}
 	
 	/// @function								add_stairs_for_room(given_room, stairs);

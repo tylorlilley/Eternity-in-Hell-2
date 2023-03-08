@@ -98,3 +98,13 @@ set_game_color();
 determine_gamepad();
 prev_axislv_value = 0;
 prev_axislh_value = 0;
+
+application_surface_draw_enable(false);
+gameframe_can_resize = false;
+gameframe_can_input = true;
+gameframe_caption_font = ft_hud;
+gameframe_caption_icon = spr_icon;
+gameframe_alpha = 1;
+gameframe_border_width = 1;
+gameframe_caption_height_normal = 27;
+gameframe_offset = 4;

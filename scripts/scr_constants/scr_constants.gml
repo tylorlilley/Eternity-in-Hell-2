@@ -6,10 +6,10 @@
 #macro NO_CARDINAL_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 12, 8, 6, 4]) // This happens only after the stairs probability succeeds, so its combined with 1/5
 #macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
-#macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])  // This happens only after the chest probability succeeds, so its combined with that probability.
+#macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 10, 6])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY 1//get_probability_for_difficulty([0, 2, 2, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
-#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 2]) 
+#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4]) 
 #macro MISLEADING_EXITS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
 #macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 12])
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 16, 12, 10, 8]) // Because each exit is checked by the room on either side, this actually happens twice as often
@@ -118,7 +118,7 @@
 
 // Default Setting Constants
 #macro FULLSCREEN_DEFAULT true
-#macro WINDOW_BORDER_DEFAULT (os_type != os_windows)
+#macro WINDOW_BORDER_DEFAULT false
 #macro WINDOW_SCALING_DEFAULT 2
 #macro INPUT_DEFAULT inputs.keyboard_default
 #macro CAN_SCREEN_FLASH_DEFUALT true

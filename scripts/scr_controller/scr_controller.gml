@@ -151,21 +151,6 @@ function transition_to_room(new_room, visited_by_player) {
 
 /// @function										game_room_start();
 function game_room_start() {
-	// Mark room as one that has been visited at some point in this game
-	if (!current_room.visited) {
-		// Do things only on the first player visit
-		if (current_room.stairs_spot_obj == obj_encased_heart) { 
-			global.controller.completion_amount += 1;
-		}
-		if (global.controller.transition == directions.stairs && instance_number(obj_portcullis) > 0) {
-			play_sound(snd_shovel, false);
-		}
-		// Mark current room and exit as visited
-		current_room.visited = true;
-		array_push(mapped_rooms, current_room);
-	}
-	if (transitioning_exit != -1) { transitioning_exit.visited = true; }
-	
 	// Do room entry stuff
 	audio_stop_all();
 	reset_game_object_image_blend();
@@ -174,6 +159,18 @@ function game_room_start() {
 	game_room_start_destroy_instances();
 	game_room_start_reposition_instances();
 	game_room_start_spawn_instances();
+	
+	// Mark room as one that has been visited at some point in this game
+	if (!current_room.visited) {
+		// Do things only on the first player visit
+		if (current_room.stairs_spot_obj == obj_encased_heart) { 
+			global.controller.completion_amount += 1;
+		}
+		// Mark current room and exit as visited
+		current_room.visited = true;
+		array_push(mapped_rooms, current_room);
+	}
+	if (transitioning_exit != -1) { transitioning_exit.visited = true; }
 	
 	// Reset mp grids
 	current_room.reset_room_solid_path_grid();
@@ -213,8 +210,9 @@ function game_room_start_reposition_player() {
 /// @function										game_room_start_other();
 function game_room_start_other() {
 	var player = global.player;
-	
+		
 	// Create portcullis if portcullis for exit has been triggered by another room
+	var entered_through_portcullis = false;
 	for (var dir = directions.up; dir <= directions.stairs; dir++) {
 		var current_exit = current_room.exits[dir]
 		if (current_exit != -1 && current_exit.has_portcullis) {
@@ -235,9 +233,10 @@ function game_room_start_other() {
 				}
 			}
 		}
+		if (current_exit != -1 && current_exit.has_closed_portcullis_for_room(current_room) && dir == get_opposite_dir(transition)) { entered_through_portcullis = true; }
 	}
+	if (!current_room.visited && !entered_through_portcullis && instance_number(obj_portcullis) > 0) { play_sound(snd_shovel, false); }
 
-	
 	with (obj_portcullis) {
 		var exit_has_closed_portcullis = door_for_exit.has_closed_portcullis_for_room(global.controller.current_room);
 		if (exit_has_closed_portcullis) { door_for_exit.close_portcullis(); }

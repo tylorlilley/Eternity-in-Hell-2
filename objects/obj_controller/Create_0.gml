@@ -132,8 +132,9 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	var next_room = game_rooms[i];
 	if (next_room == start_room || next_room == heart_room) { continue; }
 	
-	next_room.add_portcullis(); 
 	next_room.add_illusion_walls();
+	next_room.add_portcullis(); 
+	next_room.add_unlocked_doors();
 }
 
 // Create player object and initialize all game rooms

@@ -1,6 +1,7 @@
 singleton_instance();
 initialize_shader_pointers();
 audio_group_load(audiogroup_default);
+gameframe_init();
 
 depth = -10000;
 

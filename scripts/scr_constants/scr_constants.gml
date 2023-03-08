@@ -6,7 +6,7 @@
 #macro NO_CARDINAL_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 12, 8, 6, 4]) // This happens only after the stairs probability succeeds, so its combined with 1/5
 #macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
-#macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 10, 6])  // This happens only after the chest probability succeeds, so its combined with that probability.
+#macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 8, 4])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY 1//get_probability_for_difficulty([0, 2, 2, 2, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
 #macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4]) 
@@ -23,7 +23,7 @@
 	
 // Initilize room start probability constants
 #macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
-#macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 6])
+#macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
@@ -31,7 +31,7 @@
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 8, 4, 3])
 #macro SNAKE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 16, 8]) 
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 46]) 
-#macro FAST_SKELETON_PROBABILITY get_probability_for_difficulty([0, 0, 16, 14, 12]) 
+#macro FAST_SKELETON_PROBABILITY get_probability_for_difficulty([0, 0, 16, 12, 8]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 36, 30, 28, 24]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 32, 28, 24]) 
 #macro MOUTHS_PER_MOUTH (1+global.difficulty)

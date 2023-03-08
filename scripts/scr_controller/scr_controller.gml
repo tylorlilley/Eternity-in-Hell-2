@@ -494,7 +494,11 @@ function game_room_initialize() {
 
 	// Spawn stairs spot obj
 	if (current_room.stairs_spot_obj != -1) {
-		if (spawn_spot == chest_spot) { with (chest_spot) { destroy_instances_at_position(); } }
+		if (spawn_spot == chest_spot) {
+			if (current_room.stairs_spot_obj != obj_hidden_chest) {
+				with (chest_spot) { destroy_instances_at_position(); } 
+			}
+		}
 		else { stairs_spot_occupied = true; }
 		
 		var new_inst = instance_create(spawn_spot.x, spawn_spot.y, current_room.stairs_spot_obj);

@@ -31,6 +31,7 @@ if closed {
 					play_sound(snd_skeletonrise, true);
 					var statue = instance_create(x, y, obj_statue);
 					statue.dir = get_opposite_dir(push_direction);
+					statue.image_angle = statue.dir * -90;
 					instance_destroy();
 				}
 				else if (contents_obj != -1) { 

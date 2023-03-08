@@ -22,6 +22,15 @@ if (destructive) {
 	with (chest) {
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
+	}
+}
+
+// Destroy statues
+var statue = instance_place(x, y, obj_statue);
+if (destructive) {
+	with (statue) {
+		instance_destroy(); 
+		play_sound(snd_crunch, true);
 		blocked = true;
 	}
 }

@@ -62,6 +62,7 @@ function teleport_to_empty_space() {
 	until (!blocked_by_enemy &&
 			!is_solid_at_position(x, y) && 
 			!is_lava_at_position(x, y) && 
+			!place_meeting(x, y, obj_hidden_chest) && 
 			!place_meeting(x, y, obj_illusion_wall) && 
 			!place_meeting(x, y, obj_stairs_spot) && 
 			!place_meeting(x, y, obj_player) &&

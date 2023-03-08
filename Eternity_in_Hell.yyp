@@ -170,7 +170,6 @@
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_three_exits_24.json","CopyToMask":-1,"filePath":"datafiles",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_two_opposite_exits_5.json","CopyToMask":-1,"filePath":"datafiles",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"gameframe.html","CopyToMask":0,"filePath":"datafiles",},
-    {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"gameframe.html","CopyToMask":-1,"filePath":"datafiles",},
   ],
   "isEcma": false,
   "MetaData": {

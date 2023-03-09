@@ -1,5 +1,5 @@
 if (!gameframe_get_fullscreen() || window_has_focus()) {
-	var window_scaling = (global.fullscreen) ? global.max_window_scaling : global.window_scaling;
+	var window_scaling = (global.fullscreen) ? global.fullscreen_window_scaling : global.window_scaling;
 	var surface_width = (room_width * window_scaling);
 	var surface_height = (room_width * window_scaling);
 	var window_width = window_get_width();

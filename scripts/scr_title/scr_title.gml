@@ -79,6 +79,22 @@ function set_max_window_size() {
 			global.max_window_scaling = i;
 		}
 	}
+	global.fullscreen_window_scaling = global.max_window_scaling;
+	
+	if (os_type != os_windows) {
+		global.max_window_scaling = 1;
+		for (var i = 2; i <= 8; i++) {
+			var surface_width = (room_width*i), surface_height = (room_height*i);
+			if (monitor_width >= surface_width && monitor_height >= surface_width) {
+				window_set_size(surface_width, surface_height);
+				if (window_get_width() >= surface_width && window_get_height() >= surface_height) {
+					global.max_window_scaling = i;
+				}
+			}
+		}
+	}
+	
+	if (global.window_scaling > global.max_window_scaling) { global.window_scaling = global.max_window_scaling; }
 }
 
 /// @function								set_window_size();

@@ -50,13 +50,13 @@ number_of_frames_since_game_began += 1;
 if (resize_timer > 0) { 
 	resize_timer -= 1;
 	var display_width = display_get_width(), display_height = display_get_height(); 
-	var window_scaling = (global.fullscreen) ? global.max_window_scaling : global.window_scaling;
+	var window_scaling = (global.fullscreen) ? global.fullscreen_window_scaling : global.window_scaling;
 	var window_width = (global.fullscreen) ? display_width : (room_width * window_scaling);
 	var window_height = (global.fullscreen) ? display_height : (room_height * window_scaling);
 	
 	window_set_size(window_width + gameframe_offset, window_height + gameframe_caption_height_normal + gameframe_offset);
 	window_center();
 }
-gameframe_update();
+if (os_type == os_windows) { gameframe_update(); }
 set_up_inputs_for_next_frame();
 	

@@ -86,7 +86,7 @@ function set_window_size() {
 	if (!global.fullscreen && gameframe_get_fullscreen() != 0) { gameframe_set_fullscreen(0); }
 	else if (global.fullscreen && global.window_border && gameframe_get_fullscreen() != 1) { gameframe_set_fullscreen(1); }
 	else if (global.fullscreen && !global.window_border && gameframe_get_fullscreen() != 2) { gameframe_set_fullscreen(2); }
-	with (obj_game_manager) { resize_timer = 3; }
+	with (obj_game_manager) { resize_timer = 4; }
 }
 
 /// @function								get_input_string();

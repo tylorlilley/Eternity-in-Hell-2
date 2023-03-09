@@ -127,8 +127,8 @@ function transition_to_room(new_room, visited_by_player) {
 	entered_from_spawn = (transition == directions.respawn);
 			
 	// Play transition sound
-	if (transition == directions.respawn) { play_sound(snd_win, false); }
-	else if (transition == directions.stairs) { play_sound(snd_stairs, false); global.player.visible = false; player_appear_timer = 3; }
+	if (transition == directions.respawn) { play_sound(snd_win, false); player_appear_timer = 2; }
+	else if (transition == directions.stairs) { play_sound(snd_stairs, false); global.player.visible = false; player_appear_timer = 2; }
 	else { play_sound(snd_move, false); }
 	
 	// Run room exit logic for ionstances
@@ -612,9 +612,13 @@ function game_room_initialize() {
     
 	// Create collectables in room if they should exist
 	if (current_room.has_collectables) {
-		with obj_collectable_spot { 
-			var new_collectable = instance_create(x, y, obj_collectable);
-			if (get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY)) { new_collectable.moving = true; }
+		var spawned_collectables = 0;
+		with obj_collectable_spot {
+			if (spawned_collectables == 0 || get_random_chance_out_of(8)) {
+				var new_collectable = instance_create(x, y, obj_collectable);
+				spawned_collectables += 1;
+				if (get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY)) { new_collectable.moving = true; }
+			}
 			instance_destroy(); 
 		}
 		if (instance_number(obj_collectable) == 0) { 

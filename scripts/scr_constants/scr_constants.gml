@@ -15,7 +15,7 @@
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 16, 12, 10, 8]) // Because each exit is checked by the room on either side, this actually happens twice as often
 #macro OPEN_DOOR_PROBABILITY get_probability_for_difficulty([0, 32, 24, 12, 8])
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
-#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 20, 14, 10, 8]) 
+#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 12, 10, 9, 8]) 
 #macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])
 #macro KEY_IN_CHEST_PROBABILITY 3
 #macro BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 8, 2, 1])

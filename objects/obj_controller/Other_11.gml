@@ -56,6 +56,8 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 					dead = false;
 					image_index = 0;
 					depth = PLAYER_DEPTH;
+					visible = false;
+					player_appear_timer = 2;
 				}
 				transition = directions.respawn;
 				// Destroy or pick up rosary

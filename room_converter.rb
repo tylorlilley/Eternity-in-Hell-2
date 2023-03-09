@@ -176,7 +176,8 @@ class RoomConverter
     def room_difficulty(room_name, room_objects)
         threat_level = room_threat_level(room_objects)
 
-        difficulty = 1
+        difficulty = 0
+        difficulty = 1 if threat_level >= 1
         difficulty = 2 if threat_level > 2
         difficulty = 3 if threat_level > 4
 

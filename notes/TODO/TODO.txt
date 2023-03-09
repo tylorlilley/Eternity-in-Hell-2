@@ -1,4 +1,9 @@
-full screen borderless cuts off top and bottom of screen
+switching from full border window to windowed mode screws everything up
+
+Not spawning red items?
+Does dropped heart item show up on map?
+
+when dropping an item directly on top of another item, put that item on the "bottom" of that pile of items so it is picked up last
 
 can stairs still lead to adjacent rooms?
 destroyed door exit? Without bomb?
@@ -50,7 +55,8 @@ Re-add map walker and implement smarter locking algorithm using node groupings
 
 === NEW FETAURES ===
 
-
+Acid Smoke room that you need a lit torch to navigate?
+one door that takes two keys?
 spawn button that has no portcullis but opens a walled off passage?
 
 One way doors?

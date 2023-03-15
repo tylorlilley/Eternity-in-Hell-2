@@ -119,6 +119,7 @@ function shoot_fireball(target_x, target_y, make_destructive) {
 	play_sound(snd_shoot, false);
 	var fireball = instance_create(x, y, obj_fireball);
 	with (fireball) {
+		creator = other.id;
 		creator_obj = other.object_index;
 		destructive = make_destructive;
 		move_towards_point(target_x, target_y, 2); 
@@ -526,10 +527,17 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 /// @function								teleport_to_player();
 function teleport_to_player() {
 	var player = global.player, controller = global.controller;
-	x = player.x;
-	y = player.y;	
+	
+	if (controller.entered_from_dir >= directions.stairs) {
+		x = player.x;
+		y = player.y;
+	}
+	else {
+		x = get_exit_x_pos(controller.entered_from_dir);
+		y = get_exit_y_pos(controller.entered_from_dir);
+	}
 
-	if (!controller.current_room.lit && !controller.entered_from_spawn) {
+	if (!controller.current_room.lit && controller.entered_from_dir != directions.respawn) {
 		// Check distance to each unlit lantern
 		var lantern_count = 0, total_distance_to_lanterns = 0;
 		for (var i = 0; i < instance_number(obj_lantern); i++) {
@@ -544,10 +552,9 @@ function teleport_to_player() {
 		if (lantern_count == 0) { instance_destroy(); }
 		else {
 			// Set spawn timer based on distance to each lantern
-			play_sound(snd_dread, false);
 			spawn_timer = ceil(total_distance_to_lanterns) - (global.difficulty*lantern_count)
 			if (spawn_timer > 48) { spawn_timer = 48; } 
-			if (spawn_timer < 18) { spawn_timer = 18; } 
+			if (spawn_timer < 16) { spawn_timer = 16; }
 		}
 	}
 }

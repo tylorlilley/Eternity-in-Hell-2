@@ -27,17 +27,19 @@ if (destructive) {
 
 // Destroy statues
 var statue = instance_place(x, y, obj_statue);
+if (is_existing_instance(statue) && (!is_existing_instance(creator) || creator != statue )) { 
+	blocked = true; 
+}
 if (destructive) {
 	with (statue) {
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
-		blocked = true;
 	}
 }
 
 // Light Bombs
-if (creator_obj != obj_bomb) {
-	var bomb = instance_place(x, y, obj_bomb);
+var bomb = instance_place(x, y, obj_bomb);
+if (is_existing_instance(bomb) && (!is_existing_instance(creator) || creator != bomb)) {
 	with (bomb) { light_bomb(); }
 }
 
@@ -76,7 +78,7 @@ if (!blocked) {
 	var solids_at_position = instance_place_all(x, y, obj_solid);
 	while (array_length(solids_at_position) > 0) {
 		var blocking_solid = array_random_pop(solids_at_position);
-		if (is_existing_instance(blocking_solid) && blocking_solid.object_index != creator_obj) { blocked = true; break; }
+		if (is_existing_instance(blocking_solid) && (!is_existing_instance(creator) || creator != blocking_solid)) { blocked = true; break; }
 	}
 }
 

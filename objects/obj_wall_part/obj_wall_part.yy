@@ -8,8 +8,8 @@
   "managed": true,
   "overriddenProperties": [],
   "parent": {
-    "name": "Tiles",
-    "path": "folders/Objects/Tiles.yy",
+    "name": "Spawnable",
+    "path": "folders/Objects/Tiles/Spawnable.yy",
   },
   "parentObjectId": {
     "name": "obj_tile",
@@ -31,8 +31,8 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_wall",
-    "path": "sprites/spr_wall/spr_wall.yy",
+    "name": "spr_highlight",
+    "path": "sprites/spr_highlight/spr_highlight.yy",
   },
   "spriteMaskId": null,
   "visible": true,

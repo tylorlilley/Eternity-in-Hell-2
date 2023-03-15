@@ -46,7 +46,7 @@ function walk_the_map() {
 			while (array_length(rooms_to_visit) > 0) {
 				var current_visit = array_pop(rooms_to_visit), current_room = current_visit[0], traveled_distance = current_visit[1]+1;
 			
-				visit_room(current_room, traveled_distance);
+				visit_room (current_room, traveled_distance);
 			}
 		
 			// Make a Room Group out of this walker state

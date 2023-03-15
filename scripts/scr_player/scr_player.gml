@@ -208,7 +208,7 @@ function create_item_in_hand(dir, obj_index) {
 /// @param		{obj} killed_by_obj				The object_index of the thing killing the player
 function kill_player(killed_by_obj) {
 	var player = global.player, controller = global.controller;
-	if (global.controller.blackout) { return false; }
+	if (global.controller.blackout || global.controller.transition != directions.none) { return false; }
 	
 	if (!player.dead) {
 		// Set variables to mark death

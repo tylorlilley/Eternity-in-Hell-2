@@ -1,20 +1,28 @@
-switching from full border window to windowed mode screws everything up
 
-Not spawning red items?
-Does dropped heart item show up on map?
+dying on the same frame from phantom as a stairs transition freezes game on end screen?
+weird map glitch that leah found?
+
+Add difficulty for collectables?
+Remove difficulty for lit rooms and non-has_key(bomb) items? Especially special ones?
+
+fireballs still go through chests
+
+
+use pathfinding to calculate actual distances to lamps for phantom
+- get path to nearest lamp, then path to nearest lamp from there, etc.
+- constantly update path to switch toward moving toward nearest unlit lamp if that changes along the way?
+
+switching from full border window to windowed mode screws everything up
 
 when dropping an item directly on top of another item, put that item on the "bottom" of that pile of items so it is picked up last
 
-can stairs still lead to adjacent rooms?
 destroyed door exit? Without bomb?
-
-instead of size constrain map based on amount of difficulty spawned
 
 Fix lava tile drawing to use image_xscale and image_y_scale and image_rotation appropriately
 
 refactor lava back to a single death that splits into parts like how we refactor walls
-refactor all the places we do a switch statement to get directional or quadrant x and y offsets
-- like spawning doors and tile section drawing
+refactor all the places we do a switch statement to quadrant x and y offsets
+- like tile section drawing
 refactor to use clamp function
 figure out how to make cardinal direction fireballs from explosion checked first?
 - all fireballs that are blocked shouldn't blow up the thing they destroy until the end step/next step?
@@ -30,7 +38,6 @@ Create new title screen with better sub menus
 
 - Update red staff to go through doors (nd update key spawning TODO)
 
-
 Refctor stairs_spot_obj to include chest_spot_obj as well instead of figuring out where to spawn things at room initilization
 
 Refactor hands and collectables that use the run_away_from_player to instead use pathfinidng to find the spot furthest away from the player and run toward that
@@ -41,10 +48,7 @@ delete all spot/placeholder objects once room has been initialized?
 
 Add pathfinding to snakes to better pathfind toward dropped meats
 
-Replace get_probability_for_difficulty to accept floats in order to be able to set up less than 1/2 chances for things
-
-Light Bomb from fireballs from other bombs, just not its own
-
+Replace get_random_chance_out_of to accept floats in order to be able to set up less than 1/2 chances for things
 
 farmer clock sprie hands flip xscale direction
 

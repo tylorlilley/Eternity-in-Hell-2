@@ -1,5 +1,8 @@
 var player = global.player;
-if (is_blink_frame() && (place_meeting(x, y, obj_enemy) || place_meeting(x, y, player) || place_meeting(x, y, obj_fireball))) {
+
+var enemy_at_pos = instance_place(x, y, obj_enemy);
+var enemy_is_here = (is_existing_instance(enemy_at_pos) && enemy_at_pos.corporeal)
+if (is_blink_frame() && (enemy_is_here || place_meeting(x, y, player) || place_meeting(x, y, obj_fireball))) {
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
 		var x_offset = 0, y_offset = 0;
 		switch (quadrant) {

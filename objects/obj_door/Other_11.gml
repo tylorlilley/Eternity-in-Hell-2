@@ -16,14 +16,14 @@ if (is_existing_instance(closed)) {
 		}
 		else {
 			// Open Door
+			open_door();
 			with (player) { play_sound(snd_open, true); }
 			snap_player_to_position(push_direction);
 			move_player(push_direction);
-			open_door();
 		}
 	}
 }
-else if (!stuck_open && !place_meeting(x, y, player)) {
+else if (!stuck_open && !place_meeting(x, y, player) && !place_meeting(x, y, obj_enemy) && !place_meeting(x, y, obj_solid)) {
 	// Close Door
 	if (!is_outside_room(player.x, player.y)) { play_sound(close_sound, false); }
 	close_door();

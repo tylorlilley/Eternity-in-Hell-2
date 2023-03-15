@@ -10,3 +10,8 @@ if (is_instance_at_coordinates(x, y, player)) {
 		else { with (obj_echo_generator) { play_sound(snd_impact, false); instance_destroy(); } }
 	}
 }
+
+if (!visible && !place_meeting(x, y, obj_player)) {
+	visible = true;
+	play_sound(snd_move, false);
+}

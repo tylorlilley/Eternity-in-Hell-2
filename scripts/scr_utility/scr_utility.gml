@@ -58,8 +58,10 @@ function get_percentage_string(value) {
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {
 	if (dir = directions.stairs) { return directions.stairs; }
-	else if (dir = directions.none) { return directions.none; }
-	else { return modulo((dir+2), 4); }
+	if (dir = directions.respawn) { return directions.respawn; }
+	if (dir = directions.none) { return directions.none; }
+	
+	return modulo((dir+2), 4);
 }
 
 /// @function								get_turn_right_dir(dir);
@@ -119,6 +121,30 @@ function get_quadrant_x_pos(quadrant_number) {
 function get_quadrant_y_pos(quadrant_number) {
     if (quadrant_number < 2) { return y-4; }
 	else { return y+4; }
+}
+
+/// @function								get_exit_x_pos(dir);
+/// @param		{dir}	dir					The direction of the exit to get the x pos for
+function get_exit_x_pos(dir) {
+	switch (dir) {
+		case directions.up: { return room_width/2; }
+		case directions.right: { return room_width-8; }
+		case directions.down: { return room_width/2; }
+		case directions.left: { return 8; }
+		default: { return -16; }
+	}
+}
+
+/// @function								get_exit_y_pos(dir);
+/// @param		{dir}	dir					The direction of the exit to get the x pos for
+function get_exit_y_pos(dir) {
+	switch (dir) {
+		case directions.up: { return 8; }
+		case directions.right: { return room_width/2; }
+		case directions.down: { return room_width-8; }
+		case directions.left: { return room_width/2; }
+		default: { return -16; }
+	}
 }
 
 /// @function								instance_place_all(x_pos, y_pos, obj_type);

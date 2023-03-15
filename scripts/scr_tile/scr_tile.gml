@@ -141,6 +141,10 @@ function open_door() {
 	closed = noone;
 	depth = CROSS_DEPTH;
 	
+	var current_room = global.controller.current_room;	
+	current_room.reset_room_solid_path_grid(); 
+	current_room.reset_room_lava_path_grid();
+	
 	if (door_for_exit != -1 && door_for_exit.has_lock) {
 		door_for_exit.unlock();
 		with (global.player) { 
@@ -157,6 +161,10 @@ function close_door() {
 	closed = instance_create(x, y, obj_solid);
 	closed.visible = false;
 	depth = SOLID_DEPTH;
+	
+	var current_room = global.controller.current_room;
+	current_room.reset_room_solid_path_grid(); 
+	current_room.reset_room_lava_path_grid();
 }
 
 /// @function							open_portcullis();

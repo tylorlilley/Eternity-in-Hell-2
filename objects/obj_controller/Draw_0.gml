@@ -78,12 +78,10 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 
 	    // Draw final score and game seed and game version
 		var total_score = get_current_score();
-		
-		if (key_space) {
-			// Draw game seed information
-			draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
-			draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
-		}
+
+		// Draw game seed information
+		draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
+		draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
 		
 		var time_elapsed = (time_provided - time_remaining);
 		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
@@ -111,5 +109,5 @@ if (global.is_test_mode) {
 	//if (is_existing_instance(global.player)) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
 	//draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
-	draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "); //+string(current_room.id));
+	draw_text(4, room_height-20, string(fps)+"; OLD: "+string(current_room.old_room_reference_difficulty)+"; NEW: "+string(current_room.room_reference_difficulty)+"; "); //+string(current_room.id));
 }

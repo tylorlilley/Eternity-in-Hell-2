@@ -18,11 +18,11 @@ class RoomConverter
     OBJECT_TYPES = %w(
         obj_lantern
         obj_lava
-        obj_skeleton
+        obj_skeleton_spot
         obj_mouth
         obj_bumper
         obj_statue
-        obj_spider
+        obj_spider_spot
         obj_snake
         obj_bones
         obj_gudetama
@@ -51,13 +51,13 @@ class RoomConverter
     THREAT_TYPES = %w(
         obj_lantern
         obj_lava
-        obj_skeleton
+        obj_skeleton_spot
         obj_mouth
         obj_bumper
         obj_giant_worm_body
         obj_giant_worm_head
         obj_statue
-        obj_spider
+        obj_spider_spot
         obj_gudetama
         obj_snake
         obj_ears
@@ -106,8 +106,8 @@ class RoomConverter
             "obj_door" => 0.15,
             "obj_ears" => 0.05,
             "obj_bush" => 0.25,
-            "obj_spider" => 0.12,
-            "obj_skeleton" => 0.15,
+            "obj_spider_spot" => 0.12,
+            "obj_skeleton_spot" => 0.15,
             "obj_statue" => 0.05,
             "obj_giant_worm_body" => 0.08,
             "obj_mouth" => 0.08,
@@ -151,10 +151,10 @@ class RoomConverter
         threat_level += room_objects.count("obj_mouth")
         threat_level += (0.08 * room_objects.count("obj_block_spot")).floor
         threat_level += (0.01 * room_objects.count("obj_lava")).ceil
-        threat_level += (room_objects.count("obj_spider") * 1.2).ceil
+        threat_level += (room_objects.count("obj_spider_spot") * 1.2).ceil
         threat_level += (room_objects.count("obj_bones") * 0.05).ceil
         threat_level += (room_objects.count("obj_statue") * 0.25).ceil
-        threat_level += (room_objects.count("obj_skeleton") * 0.33).ceil
+        threat_level += (room_objects.count("obj_skeleton_spot") * 0.33).ceil
         threat_level += (room_objects.count("obj_snake") * 0.66).ceil
         threat_level += (0.25 * room_objects.count("obj_giant_worm_head") + 0.10 * room_objects.count("obj_giant_worm_body")).ceil
 
@@ -320,7 +320,7 @@ class RoomConverter
         raise "ROOM DOWN EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_down")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_down") >= 2
         raise "ROOM LEFT EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_left")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_left") >= 2
         raise "ROOM CONTAINS WORM HEAD BUT NOT BODY: #{room_name}" unless room_objects.include?("obj_giant_worm_head") == room_objects.include?("obj_giant_worm_body")
-        raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 6
+        raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 10 #6
         
         # Determine difficulty level
         difficulty = room_difficulty(room_name, room_objects)

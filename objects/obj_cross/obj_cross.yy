@@ -36,5 +36,5 @@
     "path": "sprites/spr_cross/spr_cross.yy",
   },
   "spriteMaskId": null,
-  "visible": true,
+  "visible": false,
 }

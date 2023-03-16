@@ -1,12 +1,14 @@
+Should we make it so that the start room can't have stairs? Right now when that happens we spawn on the chest spot which forces us to have all exits traversable from chest spots which sucks 
+
+Further tweak mapgen difficulties ratings?
+
+Add more rooms
 
 dying on the same frame from phantom as a stairs transition freezes game on end screen?
-weird map glitch that leah found?
 
 Add difficulty for collectables?
-Remove difficulty for lit rooms and non-has_key(bomb) items? Especially special ones?
 
 fireballs still go through chests
-
 
 use pathfinding to calculate actual distances to lamps for phantom
 - get path to nearest lamp, then path to nearest lamp from there, etc.

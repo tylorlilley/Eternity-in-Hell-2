@@ -367,7 +367,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{real} inst					The instance id to add to the room map position
 	function add_to_instances_at_map_positions(inst) {
 		var room_map_pos = get_room_map_position(inst);
-		show_debug_message("added to room (" + string(virtual_x) + ", " + string(virtual_y) + ") at " + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
+		//show_debug_message("added to room (" + string(virtual_x) + ", " + string(virtual_y) + ") at " + string(room_map_pos[0]) + ", " + string(room_map_pos[1]) + ": " + object_get_name(inst.object_index) + " - " + string(inst.id));
 		array_push(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst.object_index);
 	}
 

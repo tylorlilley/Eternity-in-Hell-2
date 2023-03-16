@@ -83,7 +83,7 @@
 // Initialize score constants and variables
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
 #macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 75, 65, 60, 50])  // minutes * 60 total seconds for torch to remain lit
-#macro TIME_PROVIDED_PER_ROOM get_probability_for_difficulty([40, 38, 34, 30, 28]) 
+#macro TIME_PROVIDED_PER_ROOM get_probability_for_difficulty([40, 30, 28, 26, 24]) 
 #macro TIME_PROVIDED_PER_EASY_ROOM -5 
 #macro TIME_PROVIDED_PER_HARD_ROOM 15 
 #macro TIME_PROVIDED_PER_DEAD_END 10 

@@ -64,21 +64,15 @@ time_provided += total_number_of_rooms_with_collectables * TIME_PROVIDED_PER_COL
 // Ensure at least one lantern room exists
 if (array_length(rooms_with_lanterns) == 0) {
 	var random_room = array_random_get(game_rooms);
-	with (random_room) { 
-		//var old_difficulty = random_room.room_reference_difficulty;
+	with (random_room) {
 		assign_room_ref(true);
-		/*
-		if (old_difficulty > random_room.room_reference_difficulty) {
-			with (global.controller) { add_rooms_to_reach_target_difficulty(); }
-		}
-		*/
 		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); has_lanterns = true; }
 	}
 	if (!random_room.has_lanterns) {
 		// This should NEVER happen
 		show_debug_message("WARNING: no lantern rooms generated.");
-		//reset_map_generation();
-		//exit;
+		reset_map_generation();
+		exit;
 	}
 }
 

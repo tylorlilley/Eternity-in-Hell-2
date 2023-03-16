@@ -301,6 +301,7 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		// Determine an adjacent room to connect via cardinal exit
 		if (adj_dir == -1) { 
+			chosen_room = self;
 			adj_dir = get_free_adjacent_room_direction(); 
 			connected_dir = adj_dir;
 			if (adj_dir == -1) { return -1; }
@@ -615,7 +616,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_one_exit_24// CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_three_exits_29// CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -858,9 +859,6 @@ function create_game_map() {
 		}
 	}
 	
-	// Add more rooms until difficulty target is reached
-	//add_rooms_to_reach_target_difficulty();
-	
 	// Choose random start room
 	array_shuffle_ext(game_rooms);
 	start_room = -1;
@@ -978,11 +976,6 @@ function create_locked_exits_and_keys() {
 	var extra_lock_threshold = array_length(exits_to_create_lock_and_key_for)-extra_locks;
 	for(var i = 0; i < array_length(exits_to_create_lock_and_key_for); i++;) {
 		var just_lock = (i >= extra_lock_threshold), next_combo = exits_to_create_lock_and_key_for[i], room_to_lock = next_combo[0], lock_dir = next_combo[1];
-		
-		/*
-		// Skip this exit if it was already locked by another room
-		if (lock_dir != -1 && room_to_lock.exits[lock_dir].has_lock) { continue; }
-		*/
 		
 		// If we are only locking or we have found a room to add a key to
 		var key_room = get_earlier_room_without_key(room_to_lock.distance_to_start);

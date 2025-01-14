@@ -70,6 +70,8 @@ function GameRoom(given_x, given_y) constructor {
 			else if (get_random_chance_out_of(SNAKE_PROBABILITY)) { skeleton_type = obj_snake;  snake_count += 1; }
 			else if (get_random_chance_out_of(FAST_SKELETON_PROBABILITY)) { skeleton_type = obj_red_skeleton; fast_skeleton_count += 1; }
 			
+			skeleton_type = obj_cockroach; // TODO: REMOVE THIS
+			
 			array_push(skeleton_types, skeleton_type);
 		}
 		
@@ -616,7 +618,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_three_exits_29// CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_four_exits_99// CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();

@@ -445,9 +445,7 @@ function game_room_initialize() {
 		var skeleton_type = current_room.skeleton_types[i];
 		
 		var skeleton_spot = instance_find(obj_skeleton_spot, i);
-		with (skeleton_spot) {
-			instance_create(x, y, skeleton_type);
-		}
+		with (skeleton_spot) { instance_create(x, y, skeleton_type); }
 	}
 	with (obj_skeleton_spot) { instance_destroy(); }
 		

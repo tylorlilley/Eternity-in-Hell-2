@@ -50,6 +50,7 @@ function GameRoom(given_x, given_y) constructor {
 		has_lanterns = get_room_reference_object_count(obj_lantern) > 0;
 		lit = (has_lanterns && get_random_chance_out_of(PRE_LIT_PROBABILITY));
 		has_eyes = (get_room_reference_object_count(obj_eyes) > 0 || get_random_chance_out_of(EYES_PROBABILITY));
+		has_all_cockroaches = (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(COCKROACH_ROOM_PROBABILITY));
 		has_phantom = (has_lanterns && !lit && !has_eyes && get_random_chance_out_of(PHANTOM_PROBABILITY));
 		
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
@@ -61,16 +62,47 @@ function GameRoom(given_x, given_y) constructor {
 			}
 		}
 		
+		cockroach_count = 0;
 		snake_count = 0;
 		fast_skeleton_count = 0;
+		fire_skeleton_count = 0;
 		skeleton_types = array_create(0);
 		for (var i = 0; i < get_room_reference_object_count(obj_skeleton_spot); i++;) {
 			var skeleton_type = obj_skeleton;
 			if (has_eyes) { skeleton_type = obj_eyes; }
-			else if (get_random_chance_out_of(SNAKE_PROBABILITY)) { skeleton_type = obj_snake;  snake_count += 1; }
-			else if (get_random_chance_out_of(FAST_SKELETON_PROBABILITY)) { skeleton_type = obj_red_skeleton; fast_skeleton_count += 1; }
-			
-			skeleton_type = obj_cockroach; // TODO: REMOVE THIS
+			else if (has_all_cockroaches) { skeleton_type = obj_cockroach; }
+			else {
+				// Determine what to spawn in this skeleton spot
+				var rand = irandom_range(1,100);
+				switch (global.difficulty) {
+					case difficulties.DO_NOT_USE: { break; }
+					case difficulties.easy: {
+						if rand <= 3 { skeleton_type = obj_cockroach; cockroach_count += 1; }
+						break;
+					}
+					case difficulties.medium: {
+						if rand <= 6 { skeleton_type = obj_cockroach; cockroach_count += 1; }
+						else if rand <= 10 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 16 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
+						else if rand <= 17 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
+						break;
+					}
+					case difficulties.hard: {
+						if rand <= 12 { skeleton_type = obj_cockroach; cockroach_count += 1; }
+						else if rand <= 18 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 26 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
+						else if rand <= 30 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
+						break;
+					}
+					case difficulties.very_hard: {
+						if rand <= 25 { skeleton_type = obj_cockroach; cockroach_count += 1; }
+						else if rand <= 37 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 50 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
+						else if rand <= 58 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
+						break;
+					}
+				}
+			}
 			
 			array_push(skeleton_types, skeleton_type);
 		}
@@ -98,6 +130,7 @@ function GameRoom(given_x, given_y) constructor {
 		if (has_bumper) { room_reference_difficulty += 1.25; }
 		if (has_echo) { room_reference_difficulty += 5; }
 		if (has_eyes) { room_reference_difficulty += 2.5; }
+		if (has_all_cockroaches) { room_reference_difficulty += 0.25; }
 		if (has_ears) { room_reference_difficulty += 2.5; }
 		if (has_gudetama) { room_reference_difficulty += 0.025; }
 		
@@ -105,9 +138,10 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty += initial_nose_count * 0.75;
 		room_reference_difficulty += (initial_spider_count > 0 ? 1.5 : 0) + initial_spider_count * 0.5;
 		room_reference_difficulty += get_room_reference_object_count(obj_statue) * 0.325;
-		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - snake_count - ((has_eyes) ? 1 : 0)) * 0.25;
+		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - snake_count - fire_skeleton_count - ((has_eyes) ? 1 : 0)) * 0.25;
 		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.5
 		room_reference_difficulty += fast_skeleton_count * 0.325;
+		room_reference_difficulty += fire_skeleton_count * 0.5;
 		room_reference_difficulty += ((get_room_reference_object_count(obj_giant_worm_head) * 0.25) + (get_room_reference_object_count(obj_giant_worm_body) * 0.010));
 	
 		// Add a base increase if any enemies were present

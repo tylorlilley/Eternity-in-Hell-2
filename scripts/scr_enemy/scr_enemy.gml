@@ -359,8 +359,8 @@ function explode(destroy_self) {
 function check_for_player_collision() {
 	var player = global.player;
 	if (activated && place_meeting(x, y, player) && !player.dead) {
-		var carried_sword = noone;
-		with (player) { carried_sword = get_carried_item(obj_sword); }
+		var carried_sword = noone, carried_staff = noone;
+		with (player) { carried_sword = get_carried_item(obj_sword); carried_staff =  get_carried_item(obj_staff); }
 		if (is_existing_instance(carried_sword) && corporeal) { kill_with_sword(carried_sword); }
 		else if (object_index == obj_death || object_index == obj_lava_part) {
 			// Kill player from fireball
@@ -375,18 +375,21 @@ function check_for_player_collision() {
 		}
 		else {
 			// Kill player from enemy
-			var killer = object_index;
-			if (killer == obj_skeleton) {
-				if (spawn_timer > 0) { killer = obj_bones; }
-				else if (image_index == 1) { killer = obj_red_skeleton; }
+			if (object_index != obj_fire_skeleton || !is_existing_instance(carried_staff)) {
+				var killer = object_index;
+				if (killer == obj_skeleton) {
+					if (spawn_timer > 0) { killer = obj_bones; }
+					else if (image_index == 1) { killer = obj_fast_skeleton; }
+				}
+				if (corporeal) { play_sound(snd_crunch, false); }
+				if (object_index == obj_hands && is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_sword && !right_hand_item.special) {
+					var sword_in_ground = instance_create(player.x, player.y, obj_sword_in_ground);
+					sword_in_ground.image_xscale = right_hand_item.image_xscale;
+					instance_destroy(right_hand_item); 
+				}
+				if (object_index == obj_fire_skeleton) { play_sound(snd_extinguish, false); }
+				kill_player(killer);
 			}
-			if (corporeal) { play_sound(snd_crunch, false); }
-			if (object_index == obj_hands && is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_sword && !right_hand_item.special) {
-				var sword_in_ground = instance_create(player.x, player.y, obj_sword_in_ground);
-				sword_in_ground.image_xscale = right_hand_item.image_xscale;
-				instance_destroy(right_hand_item); 
-			}
-			kill_player(killer); 
 		}
 	}
 }

@@ -67,7 +67,7 @@ function interact_with_other_torches() {
 				actively_lit = true;
 			}
 		}
-	}	
+	}
 	
 	// Decrement time remaining if not actively_lit
 	if (!actively_lit && !special && time_to_remain_lit > 0) {

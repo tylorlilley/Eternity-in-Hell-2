@@ -84,3 +84,17 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 	}
 	global.bg_color = new_color;
 }
+
+// DEBUG MODE SPAWNER
+/*
+if (mouse_check_button_pressed(mb_left)) {
+	var obj_type = obj_skeleton;
+	var new_instance = instance_create(mouse_x, mouse_y, obj_type);
+	with (new_instance) { move_snap(8, 8); }
+}
+if (mouse_check_button_pressed(mb_right)) {
+	var obj_type = obj_bomb;
+	var new_instance = instance_create(mouse_x, mouse_y, obj_type);
+	with (new_instance) { move_snap(8, 8); }
+}
+*/

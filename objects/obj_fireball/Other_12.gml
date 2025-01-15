@@ -1,7 +1,7 @@
 /// @description End Step
 event_inherited();
 
-if (is_existing_instance(torch)) { set_instance_to_same_position(torch);  torch.image_xscale = 0.5; }
+update_fireball_torch_position(0.5);
 var blocked = false;
 
 // Destroy doors
@@ -38,28 +38,11 @@ if (destructive) {
 }
 
 // Light Bombs
-var bomb = instance_place(x, y, obj_bomb);
-if (is_existing_instance(bomb) && (!is_existing_instance(creator) || creator != bomb)) {
-	with (bomb) { light_bomb(); }
-}
+fireball_light_bombs();
 
 // Kill Enemies
-enemies_at_position = instance_place_all(x, y, obj_enemy);
-while (array_length(enemies_at_position) > 0) {
-	var enemy = array_random_pop(enemies_at_position);
-	if (enemy.activated && enemy.corporeal && get_distance_to_instance(enemy) <= 8) {
-		if (enemy.object_index == obj_hands) {
-			blocked = true;
-			with (enemy) {
-				if (!is_carrying_item(obj_staff)) { kill_enemy(snd_extinguish); }
-			}
-		}
-		else { 
-			blocked = (!enemy.fire_resistant);
-			with (enemy) { if (!fire_resistant) { kill_enemy(snd_extinguish); } }
-		}
-	}
-}
+var blocked_by_enemy = fireball_kill_enemies();
+if (blocked_by_enemy) { blocked = true; }
 
 // Kill Player
 var player = global.player;

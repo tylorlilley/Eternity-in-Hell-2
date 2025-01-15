@@ -357,8 +357,12 @@ function get_sprite_to_use(regular_sprite) {
 		case spr_cross: { return spr_cross_farmer; }
 		case spr_giant_wurm: { return spr_giant_wurm_farmer; }
 		case spr_portcullis: { return spr_portcullis_farmer; }
+		case spr_block: { return spr_block_farmer; }
 		/// Enemies
 		case spr_skeleton: { return spr_skeleton_farmer; }
+		case spr_cockroach: { return spr_cockroach_farmer; }
+		case spr_fire_skeleton: { return spr_fire_skeleton_farmer; }
+		case spr_living_block: { return spr_living_block_farmer; }
 		case spr_spider: { return spr_spider_farmer; }
 		case spr_mouth: { return spr_mouth_farmer; }
 		case spr_bumper: { return spr_bumper_farmer; }

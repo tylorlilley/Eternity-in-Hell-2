@@ -4,10 +4,7 @@ depth = LAVA_DEPTH;
 part_obj_index = obj_lava_part;
 
 // Set up lighting variables
-lighting_distance = LAVA_LIGHT_RANGE;
-intensity = 0.125 + irandom(0.35-0.125);
-maximum_intensity = 1;
-minimum_intensity = 0;
+initialize_lava_lighting()
 
 // Set up lava edge tiles
 lava_edge_sprite_index = spr_lava_edge;

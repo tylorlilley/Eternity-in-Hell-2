@@ -1,0 +1,57 @@
+/// @description Step
+if (can_process_this_frame()) {
+	var player = global.player
+	var dir = point_direction(x, y, player.x, player.y);
+
+	if (dying == 0) {
+		// Update Pupil Position
+		var prev_x = pupil_x, prev_y = pupil_y;
+		pupil_x = x + lengthdir_x(16, dir);
+		pupil_y = y + lengthdir_y(16, dir);
+		if (prev_x != pupil_x || prev_y != pupil_y) { spin_counter += point_distance(pupil_x, pupil_y, prev_x, prev_y); }
+		else { spin_counter = 0; }
+		
+		// Kill Self
+		if (spin_counter > 512 || spin_counter < -512) { dying = 32; }
+		else {
+			// Shoot Beam
+			if (shoot_timer > 0) { shoot_timer -= 1; }
+			else {
+				var target_dir = dir - 15 + irandom_range(0,30);
+				var target_x = x + lengthdir_x(16, target_dir);
+				var target_y = y + lengthdir_y(16, target_dir);
+				var beam = shoot_projectile(target_x, target_y, false, obj_magic_beam);
+				beam.x = pupil_x;
+				beam.y = pupil_y;
+				shoot_timer = irandom_range(12,48);
+			}
+		}
+	}
+	else {
+		// Shoot Randomly 
+		var dir = irandom_range(1,360), x_pos = x + lengthdir_x(8, dir), y_pos = y + lengthdir_y(8, dir);
+		var beam = shoot_projectile(x_pos, y_pos, false, obj_magic_beam);
+		
+		// Animate Death
+		dying -= 1;
+		if (get_random_chance_out_of(4)) { play_sound(snd_eyeball_explosion, true); image_index = 1; }
+		else { image_index = 0; }
+		
+		pupil_x = x + (-2 + irandom(4));
+		pupil_y = y - 16;
+		if dying == 0 { 
+			play_sound(snd_explosion, true); 
+			screen_flash();
+			for (var i = 0; i < 3; i ++) {
+				var x_pos = x + (8 * (-2 + irandom(4))), y_pos = y + (8 * (-2 + irandom(4)));
+				instance_create(x_pos, y_pos, obj_blood);
+			}
+			instance_destroy(); 
+			// TODO: Increase kill count
+		}
+	}
+}
+
+
+
+

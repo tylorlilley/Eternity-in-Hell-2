@@ -17,7 +17,7 @@ else { sprite_index = get_random_chance_out_of(128/global.difficulty) ? get_spri
 if shoot_timer > 0 { shoot_timer -= 1; }
 else {
 	var dir = irandom_range(1,360), x_pos = x + lengthdir_x(8, dir), y_pos = y + lengthdir_y(8, dir);
-	shoot_fireball(x_pos, y_pos, false);
+	shoot_projectile(x_pos, y_pos, false);
 	shoot_timer = irandom_range(8, 64);
 	sprite_index = get_sprite_to_use(spr_skeleton);
 }

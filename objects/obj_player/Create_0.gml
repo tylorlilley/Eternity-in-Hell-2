@@ -25,7 +25,7 @@ light.persistent = true;
 outline = (global.player_outline) ? instance_create(x, y, obj_outline) : noone;
 
 // Create initial carried torch
-with create_item_in_hand(directions.left, obj_torch) { }//light_torch(noone, true); };
+with create_item_in_hand(directions.left, obj_torch) { make_item_special(); light_torch(noone, true); };
 with create_item_in_hand(directions.right, obj_staff) { make_item_special(); }
 
 

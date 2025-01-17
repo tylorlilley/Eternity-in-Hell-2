@@ -3,5 +3,5 @@ else {
 	paused = true; 
 	escaped = true; 
 	play_sound(snd_putdown, false); 
-	with (obj_fireball) { speed = 2; }
+	with (obj_projectile) { speed = prev_speed; }
 }

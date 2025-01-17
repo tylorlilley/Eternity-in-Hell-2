@@ -5,4 +5,4 @@ if get_random_chance_out_of(BLOCK_ITEM_PROBABILITY) {
 	instance_create(x, y, item_obj);
 }
 
-instance_create(x, y, obj_block);
+instance_create(x, y, obj_living_block);

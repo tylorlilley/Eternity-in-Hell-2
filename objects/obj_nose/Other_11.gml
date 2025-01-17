@@ -21,7 +21,7 @@ else {
 		else {
 			var target = get_dropped_meat();
 			if (!is_existing_instance(target)) { target = global.player; }
-			shoot_fireball(target.x, target.y, false);
+			shoot_projectile(target.x, target.y, false);
 			reset_nose();
 		}
 	}

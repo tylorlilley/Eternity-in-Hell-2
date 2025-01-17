@@ -288,6 +288,7 @@ function game_room_start_other() {
 		else if (!is_existing_instance(closed) && !stuck_open) { close_door(); }
 	}
 	with (obj_gudetama) { play_sound(snd_give_up, false); }
+	with (obj_giant_eye) { shoot_timer = irandom_range(24,48); }
 }
 
 /// @function										game_room_start_spawn_instances();
@@ -340,7 +341,7 @@ function game_room_start_destroy_instances() {
 	//// Destroy instances that shouldn't persist when returning to the room
 	with (obj_bug) { instance_destroy(); }
 	with (obj_echo) { instance_destroy(); }
-	with (obj_fireball) { instance_destroy(); }
+	with (obj_projectile) { instance_destroy(); }
 	with (obj_bomb) { 
 		if (!is_existing_instance(holder) && fuse_timer > 0) {
 			if (special) { fuse_timer = 0; } 

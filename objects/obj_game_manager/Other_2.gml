@@ -72,6 +72,7 @@ global.death_types_array = [
 	obj_lava,
 	obj_bones,
 	obj_skeleton,
+	obj_cultist,
 	obj_fast_skeleton,
 	obj_fire_skeleton,
 	obj_cockroach,

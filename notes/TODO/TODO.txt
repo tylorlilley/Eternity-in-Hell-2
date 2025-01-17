@@ -2,17 +2,13 @@ hornets - like fireballs but slow velocity once launched until stopping and hove
 - launch a stream from hiveman
 - spawn a couple around a static hive tile
 - sometimes spawn one on a skeleton
-cockroach - skeleton that moves away from light but towards you in the darkness
-living block - block that moves on its own and can crush you/other things as a result
 true roguelike mode - mode that swaps sprites of all items and all enemies for even more challenge. Include/unlock after EIEIH mode?
 redo menu and log more stats like how many deaths per mode, how many kills for enemies as well as deaths. Make it a scrolling list
-fire spitting skeleton vairant
 special rooms?
 - hall of mirrors where map doesn't work and you have to lost woods your way out
 - large rotating eyeball mr. i style
 - large sleeping troll to wake up in field of grass
 
-- cockroach full room?
 
 
 
@@ -28,7 +24,6 @@ dying on the same frame from phantom as a stairs transition freezes game on end 
 
 Add difficulty for collectables?
 
-fireballs still go through chests
 
 use pathfinding to calculate actual distances to lamps for phantom
 - get path to nearest lamp, then path to nearest lamp from there, etc.

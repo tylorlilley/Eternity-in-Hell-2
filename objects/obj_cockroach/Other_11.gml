@@ -46,10 +46,13 @@ else {
 			if (greatest_lighting_range <= PLAYER_LIGHT_RANGE) { dir = move_toward_player(false, false, 3); moved = true; skeleton_speed = SKELETON_MOVE_FREQUENCY * 2; }
 			else if (can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); moved = true; skeleton_speed = SKELETON_MOVE_FREQUENCY; }
 		}
+		
+		// Update Graphics
 		if moved { 
 			image_angle = dir * -90;
 			image_xscale = current_x_scale * -1;
 		}
+		else if get_random_chance_out_of(skeleton_speed/4) { image_xscale = current_x_scale * -1; }
 	}
 }
 

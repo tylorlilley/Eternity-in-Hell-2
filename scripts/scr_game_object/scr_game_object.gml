@@ -16,13 +16,13 @@ function is_instance_at_coordinates(x_pos, y_pos, instance) {
 }
 
 /// @function								is_direction_toward(dir, obj);
-/// @param		{direction} dir				The direction from the calling instance to check whether the player is in or not
+/// @param		{direction} dir				The direction from the calling instance to check whether the given instance
 /// @param		{instance} obj				The object to check for the direction of
-function is_direction_toward(dir, obj) {
-	return ((y > obj.y && dir == directions.up) ||
-	        (x < obj.x && dir == directions.right) ||
-	        (y < obj.y && dir == directions.down) ||
-	        (x > obj.x && dir == directions.left));
+function is_direction_toward(dir, inst) {
+	return ((y > inst.y && dir == directions.up) ||
+	        (x < inst.x && dir == directions.right) ||
+	        (y < inst.y && dir == directions.down) ||
+	        (x > inst.x && dir == directions.left));
 }
 
 /// @function								turn_to_face_player();
@@ -358,6 +358,7 @@ function get_sprite_to_use(regular_sprite) {
 		case spr_giant_wurm: { return spr_giant_wurm_farmer; }
 		case spr_portcullis: { return spr_portcullis_farmer; }
 		case spr_block: { return spr_block_farmer; }
+		case spr_block_tile2: { return spr_block_tile_farmer; }
 		/// Enemies
 		case spr_skeleton: { return spr_skeleton_farmer; }
 		case spr_cockroach: { return spr_cockroach_farmer; }

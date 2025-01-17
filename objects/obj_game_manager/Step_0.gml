@@ -11,7 +11,7 @@ else {
 		if (can_process) { with (player) { event_user(i); } }
 		with (obj_game_object) { 
 			if ((!is_existing_instance(player) || id != player.id) &&
-				(can_process || object_index == obj_fireball)) { event_user(i); } 
+				(can_process || object_is_ancestor(object_index, obj_projectile))) { event_user(i); } 
 		}
 		with (obj_light_source) { event_user(i); }
 		with (obj_controller) { event_user(i); }
@@ -26,7 +26,7 @@ if (key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
 			else { 
 				paused = true; 
 				play_sound(snd_pickup, false); 
-				with (obj_fireball) { speed = 0; }
+				with (obj_projectile) { prev_speed = speed; speed = 0; }
 			}
 		}
 	}
@@ -34,7 +34,7 @@ if (key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
 		paused = false; 
 		escaped = false;
 		play_sound(snd_putdown, false); 
-		with (obj_fireball) { speed = 2; }
+		with (obj_projectile) { speed = prev_speed; }
 	}
 }
 

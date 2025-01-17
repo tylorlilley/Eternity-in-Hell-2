@@ -23,21 +23,25 @@ function fireball_light_bombs() {
 }
 
 /// @function									fireball_kill_enemies();
-function fireball_kill_enemies() {
+///	@param		{bool} ignore_fire_resistantce  If true will kill fire resistant enemies
+///	@param		{bool} use_magic_resistance		If true will use magic resistance instead of fire
+function fireball_kill_enemies(use_magic_resistance = false) {
+	var kill_snd = use_magic_resistance ? snd_no : snd_extinguish
 	var blocked = false;
 	var enemies_at_position = instance_place_all(x, y, obj_enemy);
 	while (array_length(enemies_at_position) > 0) {
 		var enemy = array_random_pop(enemies_at_position);
+		var resistance = use_magic_resistance ? enemy.magic_resistant : enemy.fire_resistant;
 		if (enemy.activated && enemy.corporeal && get_distance_to_instance(enemy) <= 8) {
 			if (enemy.object_index == obj_hands) {
 				blocked = true;
 				with (enemy) {
-					if (!is_carrying_item(obj_staff)) { kill_enemy(snd_extinguish); }
+					if (!is_carrying_item(obj_staff)) { kill_enemy(kill_snd); }
 				}
 			}
 			else { 
-				blocked = (!enemy.fire_resistant);
-				with (enemy) { if (!fire_resistant) { kill_enemy(snd_extinguish); } }
+				blocked = !resistance;
+				with (enemy) { if (!resistance) { kill_enemy(kill_snd); } }
 			}
 		}
 	}

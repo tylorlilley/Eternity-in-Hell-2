@@ -30,6 +30,7 @@
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 8, 4, 3])
 #macro COCKROACH_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])
+#macro CULTIST_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 46]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 36, 30, 28, 24]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 32, 28, 24]) 
@@ -93,11 +94,11 @@
 #macro TOTAL_COMPLETION_AMOUNT 4 
 
 // Depth Constants
-#macro FIREBALL_DEPTH -300
+#macro PROJECTILE_DEPTH -300
 #macro CARRIED_ITEM_DEPTH -250
 #macro INCORPOREAL_ENEMY_DEPTH -225
 #macro GIANT_WORM_DEPTH -200
-#macro PUSH_BLOCK_DEPTH -30
+#macro PUSH_BLOCK_DEPTH -1 // -30
 #macro FLOATING_ENEMY_DEPTH -25
 #macro BUSH_DEPTH -20
 #macro PLAYER_DEPTH -10

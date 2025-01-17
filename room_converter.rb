@@ -16,6 +16,7 @@ class RoomConverter
     )
 
     OBJECT_TYPES = %w(
+        obj_giant_eye
         obj_lantern
         obj_lava
         obj_skeleton_spot
@@ -49,6 +50,7 @@ class RoomConverter
     )
 
     THREAT_TYPES = %w(
+        obj_giant_eye
         obj_lantern
         obj_lava
         obj_skeleton_spot
@@ -105,6 +107,7 @@ class RoomConverter
             "obj_lantern" => 0.35,
             "obj_door" => 0.15,
             "obj_ears" => 0.05,
+            "obj_giant_eye" => 0.05,
             "obj_bush" => 0.25,
             "obj_spider_spot" => 0.12,
             "obj_skeleton_spot" => 0.15,
@@ -146,8 +149,10 @@ class RoomConverter
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"
         threat_level += 4 if room_objects.include? "obj_gudetama"
+        threat_level += 1 if room_objects.include? "obj_giant_eye"
 
         # Threats Per Instance 
+        threat_level += room_objects.count("obj_giant_eye")
         threat_level += room_objects.count("obj_mouth")
         threat_level += (0.08 * room_objects.count("obj_block_spot")).floor
         threat_level += (0.01 * room_objects.count("obj_lava")).ceil
@@ -415,4 +420,4 @@ filenames.each do |filename|
     sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) } #unless ['.', '..', 'rm_start.yy', 'rm_title.yy', 'rm_finish.yy', 'rm_four_exits_13.yy', 'rm_four_exits_14.yy', 'rm_four_exits_15.yy', 'rm_four_exits_16.yy', 'rm_four_exits_17.yy'].include?(sub_file_name) }
 end
 
-converter.count_all_object_types()
+# converter.count_all_object_types()

@@ -3,7 +3,7 @@
 function kill_enemy(death_sound) {
 	if (death_sound != noone) { play_sound(death_sound, true); }
 	if (corporeal) {
-		var corpse = (object_index == obj_skeleton) ? obj_bones : obj_blood;
+		var corpse = (object_index == obj_skeleton || object_index == obj_fast_skeleton || object_index == obj_fire_skeleton) ? obj_bones : obj_blood;
 		instance_create(x, y, corpse);
 	}
 	if (object_index == obj_hands) {
@@ -111,19 +111,21 @@ function teleport_to_lava() {
 	return noone;
 }
 
-/// @function								shoot_fireball(target_x, target_y, make_destructive)
+/// @function								shoot_projectile(target_x, target_y, make_destructive)
 ///	@param		{int}	target_x			The x position of the target to move towards;
 ///	@param		{int}	target_y			The y position of the target to move towards;
-///	@param		{boolen} make_destructive			The y position of the target to move towards;
-function shoot_fireball(target_x, target_y, make_destructive) {
-	play_sound(snd_shoot, false);
-	var fireball = instance_create(x, y, obj_fireball);
-	with (fireball) {
+///	@param		{boolean} make_destructive	The y position of the target to move towards;
+///	@param		{obj} obj					The type of projectile to spawn;
+function shoot_projectile(target_x, target_y, make_destructive, obj = obj_fireball) {
+	play_sound((obj == obj_magic_beam ? snd_magic : snd_shoot), false);
+	var proj = instance_create(x, y, obj);
+	with (proj) {
 		creator = other.id;
 		creator_obj = other.object_index;
 		destructive = make_destructive;
-		move_towards_point(target_x, target_y, 2); 
-	}	
+		move_towards_point(target_x, target_y, (obj == obj_fireball ? 2 : 1)); 
+	}
+	return proj;
 }
 
 /// @function								try_to_see_player();
@@ -331,26 +333,26 @@ function explode(destroy_self) {
 	screen_flash();
 	
 	// The Rest
-	shoot_fireball(x-8, y-4, true);
-	shoot_fireball(x-4, y-8, true);
-	shoot_fireball(x+4, y-8, true);
-	shoot_fireball(x+8, y-4, true);
-	shoot_fireball(x-8, y+4, true);
-	shoot_fireball(x-4, y+8, true);
-	shoot_fireball(x+4, y+8, true);
-	shoot_fireball(x+8, y+4, true);
+	shoot_projectile(x-8, y-4, true);
+	shoot_projectile(x-4, y-8, true);
+	shoot_projectile(x+4, y-8, true);
+	shoot_projectile(x+8, y-4, true);
+	shoot_projectile(x-8, y+4, true);
+	shoot_projectile(x-4, y+8, true);
+	shoot_projectile(x+4, y+8, true);
+	shoot_projectile(x+8, y+4, true);
 		
 	// Diagonals
-	shoot_fireball(x-8, y-8, true);
-	shoot_fireball(x+8, y-8, true);
-	shoot_fireball(x-8, y+8, true);
-	shoot_fireball(x+8, y+8, true);
+	shoot_projectile(x-8, y-8, true);
+	shoot_projectile(x+8, y-8, true);
+	shoot_projectile(x-8, y+8, true);
+	shoot_projectile(x+8, y+8, true);
 	
 	// Cardinal Directions
-	shoot_fireball(x+0, y-8, true);
-	shoot_fireball(x+0, y+8, true);
-	shoot_fireball(x-8, y+0, true);
-	shoot_fireball(x+8, y+0, true);
+	shoot_projectile(x+0, y-8, true);
+	shoot_projectile(x+0, y+8, true);
+	shoot_projectile(x-8, y+0, true);
+	shoot_projectile(x+8, y+0, true);
 
 	if (destroy_self) { instance_destroy(); }
 }
@@ -363,7 +365,7 @@ function check_for_player_collision() {
 		with (player) { carried_sword = get_carried_item(obj_sword); carried_staff =  get_carried_item(obj_staff); }
 		if (is_existing_instance(carried_sword) && corporeal) { kill_with_sword(carried_sword); }
 		else if (object_index == obj_death || object_index == obj_lava_part) {
-			// Kill player from fireball
+			// Kill player from projectile
 			with (player) { 
 				if (!is_carrying_item(obj_staff)) { 
 					play_sound(snd_extinguish, false);

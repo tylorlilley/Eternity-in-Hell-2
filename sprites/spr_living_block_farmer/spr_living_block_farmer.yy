@@ -13,8 +13,8 @@
   "edgeFiltering": false,
   "For3D": false,
   "frames": [
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"dec4b664-11d7-4442-959e-8bfed8c2ea62",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"206e3ff8-3f9c-4308-94f5-a3fbd26b8df4",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"dec4b664-11d7-4442-959e-8bfed8c2ea62",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -78,8 +78,8 @@
     "timeUnits": 1,
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"dec4b664-11d7-4442-959e-8bfed8c2ea62","path":"sprites/spr_living_block_farmer/spr_living_block_farmer.yy",},},},"Disabled":false,"id":"bc533251-0fd1-4211-9e3f-a3a17369b260","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"206e3ff8-3f9c-4308-94f5-a3fbd26b8df4","path":"sprites/spr_living_block_farmer/spr_living_block_farmer.yy",},},},"Disabled":false,"id":"98a13522-fa4b-4d3a-855c-c67833a2ec40","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"206e3ff8-3f9c-4308-94f5-a3fbd26b8df4","path":"sprites/spr_living_block_farmer/spr_living_block_farmer.yy",},},},"Disabled":false,"id":"98a13522-fa4b-4d3a-855c-c67833a2ec40","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"dec4b664-11d7-4442-959e-8bfed8c2ea62","path":"sprites/spr_living_block_farmer/spr_living_block_farmer.yy",},},},"Disabled":false,"id":"bc533251-0fd1-4211-9e3f-a3a17369b260","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

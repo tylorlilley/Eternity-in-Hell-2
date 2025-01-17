@@ -1,6 +1,6 @@
 /// @description Step
 if (spawn_timer > 0) { spawn_timer -= 1; }
-else { 
+else if (skeleton_speed > 0) { 
 	var dir = irandom(skeleton_speed);
 	var dropped_meat = get_dropped_meat();
 	if (is_cardinal_direction(dir)) {
@@ -14,7 +14,7 @@ else {
 		
 		// Move toward point
 		if (target_path != noone) { move_towards_coordinates_on_path(false, false, 1); }
-		else if (can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); }
+		else if (can_move_in_direction(dir, false, fire_resistant)) { move_in_direction(dir, true); }
 	}
 }
 

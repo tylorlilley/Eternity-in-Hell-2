@@ -66,6 +66,7 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		draw_sprite(death_sprite, 0, x_pos, y_pos);
 	}
 	else if (obj_index == obj_fast_skeleton) { draw_sprite(spr_skeleton, 1, x_pos, y_pos); }
+	else if (obj_index == obj_giant_eye) { draw_sprite(spr_giant_eye_death_sprite, 1, x_pos, y_pos); }
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
 

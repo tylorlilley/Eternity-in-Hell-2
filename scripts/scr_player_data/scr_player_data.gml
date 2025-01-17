@@ -1,17 +1,32 @@
-/// @function								update_death_log(obj_index, difficulty, new_score);
+/// @function								update_death_log(obj_index, difficulty);
 ///	@param		{obj_id} obj_index			The object_index value to update
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
 function update_death_log(obj_index, difficulty) {
-	var previous_death_count = get_death_count(obj_index, difficulty);
+	var previous_death_count = get_death_count(obj_index, difficulty), var current_run = get_run_number_count(difficulty);
 	
 	ini_open("player_data.ini");
 	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index), previous_death_count+1);
+	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_last_killed_by", current_run);
 	ini_close();
 	
 	update_log("outcome", "lost");
 	update_log("killed_by", object_get_name(obj_index));
 	
 	update_best_score(difficulty);
+}
+
+/// @function								update_kill_log(obj_index, difficulty);
+///	@param		{obj_id} obj_index			The object_index value to update
+///	@param		{difficulty} difficulty		The difficulty to update the count for
+///	@param		{obj_id} killer				The object that did the killing
+function update_kill_log(obj_index, difficulty, killer) {
+	var previous_kill_count = get_kill_count(obj_index, difficulty);
+	var previous_kills__by_killer_count = get_kills_by_killer_count(obj_index, difficulty, killer);
+	
+	ini_open("player_data.ini");
+	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_kills", previous_kill_count+1);
+	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_kills_by_"+object_get_name(killer), previous_kills__by_killer_count+1);
+	ini_close();
 }
 
 /// @function								get_death_count(obj_index, difficulty);
@@ -32,6 +47,67 @@ function get_death_count(obj_index, difficulty) {
 	}
 	
 	return death_count;
+}
+
+/// @function								get_kill_count(obj_index, difficulty);
+///	@param		{obj_id} obj_index			The object_index value to get the death count of
+///	@param		{difficulty} difficulty		The difficulty to return a count for
+function get_kill_count(obj_index, difficulty) {
+	var kill_count = 0;
+	
+	var all_difficulties = get_difficulties();
+	while (array_length(all_difficulties) > 0) {
+		var next_difficulty = array_pop(all_difficulties);
+		
+		if (difficulty == all || difficulty == next_difficulty) {
+			ini_open("player_data.ini");
+			kill_count += ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index)+"_kills", 0);
+			ini_close();
+		}
+	}
+	
+	return kill_count;
+}
+
+/// @function								get_kills_by_killer_count(obj_index, difficulty);
+///	@param		{obj_id} obj_index			The object_index value to get the death count of
+///	@param		{difficulty} difficulty		The difficulty to return a count for
+///	@param		{obj_id} killer				The object that did the killing
+function get_kills_by_killer_count(obj_index, difficulty, killer) {
+	var kill_count = 0;
+	
+	var all_difficulties = get_difficulties();
+	while (array_length(all_difficulties) > 0) {
+		var next_difficulty = array_pop(all_difficulties);
+		
+		if (difficulty == all || difficulty == next_difficulty) {
+			ini_open("player_data.ini");
+			kill_count += ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index)+"_kills_by_"+object_get_name(killer), 0);
+			ini_close();
+		}
+	}
+	
+	return kill_count;
+}
+
+/// @function								get_kill_count(obj_index, difficulty);
+///	@param		{obj_id} obj_index			The object_index value to get the death count of
+///	@param		{difficulty} difficulty		The difficulty to return a count for
+function get_last_killed(obj_index, difficulty) {
+	var last_killed = 0;
+	
+	var all_difficulties = get_difficulties();
+	while (array_length(all_difficulties) > 0) {
+		var next_difficulty = array_pop(all_difficulties);
+		
+		if (difficulty == all || difficulty == next_difficulty) {
+			ini_open("player_data.ini");
+			last_killed = ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index)+"_last_killed_by", 0);
+			ini_close();
+		}
+	}
+	
+	return last_killed;
 }
 
 /// @function								get_total_death_count(difficulty);
@@ -76,7 +152,6 @@ function get_death_types() {
 
 /// @function								update_win_log(difficulty, new_score);
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
-///	@param		{real} new_score			The new score to record
 function update_win_log(difficulty) {
 	var previous_win_count = get_win_count(difficulty);
 	
@@ -87,6 +162,18 @@ function update_win_log(difficulty) {
 	update_log("outcome", "won");
 	
 	update_best_score(difficulty)
+}
+
+/// @function								update_run_number_log(difficulty, new_score);
+///	@param		{difficulty} difficulty		The difficulty to update the count for
+function update_run_number_log(difficulty) {
+	var previous_run_number = get_run_number_count(difficulty);
+	
+	ini_open("player_data.ini");
+	ini_write_real(get_difficulty_string(difficulty), "run_number", previous_run_number+1);
+	ini_close();
+	
+	update_log("run_number", previous_run_number+1);
 }
 
 /// @function								update_best_score(difficulty);
@@ -122,6 +209,25 @@ function get_win_count(difficulty) {
 	}
 	
 	return win_count;
+}
+
+/// @function								get_run_number_count(difficulty);
+///	@param		{difficulty} difficulty		The difficulty to return a count for
+function get_run_number_count(difficulty) {
+	var run_count = 0;
+	
+	var all_difficulties = get_difficulties();
+	while (array_length(all_difficulties) > 0) {
+		var next_difficulty = array_pop(all_difficulties);
+		
+		if (difficulty == all || difficulty == next_difficulty) {
+			ini_open("player_data.ini");
+			run_count += ini_read_real(get_difficulty_string(next_difficulty), "run_number", 0);
+			ini_close();
+		}
+	}
+	
+	return run_count;
 }
 
 /// @function								get_win_count_string(difficulty);

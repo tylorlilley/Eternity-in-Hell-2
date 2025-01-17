@@ -46,8 +46,8 @@ if (can_process_this_frame()) {
 				var x_pos = x + (8 * (-2 + irandom(4))), y_pos = y + (8 * (-2 + irandom(4)));
 				instance_create(x_pos, y_pos, obj_blood);
 			}
-			instance_destroy(); 
-			// TODO: Increase kill count
+			instance_destroy();
+			update_kill_log(object_index, global.difficulty, object_index);
 		}
 	}
 }

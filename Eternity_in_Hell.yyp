@@ -630,6 +630,7 @@
     {"id":{"name":"scr_game_object","path":"scripts/scr_game_object/scr_game_object.yy",},"order":3,},
     {"id":{"name":"rm_two_perpendicular_exits_26","path":"rooms/rm_two_perpendicular_exits_26/rm_two_perpendicular_exits_26.yy",},"order":24,},
     {"id":{"name":"obj_exit_spot_down","path":"objects/obj_exit_spot_down/obj_exit_spot_down.yy",},"order":0,},
+    {"id":{"name":"spr_giant_eye_death_sprite_old","path":"sprites/spr_giant_eye_death_sprite_old/spr_giant_eye_death_sprite_old.yy",},"order":0,},
     {"id":{"name":"spr_magic_beam","path":"sprites/spr_magic_beam/spr_magic_beam.yy",},"order":0,},
     {"id":{"name":"obj_hidden_chest","path":"objects/obj_hidden_chest/obj_hidden_chest.yy",},"order":5,},
     {"id":{"name":"rm_four_exits_9","path":"rooms/rm_four_exits_9/rm_four_exits_9.yy",},"order":8,},

@@ -659,7 +659,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_three_exits_30// CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_two_opposite_exits_17// CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();

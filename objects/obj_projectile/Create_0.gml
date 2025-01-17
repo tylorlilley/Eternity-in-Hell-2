@@ -7,3 +7,4 @@ prev_speed = 0;
 creator = noone;
 creator_obj = -1;
 destructive = false;
+shot_by_player = false;

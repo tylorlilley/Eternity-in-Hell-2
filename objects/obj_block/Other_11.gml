@@ -2,12 +2,14 @@
 event_inherited();
 	
 var dir = get_direction_pushed_against();
-	
+just_pushed = false;
+
 if (dir != directions.none && can_move_in_direction(dir, false, true)) {
 	play_sound(snd_thud, false);
 	snap_player_to_position(dir);
 	move_in_direction(dir, false);
 	move_player(dir);
+	just_pushed = true;
 }
 	
 // Destroy self and/or enemy when pushed onto an enemy
@@ -20,6 +22,7 @@ while (array_length(enemies_at_position) > 0) {
 			with enemy { 
 				if (object_index != obj_hands || !is_carrying_special_item(obj_staff)) {
 					kill_enemy(snd_crunch); 
+					if (just_pushed) { update_kill_log(object_index, global.difficulty, object_index); }
 				}
 			}
 		}

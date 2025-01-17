@@ -12,7 +12,10 @@ pos = -2;
 options_pos = 0;
 options_screen = false;
 controls_screen = false;
+deaths_to_display = array_create(0);
+death_log_sort = 0;
 death_log_screen = false;
+death_log_pos = 0;
 loading = false;
 
 // Update game graphics textures

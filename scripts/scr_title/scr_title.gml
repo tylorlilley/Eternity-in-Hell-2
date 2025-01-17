@@ -16,9 +16,9 @@ function get_difficulty_string(difficulty) {
 function get_seed_option_string() {
 	var result = "";
 	switch (global.seed_option) {
-		case seed_options.rand: { result = "Generate Map"; break; }
-		case seed_options.same: { result = "Repeat Map"; break; }
-		case seed_options.specified: { result = "Specify Map"; break; }
+		case seed_options.rand: { result = "Begin"; break; }
+		case seed_options.same: { result = "Repeat"; break; }
+		case seed_options.specified: { result = "Specify:"; break; }
 	}
 	return result;
 }

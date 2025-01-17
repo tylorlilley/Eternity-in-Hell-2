@@ -22,7 +22,11 @@ else {
 if (key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
 	if (!paused) {
 		if (instance_number(obj_title) == 0) {
-			if (is_game_won() || is_game_lost() || is_time_up()) { return_to_title_screen(); exit; }
+			if (is_game_won() || is_game_lost() || is_time_up()) {
+				update_run_number_log(global.difficulty);
+				return_to_title_screen(); 
+				exit; 
+			}
 			else { 
 				paused = true; 
 				play_sound(snd_pickup, false); 

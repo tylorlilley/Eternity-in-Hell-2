@@ -11,3 +11,5 @@ can_move_on_border = false;
 target_path_grid = -1;
 has_automatic_target_path_generation = true;
 can_interrupt_target_path = false;
+
+lit_by_player = false;

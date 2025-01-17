@@ -18,7 +18,10 @@ function update_lava_lighting() {
 function fireball_light_bombs() {
 	var bomb = instance_place(x, y, obj_bomb);
 	if (is_existing_instance(bomb) && (!is_existing_instance(creator) || creator != bomb)) {
-		with (bomb) { light_bomb(); }
+		with (bomb) {
+			lit_by_player = other.shot_by_player;
+			light_bomb(); 
+		}
 	}
 }
 
@@ -36,12 +39,20 @@ function fireball_kill_enemies(use_magic_resistance = false) {
 			if (enemy.object_index == obj_hands) {
 				blocked = true;
 				with (enemy) {
-					if (!is_carrying_item(obj_staff)) { kill_enemy(kill_snd); }
+					if (!is_carrying_item(obj_staff)) { 
+						kill_enemy(kill_snd);
+						if (other.shot_by_player) { update_kill_log(object_index, global.difficulty, other.object_index); }
+					}
 				}
 			}
 			else { 
 				blocked = !resistance;
-				with (enemy) { if (!resistance) { kill_enemy(kill_snd); } }
+				with (enemy) { 
+					if (!resistance) { 
+						kill_enemy(kill_snd);
+						if (other.shot_by_player) { update_kill_log(object_index, global.difficulty, other.object_index); }
+					} 
+				}
 			}
 		}
 	}

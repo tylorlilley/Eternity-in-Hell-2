@@ -1,21 +1,30 @@
-var death_count_string = get_death_count_string(global.difficulty), win_count_string = get_win_count_string(global.difficulty);
-var title_y_pos = room_height/4+16, title_scale = 0.125, blink = is_blink_frame();
+var game_manager = global.game_manager, game_color = get_game_color();
+var death_count_string = get_death_count_string(global.difficulty), win_count_string = (global.is_test_mode) ? "alotta wins man" : get_win_count_string(global.difficulty);
+var title_y_pos = room_height*2, title_scale = 0.125, blink = is_blink_frame();
 
+// Draw General Submenu Info
+draw_set_color(c_white);
+draw_set_font(ft_hud);
+draw_set_valign(fa_middle);
+draw_set_halign(fa_center);
+var submenu_title = "";
+if (options_screen) { submenu_title = "Options" }
+else if (controls_screen) { submenu_title = "View Controls"; }
+else if (death_log_screen) { submenu_title = "View Log"; }
+draw_set_color(game_color);
+if (options_screen || controls_screen || death_log_screen) {
+	draw_text(room_width/2, 16, submenu_title);
+	draw_text(room_width/2, room_height-16, get_input_x_key_string() + ": Return");
+}
+draw_set_color(c_white);
+
+// Draw Menu Specific Stuff
 if (loading) { title_y_pos = room_height*2; title_scale = 0.25; }
 else if (options_screen) {
-	draw_set_color(c_white);
-	draw_set_font(ft_hud);
-	draw_set_valign(fa_center);
+	draw_set_valign(fa_top);
+	draw_set_halign(fa_left);
 	
 	var y_pos = 32, x_pos = room_width-56-8, y_offset = 22;
-	
-	// Draw General Options Info
-	title_y_pos = room_height*2;
-	
-	draw_text(room_width/2, 16, "Options");	
-	draw_text(room_width/2, room_height-32, get_input_space_key_string() + ": Set to Default");
-	draw_text(room_width/2, room_height-16, get_input_x_key_string() + ": Return");
-	draw_set_valign(fa_left);
 	
 	// Draw Fullscreen Option
 	var is_full_screen = global.fullscreen;
@@ -125,13 +134,18 @@ else if (options_screen) {
 	var new_color_minimum_fade = make_color_rgb(global.game_color_fade/100.0 * color_get_red(new_color), global.game_color_fade/100.0 * color_get_green(new_color), global.game_color_fade/100.0 * color_get_blue(new_color));
 	//draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 1, 1, 0, c_white, 1);
 	draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+8, 0.875, 0.875, 0, new_color_minimum_fade, 1);
+	
+	// Draw Reset to Defaults Option
+	y_pos += y_offset;
+	draw_set_halign(fa_left);
+	if ((blink && options_pos == 8) || options_pos != 8) { draw_text(16, y_pos, "Reset to Default Settings"); }
+	draw_set_halign(fa_center);
 }
 else if (controls_screen) {
-	draw_set_color(c_white);
-	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
+	draw_set_halign(fa_left);
 	var title_y_pos = room_height*2;
-	var x_pos = room_width/3, y_pos = 64, y_offset = 40;
+	var x_pos = room_width/3, y_pos = 48, y_offset = 40;
 	
 	// Draw Controls
 	draw_set_halign(fa_left);
@@ -142,17 +156,18 @@ else if (controls_screen) {
 	draw_text(x_pos, y_pos+y_offset*4, "Pause Game");
 	
 	x_pos = room_width/3 - 40;
-	y_pos = 64;
+	y_pos = 48;
 	if (global.input != inputs.gamepad) {
 		var input_offset = (global.input == inputs.keyboard_wasd) ? 6 : 0;
-		draw_sprite(spr_small_key, 0+input_offset ,x_pos, y_pos-8);
-		draw_sprite(spr_small_key, 1+input_offset, x_pos + 16, y_pos+8);
-		draw_sprite(spr_small_key, 2+input_offset, x_pos, y_pos+8);
-		draw_sprite(spr_small_key, 3+input_offset, x_pos - 16, y_pos+8);
-		draw_sprite(spr_small_key, 4+input_offset, x_pos, y_pos+y_offset);
-		draw_sprite(spr_small_key, 5+input_offset, x_pos,y_pos+y_offset*2);
-		draw_sprite(spr_large_key, 0, x_pos, y_pos+y_offset*3);
-		draw_sprite(spr_large_key, 1, x_pos,y_pos+y_offset*4);
+		
+		draw_sprite_ext(spr_small_key, 0+input_offset ,x_pos, y_pos-8, 1, 1, 1, (game_manager.key_up ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_key, 1+input_offset, x_pos + 16, y_pos+8, 1, 1, 1, (game_manager.key_right ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_key, 2+input_offset, x_pos, y_pos+8, 1, 1, 1, (game_manager.key_down ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_key, 3+input_offset, x_pos - 16, y_pos+8, 1, 1, 1, (game_manager.key_left ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_key, 4+input_offset, x_pos, y_pos+y_offset, 1, 1, 1, (game_manager.key_z ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_key, 5+input_offset, x_pos,y_pos+y_offset*2, 1, 1, 1, (game_manager.key_x ? game_color : c_white), 1);
+		draw_sprite_ext(spr_large_key, 0, x_pos, y_pos+y_offset*3, 1, 1, 1, (game_manager.key_space ? game_color : c_white), 1);
+		draw_sprite_ext(spr_large_key, 1, x_pos,y_pos+y_offset*4, 1, 1, 1, (game_manager.key_enter ? game_color : c_white), 1);
 	}
 	else {
 		draw_sprite(spr_dpad, 0,x_pos, y_pos);
@@ -176,73 +191,69 @@ else if (controls_screen) {
 		draw_sprite(spr_small_button, 4, x_pos, y_pos+y_offset*4);
 		draw_sprite(spr_large_button, 1, x_pos + 18, y_pos+y_offset*4);
 	}
-	
-	// Draw Game Version
-	draw_set_halign(fa_right);
-	draw_text(room_width-8, 16, "v." + string(GM_version));
 }
 else if (death_log_screen && (death_count_string != noone || win_count_string != noone)) {
-	draw_set_color(c_white);
-	draw_set_font(ft_hud);
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_center);
 	title_y_pos = room_height*2;
 	
-	// Draw General Log Info
-	var best_score_string = get_best_score_string(global.difficulty);
-	draw_text(room_width/2, 16, get_difficulty_string(global.difficulty));
-
-	if (death_count_string != noone) { draw_text(room_width/2, 16*2, death_count_string); }
-	else { draw_text(room_width/2, 16*2, "Death Count: 0"); }
-	if (win_count_string != noone) { draw_text(room_width/2, room_height-16-16, win_count_string); }
-	if (best_score_string != noone) { draw_text(room_width/2, room_height-16, best_score_string); }
+	// Draw Headers
+	var y_initial = 16*2, x_initial = (room_width/4)-16, y_pos = y_initial, x_pos = x_initial-16;
+	var best_score_string = get_best_score_string(global.difficulty), killed_x_pos = (x_initial*2)-16, deaths_x_pos = (x_initial*3), last_x_pos = (x_initial*4)+16;
+	draw_text(room_width/2, y_pos, get_difficulty_string(global.difficulty));
+	y_pos += 16;
+	if (death_count_string != noone) { draw_text(room_width/2, y_pos, death_count_string); }
+	else { draw_text(room_width/2, y_pos, "Death Count: 0"); }
+	y_pos += 24;
+	draw_set_color((death_log_sort == 0) ? game_color : c_white);
+	draw_text(killed_x_pos, y_pos, "Kills:");
+	draw_set_color((death_log_sort == 1) ? game_color : c_white);
+	draw_text(deaths_x_pos, y_pos, "Deaths:");
+	draw_set_color((death_log_sort == 2) ? game_color : c_white);
+	draw_text(last_x_pos, y_pos, "Last Run\nEnded:");
+	draw_set_color(c_white);
+	if (win_count_string != noone) { draw_text(room_width/2, room_height-16-16-16, win_count_string); }
+	if (best_score_string != noone) { draw_text(room_width/2, room_height-16-16, best_score_string); }
 	
-	// Create list of all deaths to display
-	var death_types = get_death_types(), deaths_to_display = array_create(0),
+	// Draw Arrow Keys
+	y_pos += 16;
+	if (death_log_pos > 0 && !game_manager.key_up_pressed) { draw_sprite_ext(spr_small_key, 0 , room_width/2, y_pos, 1, 1, 1, c_white, 1); }
+	if (death_log_pos < array_length(deaths_to_display)-6 && !game_manager.key_down_pressed) { draw_sprite_ext(spr_small_key, 2, room_width/2, room_height-(16*4), 1, 1, 1, c_white, 1); }
+	y_pos += 16;
 	
-	while (array_length(death_types) > 0) {
-		var death_type = array_pop(death_types);
-		
-		var death_count = get_death_count(death_type, global.difficulty);
-		if (death_count > 0) { array_push(deaths_to_display, [death_type, death_count]); }
-	}
-	
-	// Sort deaths to display by death count
-	array_sort(deaths_to_display, function(elm1, elm2) { return elm1[1] - elm2[1]; });
-	
-	// Cycle through deaths to display
-	draw_set_halign(fa_right);
-	var x_columns = (array_length(deaths_to_display) <= 9) ? 3 : 5;
-	if (array_length(deaths_to_display) > 18) { x_columns = 7; }
-	var y_initial = (16*3)+8, x_initial = room_width/x_columns, y_pos = y_initial, x_pos = x_initial;
-	while (array_length(deaths_to_display) > 0) {
-		var death_to_display = array_pop(deaths_to_display), death_obj = death_to_display[0], death_count = death_to_display[1];
-		
-		// Draw Death Sprite and Count
-		draw_death_type_sprite(x_pos, y_pos, death_obj);
-		draw_text(x_pos+x_initial+16, y_pos, string(death_count));
-		
-		// Increase Draw Position
-		y_pos += 18;
-		if (y_pos > (y_initial+(18*8))) { y_pos = y_initial; x_pos += 2*x_initial; }
+	// Draw Deaths
+	for (var i = 0; i < 5; i++) {
+		var log_pos = death_log_pos + i;
+		if (log_pos >= array_length(deaths_to_display)) { break; }
+		else {
+			var death_to_display = deaths_to_display[log_pos], death_obj = death_to_display[0], death_count = death_to_display[1], kill_count = death_to_display[2], last_killed = death_to_display[3] ;
+			draw_death_type_sprite(x_pos, y_pos, death_obj);
+			draw_text(killed_x_pos, y_pos, string(kill_count));
+			draw_text(deaths_x_pos, y_pos, string(death_count));
+			draw_text(last_x_pos, y_pos, string(last_killed));
+			y_pos += 18;
+		}
 	}
 }
 else {
-	draw_set_color(c_white);
-	draw_set_font(ft_hud);
+	// Draw Main Menu
 	draw_set_valign(fa_middle);
-	draw_set_halign(fa_center);
+	draw_set_halign(fa_left);
+	var title_y_pos = room_height/4+16;
 	
-	// Draw Settings Switch Messages
-	var message_y_pos = room_height - 48, messages_y_offset = 0;
-	if (death_count_string != noone || win_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(room_width/2, message_y_pos, + get_input_x_key_string() + ": View Death Log"); }
-	draw_text(room_width/2, message_y_pos+messages_y_offset, get_input_space_key_string() + ": View Controls");
-	draw_text(room_width/2, message_y_pos+messages_y_offset+16, get_input_z_key_string() + ": Game Options");
-	draw_text(room_width/2, message_y_pos+messages_y_offset+32, get_input_enter_key_string() + ": Begin Game");
+	// Draw Game Version
+	draw_set_halign(fa_right);
+	draw_text(room_width-8, room_height-16, "v." + string(GM_version));
+	
+	// Draw farmer mode selection
+	if (blink && pos == -1) {
+		if (global.is_farm_mode) { draw_sprite_ext(spr_title_arrow, 0, room_width/4-32, title_y_pos, 1, 1, 0, c_white, 1); }
+		if (!global.is_farm_mode) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4+32, title_y_pos, -1, 1, 0, c_white, 1); }
+	}
 	
 	// Draw difficulty selection
-	if (global.seed_option == seed_options.specified) { title_y_pos -= 16; }
-	var difficulty_y_pos = (global.is_test_mode) ? title_y_pos + room_height/4 - 16 : (title_y_pos + message_y_pos) / 2;
+	draw_set_halign(fa_center);
+	var difficulty_y_pos = title_y_pos + room_height/4 - 32;
 	draw_text(room_width/2, difficulty_y_pos, get_difficulty_string(global.difficulty));
 	if (blink && pos == 0) {
 		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, difficulty_y_pos, 1, 1, 0, c_white, 1); }
@@ -250,7 +261,43 @@ else {
 	}
 	// Draw death count for current difficulty
 	if (death_count_string != noone) { draw_text(room_width/2, difficulty_y_pos+16, death_count_string); }
+	
+	// Draw remaining menu options
+	var message_y_pos = difficulty_y_pos+16+24, messages_y_offset = 0;
+	draw_set_halign(fa_left);
+	draw_text(32, message_y_pos+messages_y_offset, get_seed_option_string());
+	draw_text(32, message_y_pos+messages_y_offset+32, "Options");
+	draw_text(32, message_y_pos+messages_y_offset+48, "View Controls");
+	if (death_count_string != noone || win_count_string != noone) { message_y_pos -= 16; messages_y_offset += 16; draw_text(32, message_y_pos+messages_y_offset+64, + "View Log"); }
+	var arrow_y =-64;
+	if (pos == 1) { arrow_y = message_y_pos+messages_y_offset; }
+	else if (pos == 2) { arrow_y = message_y_pos+messages_y_offset+16; }
+	else if (pos == 3) { arrow_y = message_y_pos+messages_y_offset+32; }
+	else if (pos == 4) { arrow_y = message_y_pos+messages_y_offset+48; }
+	else if (pos == 5) { arrow_y = message_y_pos+messages_y_offset+64; }
+	
+	// Draw seed
+	if (global.seed_option == seed_options.specified) { draw_text(48, message_y_pos+messages_y_offset+16, get_zero_padded_string(current_seed, 9)); }
+	if (blink) {
+		if (pos == 1 && global.is_test_mode) {
+			// Draw option arrows
+			if (blink) {
+				if (global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) { draw_sprite_ext(spr_title_arrow, 0, 16, arrow_y, 1, 1, 0, c_white, 1); }
+				if (global.seed_option < seed_options.specified) { draw_sprite_ext(spr_title_arrow, 0, 96, arrow_y, -1, 1, 0, c_white, 1); }
+			}
+		}
+		else if (pos == 2) {
+			if (current_seed < MAX_SEED) { draw_sprite_ext(spr_title_arrow, 0, 40, message_y_pos+messages_y_offset+16, 1, 1, 0, c_white, 1); }
+			if (current_seed > 0) { draw_sprite_ext(spr_title_arrow, 0, 96+16+16, message_y_pos+messages_y_offset+16, -1, 1, 0, c_white, 1); }
+		}
+		else { draw_sprite_ext(spr_title_arrow, 0, 16, arrow_y, -1, 1, 0, c_white, 1); }
+	}
+}
 
+// Draw Logo 
+draw_sprite_ext(spr_logo, (global.is_farm_mode) ? 1 : 0, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);
+
+/*
 	// Draw seed selection
 	if (global.is_test_mode) {
 		var seed_y_pos = difficulty_y_pos + 40;
@@ -266,13 +313,4 @@ else {
 		    if (current_seed > 0) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, seed_y_pos+16, 1, 1, 0, c_white, 1); }
 		}
 	}
-	
-	// Draw farmer mode selection
-	if (blink && pos == -1) {
-		if (global.is_farm_mode) { draw_sprite_ext(spr_title_arrow, 0, room_width/4-32, title_y_pos, 1, 1, 0, c_white, 1); }
-		if (!global.is_farm_mode) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4+32, title_y_pos, -1, 1, 0, c_white, 1); }
-	}
-}
-
-// Draw Logo 
-draw_sprite_ext(spr_logo, (global.is_farm_mode) ? 1 : 0, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);
+	*/

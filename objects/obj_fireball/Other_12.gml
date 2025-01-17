@@ -4,9 +4,9 @@ event_inherited();
 update_fireball_torch_position(0.5);
 var blocked = false;
 
-// Destroy doors
-var door = instance_place(x, y, obj_door);
 if (destructive) {
+	// Destroy doors
+	var door = instance_place(x, y, obj_door);
 	with (door) { 
 		if (is_existing_instance(closed)) { 
 			instance_destroy(); 
@@ -14,24 +14,21 @@ if (destructive) {
 			blocked = true;
 		}
 	}
-}
-
-// Destroy chests
-var chest = instance_place(x, y, obj_chest);
-if (destructive) {
+	
+	// Destroy chests
+	var chest = instance_place(x, y, obj_chest);
 	with (chest) {
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
 	}
-}
-
-// Destroy statues
-var statue = instance_place(x, y, obj_statue);
-if (is_existing_instance(statue) && (!is_existing_instance(creator) || creator != statue )) { 
-	blocked = true; 
-}
-if (destructive) {
+	
+	// Destroy statues
+	var statue = instance_place(x, y, obj_statue);
+	if (is_existing_instance(statue) && (!is_existing_instance(creator) || creator != statue )) { 
+		blocked = true; 
+	}
 	with (statue) {
+		if (other.shot_by_player) { update_kill_log(object_index, global.difficulty, other.object_index); }
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
 	}

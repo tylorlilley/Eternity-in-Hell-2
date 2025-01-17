@@ -9,5 +9,6 @@ if (is_existing_instance(global.player) && !global.player.dead) {
 		array_push(controller.spawned_special_items, item_obj);
 		with (instance_create(x, y, item_obj)) { make_item_special(); }
 		screen_flash();
+		update_kill_log(obj_echo, global.difficulty, object_index);
 	}
 }

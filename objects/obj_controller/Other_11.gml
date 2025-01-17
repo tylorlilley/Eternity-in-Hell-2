@@ -94,6 +94,6 @@ if (mouse_check_button_pressed(mb_left)) {
 }
 if (mouse_check_button_pressed(mb_right)) {
 	var obj_type = obj_chest;
-	var new_instance = instance_create(mouse_x, mouse_y, obj_type);
+	var new_instance = instance_create(mouse_x, mouse_y, obj_bomb);
 	with (new_instance) { move_snap(8, 8); }
 }

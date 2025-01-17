@@ -32,6 +32,7 @@ function kill_with_sword(sword) {
 		instance_destroy(sword); 
 	}
 	kill_enemy(snd_crunch);
+	update_kill_log(object_index, global.difficulty, obj_sword);
 }
 
 /// @function								run_away_from_player(ignore_solid, ignore_death, make_sound);
@@ -333,26 +334,32 @@ function explode(destroy_self) {
 	screen_flash();
 	
 	// The Rest
-	shoot_projectile(x-8, y-4, true);
-	shoot_projectile(x-4, y-8, true);
-	shoot_projectile(x+4, y-8, true);
-	shoot_projectile(x+8, y-4, true);
-	shoot_projectile(x-8, y+4, true);
-	shoot_projectile(x-4, y+8, true);
-	shoot_projectile(x+4, y+8, true);
-	shoot_projectile(x+8, y+4, true);
+	var projectiles = array_create(0);
+	array_push(projectiles, shoot_projectile(x-8, y-4, true));
+	array_push(projectiles, shoot_projectile(x-4, y-8, true));
+	array_push(projectiles, shoot_projectile(x+4, y-8, true));
+	array_push(projectiles, shoot_projectile(x+8, y-4, true));
+	array_push(projectiles, shoot_projectile(x-8, y+4, true));
+	array_push(projectiles, shoot_projectile(x-4, y+8, true));
+	array_push(projectiles, shoot_projectile(x+4, y+8, true));
+	array_push(projectiles, shoot_projectile(x+8, y+4, true));
 		
 	// Diagonals
-	shoot_projectile(x-8, y-8, true);
-	shoot_projectile(x+8, y-8, true);
-	shoot_projectile(x-8, y+8, true);
-	shoot_projectile(x+8, y+8, true);
+	array_push(projectiles, shoot_projectile(x-8, y-8, true));
+	array_push(projectiles, shoot_projectile(x+8, y-8, true));
+	array_push(projectiles, shoot_projectile(x-8, y+8, true));
+	array_push(projectiles, shoot_projectile(x+8, y+8, true));
 	
 	// Cardinal Directions
-	shoot_projectile(x+0, y-8, true);
-	shoot_projectile(x+0, y+8, true);
-	shoot_projectile(x-8, y+0, true);
-	shoot_projectile(x+8, y+0, true);
+	array_push(projectiles, shoot_projectile(x+0, y-8, true));
+	array_push(projectiles, shoot_projectile(x+0, y+8, true));
+	array_push(projectiles, shoot_projectile(x-8, y+0, true));
+	array_push(projectiles, shoot_projectile(x+8, y+0, true));
+	
+	while (array_length(projectiles) > 0) {
+		var proj = array_pop(projectiles);
+		proj.shot_by_player = lit_by_player;
+	}
 
 	if (destroy_self) { instance_destroy(); }
 }

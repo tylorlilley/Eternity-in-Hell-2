@@ -19,7 +19,7 @@ if (activated) {
 	else {
 		// Flicker sprite if not corporeal
 		depth = INCORPOREAL_ENEMY_DEPTH;
-		visible = is_blink_frame();;
+		visible = is_blink_frame();
 	}
 }
 

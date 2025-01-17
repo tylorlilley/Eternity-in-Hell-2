@@ -28,7 +28,8 @@ if (global.controller.current_room.lit) {
 		audio_stop_sound(snd_dread);
 		play_sound(snd_impact, false); 
 		screen_flash(); 
-		instance_destroy(); 
+		instance_destroy();
+		update_kill_log(object_index, global.difficulty, object_index);
 	}
 }
 	

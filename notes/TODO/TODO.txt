@@ -1,3 +1,5 @@
+bubbler = spits out magic beams like statue but for beams
+
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point
 - launch a stream from hiveman
 - spawn a couple around a static hive tile

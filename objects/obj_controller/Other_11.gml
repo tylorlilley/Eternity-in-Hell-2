@@ -86,14 +86,14 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 }
 
 // DEBUG MODE SPAWNER
-
+// TODO: comment this out
 if (mouse_check_button_pressed(mb_left)) {
-	var obj_type = obj_cultist;
+	var obj_type = obj_column;
 	var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 	with (new_instance) { move_snap(8, 8); }
 }
 if (mouse_check_button_pressed(mb_right)) {
-	var obj_type = obj_chest;
-	var new_instance = instance_create(mouse_x, mouse_y, obj_bomb);
+	var obj_type = obj_mirror;
+	var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 	with (new_instance) { move_snap(8, 8); }
 }

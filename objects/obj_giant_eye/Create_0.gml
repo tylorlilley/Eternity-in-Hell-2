@@ -1,5 +1,7 @@
 event_inherited();
 
+sprite_index = get_sprite_to_use(spr_giant_eye);
+pupil_sprite = get_sprite_to_use(spr_giant_eye_pupil);
 depth = -1;
 dying = 0;
 spin_counter = 0;

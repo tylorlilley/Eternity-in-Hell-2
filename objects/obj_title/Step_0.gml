@@ -65,7 +65,6 @@ if (!game_manager.paused) {
 			}
 				
 			// Sort deaths to display by death count
-			// TODO: different sorts
 			array_sort(deaths_to_display, function(elm1, elm2) { 
 				switch (death_log_sort) {
 					case 1: { return elm2[1] - elm1[1]; break; }

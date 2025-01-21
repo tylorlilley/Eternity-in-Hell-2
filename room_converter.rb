@@ -23,6 +23,8 @@ class RoomConverter
         obj_mouth
         obj_bumper
         obj_statue
+        obj_mirror
+        obj_fountain
         obj_spider_spot
         obj_snake
         obj_bones
@@ -59,6 +61,8 @@ class RoomConverter
         obj_giant_worm_body
         obj_giant_worm_head
         obj_statue
+        obj_mirror
+        obj_fountain
         obj_spider_spot
         obj_gudetama
         obj_snake
@@ -112,6 +116,8 @@ class RoomConverter
             "obj_spider_spot" => 0.12,
             "obj_skeleton_spot" => 0.15,
             "obj_statue" => 0.05,
+            "obj_mirror" => 0.01,
+            "obj_fountain" => 0.05,
             "obj_giant_worm_body" => 0.08,
             "obj_mouth" => 0.08,
             "obj_column" => 0.50,
@@ -149,7 +155,8 @@ class RoomConverter
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"
         threat_level += 4 if room_objects.include? "obj_gudetama"
-        threat_level += 1 if room_objects.include? "obj_giant_eye"
+        threat_level += 3 if room_objects.include? "obj_giant_eye"
+        threat_level += 5 if room_objects.include? "obj_mirror"
 
         # Threats Per Instance 
         threat_level += room_objects.count("obj_giant_eye")
@@ -159,6 +166,7 @@ class RoomConverter
         threat_level += (room_objects.count("obj_spider_spot") * 1.2).ceil
         threat_level += (room_objects.count("obj_bones") * 0.05).ceil
         threat_level += (room_objects.count("obj_statue") * 0.25).ceil
+        threat_level += (room_objects.count("obj_fountain") * 0.25).ceil
         threat_level += (room_objects.count("obj_skeleton_spot") * 0.33).ceil
         threat_level += (room_objects.count("obj_snake") * 0.66).ceil
         threat_level += (0.25 * room_objects.count("obj_giant_worm_head") + 0.10 * room_objects.count("obj_giant_worm_body")).ceil

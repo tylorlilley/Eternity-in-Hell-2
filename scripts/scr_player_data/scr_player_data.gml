@@ -222,7 +222,7 @@ function get_run_number_count(difficulty) {
 		
 		if (difficulty == all || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
-			run_count += ini_read_real(get_difficulty_string(next_difficulty), "run_number", 0);
+			run_count += ini_read_real(get_difficulty_string(next_difficulty), "run_number", 1);
 			ini_close();
 		}
 	}

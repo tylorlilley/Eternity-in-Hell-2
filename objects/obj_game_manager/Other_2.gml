@@ -44,7 +44,6 @@ enum lava_edge_types {
 // Setup global variables for title screen
 global.difficulty = get_setting("difficulty", difficulties.easy);
 global.seed_option = get_setting("seed_option", seed_options.rand);
-global.seed_option = get_setting("run_number", 0);
 global.seed = get_setting("last_seed", noone);
 
 // Setup global variables for options
@@ -61,7 +60,7 @@ global.player_outline =  get_setting("player_outline", PLAYER_OUTLINE_DEFAULT);
 // Setup global game type options
 global.bg_color = make_color_rgb(0, 0, 0);
 global.is_farm_mode = get_setting("extra_mode", false);
-global.is_test_mode = true;
+global.is_test_mode = false;
 global.is_seed_testing_mode = false;
 global.has_seed_test_passed = false;
 
@@ -73,10 +72,7 @@ global.death_types_array = [
 	obj_lava,
 	obj_bones,
 	obj_skeleton,
-	obj_cultist,
 	obj_fast_skeleton,
-	obj_fire_skeleton,
-	obj_cockroach,
 	obj_snake,
 	obj_eyes,
 	obj_mouth,
@@ -85,14 +81,19 @@ global.death_types_array = [
 	obj_spider,
 	obj_statue,
 	obj_giant_worm_body,
-	obj_giant_eye,
-	obj_snake,
 	obj_nose,
 	obj_hands,
 	obj_ears,
 	obj_echo,
 	obj_gudetama,
-	obj_bug
+	obj_bug,
+	obj_mirror,
+	obj_giant_eye,
+	obj_living_block,
+	obj_fountain,
+	obj_fire_skeleton,
+	obj_cockroach,
+	obj_cultist,
 ]
 
 // Set controls and set up drawing surface variables

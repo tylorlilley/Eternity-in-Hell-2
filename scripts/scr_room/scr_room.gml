@@ -53,6 +53,7 @@ function GameRoom(given_x, given_y) constructor {
 		has_all_cockroaches = (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(COCKROACH_ROOM_PROBABILITY));
 		has_all_cultists = !has_all_cockroaches && (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(CULTIST_ROOM_PROBABILITY));
 		has_phantom = (has_lanterns && !lit && !has_eyes && get_random_chance_out_of(PHANTOM_PROBABILITY));
+		has_giant_eye = get_room_reference_object_count(obj_giant_eye) > 0;
 		
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
 		
@@ -144,6 +145,7 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty += initial_nose_count * 0.75;
 		room_reference_difficulty += (initial_spider_count > 0 ? 1.5 : 0) + initial_spider_count * 0.5;
 		room_reference_difficulty += get_room_reference_object_count(obj_statue) * 0.325;
+		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.325;
 		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.25;
 		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.5
 		room_reference_difficulty += fast_skeleton_count * 0.325;
@@ -516,7 +518,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		// Update room chest and item information
 		var controller = global.controller;
-		has_hidden_chest = (!lit && has_lanterns && !has_phantom && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
+		has_hidden_chest = ((!lit && has_lanterns && !has_phantom) || (has_giant_eye)) && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY);
 		has_special_item = (distance_to_start > 1 && array_length(controller.spawned_special_items) < SPECIAL_ITEM_LIMIT && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
 		has_locked_chest = (!has_hidden_chest && (has_special_item || get_random_chance_out_of(LOCKED_CHEST_PROBABILITY)));
 		var spawned_item_obj = (must_spawn) ? given_item_obj : get_random_item_obj(has_special_item, false);
@@ -659,7 +661,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_two_opposite_exits_17// CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_four_exits_23// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();

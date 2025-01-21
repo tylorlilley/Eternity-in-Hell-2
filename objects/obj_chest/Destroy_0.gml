@@ -11,7 +11,7 @@ if (is_existing_instance(controller)) {
 				
 			// Spawn content item
 			var new_item = noone;
-			new_item = instance_create(x, y, contents_obj);
+			new_item = instance_create(x, y, contents_obj); // Sometimes spawn fountains too?
 			with (new_item) { become_dropped(id); }
 			if (controller.current_room.has_special_item) { with new_item { make_item_special(); } }
 		}

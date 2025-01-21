@@ -69,10 +69,11 @@ if (array_length(rooms_with_lanterns) == 0) {
 		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); has_lanterns = true; }
 	}
 	if (!random_room.has_lanterns) {
+		// TODO: uncomment this
 		// This should NEVER happen
-		show_debug_message("WARNING: no lantern rooms generated.");
-		reset_map_generation();
-		exit;
+		//show_debug_message("WARNING: no lantern rooms generated.");
+		//reset_map_generation();
+		//exit;
 	}
 }
 

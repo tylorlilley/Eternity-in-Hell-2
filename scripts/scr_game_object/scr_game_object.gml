@@ -359,6 +359,7 @@ function get_sprite_to_use(regular_sprite) {
 		case spr_portcullis: { return spr_portcullis_farmer; }
 		case spr_block: { return spr_block_farmer; }
 		case spr_block_tile2: { return spr_block_tile_farmer; }
+		case spr_magic_beam: { return spr_magic_beam_farmer; }
 		/// Enemies
 		case spr_skeleton: { return spr_skeleton_farmer; }
 		case spr_cockroach: { return spr_cockroach_farmer; }
@@ -375,6 +376,8 @@ function get_sprite_to_use(regular_sprite) {
 		case spr_eyes: { return spr_eyes_farmer; }
 		case spr_ears: { return spr_ears_farmer; }
 		case spr_echo: { return spr_echo_farmer; }
+		case spr_giant_eye: { return spr_giant_eye_farmer; }
+		case spr_giant_eye_pupil: { return spr_giant_eye_pupil_farmer; }
 		/// Items
 		case spr_sword: { return spr_sword_farmer; }
 		case spr_sword_in_ground: { return spr_sword_in_ground_farmer; }

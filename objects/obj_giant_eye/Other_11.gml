@@ -17,10 +17,7 @@ if (can_process_this_frame()) {
 			// Shoot Beam
 			if (shoot_timer > 0) { shoot_timer -= 1; }
 			else {
-				var target_dir = dir - 15 + irandom_range(0,30);
-				var target_x = x + lengthdir_x(16, target_dir);
-				var target_y = y + lengthdir_y(16, target_dir);
-				var beam = shoot_projectile(target_x, target_y, false, obj_magic_beam);
+				var beam = shoot_magic_beam(15);
 				beam.x = pupil_x;
 				beam.y = pupil_y;
 				shoot_timer = irandom_range(12,48);

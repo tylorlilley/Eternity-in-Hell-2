@@ -532,6 +532,12 @@ function game_room_initialize() {
 		
 		var new_inst = instance_create(spawn_spot.x, spawn_spot.y, current_room.stairs_spot_obj);
 		if (is_existing_instance(new_inst)) {
+			if (current_room.has_giant_eye && new_inst.object_index == obj_hidden_chest) {
+				var chosen_eye = get_random_instance(obj_giant_eye);
+				new_inst.x = chosen_eye.x;
+				new_inst.y = chosen_eye.y;
+				new_inst.eye_chest = true;
+			}
 			switch (new_inst.object_index) {
 				case obj_chest:
 				case obj_hidden_chest:

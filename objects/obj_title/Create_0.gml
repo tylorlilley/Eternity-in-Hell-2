@@ -6,17 +6,21 @@ room_speed = 60;
 global.controller = noone;
 global.bg_color = make_color_rgb(0, 0, 0);
 
+loading = false;
 can_access_farmer_mode = false;
 current_seed = noone;
 pos = -2;
+prepare_screen = false;
+left_hand_selected = true;
+left_hand_options = array_create(0);
+right_hand_options = array_create(0);
 options_pos = 0;
 options_screen = false;
 controls_screen = false;
-deaths_to_display = array_create(0);
-death_log_sort = 0;
 death_log_screen = false;
 death_log_pos = 0;
-loading = false;
+death_log_sort = 0;
+deaths_to_display = array_create(0);
 
 // Update game graphics textures
 draw_texture_flush();

@@ -596,7 +596,7 @@
     {"id":{"name":"rm_three_exits_17","path":"rooms/rm_three_exits_17/rm_three_exits_17.yy",},"order":16,},
     {"id":{"name":"rm_three_exits_3","path":"rooms/rm_three_exits_3/rm_three_exits_3.yy",},"order":2,},
     {"id":{"name":"snd_infect_player","path":"sounds/snd_infect_player/snd_infect_player.yy",},"order":0,},
-    {"id":{"name":"scr_fire","path":"scripts/scr_fire/scr_fire.yy",},"order":0,},
+    {"id":{"name":"scr_projectile","path":"scripts/scr_projectile/scr_projectile.yy",},"order":0,},
     {"id":{"name":"rm_four_exits_99","path":"rooms/rm_four_exits_99/rm_four_exits_99.yy",},"order":0,},
     {"id":{"name":"scr_title","path":"scripts/scr_title/scr_title.yy",},"order":4,},
     {"id":{"name":"rm_four_exits_25","path":"rooms/rm_four_exits_25/rm_four_exits_25.yy",},"order":0,},

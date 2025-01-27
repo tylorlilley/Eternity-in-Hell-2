@@ -32,6 +32,13 @@ if (destructive) {
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
 	}
+	
+	// Destroy giant eyes
+	var giant_eye = instance_place(x, y, obj_giant_eye);
+	with (giant_eye) {
+		if (dying == 0) { dying = 32; }
+		play_sound(snd_crunch, true);
+	}
 }
 
 // Light Bombs

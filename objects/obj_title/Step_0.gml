@@ -16,8 +16,9 @@ if (!game_manager.paused) {
 	
 	// Handle X Key
 	if (key_back_pressed) {
-		if (controls_screen || options_screen || death_log_screen) {
+		if (controls_screen || options_screen || death_log_screen || prepare_screen) {
 			play_sound(snd_putdown, false); 
+			prepare_screen = false;
 			controls_screen = false;
 			options_screen = false;
 			death_log_screen = false;
@@ -35,24 +36,58 @@ if (!game_manager.paused) {
 		}
 	}
 	
-	// Handle Z Key
-	if (key_select_pressed) {
-		if (!controls_screen && !options_screen && !death_log_screen) {
-			play_sound(snd_pickup, false); 
-			options_screen = (pos == 3);
-			controls_screen = (pos == 4);
-			death_log_screen = (pos == 5);
-			if (death_log_screen) { death_log_sort = 1; }
-			if (options_screen) {
+	// Start Game From Prepare Screen for Z and Enter Key
+	else if (prepare_screen && (key_start_pressed || key_select_pressed)) { loading = true; }
+	else if (loading) {
+		play_sound(snd_move, false);
+		if (global.seed_option == seed_options.specified) { global.seed = current_seed; }
+		else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0, MAX_SEED); }
+		update_setting("last_seed", global.seed);
+		room_goto(rm_start);
+	}
+	
+	// Handle Z and Enter Key
+	else if (key_select_pressed || key_start_pressed) {
+		var just_switched = false;
+		if (!controls_screen && !options_screen && !death_log_screen && !prepare_screen) {
+			if (key_start_pressed || pos >= 1) { play_sound(snd_pickup, false); }
+			else if (!key_start_pressed) { play_sound(snd_locked, false); }
+			prepare_screen = (key_start_pressed || pos == 1);
+			options_screen = (!key_start_pressed && pos == 3);
+			controls_screen = (!key_start_pressed && pos == 4);
+			death_log_screen = (!key_start_pressed && pos == 5);
+			if (death_log_screen) { death_log_sort = 1; just_switched = true; }  // TODO: Remember last sort?
+			else if (options_screen) {
 				instance_create(184+56, 152, obj_lava); 
 				with (obj_lava) { initialize_tile(); set_up_lava_edge_visibility(true); }
+			}
+			else if (prepare_screen) {
+				// Set up array of item options
+				left_hand_pos = 0;
+				left_hand_options = array_create(0);
+				right_hand_options = array_create(0);
+				var possible_options = global.available_items[global.difficulty];
+				for (var i = 0; i < array_length(possible_options); i++) {
+					var next_option = possible_options[i];
+					// Ensure Torch is always available and preselect it
+					// TODO: Replace with remember last used combination for this difficulty?
+					if (next_option == obj_torch) { 
+						array_push(right_hand_options, next_option); 
+						right_hand_pos = array_length(right_hand_options)-1;
+					}
+					else if (get_item_win_count(next_option, global.difficulty) > 0) {
+						array_push(left_hand_options, next_option); 
+						array_push(right_hand_options, next_option); 
+					}
+				}
+				if (array_length(left_hand_options) == 0 && array_length(right_hand_options) <= 1) { prepare_screen = false; loading = true; }
 			}
 		}
 		if (death_log_screen) {
 			// Update Sort
 			death_log_sort += 1;
 			if (death_log_sort > 2) { death_log_sort = 0; }
-			play_sound(snd_thud, false);
+			if (!just_switched) { play_sound(snd_thud, false); }
 			
 			// Update Death Count Values
 			var death_types = get_death_types();
@@ -76,7 +111,39 @@ if (!game_manager.paused) {
 	}
 	
 	// Navigate Menus
-	if (options_screen) {
+	if (prepare_screen) {
+		// Toggle Selected Hand
+		if (key_left_pressed && !left_hand_selected) { left_hand_selected = true; play_sound(snd_mana, false); }
+		else if (key_right_pressed && left_hand_selected) { left_hand_selected = false; play_sound(snd_mana, false); }
+		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+			
+		// Change Selected Item
+		var changed_to = -999;
+		var item_options = (left_hand_selected) ? left_hand_options : right_hand_options;
+		if (left_hand_selected && key_up_pressed && left_hand_pos < array_length(item_options)-1) { left_hand_pos += 1; changed_to = left_hand_pos; }
+		else if (left_hand_selected && key_down_pressed && left_hand_pos >= 0) { left_hand_pos -= 1; changed_to = left_hand_pos }
+		else if (!left_hand_selected && key_up_pressed && right_hand_pos < array_length(item_options)-1) {  right_hand_pos += 1; changed_to = right_hand_pos; }
+		else if (!left_hand_selected && key_down_pressed && right_hand_pos >= 0) {  right_hand_pos -= 1; changed_to = right_hand_pos; }
+		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); }
+			
+		// Update Other Options Array
+		// TODO: instead of changing arrays, just skip past the selected one in the other hand?
+		if (changed_to != -999 && ((left_hand_selected && right_hand_pos > -1) || (!left_hand_selected && left_hand_pos > -1))) {
+			var current_item_for_other_hand = !left_hand_selected ? left_hand_options[left_hand_pos] : right_hand_options[right_hand_pos];
+			play_sound(snd_mana, false);
+			var new_options_for_other_hand = array_create(0);
+			for (var i = 0; i < array_length(item_options); i++) {
+				if (i != changed_to) { array_push(new_options_for_other_hand, item_options[i]); }
+				if (current_item_for_other_hand == item_options[i]) {
+					if (left_hand_selected) { right_hand_pos = i; }
+					else { left_hand_pos = i; }
+				}
+			}
+			if (left_hand_selected) { right_hand_options = new_options_for_other_hand; }
+			else { left_hand_options = new_options_for_other_hand; }
+		}
+	}
+	else if (options_screen) {
 		determine_gamepad();
 	
 		// Move Up and Down Through Option Selections
@@ -354,16 +421,6 @@ if (!game_manager.paused) {
 					else { play_sound(snd_crunch, false); }
 				}
 			}
-		}
-	
-		// Start Game
-		if (key_start_pressed || (key_select_pressed && pos == 1)) { loading = true; }
-		else if (loading) {
-			play_sound(snd_move, false);
-			if (global.seed_option == seed_options.specified) { global.seed = current_seed; }
-			else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0, MAX_SEED); }
-			update_setting("last_seed", global.seed);
-			room_goto(rm_start);
 		}
 	}
 }

@@ -1,7 +1,8 @@
 /// @description Step
 if (can_process_this_frame()) {
-	var player = global.player
-	var dir = point_direction(x, y, player.x, player.y);
+	var target = get_dropped_meat();
+	if (!is_existing_instance(target)) { target = global.player; }
+	var dir = point_direction(x, y, target.x, target.y);
 
 	if (dying == 0) {
 		// Update Pupil Position
@@ -17,7 +18,7 @@ if (can_process_this_frame()) {
 			// Shoot Beam
 			if (shoot_timer > 0) { shoot_timer -= 1; }
 			else {
-				var beam = shoot_magic_beam(12);
+				var beam = shoot_magic_beam(target, 12);
 				beam.x = pupil_x;
 				beam.y = pupil_y;
 				shoot_timer = irandom_range(12,48);

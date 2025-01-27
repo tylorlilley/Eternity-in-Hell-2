@@ -153,13 +153,21 @@ function get_death_types() {
 /// @function								update_win_log(difficulty, new_score);
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
 function update_win_log(difficulty) {
-	var previous_win_count = get_win_count(difficulty);
+	var previous_win_count = get_win_count(difficulty), player = global.player, right_item = noone, left_item = noone, right_count = 0, left_count = 0;
+	if (is_existing_instance(player.right_hand_item)) { var right_item = player.right_hand_item.object_index; right_count = get_item_win_count(right_item, difficulty); }
+	if (is_existing_instance(player.left_hand_item)) { var left_item = player.left_hand_item.object_index; left_count = get_item_win_count(left_item, difficulty); }
 	
 	ini_open("player_data.ini");
 	ini_write_real(get_difficulty_string(difficulty), "wins", previous_win_count+1);
+	if (right_item != noone) { ini_write_real(get_difficulty_string(difficulty), object_get_name(right_item)+"_wins", right_count+1); }
+	if (left_item != noone) { ini_write_real(get_difficulty_string(difficulty), object_get_name(left_item)+"_wins", left_count+1); }
 	ini_close();
 	
-	update_log("outcome", "won");
+	var outcome_to_log = "won";
+	if (right_item != noone) { outcome_to_log += "; right hand: "+object_get_name(right_item); }
+	if (left_item != noone) { outcome_to_log += "; left hand: "+object_get_name(left_item); }
+	
+	update_log("outcome", outcome_to_log);
 	
 	update_best_score(difficulty)
 }
@@ -204,6 +212,26 @@ function get_win_count(difficulty) {
 		if (difficulty == all || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			win_count += ini_read_real(get_difficulty_string(next_difficulty), "wins", 0);
+			ini_close();
+		}
+	}
+	
+	return win_count;
+}
+
+/// @function								get_item_win_count(item_type, difficulty);
+///	@param		{obj} item_type				The object index of the item to check for
+///	@param		{difficulty} difficulty		The difficulty to return a count for
+function get_item_win_count(item_type, difficulty) {
+	var win_count = 0;
+	
+	var all_difficulties = get_difficulties();
+	while (array_length(all_difficulties) > 0) {
+		var next_difficulty = array_pop(all_difficulties);
+		
+		if (difficulty == all || difficulty == next_difficulty) {
+			ini_open("player_data.ini");
+			win_count += ini_read_real(get_difficulty_string(next_difficulty), object_get_name(item_type)+"_wins", 0);
 			ini_close();
 		}
 	}

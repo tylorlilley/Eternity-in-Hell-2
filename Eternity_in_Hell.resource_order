@@ -395,7 +395,7 @@
     {"name":"rm_three_exits_17","order":16,"path":"rooms/rm_three_exits_17/rm_three_exits_17.yy",},
     {"name":"rm_three_exits_3","order":2,"path":"rooms/rm_three_exits_3/rm_three_exits_3.yy",},
     {"name":"snd_infect_player","order":69,"path":"sounds/snd_infect_player/snd_infect_player.yy",},
-    {"name":"scr_fire","order":12,"path":"scripts/scr_fire/scr_fire.yy",},
+    {"name":"scr_projectile","order":12,"path":"scripts/scr_projectile/scr_projectile.yy",},
     {"name":"rm_four_exits_99","order":23,"path":"rooms/rm_four_exits_99/rm_four_exits_99.yy",},
     {"name":"scr_title","order":4,"path":"scripts/scr_title/scr_title.yy",},
     {"name":"rm_four_exits_25","order":25,"path":"rooms/rm_four_exits_25/rm_four_exits_25.yy",},

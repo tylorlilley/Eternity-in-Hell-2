@@ -87,10 +87,11 @@ function update_fireball_torch_position(new_x_scale = 1) {
 }
 
 /// @function								shoot_magic_beam(max_angle);
-///	@param		{int} max_angle				The maximum angle away from the player to shoot
-function shoot_magic_beam(max_angle) {
-	var player = global.player;
-	var dir = point_direction(x, y, player.x, player.y) - max_angle + irandom_range(0,max_angle*2);
+///	@param		{inst} target				The instantce to shoot at
+///	@param		{int} max_angle				The maximum angle away from the target to shoot
+function shoot_magic_beam(target, max_angle) {
+	if (!is_existing_instance(target)) { target = global.player; } // Should this not default to player?
+	var dir = point_direction(x, y, target.x, target.y) - max_angle + irandom_range(0,max_angle*2);
 	var target_x = x + lengthdir_x(16, dir), target_y = y + lengthdir_y(16, dir);
 	return shoot_projectile(target_x, target_y, false, obj_magic_beam);
 }

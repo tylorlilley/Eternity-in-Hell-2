@@ -8,11 +8,13 @@ draw_set_font(ft_hud);
 draw_set_valign(fa_middle);
 draw_set_halign(fa_center);
 var submenu_title = "";
-if (options_screen) { submenu_title = "Options" }
+
+if (prepare_screen) { submenu_title = "Prepare Yourself"; }
+else if (options_screen) { submenu_title = "Options"; }
 else if (controls_screen) { submenu_title = "View Controls"; }
 else if (death_log_screen) { submenu_title = "View Log"; }
 draw_set_color(game_color);
-if (options_screen || controls_screen || death_log_screen) {
+if (options_screen || controls_screen || death_log_screen || prepare_screen) {
 	draw_text(room_width/2, 16, submenu_title);
 	draw_text(room_width/2, room_height-16, get_input_x_key_string() + ": Return");
 }
@@ -20,6 +22,44 @@ draw_set_color(c_white);
 
 // Draw Menu Specific Stuff
 if (loading) { title_y_pos = room_height*2; title_scale = 0.25; }
+else if (prepare_screen) {
+	var player_x_pos = room_width/2, left_hand_x_pos = player_x_pos - (16*4), right_hand_x_pos = player_x_pos + (16*4);
+	var player_y_pos = room_height/2;
+	
+	// Draw Text
+	draw_set_valign(fa_middle);
+	draw_set_halign(fa_center);
+	draw_text(room_width/2, 32, get_difficulty_string(global.difficulty));
+	draw_text(room_width/2, room_height-32, get_input_z_key_string() + ": Begin");
+	var best_count = (left_hand_selected) ? array_length(left_hand_options) : array_length(right_hand_options);
+	var possible_count = array_length(global.available_items[global.difficulty]);
+	var available_text = "AVAILABLE: "+string(best_count)+"/"+string(possible_count);
+	if (best_count == possible_count) { available_text += "; COMPLETE"; draw_set_color(game_color); }
+	draw_text(room_width/2, 64, available_text);
+	draw_set_color(c_white);
+	
+	// Draw Player Visuals
+	draw_sprite_ext(spr_player, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
+	if (global.is_farm_mode) { draw_sprite_ext(spr_player_farmer, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1); }
+	if (left_hand_pos != -1) {
+		var item = left_hand_options[left_hand_pos];
+		//draw_sprite_ext(spr_player_left_hand, 1, left_hand_x_pos, room_height/2, 4, 4, 0, c_white, 1);
+		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item)), 1, left_hand_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
+		if (left_hand_selected && blink) { draw_sprite_ext(spr_title_arrow, 0, left_hand_x_pos, player_y_pos + (16*2), 2, 2, 90, c_white, 1); }
+	}
+	if (right_hand_pos != -1) {
+		var item = right_hand_options[right_hand_pos];
+		//draw_sprite_ext(spr_player_right_hand, 1, right_hand_x_pos, room_height/2, 4, 4, 0, c_white, 1);
+		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item)), 1, right_hand_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
+		if (!left_hand_selected && blink) { draw_sprite_ext(spr_title_arrow, 0, right_hand_x_pos, player_y_pos + (16*2), 2, 2, 90, c_white, 1); }
+	}
+	if (left_hand_pos < array_length(left_hand_options)-1 && left_hand_selected && blink) {
+		draw_sprite_ext(spr_title_arrow, 0, left_hand_x_pos, player_y_pos - (16*2), 2, 2, -90, c_white, 1);
+	}
+	else if (right_hand_pos < array_length(right_hand_options)-1 && !left_hand_selected && blink) {
+		draw_sprite_ext(spr_title_arrow, 0, right_hand_x_pos, player_y_pos - (16*2), 2, 2, -90, c_white, 1);
+	}
+}
 else if (options_screen) {
 	draw_set_valign(fa_top);
 	draw_set_halign(fa_left);

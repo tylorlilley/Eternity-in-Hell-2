@@ -94,7 +94,15 @@ global.death_types_array = [
 	obj_fire_skeleton,
 	obj_cockroach,
 	obj_cultist,
-]
+];
+
+global.available_items = [
+	[obj_key],
+	[obj_key, obj_torch, obj_sword, obj_map],
+	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb],
+	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_meat, obj_shovel, obj_clock],
+	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_meat, obj_shovel, obj_clock],
+];
 
 // Set controls and set up drawing surface variables
 global.player = noone;

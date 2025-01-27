@@ -1,7 +1,7 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "scr_fire",
+  "name": "scr_projectile",
   "isCompatibility": false,
   "isDnD": false,
   "parent": {

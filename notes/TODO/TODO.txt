@@ -2,10 +2,7 @@
 -- special rooms spawn minigames for a special item (giant eye, echo, hall of mirrors etc)
 
 - save what item types you are holding when you win so they can be taken into another run later
-- one item per hand, no double items (no two swords) and no special items
-- display a completion crown when all are collected for a difficulty
 - add score bonus euqla to hands started full - finished full; bonus for ending with new items than started?
-- add screen for equipping items after selecting start but before continuing 
 
 - make eyes one per room and possible to run around
 - test eye is possible with controller
@@ -14,6 +11,9 @@
 -- change sprite to be angrier, like statue for traps?
 -- add mirrors to more rooms?
 - spawn living blocks in place of blocks sometimes
+
+- make ESC menu and PAUSE menu the same
+-- return, back to menu, or quit?
 
 
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point

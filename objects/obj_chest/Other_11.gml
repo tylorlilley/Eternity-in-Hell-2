@@ -34,6 +34,11 @@ if closed {
 					statue.image_angle = statue.dir * -90;
 					instance_destroy();
 				}
+				else if(contents_obj == obj_fountain) {
+					play_sound(snd_skeletonrise, true);
+					instance_create(x, y, obj_fountain);
+					instance_destroy();
+				}
 				else if (contents_obj != -1) { 
 					controller.current_room.remove_from_instances_at_map_positions(id);
 					

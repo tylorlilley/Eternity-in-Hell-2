@@ -26,6 +26,7 @@ function GameRoom(given_x, given_y) constructor {
 	has_no_cardinal_exits = false;
 	has_portcullis_button = false;
 	has_misleading_exits = false;
+	has_hall_of_mirrors = false;
 	
 	// Room Content Values
 	instances = array_create(0);
@@ -54,8 +55,12 @@ function GameRoom(given_x, given_y) constructor {
 		has_all_cultists = !has_all_cockroaches && (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(CULTIST_ROOM_PROBABILITY));
 		has_phantom = (has_lanterns && !lit && !has_eyes && get_random_chance_out_of(PHANTOM_PROBABILITY));
 		has_giant_eye = get_room_reference_object_count(obj_giant_eye) > 0;
-		
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
+		
+		fountain_count = 0
+		for (var i = 0; i < get_room_reference_object_count(obj_column); i++) {
+			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { fountain_count += 1; }
+		}
 		
 		initial_nose_count = 0;
 		if (get_room_reference_object_count(obj_lava) > 0) {
@@ -120,6 +125,14 @@ function GameRoom(given_x, given_y) constructor {
 		
 		var initial_mouths = get_room_reference_object_count(obj_mouth);
 		initial_mouth_count = (initial_mouths * MOUTHS_PER_MOUTH) - initial_mouths;
+		
+		if (has_hall_of_mirrors) {
+			mirror_directions = array_create(0);
+			for (var i = 0; i < 4; i++) {
+				array_push(mirror_directions, get_random_carindal_dir())
+			}
+			mirror_count = 0;
+		}
 	}
 	
 		/// @function									update_game_room_difficulty();
@@ -132,7 +145,7 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty = 0;
 	
 		if (has_phantom) { room_reference_difficulty += 2; }
-		
+		if (has_hall_of_mirrors) { room_reference_difficulty += 5; }
 		if (has_bumper) { room_reference_difficulty += 1.25; }
 		if (has_echo) { room_reference_difficulty += 5; }
 		if (has_eyes) { room_reference_difficulty += 2.5; }
@@ -141,6 +154,7 @@ function GameRoom(given_x, given_y) constructor {
 		if (has_ears) { room_reference_difficulty += 2.5; }
 		if (has_gudetama) { room_reference_difficulty += 0.025; }
 		
+		room_reference_difficulty += fountain_count * 0.25;
 		room_reference_difficulty += get_room_reference_object_count(obj_mouth) * 1;
 		room_reference_difficulty += initial_nose_count * 0.75;
 		room_reference_difficulty += (initial_spider_count > 0 ? 1.5 : 0) + initial_spider_count * 0.5;
@@ -168,6 +182,7 @@ function GameRoom(given_x, given_y) constructor {
 		if (has_collectables) { room_reference_difficulty += 0.25; }
 		if (has_misleading_exits) { room_reference_difficulty += 0.125; }
 		if (chest_obj = obj_statue) { room_reference_difficulty += 0.325; }
+		if (chest_obj = obj_fountain) { room_reference_difficulty += 0.325; }
 		else if (!has_key && chest_obj != -1) { room_reference_difficulty -= 0.25; }
 		if (has_special_item) { room_reference_difficulty -= 2; }
 		
@@ -519,11 +534,12 @@ function GameRoom(given_x, given_y) constructor {
 		// Update room chest and item information
 		var controller = global.controller;
 		has_hidden_chest = ((!lit && has_lanterns && !has_phantom) || (has_giant_eye)) && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY);
-		has_special_item = (distance_to_start > 1 && array_length(controller.spawned_special_items) < SPECIAL_ITEM_LIMIT && get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY));
+		if (has_hall_of_mirrors) { has_hidden_chest = true; }
+		has_special_item = (distance_to_start > 1 && array_length(controller.spawned_special_items) < SPECIAL_ITEM_LIMIT && (has_hall_of_mirrors || get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)));
 		has_locked_chest = (!has_hidden_chest && (has_special_item || get_random_chance_out_of(LOCKED_CHEST_PROBABILITY)));
 		var spawned_item_obj = (must_spawn) ? given_item_obj : get_random_item_obj(has_special_item, false);
 		var spawned_item_array = (has_special_item) ? controller.spawned_special_items : controller.spawned_items;
-		if (!must_spawn && !has_hidden_chest && !has_special_item && !has_locked_chest && get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) { spawned_item_obj = obj_statue; }
+		if (!must_spawn && !has_hidden_chest && !has_special_item && !has_locked_chest && get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) { spawned_item_obj = (get_coin_flip()) ? obj_fountain : obj_statue; }
 		
 		// Set up chest information to spawn
 		stairs_spot_obj = (has_hidden_chest) ? obj_hidden_chest : obj_chest;
@@ -654,6 +670,18 @@ function GameRoom(given_x, given_y) constructor {
 		for (var i = 0; i < array_length(room_list); i++;) {
 			var prev_room_reference = room_reference;
 			room_reference = room_list[i];
+			if ((room_reference == rm_four_exits_23 || room_reference == rm_four_exits_24) &&
+				!has_misleading_exits &&
+				has_exit(directions.up) && 
+				has_exit(directions.down) && 
+				has_exit(directions.left) && 
+				has_exit(directions.right)) { 
+					has_hall_of_mirrors = true; 
+				}
+			else {
+				if (prev_room_reference != -1) { room_reference = prev_room_reference; }
+				continue;
+			}
 			if (must_have_lantern && get_room_reference_object_count(obj_lantern) == 0) { 
 				if (prev_room_reference != -1) { room_reference = prev_room_reference; }
 				continue;
@@ -661,7 +689,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_four_exits_23// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_one_exit_22// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -909,7 +937,9 @@ function create_game_map() {
 	start_room = -1;
 	for(var i = 0; i < array_length(game_rooms); i++) {
 		var next_room = game_rooms[i];
-		if (!next_room.has_exit(directions.stairs)) { start_room = next_room; break; }
+		if (!next_room.has_exit(directions.stairs) && !next_room.has_hall_of_mirrors) { 
+			start_room = next_room; break; 
+		}
 	}
 	if (start_room == -1) {
 		// SHOULD NEVER REACH THIS POINT
@@ -995,7 +1025,7 @@ function create_locked_exits_and_keys() {
 			// Check to see if this exit should be locked
 			var connected_room = next_exit.get_connected_room(next_room);
 			if (connected_room == heart_room) { is_heart_room_exit = true; }
-			if (connected_room == start_room) { is_start_room_exit = true; }
+			if (connected_room == start_room || next_room.has_hall_of_mirrors || connected_room.has_hall_of_mirrors) { is_start_room_exit = true; }
 			if (!is_start_room_exit && (is_heart_room_exit || get_random_chance_out_of(LOCKED_DOOR_PROBABILITY/2))) {
 				// Set this exit up to be locked
 				if (is_heart_room_exit) { extra_locks += 1; }

@@ -2,7 +2,7 @@
 
 // If room becomes fully lit, destroy self
 var current_room = global.controller.current_room;
-if ((!eye_chest && current_room.lit) || (eye_chest && instance_number(obj_giant_eye) == 0)) {
+if ((!eye_chest && current_room.lit) || (eye_chest && instance_number(obj_giant_eye) == 0) || (mirror_chest && !current_room.has_hall_of_mirrors)) {
 	destroy_instances_at_position();
 	var new_inst = instance_create(x, y, obj_chest);
 	current_room.remove_from_instances_at_map_positions(id);

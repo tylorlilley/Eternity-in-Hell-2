@@ -70,7 +70,6 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
 
-
 /// @function								set_max_window_size();
 function set_max_window_size() {
 	var monitor_width = display_get_width(), monitor_height = display_get_height();

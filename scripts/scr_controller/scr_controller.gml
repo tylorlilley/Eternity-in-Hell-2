@@ -121,21 +121,51 @@ function can_process_this_frame() {
 /// @param		{GameRoom}	new_room				The new room to transition the current room too
 /// @param		{bool}		visited_by_player		Whether it is the player or the system visiting this room
 function transition_to_room(new_room, visited_by_player) {
+	var room_to_use = new_room;
 	// Set room transition variables
 	entered_from_dir = get_opposite_dir(transition);
 			
 	// Play transition sound
-	if (transition == directions.respawn) { play_sound(snd_win, false); player_appear_timer = 4; }
-	else if (transition == directions.stairs) { play_sound(snd_stairs, false); global.player.visible = false; player_appear_timer = 4; }
+	if (new_room.has_hall_of_mirrors && !current_room.has_hall_of_mirrors) { play_sound(snd_reflection, true); }
+	
+	if (transition == directions.respawn) { play_sound(snd_win, false); player_appear_timer = 4; current_room.mirror_count = 0; }
+	else if (transition == directions.stairs) { play_sound(snd_stairs, false); global.player.visible = false; player_appear_timer = 4; current_room.mirror_count = 0; }
+	else if (current_room.has_hall_of_mirrors) {
+		room_to_use = current_room;
+		if (transition == current_room.mirror_directions[current_room.mirror_count]) { 
+			// Correct Transition
+			if (current_room.mirror_count < 3) { 
+				play_sound(snd_yes, false); 
+				current_room.mirror_count += 1;
+				if (get_coin_flip()) { current_room.flip_room_contents_horizontally(); }
+				if (get_coin_flip()) { current_room.flip_room_contents_vertically(); }
+				current_room.rotate_room_contents_around_room_center(get_random_carindal_dir());
+				set_initial_positions();
+			}
+			else {
+				// Complete the Hall
+				current_room.has_hall_of_mirrors = false;
+			}
+		}
+		else {
+			// Incorrect Transition
+			play_sound(snd_no, false); 
+			current_room.mirror_count = 0;
+			if (get_coin_flip()) { current_room.flip_room_contents_horizontally(); }
+			if (get_coin_flip()) { current_room.flip_room_contents_vertically(); }
+			current_room.rotate_room_contents_around_room_center(irandom_range(0,3)*90);
+			set_initial_positions();
+		}
+	}
 	else { play_sound(snd_move, false); }
 	
-	// Run room exit logic for ionstances
+	// Run room exit logic for instances
 	if (visited_by_player) { game_room_end(); }
 	
 	// Update which instances are active
 	current_room.deactivate_room_instances();
-	new_room.activate_room_instances();
-	current_room = new_room;
+	room_to_use.activate_room_instances();
+	current_room = room_to_use;
 	
 	// Initialize or run room start logic for room instances
 	if (!visited_by_player) { game_room_initialize(); }
@@ -392,6 +422,29 @@ function game_room_start_reposition_instances() {
 	}
 }
 
+/// @function										set_initial_positions();
+function set_initial_positions() {
+	with obj_game_object { image_angle = 0; }
+	with obj_placeholder { image_angle = 0; }
+	with (obj_block) {
+		xstart = x;
+		ystart = y;
+	}
+	with (obj_item) {
+		xstart = x;
+		ystart = y;
+	}
+	with (obj_enemy) {
+		xstart = x;
+		ystart = y;
+	}
+	with (obj_giant_worm_body) {
+		xstart = x;
+		ystart = y;
+	}
+	with (obj_giant_worm_head) { connect_segments(); }
+}
+
 /// @function										game_room_initialize();
 function game_room_initialize() {
 	// Flip game object positions as necesarry
@@ -438,6 +491,19 @@ function game_room_initialize() {
 		current_room.stairs_spot_obj = -1;
 	}
 	
+	// Spawn Fountains
+	for (var i = 0; i < current_room.fountain_count; i++) {
+		with (get_random_instance(obj_column)) {
+			destroy_instances_at_position();
+			var new_inst = instance_create(x, y, obj_fountain);
+			other.current_room.remove_from_instances_at_map_positions(id);
+			other.current_room.add_to_instances_at_map_positions(new_inst);
+			other.current_room.reset_room_solid_path_grid(); 
+			other.current_room.reset_room_lava_path_grid();
+			instance_destroy();
+		}
+	}
+	
 			
 	// Spawn skeletons
 	array_shuffle_ext(current_room.skeleton_types);
@@ -472,23 +538,7 @@ function game_room_initialize() {
 	while (extra_mouths < current_room.initial_mouth_count) { instance_create(-16, -16, obj_mouth); extra_mouths += 1; }
 		
 	// Update objects in room to reflect new x, y position as initial positions
-	with (obj_block) {
-		xstart = x;
-		ystart = y;
-	}
-	with (obj_item) {
-		xstart = x;
-		ystart = y;
-	}
-	with (obj_enemy) {
-		xstart = x;
-		ystart = y;
-	}
-	with (obj_giant_worm_body) {
-		xstart = x;
-		ystart = y;
-	}
-	with (obj_giant_worm_head) { connect_segments(); }
+	set_initial_positions();
 	
 	// Create key in room if it should exist
 	var key_in_chest = (current_room.chest_obj == obj_key);
@@ -538,6 +588,7 @@ function game_room_initialize() {
 				new_inst.y = chosen_eye.y;
 				new_inst.eye_chest = true;
 			}
+			if (current_room.has_hall_of_mirrors) { new_inst.mirror_chest = true; }
 			switch (new_inst.object_index) {
 				case obj_chest:
 				case obj_hidden_chest:
@@ -685,6 +736,8 @@ function spawn_dirt() {
 		if (is_covered_at_each_quadrant_by(obj_lava) || 
 			is_covered_at_each_quadrant_by(obj_solid) ||
 			is_covered_at_each_quadrant_by(obj_statue) ||
+			is_covered_at_each_quadrant_by(obj_fountain) ||
+			is_covered_at_each_quadrant_by(obj_mirror) ||
 			is_covered_at_each_quadrant_by(obj_stairs) ||
 			is_covered_at_each_quadrant_by(obj_bush) ||
 			is_covered_at_each_quadrant_by(obj_cross) ||

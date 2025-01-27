@@ -2,7 +2,7 @@
 event_inherited();
 
 update_fireball_torch_position(0.5);
-var blocked = false;
+var blocked = false, prev_reflected_by = reflected_by;
 
 if (destructive) {
 	// Destroy doors
@@ -58,7 +58,10 @@ if (!blocked) {
 	var solids_at_position = instance_place_all(x, y, obj_solid);
 	while (array_length(solids_at_position) > 0) {
 		var blocking_solid = array_random_pop(solids_at_position);
-		if (is_existing_instance(blocking_solid) && (!is_existing_instance(creator) || creator != blocking_solid)) { blocked = true; break; }
+		if (is_existing_instance(blocking_solid) && (!is_existing_instance(creator) || creator != blocking_solid) && blocking_solid.object_index != obj_mirror) { blocked = true; break; }
+		else if (is_existing_instance(blocking_solid) && blocking_solid.object_index == obj_mirror && (!is_existing_instance(reflected_by) || reflected_by != blocking_solid)) {
+			reflected_by = blocking_solid;
+		}
 	}
 }
 
@@ -66,4 +69,10 @@ if (!blocked) {
 if (blocked) {
 	play_sound(snd_fuse, false);
 	instance_destroy(); 
+}
+
+// Reflect Self
+else if (prev_reflected_by != reflected_by) {
+	direction = (abs(lengthdir_y(16, direction)) > abs(lengthdir_x(16, direction))) ? -direction : 180-direction;
+	play_sound(snd_yes);
 }

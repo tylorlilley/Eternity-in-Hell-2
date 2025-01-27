@@ -1,4 +1,20 @@
-bubbler = spits out magic beams like statue but for beams
+- group spawning of special rooms together so that only 1 spawns max on difficulty 3 and 2 on 4 
+-- special rooms spawn minigames for a special item (giant eye, echo, hall of mirrors etc)
+
+- save what item types you are holding when you win so they can be taken into another run later
+- one item per hand, no double items (no two swords) and no special items
+- display a completion crown when all are collected for a difficulty
+- add score bonus euqla to hands started full - finished full; bonus for ending with new items than started?
+- add screen for equipping items after selecting start but before continuing 
+
+- make eyes one per room and possible to run around
+- test eye is possible with controller
+- test new title menus with controller
+-- add fountains to rooms
+-- change sprite to be angrier, like statue for traps?
+-- add mirrors to more rooms?
+- spawn living blocks in place of blocks sometimes
+
 
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point
 - launch a stream from hiveman
@@ -10,6 +26,8 @@ special rooms?
 - hall of mirrors where map doesn't work and you have to lost woods your way out
 - large rotating eyeball mr. i style
 - large sleeping troll to wake up in field of grass
+
+a room that is connected to a rotating room with a button you can press to rotate the adjacent room. Can replace a room with multiple exits this way with one with only two?
 
 
 

@@ -23,7 +23,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 		}
 		time_remaining -= time_to_decrement;
 		if (is_time_up()) {
-			killed_by = obj_controller;
+			killed_by = (current_room.has_hall_of_mirrors) ? obj_mirror : obj_controller;
 			update_death_log(killed_by, difficulty);
 			time_remaining = 0; 
 			play_sound(snd_lose, false); 
@@ -88,7 +88,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 // DEBUG MODE SPAWNER
 // TODO: comment this out
 if (mouse_check_button_pressed(mb_left)) {
-	var obj_type = obj_column;
+	var obj_type = obj_collectable;
 	var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 	with (new_instance) { move_snap(8, 8); }
 }

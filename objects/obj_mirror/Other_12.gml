@@ -2,6 +2,7 @@
 event_inherited();
 
 // Determine Closest Objects
+/*
 if (can_process_this_frame()) {
 	var closest_objects = array_create(0);
 	for (var i = directions.up; i < directions.none; i++) {
@@ -54,4 +55,4 @@ if (can_process_this_frame()) {
 		ds_list_destroy(seen_objects);
 	}
 }
-
+*/

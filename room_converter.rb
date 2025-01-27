@@ -156,7 +156,6 @@ class RoomConverter
         threat_level += 4 if room_objects.include? "obj_ears"
         threat_level += 4 if room_objects.include? "obj_gudetama"
         threat_level += 3 if room_objects.include? "obj_giant_eye"
-        threat_level += 5 if room_objects.include? "obj_mirror"
 
         # Threats Per Instance 
         threat_level += room_objects.count("obj_giant_eye")

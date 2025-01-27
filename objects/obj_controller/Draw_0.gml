@@ -18,12 +18,29 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
     // Draw map of rooms if applicable
 	var hud_x_pos = 4;
     if (is_looking_at_map && !has_won && !has_lost && transition == directions.none) {
-        // Draw each visited room
-		var x_origin = (room_width/2) - (current_room.virtual_x * 16), y_origin = (room_height/2) - (current_room.virtual_y * 16)
-		for (var i = 0; i < array_length(game_rooms); i++) {
-			var next_room = game_rooms[i];
-			var x_pos = (next_room.virtual_x * 16), y_pos = (next_room.virtual_y * 16);
-			next_room.draw_room(x_origin + x_pos, y_origin + y_pos);
+		if (current_room.has_hall_of_mirrors) {
+			// Draw Mirror Directions Instead of Rooms
+			if (is_blink_frame()) {
+				var display_directions = false, x_pos = (room_width/2)-24;
+				with (global.player) {
+					display_directions = (global.is_test_mode || is_carrying_item(obj_map));
+				}
+				for (var i = 0; i < array_length(current_room.mirror_directions); i++) {
+					var current_dir = current_room.mirror_directions[i];
+					var arrow_image_index = (display_directions) ? 0 : 1, arrow_image_dir = (display_directions) ? current_dir*-90 : 0;
+					draw_sprite_ext(spr_map_arrows, arrow_image_index, x_pos, room_height/2, 1, 1, arrow_image_dir, c_white, 1);
+					x_pos += 16;
+				}
+			}
+		}
+		else {
+			// Draw each visited room
+			var x_origin = (room_width/2) - (current_room.virtual_x * 16), y_origin = (room_height/2) - (current_room.virtual_y * 16)
+			for (var i = 0; i < array_length(game_rooms); i++) {
+				var next_room = game_rooms[i];
+				var x_pos = (next_room.virtual_x * 16), y_pos = (next_room.virtual_y * 16);
+				next_room.draw_room(x_origin + x_pos, y_origin + y_pos);
+			}
 		}
 
         // Draw progress bar		
@@ -73,7 +90,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 				draw_death_type_sprite(room_width/2+40, room_height-216, killed_by);
 			}
 	        draw_set_halign(fa_center);
-			draw_set_color(game_color);
+			draw_set_color(get_inverted_game_bg_color());
 	        draw_text(room_width/2, room_height-216, string_hash_to_newline(message));
 			draw_set_color(c_white);
 	        hud_x_pos = room_width/2;
@@ -88,7 +105,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 			draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
 		}
 		else {
-			draw_set_color(game_color);
+			draw_set_color(get_inverted_game_bg_color());
 			draw_text(room_width/2, room_height-16, get_input_enter_key_string() + ": Return");
 			draw_set_color(c_white);
 		}
@@ -99,7 +116,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		var bonus_for_winning_game = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
 		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
 		if (has_won || has_lost) {
-			draw_set_color(game_color);
+			draw_set_color(get_inverted_game_bg_color());
 			draw_text(hud_x_pos, room_height-56-16+8, string_hash_to_newline("Final Grade: "+get_percentage_string(total_score)));
 			draw_set_color(c_white);
 			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline(get_difficulty_string(global.difficulty))); 

@@ -597,6 +597,12 @@ function game_room_initialize() {
 					new_inst.y = chosen_cross.y;
 					new_inst.cross_chest = true;
 				}
+				else if (instance_number(obj_red_chest) > 0) {
+					// Red chest replaces the hidden chest item so it will spawn as a non-special, non-hidden regular chest instead
+					with (new_inst) { instance_destroy(); }
+					new_inst = instance_create(spawn_spot.x, spawn_spot.y, obj_chest);
+					new_inst.contents_is_special = false;
+				}
 				else if (current_room.has_hall_of_mirrors) { new_inst.mirror_chest = true; }
 			}
 			

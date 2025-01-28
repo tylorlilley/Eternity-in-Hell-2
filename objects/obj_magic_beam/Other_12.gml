@@ -14,7 +14,7 @@ if (!player.dead && place_meeting(x, y, player) && get_distance_to_instance(play
 	blocked = true;
 	with (player) {
 		if (!is_carrying_item(obj_staff)) {
-			play_sound(snd_extinguish, false);
+			play_sound(snd_no, false);
 			kill_player(other.creator_obj);
 		}
 	}

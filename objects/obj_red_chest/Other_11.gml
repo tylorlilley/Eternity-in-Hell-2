@@ -1,11 +1,16 @@
 /// @description Step
 var controller = global.controller, player = global.player, closed_this_frame = false;
-if (!closed && (!player.lost_left_hand || !player.lost_right_hand)) {
-	var push_direction = get_direction_pushed_against();
-	if (push_direction != directions.none) {
-		play_sound(snd_thud, false);
-		closed_this_frame = true;
-		image_index = 0;
+var push_direction = get_direction_pushed_against();
+
+if (!closed && push_direction != directions.none) {
+	play_sound(snd_thud, false);
+	closed_this_frame = true;
+	image_index = 0;
+		
+	if (player.lost_left_hand && player.lost_right_hand) {
+		kill_player(object_index);
+	}
+	else {
 		var occupied_hands = array_create(0);
 		if (is_existing_instance(player.right_hand_item) && !player.lost_right_hand) { array_push(occupied_hands, directions.right); } 
 		if (is_existing_instance(player.left_hand_item)&& !player.lost_left_hand) { array_push(occupied_hands, directions.left); }

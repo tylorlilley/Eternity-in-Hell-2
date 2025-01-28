@@ -671,13 +671,13 @@ function GameRoom(given_x, given_y) constructor {
 			var prev_room_reference = room_reference;
 			room_reference = room_list[i];
 			// Enforce Hall of Mirrors as room with all four exits available as regular exits
-			if ((room_reference == rm_four_exits_23 || room_reference == rm_four_exits_24) &&
+			if ((get_room_reference_object_count(obj_hall_of_mirrors) > 0) &&
 				get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY) &&
 				!has_misleading_exits &&
 				has_exit(directions.up) && 
 				has_exit(directions.down) && 
 				has_exit(directions.left) && 
-				has_exit(directions.right)) { 
+				has_exit(directions.right)) {
 					has_hall_of_mirrors = true;
 					is_special_room = true;	
 					array_push(controller.spawned_special_rooms, room_reference);
@@ -685,7 +685,7 @@ function GameRoom(given_x, given_y) constructor {
 			else if (array_contains(global.special_rooms, room_reference) && 
 					array_length(controller.spawned_special_rooms) < SPECIAL_ROOM_LIMIT &&
 					get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY) &&
-					room_reference != rm_four_exits_23 && room_reference != rm_four_exits_24) {
+					get_room_reference_object_count(obj_hall_of_mirrors) == 0) {
 				is_special_room = true;	
 				array_push(controller.spawned_special_rooms, room_reference);
 			}
@@ -700,7 +700,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_one_exit_30// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_one_exit_29// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -949,7 +949,7 @@ function create_game_map() {
 	start_room = -1;
 	for(var i = 0; i < array_length(game_rooms); i++) {
 		var next_room = game_rooms[i];
-		if (!next_room.has_exit(directions.stairs) && !next_room.has_hall_of_mirrors) { 
+		if (!next_room.has_exit(directions.stairs) && (global.is_test_mode || !next_room.is_special_room)) { 
 			start_room = next_room; break; 
 		}
 	}

@@ -21,10 +21,7 @@ hornets - like fireballs but slow velocity once launched until stopping and hove
 - spawn a couple around a static hive tile
 - sometimes spawn one on a skeleton
 true roguelike mode - mode that swaps sprites of all items and all enemies for even more challenge. Include/unlock after EIEIH mode?
-redo menu and log more stats like how many deaths per mode, how many kills for enemies as well as deaths. Make it a scrolling list
 special rooms?
-- hall of mirrors where map doesn't work and you have to lost woods your way out
-- large rotating eyeball mr. i style
 - large sleeping troll to wake up in field of grass
 
 a room that is connected to a rotating room with a button you can press to rotate the adjacent room. Can replace a room with multiple exits this way with one with only two?

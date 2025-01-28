@@ -69,6 +69,7 @@ global.player_right_hand_item = get_setting("last_player_right_hand_item", noone
 // Setup generic arrays
 global.difficulties_array = [difficulties.easy, difficulties.medium, difficulties.hard, difficulties.very_hard];
 global.death_types_array = [
+	obj_red_chest,
 	obj_controller,
 	obj_bomb,
 	obj_lava,
@@ -114,6 +115,7 @@ global.special_rooms = [
 	rm_two_opposite_exits_23, // Giant Eye
 	rm_two_perpendicular_exits_36, // Giant Eye
 	rm_one_exit_22, // Echo
+	rm_one_exit_30, // Cannibal Chest
 ]
 
 // Set controls and set up drawing surface variables

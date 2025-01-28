@@ -3,6 +3,7 @@ require 'json'
 class RoomConverter
     @total_rooms = %{}
     @object_rooms = %{}
+    @complexity_rooms = %{}
 
     attr_reader :object_rooms, :total_rooms
 
@@ -15,33 +16,8 @@ class RoomConverter
         two_perpendicular_exits
     )
 
-    OBJECT_TYPES = %w(
-        obj_giant_eye
-        obj_lantern
-        obj_lava
-        obj_skeleton_spot
-        obj_mouth
-        obj_bumper
-        obj_statue
-        obj_mirror
-        obj_fountain
-        obj_spider_spot
-        obj_red_chest
-        obj_snake
-        obj_bones
-        obj_gudetama
-        obj_bush
-        obj_door
-        obj_column
+    REQUIRED_OBJECT_TYPES = %w(
         obj_wall
-        obj_giant_worm_body
-        obj_giant_worm_head
-        obj_blood
-        obj_ears
-        obj_eyes
-        obj_player_corpse
-        obj_inverted_cross
-        obj_block_spot
         obj_stairs_spot
         obj_chest_spot
         obj_collectable_spot
@@ -49,31 +25,38 @@ class RoomConverter
         obj_exit_spot_down
         obj_exit_spot_left
         obj_exit_spot_right
-        other
     )
 
     THREAT_TYPES = %w(
-        obj_giant_eye
         obj_lantern
         obj_lava
-        obj_skeleton_spot
-        obj_mouth
-        obj_bumper
+        obj_bones
+        obj_blood
+        obj_bush
+        obj_column
+        obj_mirror
+        obj_door
+        obj_fountain
+        obj_statue
         obj_giant_worm_body
         obj_giant_worm_head
-        obj_statue
-        obj_mirror
-        obj_fountain
-        obj_spider_spot
-        obj_gudetama
+        obj_skeleton_spot
         obj_snake
+        obj_mouth
+        obj_spider_spot
+        obj_bumper
         obj_ears
         obj_eyes
+        obj_block_spot
+        obj_player_corpse
+        obj_gudetama
         obj_inverted_cross
         obj_red_chest
-        obj_bones
-        obj_block_spot
+        obj_hall_of_mirrors
+        obj_giant_eye
     )
+
+    OBJECT_TYPES = REQUIRED_OBJECT_TYPES + THREAT_TYPES
 
     def default_mapping()
         {
@@ -110,46 +93,85 @@ class RoomConverter
 
     def target_probability(object_type)
         {
+            # Tiles
             "obj_lantern" => 0.35,
-            "obj_door" => 0.15,
-            "obj_ears" => 0.05,
-            "obj_giant_eye" => 0.05,
-            "obj_bush" => 0.25,
-            "obj_spider_spot" => 0.12,
-            "obj_skeleton_spot" => 0.15,
-            "obj_statue" => 0.05,
-            "obj_mirror" => 0.01,
-            "obj_fountain" => 0.05,
-            "obj_giant_worm_body" => 0.08,
-            "obj_mouth" => 0.08,
-            "obj_column" => 0.50,
-            "obj_bones" => 0.35,
             "obj_lava" => 0.15,
-            "obj_eyes" => 0.01,
+            "obj_bones" => 0.35,
+            "obj_blood" => 0.01,
+            "obj_bush" => 0.25,
+            "obj_column" => 0.50,
+            "obj_mirror" => 0.01,
+            "obj_door" => 0.15,
+            "obj_fountain" => 0.05,
+            "obj_statue" => 0.05,
+            # Enemies
+            "obj_giant_worm_body" => 0.08,
+            "obj_giant_worm_head" => 0.08,
+            "obj_skeleton_spot" => 0.15,
             "obj_snake" => 0.08,
+            "obj_mouth" => 0.08,
+            "obj_spider_spot" => 0.12,
+            "obj_bumper" => 0.05,
+            "obj_eyes" => 0.01,
+            "obj_ears" => 0.05,
+            "obj_block_spot" => 0.25,
+            "obj_player_corpse" => 0.03,
+            "obj_gudetama" => 0.003,
+            "obj_inverted_cross" => 0.003,
+            "obj_red_chest" => 0.003,
+            "obj_hall_of_mirrors" => 0.003,
+            "obj_giant_eye" => 0.003,
+            # Required Objects
             "obj_wall" => 1.00,
             "obj_stairs_spot" => 1.00,
+            "obj_chest_spot" => 1.00,
             "obj_collectable_spot" => 1.00,
-            "obj_block_spot" => 0.25,
-            "obj_inverted_cross" => 0.01,
-            "obj_red_chest" => 0.01,
-            "obj_bumper" => 0.05,
-            "obj_blood" => 0.01,
-            "obj_giant_worm_head" => 0.08,
-            "obj_player_corpse" => 0.01,
-            "obj_gudetama" => 0.01,
             "obj_exit_spot_up" => 1.00,
             "obj_exit_spot_left" => 1.00,
             "obj_exit_spot_right" => 1.00,
             "obj_exit_spot_down" => 1.00,
-            "obj_chest_spot" => 1.00,
-            "other" => 0
         }[object_type]
+    end
+
+    def target_complexity_probability(difficulty, complexity)
+        if (difficulty == 1)
+            {
+            0 => 0.10,
+            1 => 0.20,
+            2 => 0.45,
+            3 => 0.20,
+            4 => 0.05,
+            5 => 0.00,
+            6 => 0.00,
+            }[complexity]
+        elsif (difficulty == 2)
+            {
+            0 => 0.05,
+            1 => 0.15,
+            2 => 0.40,
+            3 => 0.25,
+            4 => 0.14,
+            5 => 0.01,
+            6 => 0.00,
+            }[complexity]
+        elsif (difficulty == 3)
+            {
+            0 => 0.05,
+            1 => 0.15,
+            2 => 0.30,
+            3 => 0.25,
+            4 => 0.20,
+            5 => 0.03,
+            6 => 0.02,
+            }[complexity]
+        end
     end
 
     def room_threat_level(unflitered_objects)
         room_objects = unflitered_objects.filter { |obj| THREAT_TYPES.include? obj }
         threat_level = 0
+
+        # blood, mirror are no threat
 
         # Boolean Threat Levels
         threat_level += 1 if room_objects.include? "obj_lantern"
@@ -159,17 +181,19 @@ class RoomConverter
         threat_level += 4 if room_objects.include? "obj_gudetama"
         threat_level += 5 if room_objects.include? "obj_giant_eye"
         threat_level += 5 if room_objects.include? "obj_inverted_cross"
+        threat_level += 5 if room_objects.include? "obj_hall_of_mirrors"
         threat_level += 5 if room_objects.include? "obj_red_chest"
 
         # Threats Per Instance 
-        threat_level += room_objects.count("obj_giant_eye")
         threat_level += room_objects.count("obj_mouth")
         threat_level += (0.08 * room_objects.count("obj_block_spot")).floor
         threat_level += (0.01 * room_objects.count("obj_lava")).ceil
         threat_level += (room_objects.count("obj_spider_spot") * 1.2).ceil
         threat_level += (room_objects.count("obj_bones") * 0.05).ceil
+        threat_level += (room_objects.count("obj_player_corpse") * 0.05).ceil
         threat_level += (room_objects.count("obj_statue") * 0.25).ceil
-        threat_level += (room_objects.count("obj_fountain") * 0.25).ceil
+        threat_level += (room_objects.count("obj_column") * 0.10).ceil
+        threat_level += (room_objects.count("obj_fountain") * 0.5).ceil
         threat_level += (room_objects.count("obj_skeleton_spot") * 0.33).ceil
         threat_level += (room_objects.count("obj_snake") * 0.66).ceil
         threat_level += (0.25 * room_objects.count("obj_giant_worm_head") + 0.10 * room_objects.count("obj_giant_worm_body")).ceil
@@ -177,16 +201,12 @@ class RoomConverter
         return threat_level.round()
     end
 
-    def room_difficulty_override(room_name)
-        {
-            "rm_four_exits_11" => 2,
-            "rm_four_exits_12" => 3,
-            "rm_four_exits_7" => 2,
-            "rm_one_exit_16" => 2,
-            "rm_one_exit_17" => 1,
-            "rm_one_exit_18" => 2,
-            "rm_three_exits_5" => 1,
-        }[room_name]
+    def room_complexity(room_name, unflitered_objects)
+        complexity_level = 0
+
+        unflitered_objects.uniq.each { |obj| complexity_level += 1 if THREAT_TYPES.include? obj }
+
+        return complexity_level
     end
 
     def room_difficulty(room_name, room_objects)
@@ -201,6 +221,21 @@ class RoomConverter
         #return room_difficulty_override(room_name) || difficulty
     end
 
+=begin
+    def room_difficulty_override(room_name)
+        {
+            "rm_four_exits_11" => 2,
+            "rm_four_exits_12" => 3,
+            "rm_four_exits_7" => 2,
+            "rm_one_exit_16" => 2,
+            "rm_one_exit_17" => 1,
+            "rm_one_exit_18" => 2,
+            "rm_three_exits_5" => 1,
+        }[room_name]
+    end
+ =end
+
+=begin
     def room_difficulty_old(room_name)
         return 1 if %w(
             rm_no_exits_1
@@ -278,6 +313,7 @@ class RoomConverter
 
         return 2
     end
+=end
 
     def initialize()
         @total_rooms = {
@@ -290,6 +326,36 @@ class RoomConverter
         (1..3).each do |difficulty|
             @object_rooms[difficulty] = OBJECT_TYPES.to_h { |object_type| [object_type, default_mapping] }
         end
+
+        @complexity_rooms = {
+            1 => {
+                0 => default_mapping(),
+                1 => default_mapping(),
+                2 => default_mapping(),
+                3 => default_mapping(),
+                4 => default_mapping(),
+                5 => default_mapping(),
+                6 => default_mapping()
+            },
+            2 => {
+                0 => default_mapping(),
+                1 => default_mapping(),
+                2 => default_mapping(),
+                3 => default_mapping(),
+                4 => default_mapping(),
+                5 => default_mapping(),
+                6 => default_mapping()
+            },
+            3 => {
+                0 => default_mapping(),
+                1 => default_mapping(),
+                2 => default_mapping(),
+                3 => default_mapping(),
+                4 => default_mapping(),
+                5 => default_mapping(),
+                6 => default_mapping()
+            },
+        }
     end
 
     def translate_file(file_name)
@@ -323,6 +389,7 @@ class RoomConverter
         end
         string.chop! << "]"
         threat_level = room_threat_level(room_objects)
+        complexity = room_complexity(room_name, room_objects)
 
         # Validate Room
         # Chest spot not on top of any collectables or exit spots, etc.
@@ -337,6 +404,7 @@ class RoomConverter
         raise "ROOM LEFT EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_left")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_left") >= 2
         raise "ROOM CONTAINS WORM HEAD BUT NOT BODY: #{room_name}" unless room_objects.include?("obj_giant_worm_head") == room_objects.include?("obj_giant_worm_body")
         raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 10 #6
+        raise "ROOM COMPLEXITY LEVEL (#{complexity}) TOO HIGH: #{room_name}" unless complexity <= 6
         
         # Determine difficulty level
         difficulty = room_difficulty(room_name, room_objects)
@@ -352,10 +420,14 @@ class RoomConverter
                 if (!@object_rooms[possible_difficulty][object_key][exit_type].include?(room_name))
                     @object_rooms[possible_difficulty][object_key][exit_type] << room_name
                 end
+
+                if (!@complexity_rooms[possible_difficulty][complexity][exit_type].include?(room_name))
+                    @complexity_rooms[possible_difficulty][complexity][exit_type] << room_name 
+                end
             end
         end
 
-        puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - #{difficulty}"
+        puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - #{difficulty}; complexity - #{complexity}"
         #old_difficulty = room_difficulty_old(room_name)
         #if (difficulty != old_difficulty)
         #    puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - old #{old_difficulty}; new - #{difficulty}"
@@ -369,6 +441,10 @@ class RoomConverter
 
     def pretty_string(number)
         number.to_s.rjust(3)
+    end
+
+    def pretty_decimal(number)
+        number.round(2).to_s.rjust(3)
     end
 
     def pretty_percentage(number)
@@ -410,6 +486,87 @@ class RoomConverter
         puts "\t\t\t\t\t\t\t\t#{' Target Diff:'} #{pretty_percentage(weighted_percentage_of_total - target_probability(object_type))} %"
     end
 
+    def count_complexity(difficulty)
+        complexity_rooms_count_total = 0
+        weighted_complexity_rooms_count_total = 0
+        complexity_value_total = 0
+        weighted_complexity_value_total = 0
+        complexity_level_rooms_count = {
+            0 => 0,
+            1 => 0,
+            2 => 0,
+            3 => 0,
+            4 => 0,
+            5 => 0,
+            6 => 0,
+        }
+        complexity_level_rooms_count_total = {
+            0 => 0,
+            1 => 0,
+            2 => 0,
+            3 => 0,
+            4 => 0,
+            5 => 0,
+            6 => 0,
+        };
+        weighted_complexity_level_rooms_count_total = {
+            0 => 0,
+            1 => 0,
+            2 => 0,
+            3 => 0,
+            4 => 0,
+            5 => 0,
+            6 => 0,
+        };
+
+        EXIT_TYPES.each do |exit_type|
+            exit_type_complexity_rooms_count_total = 0
+            weighted_exit_type_complexity_rooms_count_total = 0
+            exit_type_complexity_value_total = 0
+            weighted_exit_type_complexity_value_total = 0
+   
+            (0..6).each do |complexity|
+                # Generate Data Points
+                exit_type_rooms_count_total = @complexity_rooms[difficulty][complexity][exit_type].length()
+                weighted_exit_type_rooms_count_total = (exit_type_rooms_count_total * exit_probability(exit_type))
+                complexity_level_rooms_count[complexity] += exit_type_rooms_count_total
+
+                # Update Total Tallies
+                exit_type_complexity_rooms_count_total += exit_type_rooms_count_total
+                weighted_exit_type_complexity_rooms_count_total += weighted_exit_type_rooms_count_total
+                exit_type_complexity_value_total += exit_type_rooms_count_total * complexity
+                weighted_exit_type_complexity_value_total += weighted_exit_type_rooms_count_total * complexity
+                complexity_level_rooms_count_total[complexity] += exit_type_rooms_count_total
+                weighted_complexity_level_rooms_count_total[complexity] += weighted_exit_type_rooms_count_total
+            end
+
+            # Generate Data Points for Total
+            complexity_rooms_count_total += exit_type_complexity_rooms_count_total
+            weighted_complexity_rooms_count_total += weighted_exit_type_complexity_rooms_count_total
+            complexity_value_total += exit_type_complexity_value_total
+            weighted_complexity_value_total += weighted_exit_type_complexity_value_total
+            exit_type_average_complexity = exit_type_complexity_value_total.to_f / exit_type_complexity_rooms_count_total.to_f
+            exit_type_weighted_average_complexity = exit_type_complexity_value_total.to_f / weighted_exit_type_complexity_rooms_count_total.to_f
+
+            # Print Output
+            puts "\t\t#{exit_type.ljust(24)} \tcount: #{pretty_string(exit_type_complexity_rooms_count_total)}; Avg Complexity: #{pretty_decimal(exit_type_average_complexity)}; Weighted Avg Complexity: #{pretty_decimal(exit_type_weighted_average_complexity)}"
+        end
+
+        # Generate Data Points for Total
+        average_complexity = complexity_value_total.to_f / complexity_rooms_count_total.to_f
+        weighted_average_complexity = weighted_complexity_value_total.to_f / weighted_complexity_rooms_count_total.to_f 
+
+        # Print Output
+        puts "\t\t#{'total'.ljust(24)} \tcount: #{pretty_string(complexity_rooms_count_total)}; Avg Complexity: #{pretty_decimal(average_complexity)}; Weighted Avg Complexity: #{pretty_decimal(weighted_average_complexity)}"
+        puts "\n\t\t=== By Complexity ==="
+        (0..6).each do |complexity|
+            percentage_of_total = complexity_level_rooms_count[complexity].to_f / complexity_rooms_count_total.to_f
+            weighted_percentage_of_total = weighted_complexity_level_rooms_count_total[complexity].to_f / weighted_complexity_rooms_count_total.to_f
+            puts "\t\t#{complexity.to_s.ljust(24)} \tcount: #{pretty_string(complexity_level_rooms_count[complexity])} = #{pretty_percentage(percentage_of_total)} %; Weighted: #{pretty_percentage(weighted_percentage_of_total)} %"
+            puts "\t\t\t\t\t\t\t\t#{'   Target Diff:'} #{pretty_percentage((weighted_percentage_of_total - target_complexity_probability(difficulty, complexity)))} %"
+        end
+    end
+
     def count_all_object_types
         OBJECT_TYPES.each do |object_type|
             puts "\n\n\n=== #{object_type} ==="
@@ -417,6 +574,14 @@ class RoomConverter
                 puts "\n\tDifficulty: #{difficulty}"
                 count_objects(object_type, difficulty)
             end
+        end
+    end
+
+    def count_all_complexity_rooms
+        puts "\n\n\n=== Count Complexity ==="
+        (1..3).each do |difficulty|
+            puts "\n\tDifficulty: #{difficulty}"
+            count_complexity(difficulty)
         end
     end
 end
@@ -431,4 +596,5 @@ filenames.each do |filename|
     sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) } #unless ['.', '..', 'rm_start.yy', 'rm_title.yy', 'rm_finish.yy', 'rm_four_exits_13.yy', 'rm_four_exits_14.yy', 'rm_four_exits_15.yy', 'rm_four_exits_16.yy', 'rm_four_exits_17.yy'].include?(sub_file_name) }
 end
 
+converter.count_all_complexity_rooms()
 converter.count_all_object_types()

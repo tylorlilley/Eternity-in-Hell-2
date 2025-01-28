@@ -3,7 +3,6 @@ event_inherited();
 contents_obj = -1;
 remains_obj = obj_blood;
 contents_is_special = true;
-hand_remover = true;
 closed = false;
 locked = false;
 image_index = 1;

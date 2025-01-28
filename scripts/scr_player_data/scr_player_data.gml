@@ -153,9 +153,9 @@ function get_death_types() {
 /// @function								update_win_log(difficulty, new_score);
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
 function update_win_log(difficulty) {
-	var previous_win_count = get_win_count(difficulty), player = global.player, right_item = noone, left_item = noone, right_count = 0, left_count = 0;
-	if (is_existing_instance(player.right_hand_item)) { var right_item = player.right_hand_item.object_index; right_count = get_item_win_count(right_item, difficulty); }
-	if (is_existing_instance(player.left_hand_item)) { var left_item = player.left_hand_item.object_index; left_count = get_item_win_count(left_item, difficulty); }
+	var previous_win_count = get_win_count(difficulty), right_item = noone, left_item = noone, right_count = 0, left_count = 0;
+	if (final_player_right_hand_item != noone) { var right_item = final_player_right_hand_item; right_count = get_item_win_count(right_item, difficulty); }
+	if (final_player_left_hand_item != noone) { var left_item = final_player_left_hand_item; left_count = get_item_win_count(left_item, difficulty); }
 	
 	ini_open("player_data.ini");
 	ini_write_real(get_difficulty_string(difficulty), "wins", previous_win_count+1);

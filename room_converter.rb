@@ -26,6 +26,7 @@ class RoomConverter
         obj_mirror
         obj_fountain
         obj_spider_spot
+        obj_red_chest
         obj_snake
         obj_bones
         obj_gudetama
@@ -39,7 +40,7 @@ class RoomConverter
         obj_ears
         obj_eyes
         obj_player_corpse
-        obj_echo_spot
+        obj_inverted_cross
         obj_block_spot
         obj_stairs_spot
         obj_chest_spot
@@ -68,7 +69,8 @@ class RoomConverter
         obj_snake
         obj_ears
         obj_eyes
-        obj_echo_spot
+        obj_inverted_cross
+        obj_red_chest
         obj_bones
         obj_block_spot
     )
@@ -129,7 +131,8 @@ class RoomConverter
             "obj_stairs_spot" => 1.00,
             "obj_collectable_spot" => 1.00,
             "obj_block_spot" => 0.25,
-            "obj_echo_spot" => 0.01,
+            "obj_inverted_cross" => 0.01,
+            "obj_red_chest" => 0.01,
             "obj_bumper" => 0.05,
             "obj_blood" => 0.01,
             "obj_giant_worm_head" => 0.08,
@@ -151,11 +154,12 @@ class RoomConverter
         # Boolean Threat Levels
         threat_level += 1 if room_objects.include? "obj_lantern"
         threat_level += 1.5 if room_objects.include? "obj_bumper"
-        threat_level += 5 if room_objects.include? "obj_echo_spot"
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"
         threat_level += 4 if room_objects.include? "obj_gudetama"
-        threat_level += 3 if room_objects.include? "obj_giant_eye"
+        threat_level += 5 if room_objects.include? "obj_giant_eye"
+        threat_level += 5 if room_objects.include? "obj_inverted_cross"
+        threat_level += 5 if room_objects.include? "obj_red_chest"
 
         # Threats Per Instance 
         threat_level += room_objects.count("obj_giant_eye")

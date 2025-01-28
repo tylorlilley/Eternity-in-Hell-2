@@ -72,6 +72,8 @@ function initialize_game_variables() {
 	death_count = 0;
 	used_special_items = 0;
 	total_items = 0;
+	final_player_right_hand_item = noone;
+	final_player_left_hand_item = noone;
 	initialize_room_transition_values()
 }
 
@@ -411,7 +413,6 @@ function game_room_start_reposition_instances() {
 		instance_destroy(id, false);
 	}
 	with (obj_giant_worm_head) { connect_segments(); }
-	with (obj_echo_spot) { if (other.current_room != other.start_room) { instance_create(-16, -16, obj_echo_generator); instance_destroy(); } }
 	with (obj_echo_generator) {
 		var player = global.player;
 		play_sound(snd_echo, false); 
@@ -582,13 +583,23 @@ function game_room_initialize() {
 		
 		var new_inst = instance_create(spawn_spot.x, spawn_spot.y, current_room.stairs_spot_obj);
 		if (is_existing_instance(new_inst)) {
-			if (current_room.has_giant_eye && new_inst.object_index == obj_hidden_chest) {
-				var chosen_eye = get_random_instance(obj_giant_eye);
-				new_inst.x = chosen_eye.x;
-				new_inst.y = chosen_eye.y;
-				new_inst.eye_chest = true;
+			if (current_room.is_special_room && new_inst.object_index == obj_hidden_chest) {
+				// Spawn special hidden chests for special rooms
+				if (instance_number(obj_giant_eye) > 0) {
+					var chosen_eye = get_random_instance(obj_giant_eye);
+					new_inst.x = chosen_eye.x;
+					new_inst.y = chosen_eye.y;
+					new_inst.eye_chest = true;
+				}
+				else if (instance_number(obj_inverted_cross) > 0) {
+					var chosen_cross = get_random_instance(obj_inverted_cross);
+					new_inst.x = chosen_cross.x;
+					new_inst.y = chosen_cross.y;
+					new_inst.cross_chest = true;
+				}
+				else if (current_room.has_hall_of_mirrors) { new_inst.mirror_chest = true; }
 			}
-			if (current_room.has_hall_of_mirrors) { new_inst.mirror_chest = true; }
+			
 			switch (new_inst.object_index) {
 				case obj_chest:
 				case obj_hidden_chest:
@@ -751,24 +762,64 @@ function spawn_dirt() {
 function get_current_score() {
 	var controller = global.controller;
 	with (controller) {
-		var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
-		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
-		var percentage_of_possible_rooms = array_length(game_rooms)/MAXIMUM_NUMBER_OF_ROOMS;
-		var minimum_time_to_complete = time_provided * percentage_of_possible_rooms * 0.25;
-		var percentage_of_time_remaining = (is_game_won()) ? 100*((time_remaining + minimum_time_to_complete) / time_provided) : 0;
-		if (percentage_of_time_remaining > 100) { percentage_of_time_remaining = 100; }
-		var percentage_of_victory = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT));
-		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)));
-		var death_count_penalty = 5 * death_count;
-		//var special_item_penalty = 5 * used_special_items;
+		current_score = floor(get_collectables_score() +  get_victory_amount_score() + get_time_remaining_score() + get_mapped_rooms_score() + get_item_hands_score())/5;
+		current_score -= get_death_count_score_penalty();
+		//current_score += spawned_item_bonus;
 		//var spawned_item_bonus = 10 - total_items;
 		//if (spawned_item_bonus < 0 || !is_game_won()) { spawned_item_bonus = 0; }
-		current_score = floor(percentage_of_collectables_collected + percentage_of_victory + percentage_of_time_remaining + percentage_of_rooms_mapped)/4;
-		//current_score += spawned_item_bonus;
-		current_score -= death_count_penalty// + special_item_penalty;
 		if (current_score < 0) { current_score = 0; }
 	}
 	return controller.current_score;  
+}
+
+
+/// @function								get_item_hands_score()
+function get_item_hands_score() {
+	var left_hand_item_modifier = 0, right_hand_item_modifier = 0;
+	if (global.player_left_hand_item == noone) { left_hand_item_modifier += 5; }
+	if (global.player_right_hand_item == noone) { right_hand_item_modifier += 5; }
+	if (is_game_won()) {
+		if (final_player_right_hand_item == noone) { right_hand_item_modifier -= 5; }
+		else if (final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart) { right_hand_item_modifier += 5; }
+		if (final_player_left_hand_item == noone) { left_hand_item_modifier -= 5; }
+		else if (final_player_right_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart) { left_hand_item_modifier += 5; }
+	}
+	return 100*((5 + left_hand_item_modifier + right_hand_item_modifier - get_special_item_score_penalty())/20);
+}
+
+/// @function								get_collectables_score()
+function get_collectables_score() {
+	var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
+	return floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
+}
+
+/// @function								get_mapped_rooms_score()
+function get_mapped_rooms_score() {
+	return floor(100*(array_length(mapped_rooms)/array_length(game_rooms)));
+}
+
+/// @function								get_time_remaining_score()
+function get_time_remaining_score() {
+	var percentage_of_possible_rooms = array_length(game_rooms)/MAXIMUM_NUMBER_OF_ROOMS;
+	var minimum_time_to_complete = time_provided * percentage_of_possible_rooms * 0.25;
+	var percentage_of_time_remaining = (is_game_won()) ? 100*((time_remaining + minimum_time_to_complete) / time_provided) : 0;
+	if (percentage_of_time_remaining > 100) { percentage_of_time_remaining = 100; }
+	return percentage_of_time_remaining;
+}
+
+/// @function								get_victory_amount_score()
+function get_victory_amount_score() {
+	return floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT));
+}
+
+/// @function								get_current_score()
+function get_death_count_score_penalty() {
+	return (5 * death_count);
+}
+
+/// @function								get_special_item_score_penalty()
+function get_special_item_score_penalty() {
+	return (5 * used_special_items);
 }
 
 /// @function								get_probability_for_difficulty(probability_list);

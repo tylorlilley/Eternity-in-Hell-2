@@ -49,7 +49,9 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 	// Deal with being infected
 	if (infected_timer > 0) {
 		bug_image_index += 1;
+		bug_sound_timer -= 1;
 		if (bug_image_index >= 4) { bug_image_index = 0; }
+		if (bug_sound_timer == 0) { play_sound(snd_red_bug, false); bug_sound_timer = 16; }
 	}
 		
 	// Handle movement pause
@@ -57,11 +59,11 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 	else {
 		// Handle inventory management
 		if (game_manager.key_z_pressed) { 
-			if (!can_drop_item(left_hand_item)) { play_sound(snd_locked, false); visible = true; }
+			if (lost_left_hand || !can_drop_item(left_hand_item)) { play_sound(snd_locked, false); visible = true; }
 			else { pick_up_or_put_down_item(directions.left); visible = true; }
 		}
 		if (game_manager.key_x_pressed) { 
-			if (!can_drop_item(right_hand_item)) { play_sound(snd_locked, false); visible = true; }
+			if (lost_right_hand || !can_drop_item(right_hand_item)) { play_sound(snd_locked, false); visible = true; }
 			else { pick_up_or_put_down_item(directions.right); visible = true; }
 		}
 			
@@ -70,7 +72,11 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 			move_player(dir); 
 			moved_by = id;
 			visible = true;
-			if (infected_timer > 0) { infected_timer -= 1; }
+			if (infected_timer > 0) { 
+				infected_timer -= 1;
+				if (infected_timer == 0) { play_sound(snd_red_bug_end, false); }
+			}
+			
 		}
 	}
 		

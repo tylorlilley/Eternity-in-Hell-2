@@ -1,19 +1,19 @@
-- group spawning of special rooms together so that only 1 spawns max on difficulty 3 and 2 on 4 
--- special rooms spawn minigames for a special item (giant eye, echo, hall of mirrors etc)
+- complete prepare screen for all difficulties = unlock EIEIEIEIEIEIH mode for all difficulties;
 
-- save what item types you are holding when you win so they can be taken into another run later
-- add score bonus euqla to hands started full - finished full; bonus for ending with new items than started?
+-- special rooms spawn minigames for a special item (giant eye, echo, hall of mirrors etc)
+-- special room that spawns permenant large slow floating follower?
+
+- make hall of mirrors an object
 
 - make eyes one per room and possible to run around
-- test eye is possible with controller
-- test new title menus with controller
 -- add fountains to rooms
 -- change sprite to be angrier, like statue for traps?
 -- add mirrors to more rooms?
 - spawn living blocks in place of blocks sometimes
 
-- make ESC menu and PAUSE menu the same
--- return, back to menu, or quit?
+- swords dont kill echoes
+
+- draw hands/items/hat in reflection for player
 
 
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point
@@ -28,9 +28,6 @@ special rooms?
 - large sleeping troll to wake up in field of grass
 
 a room that is connected to a rotating room with a button you can press to rotate the adjacent room. Can replace a room with multiple exits this way with one with only two?
-
-
-
 
 
 

@@ -35,8 +35,8 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_player",
-    "path": "sprites/spr_player/spr_player.yy",
+    "name": "spr_player_no_hands",
+    "path": "sprites/spr_player_no_hands/spr_player_no_hands.yy",
   },
   "spriteMaskId": null,
   "visible": false,

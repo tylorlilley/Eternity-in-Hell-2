@@ -1,8 +1,8 @@
-/// @description End Step
+/// @description Step
 event_inherited();
 	
 if closed {
-	var controller = global.controller, player = global.player, contents_obj = controller.current_room.chest_obj;
+	var controller = global.controller, player = global.player;
 	var push_direction = get_direction_pushed_against(), carrying_key = false;
 	with (player) { carrying_key = is_carrying_item(obj_key); }
 	if (locked) { image_index = 2; }
@@ -19,8 +19,8 @@ if closed {
 		else {
 			// Set up which inventory slots are available
 			var free_hands = array_create(0);
-			if (!is_existing_instance(player.right_hand_item)) { array_push(free_hands, directions.right); } 
-			if (!is_existing_instance(player.left_hand_item)) { array_push(free_hands, directions.left); } 
+			if (!is_existing_instance(player.right_hand_item) && !player.lost_right_hand) { array_push(free_hands, directions.right); } 
+			if (!is_existing_instance(player.left_hand_item) && !player.lost_left_hand) { array_push(free_hands, directions.left); } 
 			
 			// Try to open the chest
 			if (array_length(free_hands) == 0 && place_meeting(player.x, player.y, obj_solid)) { play_sound(snd_locked, false); }
@@ -56,7 +56,7 @@ if closed {
 						new_item = create_item_in_hand(array_random_pop(free_hands), contents_obj);
 					}
 					
-					if (controller.current_room.has_special_item) { with new_item { make_item_special(); } }
+					if (contents_is_special) { with new_item { make_item_special(); } }
 				}
 			}
 		}

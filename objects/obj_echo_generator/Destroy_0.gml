@@ -2,6 +2,7 @@ with (obj_echo) {
 	instance_destroy();
 	if (global.player.dead) { play_sound(snd_impact, false); }
 }
+/*
 if (is_existing_instance(global.player) && !global.player.dead) {
 	with (obj_cross) {
 		var controller = global.controller;
@@ -12,3 +13,4 @@ if (is_existing_instance(global.player) && !global.player.dead) {
 		update_kill_log(obj_echo, global.difficulty, object_index);
 	}
 }
+*/

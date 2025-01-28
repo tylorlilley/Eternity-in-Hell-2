@@ -6,9 +6,11 @@ if (!game_manager.paused) {
 	var key_start_pressed = game_manager.key_enter_released;
 	var key_left_pressed = game_manager.key_left_pressed, key_right_pressed = game_manager.key_right_pressed , key_up_pressed = game_manager.key_up_pressed, key_down_pressed = game_manager.key_down_pressed;
 
+	
 	// Set Initial Menu Position
 	if (pos == -2) {
-		can_access_farmer_mode = (get_win_count(difficulties.very_hard) > 0)
+		update_hand_options();
+		can_access_farmer_mode = (array_length(hand_options) == array_length(global.available_items[global.difficulty]));
 		if (can_access_farmer_mode) { pos = -1; }
 		else if (get_max_difficulty() == difficulties.easy) { pos = 1; }
 		else { pos = 0; }
@@ -28,9 +30,8 @@ if (!game_manager.paused) {
 		}
 		else {
 			with obj_game_manager {
-				paused = true; 
-				escaped = true; 
-				play_sound(snd_putdown, false); 
+				paused = true;
+				play_sound(snd_pickup, false); 
 				with (obj_projectile) { speed = prev_speed; }
 			}
 		}
@@ -40,9 +41,18 @@ if (!game_manager.paused) {
 	else if (prepare_screen && (key_start_pressed || key_select_pressed)) { loading = true; }
 	else if (loading) {
 		play_sound(snd_move, false);
+		
+		// Update Seed Settings
 		if (global.seed_option == seed_options.specified) { global.seed = current_seed; }
 		else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0, MAX_SEED); }
 		update_setting("last_seed", global.seed);
+		
+		// Update Item Hand Settings
+		global.player_left_hand_item = (left_hand_pos > -1) ? hand_options[left_hand_pos] : noone;
+		global.player_right_hand_item = (right_hand_pos > -1) ? hand_options[right_hand_pos] : noone;
+		update_setting("last_left_hand_item", global.player_left_hand_item);
+		update_setting("last_right_hand_item", global.player_right_hand_item);
+		
 		room_goto(rm_start);
 	}
 	
@@ -61,26 +71,9 @@ if (!game_manager.paused) {
 				instance_create(184+56, 152, obj_lava); 
 				with (obj_lava) { initialize_tile(); set_up_lava_edge_visibility(true); }
 			}
-			else if (prepare_screen) {
-				// Set up array of item options
-				left_hand_pos = 0;
-				left_hand_options = array_create(0);
-				right_hand_options = array_create(0);
-				var possible_options = global.available_items[global.difficulty];
-				for (var i = 0; i < array_length(possible_options); i++) {
-					var next_option = possible_options[i];
-					// Ensure Torch is always available and preselect it
-					// TODO: Replace with remember last used combination for this difficulty?
-					if (next_option == obj_torch) { 
-						array_push(right_hand_options, next_option); 
-						right_hand_pos = array_length(right_hand_options)-1;
-					}
-					else if (get_item_win_count(next_option, global.difficulty) > 0) {
-						array_push(left_hand_options, next_option); 
-						array_push(right_hand_options, next_option); 
-					}
-				}
-				if (array_length(left_hand_options) == 0 && array_length(right_hand_options) <= 1) { prepare_screen = false; loading = true; }
+			else if (prepare_screen) { 
+				update_hand_options();
+				if (array_length(hand_options) < 2) { prepare_screen = false; loading = true; }
 			}
 		}
 		if (death_log_screen) {
@@ -118,29 +111,35 @@ if (!game_manager.paused) {
 		else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
 			
 		// Change Selected Item
-		var changed_to = -999;
-		var item_options = (left_hand_selected) ? left_hand_options : right_hand_options;
-		if (left_hand_selected && key_up_pressed && left_hand_pos < array_length(item_options)-1) { left_hand_pos += 1; changed_to = left_hand_pos; }
-		else if (left_hand_selected && key_down_pressed && left_hand_pos >= 0) { left_hand_pos -= 1; changed_to = left_hand_pos }
-		else if (!left_hand_selected && key_up_pressed && right_hand_pos < array_length(item_options)-1) {  right_hand_pos += 1; changed_to = right_hand_pos; }
-		else if (!left_hand_selected && key_down_pressed && right_hand_pos >= 0) {  right_hand_pos -= 1; changed_to = right_hand_pos; }
+		var changed_by = 0;
+		if (left_hand_selected && key_up_pressed) { changed_by = 1; left_hand_pos += changed_by; }
+		else if (left_hand_selected && key_down_pressed) { changed_by = -1; left_hand_pos += changed_by; }
+		else if (!left_hand_selected && key_up_pressed) { changed_by = 1; right_hand_pos += changed_by; }
+		else if (!left_hand_selected && key_down_pressed) { changed_by = -1; right_hand_pos += changed_by; }
 		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); }
 			
-		// Update Other Options Array
-		// TODO: instead of changing arrays, just skip past the selected one in the other hand?
-		if (changed_to != -999 && ((left_hand_selected && right_hand_pos > -1) || (!left_hand_selected && left_hand_pos > -1))) {
-			var current_item_for_other_hand = !left_hand_selected ? left_hand_options[left_hand_pos] : right_hand_options[right_hand_pos];
+		// Update Selected Items
+		if (changed_by != 0) {
 			play_sound(snd_mana, false);
-			var new_options_for_other_hand = array_create(0);
-			for (var i = 0; i < array_length(item_options); i++) {
-				if (i != changed_to) { array_push(new_options_for_other_hand, item_options[i]); }
-				if (current_item_for_other_hand == item_options[i]) {
-					if (left_hand_selected) { right_hand_pos = i; }
-					else { left_hand_pos = i; }
-				}
+			// Wrap around to other end of selection
+			var options_length = array_length(hand_options);
+			if (left_hand_pos > options_length-1) { left_hand_pos -= options_length+1; }
+			else if (left_hand_pos < -1) { left_hand_pos += options_length+1; }
+			if (right_hand_pos > options_length-1) { right_hand_pos -= options_length+1; }
+			else if (right_hand_pos < -1) { right_hand_pos += options_length+1; }
+			
+			// Make sure you can't select the same item
+			if (left_hand_pos == right_hand_pos && left_hand_pos > -1 && right_hand_pos > -1) { 
+				if (left_hand_selected) { left_hand_pos += changed_by; }
+				else { right_hand_pos += changed_by; }
 			}
-			if (left_hand_selected) { right_hand_options = new_options_for_other_hand; }
-			else { left_hand_options = new_options_for_other_hand; }
+			
+			// Wrap around to other end of selection again
+			var options_length = array_length(hand_options);
+			if (left_hand_pos > options_length-1) { left_hand_pos -= options_length+1; }
+			else if (left_hand_pos < -1) { left_hand_pos += options_length+1; }
+			if (right_hand_pos > options_length-1) { right_hand_pos -= options_length+1; }
+			else if (right_hand_pos < -1) { right_hand_pos += options_length+1; }
 		}
 	}
 	else if (options_screen) {
@@ -321,7 +320,7 @@ if (!game_manager.paused) {
 		}
 	}
 	else if (controls_screen) {
-		// do nothing
+		// do nothing; draw code handles lighting up sprites
 	}
 	else if (death_log_screen) {
 		if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
@@ -337,6 +336,7 @@ if (!game_manager.paused) {
 		if (key_up_pressed && pos > -1) { 
 			pos -= 1;
 			if (pos == 2 && global.seed_option != seed_options.specified) { pos = 1; }
+			if (!can_access_farmer_mode && pos <= -1) { pos = 0; play_sound(snd_locked, false); }
 			if (get_max_difficulty() == difficulties.easy && pos <= 0) { pos = 1; play_sound(snd_locked, false); }
 			else { play_sound(snd_mana, false); }
 		}
@@ -374,6 +374,9 @@ if (!game_manager.paused) {
 				if (difficulty_sound) { play_sound(difficulty_sound, false); }
 			}
 			update_setting("difficulty", global.difficulty);
+			update_hand_options();
+			can_access_farmer_mode = (array_length(hand_options) == array_length(global.available_items[global.difficulty]));
+			if (!can_access_farmer_mode && global.is_farm_mode) { global.is_farm_mode = false; update_setting("extra_mode", global.is_farm_mode); }
 		}
 
 		// Adjust Seed Option Settings

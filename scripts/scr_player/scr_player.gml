@@ -280,11 +280,11 @@ function draw_player() {
 	event_inherited();
 
 	// Draw Hands
-	if ((image_xscale == 1 && is_existing_instance(left_hand_item)) || (image_xscale == -1 && is_existing_instance(right_hand_item))) {
-		draw_sprite_ext(spr_player_left_hand, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
+	if ((image_xscale == 1 && (lost_left_hand || is_existing_instance(left_hand_item))) || (image_xscale == -1 && (lost_right_hand || is_existing_instance(right_hand_item)))) {
+		draw_sprite_ext((lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 	}
-	if ((image_xscale == -1 && is_existing_instance(left_hand_item)) || (image_xscale == 1 && is_existing_instance(right_hand_item))) {
-		draw_sprite_ext(spr_player_right_hand, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
+	if ((image_xscale == -1 && (lost_right_hand || is_existing_instance(right_hand_item))) || (image_xscale == 1 && (lost_left_hand || is_existing_instance(left_hand_item)))) {
+		draw_sprite_ext((lost_right_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 	}
 
 	// Draw hat in farm mode

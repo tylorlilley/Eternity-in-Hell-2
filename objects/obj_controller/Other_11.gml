@@ -65,7 +65,11 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 				else { with (player) { pick_up_item(carried_rosary, false, carried_dir); } }
 			}
 			else {
-				if (is_game_won()) { update_win_log(difficulty); }
+				if (is_game_won()) {
+					final_player_right_hand_item = player.right_hand_item.object_index;
+					final_player_left_hand_item = player.left_hand_item.object_index;
+					update_win_log(difficulty); 
+				}
 				with (player) {
 					visible = false;
 					room_goto(rm_finish);
@@ -86,14 +90,17 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 }
 
 // DEBUG MODE SPAWNER
-// TODO: comment this out
-if (mouse_check_button_pressed(mb_left)) {
-	var obj_type = obj_collectable;
-	var new_instance = instance_create(mouse_x, mouse_y, obj_type);
-	with (new_instance) { move_snap(8, 8); }
+/*
+if (global.is_test_mode) {
+	if (mouse_check_button_pressed(mb_left)) {
+		var obj_type = obj_inverted_cross;
+		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
+		with (new_instance) { move_snap(8, 8); }
+	}
+	if (mouse_check_button_pressed(mb_right)) {
+		var obj_type = obj_echo_spot;
+		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
+		with (new_instance) { move_snap(8, 8); }
+	}
 }
-if (mouse_check_button_pressed(mb_right)) {
-	var obj_type = obj_mirror;
-	var new_instance = instance_create(mouse_x, mouse_y, obj_type);
-	with (new_instance) { move_snap(8, 8); }
-}
+*/

@@ -203,3 +203,26 @@ function set_game_color() {
 	var new_color = get_game_color();
 	global.game_color = get_shader_color_from_gms_color(new_color);
 }
+
+
+/// @function								update_hand_options();
+function update_hand_options() {
+	// Set up array of item options
+	hand_options = array_create(0);
+	left_hand_pos = -1;
+	right_hand_pos = -1;
+	var possible_options = global.available_items[global.difficulty];
+	for (var i = 0; i < array_length(possible_options); i++) {
+		var next_option = possible_options[i];
+		// Ensure Torch is always available
+		if (next_option == obj_torch) { 
+			array_push(hand_options, next_option);
+		}
+		else if (get_item_win_count(next_option, global.difficulty) > 0) {
+			array_push(hand_options, next_option); 
+		}
+		// Preselect Previous Items
+		if (next_option == global.player_left_hand_item) { left_hand_pos = array_length(hand_options)-1; }
+		else if (next_option == global.player_right_hand_item) { right_hand_pos = array_length(hand_options)-1; }
+	}
+}

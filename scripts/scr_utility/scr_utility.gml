@@ -230,7 +230,8 @@ function get_game_bg_color() {
 
 /// @function								get_inverted_game_bg_color();
 function get_inverted_game_bg_color() {
-	var controller = global.controller, tint_amount = power(1-(controller.time_remaining/controller.time_provided), 8);
+	var controller = global.controller;
+	var tint_amount = is_existing_instance(controller) ? power(1-(controller.time_remaining/controller.time_provided), 8) : 0;
 	return merge_color(get_game_color(), c_black, tint_amount);
 }
 

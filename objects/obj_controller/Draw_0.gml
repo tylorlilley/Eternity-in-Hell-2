@@ -8,15 +8,15 @@ var has_lost = is_game_lost();
 var has_timed_out = is_time_up();
 var is_looking_at_map = key_space && !has_lost;
 var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
-var game_color = get_game_color();
+var bg_color = get_game_bg_color(), special_text_color = get_inverted_game_bg_color(), standard_text_color = c_white;
 
 if (transition != directions.none || has_won || has_timed_out || is_looking_at_map) {
 	// Draw background over entire screen
-	draw_set_color(global.bg_color);
+	draw_set_color(bg_color);
 	draw_rectangle(0, 0, room_width-1, room_height-1, false);
 
     // Draw map of rooms if applicable
-	var hud_x_pos = 4;
+	var hud_x_pos = 4, hud_y_pos = 24;
     if (is_looking_at_map && !has_won && !has_lost && transition == directions.none) {
 		if (current_room.has_hall_of_mirrors) {
 			// Draw Mirror Directions Instead of Rooms
@@ -44,10 +44,10 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		}
 
         // Draw progress bar		
-		draw_set_color(global.bg_color);
+		draw_set_color(bg_color);
 		draw_rectangle(0, 0, room_width-1, 24, false);
 		
-        draw_set_color(c_white);
+        draw_set_color(standard_text_color);
         draw_set_halign(fa_left);
         draw_text(4, 12, string_hash_to_newline("Progress: "));
 		draw_sprite_ext(spr_progress_bar, 1, 84, 14, 1, 1, 0, c_white, 1);
@@ -69,9 +69,9 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		}
 		
 		// Draw elapsed time
-		draw_set_color(global.bg_color);
+		draw_set_color(bg_color);
 		draw_rectangle(0, room_height-24, room_width-1, room_height, false);
-        draw_set_color(c_white);
+        draw_set_color(standard_text_color);
 		
 		var time_elapsed = (time_provided - time_remaining);
 		draw_text(hud_x_pos, room_height-12, "Time Elapsed: ");
@@ -81,58 +81,50 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
     }
 	
 	if (room == rm_finish) {
-	    // Draw a winning or losing message
-	    if (has_won || has_lost) {
-	        var message;
-	        if has_won { message = "YOU WIN!" }
-	        if has_lost { 
-				message = "Killed By:    "
-				draw_death_type_sprite(room_width/2+40, room_height-216, killed_by);
-			}
-	        draw_set_halign(fa_center);
-			draw_set_color(get_inverted_game_bg_color());
-	        draw_text(room_width/2, room_height-216, string_hash_to_newline(message));
-			draw_set_color(c_white);
-	        hud_x_pos = room_width/2;
-	    }
-
-	    // Draw final score and game seed and game version
-		var total_score = get_current_score();
-
+	    // Draw main win or loss message
+	    draw_set_halign(fa_center);
+		draw_set_color(special_text_color);
+		hud_x_pos = room_width/2;
+	    var main_message = (has_won) ? "YOU WIN!" : "Killed By:    ";
+	    if (has_lost) { draw_death_type_sprite(room_width/2+40, hud_y_pos, killed_by); }
+	    draw_text(hud_x_pos, hud_y_pos, main_message);
+		draw_set_color(standard_text_color);
+		
+	    // Draw final score information
+		draw_text(hud_x_pos, hud_y_pos + (1.5*16), string_hash_to_newline(get_difficulty_string(global.difficulty))); 
+		var time_elapsed = (time_provided - time_remaining);
+		draw_text(hud_x_pos, hud_y_pos + (2.5*16), string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2)));
+		if ((has_won && death_count > 0) || (has_lost && death_count > 1)) { draw_text(hud_x_pos, hud_y_pos + (3.5*16), string_hash_to_newline("Deaths: "+string(death_count))); }
+		if (used_special_items > 0) { draw_text(hud_x_pos, hud_y_pos + (4.5*16), string_hash_to_newline("Cursed Items Used: "+string(used_special_items))); }
+		// Half-Line-Break
+		draw_text(hud_x_pos, hud_y_pos + (6*16), string_hash_to_newline("Collected: "+get_percentage_string(get_collectables_score()))); 
+		draw_text(hud_x_pos, hud_y_pos + (7*16), string_hash_to_newline("Mapped: "+get_percentage_string(get_mapped_rooms_score())));
+		draw_text(hud_x_pos, hud_y_pos + (8*16), string_hash_to_newline("Time Left: "+get_percentage_string(get_time_remaining_score())));
+		if (completion_amount > 0) { draw_text(hud_x_pos, hud_y_pos + (9*16), string_hash_to_newline("Escaped: "+get_percentage_string(get_victory_amount_score()))); }
+		if (has_won > 0) { draw_text(hud_x_pos, hud_y_pos + (10*16), string_hash_to_newline("Preperation: "+string(get_item_hands_score()))); }
+		draw_set_color(special_text_color);
+		// Half-Line-Break
+		draw_text(hud_x_pos, hud_y_pos + (11.5*16), string_hash_to_newline("Final Grade: "+get_percentage_string( get_current_score())));
+		
 		// Draw game seed information
 		if (global.is_test_mode) {
-			draw_text(hud_x_pos, room_height-20,"ver." + GM_version); 
-			draw_text(hud_x_pos, room_height-36, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
+			draw_text(hud_x_pos, hud_y_pos + (12.5*16), string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
+			draw_text(hud_x_pos, hud_y_pos + (13.5*16),"ver." + GM_version); 
 		}
 		else {
-			draw_set_color(get_inverted_game_bg_color());
-			draw_text(room_width/2, room_height-16, get_input_enter_key_string() + ": Return");
-			draw_set_color(c_white);
+			draw_set_color(special_text_color);
+			// 12.5 blank line
+			draw_text(room_width/2, hud_y_pos + (13.5*16), get_input_enter_key_string() + ": Return");
+			draw_set_color(standard_text_color);
 		}
-		
-		var time_elapsed = (time_provided - time_remaining);
-		var percentage_of_collectables_collected = floor(100*(collectables_collected/total_number_of_rooms_with_collectables));
-		var percentage_of_time_remaining = 100*(time_remaining / time_provided);
-		var bonus_for_winning_game = floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT))
-		var percentage_of_rooms_mapped = floor(100*(array_length(mapped_rooms)/array_length(game_rooms)))
-		if (has_won || has_lost) {
-			draw_set_color(get_inverted_game_bg_color());
-			draw_text(hud_x_pos, room_height-56-16+8, string_hash_to_newline("Final Grade: "+get_percentage_string(total_score)));
-			draw_set_color(c_white);
-			draw_text(hud_x_pos, room_height-56-16-16+8, string_hash_to_newline(get_difficulty_string(global.difficulty))); 
-			draw_text(hud_x_pos, room_height-128-16-16, string_hash_to_newline("Collected: "+get_percentage_string(percentage_of_collectables_collected))); 
-			draw_text(hud_x_pos, room_height-112-16-16, string_hash_to_newline("Mapped: "+get_percentage_string(percentage_of_rooms_mapped)));
-			draw_text(hud_x_pos, room_height-96-16-16, string_hash_to_newline("Time Left: "+get_percentage_string(percentage_of_time_remaining))); 
-			if (completion_amount > 0) { draw_text(hud_x_pos, room_height-96-16, string_hash_to_newline("Victory: "+get_percentage_string(bonus_for_winning_game))); }
-			draw_text(hud_x_pos, room_height-160-16-16, string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2)));
-		}
+		draw_set_color(standard_text_color);
 	}
 
 }
 
 
 
-if (global.is_test_mode) { 
+if (global.is_test_mode && !has_won && !has_lost) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
 	//if (is_existing_instance(global.player)) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }

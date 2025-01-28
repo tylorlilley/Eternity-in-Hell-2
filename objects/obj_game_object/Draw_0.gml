@@ -18,7 +18,7 @@ if (sprite_index != -1) {
 	if (!covered) { draw_self(); }
 	
 	// Draw Relfection in Mirrors
-	if (!object_is_ancestor(object_index, obj_solid)) {
+	if (!object_is_ancestor(object_index, obj_solid) && instance_number(obj_mirror) > 0) {
 		for (var i = directions.up; i < directions.none; i++) {
 			var x_pos = x, y_pos = y;
 			switch (i) {

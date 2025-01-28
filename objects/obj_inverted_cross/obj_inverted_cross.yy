@@ -1,8 +1,10 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_echo_spot",
-  "eventList": [],
+  "name": "obj_inverted_cross",
+  "eventList": [
+    {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","collisionObjectId":null,"eventNum":11,"eventType":7,"isDnD":false,},
+  ],
   "managed": true,
   "overriddenProperties": [],
   "parent": {
@@ -10,8 +12,8 @@
     "path": "folders/Objects/Placeholders.yy",
   },
   "parentObjectId": {
-    "name": "obj_placeholder",
-    "path": "objects/obj_placeholder/obj_placeholder.yy",
+    "name": "obj_game_object",
+    "path": "objects/obj_game_object/obj_game_object.yy",
   },
   "persistent": false,
   "physicsAngularDamping": 0.1,
@@ -29,9 +31,9 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_echo",
-    "path": "sprites/spr_echo/spr_echo.yy",
+    "name": "spr_inverted_cross",
+    "path": "sprites/spr_inverted_cross/spr_inverted_cross.yy",
   },
   "spriteMaskId": null,
-  "visible": false,
+  "visible": true,
 }

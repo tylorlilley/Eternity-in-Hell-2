@@ -24,14 +24,14 @@ draw_set_color(c_white);
 if (loading) { title_y_pos = room_height*2; title_scale = 0.25; }
 else if (prepare_screen) {
 	var player_x_pos = room_width/2, left_hand_x_pos = player_x_pos - (16*4), right_hand_x_pos = player_x_pos + (16*4);
-	var player_y_pos = room_height/2;
+	var player_y_pos = (room_height/2)+16;
 	
 	// Draw Text
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_center);
 	draw_text(room_width/2, 32, get_difficulty_string(global.difficulty));
 	draw_text(room_width/2, room_height-32, get_input_z_key_string() + ": Begin");
-	var best_count = (left_hand_selected) ? array_length(left_hand_options) : array_length(right_hand_options);
+	var best_count = array_length(hand_options);
 	var possible_count = array_length(global.available_items[global.difficulty]);
 	var available_text = "AVAILABLE: "+string(best_count)+"/"+string(possible_count);
 	if (best_count == possible_count) { available_text += "; COMPLETE"; draw_set_color(game_color); }
@@ -42,22 +42,20 @@ else if (prepare_screen) {
 	draw_sprite_ext(spr_player, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
 	if (global.is_farm_mode) { draw_sprite_ext(spr_player_farmer, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1); }
 	if (left_hand_pos != -1) {
-		var item = left_hand_options[left_hand_pos];
-		//draw_sprite_ext(spr_player_left_hand, 1, left_hand_x_pos, room_height/2, 4, 4, 0, c_white, 1);
-		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item)), 1, left_hand_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
-		if (left_hand_selected && blink) { draw_sprite_ext(spr_title_arrow, 0, left_hand_x_pos, player_y_pos + (16*2), 2, 2, 90, c_white, 1); }
+		var item = hand_options[left_hand_pos];
+		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item)), 0, left_hand_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
 	}
 	if (right_hand_pos != -1) {
-		var item = right_hand_options[right_hand_pos];
-		//draw_sprite_ext(spr_player_right_hand, 1, right_hand_x_pos, room_height/2, 4, 4, 0, c_white, 1);
-		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item)), 1, right_hand_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
-		if (!left_hand_selected && blink) { draw_sprite_ext(spr_title_arrow, 0, right_hand_x_pos, player_y_pos + (16*2), 2, 2, 90, c_white, 1); }
+		var item = hand_options[right_hand_pos];
+		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item)), 0, right_hand_x_pos, player_y_pos, -4, 4, 0, c_white, 1);
 	}
-	if (left_hand_pos < array_length(left_hand_options)-1 && left_hand_selected && blink) {
-		draw_sprite_ext(spr_title_arrow, 0, left_hand_x_pos, player_y_pos - (16*2), 2, 2, -90, c_white, 1);
+	if (left_hand_selected && blink) {
+		draw_sprite_ext(spr_title_arrow, 0, left_hand_x_pos, player_y_pos - (16*3), 2, 2, -90, c_white, 1);
+		draw_sprite_ext(spr_title_arrow, 0, left_hand_x_pos, player_y_pos + (16*3), 2, 2, 90, c_white, 1);
 	}
-	else if (right_hand_pos < array_length(right_hand_options)-1 && !left_hand_selected && blink) {
-		draw_sprite_ext(spr_title_arrow, 0, right_hand_x_pos, player_y_pos - (16*2), 2, 2, -90, c_white, 1);
+	else if (!left_hand_selected && blink) {
+		draw_sprite_ext(spr_title_arrow, 0, right_hand_x_pos, player_y_pos - (16*3), -2, 2, 90, c_white, 1);
+		draw_sprite_ext(spr_title_arrow, 0, right_hand_x_pos, player_y_pos + (16*3), -2, 2, -90, c_white, 1);
 	}
 }
 else if (options_screen) {
@@ -210,26 +208,27 @@ else if (controls_screen) {
 		draw_sprite_ext(spr_large_key, 1, x_pos,y_pos+y_offset*4, 1, 1, 1, (game_manager.key_enter ? game_color : c_white), 1);
 	}
 	else {
-		draw_sprite(spr_dpad, 0,x_pos, y_pos);
+		var d_pad_pressed = game_manager.key_up || game_manager.key_down || game_manager.key_right || game_manager.key_left;
+		draw_sprite_ext(spr_dpad, 0,x_pos, y_pos, 1, 1, 0, (d_pad_pressed ? game_color : c_white), 1);
 		
-		draw_sprite(spr_small_button, 0, x_pos - 14,y_pos+y_offset);
-		draw_sprite(spr_small_button, 4, x_pos - 4, y_pos+y_offset);
-		draw_sprite(spr_large_button, 4, x_pos + 14, y_pos+y_offset);
+		draw_sprite_ext(spr_small_button, 0, x_pos - 14, y_pos+y_offset, 1, 1, 0, (game_manager.key_z ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_button, 4, x_pos - 4, y_pos+y_offset, 1, 1, 0, (game_manager.key_z ? game_color : c_white), 1);
+		draw_sprite_ext(spr_large_button, 4, x_pos + 14, y_pos+y_offset, 1, 1, 0, (game_manager.key_z ? game_color : c_white), 1);
 		
-		draw_sprite(spr_small_button, 1, x_pos - 14, y_pos+y_offset*2);
-		draw_sprite(spr_small_button, 4, x_pos - 4, y_pos+y_offset*2);
-		draw_sprite(spr_large_button, 2, x_pos + 14, y_pos+y_offset*2);
+		draw_sprite_ext(spr_small_button, 1, x_pos - 14, y_pos+y_offset*2, 1, 1, 0, (game_manager.key_x ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_button, 4, x_pos - 4, y_pos+y_offset*2, 1, 1, 0, (game_manager.key_x ? game_color : c_white), 1);
+		draw_sprite_ext(spr_large_button, 2, x_pos + 14, y_pos+y_offset*2, 1, 1, 0, (game_manager.key_x ? game_color : c_white), 1);
 		
-		draw_sprite(spr_small_button, 2, x_pos - 10, y_pos+y_offset*3-8);
-		draw_sprite(spr_small_button, 4, x_pos, y_pos+y_offset*3-8);
-		draw_sprite(spr_small_button, 3, x_pos + 10, y_pos+y_offset*3-8);
-		draw_sprite(spr_large_button, 5, x_pos - 18, y_pos+y_offset*3+8);
-		draw_sprite(spr_small_button, 4, x_pos, y_pos+y_offset*3+8);
-		draw_sprite(spr_large_button, 3, x_pos + 18, y_pos+y_offset*3+8);
+		draw_sprite_ext(spr_small_button, 2, x_pos - 10, y_pos+y_offset*3-8, 1, 1, 0, (game_manager.key_space ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_button, 4, x_pos, y_pos+y_offset*3-8, 1, 1, 0, (game_manager.key_space ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_button, 3, x_pos + 10, y_pos+y_offset*3-8, 1, 1, 0, (game_manager.key_space ? game_color : c_white), 1);
+		draw_sprite_ext(spr_large_button, 5, x_pos - 18, y_pos+y_offset*3+8, 1, 1, 0, (game_manager.key_space ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_button, 4, x_pos, y_pos+y_offset*3+8, 1, 1, 0, (game_manager.key_space ? game_color : c_white), 1);
+		draw_sprite_ext(spr_large_button, 3, x_pos + 18, y_pos+y_offset*3+8, 1, 1, 0, (game_manager.key_space ? game_color : c_white), 1);
 		
-		draw_sprite(spr_large_button, 0, x_pos - 18, y_pos+y_offset*4);
-		draw_sprite(spr_small_button, 4, x_pos, y_pos+y_offset*4);
-		draw_sprite(spr_large_button, 1, x_pos + 18, y_pos+y_offset*4);
+		draw_sprite_ext(spr_large_button, 0, x_pos - 18, y_pos+y_offset*4, 1, 1, 0, (game_manager.key_enter ? game_color : c_white), 1);
+		draw_sprite_ext(spr_small_button, 4, x_pos, y_pos+y_offset*4, 1, 1, 0, (game_manager.key_enter ? game_color : c_white), 1);
+		draw_sprite_ext(spr_large_button, 1, x_pos + 18, y_pos+y_offset*4, 1, 1, 0, (game_manager.key_enter ? game_color : c_white), 1);
 	}
 }
 else if (death_log_screen && (death_count_string != noone || win_count_string != noone)) {

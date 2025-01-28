@@ -35,8 +35,7 @@ if (key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
 		}
 	}
 	else { 
-		paused = false; 
-		escaped = false;
+		paused = false;
 		play_sound(snd_putdown, false); 
 		with (obj_projectile) { speed = prev_speed; }
 	}

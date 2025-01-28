@@ -63,6 +63,8 @@ global.is_farm_mode = get_setting("extra_mode", false);
 global.is_test_mode = false;
 global.is_seed_testing_mode = false;
 global.has_seed_test_passed = false;
+global.player_left_hand_item = get_setting("last_player_left_hand_item", obj_torch);
+global.player_right_hand_item = get_setting("last_player_right_hand_item", noone);
 
 // Setup generic arrays
 global.difficulties_array = [difficulties.easy, difficulties.medium, difficulties.hard, difficulties.very_hard];
@@ -95,7 +97,6 @@ global.death_types_array = [
 	obj_cockroach,
 	obj_cultist,
 ];
-
 global.available_items = [
 	[obj_key],
 	[obj_key, obj_torch, obj_sword, obj_map],
@@ -103,6 +104,17 @@ global.available_items = [
 	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_meat, obj_shovel, obj_clock],
 	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_meat, obj_shovel, obj_clock],
 ];
+global.special_rooms = [
+	rm_four_exits_24, // Hall of Mirrors
+	rm_four_exits_23, // Hall of Mirrors
+	rm_four_exits_22, // Giant Eye
+	rm_four_exits_21, // Giant Eye
+	rm_one_exit_27, // Giant Eye
+	rm_three_exits_30, // Giant Eye
+	rm_two_opposite_exits_23, // Giant Eye
+	rm_two_perpendicular_exits_36, // Giant Eye
+	rm_one_exit_22, // Echo
+]
 
 // Set controls and set up drawing surface variables
 global.player = noone;

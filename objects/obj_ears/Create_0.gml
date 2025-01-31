@@ -4,7 +4,7 @@ end_target_path();
 floating = true;
 can_move_on_border = true;
 
-image_speed = get_one_unit_of_game_time();
+sprite_timer = 6;
 image_xscale = (get_coin_flip()) ? 1 : -1;
 
 awake = false;

@@ -7,8 +7,6 @@ function move_player(dir) {
 	with (player) {
 		// Move player
 		if (dir != directions.stairs) {
-			image_index += 1;
-			if (image_index > 1) { image_index = 0; }
 			move_in_direction(dir, true);
 			with (obj_echo_generator) { array_push(moves, dir); }
 		}
@@ -55,8 +53,8 @@ function move_player(dir) {
 						set_automatic_target_path();
 						move_towards_coordinates_on_path(false, false, 2);
 						if (target_path != noone) { play_sound(snd_thud, false); }
-						if (image_index != 1 && direction_pressed) { play_sound(snd_eyes, true); }
-						image_index = 1;
+						if (image_index != 2 && direction_pressed) { play_sound(snd_eyes, true); }
+						image_index = 2;
 				}
 			}
 		}
@@ -247,13 +245,62 @@ function draw_staff_box() {
 }
 
 /// @function				draw_player_hat();
-function draw_player_hat() {
-	if (global.is_farm_mode) { draw_sprite_ext(spr_player_farmer, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
+function draw_player_hat(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
+	if (global.graphics_mode == graphics_modes.farmer) {
+		draw_sprite_part_ext(spr_player_farmer, image_index, x_offset, y_offset, spr_width, spr_height, x_pos, y_pos, x_scale, image_yscale, blend, image_alpha);
+	}
 }
 
 /// @function				draw_player_worm();
 function draw_player_worm() {
 	if (infected_timer > 0 && !dead) { draw_sprite_ext(spr_bug_red, bug_image_index, x, y-10+image_index, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
+}
+
+/// @function				draw_player_left_hand();
+function draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
+	if (image_xscale == 1) {
+		var left_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
+		var hide_left_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
+	}
+	else if (image_xscale == -1) {
+		var left_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
+		var hide_left_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
+	}
+	if (!hide_left_hand) { draw_sprite_part_ext(left_hand_sprite, image_index, x_offset, y_offset, spr_width, spr_height,  x_pos, y_pos, x_scale, image_yscale, blend, image_alpha); }
+}
+
+/// @function				draw_player_right_hand();
+function draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
+	if (image_xscale == 1) {
+		var right_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
+		var hide_right_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
+	}
+	else if (image_xscale == -1) {
+		var right_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
+		var hide_right_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
+	}
+	if (!hide_right_hand) { draw_sprite_part_ext(right_hand_sprite, image_index, x_offset, y_offset, spr_width, spr_height, x_pos, y_pos, x_scale, image_yscale, blend, image_alpha); }
+}
+
+
+/// @function						draw_player();
+function draw_player() {
+	// Draw box over lava or staff solids
+	draw_staff_box();
+
+	// Draw main sprite
+	event_inherited();
+
+	// Draw Hands
+	var x_pos = x-(8*image_xscale), y_pos = y-(8*image_yscale);
+	draw_player_right_hand(x_pos, y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
+	draw_player_left_hand(x_pos, y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
+
+	// Draw hat in farm mode
+	draw_player_hat(x_pos, y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
+
+	// Draw worm if infected
+	draw_player_worm();
 }
 
 /// @function				snap_player_to_position(dir);
@@ -269,27 +316,4 @@ function snap_player_to_position(dir) {
 		case directions.left: { player.x += 16; break; }
 		case directions.right: { player.x -= 16; break; }
 	}
-}
-
-/// @function						draw_player();
-function draw_player() {
-	// Draw box over lava or staff solids
-	draw_staff_box();
-
-	// Draw main sprite
-	event_inherited();
-
-	// Draw Hands
-	if ((image_xscale == 1 && (lost_left_hand || is_existing_instance(left_hand_item))) || (image_xscale == -1 && (lost_right_hand || is_existing_instance(right_hand_item)))) {
-		draw_sprite_ext((lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
-	}
-	if ((image_xscale == -1 && (lost_right_hand || is_existing_instance(right_hand_item))) || (image_xscale == 1 && (lost_left_hand || is_existing_instance(left_hand_item)))) {
-		draw_sprite_ext((lost_right_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
-	}
-
-	// Draw hat in farm mode
-	draw_player_hat();
-
-	// Draw worm if infected
-	draw_player_worm();
 }

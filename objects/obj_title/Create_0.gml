@@ -7,7 +7,6 @@ global.controller = noone;
 global.bg_color = make_color_rgb(0, 0, 0);
 
 loading = false;
-can_access_farmer_mode = false;
 current_seed = noone;
 pos = -2;
 prepare_screen = false;

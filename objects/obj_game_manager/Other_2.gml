@@ -41,8 +41,15 @@ enum lava_edge_types {
 	wavy_animated,
 }
 
+enum graphics_modes {
+	standard,
+	farmer,
+	unknown
+}
+
 // Setup global variables for title screen
 global.difficulty = get_setting("difficulty", difficulties.easy);
+global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, graphics_modes.standard)
 global.seed_option = get_setting("seed_option", seed_options.rand);
 global.seed = get_setting("last_seed", noone);
 
@@ -59,17 +66,15 @@ global.player_outline =  get_setting("player_outline", PLAYER_OUTLINE_DEFAULT);
 
 // Setup global game type options
 global.bg_color = make_color_rgb(0, 0, 0);
-global.is_farm_mode = get_setting("extra_mode", false);
-global.is_test_mode = false;
+global.is_test_mode = true; // TODO: Set back to false
 global.is_seed_testing_mode = false;
 global.has_seed_test_passed = false;
-global.player_left_hand_item = get_setting("last_player_left_hand_item", obj_torch);
-global.player_right_hand_item = get_setting("last_player_right_hand_item", noone);
+global.player_left_hand_item = get_setting_for_difficulty("last_player_left_hand_item", global.difficulty, obj_torch);
+global.player_right_hand_item = get_setting_for_difficulty("last_player_right_hand_item", global.difficulty, noone);
 
 // Setup generic arrays
 global.difficulties_array = [difficulties.easy, difficulties.medium, difficulties.hard, difficulties.very_hard];
 global.death_types_array = [
-	obj_red_chest,
 	obj_controller,
 	obj_bomb,
 	obj_lava,
@@ -97,6 +102,7 @@ global.death_types_array = [
 	obj_fire_skeleton,
 	obj_cockroach,
 	obj_cultist,
+	obj_red_chest,
 ];
 global.available_items = [
 	[obj_key],
@@ -109,13 +115,11 @@ global.special_rooms = [
 	rm_four_exits_24, // Hall of Mirrors
 	rm_four_exits_23, // Hall of Mirrors
 	rm_four_exits_22, // Giant Eye
-	rm_four_exits_21, // Giant Eye
 	rm_one_exit_27, // Giant Eye
 	rm_three_exits_30, // Giant Eye
-	rm_two_opposite_exits_23, // Giant Eye
-	rm_two_perpendicular_exits_36, // Giant Eye
 	rm_one_exit_22, // Echo
-	rm_one_exit_30, // Cannibal Chest
+	rm_one_exit_30, // Red Chest
+	rm_one_exit_23, // Gudetama
 ]
 
 // Set controls and set up drawing surface variables

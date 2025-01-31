@@ -15,6 +15,7 @@
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"54a2f3cd-9d45-464e-a647-de6fb6cd7647",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"f726279f-3c92-40fb-8554-17aa1f21ee7d",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"b7cbf83e-aae9-49c1-884f-9f8706a83cb9",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -26,8 +27,8 @@
   "nineSlice": null,
   "origin": 4,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "enemies",
+    "path": "folders/Sprites/enemies.yy",
   },
   "preMultiplyAlpha": false,
   "sequence": {
@@ -44,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 2.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -57,6 +58,7 @@
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"54a2f3cd-9d45-464e-a647-de6fb6cd7647","path":"sprites/spr_cultist_farmer/spr_cultist_farmer.yy",},},},"Disabled":false,"id":"3db91ea8-8724-4db7-a4cb-80e519cb0b51","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"f726279f-3c92-40fb-8554-17aa1f21ee7d","path":"sprites/spr_cultist_farmer/spr_cultist_farmer.yy",},},},"Disabled":false,"id":"57b52fc1-4426-4a24-b9c4-f999cabd3341","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"b7cbf83e-aae9-49c1-884f-9f8706a83cb9","path":"sprites/spr_cultist_farmer/spr_cultist_farmer.yy",},},},"Disabled":false,"id":"8b60fe64-07ed-48f6-8a98-323a52db69de","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

@@ -33,5 +33,5 @@
     "path": "sprites/spr_highlight/spr_highlight.yy",
   },
   "spriteMaskId": null,
-  "visible": true,
+  "visible": false,
 }

@@ -29,7 +29,7 @@ if (dir == directions.none) {
 			move_in_direction(move_dir, false);
 			play_sound(snd_thud, false);
 		}
-		image_index = 1;
+		image_index = 2;
 		move_timer = irandom_range(128, 256);
 	}
 }

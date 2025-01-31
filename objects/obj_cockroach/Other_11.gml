@@ -3,7 +3,7 @@ if (spawn_timer > 0) { spawn_timer -= 1; }
 else {
 	var dir = irandom(skeleton_speed);
 	var dropped_meat = get_dropped_meat();
-	var current_x_scale = image_xscale;
+	var current_x_scale = image_xscale, current_y_scale = image_yscale;
 	if (is_cardinal_direction(dir)) {
 		// Try to set up path toward dropped meat
 		if (is_existing_instance(dropped_meat)) {
@@ -50,7 +50,8 @@ else {
 		// Update Graphics
 		if moved { 
 			image_angle = dir * -90;
-			image_xscale = current_x_scale * -1;
+			if (image_angle == 0 || image_angle == -180 ) { image_xscale = current_x_scale * -1; }
+			else if (image_angle == -90 || image_angle == 270 ) { image_yscale = current_y_scale * -1; }
 		}
 		else if get_random_chance_out_of(skeleton_speed/4) { image_xscale = current_x_scale * -1; }
 	}

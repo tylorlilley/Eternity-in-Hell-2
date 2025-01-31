@@ -21,7 +21,7 @@ if (can_process_this_frame()) {
 				var beam = shoot_magic_beam(target, 12);
 				beam.x = pupil_x;
 				beam.y = pupil_y;
-				shoot_timer = irandom_range(12,48);
+				shoot_timer = irandom_range(12,32);
 			}
 		}
 	}
@@ -32,8 +32,19 @@ if (can_process_this_frame()) {
 		
 		// Animate Death
 		dying -= 1;
-		if (get_random_chance_out_of(4)) { play_sound(snd_eyeball_explosion, true); image_index = 1; }
-		else { image_index = 0; }
+		if (get_random_chance_out_of(4)) { 
+			play_sound(snd_eyeball_explosion, true); image_index = 1;
+			for (var i = 0; i < 9; i++) {
+				var eye_part = eye_parts[i];
+				eye_part.image_index = i+9;
+			}
+		}
+		else {
+			for (var i = 0; i < 9; i++) {
+				var eye_part = eye_parts[i];
+				eye_part.image_index = i;
+			}
+		}
 		
 		pupil_x = x + (-2 + irandom(4));
 		pupil_y = y - 16;

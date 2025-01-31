@@ -1,5 +1,4 @@
 event_inherited();
+depth = MIRROR_DEPTH;
+image_index = 1;
 
-depth = PROJECTILE_DEPTH;
-//spr = noone;
-//refl_blend = image_blend;

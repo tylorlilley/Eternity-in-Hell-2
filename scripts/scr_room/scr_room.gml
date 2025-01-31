@@ -534,8 +534,7 @@ function GameRoom(given_x, given_y) constructor {
 		// Update room chest and item information
 		var controller = global.controller;
 		has_hidden_chest = is_special_room || (!lit && has_lanterns && !has_phantom && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
-		if (has_hall_of_mirrors) { has_hidden_chest = true; }
-		has_special_item = is_special_room || (distance_to_start > 1 && array_length(controller.spawned_special_items) < SPECIAL_ITEM_LIMIT && (has_hall_of_mirrors || get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)));
+		has_special_item = is_special_room || (distance_to_start > 1 && array_length(controller.spawned_special_items) < SPECIAL_ITEM_LIMIT && (is_special_room || get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)));
 		has_locked_chest = (!has_hidden_chest && (has_special_item || get_random_chance_out_of(LOCKED_CHEST_PROBABILITY)));
 		var spawned_item_obj = (must_spawn) ? given_item_obj : get_random_item_obj(has_special_item, false);
 		var spawned_item_array = (has_special_item) ? controller.spawned_special_items : controller.spawned_items;
@@ -700,7 +699,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_one_exit_29// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();

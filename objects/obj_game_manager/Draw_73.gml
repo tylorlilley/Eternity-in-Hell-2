@@ -23,3 +23,5 @@ if (global.is_test_mode && instance_exists(global.controller)) {
 		}
 	}
 }
+
+depth = 10000;

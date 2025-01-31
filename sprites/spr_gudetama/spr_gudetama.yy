@@ -15,6 +15,7 @@
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"601cbd18-6638-43dd-95e7-549913a0dfed",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"1aa253b9-9ef1-4e04-ac5c-7cc7d3a59402",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"05cd6387-d10a-4883-a552-afd2159b3fb2",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -26,8 +27,8 @@
   "nineSlice": null,
   "origin": 4,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "enemies",
+    "path": "folders/Sprites/enemies.yy",
   },
   "preMultiplyAlpha": false,
   "sequence": {
@@ -44,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 2.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -57,6 +58,7 @@
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"601cbd18-6638-43dd-95e7-549913a0dfed","path":"sprites/spr_gudetama/spr_gudetama.yy",},},},"Disabled":false,"id":"eaf3010e-822d-462e-b62c-746d72f1d623","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"1aa253b9-9ef1-4e04-ac5c-7cc7d3a59402","path":"sprites/spr_gudetama/spr_gudetama.yy",},},},"Disabled":false,"id":"c82bd956-21b7-49ea-8abf-f03a4618082c","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"05cd6387-d10a-4883-a552-afd2159b3fb2","path":"sprites/spr_gudetama/spr_gudetama.yy",},},},"Disabled":false,"id":"c2a4a2d2-225a-4759-bdd1-4933e92fc0ed","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

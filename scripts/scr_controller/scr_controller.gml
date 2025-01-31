@@ -196,6 +196,22 @@ function game_room_start() {
 		if (current_room.stairs_spot_obj == obj_encased_heart) { 
 			global.controller.completion_amount += 1;
 		}
+		
+		with (obj_giant_eye) {
+			for (var i = 0; i < 9; i++) {
+				var x_pos = x, y_pos = y;
+				if (i % 3 == 0) { x_pos -=16; }
+				else if (i % 3 == 2) { x_pos +=16; }
+				if (i < 3) { y_pos -=16; }
+				else if (i > 5) { y_pos +=16; }
+				var eye_part = instance_create(x_pos, y_pos, obj_game_object);
+				eye_part.part_of = self;
+				eye_part.sprite_index = get_sprite_to_use(spr_giant_eye_part);
+				eye_part.image_index = i;
+				eye_part.depth = GIANT_WORM_DEPTH;
+			}
+		}
+			
 		// Mark current room and exit as visited
 		current_room.visited = true;
 		array_push(mapped_rooms, current_room);
@@ -603,6 +619,12 @@ function game_room_initialize() {
 					new_inst = instance_create(spawn_spot.x, spawn_spot.y, obj_chest);
 					new_inst.contents_is_special = false;
 				}
+				else if (instance_number(obj_gudetama) > 0) {
+					// gudetama spawns special chest immediately with gudetama blocking it
+					with (new_inst) { instance_destroy(); }
+					new_inst = instance_create(chest_spot.x, chest_spot.y, obj_chest);
+					new_inst.contents_is_special = true;
+				}
 				else if (current_room.has_hall_of_mirrors) { new_inst.mirror_chest = true; }
 			}
 			
@@ -782,13 +804,13 @@ function get_current_score() {
 /// @function								get_item_hands_score()
 function get_item_hands_score() {
 	var left_hand_item_modifier = 0, right_hand_item_modifier = 0;
-	if (global.player_left_hand_item == noone) { left_hand_item_modifier += 5; }
-	if (global.player_right_hand_item == noone) { right_hand_item_modifier += 5; }
+	if (global.player_right_hand_item == noone) { left_hand_item_modifier += 5; }
+	if (global.player_left_hand_item == noone) { right_hand_item_modifier += 5; }
 	if (is_game_won()) {
 		if (final_player_right_hand_item == noone) { right_hand_item_modifier -= 5; }
-		else if (final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart) { right_hand_item_modifier += 5; }
+		else if (final_player_right_hand_item != global.player_left_hand_item && final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart) { right_hand_item_modifier += 5; }
 		if (final_player_left_hand_item == noone) { left_hand_item_modifier -= 5; }
-		else if (final_player_right_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart) { left_hand_item_modifier += 5; }
+		else if (final_player_left_hand_item != global.player_left_hand_item && final_player_left_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart) { left_hand_item_modifier += 5; }
 	}
 	return 100*((5 + left_hand_item_modifier + right_hand_item_modifier - get_special_item_score_penalty())/20);
 }

@@ -14,6 +14,8 @@
   "For3D": false,
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"8ec93cf7-34c2-4973-aad0-a0f3f71791d4",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"cbd9d878-1d0a-42bb-a31a-ab13bd854f50",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"8e04558a-9a1b-408f-8ef2-d335355c8da8",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -25,8 +27,8 @@
   "nineSlice": null,
   "origin": 4,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "enemies",
+    "path": "folders/Sprites/enemies.yy",
   },
   "preMultiplyAlpha": false,
   "sequence": {
@@ -43,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 1.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -55,6 +57,8 @@
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"8ec93cf7-34c2-4973-aad0-a0f3f71791d4","path":"sprites/spr_fire_skeleton_farmer/spr_fire_skeleton_farmer.yy",},},},"Disabled":false,"id":"1ba026ae-b992-44d4-afee-57840f23cc2d","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"cbd9d878-1d0a-42bb-a31a-ab13bd854f50","path":"sprites/spr_fire_skeleton_farmer/spr_fire_skeleton_farmer.yy",},},},"Disabled":false,"id":"bb9c950a-0c18-495d-a1d5-0caa0bd5a24c","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"8e04558a-9a1b-408f-8ef2-d335355c8da8","path":"sprites/spr_fire_skeleton_farmer/spr_fire_skeleton_farmer.yy",},},},"Disabled":false,"id":"2db345c3-950e-4cdc-b347-7f298dc268e2","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

@@ -36,6 +36,7 @@ class RoomConverter
         obj_column
         obj_mirror
         obj_door
+        obj_block_spot
         obj_fountain
         obj_statue
         obj_giant_worm_body
@@ -47,7 +48,6 @@ class RoomConverter
         obj_bumper
         obj_ears
         obj_eyes
-        obj_block_spot
         obj_player_corpse
         obj_gudetama
         obj_inverted_cross
@@ -102,9 +102,10 @@ class RoomConverter
             "obj_column" => 0.50,
             "obj_mirror" => 0.01,
             "obj_door" => 0.15,
+            "obj_block_spot" => 0.25,
+            # Enemies
             "obj_fountain" => 0.05,
             "obj_statue" => 0.05,
-            # Enemies
             "obj_giant_worm_body" => 0.08,
             "obj_giant_worm_head" => 0.08,
             "obj_skeleton_spot" => 0.15,
@@ -114,7 +115,6 @@ class RoomConverter
             "obj_bumper" => 0.05,
             "obj_eyes" => 0.01,
             "obj_ears" => 0.05,
-            "obj_block_spot" => 0.25,
             "obj_player_corpse" => 0.03,
             "obj_gudetama" => 0.003,
             "obj_inverted_cross" => 0.003,

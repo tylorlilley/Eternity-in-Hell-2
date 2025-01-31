@@ -1,10 +1,10 @@
 /// @function								draw_while_carried();
-function draw_while_carried() {
+function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, xscale, blend) {
 	if (!is_existing_instance(holder)) { return; }
 	
-	var x_offset = image_xscale * -8;
+	var draw_x_offset = image_xscale * -8;
 
-	draw_sprite_ext(sprite_index, image_index, x+x_offset, y+draw_y_offset, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
+	draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
 }
 
 /// @function								become_carried(new_holder);

@@ -198,6 +198,8 @@ function update_best_score(difficulty) {
 	}
 	
 	update_log("score", new_score);
+	
+	update_run_number_log(global.difficulty);
 }
 
 /// @function								get_win_count(difficulty);
@@ -312,6 +314,32 @@ function get_setting(setting_name, default_value) {
 	ini_open("player_data.ini");
 	if (is_string(default_value)) { setting_value = ini_read_string("Settings", setting_name, default_value); }
 	else { setting_value = ini_read_real("Settings", setting_name, default_value); }
+	ini_close();
+	
+	return setting_value;
+}
+
+/// @function								update_setting_for_difficulty(obj_index, setting_name, new_value);
+///	@param		{string} setting_name		The setting to update the value for
+///	@param		{enum} difficulty			The difficulty to refrence when setting the setting
+///	@param		{real} new_value			The new value for the setting
+function update_setting_for_difficulty(setting_name, difficulty, new_value) {
+	ini_open("player_data.ini");
+	if (is_string(new_value)) { ini_write_string(get_difficulty_string(difficulty), setting_name, new_value); }
+	else { ini_write_real(get_difficulty_string(difficulty), setting_name, new_value); }
+	ini_close();
+}
+
+/// @function								get_setting_for_difficulty(setting_name, default_value);
+///	@param		{string} setting_name		The setting to get the value of
+///	@param		{enum} difficulty			The difficulty to refrence when getting the setting
+///	@param		{real} new_value			The default value for the setting
+function get_setting_for_difficulty(setting_name, difficulty, default_value) { 
+	var setting_value = default_value;
+	
+	ini_open("player_data.ini");
+	if (is_string(default_value)) { setting_value = ini_read_string(get_difficulty_string(difficulty), setting_name, default_value); }
+	else { setting_value = ini_read_real(get_difficulty_string(difficulty), setting_name, default_value); }
 	ini_close();
 	
 	return setting_value;

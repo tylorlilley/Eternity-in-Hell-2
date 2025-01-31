@@ -17,7 +17,8 @@ if (paused) {
 	draw_set_valign(fa_middle);
 	draw_set_font(ft_hud);
 	
-	var y_pos = (global.input != inputs.gamepad) ? (room_height/2)-16 : (room_height/2)-(16*2), x_pos = room_width/2;
+	var y_pos = (room_height/2)-16, x_pos = room_width/2;
+	if (instance_number(obj_controller) == 0) { y_pos += 16; }
 	if (!is_blink_frame()) { draw_text(room_width/2, y_pos-16, "GAME PAUSED"); }
 	draw_text(x_pos, y_pos+16, get_input_enter_key_string() + ": UNPAUSE");
 	if (is_existing_instance(global.controller)) {	
@@ -25,10 +26,9 @@ if (paused) {
 			draw_text(x_pos, y_pos+(16*2), get_input_z_key_string() + "+" + get_input_x_key_string() + "+" + get_input_enter_key_string() + ": QUIT RUN");
 		}
 		else {
-			draw_text(x_pos, y_pos+(16*2), get_input_z_key_string() + " +");
-			draw_text(x_pos, y_pos+(16*3), get_input_x_key_string() + " +");
-			draw_text(x_pos, y_pos+(16*4), get_input_enter_key_string() + ": ");
-			draw_text(x_pos, y_pos+(16*5), "QUIT RUN");
+			draw_text(x_pos, y_pos+(16*2), "("+get_input_z_key_string() + ") + (" + get_input_x_key_string() + ") +");
+			draw_text(x_pos, y_pos+(16*3), "("+get_input_enter_key_string() + "): ");
+			draw_text(x_pos, y_pos+(16*4), "QUIT RUN");
 		}
 	}
 	draw_set_color(get_inverted_game_bg_color());

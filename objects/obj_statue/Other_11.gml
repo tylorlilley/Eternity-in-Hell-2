@@ -33,7 +33,7 @@ if (object_index == obj_statue) {
 		}
 	}
 	else if (image_index == 0) {
-		image_index = 1;
+		image_index = 2;
 		play_sound(snd_give_up, false);
 	}
 }

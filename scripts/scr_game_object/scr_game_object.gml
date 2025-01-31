@@ -187,6 +187,10 @@ function move_in_direction(dir, make_noise) {
 	else if (dir == directions.down) { y += 8; }
 	else if (dir == directions.left) { x -= 8; image_xscale = 1; }
 	
+	// Update image
+	image_index += 1;
+	if (image_index > 1) { image_index = 0; }
+	
 	if (object_is_ancestor(object_index, obj_enemy)) { 
 		check_for_player_collision();
 		if (floating && object_index != obj_hands) { make_noise = false; }
@@ -348,8 +352,32 @@ function can_press_button() {
 
 /// @function								get_sprite_to_use();
 function get_sprite_to_use(regular_sprite) {
-	if (!global.is_farm_mode) { return regular_sprite; }
+	if (global.graphics_mode == graphics_modes.standard) { return regular_sprite; }
+	if (global.graphics_mode == graphics_modes.unknown) {
+		if (is_game_won() || is_game_lost) { return regular_sprite; } 
+		var chosen_sprite = noone;
+		
+		var item_sprites = [spr_key, spr_torch, spr_sword, spr_map, spr_rosary, spr_staff, spr_bomb, spr_meat, spr_shovel, spr_clock, spr_heart, spr_heart_farmer, spr_meat_farmer, spr_sword_farmer, spr_bomb_farmer, spr_clock_farmer ];
+		if (array_contains(item_sprites, regular_sprite)) {
+			chosen_sprite = item_sprites[global.seed % array_length(item_sprites)];
+		}
+		
+		var regular_enemy_sprites = [spr_skeleton, spr_fast_skeleton, spr_fire_skeleton, spr_living_block, spr_spider, spr_mouth, spr_bumper, spr_phantom, spr_hands, spr_nose, spr_eyes, spr_ears,
+									spr_skeleton_farmer, spr_fast_skeleton_farmer, spr_fire_skeleton_farmer, spr_living_block_farmer, spr_spider_farmer, spr_mouth_farmer, spr_bumper_farmer, spr_phantom_farmer, spr_hands_farmer, spr_nose_farmer, spr_eyes_farmer, spr_ears_farmer];
+		if (array_contains(regular_enemy_sprites, regular_sprite)) {
+			chosen_sprite = regular_enemy_sprites[global.seed % array_length(regular_enemy_sprites)];
+		}
+		
+		var rotational_enemy_sprites = [spr_cockroach, spr_fountain, spr_statue, spr_snake, spr_cockroach_farmer, spr_fountain_farmer, spr_snake_farmer];
+		if (array_contains(rotational_enemy_sprites, regular_sprite)) {
+			chosen_sprite = rotational_enemy_sprites[global.seed % array_length(rotational_enemy_sprites)];
+		}
+		
+		if (chosen_sprite != noone) { return chosen_sprite; }
+		else if (get_coin_flip()) { return regular_sprite; }
+	}
 	
+	// Get Farmer Version of Regular Sprite
 	switch (regular_sprite) {
 		/// Tiles
 		case spr_collectable: { return spr_collectable_farmer; }
@@ -363,9 +391,11 @@ function get_sprite_to_use(regular_sprite) {
 		case spr_magic_beam: { return spr_magic_beam_farmer; }
 		case spr_red_chest: { return spr_red_chest_farmer; }
 		/// Enemies
+		case spr_gudetama: { return spr_gudetama_farmer; }
 		case spr_skeleton: { return spr_skeleton_farmer; }
 		case spr_cockroach: { return spr_cockroach_farmer; }
 		case spr_fire_skeleton: { return spr_fire_skeleton_farmer; }
+		case spr_fast_skeleton: { return spr_fast_skeleton_farmer; }
 		case spr_living_block: { return spr_living_block_farmer; }
 		case spr_spider: { return spr_spider_farmer; }
 		case spr_mouth: { return spr_mouth_farmer; }
@@ -414,8 +444,90 @@ function flicker_sprite_under_instance(inst) {
 	
 	if (object_index == obj_lava_part) { part_visible = false; }
 	else if (object_index == obj_solid_part) { part_visible = false; }
-	else if (object_index == obj_illusion_part) { part_visible = false; }
+	//else if (object_index == obj_illusion_part) { part_visible = false; }
 	else { visible = false; }
 	
 	return true;
+}
+
+/// @function								draw_reflection_in_mirrors();
+function draw_reflection_in_mirrors() {
+	if (!object_is_ancestor(object_index, obj_solid) && instance_number(obj_mirror) > 0 && !instance_place(x, y, obj_mirror)) {
+		for (var i = directions.up; i < 8; i++) {
+			var reflect_carried_item = false;
+			if (object_is_ancestor(object_index, obj_item) && is_existing_instance(holder) && (holder.object_index != obj_hands || holder.activated)) {
+				reflect_carried_item = true;
+			}
+			var x_to_use = (reflect_carried_item) ? x+(image_xscale * -8) : x, y_to_use = (reflect_carried_item) ? y+draw_y_offset : y;
+			var x_pos = x_to_use, y_pos = y_to_use, x_pos_offset = 0, y_pos_offset = 0;
+			switch (i) {
+				case 0: { x_pos = 0; y_pos_offset -= abs(sprite_height/4); break; }
+				case 1: { x_pos = 0; y_pos_offset += abs(sprite_height/4); break; }
+				case 2: { y_pos = 0; x_pos_offset -= abs(sprite_width/4); break; }
+				case 3: { y_pos = 0; x_pos_offset += abs(sprite_width/4); break; }
+				case 4: { x_pos = room_width; y_pos_offset -= abs(sprite_height/4); break; }
+				case 5: { x_pos = room_width; y_pos_offset += abs(sprite_height/4); break; }
+				case 6: { y_pos = room_height; x_pos_offset -= abs(sprite_width/4); break; }
+				case 7: { y_pos = room_height; x_pos_offset += abs(sprite_width/4); break; }
+			}
+			var closest_solids = array_create(0);
+
+			// Get closest mirrors
+			var potential_mirrors = ds_list_create();
+			var num_of_objects = collision_rectangle_list(x_to_use+x_pos_offset-1, y_to_use+y_pos_offset-1, x_pos+x_pos_offset+1, y_pos+y_pos_offset+1, obj_solid, false, true, potential_mirrors, true);
+			var minimum_distance_to_obj = 999;
+			for (var j = 0; j < num_of_objects; j++) {
+				var current_object = ds_list_find_value(potential_mirrors, j), distance_to_obj = point_distance(x_to_use, y_to_use, current_object.x, current_object.y)
+				if (distance_to_obj < minimum_distance_to_obj) { closest_solids = array_create(0); }
+				if (distance_to_obj <= minimum_distance_to_obj) { 
+					minimum_distance_to_obj = distance_to_obj;
+					array_push(closest_solids, current_object);
+				}
+			}
+			ds_list_destroy(potential_mirrors);
+			
+			// Create reflections for closest mirrors
+			for (var j = 0; j < array_length(closest_solids); j++) {
+				var closest_solid = closest_solids[j];
+				if (!is_existing_instance(closest_solid) || closest_solid.object_index != obj_mirror) { break; }
+
+				var x_offset = 0, y_offset = 0, refl_width = abs(sprite_width), refl_height = abs(sprite_height);
+				var x_pos = closest_solid.x-(image_xscale*abs(sprite_width))/2, y_pos = closest_solid.y-(image_yscale*abs(sprite_height))/2, x_dif = closest_solid.x-x_to_use, y_dif = closest_solid.y-y;
+				var refl_blend = (colour_get_value(closest_solid.image_blend) < colour_get_value(image_blend)) ? closest_solid.image_blend : image_blend;
+
+				if (abs(y_dif) < abs(closest_solid.sprite_height) && y_to_use < closest_solid.y) { refl_height /= 2; y_offset += refl_height; y_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
+				else if (abs(y_dif) < abs(closest_solid.sprite_height) && y_to_use > closest_solid.y) { refl_height /= 2; y_pos += abs(closest_solid.sprite_height/2); }
+				else if (abs(x_dif) < abs(closest_solid.sprite_width) && x_to_use < closest_solid.x) { 
+					if (image_xscale == 1) { refl_width /= 2; x_offset += refl_width; x_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
+					else { refl_width /= 2; x_pos -= abs(closest_solid.sprite_width/2); }
+				}
+				else if (abs(x_dif) < abs(closest_solid.sprite_width) && x_to_use > closest_solid.x) {
+					if (image_xscale == -1) { refl_width /= 2; x_offset += refl_width; x_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
+					else { refl_width /= 2; x_pos += abs(closest_solid.sprite_width/2); }
+				}
+				
+				// Draw Reflection
+				if (reflect_carried_item) {
+					if (abs(y_dif) < abs(closest_solid.sprite_height)) {
+						// nothing
+					}
+					else {
+						refl_height += draw_y_offset;
+						y_offset -= draw_y_offset
+						y_pos -= draw_y_offset;
+						draw_while_carried(x_pos+(image_xscale * 8), y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
+					}
+				}
+				else {
+					draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, refl_width, refl_height, x_pos, y_pos, image_xscale, image_yscale, refl_blend, 1);
+					if (object_index == obj_player) {
+						draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
+						draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
+						draw_player_hat(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
+					}
+				}
+				
+			}
+		}
+	}
 }

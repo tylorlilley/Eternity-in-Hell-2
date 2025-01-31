@@ -2,8 +2,10 @@
 if (activated) {		
 	// Determine course of action based on state
 	if (state == SCREECHING) {
+		image_index = 2;
+		turn_to_face_player();
 		if (screech_timer > 0) { screech_timer -= 1; }
-		else { state = ATTACKING; }
+		else { state = ATTACKING; image_index = 0; }
 	}
 	else if (state == ATTACKING) {
 		if (can_move_in_direction(dir, false, true)) {
@@ -38,6 +40,10 @@ if (activated) {
 		if (get_random_chance_out_of(16)) {
 			image_xscale *= -1;
 			if (!place_meeting(x, y, obj_bush)) { play_sound(snd_walk, false); }
+		}
+		if (get_random_chance_out_of(16)) {
+			image_index += 1;
+			if (image_index > 1) { image_index = 0; }
 		}
 	}
 }

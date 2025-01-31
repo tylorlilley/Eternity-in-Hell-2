@@ -17,8 +17,11 @@ if ((get_distance_to_instance(player) < TRAP_RANGE) != activated) {
 		x = dropped_meat.x; 
 		y = dropped_meat.y; 
 		activated = (get_distance_to_instance(player) < TRAP_RANGE);
-		if (activated) { play_sound(snd_squelch, true); }
+		if (activated) { image_index = 0; play_sound(snd_squelch, true); }
 	}
 }
+else if (activated && get_distance_to_instance(player) < 24) { image_index = 2; }
+else if (activated && get_distance_to_instance(player) < TRAP_RANGE-8) { image_index = 1; }
+else if (activated && get_distance_to_instance(player) < TRAP_RANGE) { image_index = 0; }
 	
 event_inherited();

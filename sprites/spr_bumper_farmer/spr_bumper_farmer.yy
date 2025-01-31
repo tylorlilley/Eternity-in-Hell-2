@@ -15,6 +15,7 @@
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"0f250e4f-2eae-4bb9-a958-81b0b6582b5e",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"48c983fd-3547-430b-9412-2a56f0e64f77",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"01ec0bfd-6b83-4a2f-9fda-26279837de65",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -26,8 +27,8 @@
   "nineSlice": null,
   "origin": 4,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "enemies",
+    "path": "folders/Sprites/enemies.yy",
   },
   "preMultiplyAlpha": false,
   "sequence": {
@@ -44,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 2.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -57,6 +58,7 @@
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"0f250e4f-2eae-4bb9-a958-81b0b6582b5e","path":"sprites/spr_bumper_farmer/spr_bumper_farmer.yy",},},},"Disabled":false,"id":"f58ca878-7680-447c-9e5c-6b5bfc4d35db","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"48c983fd-3547-430b-9412-2a56f0e64f77","path":"sprites/spr_bumper_farmer/spr_bumper_farmer.yy",},},},"Disabled":false,"id":"8ef20815-273b-4c31-8c04-ed54bad1ecc1","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"01ec0bfd-6b83-4a2f-9fda-26279837de65","path":"sprites/spr_bumper_farmer/spr_bumper_farmer.yy",},},},"Disabled":false,"id":"d33cdfef-a3f0-43c7-9e83-c655f5592630","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

@@ -3,7 +3,7 @@ var controller = global.controller, player = global.player, closed_this_frame = 
 var push_direction = get_direction_pushed_against();
 
 if (!closed && push_direction != directions.none) {
-	play_sound(snd_thud, false);
+	play_sound(snd_crunch, false);
 	closed_this_frame = true;
 	image_index = 0;
 		

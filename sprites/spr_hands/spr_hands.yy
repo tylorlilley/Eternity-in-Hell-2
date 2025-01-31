@@ -14,6 +14,9 @@
   "For3D": false,
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"b649fe05-126c-47e4-93e8-a1a2e80f64c1",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"84e0ebc0-bb58-458a-8db3-4129f963041b",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"25bda1ca-a2f3-40e5-836d-a759c096f20d",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"e304f7c5-35d2-4e9c-8d1f-029186d8d86f",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -25,8 +28,8 @@
   "nineSlice": null,
   "origin": 4,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "enemies",
+    "path": "folders/Sprites/enemies.yy",
   },
   "preMultiplyAlpha": false,
   "sequence": {
@@ -43,7 +46,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 1.0,
+    "length": 4.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -55,6 +58,9 @@
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"b649fe05-126c-47e4-93e8-a1a2e80f64c1","path":"sprites/spr_hands/spr_hands.yy",},},},"Disabled":false,"id":"14e34b70-73b6-4249-874b-efbb4774ac99","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"84e0ebc0-bb58-458a-8db3-4129f963041b","path":"sprites/spr_hands/spr_hands.yy",},},},"Disabled":false,"id":"b2264e5b-9a64-4bcf-9d4d-a947e47dd426","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"25bda1ca-a2f3-40e5-836d-a759c096f20d","path":"sprites/spr_hands/spr_hands.yy",},},},"Disabled":false,"id":"aa008cd7-f345-40c5-a437-042284644465","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"e304f7c5-35d2-4e9c-8d1f-029186d8d86f","path":"sprites/spr_hands/spr_hands.yy",},},},"Disabled":false,"id":"4b4cd292-2a04-494f-b7c0-9379347fb4c2","IsCreationKey":false,"Key":3.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

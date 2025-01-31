@@ -16,14 +16,26 @@ else {
 		with (obj_light_source) { event_user(i); }
 		with (obj_controller) { event_user(i); }
 	}
+	// Make clock sound
+	var has_clock = false;
+	with (player) { has_clock = is_carrying_item(obj_clock); }
+	if (has_clock && number_of_frames_since_game_began % 100*FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
+		play_sound(snd_clock_tick, false);
+	}
 }
 	
 /// Pause or Unpause Game
-if (key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
-	if (!paused) {
+if (paused && key_esc_released) { game_end(); }
+else if (!paused) {
+	if (key_esc_released) {
+		paused = true;
+		key_esc_released = false; 
+		play_sound(snd_pickup, false); 
+		with (obj_projectile) { prev_speed = speed; speed = 0; }
+	}
+	else if (key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
 		if (instance_number(obj_title) == 0) {
 			if (is_game_won() || is_game_lost() || is_time_up()) {
-				update_run_number_log(global.difficulty);
 				return_to_title_screen(); 
 				exit; 
 			}
@@ -34,11 +46,11 @@ if (key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
 			}
 		}
 	}
-	else { 
-		paused = false;
-		play_sound(snd_putdown, false); 
-		with (obj_projectile) { speed = prev_speed; }
-	}
+}
+else if (paused && key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
+	paused = false;
+	play_sound(snd_putdown, false); 
+	with (obj_projectile) { speed = prev_speed; }
 }
 
 // Update input variables

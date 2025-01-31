@@ -14,6 +14,8 @@
   "For3D": false,
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"b649fe05-126c-47e4-93e8-a1a2e80f64c1",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"33c1d78e-40ee-4083-9ee0-44e53e9f0ea6",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"633f8c32-8583-4d6d-b2cf-4ac6903ce481",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -25,8 +27,8 @@
   "nineSlice": null,
   "origin": 4,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "enemies",
+    "path": "folders/Sprites/enemies.yy",
   },
   "preMultiplyAlpha": false,
   "sequence": {
@@ -43,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 1.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -55,6 +57,8 @@
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"b649fe05-126c-47e4-93e8-a1a2e80f64c1","path":"sprites/spr_hands_farmer/spr_hands_farmer.yy",},},},"Disabled":false,"id":"c15722c9-1fbd-407a-bcef-ec14d6a20486","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"33c1d78e-40ee-4083-9ee0-44e53e9f0ea6","path":"sprites/spr_hands_farmer/spr_hands_farmer.yy",},},},"Disabled":false,"id":"78ab69a8-b7a0-4c48-9719-008f506c5dfd","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"633f8c32-8583-4d6d-b2cf-4ac6903ce481","path":"sprites/spr_hands_farmer/spr_hands_farmer.yy",},},},"Disabled":false,"id":"37a1b1a0-a191-456d-805c-d69e133f7081","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

@@ -38,4 +38,4 @@ if (spawn_timer > 0) { activated = false; }
 event_inherited();
 
 if (spawn_timer > 0 && start_timer) { visible = get_coin_flip(); turn_to_face_player(); }
-image_index = (activated) ? 1 : 0;
+image_index = (activated) ? 2 : 0;

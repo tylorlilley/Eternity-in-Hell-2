@@ -33,14 +33,15 @@ else if (prepare_screen) {
 	draw_text(room_width/2, room_height-32, get_input_z_key_string() + ": Begin");
 	var best_count = array_length(hand_options);
 	var possible_count = array_length(global.available_items[global.difficulty]);
-	var available_text = "AVAILABLE: "+string(best_count)+"/"+string(possible_count);
-	if (best_count == possible_count) { available_text += "; COMPLETE"; draw_set_color(game_color); }
+	//var available_text = "AVAILABLE: "+string(best_count)+"/"+string(possible_count);
+	//if (best_count == possible_count) { available_text += "; COMPLETE"; draw_set_color(game_color); }
+	var available_text = (best_count == possible_count) ? "COMPLETE" : "";
 	draw_text(room_width/2, 64, available_text);
 	draw_set_color(c_white);
 	
 	// Draw Player Visuals
 	draw_sprite_ext(spr_player, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
-	if (global.is_farm_mode) { draw_sprite_ext(spr_player_farmer, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1); }
+	if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1); }
 	if (left_hand_pos != -1) {
 		var item = hand_options[left_hand_pos];
 		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item)), 0, left_hand_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
@@ -286,8 +287,8 @@ else {
 	
 	// Draw farmer mode selection
 	if (blink && pos == -1) {
-		if (global.is_farm_mode) { draw_sprite_ext(spr_title_arrow, 0, room_width/4-32, title_y_pos, 1, 1, 0, c_white, 1); }
-		if (!global.is_farm_mode) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4+32, title_y_pos, -1, 1, 0, c_white, 1); }
+		if (global.graphics_mode != graphics_modes.standard) { draw_sprite_ext(spr_title_arrow, 0, room_width/4-32, title_y_pos, 1, 1, 0, c_white, 1); }
+		if (global.graphics_mode == graphics_modes.standard || (can_play_unknown_mode() && global.graphics_mode == graphics_modes.farmer)) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4+32, title_y_pos, -1, 1, 0, c_white, 1); }
 	}
 	
 	// Draw difficulty selection
@@ -333,8 +334,8 @@ else {
 	}
 }
 
-// Draw Logo 
-draw_sprite_ext(spr_logo, (global.is_farm_mode) ? 1 : 0, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);
+// Draw Logo
+draw_sprite_ext(spr_logo, global.graphics_mode, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);
 
 /*
 	// Draw seed selection

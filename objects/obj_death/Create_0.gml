@@ -5,3 +5,4 @@ corporeal = false;
 floating = false;
 fire_resistant = true;
 consume_block = false;
+part_of = noone;

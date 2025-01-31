@@ -14,7 +14,7 @@
   "For3D": false,
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"ae7c0580-d782-4c87-86ba-7df69877db47",},
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"5dfb4c15-37c5-4dbc-9116-80f25126ee90",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"1f174350-29b5-412b-a042-b41fa015bd77",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"35984529-0fd0-48d1-afda-15e9b5230129",},
   ],
   "gridX": 0,
@@ -57,7 +57,7 @@
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"ae7c0580-d782-4c87-86ba-7df69877db47","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"be41fafc-5189-4f35-974e-d9fbc72b1eba","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"5dfb4c15-37c5-4dbc-9116-80f25126ee90","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"4334de71-aa17-4c3f-a38f-974391abd82f","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"1f174350-29b5-412b-a042-b41fa015bd77","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"5aa04ef0-64a4-4065-a721-37405ee1335c","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"35984529-0fd0-48d1-afda-15e9b5230129","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"61f5f63c-5ec3-4b59-a055-032e70f61563","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],

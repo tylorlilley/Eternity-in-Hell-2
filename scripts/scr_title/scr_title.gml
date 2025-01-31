@@ -65,7 +65,6 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		if (global.lava_edge_type >= lava_edge_types.wavy_still) { death_sprite = spr_lava_death_edge3; }
 		draw_sprite(death_sprite, 0, x_pos, y_pos);
 	}
-	else if (obj_index == obj_fast_skeleton) { draw_sprite(spr_skeleton, 1, x_pos, y_pos); }
 	else if (obj_index == obj_giant_eye) { draw_sprite(spr_giant_eye_death_sprite, 1, x_pos, y_pos); }
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
@@ -211,6 +210,8 @@ function update_hand_options() {
 	hand_options = array_create(0);
 	left_hand_pos = -1;
 	right_hand_pos = -1;
+	global.player_left_hand_item = get_setting_for_difficulty("last_player_left_hand_item", global.difficulty, obj_torch);
+	global.player_right_hand_item = get_setting_for_difficulty("last_player_right_hand_item", global.difficulty, noone);
 	var possible_options = global.available_items[global.difficulty];
 	for (var i = 0; i < array_length(possible_options); i++) {
 		var next_option = possible_options[i];
@@ -225,4 +226,15 @@ function update_hand_options() {
 		if (next_option == global.player_left_hand_item) { left_hand_pos = array_length(hand_options)-1; }
 		else if (next_option == global.player_right_hand_item) { right_hand_pos = array_length(hand_options)-1; }
 	}
+	var farmer_mode_available = (array_length(hand_options) == array_length(global.available_items[global.difficulty]));
+	update_setting_for_difficulty("extra_mode", global.difficulty, farmer_mode_available);
+}
+
+function can_play_unknown_mode() {
+	var can_play_easy = get_setting_for_difficulty("extra_mode", difficulties.easy, false);
+	var can_play_medium = get_setting_for_difficulty("extra_mode", difficulties.medium, false);
+	var can_play_hard = get_setting_for_difficulty("extra_mode", difficulties.hard, false);
+	var can_play_very_hard = get_setting_for_difficulty("extra_mode", difficulties.very_hard, false);
+				
+	return can_play_easy && can_play_medium && can_play_hard && can_play_very_hard;
 }

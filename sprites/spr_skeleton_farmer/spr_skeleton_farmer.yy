@@ -14,6 +14,7 @@
   "For3D": false,
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"c2681c05-c0d5-4420-bd04-d0e9f09daebc",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"f932f2d3-773a-4afc-bb41-ae9a7063c9ee",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"54a2f3cd-9d45-464e-a647-de6fb6cd7647",},
   ],
   "gridX": 0,
@@ -26,8 +27,8 @@
   "nineSlice": null,
   "origin": 4,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "enemies",
+    "path": "folders/Sprites/enemies.yy",
   },
   "preMultiplyAlpha": false,
   "sequence": {
@@ -44,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 2.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -56,7 +57,8 @@
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"c2681c05-c0d5-4420-bd04-d0e9f09daebc","path":"sprites/spr_skeleton_farmer/spr_skeleton_farmer.yy",},},},"Disabled":false,"id":"aa826d0c-f64e-4cb6-8ef5-2fa3767a147a","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"54a2f3cd-9d45-464e-a647-de6fb6cd7647","path":"sprites/spr_skeleton_farmer/spr_skeleton_farmer.yy",},},},"Disabled":false,"id":"c015851e-7e66-4d41-97be-49f93bc54182","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"f932f2d3-773a-4afc-bb41-ae9a7063c9ee","path":"sprites/spr_skeleton_farmer/spr_skeleton_farmer.yy",},},},"Disabled":false,"id":"ac7ba0b7-34c9-46ff-b28c-3fbd87944dc8","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"54a2f3cd-9d45-464e-a647-de6fb6cd7647","path":"sprites/spr_skeleton_farmer/spr_skeleton_farmer.yy",},},},"Disabled":false,"id":"c015851e-7e66-4d41-97be-49f93bc54182","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

@@ -10,8 +10,7 @@ if (!game_manager.paused) {
 	// Set Initial Menu Position
 	if (pos == -2) {
 		update_hand_options();
-		can_access_farmer_mode = (array_length(hand_options) == array_length(global.available_items[global.difficulty]));
-		if (can_access_farmer_mode) { pos = -1; }
+		if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { pos = -1; }
 		else if (get_max_difficulty() == difficulties.easy) { pos = 1; }
 		else { pos = 0; }
 	}
@@ -28,13 +27,7 @@ if (!game_manager.paused) {
 			death_log_pos = 0;
 			with (obj_lava) { instance_destroy(); } 
 		}
-		else {
-			with obj_game_manager {
-				paused = true;
-				play_sound(snd_pickup, false); 
-				with (obj_projectile) { speed = prev_speed; }
-			}
-		}
+		else { play_sound(snd_locked, false); }
 	}
 	
 	// Start Game From Prepare Screen for Z and Enter Key
@@ -50,8 +43,8 @@ if (!game_manager.paused) {
 		// Update Item Hand Settings
 		global.player_left_hand_item = (left_hand_pos > -1) ? hand_options[left_hand_pos] : noone;
 		global.player_right_hand_item = (right_hand_pos > -1) ? hand_options[right_hand_pos] : noone;
-		update_setting("last_left_hand_item", global.player_left_hand_item);
-		update_setting("last_right_hand_item", global.player_right_hand_item);
+		update_setting_for_difficulty("last_player_left_hand_item", global.difficulty, global.player_left_hand_item);
+		update_setting_for_difficulty("last_player_right_hand_item", global.difficulty, global.player_right_hand_item);
 		
 		room_goto(rm_start);
 	}
@@ -336,8 +329,8 @@ if (!game_manager.paused) {
 		if (key_up_pressed && pos > -1) { 
 			pos -= 1;
 			if (pos == 2 && global.seed_option != seed_options.specified) { pos = 1; }
-			if (!can_access_farmer_mode && pos <= -1) { pos = 0; play_sound(snd_locked, false); }
 			if (get_max_difficulty() == difficulties.easy && pos <= 0) { pos = 1; play_sound(snd_locked, false); }
+			else if (!get_setting_for_difficulty("extra_mode", global.difficulty, false) && pos <= -1) { pos = 0; play_sound(snd_locked, false); }
 			else { play_sound(snd_mana, false); }
 		}
 		else if (key_down_pressed && (pos < 5)) { 
@@ -350,11 +343,18 @@ if (!game_manager.paused) {
 	
 		// Adjust Farmer Mode Settings
 		var prev_difficulty = global.difficulty;
-		if (pos == -1) {
-			if (global.is_farm_mode && key_left_pressed) { global.is_farm_mode = false; play_sound(snd_putdown, false); }
-			else if (!global.is_farm_mode && key_right_pressed) { global.is_farm_mode = true; play_sound(snd_pickup, false); }
+		if (pos == -1) {			
+			if (key_left_pressed && global.graphics_mode != graphics_modes.standard) {
+				if (global.graphics_mode == graphics_modes.unknown) { global.graphics_mode = graphics_modes.farmer; play_sound(snd_putdown, false); }
+				else { global.graphics_mode = graphics_modes.standard; play_sound(snd_putdown, false); }
+			}
+			else if (key_right_pressed && global.graphics_mode != graphics_modes.unknown) {
+				if (global.graphics_mode == graphics_modes.standard) { global.graphics_mode = graphics_modes.farmer; play_sound(snd_pickup, false); }
+				else if (can_play_unknown_mode()) { global.graphics_mode = graphics_modes.unknown; play_sound(snd_pickup, false); }
+				else { play_sound(snd_locked, false); }
+			}
 			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
-			update_setting("extra_mode", global.is_farm_mode);
+			update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode);
 		}
 
 		// Adjust Difficulty Settings
@@ -375,8 +375,8 @@ if (!game_manager.paused) {
 			}
 			update_setting("difficulty", global.difficulty);
 			update_hand_options();
-			can_access_farmer_mode = (array_length(hand_options) == array_length(global.available_items[global.difficulty]));
-			if (!can_access_farmer_mode && global.is_farm_mode) { global.is_farm_mode = false; update_setting("extra_mode", global.is_farm_mode); }
+			if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
+			else if (global.graphics_mode != graphics_modes.standard) { global.graphics_mode = graphics_modes.standard; update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
 		}
 
 		// Adjust Seed Option Settings

@@ -14,7 +14,7 @@ else {
 	}
 	else if (shoot_timer > 0) { shoot_timer -= 1; turn_to_face_player(); }
 	if (shoot_timer == 4) {
-		image_index = 1;
+		image_index = 2;
 	}
 	else if (shoot_timer == 0) {
 		if (get_random_chance_out_of(NOSE_SELF_DESTRUCT_PROBABILITY)) { explode(true); } 

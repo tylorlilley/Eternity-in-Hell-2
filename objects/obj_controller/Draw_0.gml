@@ -95,26 +95,28 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		var time_elapsed = (time_provided - time_remaining);
 		draw_text(hud_x_pos, hud_y_pos + (2.5*16), string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2)));
 		if ((has_won && death_count > 0) || (has_lost && death_count > 1)) { draw_text(hud_x_pos, hud_y_pos + (3.5*16), string_hash_to_newline("Deaths: "+string(death_count))); }
+		else { hud_y_pos -= 16; }
 		if (used_special_items > 0) { draw_text(hud_x_pos, hud_y_pos + (4.5*16), string_hash_to_newline("Cursed Items Used: "+string(used_special_items))); }
+		else { hud_y_pos -= 16; }
 		// Half-Line-Break
 		draw_text(hud_x_pos, hud_y_pos + (6*16), string_hash_to_newline("Collected: "+get_percentage_string(get_collectables_score()))); 
 		draw_text(hud_x_pos, hud_y_pos + (7*16), string_hash_to_newline("Mapped: "+get_percentage_string(get_mapped_rooms_score())));
 		draw_text(hud_x_pos, hud_y_pos + (8*16), string_hash_to_newline("Time Left: "+get_percentage_string(get_time_remaining_score())));
 		if (completion_amount > 0) { draw_text(hud_x_pos, hud_y_pos + (9*16), string_hash_to_newline("Escaped: "+get_percentage_string(get_victory_amount_score()))); }
-		if (has_won > 0) { draw_text(hud_x_pos, hud_y_pos + (10*16), string_hash_to_newline("Preperation: "+string(get_item_hands_score()))); }
+		if (has_won > 0) { draw_text(hud_x_pos, hud_y_pos + (10*16), string_hash_to_newline("Preperation: "+get_percentage_string(get_item_hands_score()))); }
 		draw_set_color(special_text_color);
 		// Half-Line-Break
 		draw_text(hud_x_pos, hud_y_pos + (11.5*16), string_hash_to_newline("Final Grade: "+get_percentage_string( get_current_score())));
 		
 		// Draw game seed information
 		if (global.is_test_mode) {
-			draw_text(hud_x_pos, hud_y_pos + (12.5*16), string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
-			draw_text(hud_x_pos, hud_y_pos + (13.5*16),"ver." + GM_version); 
+			draw_text(hud_x_pos, hud_y_pos + room_height-(16*2), string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
+			draw_text(hud_x_pos, hud_y_pos + room_height-16,"ver." + GM_version); 
 		}
 		else {
 			draw_set_color(special_text_color);
 			// 12.5 blank line
-			draw_text(room_width/2, hud_y_pos + (13.5*16), get_input_enter_key_string() + ": Return");
+			draw_text(room_width/2, room_height-16, get_input_enter_key_string() + ": Return");
 			draw_set_color(standard_text_color);
 		}
 		draw_set_color(standard_text_color);

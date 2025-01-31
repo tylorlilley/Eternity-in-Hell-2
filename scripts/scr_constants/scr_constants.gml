@@ -24,7 +24,7 @@
 #macro SPECIAL_ROOM_PROBABILITY 1//get_probability_for_difficulty([0, 0, 0, 8, 4])
 	
 // Initilize room start probability constants
-#macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 32, 16])
+#macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 64, 24])
 #macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
 #macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
@@ -82,6 +82,7 @@
 #macro RESPAWN_FREQUENCY 40 
 #macro ECHO_SPAWN_FREQUENCY 64 
 #macro PLAYER_INFECTED_TIMER 64
+#macro LIVING_BLOCK_PROBABILITY get_probability_for_difficulty([0, 0, 128, 64, 32]) 
 
 // Initialize score constants and variables
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
@@ -121,6 +122,7 @@
 #macro DIRT_OVER_LAVA_DEPTH 11
 #macro LAVA_DEPTH 12
 #macro DIRT_DEPTH 20
+#macro MIRROR_DEPTH 30
 
 // Default Setting Constants
 #macro FULLSCREEN_DEFAULT true

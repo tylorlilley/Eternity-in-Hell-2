@@ -3,8 +3,8 @@
   "resourceVersion": "1.0",
   "name": "spr_snake_farmer",
   "bbox_bottom": 15,
-  "bbox_left": 0,
-  "bbox_right": 15,
+  "bbox_left": 5,
+  "bbox_right": 10,
   "bbox_top": 0,
   "bboxMode": 0,
   "collisionKind": 1,
@@ -14,7 +14,7 @@
   "For3D": false,
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"ae3593be-2f62-4347-981f-d1068e92cf6a",},
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"4c57069b-0bd6-47ca-9763-ffaeac141252",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"fee61b28-760f-470d-964a-5c5e37ff8490",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -26,8 +26,8 @@
   "nineSlice": null,
   "origin": 4,
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "rotational",
+    "path": "folders/Sprites/enemies/rotational.yy",
   },
   "preMultiplyAlpha": false,
   "sequence": {
@@ -55,8 +55,8 @@
     "timeUnits": 1,
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"ae3593be-2f62-4347-981f-d1068e92cf6a","path":"sprites/spr_snake_farmer/spr_snake_farmer.yy",},},},"Disabled":false,"id":"1653b03a-b3a4-4520-9f99-a72411bd7aea","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"4c57069b-0bd6-47ca-9763-ffaeac141252","path":"sprites/spr_snake_farmer/spr_snake_farmer.yy",},},},"Disabled":false,"id":"d2c3dee4-2e4c-4acb-a51b-9525a4e77e88","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"ae3593be-2f62-4347-981f-d1068e92cf6a","path":"sprites/spr_snake_farmer/spr_snake_farmer.yy",},},},"Disabled":false,"id":"77dc41db-af91-4ac7-bca1-a35c771fcd46","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"fee61b28-760f-470d-964a-5c5e37ff8490","path":"sprites/spr_snake_farmer/spr_snake_farmer.yy",},},},"Disabled":false,"id":"3da39d4e-7778-42bc-b68e-62453bb231d7","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,
@@ -67,8 +67,8 @@
   "swatchColours": null,
   "swfPrecision": 2.525,
   "textureGroupId": {
-    "name": "Farmer",
-    "path": "texturegroups/Farmer",
+    "name": "Game",
+    "path": "texturegroups/Game",
   },
   "type": 0,
   "VTile": false,

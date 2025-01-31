@@ -1,38 +1,19 @@
-- complete prepare screen for all difficulties = unlock EIEIEIEIEIEIH mode for all difficulties;
-
--- special rooms spawn minigames for a special item (giant eye, echo, hall of mirrors etc)
--- special room that spawns permenant large slow floating follower?
-
-- make hall of mirrors an object
-
-- make eyes one per room and possible to run around
--- add fountains to rooms
--- change sprite to be angrier, like statue for traps?
--- add mirrors to more rooms?
-- spawn living blocks in place of blocks sometimes
-
-- swords dont kill echoes
-
-- draw hands/items/hat in reflection for player
-
-
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point
 - launch a stream from hiveman
 - spawn a couple around a static hive tile
 - sometimes spawn one on a skeleton
-true roguelike mode - mode that swaps sprites of all items and all enemies for even more challenge. Include/unlock after EIEIH mode?
-special rooms?
-- large sleeping troll to wake up in field of grass
+
+- special room that spawns permenant large slow floating follower?
 
 a room that is connected to a rotating room with a button you can press to rotate the adjacent room. Can replace a room with multiple exits this way with one with only two?
 
 
+- large sleeping troll to wake up in field of grass as special room?
+- swords dont kill echoes
 
 Should we make it so that the start room can't have stairs? Right now when that happens we spawn on the chest spot which forces us to have all exits traversable from chest spots which sucks 
 
 Further tweak mapgen difficulties ratings?
-
-Add more rooms
 
 dying on the same frame from phantom as a stairs transition freezes game on end screen?
 
@@ -128,7 +109,7 @@ Pushable block monster?
 Snake spawner
 Fake stairs that lead to stomach
 guy with really long arms
-bear trap/sticky that you must move with tap only to escape
+bear trap/sticky that you must move with tap only to escape - this is essentially just bumper. Bumper kinda sucks, ngl
 
 Should you be able to pick up and throw bones?
 Should mouths be drawn toward dropped items and collectables somehow?

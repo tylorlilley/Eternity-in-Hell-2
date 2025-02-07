@@ -86,10 +86,10 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 }
 
 // DEBUG MODE SPAWNER
-/*
+
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
-		var obj_type = obj_eyes;
+		var obj_type = obj_dirt;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}
@@ -99,4 +99,3 @@ if (global.is_test_mode) {
 		with (new_instance) { move_snap(8, 8); }
 	}
 }
-*/

@@ -3,7 +3,7 @@ initialize_shader_pointers();
 audio_group_load(audiogroup_default);
 gameframe_init();
 
-depth = -10000;
+depth = 10000;
 
 key_up = false;
 key_down = false;

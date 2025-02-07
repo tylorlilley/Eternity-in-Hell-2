@@ -351,10 +351,10 @@ function can_press_button() {
 }
 
 /// @function								get_sprite_to_use();
-function get_sprite_to_use(regular_sprite) {
+function get_sprite_to_use(regular_sprite, for_death_sprite = false) {
 	if (global.graphics_mode == graphics_modes.standard) { return regular_sprite; }
 	if (global.graphics_mode == graphics_modes.unknown) {
-		if (is_game_won() || is_game_lost) { return regular_sprite; } 
+		if (for_death_sprite) { return regular_sprite; } 
 		var chosen_sprite = noone;
 		
 		var item_sprites = [spr_key, spr_torch, spr_sword, spr_map, spr_rosary, spr_staff, spr_bomb, spr_meat, spr_shovel, spr_clock, spr_heart, spr_heart_farmer, spr_meat_farmer, spr_sword_farmer, spr_bomb_farmer, spr_clock_farmer ];

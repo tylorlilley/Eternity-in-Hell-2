@@ -48,7 +48,7 @@ function get_max_difficulty() {
 ///	@param		{real} y_pos				The y_pos to draw the sprite at
 ///	@param		{object_index} difficulty	The object_index to draw the sprite for
 function draw_death_type_sprite(x_pos, y_pos, obj_index) {
-	var death_sprite = get_sprite_to_use(object_get_sprite(obj_index));
+	var death_sprite = get_sprite_to_use(object_get_sprite(obj_index), true);
 	
 	// Draw Sprite
 	if (obj_index == obj_controller) { 

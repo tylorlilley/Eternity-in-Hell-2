@@ -1,3 +1,6 @@
+held item reflections (sword) reflecting in the right mirrors
+EIH randomizer mode
+
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point
 - launch a stream from hiveman
 - spawn a couple around a static hive tile

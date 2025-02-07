@@ -14,8 +14,8 @@ function light_torch(lighting_torch, make_noise) {
 	if (!is_existing_instance(light_source)) {
 		play_sound(snd_torchlight, true);
 		
-		image_index = 0;
-		image_speed = 1/6;
+		torch_sprite_image_index = 1;
+		torch_light_image_timer = 1;
 
 		light_source = instance_create(x, y, obj_light_source);
 		light_source.lighting_range = lighting_range;
@@ -34,8 +34,8 @@ function light_torch(lighting_torch, make_noise) {
 
 /// @function							extinguish_torch();
 function extinguish_torch() {
-	image_speed = 0;
-	image_index = 0;
+	torch_sprite_image_index = 0;
+	torch_light_image_timer = -1;
 	time_to_remain_lit = 0;
 	
 	play_sound( snd_extinguish, true );
@@ -73,6 +73,6 @@ function interact_with_other_torches() {
 	if (!actively_lit && !special && time_to_remain_lit > 0) {
 		time_to_remain_lit -= get_one_unit_of_game_time();
 		if (is_existing_instance(light_source)) { light_source.lighting_range = ceil(get_scaling_amount(PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, MAX_TORCH_TIME_TO_REMAIN_LIT)); }
-		if (!time_to_remain_lit && image_speed > 0) { extinguish_torch(); }
+		if (!time_to_remain_lit && torch_light_image_timer >= 0) { extinguish_torch(); }
 	}
 }

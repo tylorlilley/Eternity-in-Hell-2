@@ -5,6 +5,7 @@ function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_hei
 	var draw_x_offset = image_xscale * -8;
 
 	draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
+	if (torch_light_image_timer >= 0) { draw_sprite_part_ext(torch_light_sprite_index, torch_light_image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha); }
 }
 
 /// @function								become_carried(new_holder);
@@ -92,9 +93,8 @@ function make_item_special() {
 	special = true;
 	image_index = 1;
 	if (object_index == obj_torch) { 
-		image_index = 0;
 		lighting_range = TORCH_LIGHT_RANGE*2;
-		sprite_index = get_sprite_to_use(spr_special_torch); 
+		torch_light_sprite_index = spr_special_torch_light;
 	}
 	else if (object_index == obj_clock) { sprite_index = get_sprite_to_use(spr_special_clock); }
 }

@@ -29,7 +29,7 @@ function kill_with_sword(sword) {
 	if (!sword.special) { 
 		var sword_in_ground = instance_create(x, y, obj_sword_in_ground);
 		sword_in_ground.image_xscale = sword.image_xscale;
-		sword_in_ground.sprite_index = (sword.sprite_index == spr_sword_farmer) ? spr_sword_in_ground_farmer : spr_sword_in_ground;
+		sword_in_ground.sprite_index = sword.sprite_index;
 		instance_destroy(sword); 
 	}
 	kill_enemy(snd_crunch);
@@ -395,7 +395,7 @@ function check_for_player_collision() {
 				if (object_index == obj_hands && is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_sword && !right_hand_item.special) {
 					var sword_in_ground = instance_create(player.x, player.y, obj_sword_in_ground);
 					sword_in_ground.image_xscale = right_hand_item.image_xscale;
-					sword_in_ground.sprite_index = (right_hand_item.sprite_index == spr_sword_farmer) ? spr_sword_in_ground_farmer : spr_sword_in_ground;
+					sword_in_ground.sprite_index = right_hand_item.sprite_index;
 					instance_destroy(right_hand_item); 
 				}
 				if (object_index == obj_fire_skeleton) { play_sound(snd_extinguish, false); }

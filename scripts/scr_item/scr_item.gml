@@ -241,3 +241,29 @@ function light_bomb() {
 	fuse_timer = 4*irandom_range(5,8);
 	return true;
 }
+
+
+/// @function								get_random_item_obj(special_item, include_key);
+/// @param		{bool} special_item			Whether to check against the spawned special items or not
+function get_carried_item_draw_y_offset(spr_index) {
+	var y_offset = -2;
+	
+	switch (spr_index) {
+		case spr_meat:
+		case spr_meat_farmer:
+			{ y_offset = 0; break; }
+		case spr_rosary:
+			{ y_offset = 2; break; }
+		case spr_shovel:
+			{ y_offset = -3; break; }
+		case spr_staff: 
+			{ y_offset = 0; break; }
+		case spr_sword: 
+		case spr_sword_farmer:
+			{ y_offset = -6; break; }
+		case spr_torch: 
+			{ y_offset = -4; break; }
+	}
+	
+	return y_offset;
+}

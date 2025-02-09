@@ -10,6 +10,13 @@ dropped_meat = array_create(0);
 global.datetime = string(current_day) + "-" + string(current_month) + "-" + string(current_year) + ":" + string(current_hour) + ":" + string(current_minute);
 depth = -9999;
 
+global.shuffled_item_sprites = array_get_duplicate(global.item_sprites);
+global.shuffled_regular_enemy_sprites = array_get_duplicate(global.regular_enemy_sprites);
+global.shuffled_rotational_enemy_sprites = array_get_duplicate(global.rotational_enemy_sprites);
+global.shuffled_item_sprites = array_shuffle(global.shuffled_item_sprites);
+global.shuffled_regular_enemy_sprites = array_shuffle(global.shuffled_regular_enemy_sprites);
+global.shuffled_rotational_enemy_sprites = array_shuffle(global.shuffled_rotational_enemy_sprites);
+
 // Initialize global values
 random_set_seed(global.seed);
 show_debug_message("SEED: "+string(random_get_seed()));

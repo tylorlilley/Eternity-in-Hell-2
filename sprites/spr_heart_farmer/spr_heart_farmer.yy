@@ -2,7 +2,7 @@
   "resourceType": "GMSprite",
   "resourceVersion": "1.0",
   "name": "spr_heart_farmer",
-  "bbox_bottom": 12,
+  "bbox_bottom": 13,
   "bbox_left": 3,
   "bbox_right": 12,
   "bbox_top": 4,
@@ -15,6 +15,7 @@
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"2ae89efd-4764-4633-bcb3-2827a6c6acda",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"0e3c6d1c-bc53-4468-b1fe-3845320b7d4a",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"62cf4c6c-7879-494d-8634-6af05cc13368",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -44,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 2.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -57,6 +58,7 @@
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"2ae89efd-4764-4633-bcb3-2827a6c6acda","path":"sprites/spr_heart_farmer/spr_heart_farmer.yy",},},},"Disabled":false,"id":"19d448aa-8980-4439-b7da-24295104fa2a","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"0e3c6d1c-bc53-4468-b1fe-3845320b7d4a","path":"sprites/spr_heart_farmer/spr_heart_farmer.yy",},},},"Disabled":false,"id":"df8f3f8e-acae-4a54-8abe-c835b9fe1581","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"62cf4c6c-7879-494d-8634-6af05cc13368","path":"sprites/spr_heart_farmer/spr_heart_farmer.yy",},},},"Disabled":false,"id":"1fe800a5-ca6b-4d92-84ac-6ef326e1d908","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

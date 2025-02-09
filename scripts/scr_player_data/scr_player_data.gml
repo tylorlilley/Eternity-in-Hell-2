@@ -143,12 +143,16 @@ function get_difficulties() {
 
 /// @function								get_death_types();
 function get_death_types() {
-	var death_types_array = global.death_types_array;
-	var new_array = array_create(array_length(death_types_array));
-	array_duplicate(new_array, death_types_array);
-	return new_array;
-
+	return array_get_duplicate(global.death_types_array);
 }
+
+/// @function								get_death_types();
+function array_get_duplicate(old_array) {
+	var new_array = array_create(array_length(old_array));
+	array_duplicate(new_array, old_array);
+	return new_array;
+}
+
 
 /// @function								update_win_log(difficulty, new_score);
 ///	@param		{difficulty} difficulty		The difficulty to update the count for

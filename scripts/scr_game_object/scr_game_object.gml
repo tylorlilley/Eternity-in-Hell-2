@@ -351,30 +351,32 @@ function can_press_button() {
 }
 
 /// @function								get_sprite_to_use();
-function get_sprite_to_use(regular_sprite, for_death_sprite = false) {
+function get_sprite_to_use(regular_sprite, for_menu = false) {
 	if (global.graphics_mode == graphics_modes.standard) { return regular_sprite; }
 	if (global.graphics_mode == graphics_modes.unknown) {
-		if (for_death_sprite) { return regular_sprite; } 
+		if (for_menu) { return regular_sprite; } 
 		var chosen_sprite = noone;
 		
-		var item_sprites = [spr_key, spr_torch, spr_sword, spr_map, spr_rosary, spr_staff, spr_bomb, spr_meat, spr_shovel, spr_clock, spr_heart, spr_heart_farmer, spr_meat_farmer, spr_sword_farmer, spr_bomb_farmer, spr_clock_farmer ];
-		if (array_contains(item_sprites, regular_sprite)) {
-			chosen_sprite = item_sprites[global.seed % array_length(item_sprites)];
+		// Randomize Item Sprite
+		if (array_contains(global.item_sprites, regular_sprite)) {
+			var original_pos = array_get_index(global.item_sprites, regular_sprite);
+			chosen_sprite = global.shuffled_item_sprites[original_pos];
 		}
 		
-		var regular_enemy_sprites = [spr_skeleton, spr_fast_skeleton, spr_fire_skeleton, spr_living_block, spr_spider, spr_mouth, spr_bumper, spr_phantom, spr_hands, spr_nose, spr_eyes, spr_ears,
-									spr_skeleton_farmer, spr_fast_skeleton_farmer, spr_fire_skeleton_farmer, spr_living_block_farmer, spr_spider_farmer, spr_mouth_farmer, spr_bumper_farmer, spr_phantom_farmer, spr_hands_farmer, spr_nose_farmer, spr_eyes_farmer, spr_ears_farmer];
-		if (array_contains(regular_enemy_sprites, regular_sprite)) {
-			chosen_sprite = regular_enemy_sprites[global.seed % array_length(regular_enemy_sprites)];
+		// Randomize Regular Enemy Sprite
+		else if (array_contains(global.regular_enemy_sprites, regular_sprite)) {
+			var original_pos = array_get_index(global.regular_enemy_sprites, regular_sprite);
+			chosen_sprite = global.shuffled_regular_enemy_sprites[original_pos];
 		}
 		
-		var rotational_enemy_sprites = [spr_cockroach, spr_fountain, spr_statue, spr_snake, spr_cockroach_farmer, spr_fountain_farmer, spr_snake_farmer];
-		if (array_contains(rotational_enemy_sprites, regular_sprite)) {
-			chosen_sprite = rotational_enemy_sprites[global.seed % array_length(rotational_enemy_sprites)];
+		// Randomize Rotational Enemy Sprites
+		else if (array_contains(global.rotational_enemy_sprites, regular_sprite)) {
+			var original_pos = array_get_index(global.rotational_enemy_sprites, regular_sprite);
+			chosen_sprite = global.shuffled_rotational_enemy_sprites[original_pos];
 		}
 		
 		if (chosen_sprite != noone) { return chosen_sprite; }
-		else if (get_coin_flip()) { return regular_sprite; }
+		else if ((global.seed % regular_sprite) % 2 == 0) { return regular_sprite; }
 	}
 	
 	// Get Farmer Version of Regular Sprite
@@ -412,7 +414,6 @@ function get_sprite_to_use(regular_sprite, for_death_sprite = false) {
 		case spr_giant_eye_pupil: { return spr_giant_eye_pupil_farmer; }
 		/// Items
 		case spr_sword: { return spr_sword_farmer; }
-		case spr_sword_in_ground: { return spr_sword_in_ground_farmer; }
 		case spr_meat: { return spr_meat_farmer; }
 		case spr_bomb: { return spr_bomb_farmer; }
 		case spr_heart: { return spr_heart_farmer; }

@@ -120,7 +120,63 @@ global.special_rooms = [
 	rm_one_exit_22, // Echo
 	rm_one_exit_30, // Red Chest
 	rm_one_exit_23, // Gudetama
-]
+];
+global.item_sprites = [
+	spr_key, spr_torch, 
+	spr_sword, 
+	spr_map, 
+	spr_rosary, 
+	spr_staff, 
+	spr_bomb, 
+	spr_meat, 
+	spr_shovel, 
+	spr_clock, 
+	spr_heart, 
+	spr_heart_farmer, 
+	spr_meat_farmer, 
+	spr_sword_farmer, 
+	spr_bomb_farmer, 
+	spr_clock_farmer 
+];
+global.regular_enemy_sprites = [
+	spr_skeleton, 
+	spr_fast_skeleton, 
+	spr_fire_skeleton, 
+	spr_living_block, 
+	spr_spider, 
+	spr_mouth, 
+	spr_bumper, 
+	spr_phantom, 
+	spr_hands, 
+	spr_nose, 
+	spr_eyes, 
+	spr_ears,
+	spr_skeleton_farmer, 
+	spr_fast_skeleton_farmer, 
+	spr_fire_skeleton_farmer, 
+	spr_living_block_farmer, 
+	spr_spider_farmer, 
+	spr_mouth_farmer, 
+	spr_bumper_farmer, 
+	spr_phantom_farmer, 
+	spr_hands_farmer, 
+	spr_nose_farmer, 
+	spr_eyes_farmer, 
+	spr_ears_farmer
+];
+global.rotational_enemy_sprites = [
+	spr_cockroach, 
+	spr_fountain, 
+	spr_statue, 
+	spr_snake, 
+	spr_cockroach_farmer, 
+	spr_fountain_farmer, 
+	spr_snake_farmer
+];
+global.shuffled_item_sprites = array_get_duplicate(global.item_sprites);
+global.shuffled_regular_enemy_sprites = array_get_duplicate(global.regular_enemy_sprites);
+global.shuffled_rotational_enemy_sprites = array_get_duplicate(global.rotational_enemy_sprites);
+
 
 // Set controls and set up drawing surface variables
 global.player = noone;

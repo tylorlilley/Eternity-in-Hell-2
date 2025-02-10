@@ -15,11 +15,12 @@ if (paused) {
 	draw_set_color(c_white);
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_middle);
-	draw_set_font(ft_hud);
 	
 	var y_pos = (room_height/2)-16, x_pos = room_width/2;
 	if (instance_number(obj_controller) == 0) { y_pos += 16; }
-	if (!is_blink_frame()) { draw_text(room_width/2, y_pos-16, "GAME PAUSED"); }
+	draw_set_font(ft_hud_large);
+	if (!is_blink_frame()) { draw_text(room_width/2, y_pos-16-2, "GAME PAUSED"); }
+	draw_set_font(ft_hud);
 	draw_text(x_pos, y_pos+16, get_input_enter_key_string() + ": UNPAUSE");
 	if (is_existing_instance(global.controller)) {	
 		if (global.input != inputs.gamepad) {

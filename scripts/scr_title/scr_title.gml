@@ -12,6 +12,18 @@ function get_difficulty_string(difficulty) {
 	return result;
 }
 
+/// @function								get_graphics_mode_string(graphics_mode);
+///	@param		{graphics_mode} graphics_mode	The graphics mode to return a string for
+function get_graphics_mode_string(graphics_mode) {
+	var result = "";
+	switch (graphics_mode) {
+		case graphics_modes.standard: { result = "EIH"; break; }
+		case graphics_modes.farmer: { result = "EIEIH"; break; }
+		case graphics_modes.unknown: { result = "???"; break; }
+	}
+	return result;
+}
+
 /// @function								get_seed_option_string();
 function get_seed_option_string() {
 	var result = "";

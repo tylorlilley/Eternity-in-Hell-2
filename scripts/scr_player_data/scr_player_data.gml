@@ -157,14 +157,18 @@ function array_get_duplicate(old_array) {
 /// @function								update_win_log(difficulty, new_score);
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
 function update_win_log(difficulty) {
-	var previous_win_count = get_win_count(difficulty), right_item = noone, left_item = noone, right_count = 0, left_count = 0;
+	var previous_win_count = get_win_count(difficulty), previous_unknown_mode_win_count = 0, previous_extra_mode_win_count = 0, right_item = noone, left_item = noone, right_count = 0, left_count = 0;
 	if (final_player_right_hand_item != noone) { var right_item = final_player_right_hand_item; right_count = get_item_win_count(right_item, difficulty); }
 	if (final_player_left_hand_item != noone) { var left_item = final_player_left_hand_item; left_count = get_item_win_count(left_item, difficulty); }
+	if (global.graphics_mode == graphics_modes.farmer) { previous_extra_mode_win_count = get_win_count(difficulty, graphics_modes.farmer); }
+	if (global.graphics_mode == graphics_modes.unknown) { previous_unknown_mode_win_count = get_win_count(difficulty, graphics_modes.unknown); }
 	
 	ini_open("player_data.ini");
 	ini_write_real(get_difficulty_string(difficulty), "wins", previous_win_count+1);
 	if (right_item != noone) { ini_write_real(get_difficulty_string(difficulty), object_get_name(right_item)+"_wins", right_count+1); }
 	if (left_item != noone) { ini_write_real(get_difficulty_string(difficulty), object_get_name(left_item)+"_wins", left_count+1); }
+	if (global.graphics_mode == graphics_modes.farmer) { ini_write_real(get_difficulty_string(difficulty), "extra_mode_wins", previous_extra_mode_win_count+1); }
+	if (global.graphics_mode == graphics_modes.unknown) { ini_write_real(get_difficulty_string(difficulty), "unknown_mode_wins", previous_unknown_mode_win_count+1); }
 	ini_close();
 	
 	var outcome_to_log = "won";
@@ -206,9 +210,10 @@ function update_best_score(difficulty) {
 	update_run_number_log(global.difficulty);
 }
 
-/// @function								get_win_count(difficulty);
-///	@param		{difficulty} difficulty		The difficulty to return a count for
-function get_win_count(difficulty) {
+/// @function									get_win_count(difficulty, [graphics_mode]);
+///	@param		{difficulty} difficulty			The difficulty to return a count for
+///	@param		{graphics_mode} graphics_mode	The graphics mode to return a count for
+function get_win_count(difficulty, graphics_mode = graphics_modes.standard) {
 	var win_count = 0;
 	
 	var all_difficulties = get_difficulties();
@@ -217,7 +222,9 @@ function get_win_count(difficulty) {
 		
 		if (difficulty == all || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
-			win_count += ini_read_real(get_difficulty_string(next_difficulty), "wins", 0);
+			if (graphics_mode == graphics_modes.standard) { win_count += ini_read_real(get_difficulty_string(next_difficulty), "wins", 0); }
+			if (graphics_mode == graphics_modes.farmer) { win_count += ini_read_real(get_difficulty_string(next_difficulty), "extra_mode_wins", 0); }
+			if (graphics_mode == graphics_modes.unknown) { win_count += ini_read_real(get_difficulty_string(next_difficulty), "unknown_mode_wins", 0); }
 			ini_close();
 		}
 	}

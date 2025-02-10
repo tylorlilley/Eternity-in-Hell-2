@@ -15,8 +15,14 @@ else if (controls_screen) { submenu_title = "View Controls"; }
 else if (death_log_screen) { submenu_title = "View Log"; }
 draw_set_color(game_color);
 if (options_screen || controls_screen || death_log_screen || prepare_screen) {
-	draw_text(room_width/2, 16, submenu_title);
-	draw_text(room_width/2, room_height-16, get_input_x_key_string() + ": Return");
+	draw_set_font(ft_hud_large);
+	draw_text(room_width/2, 16-2, submenu_title);
+	
+	draw_set_font(ft_hud_small);
+	var return_text = get_input_x_key_string() + ": Return";
+	if (death_log_screen) { return_text = get_input_z_key_string() + ": Change Sort; " + get_input_x_key_string() + ": Return"; }
+	draw_text(room_width/2, room_height-16, return_text);
+	draw_set_font(ft_hud);
 }
 draw_set_color(c_white);
 
@@ -29,17 +35,20 @@ else if (prepare_screen) {
 	// Draw Text
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_center);
-	draw_text(room_width/2, 32, get_difficulty_string(global.difficulty));
+	draw_set_font(ft_hud_large);
+	draw_text(room_width/2, 32-2, get_difficulty_string(global.difficulty));
+	draw_set_font(ft_hud);
 	draw_text(room_width/2, room_height-32, get_input_z_key_string() + ": Begin");
 	var best_count = array_length(hand_options);
 	var possible_count = array_length(global.available_items[global.difficulty]);
 	//var available_text = "AVAILABLE: "+string(best_count)+"/"+string(possible_count);
 	//if (best_count == possible_count) { available_text += "; COMPLETE"; draw_set_color(game_color); }
-	var available_text = (best_count == possible_count) ? "COMPLETE" : "";
-	draw_text(room_width/2, 64, available_text);
+	//var available_text = (best_count == possible_count) ? "COMPLETE" : "";
+	//draw_text(room_width/2, 64, available_text);
 	draw_set_color(c_white);
 	
 	// Draw Player Visuals
+	if (best_count == possible_count) { draw_sprite_ext(spr_crown, (get_win_count(global.difficulty, graphics_modes.unknown) > 0) ? 1 : 0, player_x_pos, player_y_pos - (16*3), 3, 3, 0, c_white, 1); }
 	draw_sprite_ext(spr_player, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
 	if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1); }
 	if (left_hand_pos != -1) {
@@ -184,7 +193,7 @@ else if (controls_screen) {
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_left);
 	var title_y_pos = room_height*2;
-	var x_pos = room_width/3, y_pos = 48, y_offset = 40;
+	var x_pos = room_width/3, y_pos = 56, y_offset = 40;
 	
 	// Draw Controls
 	draw_set_halign(fa_left);
@@ -240,25 +249,29 @@ else if (death_log_screen && (death_count_string != noone || win_count_string !=
 	// Draw Headers
 	var y_initial = 16*2, x_initial = (room_width/4)-16, y_pos = y_initial, x_pos = x_initial-16;
 	var best_score_string = get_best_score_string(global.difficulty), killed_x_pos = (x_initial*2)-16, deaths_x_pos = (x_initial*3), last_x_pos = (x_initial*4)+16;
-	draw_text(room_width/2, y_pos, get_difficulty_string(global.difficulty));
+	draw_set_font(ft_hud_large);
+	draw_text(room_width/2, y_pos-2, get_difficulty_string(global.difficulty));
+	draw_set_font(ft_hud);
 	y_pos += 16;
 	if (death_count_string != noone) { draw_text(room_width/2, y_pos, death_count_string); }
 	else { draw_text(room_width/2, y_pos, "Death Count: 0"); }
 	y_pos += 24;
+	draw_set_font(ft_hud_small);
 	draw_set_color((death_log_sort == 0) ? game_color : c_white);
-	draw_text(killed_x_pos, y_pos, "Kills:");
+	draw_text(killed_x_pos, y_pos, "Killed:");
 	draw_set_color((death_log_sort == 1) ? game_color : c_white);
-	draw_text(deaths_x_pos, y_pos, "Deaths:");
+	draw_text(deaths_x_pos, y_pos, "Killed By:");
 	draw_set_color((death_log_sort == 2) ? game_color : c_white);
-	draw_text(last_x_pos, y_pos, "Last Run\nEnded:");
+	draw_text(last_x_pos, y_pos, "Last Run\nEnded By:");
+	draw_set_font(ft_hud);
 	draw_set_color(c_white);
 	if (win_count_string != noone) { draw_text(room_width/2, room_height-16-16-16, win_count_string); }
 	if (best_score_string != noone) { draw_text(room_width/2, room_height-16-16, best_score_string); }
 	
 	// Draw Arrow Keys
+	if (blink && !game_manager.key_up_pressed && death_log_pos > 0) { draw_sprite_ext(spr_title_arrow, 0 , x_pos, y_pos, 1, 1, -90, c_white, 1); }
 	y_pos += 16;
-	if (death_log_pos > 0 && !game_manager.key_up_pressed) { draw_sprite_ext(spr_small_key, 0 , room_width/2, y_pos, 1, 1, 1, c_white, 1); }
-	if (death_log_pos < array_length(deaths_to_display)-6 && !game_manager.key_down_pressed) { draw_sprite_ext(spr_small_key, 2, room_width/2, room_height-(16*4), 1, 1, 1, c_white, 1); }
+	if (blink && !game_manager.key_down_pressed && death_log_pos < array_length(deaths_to_display)-6) { draw_sprite_ext(spr_title_arrow, 2, x_pos, room_height-(16*3), 1, 1, 90, c_white, 1); }
 	y_pos += 16;
 	
 	// Draw Deaths
@@ -279,11 +292,13 @@ else {
 	// Draw Main Menu
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_left);
-	var title_y_pos = room_height/4+16;
+	var title_y_pos = room_height/4;
 	
 	// Draw Game Version
+	draw_set_font(ft_hud_small);
 	draw_set_halign(fa_right);
-	draw_text(room_width-8, room_height-16, "v." + string(GM_version));
+	draw_text(room_width-6, room_height-6, "ver." + string(GM_version));
+	draw_set_font(ft_hud);
 	
 	// Draw farmer mode selection
 	if (blink && pos == -1) {
@@ -293,17 +308,19 @@ else {
 	
 	// Draw difficulty selection
 	draw_set_halign(fa_center);
-	var difficulty_y_pos = title_y_pos + room_height/4 - 32;
+	draw_set_font(ft_hud_large);
+	var difficulty_y_pos = title_y_pos + room_height/4 - 32 + 4;
 	draw_text(room_width/2, difficulty_y_pos, get_difficulty_string(global.difficulty));
+	draw_set_font(ft_hud);
 	if (blink && pos == 0) {
-		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, difficulty_y_pos, 1, 1, 0, c_white, 1); }
-		if (global.difficulty < get_max_difficulty()) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, difficulty_y_pos, -1, 1, 0, c_white, 1); }
+		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, 24, difficulty_y_pos, 1, 1, 0, c_white, 1); }
+		if (global.difficulty < get_max_difficulty()) { draw_sprite_ext(spr_title_arrow, 0, room_width - 24, difficulty_y_pos, -1, 1, 0, c_white, 1); }
 	}
 	// Draw death count for current difficulty
 	if (death_count_string != noone) { draw_text(room_width/2, difficulty_y_pos+16, death_count_string); }
 	
 	// Draw remaining menu options
-	var message_y_pos = difficulty_y_pos+16+24, messages_y_offset = 0;
+	var message_y_pos = difficulty_y_pos+16+24+16, messages_y_offset = 0;
 	draw_set_halign(fa_left);
 	draw_text(32, message_y_pos+messages_y_offset, get_seed_option_string());
 	draw_text(32, message_y_pos+messages_y_offset+32, "Options");
@@ -335,7 +352,12 @@ else {
 }
 
 // Draw Logo
-draw_sprite_ext(spr_logo, global.graphics_mode, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);
+draw_set_valign(fa_middle);
+draw_set_halign(fa_center);
+draw_set_font(ft_hud_giant);
+draw_set_color(game_color);
+draw_text(room_width/2, title_y_pos, get_graphics_mode_string(global.graphics_mode));
+//draw_sprite_ext(spr_logo, global.graphics_mode, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);
 
 /*
 	// Draw seed selection

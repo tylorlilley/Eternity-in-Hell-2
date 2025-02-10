@@ -418,7 +418,7 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 		case spr_bomb: { return spr_bomb_farmer; }
 		case spr_heart: { return spr_heart_farmer; }
 		case spr_clock: { return spr_clock_farmer; }
-		case spr_special_clock: { return spr_special_clock_farmer; }
+		case spr_clock_sand: { return spr_clock_sand_farmer; }
 	}
 	
 	return regular_sprite;

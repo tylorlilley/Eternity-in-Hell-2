@@ -4,8 +4,19 @@ function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_hei
 	
 	var draw_x_offset = image_xscale * -8;
 
+	// Draw Main Item Sprite
 	draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
+	
+	// Draw Torch Lights
 	if (torch_light_image_timer >= 0) { draw_sprite_part_ext(torch_light_sprite_index, torch_light_image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha); }
+
+	// Draw Clock Time
+	if (sprite_index == get_sprite_to_use(spr_clock) || sprite_index == get_sprite_to_use(spr_clock_farmer)) {
+		var time_sprite = get_sprite_to_use(spr_clock_sand), time_image = get_clock_image_index();
+		if (special) { time_sprite = (sprite_index == spr_clock) ? spr_special_clock_sand : spr_special_clock_sand_farmer; }
+		
+		draw_sprite_part_ext(time_sprite, time_image, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
+	}
 }
 
 /// @function								become_carried(new_holder);
@@ -96,7 +107,6 @@ function make_item_special() {
 		lighting_range = TORCH_LIGHT_RANGE*2;
 		torch_light_sprite_index = spr_special_torch_light;
 	}
-	else if (object_index == obj_clock) { sprite_index = get_sprite_to_use(spr_special_clock); }
 }
 
 /// @function								defuse_bomb();
@@ -131,9 +141,9 @@ function dig_hole() {
 /// @function								thump();
 function thump() {
 	if (is_thump_frame()) {
-		if (image_index == 0) { play_sound(snd_thump, false); image_index = 1; }
+		if (image_index == 0) { play_sound(snd_thump, false); image_index = 3; }
 	}
-	else { image_index = 0; }
+	else { image_index = 1; }
 }
 
 /// @function								mark_heart_carried();

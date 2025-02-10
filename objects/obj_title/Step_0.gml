@@ -330,7 +330,7 @@ if (!game_manager.paused) {
 			pos -= 1;
 			if (pos == 2 && global.seed_option != seed_options.specified) { pos = 1; }
 			if (get_max_difficulty() == difficulties.easy && pos <= 0) { pos = 1; play_sound(snd_locked, false); }
-			else if (!get_setting_for_difficulty("extra_mode", global.difficulty, false) && pos <= -1) { pos = 0; play_sound(snd_locked, false); }
+			else if (!global.is_test_mode && !get_setting_for_difficulty("extra_mode", global.difficulty, false) && pos <= -1) { pos = 0; play_sound(snd_locked, false); }
 			else { play_sound(snd_mana, false); }
 		}
 		else if (key_down_pressed && (pos < 5)) { 

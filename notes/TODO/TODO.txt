@@ -1,7 +1,9 @@
 held item reflections (sword) reflecting in the right mirrors
-EIH randomizer mode
-- keep track of randomized wins? Add special crown for complet
-damaged and in ground sprite for heart and clocks
+test EIH randomizer mode
+- keep track of randomized wins? Add special crown for completing a mode on randomized
+randomized heart?
+
+
 
 
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point

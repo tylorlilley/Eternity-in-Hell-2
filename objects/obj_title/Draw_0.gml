@@ -44,11 +44,11 @@ else if (prepare_screen) {
 	if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1); }
 	if (left_hand_pos != -1) {
 		var item = hand_options[left_hand_pos];
-		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item, true)), 0, left_hand_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
+		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item), true), 0, left_hand_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
 	}
 	if (right_hand_pos != -1) {
 		var item = hand_options[right_hand_pos];
-		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item, true)), 0, right_hand_x_pos, player_y_pos, -4, 4, 0, c_white, 1);
+		draw_sprite_ext(get_sprite_to_use(object_get_sprite(item), true), 0, right_hand_x_pos, player_y_pos, -4, 4, 0, c_white, 1);
 	}
 	if (left_hand_selected && blink) {
 		draw_sprite_ext(spr_title_arrow, 0, left_hand_x_pos, player_y_pos - (16*3), 2, 2, -90, c_white, 1);

@@ -230,11 +230,12 @@ function update_hand_options() {
 	update_setting_for_difficulty("extra_mode", global.difficulty, farmer_mode_available);
 }
 
+/// @function								can_play_unknown_mode();
 function can_play_unknown_mode() {
 	var can_play_easy = get_setting_for_difficulty("extra_mode", difficulties.easy, false);
 	var can_play_medium = get_setting_for_difficulty("extra_mode", difficulties.medium, false);
 	var can_play_hard = get_setting_for_difficulty("extra_mode", difficulties.hard, false);
 	var can_play_very_hard = get_setting_for_difficulty("extra_mode", difficulties.very_hard, false);
 				
-	return can_play_easy && can_play_medium && can_play_hard && can_play_very_hard;
+	return global.is_test_mode || (can_play_easy && can_play_medium && can_play_hard && can_play_very_hard);
 }

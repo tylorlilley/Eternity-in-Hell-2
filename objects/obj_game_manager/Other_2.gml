@@ -81,6 +81,7 @@ global.death_types_array = [
 	obj_bones,
 	obj_skeleton,
 	obj_fast_skeleton,
+	obj_fat_skeleton,
 	obj_snake,
 	obj_eyes,
 	obj_mouth,
@@ -141,6 +142,7 @@ global.item_sprites = [
 global.regular_enemy_sprites = [
 	spr_skeleton, 
 	spr_fast_skeleton, 
+	spr_fat_skeleton, 
 	spr_fire_skeleton, 
 	spr_living_block, 
 	spr_spider, 
@@ -153,6 +155,7 @@ global.regular_enemy_sprites = [
 	spr_ears,
 	spr_skeleton_farmer, 
 	spr_fast_skeleton_farmer, 
+	spr_fat_skeleton_farmer, 
 	spr_fire_skeleton_farmer, 
 	spr_living_block_farmer, 
 	spr_spider_farmer, 

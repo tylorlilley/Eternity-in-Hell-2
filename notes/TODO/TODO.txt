@@ -1,5 +1,12 @@
+eyes face player or meat with meat
+fat skeleton test with meat
+
 test EIH randomizer mode
 use different font sizes on win/loss screen
+"randomized facts when being killed"
+
+SEED: 67597448
+Randomization crashing
 
 SEED: 6541367
 SPAWNED obj_torch 47
@@ -7,7 +14,7 @@ SPAWNED obj_torch 47
 SPAWNED obj_key 32
 -seed with lots of locks impossible keys?
 
-
+---
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point
 - launch a stream from hiveman
 - spawn a couple around a static hive tile
@@ -89,11 +96,7 @@ One way doors?
 
 orb summoner item?
 
-Enemy that attacks you if you open the map around it
-
-Should map display an unkown state for map exits until exploring them solidifies them as open or closed??
 Should spiders spawn on level 1???
-Should a certain amount of difficulty be required to spawn for the harder rooms?
 
 dead adventurer that gives hints
 
@@ -103,8 +106,6 @@ replace stairs with summoning circles?
 - they give you a cool item/red item?
 - Spawns enemy next to you?
 
-Ability to somehow save an item for the next run?
-new item: mirror that bounces back fireballs?
 
 
 level editor
@@ -114,8 +115,6 @@ Audio impared accessibility option
 
 add a reset data with an "are you sure" to the death log screen
 
-new enemy: enemy that eats your arm? So you have one less item slot?
-Pushable block monster?
 Snake spawner
 Fake stairs that lead to stomach
 guy with really long arms

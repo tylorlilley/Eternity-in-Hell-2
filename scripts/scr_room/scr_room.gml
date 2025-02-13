@@ -73,6 +73,7 @@ function GameRoom(given_x, given_y) constructor {
 		cockroach_count = 0;
 		snake_count = 0;
 		fast_skeleton_count = 0;
+		fat_skeleton_count = 0;
 		fire_skeleton_count = 0;
 		cultist_count = 0;
 		skeleton_types = array_create(0);
@@ -92,25 +93,27 @@ function GameRoom(given_x, given_y) constructor {
 					}
 					case difficulties.medium: {
 						if rand <= 6 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 10 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 10 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
 						else if rand <= 16 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
 						else if rand <= 17 { skeleton_type = obj_cultist; cultist_count += 1; }
 						break;
 					}
 					case difficulties.hard: {
 						if rand <= 12 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 18 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 18 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
 						else if rand <= 26 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
 						else if rand <= 30 { skeleton_type = obj_cultist; cultist_count += 1; }
 						else if rand <= 33 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
+						else if rand <= 35 { skeleton_type = obj_snake; snake_count += 1; }
 						break;
 					}
 					case difficulties.very_hard: {
 						if rand <= 25 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 37 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 37 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
 						else if rand <= 50 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
 						else if rand <= 62 { skeleton_type = obj_cultist; cultist_count += 1; }
 						else if rand <= 70 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
+						else if rand <= 75 { skeleton_type = obj_snake; snake_count += 1; }
 						break;
 					}
 				}
@@ -160,9 +163,10 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty += (initial_spider_count > 0 ? 1.5 : 0) + initial_spider_count * 0.5;
 		room_reference_difficulty += get_room_reference_object_count(obj_statue) * 0.325;
 		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.325;
-		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.25;
+		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.25;
 		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.5
 		room_reference_difficulty += fast_skeleton_count * 0.325;
+		room_reference_difficulty += fat_skeleton_count * 0.325;
 		room_reference_difficulty += cultist_count * 0.325;
 		room_reference_difficulty += fire_skeleton_count * 0.5;
 		room_reference_difficulty += ((get_room_reference_object_count(obj_giant_worm_head) * 0.25) + (get_room_reference_object_count(obj_giant_worm_body) * 0.010));

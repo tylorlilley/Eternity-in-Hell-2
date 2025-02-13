@@ -398,6 +398,7 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 		case spr_cockroach: { return spr_cockroach_farmer; }
 		case spr_fire_skeleton: { return spr_fire_skeleton_farmer; }
 		case spr_fast_skeleton: { return spr_fast_skeleton_farmer; }
+		case spr_fat_skeleton: { return spr_fat_skeleton_farmer; }
 		case spr_living_block: { return spr_living_block_farmer; }
 		case spr_spider: { return spr_spider_farmer; }
 		case spr_mouth: { return spr_mouth_farmer; }

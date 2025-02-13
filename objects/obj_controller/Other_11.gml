@@ -1,6 +1,6 @@
 /// @description Step
 var game_manager = global.game_manager;
-var key_space_pressed = game_manager.key_space_pressed, key_space_released = game_manager.key_space_released;
+var key_space = game_manager.key_space, key_space_pressed = game_manager.key_space_pressed, key_space_released = game_manager.key_space_released;
 
 if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
 	var player = global.player, difficulty = global.difficulty;
@@ -11,7 +11,29 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 	
 	if (!is_game_lost() && !is_game_won()) {
 		// Play map Sound Effects
-		if key_space_pressed { play_sound( snd_pickup, false ); }
+		if key_space {
+			if key_space_pressed {
+				if (instance_number(obj_fat_skeleton) == 0) { play_sound(snd_pickup, false); }
+			}
+			
+			with (obj_fat_skeleton) {
+				if key_space_pressed { play_sound(snd_spider, false); }
+					
+				var target = get_dropped_meat();
+				if (!is_existing_instance(target)) {
+					target = player;
+				}
+
+				target_x = target.x;
+				target_y = target.y;
+				set_automatic_target_path();
+				move_towards_coordinates_on_path(false, false, 2);
+				if (target_path != noone) { play_sound(snd_thud, false); }
+				image_index = 2;
+				rage_counter = 2;
+				turn_to_face_player();
+			}
+		}
 		if key_space_released { play_sound( snd_putdown, false ); }
     
 		// Update per frame values
@@ -93,7 +115,7 @@ if (global.is_test_mode) {
 		with (new_instance) { move_snap(8, 8); }
 	}
 	if (mouse_check_button_pressed(mb_right)) {
-		var obj_type = obj_clock;
+		var obj_type = obj_eyes;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}

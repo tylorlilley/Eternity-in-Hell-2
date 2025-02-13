@@ -1,11 +1,11 @@
 /// @function								draw_while_carried();
-function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, xscale, blend) {
+function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, xscale, blend, spr = sprite_index) {
 	if (!is_existing_instance(holder)) { return; }
 	
 	var draw_x_offset = image_xscale * -8;
 
 	// Draw Main Item Sprite
-	draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
+	draw_sprite_part_ext(spr, image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
 	
 	// Draw Torch Lights
 	if (torch_light_image_timer >= 0) { draw_sprite_part_ext(torch_light_sprite_index, torch_light_image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha); }
@@ -253,8 +253,8 @@ function light_bomb() {
 }
 
 
-/// @function								get_random_item_obj(special_item, include_key);
-/// @param		{bool} special_item			Whether to check against the spawned special items or not
+/// @function								get_carried_item_draw_y_offset(special_item, include_key);
+/// @param		{spr} spr_index				The sprite index to get the carried y offset for
 function get_carried_item_draw_y_offset(spr_index) {
 	var y_offset = -2;
 	

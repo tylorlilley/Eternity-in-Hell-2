@@ -459,7 +459,8 @@ function draw_reflection_in_mirrors() {
 			if (object_is_ancestor(object_index, obj_item) && is_existing_instance(holder) && (holder.object_index != obj_hands || holder.activated)) {
 				reflect_carried_item = true;
 			}
-			var x_to_use = (reflect_carried_item) ? x+(image_xscale * -8) : x, y_to_use = (reflect_carried_item) ? y+draw_y_offset : y;
+			var carried_x_offset = (image_xscale * -8), carried_y_offset = (reflect_carried_item) ? draw_y_offset : 0,
+			var x_to_use = (reflect_carried_item) ? x+carried_x_offset : x, y_to_use = y;
 			var x_pos = x_to_use, y_pos = y_to_use, x_pos_offset = 0, y_pos_offset = 0;
 			switch (i) {
 				case 0: { x_pos = 0; y_pos_offset -= abs(sprite_height/4); break; }
@@ -478,7 +479,10 @@ function draw_reflection_in_mirrors() {
 			var num_of_objects = collision_rectangle_list(x_to_use+x_pos_offset-1, y_to_use+y_pos_offset-1, x_pos+x_pos_offset+1, y_pos+y_pos_offset+1, obj_solid, false, true, potential_mirrors, true);
 			var minimum_distance_to_obj = 999;
 			for (var j = 0; j < num_of_objects; j++) {
-				var current_object = ds_list_find_value(potential_mirrors, j), distance_to_obj = point_distance(x_to_use, y_to_use, current_object.x, current_object.y)
+				var current_object = ds_list_find_value(potential_mirrors, j);
+				if (!is_existing_instance(current_object)) { continue; }
+				
+				var distance_to_obj = point_distance(x_to_use, y_to_use, current_object.x, current_object.y)
 				if (distance_to_obj < minimum_distance_to_obj) { closest_solids = array_create(0); }
 				if (distance_to_obj <= minimum_distance_to_obj) { 
 					minimum_distance_to_obj = distance_to_obj;
@@ -509,15 +513,28 @@ function draw_reflection_in_mirrors() {
 				
 				// Draw Reflection
 				if (reflect_carried_item) {
-					if (abs(y_dif) < abs(closest_solid.sprite_height)) {
-						// nothing
+					var carried_item_x_offset = image_xscale * 8;
+					refl_height += carried_y_offset;
+					y_offset -= carried_y_offset
+					y_pos -= carried_y_offset;
+					if (abs(y_dif) >= abs(closest_solid.sprite_height)) {
+						x_pos += carried_item_x_offset
 					}
 					else {
-						refl_height += draw_y_offset;
-						y_offset -= draw_y_offset
-						y_pos -= draw_y_offset;
-						draw_while_carried(x_pos+(image_xscale * 8), y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
+						refl_width = abs(sprite_width/2)
+						x_offset = refl_width;
+						x_pos = closest_solid.x;
+						if (y != closest_solid.y) {
+							refl_height = abs((y-abs(sprite_height/2)-carried_y_offset) - (closest_solid.y-abs(closest_solid.sprite_height/2)));
+							//y_offset = (y < closest_solid.y) ? 0 : abs(closest_solid.sprite_height) - refl_height;
+							y_offset = 0;
+							y_pos = (y > closest_solid.y) ? closest_solid.y-carried_y_offset+abs(closest_solid.sprite_height/2)-refl_height : closest_solid.y-carried_y_offset-abs(closest_solid.sprite_height/2);
+						}
+						else {
+						}
 					}
+					
+					draw_while_carried(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
 				}
 				else {
 					draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, refl_width, refl_height, x_pos, y_pos, image_xscale, image_yscale, refl_blend, 1);

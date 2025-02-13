@@ -1,7 +1,6 @@
 held item reflections (sword) reflecting in the right mirrors
 test EIH randomizer mode
-- keep track of randomized wins? Add special crown for completing a mode on randomized
-randomized heart?
+use different font sizes on win/loss screen
 
 
 

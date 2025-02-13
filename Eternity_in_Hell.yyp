@@ -470,7 +470,7 @@
     {"id":{"name":"obj_item","path":"objects/obj_item/obj_item.yy",},"order":5,},
     {"id":{"name":"spr_giant_eye_farmer","path":"sprites/spr_giant_eye_farmer/spr_giant_eye_farmer.yy",},"order":0,},
     {"id":{"name":"spr_lava_edge","path":"sprites/spr_lava_edge/spr_lava_edge.yy",},"order":101,},
-    {"id":{"name":"rm_four_exits_99","path":"rooms/rm_four_exits_99/rm_four_exits_99.yy",},"order":0,},
+    {"id":{"name":"rm_unused_8","path":"rooms/rm_unused_8/rm_unused_8.yy",},"order":0,},
     {"id":{"name":"ft_hud_giant","path":"fonts/ft_hud_giant/ft_hud_giant.yy",},"order":0,},
     {"id":{"name":"rm_four_exits_18","path":"rooms/rm_four_exits_18/rm_four_exits_18.yy",},"order":0,},
     {"id":{"name":"obj_torch","path":"objects/obj_torch/obj_torch.yy",},"order":8,},
@@ -882,7 +882,7 @@
     {"roomId":{"name":"rm_no_exits_7","path":"rooms/rm_no_exits_7/rm_no_exits_7.yy",},},
     {"roomId":{"name":"rm_four_exits_21","path":"rooms/rm_four_exits_21/rm_four_exits_21.yy",},},
     {"roomId":{"name":"rm_no_exits_8","path":"rooms/rm_no_exits_8/rm_no_exits_8.yy",},},
-    {"roomId":{"name":"rm_four_exits_99","path":"rooms/rm_four_exits_99/rm_four_exits_99.yy",},},
+    {"roomId":{"name":"rm_unused_8","path":"rooms/rm_unused_8/rm_unused_8.yy",},},
   ],
   "TextureGroups": [
     {"resourceType":"GMTextureGroup","resourceVersion":"1.3","name":"Default","autocrop":true,"border":2,"compressFormat":"bz2","directory":"","groupParent":null,"isScaled":false,"loadType":"default","mipsToGenerate":0,"targets":-1,},

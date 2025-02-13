@@ -271,7 +271,7 @@ else if (death_log_screen && (death_count_string != noone || win_count_string !=
 	// Draw Arrow Keys
 	if (blink && !game_manager.key_up_pressed && death_log_pos > 0) { draw_sprite_ext(spr_title_arrow, 0 , x_pos, y_pos, 1, 1, -90, c_white, 1); }
 	y_pos += 16;
-	if (blink && !game_manager.key_down_pressed && death_log_pos < array_length(deaths_to_display)-6) { draw_sprite_ext(spr_title_arrow, 2, x_pos, room_height-(16*3), 1, 1, 90, c_white, 1); }
+	if (blink && !game_manager.key_down_pressed && death_log_pos < array_length(deaths_to_display)-5) { draw_sprite_ext(spr_title_arrow, 2, x_pos, room_height-(16*3), 1, 1, 90, c_white, 1); }
 	y_pos += 16;
 	
 	// Draw Deaths

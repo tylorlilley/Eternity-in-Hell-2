@@ -86,7 +86,6 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 }
 
 // DEBUG MODE SPAWNER
-
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
 		var obj_type = obj_collectable;

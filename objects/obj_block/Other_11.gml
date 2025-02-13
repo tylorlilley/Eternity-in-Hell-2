@@ -22,7 +22,7 @@ while (array_length(enemies_at_position) > 0) {
 			with enemy { 
 				if (object_index != obj_hands || !is_carrying_special_item(obj_staff)) {
 					kill_enemy(snd_crunch); 
-					if (just_pushed) { update_kill_log(object_index, global.difficulty, object_index); }
+					if (other.just_pushed) { update_kill_log(object_index, global.difficulty, object_index); }
 				}
 			}
 		}

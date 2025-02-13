@@ -66,7 +66,7 @@ global.player_outline =  get_setting("player_outline", PLAYER_OUTLINE_DEFAULT);
 
 // Setup global game type options
 global.bg_color = make_color_rgb(0, 0, 0);
-global.is_test_mode = true; // TODO: Set back to false
+global.is_test_mode = false;
 global.is_seed_testing_mode = false;
 global.has_seed_test_passed = false;
 global.player_left_hand_item = get_setting_for_difficulty("last_player_left_hand_item", global.difficulty, obj_torch);

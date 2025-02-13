@@ -526,7 +526,6 @@ function draw_reflection_in_mirrors() {
 						x_pos = closest_solid.x;
 						if (y != closest_solid.y) {
 							refl_height = abs((y-abs(sprite_height/2)-carried_y_offset) - (closest_solid.y-abs(closest_solid.sprite_height/2)));
-							//y_offset = (y < closest_solid.y) ? 0 : abs(closest_solid.sprite_height) - refl_height;
 							y_offset = 0;
 							y_pos = (y > closest_solid.y) ? closest_solid.y-carried_y_offset+abs(closest_solid.sprite_height/2)-refl_height : closest_solid.y-carried_y_offset-abs(closest_solid.sprite_height/2);
 						}

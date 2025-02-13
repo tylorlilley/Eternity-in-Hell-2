@@ -32,8 +32,8 @@ if (object_index == obj_statue) {
 			shoot_projectile(x_pos, y_pos, false);
 		}
 	}
-	else if (image_index == 0) {
-		image_index = 2;
+	else if (!prev_covered) {
+		image_index = 1;
 		play_sound(snd_give_up, false);
 	}
 }

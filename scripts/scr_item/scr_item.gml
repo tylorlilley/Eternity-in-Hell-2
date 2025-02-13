@@ -183,19 +183,23 @@ function get_random_item_obj(special_item, include_key) {
 		var chosen_item_obj = available_items[random_pos];
 		var spawned_item_count = array_count_occurances(controller.spawned_items, chosen_item_obj);
 		var special_item_count = array_count_occurances(controller.spawned_special_items, chosen_item_obj)
+		
+		if (global.player_left_hand_item == chosen_item_obj) { spawned_item_count += 1; }
+		if (global.player_right_hand_item == chosen_item_obj) { spawned_item_count += 1; }
 			
 		// Choose a different item if too many have already spawned
 		if (special_item && special_item_count > 0) ||
 			!special_item && (
 				(chosen_item_obj == obj_map && spawned_item_count > 0) ||
 				(chosen_item_obj == obj_staff && spawned_item_count > 0) ||
-				(chosen_item_obj == obj_clock && spawned_item_count > 1) ||
+				(chosen_item_obj == obj_clock && spawned_item_count > 0) ||
 				(chosen_item_obj == obj_shovel && spawned_item_count > 1) ||
-				(chosen_item_obj == obj_torch && spawned_item_count > 2)
+				(chosen_item_obj == obj_torch && spawned_item_count > 1)
 			) { 
 				random_pos += 1;
 				if (random_pos >= num_of_items) { random_pos = 0; }
 				if (random_pos == 0 && !include_key) { random_pos += 1; }
+				chosen_item_obj = noone;
 		}
 		
 		/*

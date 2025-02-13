@@ -82,7 +82,7 @@ if (!game_manager.paused) {
 				var death_type = array_pop(death_types);
 		
 				var death_count = get_death_count(death_type, global.difficulty), kill_count = get_kill_count(death_type, global.difficulty), last_killed = get_last_killed(death_type, global.difficulty);
-				if (death_count > 0) { array_push(deaths_to_display, [death_type, death_count, kill_count, last_killed]); }
+				if (death_count > 0 || kill_count > 0) { array_push(deaths_to_display, [death_type, death_count, kill_count, last_killed]); }
 			}
 				
 			// Sort deaths to display by death count
@@ -319,7 +319,7 @@ if (!game_manager.paused) {
 		if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
 			
 		if (key_up_pressed && death_log_pos > 0) {  death_log_pos -= 1; play_sound(snd_mana, false); }
-		else if (key_down_pressed && (death_log_pos < array_length(deaths_to_display)-6)) { death_log_pos += 1; play_sound(snd_mana, false); }
+		else if (key_down_pressed && (death_log_pos < array_length(deaths_to_display)-5)) { death_log_pos += 1; play_sound(snd_mana, false); }
 		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); }
 	}
 	else {

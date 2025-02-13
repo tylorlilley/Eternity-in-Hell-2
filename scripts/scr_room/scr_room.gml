@@ -51,7 +51,7 @@ function GameRoom(given_x, given_y) constructor {
 	function update_game_room_initialize_values() {
 		is_special_room = array_contains(global.special_rooms, room_reference);
 		has_lanterns = get_room_reference_object_count(obj_lantern) > 0;
-		lit = (has_lanterns && get_random_chance_out_of(PRE_LIT_PROBABILITY));
+		if (has_lanterns) { array_push(global.controller.lantern_rooms, self); }
 		has_eyes = (get_room_reference_object_count(obj_eyes) > 0 || get_random_chance_out_of(EYES_PROBABILITY));
 		has_all_cockroaches = (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(COCKROACH_ROOM_PROBABILITY));
 		has_all_cultists = !has_all_cockroaches && (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(CULTIST_ROOM_PROBABILITY));
@@ -669,37 +669,38 @@ function GameRoom(given_x, given_y) constructor {
 		for (var i = 0; i < array_length(room_list); i++;) {
 			var prev_room_reference = room_reference;
 			room_reference = room_list[i];
-			// Enforce Hall of Mirrors as room with all four exits available as regular exits
-			if ((get_room_reference_object_count(obj_hall_of_mirrors) > 0) &&
-				get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY) &&
-				!has_misleading_exits &&
-				has_exit(directions.up) && 
-				has_exit(directions.down) && 
-				has_exit(directions.left) && 
-				has_exit(directions.right)) {
-					has_hall_of_mirrors = true;
+			// Enforce Special Room Limits
+			if (array_contains(global.special_rooms, room_reference) && array_length(controller.spawned_special_rooms) < SPECIAL_ROOM_LIMIT && get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY)) {
+				if (get_room_reference_object_count(obj_hall_of_mirrors) > 0 &&
+					!has_misleading_exits &&
+					has_exit(directions.up) && 
+					has_exit(directions.down) && 
+					has_exit(directions.left) && 
+					has_exit(directions.right)) {
+						has_hall_of_mirrors = true;
+						is_special_room = true;	
+						array_push(controller.spawned_special_rooms, room_reference);
+				}
+				else if (get_room_reference_object_count(obj_hall_of_mirrors) == 0) {
 					is_special_room = true;	
 					array_push(controller.spawned_special_rooms, room_reference);
 				}
-			else if (array_contains(global.special_rooms, room_reference) && 
-					array_length(controller.spawned_special_rooms) < SPECIAL_ROOM_LIMIT &&
-					get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY) &&
-					get_room_reference_object_count(obj_hall_of_mirrors) == 0) {
-				is_special_room = true;	
-				array_push(controller.spawned_special_rooms, room_reference);
+				else {
+					if (prev_room_reference != -1) { room_reference = prev_room_reference; }
+					continue;
+				}
 			}
-			else {
-				if (prev_room_reference != -1) { room_reference = prev_room_reference; }
-				continue;
-			}
+			
+			// Enforce Having a lantern
 			if (must_have_lantern && get_room_reference_object_count(obj_lantern) == 0) { 
 				if (prev_room_reference != -1) { room_reference = prev_room_reference; }
 				continue;
 			}
+			
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_one_exit_20;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -900,6 +901,7 @@ function create_game_map() {
 	// Set up initial game room and game rooms array
 	spawned_special_rooms = array_create(0);
 	game_rooms = array_create(0);
+	lantern_rooms = array_create(0);
 	var initial_room = new GameRoom(0, 0);
 	initial_room.assign_room_ref(false);
 	array_push(game_rooms, initial_room);

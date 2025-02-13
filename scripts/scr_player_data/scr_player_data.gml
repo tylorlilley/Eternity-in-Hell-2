@@ -90,8 +90,8 @@ function get_kills_by_killer_count(obj_index, difficulty, killer) {
 	return kill_count;
 }
 
-/// @function								get_kill_count(obj_index, difficulty);
-///	@param		{obj_id} obj_index			The object_index value to get the death count of
+/// @function								get_last_killed(obj_index, difficulty);
+///	@param		{obj_id} obj_index			The object_index value to get the last run killed 
 ///	@param		{difficulty} difficulty		The difficulty to return a count for
 function get_last_killed(obj_index, difficulty) {
 	var last_killed = 0;

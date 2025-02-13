@@ -1,8 +1,11 @@
-held item reflections (sword) reflecting in the right mirrors
 test EIH randomizer mode
 use different font sizes on win/loss screen
 
-
+SEED: 6541367
+SPAWNED obj_torch 47
+SPAWNED obj_torch 47
+SPAWNED obj_key 32
+-seed with lots of locks impossible keys?
 
 
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point

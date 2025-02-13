@@ -32,7 +32,7 @@ if (create_game_map() == -1) {
 };
 
 // Setup room references
-var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0);
+var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0), has_lit_room = false;
 for (var i = 0; i < array_length(game_rooms); i++) {
 	// Assign room reference from list
 	var given_room = game_rooms[i];
@@ -42,7 +42,11 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	
 	// Add room to approprite room lists
 	with (given_room) {
-		if (has_lanterns) { array_push(rooms_with_lanterns, self); }
+		if (has_lanterns) {
+			array_push(rooms_with_lanterns, self);
+			lit = (get_random_chance_out_of(PRE_LIT_PROBABILITY));
+			if (lit) { has_lit_room = true; has_phantom = false; }
+		}
 		if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
 	}
 }
@@ -73,15 +77,25 @@ if (array_length(rooms_with_lanterns) == 0) {
 	var random_room = array_random_get(game_rooms);
 	with (random_room) {
 		assign_room_ref(true);
-		if (get_room_reference_object_count(obj_lantern) > 0) { array_push(rooms_with_lanterns, self); has_lanterns = true; }
+		if (get_room_reference_object_count(obj_lantern) > 0) { 
+			array_push(rooms_with_lanterns, self);
+			has_lanterns = true;
+			lit = (get_random_chance_out_of(PRE_LIT_PROBABILITY));
+			if (lit) { has_lit_room = true; has_phantom = false; }
+		}
 	}
 	if (!random_room.has_lanterns) {
-		// TODO: uncomment this
 		// This should NEVER happen
-		//show_debug_message("WARNING: no lantern rooms generated.");
-		//reset_map_generation();
-		//exit;
+		show_debug_message("WARNING: no lantern rooms generated.");
+		reset_map_generation();
+		exit;
 	}
+}
+
+// Ensure at least one lit room
+if (!has_lit_room) {
+	var random_room = array_random_get(rooms_with_lanterns);
+	with (random_room) { lit = true; has_phantom = false; }
 }
 
 // Ensure at least one room with chest potential exists
@@ -97,6 +111,7 @@ array_shuffle_ext(rooms_with_chest_potential);
 for (var i = 0; i < array_length(rooms_with_chest_potential); i++) {
 	var given_room = rooms_with_chest_potential[i];
 	var must_spawn = (i == 0), var item_obj = (must_spawn) ? obj_map : -1;
+	if (global.player_right_hand_item == obj_map || global.player_left_hand_item == obj_map) { item_obj = obj_torch; }
 	given_room.add_chest(must_spawn, item_obj);
 }
 total_items = array_length(spawned_items) + array_length(spawned_special_items);

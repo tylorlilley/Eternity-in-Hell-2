@@ -284,7 +284,7 @@
     {"name":"obj_item","order":5,"path":"objects/obj_item/obj_item.yy",},
     {"name":"spr_giant_eye_farmer","order":73,"path":"sprites/spr_giant_eye_farmer/spr_giant_eye_farmer.yy",},
     {"name":"spr_lava_edge","order":50,"path":"sprites/spr_lava_edge/spr_lava_edge.yy",},
-    {"name":"rm_four_exits_99","order":28,"path":"rooms/rm_four_exits_99/rm_four_exits_99.yy",},
+    {"name":"rm_unused_8","order":15,"path":"rooms/rm_unused_8/rm_unused_8.yy",},
     {"name":"ft_hud_giant","order":4,"path":"fonts/ft_hud_giant/ft_hud_giant.yy",},
     {"name":"rm_four_exits_18","order":17,"path":"rooms/rm_four_exits_18/rm_four_exits_18.yy",},
     {"name":"obj_torch","order":8,"path":"objects/obj_torch/obj_torch.yy",},

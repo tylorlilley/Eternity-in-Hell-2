@@ -12,6 +12,14 @@ if (!is_existing_instance(holder) || (holder.object_index == obj_hands && !holde
 			
 		draw_sprite_ext(time_sprite, time_image, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 	}
+	
+	// Draw Compass Hands
+	if (sprite_index == get_sprite_to_use(spr_compass)) {
+		var time_sprite = get_sprite_to_use(spr_compass_hands), time_image = get_compass_image_index();
+		if (special) { time_sprite = spr_special_compass_hands; }
+			
+		draw_sprite_ext(time_sprite, time_image, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
+	}
 }
 else if (holder.visible) { 
 	draw_while_carried( x-(8*image_xscale),  y-(8*image_yscale), 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend); 

@@ -115,7 +115,7 @@ if (global.is_test_mode) {
 		with (new_instance) { move_snap(8, 8); }
 	}
 	if (mouse_check_button_pressed(mb_right)) {
-		var obj_type = obj_eyes;
+		var obj_type = obj_compass;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}

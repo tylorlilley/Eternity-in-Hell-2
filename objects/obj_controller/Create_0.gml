@@ -110,8 +110,16 @@ if (array_length(rooms_with_chest_potential) == 0) {
 array_shuffle_ext(rooms_with_chest_potential);
 for (var i = 0; i < array_length(rooms_with_chest_potential); i++) {
 	var given_room = rooms_with_chest_potential[i];
-	var must_spawn = (i == 0), var item_obj = (must_spawn) ? obj_map : -1;
-	if (global.player_right_hand_item == obj_map || global.player_left_hand_item == obj_map) { item_obj = obj_torch; }
+	var must_spawn = (i == 0), item_obj = -1;
+	if (must_spawn) {
+		var item_obj = (get_coin_flip()) ? obj_map : obj_compass;
+		if (global.player_right_hand_item == obj_map || global.player_left_hand_item == obj_map) { item_obj = obj_compass; }
+		if (global.player_right_hand_item == obj_compass || global.player_left_hand_item == obj_compass) { item_obj = obj_map; }
+		if ((global.player_right_hand_item == obj_compass || global.player_left_hand_item == obj_compass) && 
+			(global.player_right_hand_item == obj_map || global.player_left_hand_item == obj_map)) { item_obj = obj_torch; }
+		if (must_spawn == obj_compass && global.difficulty == difficulties.easy) { item_obj = obj_map; }
+	}
+
 	given_room.add_chest(must_spawn, item_obj);
 }
 total_items = array_length(spawned_items) + array_length(spawned_special_items);

@@ -108,9 +108,9 @@ global.death_types_array = [
 global.available_items = [
 	[obj_key],
 	[obj_key, obj_torch, obj_sword, obj_map],
-	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb],
-	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_meat, obj_shovel, obj_clock],
-	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_meat, obj_shovel, obj_clock],
+	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_compass],
+	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_compass, obj_meat, obj_shovel, obj_clock],
+	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_compass, obj_meat, obj_shovel, obj_clock],
 ];
 global.special_rooms = [
 	rm_four_exits_24, // Hall of Mirrors

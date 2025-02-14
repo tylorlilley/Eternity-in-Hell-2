@@ -473,7 +473,7 @@ function end_target_path() {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 /// @param		{real} number_of_moves		The number of steps to take
-function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_moves) {
+function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_moves, make_noise = true) {
 	//if (ignore_solid && ignore_death) { return move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death); }
 	if (target_path == noone && !has_automatic_target_path_generation) { return false; }
 	else if (target_path_grid == -1) { return false; }
@@ -527,7 +527,7 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 			end_target_path(); 
 		}
 		else {
-			move_in_direction(move_dir, true);
+			move_in_direction(move_dir, make_noise);
 			move_count += 1;
 			if (is_instance_at_coordinates(target_x, target_y, id)) { end_target_path(); break; }
 			else if (can_interrupt_target_path && has_automatic_target_path_generation) { set_automatic_target_path(); }

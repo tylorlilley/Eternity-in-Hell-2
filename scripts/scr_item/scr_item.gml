@@ -17,6 +17,14 @@ function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_hei
 		
 		draw_sprite_part_ext(time_sprite, time_image, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
 	}
+	
+	// Draw Compass Hands
+	if (sprite_index == get_sprite_to_use(spr_compass)) {
+		var time_sprite = get_sprite_to_use(spr_compass_hands), time_image = get_compass_image_index();
+		if (special) { time_sprite = spr_special_compass_hands; }
+			
+		draw_sprite_part_ext(time_sprite, time_image, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
+	}
 }
 
 /// @function								become_carried(new_holder);
@@ -191,6 +199,7 @@ function get_random_item_obj(special_item, include_key) {
 		if (special_item && special_item_count > 0) ||
 			!special_item && (
 				(chosen_item_obj == obj_map && spawned_item_count > 0) ||
+				(chosen_item_obj == obj_compass && spawned_item_count > 0) ||
 				(chosen_item_obj == obj_staff && spawned_item_count > 0) ||
 				(chosen_item_obj == obj_clock && spawned_item_count > 0) ||
 				(chosen_item_obj == obj_shovel && spawned_item_count > 1) ||
@@ -245,6 +254,67 @@ function get_clock_image_index() {
 	var sand_image_index = floor(abs((time_per_grain*8) - (time_per_grain*3/4)));
 
 	return sand_image_index;
+}
+
+/// @function								get_compass_image_index();
+function get_compass_image_index() {
+	var controller = global.controller, hands_dir = 90;
+	
+	// Point Towards Nearest Collectable in Room
+	if (instance_number(obj_collectable) > 0) {
+		var nearest_collectable = instance_nearest(x, y, obj_collectable);
+		hands_dir = point_direction(x, y, nearest_collectable.x, nearest_collectable.y);
+	}
+	else {
+		var current_room_x = controller.current_room.virtual_x, current_room_y = controller.current_room.virtual_y;
+		var target_room_x = current_room_x, target_room_y = current_room_y-1; // Default to pointing up
+		
+		// Point toward start room if heart is collected
+		if (controller.completion_amount+1 >= TOTAL_COMPLETION_AMOUNT) {
+			 target_room_x = controller.start_room.virtual_x;
+			 target_room_y = controller.start_room.virtual_y;
+		}
+		// Point toward heart room if all collectables are collected
+		else if (are_all_collectables_collected()) {
+			if (instance_number(obj_encased_heart) > 0) {
+				var nearest_heart = instance_nearest(x, y, obj_encased_heart);
+				hands_dir = point_direction(x, y, nearest_heart.x, nearest_heart.y);
+			}
+			else if (instance_number(obj_heart) > 0) {
+				var nearest_heart = instance_nearest(x, y, obj_heart);
+				hands_dir = point_direction(x, y, nearest_heart.x, nearest_heart.y);
+			}
+			else {
+				target_room_x = controller.heart_room.virtual_x;
+				target_room_y = controller.heart_room.virtual_y;
+			}
+		}
+		// Point towards nearest room with collectables
+		else {
+			var smallest_dist = 999, target_room = self;
+			for (var i = 0; i < array_length(controller.rooms_with_collectables); i++) {
+				var collectables_room = controller.rooms_with_collectables[i];
+				var current_dist = abs(point_distance(current_room_x, current_room_y, collectables_room.virtual_x, collectables_room.virtual_y));			
+				if (current_dist < smallest_dist) {
+					smallest_dist = current_dist;
+					target_room = collectables_room;
+				}
+			}
+			target_room_x = target_room.virtual_x;
+			target_room_y = target_room.virtual_y;
+		}
+		
+		hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
+	}
+	
+	// Translate from GML dir to image_index value
+	hands_dir = 360 - hands_dir;
+	hands_dir += 90;
+	if (hands_dir >= 360) { hands_dir -= 360; }
+	var hands_image_index = round(hands_dir / 45);
+	if (image_xscale == -1) { hands_image_index += (4-hands_image_index)*2; }
+	if (hands_image_index >= 8) { hands_image_index -= 8; }
+	return hands_image_index;
 }
 
 /// @function								light_bomb();

@@ -511,7 +511,11 @@ function game_room_initialize() {
 	// Spawn Fountains
 	for (var i = 0; i < current_room.fountain_count; i++) {
 		with (get_random_instance(obj_column)) {
-			destroy_instances_at_position();
+			var columns = instance_place_all(x, y, obj_column);
+			while (array_length(columns) > 0) {
+				var column = array_pop(columns);
+				if (is_existing_instance(column)) { instance_destroy(column); }
+			}
 			var new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
 			other.current_room.add_to_instances_at_map_positions(new_inst);
@@ -572,7 +576,10 @@ function game_room_initialize() {
 	if (current_room.stairs_spot_obj == obj_chest && current_room.chest_obj == -1) { current_room.chest_obj = array_random_pop(spawned_items); }
 	
 	// Pre-light room if the room is marked as lit and spawn objects that interact with torches
-	if (current_room.lit) { with obj_lantern { light_torch(noone, false); } }
+	if (current_room.lit) {
+		if (instance_number(obj_lantern) == 0) { show_debug_message("WARNING: room marked as lit has no lanterns: "  + room_get_name(current_room.room_reference) ); current_room.lit = false; }
+		with obj_lantern { light_torch(noone, false); }
+	}
 	if (current_room.has_phantom) {
 		instance_create(-16, -16, obj_phantom);
 	}
@@ -711,19 +718,25 @@ function game_room_initialize() {
 	}
 	
 	// Check each of the four exits for doors to create
+	var portcullis_exit_count = 0, exit_count = 0;
 	for (var dir = directions.up; dir <= directions.stairs; dir++) {
 		var current_exit = current_room.exits[dir], current_exit_has_portcullis = (current_exit != -1 && current_exit.has_closed_portcullis_for_room(current_room));
+		if (current_exit != -1) { exit_count += 1; }
 		if (current_exit != -1 && (current_exit.has_door || current_exit_has_portcullis)) {
 			// Set up exit door type
 			var x_pos = get_exit_x_pos(dir), y_pos = get_exit_y_pos(dir), door_type = obj_door;
 			if (current_exit_has_portcullis) {
 				door_type = obj_portcullis;
+				portcullis_exit_count += 1;
 			}
 				
 			// Create door for exit
 			var door = instance_create(x_pos, y_pos, door_type);
 			door.door_for_exit = current_exit;
 		}
+	}
+	if (current_room.has_portcullis_button && portcullis_exit_count != exit_count) {
+		show_debug_message("WARNING: Portcullis button room has exits without a portcullis: " + room_get_name(current_room.room_reference));
 	}
 	with (obj_door) { 
 		initialize_door(); 

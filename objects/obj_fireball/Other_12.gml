@@ -53,7 +53,7 @@ if (!blocked) {
 	var bush = instance_place(x, y, obj_bush);
 	with (bush) {
 		blocked = true;
-		play_sound(snd_fuse, true);
+		play_sound(snd_extinguish, true);
 		instance_create(x, y, obj_dirt);
 		instance_destroy();
 	}

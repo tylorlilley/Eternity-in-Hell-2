@@ -52,6 +52,8 @@ function GameRoom(given_x, given_y) constructor {
 		is_special_room = array_contains(global.special_rooms, room_reference);
 		has_lanterns = get_room_reference_object_count(obj_lantern) > 0;
 		if (has_lanterns) { array_push(global.controller.lantern_rooms, self); }
+		lit = (has_lanterns && get_random_chance_out_of(PRE_LIT_PROBABILITY));
+		if (lit) { array_push(global.controller.lit_rooms, self); }
 		has_eyes = (get_room_reference_object_count(obj_eyes) > 0 || get_random_chance_out_of(EYES_PROBABILITY));
 		has_all_cockroaches = (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(COCKROACH_ROOM_PROBABILITY));
 		has_all_cultists = !has_all_cockroaches && (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(CULTIST_ROOM_PROBABILITY));
@@ -179,7 +181,7 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty += get_room_reference_object_count(obj_bones) * 0.010;
 		
 		if (has_hidden_chest) { room_reference_difficulty += 0.125; }
-		if (!has_phantom && !has_hidden_chest && get_room_reference_object_count(obj_lantern) > 0) { room_reference_difficulty -= 0.125; }		
+		if (!has_phantom && !has_hidden_chest && has_lanterns > 0) { room_reference_difficulty -= 0.125; }		
 		if (has_lanterns && lit) { room_reference_difficulty -= 0.125; }
 		if (has_locked_chest && !has_special_item) { room_reference_difficulty += 0.125; }
 		if (has_no_cardinal_exits) { room_reference_difficulty += 0.125; }
@@ -506,6 +508,7 @@ function GameRoom(given_x, given_y) constructor {
 			var next_exit = exits[dir];
 			if (next_exit != -1) { next_exit.set_portcullis_to_trigger_for_room(self, true); }
 		}
+		has_phantom = false;
 		has_portcullis_button = true;
 		return true;
 	}
@@ -704,7 +707,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (!array_contains(controller.room_references, room_reference)) { break; }
 		}
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_one_exit_20;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_four_exits_10;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -906,6 +909,7 @@ function create_game_map() {
 	spawned_special_rooms = array_create(0);
 	game_rooms = array_create(0);
 	lantern_rooms = array_create(0);
+	lit_rooms = array_create(0);
 	var initial_room = new GameRoom(0, 0);
 	initial_room.assign_room_ref(false);
 	array_push(game_rooms, initial_room);

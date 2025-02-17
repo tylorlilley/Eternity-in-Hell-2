@@ -1,18 +1,40 @@
-eyes face player or meat with meat
-fat skeleton test with meat
+spawn compass on easy not always working
 
 test EIH randomizer mode
 use different font sizes on win/loss screen
 "randomized facts when being killed"
+make top half of player surivie lava?
+
+SEED: 84177682
+SPAWNED obj_compass 19
+SPAWNED obj_sword 50
+WARNING: room is lit but has no lanterns: 130
+ROOMS: 16
+- impossible starting point?
+
+SEED: 98878317
+SPAWNED obj_map 6
+SPAWNED RED obj_staff 12
+SPAWNED obj_compass 19
+ROOMS: 13
+-crashed with no errors on start??
 
 SEED: 67597448
-Randomization crashing
+- Randomization crashing
 
 SEED: 6541367
 SPAWNED obj_torch 47
 SPAWNED obj_torch 47
 SPAWNED obj_key 32
 -seed with lots of locks impossible keys?
+
+SEED: 50559995
+SPAWNED obj_map 6
+SPAWNED obj_rosary 92
+SPAWNED obj_staff 12
+ROOMS: 17
+- red room on map but no lanterns
+- portcullis that didn't close off top exit
 
 ---
 hornets - like fireballs but slow velocity once launched until stopping and hover around a point
@@ -93,7 +115,6 @@ one door that takes two keys?
 spawn button that has no portcullis but opens a walled off passage?
 
 One way doors?
-
 orb summoner item?
 
 Should spiders spawn on level 1???
@@ -132,3 +153,12 @@ Rooms need to know about themselves:
 - Whether or not a room has a lantern and can be lit or not
 - Whether or not a room is considered "difficult" or appropriate to appear at the given difficulty
 - What instances to include or exclude for each of the four exit directions for the purposes of filling in/clearing exits for misleading rooms
+
+=======
+
+- Twice the number of ways to die
+- Two new items
+- New extra-rare special challenge rooms with rewards
+- Double the frames of animation (or more) for each enemy
+- Tweaked all lava graphics to more clearly show where the ground ends and lava begins
+- Brand new progression system for 

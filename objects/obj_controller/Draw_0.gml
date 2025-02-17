@@ -102,9 +102,9 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		// Half-Line-Break
 		draw_text(hud_x_pos, hud_y_pos + (6*16), string_hash_to_newline("Collected: "+get_percentage_string(get_collectables_score()))); 
 		draw_text(hud_x_pos, hud_y_pos + (7*16), string_hash_to_newline("Mapped: "+get_percentage_string(get_mapped_rooms_score())));
-		draw_text(hud_x_pos, hud_y_pos + (8*16), string_hash_to_newline("Time Left: "+get_percentage_string(get_time_remaining_score())));
-		if (completion_amount > 0) { draw_text(hud_x_pos, hud_y_pos + (9*16), string_hash_to_newline("Escaped: "+get_percentage_string(get_victory_amount_score()))); }
-		if (has_won > 0) { draw_text(hud_x_pos, hud_y_pos + (10*16), string_hash_to_newline("Preperation: "+get_percentage_string(get_item_hands_score()))); }
+		if (completion_amount > 0) { draw_text(hud_x_pos, hud_y_pos + (8*16), string_hash_to_newline("Escaped: "+get_percentage_string(get_victory_amount_score()))); }
+		if (has_won > 0) draw_text(hud_x_pos, hud_y_pos + (9*16), string_hash_to_newline("Time Left: "+get_percentage_string(get_time_remaining_score())));
+		if (has_won > 0) { draw_text(hud_x_pos, hud_y_pos + (10*16), string_hash_to_newline("Preparation: "+get_percentage_string(get_item_hands_score()))); }
 		draw_set_color(special_text_color);
 		// Half-Line-Break
 		draw_text(hud_x_pos, hud_y_pos + (11.5*16), string_hash_to_newline("Final Grade: "+get_percentage_string( get_current_score())));

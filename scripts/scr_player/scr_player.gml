@@ -258,11 +258,11 @@ function draw_player_worm() {
 
 /// @function				draw_player_left_hand();
 function draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
-	if (image_xscale == 1) {
+	if (x_scale == 1) {
 		var left_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
 		var hide_left_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
 	}
-	else if (image_xscale == -1) {
+	else if (x_scale == -1) {
 		var left_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
 		var hide_left_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
 	}
@@ -271,11 +271,11 @@ function draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr_
 
 /// @function				draw_player_right_hand();
 function draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
-	if (image_xscale == 1) {
+	if (x_scale == 1) {
 		var right_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
 		var hide_right_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
 	}
-	else if (image_xscale == -1) {
+	else if (x_scale == -1) {
 		var right_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
 		var hide_right_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
 	}

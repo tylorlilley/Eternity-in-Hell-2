@@ -32,7 +32,7 @@ if (create_game_map() == -1) {
 };
 
 // Setup room references
-var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0), has_lit_room = false;
+var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0);
 for (var i = 0; i < array_length(game_rooms); i++) {
 	// Assign room reference from list
 	var given_room = game_rooms[i];
@@ -42,11 +42,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	
 	// Add room to approprite room lists
 	with (given_room) {
-		if (has_lanterns) {
-			array_push(rooms_with_lanterns, self);
-			lit = (get_random_chance_out_of(PRE_LIT_PROBABILITY));
-			if (lit) { has_lit_room = true; has_phantom = false; }
-		}
+		if (has_lanterns) { array_push(rooms_with_lanterns, self); }
 		if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
 	}
 }
@@ -77,12 +73,7 @@ if (array_length(rooms_with_lanterns) == 0) {
 	var random_room = array_random_get(game_rooms);
 	with (random_room) {
 		assign_room_ref(true);
-		if (get_room_reference_object_count(obj_lantern) > 0) { 
-			array_push(rooms_with_lanterns, self);
-			has_lanterns = true;
-			lit = (get_random_chance_out_of(PRE_LIT_PROBABILITY));
-			if (lit) { has_lit_room = true; has_phantom = false; }
-		}
+		if (has_lanterns) { array_push(rooms_with_lanterns, self); }
 	}
 	if (!random_room.has_lanterns) {
 		// This should NEVER happen
@@ -92,10 +83,15 @@ if (array_length(rooms_with_lanterns) == 0) {
 	}
 }
 
-// Ensure at least one lit room
-if (!has_lit_room) {
-	var random_room = array_random_get(rooms_with_lanterns);
-	with (random_room) { lit = true; has_phantom = false; }
+// Pre-light some lantern rooms, with at least one pre-lit
+if (array_length(lit_rooms) == 0) { 
+	var random_lantern_room = array_random_get(rooms_with_lanterns);
+	with (random_lantern_room) {
+		if (!has_lanterns) { show_debug_message("WARNING: room without lanterns in lantern room list: " + room_get_name(room_reference)); }
+		lit = true;
+		has_phantom = false;
+		room_reference_difficulty -= 0.125;
+	}
 }
 
 // Ensure at least one room with chest potential exists
@@ -117,12 +113,11 @@ for (var i = 0; i < array_length(rooms_with_chest_potential); i++) {
 		if (global.player_right_hand_item == obj_compass || global.player_left_hand_item == obj_compass) { item_obj = obj_map; }
 		if ((global.player_right_hand_item == obj_compass || global.player_left_hand_item == obj_compass) && 
 			(global.player_right_hand_item == obj_map || global.player_left_hand_item == obj_map)) { item_obj = obj_torch; }
-		if (must_spawn == obj_compass && global.difficulty == difficulties.easy) { item_obj = obj_map; }
+		if (item_obj == obj_compass && global.difficulty == difficulties.easy) { item_obj = obj_map; }
 	}
 
 	given_room.add_chest(must_spawn, item_obj);
 }
-total_items = array_length(spawned_items) + array_length(spawned_special_items);
 
 // Set up locks and keys on game map
 if (create_locked_exits_and_keys() == -1) {
@@ -141,6 +136,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	next_room.add_portcullis(); 
 	next_room.add_unlocked_doors();
 }
+
 
 // Add more rooms based on difficulty
 add_rooms_to_reach_target_difficulty();

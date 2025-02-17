@@ -550,6 +550,7 @@
     {"id":{"name":"spr_giant_eye_part","path":"sprites/spr_giant_eye_part/spr_giant_eye_part.yy",},"order":0,},
     {"id":{"name":"spr_map_heart","path":"sprites/spr_map_heart/spr_map_heart.yy",},"order":38,},
     {"id":{"name":"spr_arrow","path":"sprites/spr_arrow/spr_arrow.yy",},"order":41,},
+    {"id":{"name":"spr_lava_corners","path":"sprites/spr_lava_corners/spr_lava_corners.yy",},"order":0,},
     {"id":{"name":"rm_one_exit_7","path":"rooms/rm_one_exit_7/rm_one_exit_7.yy",},"order":6,},
     {"id":{"name":"obj_giant_worm_body","path":"objects/obj_giant_worm_body/obj_giant_worm_body.yy",},"order":14,},
     {"id":{"name":"rm_one_exit_8","path":"rooms/rm_one_exit_8/rm_one_exit_8.yy",},"order":7,},

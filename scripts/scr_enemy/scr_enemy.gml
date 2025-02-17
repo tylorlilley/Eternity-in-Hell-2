@@ -567,7 +567,7 @@ function teleport_to_player() {
 		else {
 			// Set spawn timer based on distance to each lantern
 			spawn_timer = ceil(total_distance_to_lanterns) - (global.difficulty*lantern_count)
-			if (spawn_timer > 48) { spawn_timer = 48; } 
+			if (spawn_timer > 40) { spawn_timer = 40; } 
 			if (spawn_timer < 16) { spawn_timer = 16; }
 		}
 	}

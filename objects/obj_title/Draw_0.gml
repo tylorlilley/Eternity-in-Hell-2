@@ -321,8 +321,8 @@ else {
 	draw_text(room_width/2, difficulty_y_pos, get_difficulty_string(global.difficulty));
 	draw_set_font(ft_hud);
 	if (blink && pos == 0) {
-		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, 24, difficulty_y_pos, 1, 1, 0, c_white, 1); }
-		if (global.difficulty < get_max_difficulty()) { draw_sprite_ext(spr_title_arrow, 0, room_width - 24, difficulty_y_pos, -1, 1, 0, c_white, 1); }
+		if (global.difficulty > difficulties.easy) { draw_sprite_ext(spr_title_arrow, 0, 24, difficulty_y_pos+2, 1, 1, 0, c_white, 1); }
+		if (global.difficulty < get_max_difficulty()) { draw_sprite_ext(spr_title_arrow, 0, room_width - 24, difficulty_y_pos+2, -1, 1, 0, c_white, 1); }
 	}
 	// Draw death count for current difficulty
 	if (death_count_string != noone) { draw_text(room_width/2, difficulty_y_pos+16, death_count_string); }

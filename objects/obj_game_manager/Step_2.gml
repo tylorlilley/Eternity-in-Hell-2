@@ -10,7 +10,7 @@ if (global.is_test_mode && global.is_seed_testing_mode && global.has_seed_test_p
 	with (obj_controller) { restart_game(); }
 	global.seed++;
 	update_setting("last_seed", global.seed);
-	show_debug_message("TRY SEED - " + string(global.seed));
-	if global.seed == MAX_SEED { show_debug_message("ALL SEEDS CLEARED"); }
+	write_debug_message("TRY SEED - " + string(global.seed));
+	if global.seed == MAX_SEED { write_debug_message("ALL SEEDS CLEARED"); }
 	else { room_goto(rm_start); }
 }

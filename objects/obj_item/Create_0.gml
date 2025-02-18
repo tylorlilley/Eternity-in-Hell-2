@@ -6,4 +6,6 @@ special = false;
 holder = noone;
 counted = false;
 
+time_image_index = 0;
+time_sprite_index = noone;
 torch_light_image_timer = -1;

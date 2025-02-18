@@ -48,6 +48,7 @@ enum graphics_modes {
 }
 
 // Setup global variables for title screen
+clear_log();
 global.difficulty = get_setting("difficulty", difficulties.easy);
 global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, graphics_modes.standard)
 global.seed_option = get_setting("seed_option", seed_options.rand);

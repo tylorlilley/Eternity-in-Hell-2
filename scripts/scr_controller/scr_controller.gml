@@ -71,7 +71,6 @@ function initialize_game_variables() {
 	flash_time = 0;
 	death_count = 0;
 	used_special_items = 0;
-	total_items = 0;
 	final_player_right_hand_item = noone;
 	final_player_left_hand_item = noone;
 	initialize_room_transition_values()
@@ -282,8 +281,7 @@ function game_room_start_other() {
 
 	with (obj_portcullis) {
 		var exit_has_closed_portcullis = door_for_exit.has_closed_portcullis_for_room(global.controller.current_room);
-		if (exit_has_closed_portcullis) { door_for_exit.close_portcullis(); }
-		else { open_portcullis(); }
+		if (!exit_has_closed_portcullis) { open_portcullis(); }
 	}
 	with (obj_item) {
 		if (special && is_existing_instance(holder) && holder == player && !counted) {
@@ -416,7 +414,18 @@ function game_room_start_reposition_instances() {
 	with (obj_block) { x = xstart; y = ystart; }
 	with (obj_item) { if (holder == noone) { x = xstart; y = ystart; } }
 	with (obj_enemy) { if (object_index != obj_hands) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
-	with (obj_spider) { start_waiting(); }
+	with (obj_spider) {
+		if (other.transition <= directions.stairs) {
+			activated = true;
+			var random_spider_spot = get_random_instance(obj_spider_spot);
+			x = random_spider_spot.x;
+			y = random_spider_spot.y;
+			start_waiting();
+		}
+		else {
+			activated = false;
+		}
+	}
 	with (obj_mouth) { activated = false; x = -16; y = -16; }
 	with (obj_nose) { activated = false; x = -16; y = -16; }
 	with (obj_phantom) { activated = false; x = -16; y = -16; }
@@ -498,13 +507,13 @@ function game_room_initialize() {
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
 	if (stairs_spot == noone) {
 		// This should never happen if every room has a stairs spot
-		show_debug_message("WARNING: room with NO room to spawn stairs spot object: " + room_get_name(current_room.room_reference));
+		write_debug_message("Rroom with NO room to spawn stairs spot object: " + room_get_name(current_room.room_reference), "ERROR");
 		current_room.stairs_spot_obj = -1;
 	}
 	var chest_spot = instance_find(obj_chest_spot, 0);
 	if (chest_spot == noone) {
 		// This should never happen if every room has a stairs spot
-		show_debug_message("WARNING: room with NO room to spawn chest spot object: " + room_get_name(current_room.room_reference));
+		write_debug_message("Room with NO room to spawn chest spot object: " + room_get_name(current_room.room_reference), "ERROR");
 		current_room.stairs_spot_obj = -1;
 	}
 	
@@ -540,16 +549,10 @@ function game_room_initialize() {
 	// Set up Lava Edge Drawing
 	with (obj_lava) { set_up_lava_edge_visibility(true); }
 	
-	// Spawn some spiders
-	var spawned_spiders = 0;
-	while (spawned_spiders < current_room.initial_spider_count) {
-		spawned_spiders += 1;
-		with (get_random_instance(obj_spider_spot)) {
-			instance_create(x, y, obj_spider);
-			instance_destroy(); 
-		}
-	}
-	with (obj_spider_spot) { instance_destroy(); }
+	// Spawn Spider
+	var spider_spot = get_random_instance(obj_spider_spot);
+	with (spider_spot) { instance_create(x, y, obj_spider); }
+	with (obj_spider) { start_waiting(); }
 	
 	// If room has lava, consider spawning up to three noses
 	for (var i = 0; i < current_room.initial_nose_count; i++;) { instance_create(-16, -16, obj_nose); }
@@ -577,7 +580,7 @@ function game_room_initialize() {
 	
 	// Pre-light room if the room is marked as lit and spawn objects that interact with torches
 	if (current_room.lit) {
-		if (instance_number(obj_lantern) == 0) { show_debug_message("WARNING: room marked as lit has no lanterns: "  + room_get_name(current_room.room_reference) ); current_room.lit = false; }
+		if (instance_number(obj_lantern) == 0) { write_debug_message("Room marked as lit has no lanterns: "  + room_get_name(current_room.room_reference), "WARNING"); current_room.lit = false; }
 		with obj_lantern { light_torch(noone, false); }
 	}
 	if (current_room.has_phantom) {
@@ -736,7 +739,7 @@ function game_room_initialize() {
 		}
 	}
 	if (current_room.has_portcullis_button && portcullis_exit_count != exit_count) {
-		show_debug_message("WARNING: Portcullis button room has exits without a portcullis: " + room_get_name(current_room.room_reference));
+		write_debug_message("Portcullis button room has exits without a portcullis: " + room_get_name(current_room.room_reference), "WARNING");
 	}
 	with (obj_door) { 
 		initialize_door(); 
@@ -757,7 +760,7 @@ function game_room_initialize() {
 		}
 		if (instance_number(obj_collectable) == 0) { 
 			// This should never happen if every room has 2+ collectable spots
-			show_debug_message("WARNING: room with NO room to spawn collectables: " + room_get_name(current_room.room_reference));
+			write_debug_message("Room with NO room to spawn collectables: " + room_get_name(current_room.room_reference), "WARNING");
 			current_room.has_collectables = false;
 			array_remove(rooms_with_collectables, current_room);
 			total_number_of_rooms_with_collectables -= 1;

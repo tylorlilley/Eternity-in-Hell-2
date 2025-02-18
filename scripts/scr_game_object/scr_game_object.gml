@@ -161,6 +161,8 @@ function is_on_room_border(x_pos, y_pos) {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ignore_death) {
+	if (!activated) { return false; }
+	
 	var original_x = x, original_y = y, can_reach_target = false;
 	
 	activated = false;

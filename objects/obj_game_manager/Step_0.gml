@@ -25,6 +25,7 @@ else {
 }
 	
 /// Pause or Unpause Game
+var new_controller = instance_nearest(x, y, obj_controller);
 if (paused && key_esc_released) { game_end(); }
 else if (!paused) {
 	if (key_esc_released) {
@@ -33,17 +34,15 @@ else if (!paused) {
 		play_sound(snd_pickup, false); 
 		with (obj_projectile) { prev_speed = speed; speed = 0; }
 	}
-	else if (key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
-		if (instance_number(obj_title) == 0) {
-			if (is_game_won() || is_game_lost() || is_time_up()) {
-				return_to_title_screen(); 
-				exit; 
-			}
-			else { 
-				paused = true; 
-				play_sound(snd_pickup, false); 
-				with (obj_projectile) { prev_speed = speed; speed = 0; }
-			}
+	else if (key_enter_released && instance_number(obj_title) == 0 && can_process && number_of_frames_since_game_began > 6) {
+		if (is_game_won() || is_game_lost() || is_time_up()) {
+			return_to_title_screen(); 
+			exit; 
+		}
+		else { 
+			paused = true; 
+			play_sound(snd_pickup, false); 
+			with (obj_projectile) { prev_speed = speed; speed = 0; }
 		}
 	}
 }

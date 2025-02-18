@@ -3,7 +3,7 @@
   "resourceVersion": "1.0",
   "name": "spr_spider",
   "bbox_bottom": 15,
-  "bbox_left": 1,
+  "bbox_left": 0,
   "bbox_right": 15,
   "bbox_top": 1,
   "bboxMode": 0,

@@ -9,11 +9,22 @@ if (activated) {
 	}
 	else if (state == ATTACKING) {
 		if (can_move_in_direction(dir, false, true)) {
-			var prev_xscale = image_xscale;
-			if (can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); image_xscale = -1 * prev_xscale; }
+			var prev_xscale = image_xscale, prev_image_index = image_index, moved = false;
+			if (can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); moved = true; }
 			try_to_see_player();
-			if (state == ATTACKING && can_move_in_direction(dir, false, true)) { move_in_direction(dir, true); image_xscale = -1 * prev_xscale; }
+			if (state == ATTACKING && can_move_in_direction(dir, false, true)) { 
+				move_in_direction(dir, true); 
+				moved = true;
+			}
 			try_to_see_player();
+			if (moved) {
+				image_xscale = prev_xscale;
+				image_index = prev_image_index + 1;
+				if (image_index > 1) { 
+					image_index = 0;
+					image_xscale = -1 * prev_xscale;
+				}
+			}
 		}
 		else {
 			state = RETURNING;

@@ -176,6 +176,7 @@ class RoomConverter
         # Boolean Threat Levels
         threat_level += 1 if room_objects.include? "obj_lantern"
         threat_level += 1.5 if room_objects.include? "obj_bumper"
+        threat_level += 2 if room_objects.include? "obj_spider"
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"
         threat_level += 4 if room_objects.include? "obj_gudetama"
@@ -188,8 +189,8 @@ class RoomConverter
         threat_level += room_objects.count("obj_mouth")
         threat_level += (0.08 * room_objects.count("obj_block_spot")).floor
         threat_level += (0.01 * room_objects.count("obj_lava")).ceil
-        threat_level += (room_objects.count("obj_spider_spot") * 1.2).ceil
         threat_level += (room_objects.count("obj_bones") * 0.05).ceil
+        threat_level += room_objects.count("obj_spider_spot") * 0.0125
         threat_level += (room_objects.count("obj_player_corpse") * 0.05).ceil
         threat_level += (room_objects.count("obj_statue") * 0.25).ceil
         threat_level += (room_objects.count("obj_column") * 0.10).ceil

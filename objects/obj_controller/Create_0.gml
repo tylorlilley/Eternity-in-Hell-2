@@ -19,30 +19,32 @@ global.shuffled_rotational_enemy_sprites = array_shuffle(global.shuffled_rotatio
 
 // Initialize global values
 random_set_seed(global.seed);
-show_debug_message("SEED: "+string(random_get_seed()));
+write_debug_message("SEED: "+string(random_get_seed()));
 initialize_game_variables();
 create_room_lists();
 
 // Setup physical game map
 if (create_game_map() == -1) {
 	// Should never reach this clause
-	show_debug_message("WARNING: map generation failed.");
+	write_debug_message("Map generation failed.", "WARNING");
 	reset_map_generation();
 	exit;
 };
 
 // Setup room references
-var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0);
+var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0), lit_rooms = array_create(0), spawned_special_rooms = array_create(0);
 for (var i = 0; i < array_length(game_rooms); i++) {
-	// Assign room reference from list
 	var given_room = game_rooms[i];
-	//given_room.set_room_reference(false);
 	
+	// Add collectables and special room references to some rooms
 	if (get_random_chance_out_of(COLLECTABLE_PROBABILITY)) { given_room.add_collectables(); }
+	if (array_length(spawned_special_rooms) < SPECIAL_ROOM_LIMIT && get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY)) { given_room.assign_room_ref(false, true); }
 	
 	// Add room to approprite room lists
 	with (given_room) {
+		if (lit) { array_push(lit_rooms, self); }
 		if (has_lanterns) { array_push(rooms_with_lanterns, self); }
+		if (is_special_room) { array_push(spawned_special_rooms, self); }
 		if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
 	}
 }
@@ -60,7 +62,7 @@ while (array_length(rooms_with_collectables) < minimum_collectables_rooms) {
 	}
 	if (!new_collectables) {
 		// Should never reach this clause
-		show_debug_message("WARNING: not enough collectables rooms generated.");
+		write_debug_message("Not enough collectables rooms generated.", "WARNING");
 		reset_map_generation();
 		exit;
 	}
@@ -72,12 +74,12 @@ time_provided += total_number_of_rooms_with_collectables * TIME_PROVIDED_PER_COL
 if (array_length(rooms_with_lanterns) == 0) {
 	var random_room = array_random_get(game_rooms);
 	with (random_room) {
-		assign_room_ref(true);
+		assign_room_ref(true, false);
 		if (has_lanterns) { array_push(rooms_with_lanterns, self); }
 	}
-	if (!random_room.has_lanterns) {
+	if (!random_room.has_lanterns && !global.is_test_mode) {
 		// This should NEVER happen
-		show_debug_message("WARNING: no lantern rooms generated.");
+		write_debug_message("No lantern rooms generated.", "WARNING");
 		reset_map_generation();
 		exit;
 	}
@@ -87,17 +89,16 @@ if (array_length(rooms_with_lanterns) == 0) {
 if (array_length(lit_rooms) == 0) { 
 	var random_lantern_room = array_random_get(rooms_with_lanterns);
 	with (random_lantern_room) {
-		if (!has_lanterns) { show_debug_message("WARNING: room without lanterns in lantern room list: " + room_get_name(room_reference)); }
+		if (!has_lanterns) { write_debug_message("Room without lanterns in lantern room list: " + room_get_name(room_reference), "WARNING"); }
 		lit = true;
 		has_phantom = false;
-		room_reference_difficulty -= 0.125;
 	}
 }
 
 // Ensure at least one room with chest potential exists
 if (array_length(rooms_with_chest_potential) == 0) {
 	// This should NEVER happen
-	show_debug_message("WARNING: no rooms with chest potential generated.");
+	write_debug_message("No rooms with chest potential generated.", "WARNING");
 	reset_map_generation();
 	exit;
 }
@@ -108,12 +109,16 @@ for (var i = 0; i < array_length(rooms_with_chest_potential); i++) {
 	var given_room = rooms_with_chest_potential[i];
 	var must_spawn = (i == 0), item_obj = -1;
 	if (must_spawn) {
-		var item_obj = (get_coin_flip()) ? obj_map : obj_compass;
-		if (global.player_right_hand_item == obj_map || global.player_left_hand_item == obj_map) { item_obj = obj_compass; }
-		if (global.player_right_hand_item == obj_compass || global.player_left_hand_item == obj_compass) { item_obj = obj_map; }
-		if ((global.player_right_hand_item == obj_compass || global.player_left_hand_item == obj_compass) && 
-			(global.player_right_hand_item == obj_map || global.player_left_hand_item == obj_map)) { item_obj = obj_torch; }
-		if (item_obj == obj_compass && global.difficulty == difficulties.easy) { item_obj = obj_map; }
+		// Determine the guarenteed spawn item type
+		var use_easy_difficulty = global.difficulty == difficulties.easy;
+		var spawn_with_map = (global.player_right_hand_item == obj_map || global.player_left_hand_item == obj_map);
+		var spawn_with_compass = (global.player_right_hand_item == obj_compass || global.player_left_hand_item == obj_compass)
+		var item_obj = obj_torch
+		if (spawn_with_map && spawn_with_compass) { item_obj = obj_torch}
+		else if (spawn_with_compass) { item_obj = obj_map; }
+		else if (spawn_with_map) { item_obj = (use_easy_difficulty) ? obj_torch : obj_compass; }
+		else if (use_easy_difficulty) { item_obj = obj_map; }
+		else { item_obj = get_coin_flip() ? obj_map : obj_compass; }
 	}
 
 	given_room.add_chest(must_spawn, item_obj);
@@ -122,15 +127,16 @@ for (var i = 0; i < array_length(rooms_with_chest_potential); i++) {
 // Set up locks and keys on game map
 if (create_locked_exits_and_keys() == -1) {
 	// Should never reach this clause
-	show_debug_message("WARNING: lock and key generation failed.");
+	write_debug_message("Lock and key generation failed.", "WARNING");
 	reset_map_generation();
 	exit;
 }
 
-// Add portcullis and illusion walls to some rooms
+// Add special exit types to some rooms
 for (var i = 0; i < array_length(game_rooms); i++) {
 	var next_room = game_rooms[i];
-	if (next_room == start_room || next_room == heart_room || next_room.has_hall_of_mirrors) { continue; }
+	if (next_room == start_room || next_room == heart_room) { continue; }
+	if (next_room.is_connected_to_hall_of_mirrors()) { continue; }
 	
 	next_room.add_illusion_walls();
 	next_room.add_portcullis(); 
@@ -174,7 +180,12 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 }
 
 // Transition to start room to begin game
-with (global.game_manager) { sounds_to_play = array_create(0); }
+with (global.game_manager) { 
+	number_of_frames_since_game_began = 0;
+	sounds_to_play = array_create(0);
+	clear_inputs_for_next_frame();
+	paused = false;
+}
 play_sound(snd_torchlight, false);
 global.player = instance_create(-16, -16, obj_player);
 transition_to_room(start_room, true);
@@ -182,8 +193,9 @@ player_appear_timer = 0;
 global.player.visible = true;
 with (global.game_manager) { array_remove(sounds_to_play, snd_win); }
 
-update_log("seed", global.seed);
-update_log("difficulty", get_difficulty_string(global.difficulty));
-update_log("version", GM_version);
 
-show_debug_message("ROOMS: " + string(array_length(game_rooms)));
+update_log("SEED", global.seed);
+update_log("DIFFICULTY", get_difficulty_string(global.difficulty));
+update_log("VERSION", GM_version);
+
+write_debug_message("Total rooms generated: " + string(array_length(game_rooms)));

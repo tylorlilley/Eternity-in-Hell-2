@@ -356,12 +356,31 @@ function get_setting_for_difficulty(setting_name, difficulty, default_value) {
 	return setting_value;
 }
 
+/// @function								clear_log();
+function clear_log() {
+	var file_id = file_text_open_write(working_directory + "game_log.txt");
+    file_text_writeln(file_id);
+	file_text_close(file_id);
+}
+	
+
 /// @function								update_log(line_name, new_value);
 ///	@param		{string} line_name			The line to update the date for
 ///	@param		{real} new_value			The new value for the setting
 function update_log(line_name, new_value) {
-	ini_open("game_log.ini");
-	if (is_string(new_value)) { ini_write_string(global.datetime, line_name, new_value); }
-	else { ini_write_real(global.datetime, line_name, new_value); }
-	ini_close();
+	var file_id = file_text_open_append(working_directory + "game_log.txt");
+	var value_string = is_string(new_value) ? new_value : string(new_value);
+	var new_line = "[" + global.datetime + "] - " + line_name + ": " + value_string;
+	
+    file_text_writeln(file_id);
+	file_text_write_string(file_id, new_line);
+	file_text_close(file_id);
+}
+
+/// @function								update_log(msg, [debug_level]);
+///	@param		{string} msg				The message to write
+///	@param		{string} debug_level		Optional level to file the message under
+function write_debug_message(msg, debug_level = "Info") {
+	update_log(debug_level, msg);
+	show_debug_message(debug_level + ": " + msg);
 }

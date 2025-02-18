@@ -7,24 +7,13 @@ function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_hei
 	// Draw Main Item Sprite
 	draw_sprite_part_ext(spr, image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
 	
-	// Draw Torch Lights
-	if (torch_light_image_timer >= 0) { draw_sprite_part_ext(torch_light_sprite_index, torch_light_image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha); }
-
-	// Draw Clock Time
-	if (sprite_index == get_sprite_to_use(spr_clock) || sprite_index == get_sprite_to_use(spr_clock_farmer)) {
-		var time_sprite = get_sprite_to_use(spr_clock_sand), time_image = get_clock_image_index();
-		if (special) { time_sprite = (sprite_index == spr_clock) ? spr_special_clock_sand : spr_special_clock_sand_farmer; }
-		
-		draw_sprite_part_ext(time_sprite, time_image, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
+	// Draw Clock Time & Compass Hands
+	if (time_sprite_index != noone) {			
+		draw_sprite_part_ext(time_sprite_index, time_image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
 	}
 	
-	// Draw Compass Hands
-	if (sprite_index == get_sprite_to_use(spr_compass)) {
-		var time_sprite = get_sprite_to_use(spr_compass_hands), time_image = get_compass_image_index();
-		if (special) { time_sprite = spr_special_compass_hands; }
-			
-		draw_sprite_part_ext(time_sprite, time_image, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
-	}
+	// Draw Torch Lights
+	if (torch_light_image_timer >= 0) { draw_sprite_part_ext(torch_light_sprite_index, torch_light_image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha); }
 }
 
 /// @function								become_carried(new_holder);
@@ -184,7 +173,14 @@ function get_random_item_obj(special_item, include_key) {
 	
 	var controller = global.controller, available_items = global.available_items[global.difficulty], var num_of_items = array_length(available_items)
 	var random_pos = include_key ? irandom(num_of_items-1) : (1 + irandom(num_of_items-2));
+	var total_spawned_special_items = array_length(controller.spawned_special_items);
+	if (!include_key) { total_spawned_special_items += 1; }
 	var chosen_item_obj = noone;
+	
+	if (special_item && total_spawned_special_items >= num_of_items) {
+		write_debug_message("Tried to spawn a special item and failed.", "WARNING");
+		return obj_torch;
+	}
 	
 	// Decide which item to spawn based on previous item spawns
 	while (chosen_item_obj == noone) {

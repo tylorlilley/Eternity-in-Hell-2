@@ -82,6 +82,28 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
     }
 	
 	if (room == rm_finish) {
+		// Draw Background
+		bg_color = (has_won) ? c_white : c_black;
+		standard_text_color = (has_won) ? c_black : c_white;
+		special_text_color = get_game_color();
+		draw_set_color(bg_color);
+		draw_rectangle(0, 0, room_width-1, room_height-1, false);
+	
+		// Draw Border
+		draw_set_color(c_black);
+		for (var border_x_pos = -8; border_x_pos < room_width+8; border_x_pos += 16;) {
+			draw_sprite(spr_wall, 0, border_x_pos, 8);
+			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*2));
+			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*4));
+			draw_sprite(spr_wall, 0, border_x_pos, room_height-8-(16*4));
+			draw_sprite(spr_wall, 0, border_x_pos, room_height-8-(16*2));
+			draw_sprite(spr_wall, 0, border_x_pos, room_height-8);
+		}
+		for (var border_y_pos = -8; border_y_pos < room_width+8; border_y_pos += 16;) {
+			draw_sprite(spr_wall, 0, 8, border_y_pos);
+			draw_sprite(spr_wall, 0, room_width-8, border_y_pos);
+		}
+		
 	    // Draw main win or loss message
 	    draw_set_halign(fa_center);
 		draw_set_color(special_text_color);
@@ -90,34 +112,58 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 	    if (has_lost) { draw_death_type_sprite(room_width/2+40, hud_y_pos, killed_by); }
 	    draw_text(hud_x_pos, hud_y_pos, main_message);
 		draw_set_color(standard_text_color);
+		draw_text(hud_x_pos, hud_y_pos + (2*16), string_hash_to_newline(get_difficulty_string(global.difficulty)));
 		
 	    // Draw final score information
-		draw_text(hud_x_pos, hud_y_pos + (1.5*16), string_hash_to_newline(get_difficulty_string(global.difficulty))); 
+		hud_y_pos = 8+(16*5);
+		evaluation_messages = array_create(0);
+		array_duplicate(evaluation_messages, game_evaluation_messages);
+		draw_set_font(ft_hud_small);
+		
 		var time_elapsed = (time_provided - time_remaining);
-		draw_text(hud_x_pos, hud_y_pos + (2.5*16), string_hash_to_newline("Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2)));
-		if ((has_won && death_count > 0) || (has_lost && death_count > 1)) { draw_text(hud_x_pos, hud_y_pos + (3.5*16), string_hash_to_newline("Deaths: "+string(death_count))); }
-		else { hud_y_pos -= 16; }
-		if (used_special_items > 0) { draw_text(hud_x_pos, hud_y_pos + (4.5*16), string_hash_to_newline("Cursed Items Used: "+string(used_special_items))); }
-		else { hud_y_pos -= 16; }
-		// Half-Line-Break
-		draw_text(hud_x_pos, hud_y_pos + (6*16), string_hash_to_newline("Collected: "+get_percentage_string(get_collectables_score()))); 
-		draw_text(hud_x_pos, hud_y_pos + (7*16), string_hash_to_newline("Mapped: "+get_percentage_string(get_mapped_rooms_score())));
-		if (completion_amount > 0) { draw_text(hud_x_pos, hud_y_pos + (8*16), string_hash_to_newline("Escaped: "+get_percentage_string(get_victory_amount_score()))); }
-		if (has_won > 0) draw_text(hud_x_pos, hud_y_pos + (9*16), string_hash_to_newline("Time Left: "+get_percentage_string(get_time_remaining_score())));
-		if (has_won > 0) { draw_text(hud_x_pos, hud_y_pos + (10*16), string_hash_to_newline("Preparation: "+get_percentage_string(get_item_hands_score()))); }
+		var time_elapsed_string = "Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2);
+		array_push(evaluation_messages, [time_elapsed_string, standard_text_color]);
+		array_push(evaluation_messages, ["Collected: +"+get_percentage_string(get_collectables_score()), false]);
+		array_push(evaluation_messages, ["Visited Rooms: +"+get_percentage_string(get_mapped_rooms_score()), false]);
+		if (global.is_test_mode || completion_amount > 0) { array_push(evaluation_messages, ["Escaped Amount: +"+get_percentage_string(get_victory_amount_score()), false]); }
+		if (global.is_test_mode || has_won > 0) { array_push(evaluation_messages, ["Time Remaining: "+get_percentage_string(get_time_remaining_score()), false]); }
+		if (global.is_test_mode || ((has_won && death_count > 0) || (has_lost && death_count > 1))) { array_push(evaluation_messages, ["Extra Deaths: "+string(death_count-1), true]); }
+		if (global.is_test_mode || kill_count > 0) { array_push(evaluation_messages, ["Killed Enemies: "+string(kill_count), false]); }
+		if (global.is_test_mode || get_used_item_score() > 0) { array_push(evaluation_messages, ["Resourceful", false]); }
+		if (global.is_test_mode || used_special_items > 0) { array_push(evaluation_messages, ["Used Cursed Items: "+string(used_special_items), true]); }
+		if (global.is_test_mode || (has_won > 0 && global.player_left_hand_item == noone && global.player_right_hand_item == noone)) { array_push(evaluation_messages, ["Courageous Preperation", false]); }
+		if (global.is_test_mode || (global.player_left_hand_item != noone && global.player_right_hand_item != noone)) { array_push(evaluation_messages, ["Overprepared", true]); }
+		if (global.is_test_mode || (final_player_left_hand_item == noone || final_player_right_hand_item == noone)) { array_push(evaluation_messages, ["Returned Empty-Handed", true]); }
+		if (global.is_test_mode || (final_player_right_hand_item != global.player_left_hand_item && final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart)) {
+			array_push(evaluation_messages, ["Recovered New Item", false]);
+		}
+		if (global.is_test_mode || (final_player_left_hand_item != global.player_left_hand_item && final_player_left_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart)) {
+			array_push(evaluation_messages, ["Recovered New Item", false]);
+		}
+		
+		// Draw Evaluation Messages
+		if (evaluation_pos > 0 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, 90, c_white, 1); }
+		for (var i = evaluation_pos; i < evaluation_pos+6; i++) {
+			hud_y_pos += 12;
+			if (i >= array_length(evaluation_messages)) { break; }
+			var next_message = evaluation_messages[i], message_text = next_message[0], use_special_text_color = next_message[1];
+			draw_set_color(use_special_text_color ? special_text_color : standard_text_color);
+			draw_text(hud_x_pos, hud_y_pos, message_text);
+		}
+		hud_y_pos += 12;
+		if (evaluation_pos < array_length(evaluation_messages)-7 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, -90, c_white, 1); }
+		draw_set_font(ft_hud)
 		draw_set_color(special_text_color);
-		// Half-Line-Break
-		draw_text(hud_x_pos, hud_y_pos + (11.5*16), string_hash_to_newline("Final Grade: "+get_percentage_string( get_current_score())));
+		draw_text(hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( get_current_score())));
 		
 		// Draw game seed information
 		if (global.is_test_mode) {
-			draw_text(hud_x_pos, hud_y_pos + room_height-(16*2), string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
-			draw_text(hud_x_pos, hud_y_pos + room_height-16,"ver." + GM_version); 
+			draw_text(hud_x_pos, room_height-24, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
 		}
 		else {
 			draw_set_color(special_text_color);
 			// 12.5 blank line
-			draw_text(room_width/2, room_height-16, get_input_enter_key_string() + ": Return");
+			draw_text(room_width/2, room_height-24, get_input_enter_key_string() + ": Return");
 			draw_set_color(standard_text_color);
 		}
 		draw_set_color(standard_text_color);

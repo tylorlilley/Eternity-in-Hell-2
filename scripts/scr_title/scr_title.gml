@@ -128,11 +128,11 @@ function get_input_string() {
 
 function get_lava_edge_type_string() {
 	switch (global.lava_edge_type) {
-		case lava_edge_types.none: { return "None"; }
-		case lava_edge_types.fuzzy_still: { return "Type 1"; }
-		case lava_edge_types.fuzzy_animated: { return "Type 2"; }
-		case lava_edge_types.wavy_still: { return "Type 3"; }
-		case lava_edge_types.wavy_animated: { return "Type 4"; }
+		case lava_edge_types.none: { return "Flat\nEdge"; }
+		case lava_edge_types.fuzzy_still: { return "Fuzzy,\nStill"; }
+		case lava_edge_types.fuzzy_animated: { return "Fuzzy,\nAnimated"; }
+		case lava_edge_types.wavy_still: { return "Wavy,\nStill"; }
+		case lava_edge_types.wavy_animated: { return "Wavy,\nAnimated"; }
 	}
 }
 

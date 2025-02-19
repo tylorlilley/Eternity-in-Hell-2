@@ -1,11 +1,31 @@
+increase light visibility?
+lava edges not right
+fix portcullis warning from random spawn
 test EIH randomizer mode
-use different font sizes on win/loss screen
 "randomized facts when being killed"
 make top half of player surivie lava?
 
-test rm_one_exit_22 mirrors for misleading exits
-test spiders
-fat skeleton make noise when start room begins and one is in the start room?
+--- EVALUATION MESSAGES ---
+one for each special room
+one for when an enemy explodes
+bonus for blowing up multiple bombs
+bonus for digging multiple holes
+bonus for decapitating corpse
+bonus for using multiple swords
+bonus for using multiple rosaries
+bonus for unlocking multiple locks (doors plus chests)
+bonus for all cockroach or cultist room
+count total times infected by red worm
+bonus for multiple lit rooms of lanterns
+bonus for multiple blocks pushed into lava (7?)
+bonus for opened trapped chests
+
+never opened a door
+never ruslted a bush
+never stepped on bones
+never crushed a bug
+crushed 10+ bugs
+
 
 SEED: 98878317
 SPAWNED obj_map 6
@@ -13,9 +33,6 @@ SPAWNED RED obj_staff 12
 SPAWNED obj_compass 19
 ROOMS: 13
 -crashed with no errors on start??
-
-SEED: 67597448
-- Randomization crashing
 
 SEED: 6541367
 SPAWNED obj_torch 47
@@ -159,4 +176,5 @@ Rooms need to know about themselves:
 - Tweaked all lava graphics to more clearly show where the ground ends and lava begins
 - Brand new progression system for carrying progress between runs
 - Two unlockable secret bonus modes for additional fun and challenge
+- Mirrors? Mirrors!
 - Various minor bug fixes

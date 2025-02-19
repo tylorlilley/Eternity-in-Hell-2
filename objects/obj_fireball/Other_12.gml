@@ -28,7 +28,7 @@ if (destructive) {
 		blocked = true; 
 	}
 	with (statue) {
-		if (other.shot_by_player) { update_kill_log(object_index, global.difficulty, other.object_index); }
+		if (other.shot_by_player) { update_kill_log(object_index, global.difficulty, other.object_index); global.controller.kill_count += 1; }
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
 	}

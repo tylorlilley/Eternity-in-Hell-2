@@ -70,9 +70,15 @@ function initialize_game_variables() {
 	current_score = 0;
 	flash_time = 0;
 	death_count = 0;
+	kill_count = 0;
+	used_item_types = array_create(0);
 	used_special_items = 0;
 	final_player_right_hand_item = noone;
 	final_player_left_hand_item = noone;
+	evaluation_messages = array_create(0);
+	game_evaluation_messages = array_create(0);
+	array_push(game_evaluation_messages, ["TEST STR", false]);
+	evaluation_pos = 0;
 	initialize_room_transition_values()
 }
 
@@ -808,12 +814,26 @@ function get_current_score() {
 	with (controller) {
 		current_score = floor(get_collectables_score() +  get_victory_amount_score() + get_time_remaining_score() + get_mapped_rooms_score() + get_item_hands_score())/5;
 		current_score -= get_death_count_score_penalty();
+		current_score += get_kill_count_score();
+		current_score += get_used_item_score();
 		//current_score += spawned_item_bonus;
 		//var spawned_item_bonus = 10 - total_items;
 		//if (spawned_item_bonus < 0 || !is_game_won()) { spawned_item_bonus = 0; }
 		if (current_score < 0) { current_score = 0; }
 	}
 	return controller.current_score;  
+}
+
+/// @function								get_kill_count_score()
+function get_kill_count_score() {
+	return kill_count;
+}
+
+/// @function								get_used_item_score()
+function get_used_item_score() {
+	var item_score = array_length(used_item_types) - 3;
+	if (item_score < 0) { item_score = 0; }
+	return item_score;
 }
 
 
@@ -824,11 +844,11 @@ function get_item_hands_score() {
 	if (global.player_left_hand_item == noone) { right_hand_item_modifier += 5; }
 	if (is_game_won()) {
 		if (final_player_right_hand_item == noone) { right_hand_item_modifier -= 5; }
-		else if (final_player_right_hand_item != global.player_left_hand_item && final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart) { right_hand_item_modifier += 5; }
+		else if (final_player_right_hand_item != global.player_left_hand_item && final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart) { right_hand_item_modifier += 10; }
 		if (final_player_left_hand_item == noone) { left_hand_item_modifier -= 5; }
-		else if (final_player_left_hand_item != global.player_left_hand_item && final_player_left_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart) { left_hand_item_modifier += 5; }
+		else if (final_player_left_hand_item != global.player_left_hand_item && final_player_left_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart) { left_hand_item_modifier += 10; }
 	}
-	return 100*((5 + left_hand_item_modifier + right_hand_item_modifier - get_special_item_score_penalty())/20);
+	return 100*((left_hand_item_modifier + right_hand_item_modifier - get_special_item_score_penalty())/20);
 }
 
 /// @function								get_collectables_score()

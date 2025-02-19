@@ -26,6 +26,10 @@ function kill_enemy(death_sound) {
 /// @function								kill_with_sword();
 ///	@param		{instance}	sword			The sword being used to kill this enemy
 function kill_with_sword(sword) {
+	if (sword.holder == global.player) {
+		update_kill_log(object_index, global.difficulty, obj_sword);
+		global.controller.kill_count += 1;
+	}
 	if (!sword.special) { 
 		var sword_in_ground = instance_create(x, y, obj_sword_in_ground);
 		sword_in_ground.image_xscale = sword.image_xscale;
@@ -33,7 +37,6 @@ function kill_with_sword(sword) {
 		instance_destroy(sword); 
 	}
 	kill_enemy(snd_crunch);
-	update_kill_log(object_index, global.difficulty, obj_sword);
 }
 
 /// @function								run_away_from_player(ignore_solid, ignore_death, make_sound);

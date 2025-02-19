@@ -57,6 +57,7 @@ if (can_process_this_frame()) {
 			}
 			instance_destroy();
 			update_kill_log(object_index, global.difficulty, object_index);
+			global.controller.kill_count += 1;
 		}
 	}
 }

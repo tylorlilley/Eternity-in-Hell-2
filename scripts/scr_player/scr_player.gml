@@ -111,6 +111,11 @@ function pick_up_item(item, make_noise, dir) {
 	if (dir == directions.right) { right_hand_item = item; item.image_xscale = -1; }
 	else if (dir == directions.left) { left_hand_item = item; item.image_xscale = 1; }
 	
+	var used_item_types = global.controller.used_item_types;
+	if (!array_contains(used_item_types, item.object_index)) {
+		array_push(used_item_types, item.object_index);
+	}
+	
 	with (item) { become_carried(other.id); }
 }
 

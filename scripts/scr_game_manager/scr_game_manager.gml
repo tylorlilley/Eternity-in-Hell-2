@@ -2,7 +2,7 @@
 function set_up_inputs_for_next_frame() {
 	if (instance_number(obj_title) > 0) { 
 		get_keyboard_default_inputs();
-		get_keyboard_wasd_inputs();
+		if (global.input == inputs.keyboard_wasd) { get_keyboard_wasd_inputs(); }
 		get_gamepad_inputs();
 	}
 	else {

@@ -105,12 +105,22 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 		if (flash_time == 0) { flash_obj = noone; }
 	}
 	global.bg_color = new_color;
+	
+	if (room == rm_finish) {
+		var max_evaluation_pos = array_length(evaluation_messages)-7;
+	
+		if (global.game_manager.key_up_pressed && evaluation_pos > 0) { evaluation_pos -= 1; play_sound(snd_mana, false); }
+		else if (global.game_manager.key_down_pressed && evaluation_pos < max_evaluation_pos) { evaluation_pos += 1; play_sound(snd_mana, false); }
+		else if (global.game_manager.key_up_pressed || global.game_manager.key_down_pressed) { play_sound(snd_locked, false); }
+	}
 }
+
+
 
 // DEBUG MODE SPAWNER
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
-		var obj_type = obj_player_corpse;
+		var obj_type = obj_collectable;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}

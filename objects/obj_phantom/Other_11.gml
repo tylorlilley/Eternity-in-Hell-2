@@ -30,6 +30,7 @@ if (global.controller.current_room.lit) {
 		screen_flash(); 
 		instance_destroy();
 		update_kill_log(object_index, global.difficulty, object_index);
+		global.controller.kill_count += 1;
 	}
 }
 	

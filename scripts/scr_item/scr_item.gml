@@ -256,8 +256,20 @@ function get_clock_image_index() {
 function get_compass_image_index() {
 	var controller = global.controller, hands_dir = 90;
 	
-	// Point Towards Nearest Collectable in Room
-	if (instance_number(obj_collectable) > 0) {
+	if (controller.current_room.has_hall_of_mirrors) {
+		// Point Towards Next Hall of Mirrors Exit
+		var next_dir = controller.current_room.mirror_directions[controller.current_room.mirror_count];
+		var x_pos = x, y_pos = y;
+		switch (next_dir) {
+			case directions.up: { y_pos -= 2; break; }
+			case directions.right: { x_pos += 2; break; }
+			case directions.down: { y_pos += 2; break; }
+			case directions.left: { x_pos -= 2; break; }
+		}
+		hands_dir = point_direction(x, y, x_pos, y_pos);
+	}
+	else if (instance_number(obj_collectable) > 0) {
+		// Point Towards Nearest Collectable in Room
 		var nearest_collectable = instance_nearest(x, y, obj_collectable);
 		hands_dir = point_direction(x, y, nearest_collectable.x, nearest_collectable.y);
 	}

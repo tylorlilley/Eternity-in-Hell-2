@@ -18,14 +18,17 @@ if (!game_manager.paused) {
 	// Handle X Key
 	if (key_back_pressed) {
 		if (controls_screen || options_screen || death_log_screen || prepare_screen) {
-			play_sound(snd_putdown, false); 
-			prepare_screen = false;
-			controls_screen = false;
-			options_screen = false;
-			death_log_screen = false;
-			options_pos = 0;
-			death_log_pos = 0;
-			with (obj_lava) { instance_destroy(); } 
+			if (!options_screen || !option_selected) {
+				play_sound(snd_putdown, false); 
+				prepare_screen = false;
+				controls_screen = false;
+				options_screen = false;
+				death_log_screen = false;
+				options_pos = 0;
+				death_log_pos = 0;
+				with (obj_lava) { instance_destroy(); }
+			}
+			else if (option_selected) { play_sound(snd_putdown, false); option_selected = false; }
 		}
 		else { play_sound(snd_locked, false); }
 	}
@@ -61,7 +64,8 @@ if (!game_manager.paused) {
 			death_log_screen = (!key_start_pressed && pos == 5);
 			if (death_log_screen) { death_log_sort = 1; just_switched = true; }  // TODO: Remember last sort?
 			else if (options_screen) {
-				instance_create(184+56, 152, obj_lava); 
+				option_selected = false;
+				instance_create(216, 176+6, obj_lava); 
 				with (obj_lava) { initialize_tile(); set_up_lava_edge_visibility(true); }
 			}
 			else if (prepare_screen) { 
@@ -69,6 +73,11 @@ if (!game_manager.paused) {
 				if (array_length(hand_options) < 2) { prepare_screen = false; loading = true; }
 			}
 		}
+		else if (options_screen && key_select_pressed) {
+			if (option_selected) { play_sound(snd_locked, false); }
+			else { play_sound(snd_pickup, false); option_selected = true; color_options_pos = 5; }
+		}
+		
 		if (death_log_screen) {
 			// Update Sort
 			death_log_sort += 1;
@@ -139,177 +148,167 @@ if (!game_manager.paused) {
 		determine_gamepad();
 	
 		// Move Up and Down Through Option Selections
-		if ((key_up_pressed) && (options_pos > 0)) { options_pos -= 1; play_sound(snd_mana, false); }
-		else if (key_down_pressed && (options_pos < 8)) { options_pos += 1; play_sound(snd_mana, false); }
-		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); } 
+		if ((key_up_pressed) && (options_pos > 0) && !option_selected) { options_pos -= 1; play_sound(snd_mana, false); }
+		else if (key_down_pressed && (options_pos < 8) && !option_selected) { options_pos += 1; play_sound(snd_mana, false); }
+		else if (key_up_pressed || key_down_pressed && !(option_selected && options_pos == 5)) { play_sound(snd_locked, false); } 
 	
-		// Adjust Fullscreen vs Window
-		if (options_pos == 0) {
-			if (!global.fullscreen && key_left_pressed) { 
-				global.fullscreen = true;
-				global.window_border =  (os_type == os_windows) ? false : true;
-				play_sound(snd_pickup, false);		
-				update_setting("fullscreen", global.fullscreen);
-				update_setting("window_border", global.window_border);
-				set_window_size(); 
-			}
-			else if (global.fullscreen && key_right_pressed) { 
-				global.fullscreen = false;
-				global.window_border = true;
-				play_sound(snd_putdown, false);	
-				update_setting("fullscreen", global.fullscreen);
-				update_setting("window_border", global.window_border);
-				set_window_size(); 
-			}
-			else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-		}
-	
-		// Adjust Pixel Scaling Option and Window Border Option
-		if (options_pos == 1) {
-			// Adjust Window Border Option
-			if (global.fullscreen && os_type == os_windows) {
-				if (!global.window_border && key_left_pressed) {
-					global.window_border = true;
-					play_sound(snd_pickup, false);
+		if (option_selected) {
+			// Adjust Fullscreen vs Window
+			if (options_pos == 0) {
+				if (!global.fullscreen && key_left_pressed) { 
+					global.fullscreen = true;
+					global.window_border =  (os_type == os_windows) ? false : true;
+					play_sound(snd_pickup, false);		
+					update_setting("fullscreen", global.fullscreen);
 					update_setting("window_border", global.window_border);
 					set_window_size(); 
 				}
-				else if (global.window_border && key_right_pressed) {
-					global.window_border = false;
-					play_sound(snd_putdown, false);
+				else if (global.fullscreen && key_right_pressed) { 
+					global.fullscreen = false;
+					global.window_border = true;
+					play_sound(snd_putdown, false);	
+					update_setting("fullscreen", global.fullscreen);
 					update_setting("window_border", global.window_border);
 					set_window_size(); 
 				}
 				else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
 			}
-			// Adjust Pixel Scaling Option
-			else {
-				if (global.window_scaling > 1 && key_left_pressed) { 
-					global.window_scaling -= 1; 
-					play_sound(snd_move, false);
-					update_setting("window_size", global.window_scaling);
-					set_window_size();
+	
+			// Adjust Pixel Scaling Option and Window Border Option
+			if (options_pos == 1) {
+				// Adjust Window Border Option
+				if (global.fullscreen && os_type == os_windows) {
+					if (!global.window_border && key_left_pressed) {
+						global.window_border = true;
+						play_sound(snd_pickup, false);
+						update_setting("window_border", global.window_border);
+						set_window_size(); 
+					}
+					else if (global.window_border && key_right_pressed) {
+						global.window_border = false;
+						play_sound(snd_putdown, false);
+						update_setting("window_border", global.window_border);
+						set_window_size(); 
+					}
+					else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
 				}
-				else if (global.window_scaling < global.max_window_scaling && key_right_pressed) { 
-					global.window_scaling += 1; 
+				// Adjust Pixel Scaling Option
+				else {
+					if (global.window_scaling > 1 && key_left_pressed) { 
+						global.window_scaling -= 1; 
+						play_sound(snd_move, false);
+						update_setting("window_size", global.window_scaling);
+						set_window_size();
+					}
+					else if (global.window_scaling < global.max_window_scaling && key_right_pressed) { 
+						global.window_scaling += 1; 
+						play_sound(snd_move, false);
+						update_setting("window_size", global.window_scaling);
+						set_window_size();
+					}
+					else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+				}
+			}
+	
+			// Adjust Control Option
+			if (options_pos == 2) {
+				if (global.input > 0 && key_left_pressed) { 
+					global.input -= 1; 
 					play_sound(snd_move, false);
-					update_setting("window_size", global.window_scaling);
-					set_window_size();
+				}
+				else if ((global.input < 1 || (global.input == 1 && gamepad_is_connected(global.gamepad))) && key_right_pressed) {
+					global.input += 1; 
+					play_sound(snd_move, false);
 				}
 				else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+				update_setting("input", global.input);
 			}
-		}
 	
-		// Adjust Control Option
-		if (options_pos == 2) {
-			if (global.input > 0 && key_left_pressed) { 
-				global.input -= 1; 
-				play_sound(snd_move, false);
+			// Adjust Player Outline
+			if (options_pos == 3) {
+				if (!global.player_outline && key_left_pressed) { global.player_outline = true; play_sound(snd_pickup, false); }
+				else if (global.player_outline && key_right_pressed) { global.player_outline = false; play_sound(snd_putdown, false); }
+				else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+				update_setting("player_outline", global.player_outline);
 			}
-			else if ((global.input < 1 || (global.input == 1 && gamepad_is_connected(global.gamepad))) && key_right_pressed) {
-				global.input += 1; 
-				play_sound(snd_move, false);
+	
+			// Adjust Screen Flash Option
+			if (options_pos == 4) {
+				if (!global.can_screen_flash && key_left_pressed) { global.can_screen_flash = true; play_sound(snd_pickup, false); }
+				else if (global.can_screen_flash && key_right_pressed) { global.can_screen_flash = false; play_sound(snd_putdown, false); }
+				else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+				update_setting("can_screen_flash", global.can_screen_flash);
 			}
-			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
-			update_setting("input", global.input);
-		}
 	
-		// Adjust Player Outline
-		if (options_pos == 3) {
-			if (!global.player_outline && key_left_pressed) { global.player_outline = true; play_sound(snd_pickup, false); }
-			else if (global.player_outline && key_right_pressed) { global.player_outline = false; play_sound(snd_putdown, false); }
-			else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-			update_setting("player_outline", global.player_outline);
-		}
-	
-		// Adjust Screen Flash Option
-		if (options_pos == 4) {
-			if (!global.can_screen_flash && key_left_pressed) { global.can_screen_flash = true; play_sound(snd_pickup, false); }
-			else if (global.can_screen_flash && key_right_pressed) { global.can_screen_flash = false; play_sound(snd_putdown, false); }
-			else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-			update_setting("can_screen_flash", global.can_screen_flash);
-		}
-	
-		// Adjust Lava Edge Type Option
-		if (options_pos == 5) {
-			if (global.lava_edge_type > lava_edge_types.none && key_left_pressed) { 
-				global.lava_edge_type -= 1; 
-				play_sound(snd_move, false);
-				with (obj_lava) { set_up_lava_edge_visibility(true); }
-			}
-			else if (global.lava_edge_type < lava_edge_types.wavy_animated && key_right_pressed) { 
-				global.lava_edge_type += 1; 
-				play_sound(snd_move, false); 
-				with (obj_lava) { set_up_lava_edge_visibility(true); }
-			}
-			else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-			update_setting("lava_edge_type", global.lava_edge_type);
-		}
-	
-		// Adjust Color Option
-		if (options_pos == 6) {
-			if (keyboard_check_pressed(vk_backspace)) { 
-				if (global.game_color_string != "") {
-					global.game_color_string = string_delete(global.game_color_string, string_length(global.game_color_string), 1);
-					play_sound(snd_move, false);
+			// Adjust Color Option
+			if (options_pos == 5) {
+				// Move Left and Right Through String
+				if ((key_left_pressed) && (color_options_pos > 0)) { color_options_pos -= 1; play_sound(snd_mana, false); }
+				else if (key_right_pressed && (color_options_pos < 5)) { color_options_pos += 1; play_sound(snd_mana, false); }
+				else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+				
+				// Modify Value
+				var current_hex_value = string_char_at(global.game_color_string, color_options_pos+1), current_dec_value = hex_to_dec(current_hex_value);
+				if (keyboard_check_pressed(ord("1"))) { current_hex_value = "1"; current_dec_value = hex_to_dec(current_hex_value); play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("2"))) { current_hex_value = "2"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("3"))) { current_hex_value = "3"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("4"))) { current_hex_value = "4"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("5"))) { current_hex_value =  "5"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("6"))) { current_hex_value = "6"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("7"))) { current_hex_value = "7"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("8"))) { current_hex_value = "8"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("9"))) { current_hex_value = "9"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("A"))) { current_hex_value = "A"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("B"))) { current_hex_value = "B"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("C"))) { current_hex_value = "C"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("D"))) { current_hex_value = "D"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("E"))) { current_hex_value = "E"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if (keyboard_check_pressed(ord("F"))) { current_hex_value = "F"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				else if ((key_down_pressed) && (current_dec_value > 0)) { current_dec_value -= 1; play_sound(snd_mana, false); }
+				else if (key_up_pressed && (current_dec_value < 15)) { current_dec_value += 1; play_sound(snd_mana, false); }
+				else if (key_down_pressed || key_up_pressed) { play_sound(snd_locked, false); } 
+				
+				// Create New String Based on Hex Value
+				var new_hex_value = string_char_at("0123456789ABCDEF", current_dec_value+1), new_string = "";
+				for (var i = 0; i < 6; i++) {
+					new_string += (i == color_options_pos) ? new_hex_value : string_char_at(global.game_color_string, i+1);
 				}
-				else { play_sound(snd_crunch, false); }
+				global.game_color_string = new_string
+				set_game_color();
+				update_setting("game_color", global.game_color_string);
 			}
-			else if (keyboard_check_pressed(vk_delete) && global.game_color_string != "") {
-				global.game_color_string = "";
-				play_sound(snd_crunch, false);
-			}
-			else if (string_length(global.game_color_string) < 6) {
-				if (keyboard_check_pressed(ord("1"))) { global.game_color_string += "1"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("2"))) { global.game_color_string += "2"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("3"))) { global.game_color_string += "3"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("4"))) { global.game_color_string += "4"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("5"))) { global.game_color_string += "5"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("6"))) { global.game_color_string += "6"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("7"))) { global.game_color_string += "7"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("8"))) { global.game_color_string += "8"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("9"))) { global.game_color_string += "9"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("A"))) { global.game_color_string += "A"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("B"))) { global.game_color_string += "B"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("C"))) { global.game_color_string += "C"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("D"))) { global.game_color_string += "D"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("E"))) { global.game_color_string += "E"; play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("F"))) { global.game_color_string += "F"; play_sound(snd_move, false);  }
-				if (global.game_color_string != "" && keyboard_check_pressed(ord("0"))) { global.game_color_string += "0"; play_sound(snd_move, false); }
-			}
-			else {
-				if (keyboard_check_pressed(ord("1"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("2"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("3"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("4"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("5"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("6"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("7"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("8"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("9"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("A"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("B"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("C"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("D"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("E"))) { play_sound(snd_locked, false);  }
-				else if (keyboard_check_pressed(ord("F"))) { play_sound(snd_locked, false);  }
-			}
-			set_game_color();
-			update_setting("game_color", global.game_color_string);
-		}
 	
-		// Adjust Minimum Fade Option
-		if (options_pos == 7) {
-			if (global.game_color_fade > 0 && key_left_pressed) { global.game_color_fade -= 2; play_sound(snd_move, false); }
-			else if (global.game_color_fade < 100 && key_right_pressed) { global.game_color_fade += 2; play_sound(snd_move, false); }
-			else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
-			update_setting("game_color_fade", global.game_color_fade);
-		}
+			// Adjust Minimum Fade Option
+			if (options_pos == 6) {
+				if (global.game_color_fade > 0 && key_left_pressed) { global.game_color_fade -= 2; play_sound(snd_move, false); }
+				else if (global.game_color_fade < 100 && key_right_pressed) { global.game_color_fade += 2; play_sound(snd_move, false); }
+				else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+				update_setting("game_color_fade", global.game_color_fade);
+			}
+		
+			// Adjust Lava Edge Type Option
+			if (options_pos == 7) {
+				if (global.lava_edge_type > lava_edge_types.none && key_left_pressed) { 
+					global.lava_edge_type -= 1; 
+					play_sound(snd_move, false);
+					with (obj_lava) { set_up_lava_edge_visibility(true); }
+				}
+				else if (global.lava_edge_type < lava_edge_types.wavy_animated && key_right_pressed) { 
+					global.lava_edge_type += 1; 
+					play_sound(snd_move, false); 
+					with (obj_lava) { set_up_lava_edge_visibility(true); }
+				}
+				else if ((key_left_pressed || key_right_pressed)) { play_sound(snd_locked, false); }
+				update_setting("lava_edge_type", global.lava_edge_type);
+			}
 	
-		// Reset settings to default
-		if (options_pos == 8 && key_select_pressed) {
-			play_sound(snd_stairs, false);
-			reset_settings_to_defaults();
+	
+			// Reset settings to default
+			if (options_pos == 8 && key_select_pressed) {
+				option_selected = false;
+				play_sound(snd_stairs, false);
+				reset_settings_to_defaults();
+			}
 		}
 	}
 	else if (controls_screen) {

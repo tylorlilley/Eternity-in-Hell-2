@@ -16,6 +16,8 @@ if (is_existing_instance(closed)) {
 		}
 		else {
 			// Open Door
+			global.controller.opened_doors += 1;
+			write_debug_message("opened_doors += 1", "Eval");
 			open_door();
 			with (player) { play_sound(snd_open, true); }
 			snap_player_to_position(push_direction);

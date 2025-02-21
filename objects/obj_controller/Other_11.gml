@@ -43,11 +43,12 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 			if (is_carrying_item_in_left_hand(obj_clock)) { time_to_decrement/= 2; }
 			if (is_carrying_special_item(obj_clock)) { time_to_decrement = 0; }
 		}
-		time_remaining -= time_to_decrement;
+		time_remaining -= 100//time_to_decrement;
 		if (is_time_up()) {
 			killed_by = (current_room.has_hall_of_mirrors) ? obj_mirror : obj_controller;
-			update_death_log(killed_by, difficulty);
-			time_remaining = 0; 
+			update_death_log(killed_by, difficulty, false);
+			time_remaining = time_provided;
+			player.dead = true;
 			play_sound(snd_lose, false); 
 		}
 		
@@ -68,7 +69,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 				put_down_item(right_hand_item, false, true);
 				put_down_item(left_hand_item, false, true);
 			}
-			if (is_existing_instance(carried_rosary) && player.dead) {
+			if (is_existing_instance(carried_rosary) && player.dead && time_remaining > time_provided) {
 				// Revive and respawn player
 				with (player) {
 					var player_corpse = instance_create(x, y, obj_player_corpse);
@@ -80,6 +81,8 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 					depth = PLAYER_DEPTH;
 					visible = false;
 					player_appear_timer = 2;
+					global.controller.rosary_use_count += 1;
+					write_debug_message("rosary_use_count += 1", "Eval"); 
 				}
 				transition = directions.respawn;
 				// Destroy or pick up rosary
@@ -107,7 +110,8 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 	global.bg_color = new_color;
 	
 	if (room == rm_finish) {
-		var max_evaluation_pos = array_length(evaluation_messages)-7;
+		time_remaining = time_provided;
+		var max_evaluation_pos = array_length(evaluation_messages)-6;
 	
 		if (global.game_manager.key_up_pressed && evaluation_pos > 0) { evaluation_pos -= 1; play_sound(snd_mana, false); }
 		else if (global.game_manager.key_down_pressed && evaluation_pos < max_evaluation_pos) { evaluation_pos += 1; play_sound(snd_mana, false); }

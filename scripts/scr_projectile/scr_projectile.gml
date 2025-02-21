@@ -20,6 +20,8 @@ function fireball_light_bombs() {
 	if (is_existing_instance(bomb) && (!is_existing_instance(creator) || creator != bomb)) {
 		with (bomb) {
 			lit_by_player = other.shot_by_player;
+			global.controller.fireball_bomb_lights += 1;
+			write_debug_message("fireball_bomb_lights += 1", "Eval");
 			light_bomb(); 
 		}
 	}
@@ -41,7 +43,11 @@ function fireball_kill_enemies(use_magic_resistance = false) {
 				with (enemy) {
 					if (!is_carrying_item(obj_staff)) { 
 						kill_enemy(kill_snd);
-						if (other.shot_by_player) { update_kill_log(object_index, global.difficulty, other.object_index); global.controller.kill_count += 1; }
+						if (other.shot_by_player) { 
+							update_kill_log(object_index, global.difficulty, other.object_index); 
+							global.controller.kill_count += 1;
+							write_debug_message("kill_count += 1", "Eval"); 
+						}
 					}
 				}
 			}
@@ -50,7 +56,11 @@ function fireball_kill_enemies(use_magic_resistance = false) {
 				with (enemy) { 
 					if (!resistance) { 
 						kill_enemy(kill_snd);
-						if (other.shot_by_player) { update_kill_log(object_index, global.difficulty, other.object_index); global.controller.kill_count += 1; }
+						if (other.shot_by_player) { 
+							update_kill_log(object_index, global.difficulty, other.object_index); 
+							global.controller.kill_count += 1;
+							write_debug_message("kill_count += 1", "Eval");  
+						}
 					} 
 				}
 			}

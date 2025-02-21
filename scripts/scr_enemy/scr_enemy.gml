@@ -20,6 +20,10 @@ function kill_enemy(death_sound) {
 			}
 		}
 	}
+	if (object_index == obj_gudetama) {
+		global.controller.gudetama_room_solved += 1
+		write_debug_message("gudetama_room_solved += 1", "Eval");
+	}
 	instance_destroy();
 }
 
@@ -29,6 +33,9 @@ function kill_with_sword(sword) {
 	if (sword.holder == global.player) {
 		update_kill_log(object_index, global.difficulty, obj_sword);
 		global.controller.kill_count += 1;
+		global.controller.sword_kill_count += 1;
+		write_debug_message("kill_count += 1", "Eval");
+		write_debug_message("sword_kill_count += 1", "Eval");
 	}
 	if (!sword.special) { 
 		var sword_in_ground = instance_create(x, y, obj_sword_in_ground);
@@ -334,6 +341,8 @@ function move_segments(new_dir) {
 /// @function								explode(destroy_self);
 ///	@param		{bool}	  destroy_self		Whether to destroy the calling instance or not
 function explode(destroy_self) {
+	global.controller.spontaneously_exploded_enemy += 1;
+	write_debug_message("spontaneously_exploded_enemy += 1", "Eval");
 	play_sound(snd_explosion, true);
 	screen_flash();
 	
@@ -376,15 +385,17 @@ function check_for_player_collision() {
 		with (player) { carried_sword = get_carried_item(obj_sword); carried_staff =  get_carried_item(obj_staff); }
 		if (is_existing_instance(carried_sword) && corporeal) { kill_with_sword(carried_sword); }
 		else if (object_index == obj_death || object_index == obj_lava_part) {
-			// Kill player from projectile
-			with (player) { 
-				if (!is_carrying_item(obj_staff)) { 
-					play_sound(snd_extinguish, false);
-					var killer = obj_lava;
-					if (is_existing_instance(other.creator)) { killer = other.creator.object_index; }
-					kill_player(killer);
-				} 
-			} 
+			if (object_index != obj_lava_part || player.y <= y) {
+				// Kill player from projectile
+				with (player) { 
+					if (!is_carrying_item(obj_staff)) { 
+						play_sound(snd_extinguish, false);
+						var killer = obj_lava;
+						if (is_existing_instance(other.creator)) { killer = other.creator.object_index; }
+						kill_player(killer);
+					} 
+				}
+			}
 		}
 		else {
 			// Kill player from enemy

@@ -24,20 +24,21 @@
 #macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 	
 // Initilize room start probability constants
-#macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 64, 24])
+#macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 64, 32])
+#macro STATUE_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 64, 32, 24])
 #macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
 #macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 4, 3, 3, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
-#macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 8, 4, 3])
+#macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 4])
 #macro COCKROACH_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])
 #macro CULTIST_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 46]) 
-#macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 36, 30, 28, 24]) 
+#macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 36, 28, 24, 20]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 32, 28, 24]) 
-#macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0//get_probability_for_difficulty([0, 0, 12, 8, 6])
+#macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0// UNUSED get_probability_for_difficulty([0, 0, 12, 8, 6])
 #macro MOUTHS_PER_MOUTH (1+global.difficulty)
 
 // Initialize map drawing constants
@@ -53,9 +54,9 @@
 
 // Initialize lighting constants
 #macro DIMMING_RATE 8 
-#macro LANTERN_LIGHT_RANGE 14 
-#macro TORCH_LIGHT_RANGE 11 
-#macro PLAYER_LIGHT_RANGE 6 
+#macro LANTERN_LIGHT_RANGE get_probability_for_difficulty([0, 16, 14, 13, 12])//14 
+#macro TORCH_LIGHT_RANGE get_probability_for_difficulty([0, 13, 12, 11, 10])//11 
+#macro PLAYER_LIGHT_RANGE get_probability_for_difficulty([0, 8, 7, 7, 6])//6 
 //#macro LAVA_LIGHT_RANGE 18  // This one is in pixels and not steps of 8 pixels
 #macro SCREEN_FLASH_DURATION 6 
 #macro LAVA_LIGHT_RANGE 4
@@ -78,7 +79,7 @@
 #macro CORPSE_HEADLESS_PROBABILITY 16
 #macro TRAP_RANGE 40 
 #macro BOMB_DUD_PROBABILITY 64
-#macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 64, 32, 30, 28]) 
+#macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 128, 64, 48, 32]) 
 #macro NOSE_SELF_DESTRUCT_PROBABILITY get_probability_for_difficulty([0, 0, 0, 256, 128]) 
 #macro RESPAWN_FREQUENCY 40 
 #macro ECHO_SPAWN_FREQUENCY 64 
@@ -87,7 +88,7 @@
 
 // Initialize score constants and variables
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
-#macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 75, 65, 60, 50])  // minutes * 60 total seconds for torch to remain lit
+#macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 80, 70, 65, 65])//get_probability_for_difficulty([100, 75, 65, 60, 50])  // minutes * 60 total seconds for torch to remain lit
 #macro TIME_PROVIDED_PER_ROOM get_probability_for_difficulty([40, 30, 28, 26, 24]) 
 #macro TIME_PROVIDED_PER_EASY_ROOM -5 
 #macro TIME_PROVIDED_PER_HARD_ROOM 15 
@@ -103,11 +104,11 @@
 #macro CARRIED_ITEM_DEPTH -250
 #macro INCORPOREAL_ENEMY_DEPTH -225
 #macro GIANT_WORM_DEPTH -200
-#macro PUSH_BLOCK_DEPTH -1 // -30
 #macro FLOATING_ENEMY_DEPTH -25
 #macro BUSH_DEPTH -20
 #macro PLAYER_DEPTH -10
 #macro HANDS_WITH_STAFF_DEPTH -4
+#macro PUSH_BLOCK_DEPTH -1 // -30
 #macro SOLID_DEPTH -1
 #macro STANDARD_DEPTH 0
 #macro DROPPED_ITEM_DEPTH 1

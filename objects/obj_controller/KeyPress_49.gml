@@ -1,3 +1,4 @@
+/// @description Test Mode - Complete Game
 if (global.is_test_mode) {
 	completion_amount = TOTAL_COMPLETION_AMOUNT;
 	with (global.player) {

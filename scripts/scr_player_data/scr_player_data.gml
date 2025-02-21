@@ -1,31 +1,32 @@
-/// @function								update_death_log(obj_index, difficulty);
+/// @function								update_death_log(obj_index, difficulty, has_rosary);
 ///	@param		{obj_id} obj_index			The object_index value to update
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
-function update_death_log(obj_index, difficulty) {
+///	@param		{boolean} has_rosary		The difficulty to update the count for
+function update_death_log(obj_index, difficulty, has_rosary) {
 	var previous_death_count = get_death_count(obj_index, difficulty), var current_run = get_run_number_count(difficulty);
 	
 	ini_open("player_data.ini");
 	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index), previous_death_count+1);
-	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_last_killed_by", current_run);
+	if (!has_rosary) { ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_last_killed_by", current_run); }
 	ini_close();
 	
-	update_log("outcome", "lost");
+	if (!has_rosary) { update_log("outcome", "lost"); }
 	update_log("killed_by", object_get_name(obj_index));
 	
-	update_best_score(difficulty);
+	if (!has_rosary) { update_best_score(difficulty); }
 }
 
-/// @function								update_kill_log(obj_index, difficulty);
+/// @function								update_kill_log(obj_index, difficulty, killer);
 ///	@param		{obj_id} obj_index			The object_index value to update
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
 ///	@param		{obj_id} killer				The object that did the killing
 function update_kill_log(obj_index, difficulty, killer) {
 	var previous_kill_count = get_kill_count(obj_index, difficulty);
-	var previous_kills__by_killer_count = get_kills_by_killer_count(obj_index, difficulty, killer);
+	var previous_kills_by_killer_count = get_kills_by_killer_count(obj_index, difficulty, killer);
 	
 	ini_open("player_data.ini");
 	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_kills", previous_kill_count+1);
-	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_kills_by_"+object_get_name(killer), previous_kills__by_killer_count+1);
+	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_kills_by_"+object_get_name(killer), previous_kills_by_killer_count+1);
 	ini_close();
 }
 

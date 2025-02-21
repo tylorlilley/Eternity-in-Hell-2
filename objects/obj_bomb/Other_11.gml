@@ -19,7 +19,9 @@ if (!is_existing_instance(holder)) {
 			var torch = array_random_pop(torches_at_position);
 				
 			if (is_existing_instance(torch) && is_existing_instance(torch.light_source) && is_instance_at_coordinates(x, y, torch)) {
-				if (global.player.right_hand_item == torch || global.player.left_hand_item == torch) { lit_by_player = true; }
+				if (global.player.right_hand_item == torch || global.player.left_hand_item == torch) { 
+					lit_by_player = true;
+				}
 				light_bomb();
 				break;
 			}

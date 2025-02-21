@@ -136,7 +136,7 @@ if (create_locked_exits_and_keys() == -1) {
 for (var i = 0; i < array_length(game_rooms); i++) {
 	var next_room = game_rooms[i];
 	if (next_room == start_room || next_room == heart_room) { continue; }
-	if (next_room.is_connected_to_hall_of_mirrors()) { continue; }
+	if (next_room.has_no_cardinal_exits || next_room.is_connected_to_hall_of_mirrors()) { continue; }
 	
 	next_room.add_illusion_walls();
 	next_room.add_portcullis(); 

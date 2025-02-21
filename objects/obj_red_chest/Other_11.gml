@@ -28,6 +28,8 @@ if (!closed && push_direction != directions.none) {
 			if (chosen_hand == directions.right) { player.lost_right_hand = true; }
 			else if (chosen_hand == directions.left) { player.lost_left_hand = true; }
 			with old_item { instance_destroy(); }
+			global.controller.red_chest_room_solved += 1;
+			write_debug_message("red_chest_room_solved += 1", "Eval");
 		}
 	}
 }

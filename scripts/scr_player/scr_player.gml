@@ -80,9 +80,15 @@ function pick_up_or_put_down_item(dir) {
 	if (is_existing_instance(carried_item)) { put_down_item(carried_item, true, true); }
 	else {
 		// Cycle through the items you could be possibly picking up
-		var dropped_items = instance_place_all(x, y, obj_item), 
+		var dropped_items = instance_place_all(x, y, obj_item);
+		
+		array_sort(dropped_items, function(elem1, elem2)
+		{
+			return -date_compare_datetime(elem1.last_held, elem2.last_held);
+		});
+		
 		while (array_length(dropped_items) > 0) {
-			var dropped_item = array_random_pop(dropped_items);
+			var dropped_item = array_pop(dropped_items);
 			if (is_existing_instance(dropped_item) && !is_existing_instance(dropped_item.holder) && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
 				pick_up_item(dropped_item, true, dir);
 				return dropped_item;
@@ -94,6 +100,8 @@ function pick_up_or_put_down_item(dir) {
 			if (is_existing_instance(corpse) && is_instance_at_coordinates(x, y, corpse) && !corpse.headless) {
 				var new_item = create_item_in_hand(dir, obj_meat);
 				corpse.headless = true;
+				global.controller.decapitated_corpses += 1;
+				write_debug_message("decapitated_corpses += 1", "Eval");
 				play_sound(snd_crunch, true);
 				return new_item;
 			}
@@ -114,6 +122,7 @@ function pick_up_item(item, make_noise, dir) {
 	var used_item_types = global.controller.used_item_types;
 	if (!array_contains(used_item_types, item.object_index)) {
 		array_push(used_item_types, item.object_index);
+		write_debug_message("used_item_types += 1", "Eval"); 
 	}
 	
 	with (item) { become_carried(other.id); }
@@ -218,19 +227,23 @@ function kill_player(killed_by_obj) {
 		player.depth = CORPSE_DEPTH;
 		player.dead = true;
 		controller.death_timer = RESPAWN_FREQUENCY;
+		write_debug_message("death_count += 1", "Eval");
 		controller.death_count += 1;
 		play_sound(snd_lose, true);
 		with (obj_echo_generator) { instance_destroy(); }
 		
 		// Put down carried items other than rosary
+		var has_rosary = false;
 		with (player) {
 			if (is_existing_instance(right_hand_item) && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false, true); }
+			else if (is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_rosary) { has_rosary = true; }
 			if (is_existing_instance(left_hand_item) && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false, true); }
+			else if (is_existing_instance(left_hand_item) && left_hand_item.object_index == obj_rosary) { has_rosary = true; }
 		}
 		
 		controller.killed_by = (killed_by_obj == -1) ? other.object_index : killed_by_obj;
 		if (player.infected_timer > 0 && controller.time_remaining > 0) { controller.killed_by = obj_bug; }
-		update_death_log(controller.killed_by, global.difficulty);
+		update_death_log(controller.killed_by, global.difficulty, has_rosary);
 	}
 	return true;
 }

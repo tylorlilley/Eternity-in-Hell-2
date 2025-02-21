@@ -91,17 +91,18 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 	
 		// Draw Border
 		draw_set_color(c_black);
+		var wall_spr = (has_won) ? spr_wall_inverted : spr_wall
 		for (var border_x_pos = -8; border_x_pos < room_width+8; border_x_pos += 16;) {
-			draw_sprite(spr_wall, 0, border_x_pos, 8);
-			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*2));
-			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*4));
-			draw_sprite(spr_wall, 0, border_x_pos, room_height-8-(16*4));
-			draw_sprite(spr_wall, 0, border_x_pos, room_height-8-(16*2));
-			draw_sprite(spr_wall, 0, border_x_pos, room_height-8);
+			draw_sprite(wall_spr, 0, border_x_pos, 8);
+			draw_sprite(wall_spr, 0, border_x_pos, 8+(16*2));
+			draw_sprite(wall_spr, 0, border_x_pos, 8+(16*4));
+			draw_sprite(wall_spr, 0, border_x_pos, room_height-8-(16*4));
+			draw_sprite(wall_spr, 0, border_x_pos, room_height-8-(16*2));
+			draw_sprite(wall_spr, 0, border_x_pos, room_height-8);
 		}
 		for (var border_y_pos = -8; border_y_pos < room_width+8; border_y_pos += 16;) {
-			draw_sprite(spr_wall, 0, 8, border_y_pos);
-			draw_sprite(spr_wall, 0, room_width-8, border_y_pos);
+			draw_sprite(wall_spr, 0, 8, border_y_pos);
+			draw_sprite(wall_spr, 0, room_width-8, border_y_pos);
 		}
 		
 	    // Draw main win or loss message
@@ -115,31 +116,9 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		draw_text(hud_x_pos, hud_y_pos + (2*16), string_hash_to_newline(get_difficulty_string(global.difficulty)));
 		
 	    // Draw final score information
-		hud_y_pos = 8+(16*5);
-		evaluation_messages = array_create(0);
-		array_duplicate(evaluation_messages, game_evaluation_messages);
+		hud_y_pos = 8+(16*5)-4;
 		draw_set_font(ft_hud_small);
-		
-		var time_elapsed = (time_provided - time_remaining);
-		var time_elapsed_string = "Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2);
-		array_push(evaluation_messages, [time_elapsed_string, standard_text_color]);
-		array_push(evaluation_messages, ["Collected: +"+get_percentage_string(get_collectables_score()), false]);
-		array_push(evaluation_messages, ["Visited Rooms: +"+get_percentage_string(get_mapped_rooms_score()), false]);
-		if (global.is_test_mode || completion_amount > 0) { array_push(evaluation_messages, ["Escaped Amount: +"+get_percentage_string(get_victory_amount_score()), false]); }
-		if (global.is_test_mode || has_won > 0) { array_push(evaluation_messages, ["Time Remaining: "+get_percentage_string(get_time_remaining_score()), false]); }
-		if (global.is_test_mode || ((has_won && death_count > 0) || (has_lost && death_count > 1))) { array_push(evaluation_messages, ["Extra Deaths: "+string(death_count-1), true]); }
-		if (global.is_test_mode || kill_count > 0) { array_push(evaluation_messages, ["Killed Enemies: "+string(kill_count), false]); }
-		if (global.is_test_mode || get_used_item_score() > 0) { array_push(evaluation_messages, ["Resourceful", false]); }
-		if (global.is_test_mode || used_special_items > 0) { array_push(evaluation_messages, ["Used Cursed Items: "+string(used_special_items), true]); }
-		if (global.is_test_mode || (has_won > 0 && global.player_left_hand_item == noone && global.player_right_hand_item == noone)) { array_push(evaluation_messages, ["Courageous Preperation", false]); }
-		if (global.is_test_mode || (global.player_left_hand_item != noone && global.player_right_hand_item != noone)) { array_push(evaluation_messages, ["Overprepared", true]); }
-		if (global.is_test_mode || (final_player_left_hand_item == noone || final_player_right_hand_item == noone)) { array_push(evaluation_messages, ["Returned Empty-Handed", true]); }
-		if (global.is_test_mode || (final_player_right_hand_item != global.player_left_hand_item && final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart)) {
-			array_push(evaluation_messages, ["Recovered New Item", false]);
-		}
-		if (global.is_test_mode || (final_player_left_hand_item != global.player_left_hand_item && final_player_left_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart)) {
-			array_push(evaluation_messages, ["Recovered New Item", false]);
-		}
+		calculate_evaluation_messages_and_score();
 		
 		// Draw Evaluation Messages
 		if (evaluation_pos > 0 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, 90, c_white, 1); }
@@ -151,10 +130,10 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 			draw_text(hud_x_pos, hud_y_pos, message_text);
 		}
 		hud_y_pos += 12;
-		if (evaluation_pos < array_length(evaluation_messages)-7 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, -90, c_white, 1); }
+		if (evaluation_pos < array_length(evaluation_messages)-6 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, -90, c_white, 1); }
 		draw_set_font(ft_hud)
 		draw_set_color(special_text_color);
-		draw_text(hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( get_current_score())));
+		draw_text(hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( global.controller.current_score )));
 		
 		// Draw game seed information
 		if (global.is_test_mode) {

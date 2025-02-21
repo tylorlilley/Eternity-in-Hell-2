@@ -18,6 +18,15 @@ if (destructive) {
 	// Destroy chests
 	var chest = instance_place(x, y, obj_chest);
 	with (chest) {
+		if (contents_obj == obj_statue || contents_obj == obj_fountain) {
+			if (shot_by_player) {
+				global.controller.kill_count += 1;
+				write_debug_message("kill_count += 1", "Eval");
+				global.controller.trapped_chests_destroyed += 1;
+				write_debug_message("trapped_chests_destroyed += 1", "Eval");
+				update_kill_log(contents_obj, global.difficulty, self);
+			}
+		}
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
 	}
@@ -28,7 +37,11 @@ if (destructive) {
 		blocked = true; 
 	}
 	with (statue) {
-		if (other.shot_by_player) { update_kill_log(object_index, global.difficulty, other.object_index); global.controller.kill_count += 1; }
+		if (other.shot_by_player) { 
+			update_kill_log(object_index, global.difficulty, other.object_index); 
+			global.controller.kill_count += 1; 
+			write_debug_message("kill_count += 1", "Eval");
+		}
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
 	}

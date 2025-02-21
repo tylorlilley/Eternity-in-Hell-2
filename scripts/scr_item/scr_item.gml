@@ -73,6 +73,7 @@ function become_dropped(dropper) {
 	}
 	
 	// Become dropped
+	last_held = date_current_datetime();
 	holder = noone;
 	persistent = false;
 	depth = DROPPED_ITEM_DEPTH;
@@ -132,6 +133,8 @@ function dig_hole() {
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
 		instance_create(x, y, obj_hole);
+		global.controller.holes_dug += 1;
+		write_debug_message("holes_dug += 1", "Eval");
 	}
 }
 
@@ -328,7 +331,10 @@ function get_compass_image_index() {
 /// @function								light_bomb();
 function light_bomb() {
 	if (fuse_timer != 0) { return false; }
-	
+	if (lit_by_player) { 
+		global.controller.bombs_lit += 1;
+		write_debug_message("bombs_lit += 1", "Eval");
+	}
 	play_sound(snd_torchlight, true);
 	fuse_timer = 4*irandom_range(5,8);
 	return true;
@@ -341,20 +347,22 @@ function get_carried_item_draw_y_offset(spr_index) {
 	var y_offset = -2;
 	
 	switch (spr_index) {
+		case spr_rosary:
+			{ y_offset = 2; break; }
+		case spr_staff: 
+			{ y_offset = 0; break; }
 		case spr_meat:
 		case spr_meat_farmer:
 			{ y_offset = 0; break; }
-		case spr_rosary:
-			{ y_offset = 2; break; }
+		case spr_compass: 
+			{ y_offset = -3; break; }
 		case spr_shovel:
 			{ y_offset = -3; break; }
-		case spr_staff: 
-			{ y_offset = 0; break; }
+		case spr_torch: 
+			{ y_offset = -4; break; }
 		case spr_sword: 
 		case spr_sword_farmer:
 			{ y_offset = -6; break; }
-		case spr_torch: 
-			{ y_offset = -4; break; }
 	}
 	
 	return y_offset;

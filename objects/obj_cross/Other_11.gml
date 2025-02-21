@@ -13,7 +13,14 @@ if (is_instance_at_coordinates(x, y, player)) {
 			play_sound(snd_win, false); 
 			instance_destroy(other.id);
 		}
-		else { with (obj_echo_generator) { play_sound(snd_impact, false); instance_destroy(); } }
+		else { 
+			with (obj_echo_generator) { 
+				global.controller.inverted_cross_room_solved += 1;
+				write_debug_message("hall_of_mirrors_room_solved += 1", "Eval");
+				play_sound(snd_impact, false); 
+				instance_destroy(); 
+			} 
+		}
 	}
 }
 

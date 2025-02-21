@@ -20,11 +20,11 @@ if (options_screen || controls_screen || death_log_screen || prepare_screen) {
 	draw_set_font(ft_hud_small);
 	var return_text = get_input_x_key_string() + ": Return";
 	draw_set_color(c_white);
-	if (death_log_screen) { draw_text(room_width/2, room_height-16, get_input_z_key_string() + ": Change Sort"); }
-	else if (options_screen) { draw_text(room_width/2, room_height-16, get_input_z_key_string() + ": Select Option"); }
-	else if (prepare_screen) { draw_text(room_width/2, room_height-16, get_input_z_key_string() + ": Begin"); }
+	if (death_log_screen) { draw_text(room_width/2, room_height-12, get_input_z_key_string() + ": Change Sort"); }
+	else if (options_screen) { draw_text(room_width/2, room_height-12, get_input_z_key_string() + ": Select Option"); }
+	else if (prepare_screen) { draw_text(room_width/2, room_height-12, get_input_z_key_string() + ": Begin"); }
 	draw_set_color(game_color);
-	draw_text(room_width/2, room_height-4, return_text);
+	draw_text(room_width/2, room_height-2, return_text);
 	draw_set_font(ft_hud);
 }
 draw_set_color(c_white);
@@ -342,7 +342,7 @@ else if (death_log_screen && (death_count_string != noone || win_count_string !=
 	draw_text(last_x_pos, y_pos, "Last Run\nEnded:");
 	draw_set_font(ft_hud);
 	draw_set_color(c_white);
-	if (win_count_string != noone) { draw_text(room_width/2, room_height-16-16-16, win_count_string); }
+	//TODO: if (win_count_string != noone) { draw_text(room_width/2, room_height-16-16-16, win_count_string); }
 	if (best_score_string != noone) { draw_text(room_width/2, room_height-16-16, best_score_string); }
 	
 	// Draw Arrow Keys
@@ -364,7 +364,7 @@ else if (death_log_screen && (death_count_string != noone || win_count_string !=
 			draw_death_type_sprite(x_pos, y_pos, death_obj);
 			draw_text(killed_x_pos, y_pos, string(kill_count));
 			draw_text(deaths_x_pos, y_pos, string(death_count));
-			draw_text(last_x_pos, y_pos, string(last_killed) + last_killed_ordinal);
+			draw_text(last_x_pos, y_pos, (last_killed == 0) ? "--" : (string(last_killed) + last_killed_ordinal));
 			y_pos += 18;
 		}
 	}

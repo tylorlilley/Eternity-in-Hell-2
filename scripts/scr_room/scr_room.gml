@@ -62,9 +62,13 @@ function GameRoom(given_x, given_y) constructor {
 		has_phantom = (has_lanterns && !lit && !has_eyes && get_random_chance_out_of(PHANTOM_PROBABILITY));
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
 		
-		fountain_count = 0
+		fountain_count = 0;
+		statue_fountain_count = 0;
 		for (var i = 0; i < get_room_reference_object_count(obj_column); i++) {
 			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { fountain_count += 1; }
+		}
+		for (var i = 0; i < get_room_reference_object_count(obj_statue); i++) {
+			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { statue_fountain_count += 1; }
 		}
 		
 		initial_nose_count = 0;
@@ -138,7 +142,7 @@ function GameRoom(given_x, given_y) constructor {
 		}
 	}
 	
-		/// @function									update_game_room_difficulty();
+	/// @function									update_game_room_difficulty();
 	function update_game_room_difficulty() {
 		var has_bumper = get_room_reference_object_count(obj_bumper) > 0;
 		var has_ears = get_room_reference_object_count(obj_ears) > 0;
@@ -514,6 +518,7 @@ function GameRoom(given_x, given_y) constructor {
 		if (!get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { return false; }
 		
 		// Add portcullis to this room's side of each rooms non-stairs exits
+		var room_reference_name = room_get_name(room_reference);
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var next_exit = exits[dir];
 			if (next_exit != -1) { next_exit.set_portcullis_to_trigger_for_room(self, true); }
@@ -557,7 +562,7 @@ function GameRoom(given_x, given_y) constructor {
 		has_locked_chest = (!has_hidden_chest && (has_special_item || get_random_chance_out_of(LOCKED_CHEST_PROBABILITY)));
 		var spawned_item_obj = (must_spawn) ? given_item_obj : get_random_item_obj(has_special_item, false);
 		var spawned_item_array = (has_special_item) ? controller.spawned_special_items : controller.spawned_items;
-		if (!must_spawn && !has_hidden_chest && !has_special_item && !has_locked_chest && get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) { spawned_item_obj = (get_coin_flip()) ? obj_fountain : obj_statue; }
+		if (!must_spawn && !has_hidden_chest && !has_special_item && !has_locked_chest && get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) { spawned_item_obj = (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) ? obj_fountain : obj_statue; }
 		
 		// Set up chest information to spawn
 		stairs_spot_obj = (has_hidden_chest) ? obj_hidden_chest : obj_chest;
@@ -722,7 +727,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_four_exits_25;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -1013,6 +1018,8 @@ function add_rooms_to_reach_target_difficulty() {
 		array_shuffle_ext(game_rooms);
 		for (var i = 0; i < array_length(game_rooms); i++;) {
 			var room_to_create_connected_room_for = game_rooms[i];
+			// Skip adding exits to rooms with portcullis
+			if (room_to_create_connected_room_for.has_portcullis_button) { continue; }
 			var new_exit_dir = room_to_create_connected_room_for.create_connected_room();
 			if (new_exit_dir != -1) { break; }
 		}

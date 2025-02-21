@@ -1,3 +1,4 @@
+/// @description Step
 if (can_process_this_frame()) {
 	var dir = directions.none;
 	if (infectious) { dir = move_toward_player(false, false, 16); }
@@ -20,6 +21,8 @@ if (can_process_this_frame()) {
 	if (get_distance_to_instance(global.player) <= 4 || instance_place(x, y, obj_death) || is_solid_at_position(x, y)) {
 			instance_destroy();
 			play_sound(snd_thud, false);
+			global.controller.crushed_bugs += 1;
+			write_debug_message("crushed_bugs += 1", "Eval");
 	}
 }
 

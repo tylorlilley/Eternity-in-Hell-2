@@ -57,7 +57,10 @@ if (can_process_this_frame()) {
 			}
 			instance_destroy();
 			update_kill_log(object_index, global.difficulty, object_index);
+			global.controller.giant_eye_room_solved += 1;
+			write_debug_message("giant_eye_room_solved += 1", "Eval");
 			global.controller.kill_count += 1;
+			write_debug_message("kill_count += 1", "Eval");
 		}
 	}
 }

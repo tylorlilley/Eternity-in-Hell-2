@@ -71,15 +71,46 @@ function initialize_game_variables() {
 	flash_time = 0;
 	death_count = 0;
 	kill_count = 0;
-	used_item_types = array_create(0);
 	used_special_items = 0;
 	final_player_right_hand_item = noone;
 	final_player_left_hand_item = noone;
 	evaluation_messages = array_create(0);
 	game_evaluation_messages = array_create(0);
-	array_push(game_evaluation_messages, ["TEST STR", false]);
 	evaluation_pos = 0;
 	initialize_room_transition_values()
+	
+	// initialize evaluation message values
+	sword_kill_count = 0;
+	rosary_use_count = 0;
+	unlocked_doors = 0;
+	unlocked_chests = 0;
+	used_item_types = array_create(0);
+	decapitated_corpses = 0;
+	holes_dug = 0;
+	bombs_lit = 0;
+	spontaneously_exploded_enemy = 0;
+	lit_rooms = 0;
+	lit_torches = 0;
+	blocks_pushed_into_lava = 0;
+	trapped_chests_opened = 0;
+	trapped_chests_destroyed = 0;
+	crushed_bugs = 0;
+	times_infected = 0;
+	fireball_torch_lights = 0;
+	fireball_bomb_lights = 0;
+	opened_doors = 0;
+	rustled_bushes = 0;
+	disturbed_bones = 0;
+	giant_eye_room_visited = 0;
+	giant_eye_room_solved = 0;
+	gudetama_room_visited = 0;
+	gudetama_room_solved = 0;
+	hall_of_mirrors_room_visited = 0;
+	hall_of_mirrors_room_solved = 0;
+	red_chest_room_visited = 0;
+	red_chest_room_solved = 0;
+	inverted_cross_room_visited = 0;
+	inverted_cross_room_solved = 0;
 }
 
 /// @function								initialize_room_transition_values();
@@ -152,6 +183,8 @@ function transition_to_room(new_room, visited_by_player) {
 			else {
 				// Complete the Hall
 				current_room.has_hall_of_mirrors = false;
+				hall_of_mirrors_room_solved += 1;
+				write_debug_message("hall_of_mirrors_room_solved += 1", "Eval");
 			}
 		}
 		else {
@@ -203,6 +236,8 @@ function game_room_start() {
 		}
 		
 		with (obj_giant_eye) {
+			global.controller.giant_eye_room_visited += 1;
+			write_debug_message("giant_eye_room_visited += 1", "Eval");
 			for (var i = 0; i < 9; i++) {
 				var x_pos = x, y_pos = y;
 				if (i % 3 == 0) { x_pos -=16; }
@@ -216,6 +251,24 @@ function game_room_start() {
 				eye_part.depth = GIANT_WORM_DEPTH;
 			}
 		}
+		
+		if (instance_number(obj_gudetama) > 0) { 
+			global.controller.gudetama_room_visited += 1;
+			write_debug_message("gudetama_room_visited += 1", "Eval");
+		}
+		else if (instance_number(obj_hall_of_mirrors) > 0) { 
+			global.controller.hall_of_mirrors_room_visited += 1;
+			write_debug_message("hall_of_mirrors_room_visited += 1", "Eval");
+		}
+		else if (instance_number(obj_red_chest) > 0) { 
+			global.controller.red_chest_room_visited += 1;
+			write_debug_message("red_chest_room_visited += 1", "Eval");
+		}
+		else if (instance_number(obj_inverted_cross) > 0) { 
+			global.controller.inverted_cross_room_visited += 1;
+			write_debug_message("inverted_cross_room_visited += 1", "Eval");
+		}
+		
 			
 		// Mark current room and exit as visited
 		current_room.visited = true;
@@ -292,6 +345,7 @@ function game_room_start_other() {
 	with (obj_item) {
 		if (special && is_existing_instance(holder) && holder == player && !counted) {
 			other.used_special_items += 1;
+			write_debug_message("used_special_items += 1", "Eval");  
 			counted = true;
 		}
 	}
@@ -539,6 +593,21 @@ function game_room_initialize() {
 			instance_destroy();
 		}
 	}
+	for (var i = 0; i < current_room.statue_fountain_count; i++) {
+		with (get_random_instance(obj_statue)) {
+			var statue = instance_place_all(x, y, obj_statue);
+			while (array_length(statue) > 0) {
+				var statue = array_pop(statue);
+				if (is_existing_instance(statue)) { instance_destroy(statue); }
+			}
+			var new_inst = instance_create(x, y, obj_fountain);
+			other.current_room.remove_from_instances_at_map_positions(id);
+			other.current_room.add_to_instances_at_map_positions(new_inst);
+			other.current_room.reset_room_solid_path_grid(); 
+			other.current_room.reset_room_lava_path_grid();
+			instance_destroy(id, false);
+		}
+	}
 	
 			
 	// Spawn skeletons
@@ -687,6 +756,7 @@ function game_room_initialize() {
 		// Determine if button can spawn, and if so, spawn it in a possible spot
 		if (array_length(possible_spots) == 0) {
 			// Nowehere for button to go so destroy it
+			write_debug_message("Nowhere to spawn portcullis button: " + room_get_name(current_room.room_reference), "WARNING");
 			with (button) { instance_destroy(); }
 			current_room.remove_portcullis();
 		}
@@ -743,6 +813,7 @@ function game_room_initialize() {
 			var door = instance_create(x_pos, y_pos, door_type);
 			door.door_for_exit = current_exit;
 		}
+		if (current_exit != -1 && dir == directions.stairs) { portcullis_exit_count += 1; }
 	}
 	if (current_room.has_portcullis_button && portcullis_exit_count != exit_count) {
 		write_debug_message("Portcullis button room has exits without a portcullis: " + room_get_name(current_room.room_reference), "WARNING");
@@ -811,44 +882,18 @@ function spawn_dirt() {
 /// @function								get_current_score()
 function get_current_score() {
 	var controller = global.controller;
-	with (controller) {
-		current_score = floor(get_collectables_score() +  get_victory_amount_score() + get_time_remaining_score() + get_mapped_rooms_score() + get_item_hands_score())/5;
-		current_score -= get_death_count_score_penalty();
-		current_score += get_kill_count_score();
-		current_score += get_used_item_score();
-		//current_score += spawned_item_bonus;
-		//var spawned_item_bonus = 10 - total_items;
-		//if (spawned_item_bonus < 0 || !is_game_won()) { spawned_item_bonus = 0; }
-		if (current_score < 0) { current_score = 0; }
-	}
+	with (controller) { calculate_evaluation_messages_and_score(); }
 	return controller.current_score;  
 }
 
-/// @function								get_kill_count_score()
-function get_kill_count_score() {
-	return kill_count;
-}
 
 /// @function								get_used_item_score()
 function get_used_item_score() {
 	var item_score = array_length(used_item_types) - 3;
+	if (global.player_right_hand_item != noone) { item_score -= 1; }
+	if (global.player_left_hand_item != noone) { item_score -= 1; }
 	if (item_score < 0) { item_score = 0; }
 	return item_score;
-}
-
-
-/// @function								get_item_hands_score()
-function get_item_hands_score() {
-	var left_hand_item_modifier = 0, right_hand_item_modifier = 0;
-	if (global.player_right_hand_item == noone) { left_hand_item_modifier += 5; }
-	if (global.player_left_hand_item == noone) { right_hand_item_modifier += 5; }
-	if (is_game_won()) {
-		if (final_player_right_hand_item == noone) { right_hand_item_modifier -= 5; }
-		else if (final_player_right_hand_item != global.player_left_hand_item && final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart) { right_hand_item_modifier += 10; }
-		if (final_player_left_hand_item == noone) { left_hand_item_modifier -= 5; }
-		else if (final_player_left_hand_item != global.player_left_hand_item && final_player_left_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart) { left_hand_item_modifier += 10; }
-	}
-	return 100*((left_hand_item_modifier + right_hand_item_modifier - get_special_item_score_penalty())/20);
 }
 
 /// @function								get_collectables_score()
@@ -874,16 +919,6 @@ function get_time_remaining_score() {
 /// @function								get_victory_amount_score()
 function get_victory_amount_score() {
 	return floor(100*(completion_amount/TOTAL_COMPLETION_AMOUNT));
-}
-
-/// @function								get_current_score()
-function get_death_count_score_penalty() {
-	return (5 * death_count);
-}
-
-/// @function								get_special_item_score_penalty()
-function get_special_item_score_penalty() {
-	return (5 * used_special_items);
 }
 
 /// @function								get_probability_for_difficulty(probability_list);
@@ -952,4 +987,84 @@ function screen_flash() {
 			global.bg_color = c_white;
 		}
 	}
+}
+
+/// @function								add_evaluation_message(criteria, msg, use_special_text, score_modifier);
+/// @param		{bool} criteria				The criteria to pass in order to display this message
+/// @param		{string} msg				The message to display
+/// @param		{bool} use_special_text		Whether to use the special color for this text
+/// @param		{int} score_modifier		The amount that achieving this message modifiers your current score
+function add_evaluation_message(criteria, msg, use_special_text, score_modifier) {
+	if (global.is_test_mode ||criteria) { 
+		array_push(evaluation_messages, [msg, use_special_text]);
+		current_score += score_modifier;
+	}
+}
+
+/// @function								calculate_evaluation_messages_and_score();
+function calculate_evaluation_messages_and_score() {
+		evaluation_messages = array_create(0);
+		current_score = 0;
+		array_duplicate(evaluation_messages, game_evaluation_messages);
+		
+		var has_won = is_game_won(), has_lost = is_game_lost();
+		var time_elapsed = (time_provided - time_remaining);
+		var time_elapsed_string = "Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2);
+		
+		add_evaluation_message(true, time_elapsed_string, false, 0);
+		add_evaluation_message(true, "Collected: "+get_percentage_string(get_collectables_score()), false, get_collectables_score()/5);
+		add_evaluation_message(true, "Visited Rooms: "+get_percentage_string(get_mapped_rooms_score()), false, get_mapped_rooms_score()/5);
+		add_evaluation_message((completion_amount > 0), "Escaped Amount: "+get_percentage_string(get_victory_amount_score()), false, get_victory_amount_score()/5);
+		add_evaluation_message((has_won), "Extra Time Remaining: "+get_percentage_string(get_time_remaining_score()), false, get_time_remaining_score()/5);
+		add_evaluation_message(((has_won && death_count > 0) || (has_lost && death_count > 1)), "Death Penalty: "+string(death_count-1), true, death_count*-5);
+		add_evaluation_message((kill_count > 0), "Killed Enemies: "+string(kill_count), false, kill_count);
+		add_evaluation_message((used_special_items > 0), "Cursed Items Used : "+string(used_special_items), true, used_special_items*-5);
+		add_evaluation_message((get_used_item_score() > 0), "Resourceful", false, get_used_item_score());
+		add_evaluation_message((has_won && global.player_left_hand_item == noone && global.player_right_hand_item == noone), "Courageous Preperation", false, 10);
+		add_evaluation_message((global.player_left_hand_item != noone && global.player_right_hand_item != noone), "Overprepared", true, -5);
+		add_evaluation_message((has_won && (final_player_left_hand_item == noone || final_player_right_hand_item == noone)), "Returned Empty-Handed", true, -5);
+		add_evaluation_message((has_won && (final_player_right_hand_item != global.player_left_hand_item && final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart)), "Returned with a Memento", false, 10);
+		add_evaluation_message((has_won && (final_player_left_hand_item != global.player_left_hand_item && final_player_left_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart)), "Returned with a Memento", false, 10);
+		
+		add_evaluation_message((sword_kill_count >= 3), "Monster Slayer", false, 5);
+		add_evaluation_message((rosary_use_count >= 3), "Devoted Follower", false, 5);
+		add_evaluation_message(((unlocked_doors + unlocked_chests) >= 7), "Master Lockpicker", false, 5);
+		add_evaluation_message((holes_dug >= 6), "Tunnel Digger", false, 5);
+		add_evaluation_message((lit_rooms >= 4), "Light Bringer", false, 5);
+		add_evaluation_message((bombs_lit >= 3), "Demolition Expert", false, 5);
+		
+		add_evaluation_message((blocks_pushed_into_lava >= 9), "Bridge Maker", false, 2);
+		add_evaluation_message((trapped_chests_opened > 0), "Foolish", false, -2);
+		add_evaluation_message(((trapped_chests_opened + trapped_chests_destroyed) > 0), "Trap Dodger", false, 5);
+		add_evaluation_message((decapitated_corpses > 0), "Corpse Desecrator", true, -5*decapitated_corpses);
+		add_evaluation_message((spontaneously_exploded_enemy > 1), "Saw Spontaneous Combustion", false, 1);
+		add_evaluation_message((times_infected > 0), "Riddled with Parasites", true, -2);
+		add_evaluation_message((fireball_torch_lights > 0 || fireball_bomb_lights > 0), "Improvised Ignition", false, 2);
+		
+		add_evaluation_message((has_won && crushed_bugs == 0), "Careful Stepper", false, 10);
+		add_evaluation_message((crushed_bugs > 10), "Bug Crusher", true, -2);
+		add_evaluation_message((has_won && opened_doors == 0), "Entamaphobic", false, 10);
+		add_evaluation_message((opened_doors > 20), "Door Slammer", true, -2);
+		add_evaluation_message((has_won && rustled_bushes == 0), "Allergic to Nature", false, 10);
+		add_evaluation_message((rustled_bushes >= 100), "Invasive Species", true, -2);
+		add_evaluation_message((has_won && disturbed_bones == 0), "Respecter of the Fallen", false, 10);
+		add_evaluation_message((disturbed_bones >= 16), "Profaner of the Dead", true, -2);
+		add_evaluation_message((has_won && lit_torches == 0), "Adapted to the Dark", false, 10);
+		add_evaluation_message((lit_torches >= 16), "Kept the Fire Burning", false, 2);
+		
+		add_evaluation_message((giant_eye_room_visited), "Beholder of True Envy", true, -2);
+		add_evaluation_message((giant_eye_room_solved), "Eye Blinder", false, 5);
+		add_evaluation_message((gudetama_room_visited), "Witnessed True Sloth", true, -2);
+		add_evaluation_message((gudetama_room_solved), "Overcame the Roadblock", false, 5);
+		add_evaluation_message((hall_of_mirrors_room_visited), "Lost in Your Own Pride", true, -2);
+		add_evaluation_message((hall_of_mirrors_room_solved), "Escaped the Hall of Mirrors", false, 5);
+		add_evaluation_message((red_chest_room_visited), "Encountered True Greed", true, -2);
+		add_evaluation_message((red_chest_room_solved), "Made the Ultimate Sacrifice", false, 5);
+		add_evaluation_message((red_chest_room_solved > 1), "Armless Wonder", false, -2);
+		add_evaluation_message((inverted_cross_room_visited), "Confronted the Wrath Within", true, -2);
+		add_evaluation_message((inverted_cross_room_solved), "Returned to Humble Beginnings", false, 5);
+		// Missing Gluttony Room
+		// Missing Lust Room
+		
+		if (current_score < 0) { current_score = 0; }
 }

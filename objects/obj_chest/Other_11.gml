@@ -14,6 +14,8 @@ if closed {
 			with (global.player) { 
 				play_sound(snd_mana, true);
 				with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }
+				controller.unlocked_chests += 1;
+				write_debug_message("unlocked_chests += 1", "Eval");
 			}
 		}
 		else {
@@ -28,6 +30,8 @@ if closed {
 				closed = false;
 				image_index = 1;
 				if (contents_obj == obj_statue) {
+					global.controller.trapped_chests_opened += 1;
+					write_debug_message("trapped_chests_opened += 1", "Eval");
 					play_sound(snd_skeletonrise, true);
 					var statue = instance_create(x, y, obj_statue);
 					statue.dir = get_opposite_dir(push_direction);
@@ -35,6 +39,8 @@ if closed {
 					instance_destroy();
 				}
 				else if(contents_obj == obj_fountain) {
+					global.controller.trapped_chests_opened += 1;
+					write_debug_message("trapped_chests_opened += 1", "Eval");
 					play_sound(snd_skeletonrise, true);
 					instance_create(x, y, obj_fountain);
 					instance_destroy();

@@ -150,6 +150,8 @@ function open_door() {
 		with (global.player) { 
 			play_sound(snd_mana, true);
 			with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }
+			global.controller.unlocked_doors += 1;
+			write_debug_message("unlocked_doors += 1", "Eval"); 
 		}
 	}
 }

@@ -456,7 +456,14 @@ function flicker_sprite_under_instance(inst) {
 
 /// @function								draw_reflection_in_mirrors();
 function draw_reflection_in_mirrors() {
-	if (!object_is_ancestor(object_index, obj_solid) && instance_number(obj_mirror) > 0 && !instance_place(x, y, obj_mirror)) {
+	var valid_obj = (
+		object_index == obj_player || 
+		object_index == obj_collectable ||
+		object_is_ancestor(object_index, obj_enemy) || 
+		object_is_ancestor(object_index, obj_item)
+	);
+		
+	if (valid_obj && !object_is_ancestor(object_index, obj_solid) && instance_number(obj_mirror) > 0 && !instance_place(x, y, obj_mirror)) {
 		for (var i = directions.up; i < 8; i++) {
 			var reflect_carried_item = false;
 			if (object_is_ancestor(object_index, obj_item) && is_existing_instance(holder) && (holder.object_index != obj_hands || holder.activated)) {

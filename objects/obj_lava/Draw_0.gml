@@ -15,7 +15,7 @@ for (var quadrant = 0; quadrant < 4; quadrant++;) {
 // Draw Quadrant lava edges
 
 for (var quadrant = 0; quadrant < 4; quadrant++) {
-	if (!parts[quadrant].part_visible) { continue; }
+	if (!is_existing_instance(parts[quadrant]) || !parts[quadrant].part_visible) { continue; }
 			
 	for (var dir = directions.up; dir < directions.stairs; dir++) {
 		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);

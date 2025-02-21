@@ -22,7 +22,11 @@ while (array_length(enemies_at_position) > 0) {
 			with enemy { 
 				if (object_index != obj_hands || !is_carrying_special_item(obj_staff)) {
 					kill_enemy(snd_crunch); 
-					if (other.just_pushed) { update_kill_log(object_index, global.difficulty, object_index); global.controller.kill_count += 1; }
+					if (other.just_pushed) { 
+						update_kill_log(object_index, global.difficulty, object_index); 
+						global.controller.kill_count += 1;
+						write_debug_message("kill_count += 1", "Eval");
+					}
 				}
 			}
 		}
@@ -40,6 +44,8 @@ if (consume_lava(true)) {
 		tile.image_xscale = image_xscale;
 		tile.image_yscale = image_yscale;
 	}
+	global.controller.blocks_pushed_into_lava += 1;
+	write_debug_message("blocks_pushed_into_lava += 1", "Eval");
 	play_sound(snd_extinguish, true);
 	instance_destroy();
 }

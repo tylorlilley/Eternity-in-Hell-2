@@ -1,11 +1,36 @@
+Turn bumper (and phantom?) into a non-grid aligned guy that slowly moves towards you at all times
+killing a guy with two different blocks doesn't count as a kill?
+eval messages for
+: opened portcullis
+: found illuision wall
+: projectile death
+: trap dodgeer happening after only one trap
+: enemy died by lava?
+: enemy died after you died?
+: foolish working right?
+: item destroyed in lava
 
-lava edges not right
-fix portcullis warning from random spawn
+shoot sounds don't alert ears? But extniguish does?
+spider should appear on stairs exit adjust rooms accordingly
+
+are the many blocks or many columns rooms limited to harder difficulties?
+
+gate more things to final difficulty?
+cockroach gfx
+title/ending wall gfx too bright?
+lava skeletons destroy bushes like fireballs?
+
+cockroach gets stuck if facing moving block
+
+
+lava edges not right?
 test EIH randomizer mode
 Check cockroachs
 - left/right sprite backwards?
 - run away from light from rosary?
 
+Update Death Log Screen
+display difficulty and win count/death count on the screen
 left/right on death log to scroll through difficulties
 
 reflected fireballs are kind of wonky - limit number of bounces?

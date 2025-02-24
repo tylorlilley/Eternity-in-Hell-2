@@ -3,7 +3,7 @@ if (spawn_timer > 0) { spawn_timer -= 1; }
 else {
 	var dir = irandom(skeleton_speed);
 	var dropped_meat = get_dropped_meat();
-	var current_x_scale = image_xscale, current_y_scale = image_yscale;
+	var current_x_scale = image_xscale, current_y_scale = image_yscale, prev_angle = image_angle;
 	if (is_cardinal_direction(dir)) {
 		// Try to set up path toward dropped meat
 		if (is_existing_instance(dropped_meat)) {
@@ -43,17 +43,19 @@ else {
 			with obj_light_source {
 				if (lighting_range > greatest_lighting_range) { greatest_lighting_range = lighting_range; }
 			}
-			if (greatest_lighting_range <= PLAYER_LIGHT_RANGE) { dir = move_toward_player(false, false, 3); moved = true; skeleton_speed = SKELETON_MOVE_FREQUENCY * 2; }
+			if (greatest_lighting_range <= PLAYER_LIGHT_RANGE) { dir = move_toward_player(false, false, 3); moved = true; skeleton_speed = SKELETON_MOVE_FREQUENCY; }
 			else if (can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); moved = true; skeleton_speed = SKELETON_MOVE_FREQUENCY; }
 		}
 		
 		// Update Graphics
-		if moved { 
+		if moved || get_random_chance_out_of(skeleton_speed/4) { 
 			image_angle = dir * -90;
-			if (image_angle == 0 || image_angle == -180 ) { image_xscale = current_x_scale * -1; }
-			else if (image_angle == -90 || image_angle == 270 ) { image_yscale = current_y_scale * -1; }
+			image_xscale = current_x_scale;
+			image_yscale = current_y_scale;
+			if (image_angle != prev_angle) { image_xscale = 1; image_yscale = 1; }
+			//else if (dir == directions.up || dir == directions.down) { image_xscale = current_x_scale * -1; }
+			//else if (dir == directions.left || dir == directions.right) { image_yscale = current_y_scale * -1; }
 		}
-		else if get_random_chance_out_of(skeleton_speed/4) { image_xscale = current_x_scale * -1; }
 	}
 }
 

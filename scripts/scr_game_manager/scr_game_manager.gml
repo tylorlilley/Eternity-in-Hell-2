@@ -13,7 +13,7 @@ function set_up_inputs_for_next_frame() {
 		}
 	}
 	
-	if (is_existing_instance(global.player) && global.player.infected_timer > 0 && !paused) { get_random_inputs(); }
+	if (is_existing_instance(global.player) && !global.player.dead && global.player.infected_timer > 0 && !paused) { get_random_inputs(); }
 }
 
 /// @function								get_random_inputs();

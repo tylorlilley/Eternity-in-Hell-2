@@ -1,10 +1,10 @@
 /// @description Step
 event_inherited();
-prev_image_index = image_index;
 
 if (!is_existing_instance(holder) && is_lava_at_position(x, y)) {
 	instance_destroy();
 	play_sound(snd_extinguish, true);
+	// TODO: eval message
 }
 
 // Draw Clock Time
@@ -29,3 +29,5 @@ if (sprite_index == get_sprite_to_use(spr_clock) ||
 		play_sound(snd_clock_tick, false);
 	}
 }
+
+

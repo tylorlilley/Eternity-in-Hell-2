@@ -78,7 +78,7 @@ function consume_lava(require_all) {
 			play_sound(snd_splash, false);
 			with (obj_lava) {
 				if (get_distance_to_instance(other) <= 32) {
-					set_up_lava_edge_visibility(false);
+					//set_up_lava_edge_visibility(false);
 				}
 			}
 			return true;

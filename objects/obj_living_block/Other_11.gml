@@ -5,7 +5,7 @@ if (!is_existing_instance(target)) { target = global.player; }
 if (dir == directions.none) {
 	move_timer -= 1;
 	if (move_timer > 6 && get_distance_to_instance(target) <= TRAP_RANGE) { move_timer -= 4; }
-	if (move_timer <= 6) { image_index = 0; }
+	if (move_timer <= 6) { image_index = 2; }
 	if (move_timer <= 0) {
 		var move_dir = directions.none, possible_directions = array_create(0);
 		if (get_distance_to_instance(target) <= TRAP_RANGE) {
@@ -29,7 +29,7 @@ if (dir == directions.none) {
 			move_in_direction(move_dir, false);
 			play_sound(snd_thud, false);
 		}
-		image_index = 2;
+		image_index = 0;
 		move_timer = irandom_range(128, 256);
 	}
 }

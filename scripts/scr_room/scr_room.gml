@@ -62,13 +62,13 @@ function GameRoom(given_x, given_y) constructor {
 		has_phantom = (has_lanterns && !lit && !has_eyes && get_random_chance_out_of(PHANTOM_PROBABILITY));
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
 		
-		fountain_count = 0;
-		statue_fountain_count = 0;
+		initial_fountain_count = 0
+		initial_statue_fountain_count = 0
 		for (var i = 0; i < get_room_reference_object_count(obj_column); i++) {
-			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { fountain_count += 1; }
+			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { initial_fountain_count += 1; }
 		}
 		for (var i = 0; i < get_room_reference_object_count(obj_statue); i++) {
-			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { statue_fountain_count += 1; }
+			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { initial_statue_fountain_count += 1; }
 		}
 		
 		initial_nose_count = 0;
@@ -101,18 +101,18 @@ function GameRoom(given_x, given_y) constructor {
 					}
 					case difficulties.medium: {
 						if rand <= 6 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 10 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
+						else if rand <= 10 { skeleton_type = obj_cultist; cultist_count += 1; }
 						else if rand <= 16 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
-						else if rand <= 17 { skeleton_type = obj_cultist; cultist_count += 1; }
+						else if rand <= 17 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
 						break;
 					}
 					case difficulties.hard: {
 						if rand <= 12 { skeleton_type = obj_cockroach; cockroach_count += 1; }
 						else if rand <= 18 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
 						else if rand <= 26 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
-						else if rand <= 30 { skeleton_type = obj_cultist; cultist_count += 1; }
-						else if rand <= 33 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
-						else if rand <= 35 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 34 { skeleton_type = obj_cultist; cultist_count += 1; }
+						else if rand <= 38 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
+						else if rand <= 40 { skeleton_type = obj_snake; snake_count += 1; }
 						break;
 					}
 					case difficulties.very_hard: {
@@ -159,11 +159,13 @@ function GameRoom(given_x, given_y) constructor {
 		if (has_ears) { room_reference_difficulty += 2.5; }
 		if (has_gudetama) { room_reference_difficulty += 0.025; }
 		
-		room_reference_difficulty += fountain_count * 0.25;
+		if (global.controller.start_room == self) { initial_fountain_count = 0; initial_statue_fountain_count = 0; }
+		room_reference_difficulty += initial_fountain_count * 0.325;
+		room_reference_difficulty += initial_statue_fountain_count * 0.325;
 		room_reference_difficulty += get_room_reference_object_count(obj_mouth) * 1;
 		room_reference_difficulty += initial_nose_count * 0.75;
 		room_reference_difficulty += (get_room_reference_object_count(obj_spider_spot) > 0) ? 1.5 : 0;
-		room_reference_difficulty += get_room_reference_object_count(obj_statue) * 0.325;
+		room_reference_difficulty += get_room_reference_object_count(obj_statue) - initial_statue_fountain_count * 0.325;
 		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.325;
 		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.25;
 		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.5
@@ -518,7 +520,6 @@ function GameRoom(given_x, given_y) constructor {
 		if (!get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { return false; }
 		
 		// Add portcullis to this room's side of each rooms non-stairs exits
-		var room_reference_name = room_get_name(room_reference);
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var next_exit = exits[dir];
 			if (next_exit != -1) { next_exit.set_portcullis_to_trigger_for_room(self, true); }
@@ -727,7 +728,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_four_exits_25;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_four_exits_1;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -1013,7 +1014,7 @@ function add_rooms_to_reach_target_difficulty() {
 		}
 	}
 		
-	while (total_difficulty < target_difficulty && array_length(game_rooms) < 32) {
+	while (total_difficulty < target_difficulty && array_length(game_rooms) < MAX_NUMBER_OF_ROOMS) {
 		var new_exit_dir = -1;
 		array_shuffle_ext(game_rooms);
 		for (var i = 0; i < array_length(game_rooms); i++;) {

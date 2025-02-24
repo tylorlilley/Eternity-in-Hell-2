@@ -20,8 +20,10 @@ function fireball_light_bombs() {
 	if (is_existing_instance(bomb) && (!is_existing_instance(creator) || creator != bomb)) {
 		with (bomb) {
 			lit_by_player = other.shot_by_player;
-			global.controller.fireball_bomb_lights += 1;
-			write_debug_message("fireball_bomb_lights += 1", "Eval");
+			if (!global.player.dead) {
+				global.controller.fireball_bomb_lights += 1;
+				write_debug_message("fireball_bomb_lights += 1", "Eval");
+			}
 			light_bomb(); 
 		}
 	}

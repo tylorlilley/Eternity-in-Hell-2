@@ -9,9 +9,9 @@
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 8, 4])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
-#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4]) 
+#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 6]) 
 #macro MISLEADING_EXITS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
-#macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 24, 12])
+#macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 12])
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 16, 12, 10, 8]) // Because each exit is checked by the room on either side, this actually happens twice as often
 #macro OPEN_DOOR_PROBABILITY get_probability_for_difficulty([0, 32, 24, 12, 8])
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
@@ -37,7 +37,7 @@
 #macro CULTIST_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 46]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 36, 28, 24, 20]) 
-#macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 32, 28, 24]) 
+#macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 32, 24, 18]) 
 #macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0// UNUSED get_probability_for_difficulty([0, 0, 12, 8, 6])
 #macro MOUTHS_PER_MOUTH (1+global.difficulty)
 
@@ -45,6 +45,7 @@
 #macro GRID_SIZE 8
 //#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
+#macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([12, 16, 24, 28, 32])
 #macro MAXIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 15, 18, 24])
 #macro AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.75, 1.5, 2, 2.25])
 //#macro OLD_AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.8289, 1.1682, 1.3802, 1.5])

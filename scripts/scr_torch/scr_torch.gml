@@ -71,7 +71,7 @@ function interact_with_other_torches() {
 		if (((is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
 			var not_carried = (!is_existing_instance(holder)), other_not_carried = (!is_existing_instance(other_torch) || !is_existing_instance(other_torch.holder));
 			if (is_existing_instance(other_torch.light_source) && not_carried != other_not_carried) {
-				if (is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) { 
+				if (!global.player.dead && is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) { 
 					global.controller.fireball_torch_lights += 1;
 					write_debug_message("fireball_torch_lights += 1", "Eval");
 				}

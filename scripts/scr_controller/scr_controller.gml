@@ -56,6 +56,7 @@ function initialize_game_variables() {
 	spawned_special_items = array_create(0);
 
 	// initialize game state values
+	final_time_remaining = 0;
 	time_remaining = 0;
 	time_provided = 0;
 	current_room = noone;
@@ -394,6 +395,8 @@ function game_room_start_other() {
 		else if (!is_existing_instance(closed) && !stuck_open) { close_door(); }
 	}
 	with (obj_gudetama) { play_sound(snd_give_up, false); }
+	with (obj_statue) { if (object_index == obj_statue) { play_sound(snd_shoot, false); } }
+	with (obj_fountain) { play_sound(snd_magic, false); }
 	with (obj_giant_eye) { shoot_timer = irandom_range(24,48); }
 }
 
@@ -578,7 +581,8 @@ function game_room_initialize() {
 	}
 	
 	// Spawn Fountains
-	for (var i = 0; i < current_room.fountain_count; i++) {
+	for (var i = 0; i < current_room.initial_fountain_count; i++) {
+		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_column)) {
 			var columns = instance_place_all(x, y, obj_column);
 			while (array_length(columns) > 0) {
@@ -593,7 +597,8 @@ function game_room_initialize() {
 			instance_destroy();
 		}
 	}
-	for (var i = 0; i < current_room.statue_fountain_count; i++) {
+	for (var i = 0; i < current_room.initial_statue_fountain_count; i++) {
+		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_statue)) {
 			var statue = instance_place_all(x, y, obj_statue);
 			while (array_length(statue) > 0) {
@@ -629,7 +634,7 @@ function game_room_initialize() {
 	with (spider_spot) { instance_create(x, y, obj_spider); }
 	with (obj_spider) { start_waiting(); }
 	
-	// If room has lava, consider spawning up to three noses
+	// Spawn noses
 	for (var i = 0; i < current_room.initial_nose_count; i++;) { instance_create(-16, -16, obj_nose); }
 		
 	// If room has mouth, spawn more mouths
@@ -911,7 +916,7 @@ function get_mapped_rooms_score() {
 function get_time_remaining_score() {
 	var percentage_of_possible_rooms = array_length(game_rooms)/MAXIMUM_NUMBER_OF_ROOMS;
 	var minimum_time_to_complete = time_provided * percentage_of_possible_rooms * 0.25;
-	var percentage_of_time_remaining = (is_game_won()) ? 100*((time_remaining + minimum_time_to_complete) / time_provided) : 0;
+	var percentage_of_time_remaining = (is_game_won()) ? 100*((final_time_remaining + minimum_time_to_complete) / time_provided) : 0;
 	if (percentage_of_time_remaining > 100) { percentage_of_time_remaining = 100; }
 	return percentage_of_time_remaining;
 }
@@ -1008,7 +1013,7 @@ function calculate_evaluation_messages_and_score() {
 		array_duplicate(evaluation_messages, game_evaluation_messages);
 		
 		var has_won = is_game_won(), has_lost = is_game_lost();
-		var time_elapsed = (time_provided - time_remaining);
+		var time_elapsed = (time_provided - final_time_remaining);
 		var time_elapsed_string = "Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2);
 		
 		add_evaluation_message(true, time_elapsed_string, false, 0);

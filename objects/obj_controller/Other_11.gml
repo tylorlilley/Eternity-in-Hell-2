@@ -43,11 +43,10 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 			if (is_carrying_item_in_left_hand(obj_clock)) { time_to_decrement/= 2; }
 			if (is_carrying_special_item(obj_clock)) { time_to_decrement = 0; }
 		}
-		time_remaining -= 100//time_to_decrement;
+		time_remaining -= time_to_decrement;
 		if (is_time_up()) {
 			killed_by = (current_room.has_hall_of_mirrors) ? obj_mirror : obj_controller;
 			update_death_log(killed_by, difficulty, false);
-			time_remaining = time_provided;
 			player.dead = true;
 			play_sound(snd_lose, false); 
 		}
@@ -69,7 +68,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 				put_down_item(right_hand_item, false, true);
 				put_down_item(left_hand_item, false, true);
 			}
-			if (is_existing_instance(carried_rosary) && player.dead && time_remaining > time_provided) {
+			if (is_existing_instance(carried_rosary) && player.dead && time_remaining > 0) {
 				// Revive and respawn player
 				with (player) {
 					var player_corpse = instance_create(x, y, obj_player_corpse);
@@ -91,6 +90,9 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 			}
 			else {
 				if (is_game_won()) { update_win_log(difficulty); }
+				
+				final_time_remaining = time_remaining;
+				time_remaining = time_provided;
 				with (player) {
 					visible = false;
 					room_goto(rm_finish);
@@ -110,7 +112,6 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 	global.bg_color = new_color;
 	
 	if (room == rm_finish) {
-		time_remaining = time_provided;
 		var max_evaluation_pos = array_length(evaluation_messages)-6;
 	
 		if (global.game_manager.key_up_pressed && evaluation_pos > 0) { evaluation_pos -= 1; play_sound(snd_mana, false); }
@@ -124,12 +125,13 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 // DEBUG MODE SPAWNER
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
-		var obj_type = obj_collectable;
+		var obj_type = obj_chest;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
+		new_instance.contents_obj = obj_clock;
 		with (new_instance) { move_snap(8, 8); }
 	}
 	if (mouse_check_button_pressed(mb_right)) {
-		var obj_type = obj_compass;
+		var obj_type = obj_cockroach;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}

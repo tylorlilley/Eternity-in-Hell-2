@@ -611,7 +611,7 @@ function move_ears() {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 ///	@param		{real}	accuracy			How often to move correctly
-function move_toward_player(ignore_solid, ignore_death, accuracy) {
+function move_toward_player(ignore_solid, ignore_death, accuracy = 3) {
 	var dir = irandom(accuracy), target = get_dropped_meat();
 	if (dir >= directions.stairs) { return directions.none; }
 	

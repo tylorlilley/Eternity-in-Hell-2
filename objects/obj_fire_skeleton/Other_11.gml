@@ -1,6 +1,9 @@
 /// @description Step
 event_inherited();
 
+// Update lighting information
+update_lava_lighting();
+
 // reset sprite
 if is_blink_frame() && shoot_timer > 4 { sprite_index = get_sprite_to_use(spr_fire_skeleton); }
 
@@ -11,7 +14,6 @@ fireball_kill_enemies();
 
 // flicker sprite
 if (shoot_timer == 4) { sprite_index = get_sprite_to_use(spr_skeleton); }
-else { sprite_index = get_random_chance_out_of(128/global.difficulty) ? get_sprite_to_use(spr_skeleton) : get_sprite_to_use(spr_fire_skeleton); }
 
 // Shoot fireball in random direction
 if shoot_timer > 0 { shoot_timer -= 1; }

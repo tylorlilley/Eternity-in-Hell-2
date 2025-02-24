@@ -15,16 +15,16 @@ else if (controls_screen) { submenu_title = "View Controls"; }
 else if (death_log_screen) { submenu_title = "View Log"; }
 if (options_screen || controls_screen || death_log_screen || prepare_screen) {
 	draw_set_font(ft_hud);
-	draw_text(room_width/2, 8+15, submenu_title);
+	if (!death_log_screen) { draw_text(room_width/2, 8+15, submenu_title); }
 	
 	draw_set_font(ft_hud_small);
 	var return_text = get_input_x_key_string() + ": Return";
 	draw_set_color(c_white);
-	if (death_log_screen) { draw_text(room_width/2, room_height-12, get_input_z_key_string() + ": Change Sort"); }
-	else if (options_screen) { draw_text(room_width/2, room_height-12, get_input_z_key_string() + ": Select Option"); }
-	else if (prepare_screen) { draw_text(room_width/2, room_height-12, get_input_z_key_string() + ": Begin"); }
+	if (death_log_screen) { draw_text(room_width/2, room_height-14, get_input_z_key_string() + ": Change Sort"); }
+	else if (options_screen) { draw_text(room_width/2, room_height-14, get_input_z_key_string() + ": Select Option"); }
+	else if (prepare_screen) { draw_text(room_width/2, room_height-14, get_input_z_key_string() + ": Begin"); }
 	draw_set_color(game_color);
-	draw_text(room_width/2, room_height-2, return_text);
+	draw_text(room_width/2, room_height-4, return_text);
 	draw_set_font(ft_hud);
 }
 draw_set_color(c_white);
@@ -321,14 +321,16 @@ else if (controls_screen) {
 else if (death_log_screen && (death_count_string != noone || win_count_string != noone)) {
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_center);
+		draw_set_font(ft_hud);
 	title_y_pos = room_height*2;
 	
 	// Draw Headers
 	var y_initial = 16*2, x_initial = (room_width/4)-16, y_pos = y_initial, x_pos = x_initial-16;
 	var best_score_string = get_best_score_string(global.difficulty), killed_x_pos = (x_initial*2)-16, deaths_x_pos = (x_initial*3)-8, last_x_pos = (x_initial*4)+16;
-	draw_set_font(ft_hud_large);
+
+	
+	draw_text(room_width/2, 8+15, get_difficulty_string(global.difficulty));
 	//draw_text(room_width/2, y_pos-2, get_difficulty_string(global.difficulty));
-	draw_set_font(ft_hud);
 	y_pos += 16;
 	//if (death_count_string != noone) { draw_text(room_width/2, y_pos, death_count_string); }
 	//else { draw_text(room_width/2, y_pos, "Death Count: 0"); }

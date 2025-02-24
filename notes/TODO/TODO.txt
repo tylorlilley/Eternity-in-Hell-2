@@ -1,4 +1,5 @@
-Turn bumper (and phantom?) into a non-grid aligned guy that slowly moves towards you at all times
+spider should appear on stairs exit adjust rooms accordingly
+
 killing a guy with two different blocks doesn't count as a kill?
 eval messages for
 : opened portcullis
@@ -9,17 +10,17 @@ eval messages for
 : enemy died after you died?
 : foolish working right?
 : item destroyed in lava
+: block kill count
+: fireball/bomb kill count
+: meat kill count
 
 shoot sounds don't alert ears? But extniguish does?
-spider should appear on stairs exit adjust rooms accordingly
 
 are the many blocks or many columns rooms limited to harder difficulties?
 
 gate more things to final difficulty?
 cockroach gfx
-title/ending wall gfx too bright?
 lava skeletons destroy bushes like fireballs?
-
 cockroach gets stuck if facing moving block
 
 

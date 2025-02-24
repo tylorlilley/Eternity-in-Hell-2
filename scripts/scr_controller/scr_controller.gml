@@ -82,6 +82,9 @@ function initialize_game_variables() {
 	
 	// initialize evaluation message values
 	sword_kill_count = 0;
+	block_kill_count = 0;
+	fireball_kill_count = 0;
+	meat_kill_count = 0;
 	rosary_use_count = 0;
 	unlocked_doors = 0;
 	unlocked_chests = 0;
@@ -350,7 +353,7 @@ function game_room_start_other() {
 			counted = true;
 		}
 	}
-	with (obj_bumper) {
+	with (obj_bumper_old) {
 		var target = get_dropped_meat();
 		if (!is_existing_instance(target)) { target = player; }
 		
@@ -465,7 +468,12 @@ function game_room_start_destroy_instances() {
 			}
 			else {
 				// If special, kill any enemies that were eating the meat
-				with (obj_enemy) { if (corporeal && place_meeting(x, y, other.id)) { kill_enemy(noone); } }
+				with (obj_enemy) { if (corporeal && place_meeting(x, y, other.id)) { 
+					kill_enemy(noone, obj_meat);
+					global.controller.meat_kill_count += 1;
+					write_debug_message("meat_kill_count += 1", "Eval"); 
+				} 
+			}
 			}
 		} 
 	}
@@ -492,6 +500,7 @@ function game_room_start_reposition_instances() {
 	with (obj_mouth) { activated = false; x = -16; y = -16; }
 	with (obj_nose) { activated = false; x = -16; y = -16; }
 	with (obj_phantom) { activated = false; x = -16; y = -16; }
+	with (obj_floater) { activated = false; x = -16; y = -16; }
 	with (obj_snake) { turn_away_from_player(); }
 	with (obj_giant_worm_body) {
 		var new_worm_body = instance_create(xstart, ystart, object_index);
@@ -666,6 +675,10 @@ function game_room_initialize() {
 	if (current_room.has_phantom) {
 		instance_create(-16, -16, obj_phantom);
 	}
+	if (current_room.has_floater) {
+		instance_create(-16, -16, obj_floater);
+	}
+
 
 	// Create room's stairs_spot and chest_spot objects
 	var stairs_spot_occupied = (current_room.has_exit(directions.stairs)), spawn_spot = (get_random_chance_out_of(USE_CHEST_SPOT_PROBABILITY)) ? stairs_spot : chest_spot;

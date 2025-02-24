@@ -60,6 +60,7 @@ function GameRoom(given_x, given_y) constructor {
 		has_all_cockroaches = (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(COCKROACH_ROOM_PROBABILITY));
 		has_all_cultists = !has_all_cockroaches && (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(CULTIST_ROOM_PROBABILITY));
 		has_phantom = (has_lanterns && !lit && !has_eyes && get_random_chance_out_of(PHANTOM_PROBABILITY));
+		has_floater = (!has_phantom && !has_eyes && get_random_chance_out_of(FLOATER_PROBABILITY));
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
 		
 		initial_fountain_count = 0
@@ -144,7 +145,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									update_game_room_difficulty();
 	function update_game_room_difficulty() {
-		var has_bumper = get_room_reference_object_count(obj_bumper) > 0;
+		var has_bumper = get_room_reference_object_count(obj_bumper_old) > 0;
 		var has_ears = get_room_reference_object_count(obj_ears) > 0;
 		var has_gudetama = get_room_reference_object_count(obj_gudetama) > 0;
 		
@@ -152,6 +153,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 		if (is_special_room) { room_reference_difficulty += 5; }
 		if (has_phantom) { room_reference_difficulty += 2; }
+		if (has_floater) { room_reference_difficulty += 2; }
 		if (has_bumper) { room_reference_difficulty += 1.25; }
 		if (has_eyes) { room_reference_difficulty += 2.5; }
 		if (has_all_cockroaches) { room_reference_difficulty += 0.25; }
@@ -159,7 +161,12 @@ function GameRoom(given_x, given_y) constructor {
 		if (has_ears) { room_reference_difficulty += 2.5; }
 		if (has_gudetama) { room_reference_difficulty += 0.025; }
 		
-		if (global.controller.start_room == self) { initial_fountain_count = 0; initial_statue_fountain_count = 0; }
+		if (global.controller.start_room == self) { 
+			initial_fountain_count = 0; 
+			initial_statue_fountain_count = 0;
+			has_phantom = false;
+			has_floater = false;
+		}
 		room_reference_difficulty += initial_fountain_count * 0.325;
 		room_reference_difficulty += initial_statue_fountain_count * 0.325;
 		room_reference_difficulty += get_room_reference_object_count(obj_mouth) * 1;
@@ -208,7 +215,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									update_game_room_difficulty_old();
 	function update_game_room_difficulty_old() {
-		var has_bumper = get_room_reference_object_count(obj_bumper) > 0;
+		var has_bumper = get_room_reference_object_count(obj_bumper_old) > 0;
 		var has_ears = get_room_reference_object_count(obj_ears) > 0;
 		var has_gudetama = get_room_reference_object_count(obj_gudetama) > 0;
 		var has_echo = get_room_reference_object_count(obj_inverted_cross) > 0;
@@ -525,6 +532,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (next_exit != -1) { next_exit.set_portcullis_to_trigger_for_room(self, true); }
 		}
 		has_phantom = false;
+		has_floater = false;
 		has_portcullis_button = true;
 		write_debug_message("Generated portcullis button: " + room_get_name(room_reference));
 		return true;
@@ -728,7 +736,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_four_exits_1;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_four_exits_4;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();

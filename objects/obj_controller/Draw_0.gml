@@ -91,18 +91,18 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 	
 		// Draw Border
 		draw_set_color(c_black);
-		var wall_spr = (has_won) ? spr_wall_inverted : spr_wall
+		var wall_spr = (has_won) ? spr_wall_inverted : spr_wall, wall_sprite_color = merge_color(c_white, c_black, 0.5);
 		for (var border_x_pos = -8; border_x_pos < room_width+8; border_x_pos += 16;) {
-			draw_sprite(wall_spr, 0, border_x_pos, 8);
-			draw_sprite(wall_spr, 0, border_x_pos, 8+(16*2));
-			draw_sprite(wall_spr, 0, border_x_pos, 8+(16*4));
-			draw_sprite(wall_spr, 0, border_x_pos, room_height-8-(16*4));
-			draw_sprite(wall_spr, 0, border_x_pos, room_height-8-(16*2));
-			draw_sprite(wall_spr, 0, border_x_pos, room_height-8);
+			draw_sprite_ext(wall_spr, 0, border_x_pos, 8, 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(wall_spr, 0, border_x_pos, 8+(16*2), 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(wall_spr, 0, border_x_pos, 8+(16*4), 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(wall_spr, 0, border_x_pos, room_height-8-(16*4), 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(wall_spr, 0, border_x_pos, room_height-8-(16*2), 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(wall_spr, 0, border_x_pos, room_height-8, 1, 1, 0, wall_sprite_color, 1);
 		}
 		for (var border_y_pos = -8; border_y_pos < room_width+8; border_y_pos += 16;) {
-			draw_sprite(wall_spr, 0, 8, border_y_pos);
-			draw_sprite(wall_spr, 0, room_width-8, border_y_pos);
+			draw_sprite_ext(wall_spr, 0, 8, border_y_pos, 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(wall_spr, 0, room_width-8, border_y_pos, 1, 1, 0, wall_sprite_color, 1);
 		}
 		
 	    // Draw main win or loss message

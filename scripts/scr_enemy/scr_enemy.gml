@@ -1,6 +1,7 @@
-/// @function								kill_enemy(death_sound);
+/// @function								kill_enemy(death_sound, killed_by);
 ///	@param		{index}	death_sound			The sound to play upon killing this enemy
-function kill_enemy(death_sound) {
+///	@param		{obj}	killed_by			The type of object to credit for killing this enemy
+function kill_enemy(death_sound, killed_by) {
 	if (death_sound != noone) { play_sound(death_sound, true); }
 	if (corporeal) {
 		var corpse = (object_index == obj_skeleton || object_index == obj_fast_skeleton || object_index == obj_fire_skeleton) ? obj_bones : obj_blood;
@@ -24,17 +25,22 @@ function kill_enemy(death_sound) {
 		global.controller.gudetama_room_solved += 1
 		write_debug_message("gudetama_room_solved += 1", "Eval");
 	}
+	if (killed_by != noone) {
+		update_kill_log(object_index, global.difficulty, killed_by); 
+		global.controller.kill_count += 1;
+		write_debug_message("kill_count += 1", "Eval");
+	}
 	instance_destroy();
 }
 
 /// @function								kill_with_sword();
 ///	@param		{instance}	sword			The sword being used to kill this enemy
 function kill_with_sword(sword) {
+	var killer = noone;
 	if (sword.holder == global.player) {
+		killer = sword.object_index;
 		update_kill_log(object_index, global.difficulty, obj_sword);
-		global.controller.kill_count += 1;
 		global.controller.sword_kill_count += 1;
-		write_debug_message("kill_count += 1", "Eval");
 		write_debug_message("sword_kill_count += 1", "Eval");
 	}
 	if (!sword.special) { 
@@ -43,7 +49,7 @@ function kill_with_sword(sword) {
 		sword_in_ground.sprite_index = sword.sprite_index;
 		instance_destroy(sword); 
 	}
-	kill_enemy(snd_crunch);
+	kill_enemy(snd_crunch, killer);
 }
 
 /// @function								run_away_from_player(ignore_solid, ignore_death, make_sound);
@@ -563,27 +569,6 @@ function teleport_to_player() {
 	else {
 		x = get_exit_x_pos(controller.entered_from_dir);
 		y = get_exit_y_pos(controller.entered_from_dir);
-	}
-
-	if (!controller.current_room.lit && controller.entered_from_dir != directions.respawn) {
-		// Check distance to each unlit lantern
-		var lantern_count = 0, total_distance_to_lanterns = 0;
-		for (var i = 0; i < instance_number(obj_lantern); i++) {
-			var lantern = instance_find(obj_lantern, i);
-		
-			if (is_existing_instance(lantern) && is_existing_instance(lantern.light_source)) { continue; }
-		
-			lantern_count += 1;
-			total_distance_to_lanterns += get_distance_to_instance(lantern) / 8.0;
-		}
-	
-		if (lantern_count == 0) { instance_destroy(); }
-		else {
-			// Set spawn timer based on distance to each lantern
-			spawn_timer = ceil(total_distance_to_lanterns) - (global.difficulty*lantern_count)
-			if (spawn_timer > 40) { spawn_timer = 40; } 
-			if (spawn_timer < 16) { spawn_timer = 16; }
-		}
 	}
 }
 

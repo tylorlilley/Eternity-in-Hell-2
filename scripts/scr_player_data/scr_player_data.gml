@@ -12,6 +12,8 @@ function update_death_log(obj_index, difficulty, has_rosary) {
 	
 	if (!has_rosary) { update_log("outcome", "lost"); }
 	update_log("killed_by", object_get_name(obj_index));
+	write_debug_message(object_get_name(obj_index)+" += 1", "Log");
+	if (!has_rosary) { write_debug_message(object_get_name(obj_index)+"_last_killed_by += 1", "Log"); }
 	
 	if (!has_rosary) { update_best_score(difficulty); }
 }
@@ -28,6 +30,9 @@ function update_kill_log(obj_index, difficulty, killer) {
 	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_kills", previous_kill_count+1);
 	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index)+"_kills_by_"+object_get_name(killer), previous_kills_by_killer_count+1);
 	ini_close();
+	
+	write_debug_message(object_get_name(obj_index)+"_kills += 1", "Log");
+	write_debug_message(object_get_name(obj_index)+"_kills_by_"+object_get_name(killer)+"_kills += 1", "Log");
 }
 
 /// @function								get_death_count(obj_index, difficulty);
@@ -178,6 +183,13 @@ function update_win_log(difficulty) {
 	
 	update_log("outcome", outcome_to_log);
 	
+	
+	write_debug_message("wins += 1", "Log");
+	if (right_item != noone) { write_debug_message(object_get_name(right_item)+"_wins += 1", "Log"); }
+	if (left_item != noone) { write_debug_message(object_get_name(left_item)+"_wins += 1", "Log"); }
+	if (global.graphics_mode == graphics_modes.farmer) {  write_debug_message("extra_mode_wins += 1", "Log"); }
+	if (global.graphics_mode == graphics_modes.unknown) { write_debug_message("unknown_mode_wins += 1", "Log"); }
+	
 	update_best_score(difficulty)
 }
 
@@ -190,6 +202,7 @@ function update_run_number_log(difficulty) {
 	ini_write_real(get_difficulty_string(difficulty), "run_number", previous_run_number+1);
 	ini_close();
 	
+	write_debug_message("updated_run_number += 1", "Log");
 	update_log("run_number", previous_run_number+1);
 }
 

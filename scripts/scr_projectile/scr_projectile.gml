@@ -43,12 +43,12 @@ function fireball_kill_enemies(use_magic_resistance = false) {
 			if (enemy.object_index == obj_hands) {
 				blocked = true;
 				with (enemy) {
-					if (!is_carrying_item(obj_staff)) { 
-						kill_enemy(kill_snd);
-						if (other.shot_by_player) { 
-							update_kill_log(object_index, global.difficulty, other.object_index); 
-							global.controller.kill_count += 1;
-							write_debug_message("kill_count += 1", "Eval"); 
+					if (!is_carrying_item(obj_staff)) {
+						var kill_type = (other.shot_by_player)? other.object_index : noone;
+						kill_enemy(kill_snd, kill_type);
+						if (kill_type != noone) {
+							global.controller.fireball_kill_count += 1;
+							write_debug_message("fireball_kill_count += 1", "Eval");
 						}
 					}
 				}
@@ -57,11 +57,11 @@ function fireball_kill_enemies(use_magic_resistance = false) {
 				blocked = !resistance;
 				with (enemy) { 
 					if (!resistance) { 
-						kill_enemy(kill_snd);
-						if (other.shot_by_player) { 
-							update_kill_log(object_index, global.difficulty, other.object_index); 
-							global.controller.kill_count += 1;
-							write_debug_message("kill_count += 1", "Eval");  
+						var kill_type = (other.shot_by_player)? other.object_index : noone;
+						kill_enemy(kill_snd, kill_type);
+						if (kill_type != noone) {
+							global.controller.fireball_kill_count += 1;
+							write_debug_message("fireball_kill_count += 1", "Eval");
 						}
 					} 
 				}

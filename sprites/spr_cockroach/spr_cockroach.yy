@@ -14,6 +14,7 @@
   "For3D": false,
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"54a2f3cd-9d45-464e-a647-de6fb6cd7647",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"6bfcdf00-8e4a-497b-93cc-d95c119e8e61",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"e2b7202f-95a4-4100-8016-79dd090bf2da",},
   ],
   "gridX": 0,
@@ -44,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 2.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -55,8 +56,9 @@
     "timeUnits": 1,
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"54a2f3cd-9d45-464e-a647-de6fb6cd7647","path":"sprites/spr_cockroach/spr_cockroach.yy",},},},"Disabled":false,"id":"916bff42-2577-4cc8-b734-9c1dc29d1d9f","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"e2b7202f-95a4-4100-8016-79dd090bf2da","path":"sprites/spr_cockroach/spr_cockroach.yy",},},},"Disabled":false,"id":"2dac5a44-7a8b-4884-a8bb-6cbe14c63de5","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"54a2f3cd-9d45-464e-a647-de6fb6cd7647","path":"sprites/spr_cockroach/spr_cockroach.yy",},},},"Disabled":false,"id":"7f8f6811-7fc1-4289-9d19-1c12710c9c3e","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"6bfcdf00-8e4a-497b-93cc-d95c119e8e61","path":"sprites/spr_cockroach/spr_cockroach.yy",},},},"Disabled":false,"id":"ec9a2c0d-b421-4a5c-a642-001cd215778b","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"e2b7202f-95a4-4100-8016-79dd090bf2da","path":"sprites/spr_cockroach/spr_cockroach.yy",},},},"Disabled":false,"id":"b5e6a57b-366b-45c3-9650-ae61360d9938","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

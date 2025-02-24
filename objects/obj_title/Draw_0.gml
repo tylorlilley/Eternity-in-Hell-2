@@ -31,44 +31,44 @@ draw_set_color(c_white);
 
 // Draw Border
 if (!loading) {
-	var main_menu = (!prepare_screen && !options_screen && !death_log_screen && !controls_screen);
+	var main_menu = (!prepare_screen && !options_screen && !death_log_screen && !controls_screen), wall_sprite_color = merge_color(c_white, c_black, 0.5);
 	for (var border_x_pos = -8; border_x_pos < room_width+16; border_x_pos += 16;) {
-		draw_sprite(spr_wall, 0, border_x_pos, 8);
-		//draw_sprite(spr_wall, 0, border_x_pos, room_height-16);
-		//draw_sprite(spr_wall, 0, border_x_pos, room_height-8);
+		draw_sprite_ext(spr_wall, 0, border_x_pos, 8, 1, 1, 0, wall_sprite_color, 1);
+		//draw_sprite_ext(spr_wall, 0, border_x_pos, room_height-16, 1, 1, 0, wall_sprite_color, 1);
+		//draw_sprite_ext(spr_wall, 0, border_x_pos, room_height-8, 1, 1, 0, wall_sprite_color, 1);
 		var gap_width = (global.input == inputs.gamepad && !main_menu) ? 64 : 40;
 		if (death_log_screen || options_screen || prepare_screen) { gap_width += 16; }
-		if (border_x_pos < room_width/2 - gap_width || border_x_pos > room_width/2 + gap_width) { draw_sprite(spr_wall, 0, border_x_pos, room_height-8); }
+		if (border_x_pos < room_width/2 - gap_width || border_x_pos > room_width/2 + gap_width) { draw_sprite_ext(spr_wall, 0, border_x_pos, room_height-8, 1, 1, 0, wall_sprite_color, 1); }
 		
 		if (main_menu) {
-			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*9));
-			if (global.seed_option != seed_options.specified || border_x_pos < room_width/2 - 48 || border_x_pos > room_width/2 + 48) {  draw_sprite(spr_wall, 0, border_x_pos, room_height-8-(16*4)); }
-			draw_sprite(spr_wall, 0, border_x_pos, 8+16);
+			draw_sprite_ext(spr_wall, 0, border_x_pos, 8+(16*9), 1, 1, 0, wall_sprite_color, 1);
+			if (global.seed_option != seed_options.specified || border_x_pos < room_width/2 - 48 || border_x_pos > room_width/2 + 48) {  draw_sprite_ext(spr_wall, 0, border_x_pos, room_height-8-(16*4), 1, 1, 0, wall_sprite_color, 1); }
+			draw_sprite_ext(spr_wall, 0, border_x_pos, 8+16, 1, 1, 0, wall_sprite_color, 1);
 		}
 		else if (death_log_screen) {
-			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*2));
-			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*5));
-			draw_sprite(spr_wall, 0, border_x_pos, room_height-(16*3));
+			draw_sprite_ext(spr_wall, 0, border_x_pos, 8+(16*2), 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(spr_wall, 0, border_x_pos, 8+(16*5), 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(spr_wall, 0, border_x_pos, room_height-(16*3), 1, 1, 0, wall_sprite_color, 1);
 		}
 		else if (prepare_screen) {
-			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*3));
+			draw_sprite_ext(spr_wall, 0, border_x_pos, 8+(16*3), 1, 1, 0, wall_sprite_color, 1);
 		}
 		else {
-			draw_sprite(spr_wall, 0, border_x_pos, 8+(16*2));
+			draw_sprite_ext(spr_wall, 0, border_x_pos, 8+(16*2), 1, 1, 0, wall_sprite_color, 1);
 		}
 	}
 	for (var border_y_pos = -8; border_y_pos < room_height+16; border_y_pos += 16;) {
-		draw_sprite(spr_wall, 0, 8, border_y_pos);
+		draw_sprite_ext(spr_wall, 0, 8, border_y_pos, 1, 1, 0, wall_sprite_color, 1);
 		if (main_menu && (border_y_pos < 16*2 || border_y_pos > 16*9)) { 
-			draw_sprite(spr_wall, 0, 8+16, border_y_pos);
-			if (border_y_pos < room_height-16) { draw_sprite(spr_wall, 0, room_width-8-16, border_y_pos); }
+			draw_sprite_ext(spr_wall, 0, 8+16, border_y_pos, 1, 1, 0, wall_sprite_color, 1);
+			if (border_y_pos < room_height-16) { draw_sprite_ext(spr_wall, 0, room_width-8-16, border_y_pos, 1, 1, 0, wall_sprite_color, 1); }
 		}
 		else if (death_log_screen && border_y_pos > 8+(16*5) && border_y_pos < room_height-(16*3)) {
-			draw_sprite(spr_wall, 0, -8+(16*4), border_y_pos);
-			draw_sprite(spr_wall, 0, -8+(16*7), border_y_pos);
-			draw_sprite(spr_wall, 0, -8+(16*11), border_y_pos);
+			draw_sprite_ext(spr_wall, 0, -8+(16*4), border_y_pos, 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(spr_wall, 0, -8+(16*7), border_y_pos, 1, 1, 0, wall_sprite_color, 1);
+			draw_sprite_ext(spr_wall, 0, -8+(16*11), border_y_pos, 1, 1, 0, wall_sprite_color, 1);
 		}
-		draw_sprite(spr_wall, 0, room_width-8, border_y_pos);
+		draw_sprite_ext(spr_wall, 0, room_width-8, border_y_pos, 1, 1, 0, wall_sprite_color, 1);
 	}
 }
 

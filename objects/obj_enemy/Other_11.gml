@@ -12,7 +12,7 @@ if (activated) {
 			if (!fire_resistant && (is_covered_at_each_quadrant_by(obj_lava_part) || death_by_fire_skeleton)) { 
 				with instance_place(x, y, obj_lava) {
 					with other {
-						kill_enemy(snd_extinguish);
+						kill_enemy(snd_extinguish, obj_lava);
 					}
 				}
 			}

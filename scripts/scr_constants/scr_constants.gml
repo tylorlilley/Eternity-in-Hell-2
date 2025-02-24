@@ -31,6 +31,7 @@
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 4, 3, 3, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
+#macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 32, 24, 16, 12])
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 4])
 #macro COCKROACH_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])

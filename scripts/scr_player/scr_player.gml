@@ -63,7 +63,7 @@ function move_player(dir) {
 				
 	// Update the bumper position
 	if (direction_pressed) {
-		with (obj_bumper) {
+		with (obj_bumper_old) {
 			teleport_near_player();
 			turn_to_face_player();
 		}

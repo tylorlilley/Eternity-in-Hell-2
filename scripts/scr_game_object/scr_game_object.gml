@@ -202,7 +202,11 @@ function move_in_direction(dir, make_noise) {
 	if (make_noise) {
 		var snd = snd_walk;
 		if (instance_place(x, y, obj_solid)) { snd = snd_thud; play_sound(snd, false); }
-		if (instance_place(x, y, obj_lava_part)) { snd = snd_splash; play_sound(snd, false); }
+		if (instance_place(x, y, obj_lava_part)) { 
+			snd = snd_splash; 
+			if (y > instance_place(x, y, obj_lava_part).y && !instance_place(x, y+8, obj_lava_part)) { snd = snd_walk; }
+			play_sound(snd, false);
+		}
 		if (instance_place(x, y, obj_illusion_wall)) { snd = snd_flicker; play_sound(snd, false); }
 		if (snd == snd_walk) { play_sound(snd, false); }
 	}

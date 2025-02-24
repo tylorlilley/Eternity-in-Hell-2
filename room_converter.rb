@@ -45,7 +45,8 @@ class RoomConverter
         obj_snake
         obj_mouth
         obj_spider_spot
-        obj_bumper
+        obj_bumper_old
+        obj_floater
         obj_ears
         obj_eyes
         obj_player_corpse
@@ -112,7 +113,8 @@ class RoomConverter
             "obj_snake" => 0.08,
             "obj_mouth" => 0.08,
             "obj_spider_spot" => 0.12,
-            "obj_bumper" => 0.05,
+            "obj_bumper_old" => 0.05,
+            "obj_floater" => 0,
             "obj_eyes" => 0.01,
             "obj_ears" => 0.05,
             "obj_player_corpse" => 0.03,
@@ -175,7 +177,8 @@ class RoomConverter
 
         # Boolean Threat Levels
         threat_level += 1 if room_objects.include? "obj_lantern"
-        threat_level += 1.5 if room_objects.include? "obj_bumper"
+        threat_level += 1.5 if room_objects.include? "obj_bumper_old"
+        threat_level += 2 if room_objects.include? "obj_floater"
         threat_level += 2 if room_objects.include? "obj_spider"
         threat_level += 4 if room_objects.include? "obj_eyes"
         threat_level += 4 if room_objects.include? "obj_ears"

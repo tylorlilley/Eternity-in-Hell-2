@@ -1,18 +1,6 @@
-spider should appear on stairs exit adjust rooms accordingly
-
-killing a guy with two different blocks doesn't count as a kill?
 eval messages for
-: opened portcullis
-: found illuision wall
 : projectile death
-: trap dodgeer happening after only one trap
-: enemy died by lava?
 : enemy died after you died?
-: foolish working right?
-: item destroyed in lava
-: block kill count
-: fireball/bomb kill count
-: meat kill count
 
 shoot sounds don't alert ears? But extniguish does?
 

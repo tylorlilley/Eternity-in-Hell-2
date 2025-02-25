@@ -4,7 +4,8 @@ event_inherited();
 if (!is_existing_instance(holder) && is_lava_at_position(x, y)) {
 	instance_destroy();
 	play_sound(snd_extinguish, true);
-	// TODO: eval message
+	global.controller.item_lava_count += 1;
+	write_debug_message("item_lava_count += 1", "Eval");
 }
 
 // Draw Clock Time

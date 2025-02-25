@@ -172,6 +172,7 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty += get_room_reference_object_count(obj_mouth) * 1;
 		room_reference_difficulty += initial_nose_count * 0.75;
 		room_reference_difficulty += (get_room_reference_object_count(obj_spider_spot) > 0) ? 1.5 : 0;
+		room_reference_difficulty += get_room_reference_object_count(obj_spider) * 1.5;
 		room_reference_difficulty += get_room_reference_object_count(obj_statue) - initial_statue_fountain_count * 0.325;
 		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.325;
 		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.25;
@@ -208,7 +209,7 @@ function GameRoom(given_x, given_y) constructor {
 				// These are all counted twice, once by each room the exit is connected to, and so should be halved
 				if (next_exit.has_door) { room_reference_difficulty += 0.025; }
 				if (next_exit.has_lock) { room_reference_difficulty += 0.125; }
-				if (next_exit.has_illusion_walls) { room_reference_difficulty += 0.25; }
+				if (next_exit.has_illusion_walls > 0) { room_reference_difficulty += 0.25; }
 			}
 		}
 	}
@@ -507,7 +508,7 @@ function GameRoom(given_x, given_y) constructor {
 				!next_exit.has_closed_portcullis_for_room(self) && 
 				get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) {
 					illusion_walls_added = true;
-					next_exit.has_illusion_walls = true;
+					next_exit.has_illusion_walls = 1;
 			}
 		}
 		
@@ -521,7 +522,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var next_exit = exits[dir];
-			if (next_exit != -1 && (next_exit.has_lock || next_exit.has_illusion_walls || next_exit.get_connected_room(self).has_portcullis_button)) { return false; }
+			if (next_exit != -1 && (next_exit.has_lock || next_exit.has_illusion_walls > 0 || next_exit.get_connected_room(self).has_portcullis_button)) { return false; }
 		}
 		
 		if (!get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { return false; }
@@ -543,7 +544,7 @@ function GameRoom(given_x, given_y) constructor {
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var next_exit = exits[dir];
 			if (next_exit == -1) { continue; }
-			if (next_exit.has_lock || next_exit.has_illusion_walls || next_exit.get_connected_room(self).has_portcullis_button) { continue; }
+			if (next_exit.has_lock || next_exit.has_illusion_walls > 0 || next_exit.get_connected_room(self).has_portcullis_button) { continue; }
 			
 			next_exit.has_door = get_random_chance_out_of(OPEN_DOOR_PROBABILITY*2);
 			if (next_exit.has_door) { write_debug_message("Generated open door: " + room_get_name(room_reference)); }
@@ -736,7 +737,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_four_exits_4;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_four_exits_21;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -841,7 +842,7 @@ function GameRoom(given_x, given_y) constructor {
 				if (!blink_frame) {
 					if (exits[dir].has_lock) { exit_color = red_color; }
 					else if (exits[dir].has_closed_portcullis_for_room(controller.current_room)) { exit_color = (is_test_mode_on) ? c_fuchsia : red_color; }
-					else if (exits[dir].has_illusion_walls) { exit_color = (is_test_mode_on) ? c_teal : bg_color; }
+					else if (exits[dir].has_illusion_walls > 0) { exit_color = (is_test_mode_on) ? c_teal : bg_color; }
 				}
 
 				var x_offset = 0, y_offset = 0, x_size = 0.25, y_size = 0.25;

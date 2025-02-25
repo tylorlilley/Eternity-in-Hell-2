@@ -81,11 +81,16 @@ function initialize_game_variables() {
 	initialize_room_transition_values()
 	
 	// initialize evaluation message values
+	staff_blocked_fireballs = 0;
+	staff_blocked_beams = 0;
 	sword_kill_count = 0;
 	block_kill_count = 0;
 	fireball_kill_count = 0;
 	meat_kill_count = 0;
+	lava_kill_count = 0;
 	rosary_use_count = 0;
+	item_lava_count = 0;
+	portcullises_opened = 0;
 	unlocked_doors = 0;
 	unlocked_chests = 0;
 	used_item_types = array_create(0);
@@ -94,6 +99,9 @@ function initialize_game_variables() {
 	bombs_lit = 0;
 	spontaneously_exploded_enemy = 0;
 	lit_rooms = 0;
+	dual_wielded_items = 0;
+	mirror_bounced_projectile = 0;
+	illusion_walls_discovered = 0;
 	lit_torches = 0;
 	blocks_pushed_into_lava = 0;
 	trapped_chests_opened = 0;
@@ -201,7 +209,14 @@ function transition_to_room(new_room, visited_by_player) {
 			set_initial_positions();
 		}
 	}
-	else { play_sound(snd_move, false); }
+	else {
+		if (new_room.exits[entered_from_dir].has_illusion_walls == 1) {
+			has_illusion_walls += 1;
+			global.controller.illusion_walls_discovered += 1;
+			write_debug_message("illusion_walls_discovered += 1", "Eval");
+		}
+		play_sound(snd_move, false); 
+	}
 	
 	// Run room exit logic for instances
 	if (visited_by_player) { game_room_end(); }
@@ -486,15 +501,12 @@ function game_room_start_reposition_instances() {
 	with (obj_item) { if (holder == noone) { x = xstart; y = ystart; } }
 	with (obj_enemy) { if (object_index != obj_hands) { instance_create(xstart, ystart, object_index); instance_destroy(); } }
 	with (obj_spider) {
-		if (other.transition <= directions.stairs) {
-			activated = true;
+		activated = true;
+		if (instance_number(obj_spider_spot) > 0) {
 			var random_spider_spot = get_random_instance(obj_spider_spot);
 			x = random_spider_spot.x;
 			y = random_spider_spot.y;
 			start_waiting();
-		}
-		else {
-			activated = false;
 		}
 	}
 	with (obj_mouth) { activated = false; x = -16; y = -16; }
@@ -556,7 +568,7 @@ function game_room_initialize() {
 	with (obj_exit_spot) {
 		var existing_exit = other.current_room.exits[exit_dir];
 		var clear_path = (existing_exit != -1);
-		var illusion_path = clear_path && existing_exit.has_illusion_walls
+		var illusion_path = clear_path && existing_exit.has_illusion_walls > 0
 		var blocker_at_pos = (instance_place(x, y, obj_wall) ||instance_place(x, y, obj_solid) || instance_place(x, y, obj_lava));
 		
 		// Destroy things at this spot
@@ -639,9 +651,11 @@ function game_room_initialize() {
 	with (obj_lava) { set_up_lava_edge_visibility(true); }
 	
 	// Spawn Spider
-	var spider_spot = get_random_instance(obj_spider_spot);
-	with (spider_spot) { instance_create(x, y, obj_spider); }
-	with (obj_spider) { start_waiting(); }
+	if (instance_number(obj_spider_spot) > 0) {
+		var spider_spot = get_random_instance(obj_spider_spot);
+		with (spider_spot) { instance_create(x, y, obj_spider); }
+		with (obj_spider) { start_waiting(); }
+	}
 	
 	// Spawn noses
 	for (var i = 0; i < current_room.initial_nose_count; i++;) { instance_create(-16, -16, obj_nose); }
@@ -1044,20 +1058,27 @@ function calculate_evaluation_messages_and_score() {
 		add_evaluation_message((has_won && (final_player_right_hand_item != global.player_left_hand_item && final_player_right_hand_item != global.player_right_hand_item && final_player_right_hand_item != obj_heart)), "Returned with a Memento", false, 10);
 		add_evaluation_message((has_won && (final_player_left_hand_item != global.player_left_hand_item && final_player_left_hand_item != global.player_right_hand_item && final_player_left_hand_item != obj_heart)), "Returned with a Memento", false, 10);
 		
-		add_evaluation_message((sword_kill_count >= 3), "Monster Slayer", false, 5);
+		add_evaluation_message((sword_kill_count >= 3), "Sword Master", false, 5);
 		add_evaluation_message((rosary_use_count >= 3), "Devoted Follower", false, 5);
 		add_evaluation_message(((unlocked_doors + unlocked_chests) >= 7), "Master Lockpicker", false, 5);
 		add_evaluation_message((holes_dug >= 6), "Tunnel Digger", false, 5);
-		add_evaluation_message((lit_rooms >= 4), "Light Bringer", false, 5);
-		add_evaluation_message((bombs_lit >= 3), "Demolition Expert", false, 5);
+		add_evaluation_message((meat_kill_count >= 3), "Expert Poisoner", false, 5);
+		//red/many obj_clock usage?
+		//red/double torch usage?
+		//map usage?
+		
+		add_evaluation_message((kill_count >= 10), "Monster Slayer", false, 2);
+		add_evaluation_message((lava_kill_count > 0), "Accidental Kill", false, 2);
+		add_evaluation_message((fireball_kill_count >= 3), "Mad Bomber", false, 2);
+		add_evaluation_message((block_kill_count >= 3), "Bulldozer", false, 2);
+		add_evaluation_message((lit_rooms >= 4), "Light Bringer", false, 2);
+		add_evaluation_message((bombs_lit >= 3), "Demolition Expert", false, 2);
 		
 		add_evaluation_message((blocks_pushed_into_lava >= 9), "Bridge Maker", false, 2);
-		add_evaluation_message((trapped_chests_opened > 0), "Foolish", false, -2);
-		add_evaluation_message(((trapped_chests_opened + trapped_chests_destroyed) > 0), "Trap Dodger", false, 5);
-		add_evaluation_message((decapitated_corpses > 0), "Corpse Desecrator", true, -5*decapitated_corpses);
-		add_evaluation_message((spontaneously_exploded_enemy > 1), "Saw Spontaneous Combustion", false, 1);
-		add_evaluation_message((times_infected > 0), "Riddled with Parasites", true, -2);
-		add_evaluation_message((fireball_torch_lights > 0 || fireball_bomb_lights > 0), "Improvised Ignition", false, 2);
+		//add_evaluation_message((trapped_chests_opened > 0), "Foolish", false, -2);
+		add_evaluation_message(((trapped_chests_opened + trapped_chests_destroyed) >= 3), "Trap Dodger", false, 2);
+		add_evaluation_message(((staff_blocked_beams + staff_blocked_fireballs) >= 3), "Projectile Deflector", false, 2);
+		
 		
 		add_evaluation_message((has_won && crushed_bugs == 0), "Careful Stepper", false, 10);
 		add_evaluation_message((crushed_bugs > 10), "Bug Crusher", true, -2);
@@ -1069,6 +1090,17 @@ function calculate_evaluation_messages_and_score() {
 		add_evaluation_message((disturbed_bones >= 16), "Profaner of the Dead", true, -2);
 		add_evaluation_message((has_won && lit_torches == 0), "Adapted to the Dark", false, 10);
 		add_evaluation_message((lit_torches >= 16), "Kept the Fire Burning", false, 2);
+		add_evaluation_message((dual_wielded_items > 0), "Dual Wielder", false, 1);
+		
+		add_evaluation_message((portcullises_opened >= 2), "Gate Opener", false, portcullises_opened);
+		add_evaluation_message((illusion_walls_discovered >= 2), "Breaker of Illusions", false, illusion_walls_discovered);
+		add_evaluation_message((fireball_torch_lights > 0 || fireball_bomb_lights > 0), "Improvised Ignition", false, fireball_torch_lights+fireball_bomb_lights);
+		add_evaluation_message((times_infected > 0), "Riddled with Parasites", true, -times_infected);
+		add_evaluation_message((item_lava_count >= 1), "Needlessly Wasteful", true, -2*item_lava_count);
+		add_evaluation_message((decapitated_corpses > 0), "Corpse Desecrator", true, -2*decapitated_corpses);
+		add_evaluation_message((has_won && spontaneously_exploded_enemy > 1), "Survived Spontaneous Combustion", false, spontaneously_exploded_enemy);
+		add_evaluation_message((has_won && mirror_bounced_projectile > 1), "Survived Reflected Fireball", false, 1);
+		add_evaluation_message((has_won && mirror_bounced_projectile > 1), "Survived Reflected Fireball", false, 1);
 		
 		add_evaluation_message((giant_eye_room_visited), "Beholder of True Envy", true, -2);
 		add_evaluation_message((giant_eye_room_solved), "Eye Blinder", false, 5);

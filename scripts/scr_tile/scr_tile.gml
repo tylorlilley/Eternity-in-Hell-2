@@ -173,6 +173,8 @@ function close_door() {
 function open_portcullis() {
 	door_for_exit.open_portcullis();
 	stuck_open = true;
+	global.controller.portcullises_opened += 1;
+	write_debug_message("portcullises_opened += 1", "Eval");
 	open_door();
 }
 

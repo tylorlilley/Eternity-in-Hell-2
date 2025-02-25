@@ -67,6 +67,7 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		draw_sprite_ext(get_sprite_to_use(spr_clock), 0, x_pos, y_pos, 1, 1, 0, c_white, 1);
 		draw_sprite_ext(get_sprite_to_use(spr_clock_sand), 7, x_pos, y_pos, 1, 1, 0, c_white, 1);
 	}
+	else if (obj_index == obj_spider) { draw_sprite(spr_spider, 0, x_pos, y_pos); }
 	else if (obj_index == obj_statue) { draw_sprite_ext(death_sprite, 0, x_pos, y_pos, 1, 1, 180, c_white, 1); }
 	else if (obj_index == obj_giant_worm_body) { 
 		draw_sprite_ext(death_sprite, 0, x_pos-8, y_pos, 1, 1, 270, c_white, 1);

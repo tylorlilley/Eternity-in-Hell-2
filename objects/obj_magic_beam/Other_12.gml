@@ -17,6 +17,10 @@ if (!player.dead && place_meeting(x, y, player) && get_distance_to_instance(play
 			play_sound(snd_no, false);
 			kill_player(other.creator_obj);
 		}
+		else {
+			global.controller.staff_blocked_beams += 1;
+			write_debug_message("staff_blocked_beams += 1", "Eval");
+		}
 	}
 }
 

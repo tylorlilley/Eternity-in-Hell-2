@@ -360,7 +360,7 @@
     {"name":"spr_small_button","order":45,"path":"sprites/spr_small_button/spr_small_button.yy",},
     {"name":"rm_two_perpendicular_exits_27","order":27,"path":"rooms/rm_two_perpendicular_exits_27/rm_two_perpendicular_exits_27.yy",},
     {"name":"rm_two_opposite_exits_6","order":3,"path":"rooms/rm_two_opposite_exits_6/rm_two_opposite_exits_6.yy",},
-    {"name":"obj_spider","order":9,"path":"objects/obj_spider/obj_spider.yy",},
+    {"name":"obj_spider","order":11,"path":"objects/obj_spider/obj_spider.yy",},
     {"name":"obj_ears","order":5,"path":"objects/obj_ears/obj_ears.yy",},
     {"name":"spr_giant_eye_part","order":88,"path":"sprites/spr_giant_eye_part/spr_giant_eye_part.yy",},
     {"name":"spr_map_heart","order":25,"path":"sprites/spr_map_heart/spr_map_heart.yy",},

@@ -91,9 +91,16 @@ function pick_up_or_put_down_item(dir) {
 			var dropped_item = array_pop(dropped_items);
 			if (is_existing_instance(dropped_item) && !is_existing_instance(dropped_item.holder) && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
 				pick_up_item(dropped_item, true, dir);
+				
+				if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
+					global.controller.dual_wielded_items += 1;
+					write_debug_message("dual_wielded_items += 1", "Eval");
+				}
+				
 				return dropped_item;
 			}
 		}
+		
 		var corpses = instance_place_all(x, y, obj_player_corpse);
 		while (array_length(corpses) > 0) {
 			var corpse = array_random_pop(corpses);
@@ -103,6 +110,12 @@ function pick_up_or_put_down_item(dir) {
 				global.controller.decapitated_corpses += 1;
 				write_debug_message("decapitated_corpses += 1", "Eval");
 				play_sound(snd_crunch, true);
+				
+				if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
+					global.controller.dual_wielded_items += 1;
+					write_debug_message("dual_wielded_items += 1", "Eval");
+				}
+				
 				return new_item;
 			}
 		}

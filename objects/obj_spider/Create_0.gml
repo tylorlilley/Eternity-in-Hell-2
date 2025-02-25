@@ -1,4 +1,5 @@
 event_inherited();
+sprite_index = get_sprite_to_use(spr_spider);
 
 WAITING = 0;
 SCREECHING = 1;

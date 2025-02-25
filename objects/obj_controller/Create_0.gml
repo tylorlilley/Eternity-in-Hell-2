@@ -165,7 +165,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 		if (given_exit == -1) { continue; }
 		
 		if (given_exit.has_lock) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
-		if (given_exit.has_illusion_walls) { room_time_provided += TIME_PROVIEDED_PER_ILLUSION_WALL; }
+		if (given_exit.has_illusion_walls > 0) { room_time_provided += TIME_PROVIEDED_PER_ILLUSION_WALL; }
 		if (given_exit.has_closed_portcullis_for_room(given_room)) { room_time_provided += TIME_PROVIEDED_PER_PORTCULLIS; }
 	}
 	time_provided += room_time_provided;

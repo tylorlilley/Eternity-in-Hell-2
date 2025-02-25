@@ -13,6 +13,8 @@ if (activated) {
 				with instance_place(x, y, obj_lava) {
 					with other {
 						kill_enemy(snd_extinguish, obj_lava);
+						global.controller.lava_kill_count += 1;
+						write_debug_message("lava_kill_count += 1", "Eval");
 					}
 				}
 			}

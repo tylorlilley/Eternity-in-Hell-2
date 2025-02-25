@@ -14,7 +14,7 @@ function RoomExit(current_room, linked_room) constructor {
 	has_portcullis = false;
 	room_1_has_closed_portcullis = false;
 	room_2_has_closed_portcullis = false;
-	has_illusion_walls = false;
+	has_illusion_walls = 0;
 	destroyed = false;
 	visited = false;
 	
@@ -81,7 +81,7 @@ function RoomExit(current_room, linked_room) constructor {
 		
 		has_lock = true;
 		has_door = true;
-		has_illusion_walls = false;
+		has_illusion_walls = 0;
 		return true;
 	}
 	

@@ -81,6 +81,10 @@ if (!blocked && !player.dead && place_meeting(x, y, player) && get_distance_to_i
 			play_sound(snd_extinguish, false);
 			kill_player(other.creator_obj);
 		}
+		else {
+			global.controller.staff_blocked_fireballs += 1;
+			write_debug_message("staff_blocked_fireballs += 1", "Eval");
+		}
 	}
 }
 
@@ -93,6 +97,8 @@ if (!blocked) {
 		if (is_existing_instance(blocking_solid) && (!is_existing_instance(creator) || creator != blocking_solid) && blocking_solid.object_index != obj_mirror) { blocked = true; break; }
 		else if (is_existing_instance(blocking_solid) && blocking_solid.object_index == obj_mirror && (!is_existing_instance(reflected_by) || reflected_by != blocking_solid)) {
 			reflected_by = blocking_solid;
+			global.controller.mirror_bounced_projectile += 1;
+			write_debug_message("mirror_bounced_projectile += 1", "Eval");
 		}
 	}
 }

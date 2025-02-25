@@ -9,8 +9,8 @@
   "managed": true,
   "overriddenProperties": [],
   "parent": {
-    "name": "Spawnable",
-    "path": "folders/Objects/Enemies/Spawnable.yy",
+    "name": "Enemies",
+    "path": "folders/Objects/Enemies.yy",
   },
   "parentObjectId": {
     "name": "obj_enemy",
@@ -32,8 +32,8 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_spider",
-    "path": "sprites/spr_spider/spr_spider.yy",
+    "name": "spr_draw_tester",
+    "path": "sprites/spr_draw_tester/spr_draw_tester.yy",
   },
   "spriteMaskId": null,
   "visible": true,

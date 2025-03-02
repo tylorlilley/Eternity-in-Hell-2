@@ -1,4 +1,5 @@
 /// @description Step
+var controller = global.controller;
 if (x < 0 && y < 0 && !activated) { 
 	teleport_to_player();
 	if (!controller.current_room.lit && controller.entered_from_dir != directions.respawn) {
@@ -24,7 +25,7 @@ if (x < 0 && y < 0 && !activated) {
 }
 
 if (!start_timer) {
-	if (spawn_timer > 0 && (global.player.x != get_exit_x_pos(global.controller.entered_from_dir) || global.player.y != get_exit_y_pos(global.controller.entered_from_dir))) { 
+	if (spawn_timer > 0 && (global.player.x != get_exit_x_pos(controller.entered_from_dir) || global.player.y != get_exit_y_pos(controller.entered_from_dir))) { 
 		start_timer = true; 
 		play_sound(snd_dread, false); 
 	}
@@ -45,15 +46,13 @@ else {
 }
 
 // If room becomes fully lit, destroy self
-if (global.controller.current_room.lit) { 
+if (controller.current_room.lit) { 
 	if (spawn_timer >= 0) {
 		audio_stop_sound(snd_dread);
 		play_sound(snd_impact, false); 
 		screen_flash(); 
 		instance_destroy();
 		update_kill_log(object_index, global.difficulty, object_index);
-		global.controller.kill_count += 1;
-		write_debug_message("kill_count += 1", "Eval");
 	}
 }
 	

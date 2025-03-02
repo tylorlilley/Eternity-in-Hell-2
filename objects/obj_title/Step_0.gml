@@ -4,8 +4,20 @@ if (!game_manager.paused) {
 	var key_back_pressed = game_manager.key_x_pressed;
 	var key_select_pressed = game_manager.key_z_pressed;
 	var key_start_pressed = game_manager.key_enter_released;
-	var key_left_pressed = game_manager.key_left_pressed, key_right_pressed = game_manager.key_right_pressed , key_up_pressed = game_manager.key_up_pressed, key_down_pressed = game_manager.key_down_pressed;
-
+	var key_left_pressed = game_manager.key_left_pressed;
+	var key_right_pressed = game_manager.key_right_pressed;
+	var key_up_pressed = game_manager.key_up_pressed;
+	var key_down_pressed = game_manager.key_down_pressed;
+	
+	if (game_manager.key_up) {
+		if (held_timer == 18) { key_up_pressed = true; held_timer = 12; }
+		else  { held_timer += 1; }
+	}
+	else if (game_manager.key_down) {
+		if (held_timer == 18) { key_down_pressed = true; held_timer = 12; }
+		else  {held_timer += 1; }
+	}
+	else { held_timer = 0; }
 	
 	// Set Initial Menu Position
 	if (pos == -2) {
@@ -219,9 +231,9 @@ if (!game_manager.paused) {
 		}
 	
 		// Move Up and Down Through Option Selections
-		if ((key_up_pressed) && (options_pos > 0) && !option_selected) { options_pos -= 1; play_sound(snd_mana, false); }
-		else if (key_down_pressed && (options_pos < 8) && !option_selected) { options_pos += 1; play_sound(snd_mana, false); }
-		else if (key_up_pressed || key_down_pressed && !(option_selected && options_pos == 5)) { play_sound(snd_locked, false); } 
+		if ((key_up_pressed) && (options_pos > 0) && options_pos != 5) { options_pos -= 1; play_sound(snd_mana, false); }
+		else if (key_down_pressed && (options_pos < 8) && options_pos != 5) { options_pos += 1; play_sound(snd_mana, false); }
+		else if (key_up_pressed || key_down_pressed && options_pos != 5) { play_sound(snd_locked, false); } 
 		
 		// Move Left and Right Through Option Selections
 		if (!option_selected && options_pos < 8 && (key_start_pressed || key_select_pressed || key_right_pressed)) { play_sound(snd_pickup, false); option_selected = true; color_options_pos = 5; }
@@ -233,7 +245,12 @@ if (!game_manager.paused) {
 	}
 	else if (death_log_screen) {
 		if (key_up_pressed && death_log_pos > 0) {  death_log_pos -= 1; play_sound(snd_mana, false); }
-		else if (key_down_pressed && (death_log_pos < array_length(deaths_to_display)-5)) { death_log_pos += 1; play_sound(snd_mana, false); }
+		else if (key_down_pressed && (death_log_pos < array_length(deaths_to_display)-death_types_on_screen)) { death_log_pos += 1; play_sound(snd_mana, false); }
+		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); }
+	}
+	else if (evaluation_log_screen) {
+		if (key_up_pressed && evaluation_log_pos > 0) {  evaluation_log_pos -= 1; play_sound(snd_mana, false); }
+		else if (key_down_pressed && (evaluation_log_pos < array_length(evaluation_manager.evaluation_messages)-8)) { evaluation_log_pos += 1; play_sound(snd_mana, false); }
 		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); }
 	}
 	else {
@@ -247,10 +264,10 @@ if (!game_manager.paused) {
 			else if (!global.is_test_mode && !get_setting_for_difficulty("extra_mode", global.difficulty, false) && pos <= -1) { pos = 0; play_sound(snd_locked, false); }
 			else { play_sound(snd_mana, false); }
 		}
-		else if (key_down_pressed && (pos < 5)) { 
+		else if (key_down_pressed && (pos < 6)) { 
 			pos += 1; 
 			if (pos == 2 && global.seed_option != seed_options.specified) { pos = 3; }
-			if (completed_attempts_count == 0 && pos > 4) { pos = 4; play_sound(snd_locked, false); }
+			if (completed_attempts_count == 0 && pos > 4 && !global.is_test_mode) { pos = 4; play_sound(snd_locked, false); }
 			else { play_sound(snd_mana, false); }
 		}
 		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); }
@@ -319,13 +336,18 @@ if (!game_manager.paused) {
 		}
 	}
 
-	if (death_log_screen || (!options_screen && !controls_screen && !prepare_screen)) {
+	if (death_log_screen || evaluation_log_screen || (!options_screen && !controls_screen && !prepare_screen)) {
 		// Adjust Difficulty Settings
 		var prev_difficulty = global.difficulty;
-		if (death_log_screen || pos == 0) {
-			if (global.difficulty > difficulties.easy && key_left_pressed) { global.difficulty -= 1; }
+		if (death_log_screen || evaluation_log_screen || pos == 0) {
+			if ((death_log_screen || evaluation_log_screen) && global.difficulty >= get_max_difficulty()) { 
+				if (key_right_pressed) { global.difficulty = difficulties.ALL; }
+				if (key_left_pressed) { global.difficulty = get_max_difficulty(); }
+			}
+			else if (global.difficulty > difficulties.easy && key_left_pressed) { global.difficulty -= 1; }
 			else if (global.difficulty < get_max_difficulty() && key_right_pressed) { global.difficulty += 1; }
 			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }
+			
 			if (prev_difficulty != global.difficulty) {
 				var difficulty_sound = noone;
 				switch (global.difficulty) {
@@ -333,28 +355,34 @@ if (!game_manager.paused) {
 					case difficulties.medium: { difficulty_sound = snd_putdown; break; }
 					case difficulties.hard: { difficulty_sound = snd_skeletonrise; break; }
 					case difficulties.very_hard: { difficulty_sound = snd_spider; break; }
+					case difficulties.ALL: { difficulty_sound = snd_thud; break; }
 				}
 				if (difficulty_sound) { play_sound(difficulty_sound, false); }
+				
+				update_setting("difficulty", global.difficulty);
+				update_hand_options();
+				if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
+				else if (global.graphics_mode != graphics_modes.standard) { global.graphics_mode = graphics_modes.standard; update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
+				if (death_log_screen) { update_death_types(); death_log_pos = 0; }
+				if (evaluation_log_screen) { evaluation_manager.load_evaluation_messages(); evaluation_log_pos = 0; }
 			}
-			update_setting("difficulty", global.difficulty);
-			update_hand_options();
-			if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
-			else if (global.graphics_mode != graphics_modes.standard) { global.graphics_mode = graphics_modes.standard; update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
 		}
 	}
 	
 	// Handle X Key
 	if (key_back_pressed) {
-		if (controls_screen || options_screen || death_log_screen || prepare_screen) {
+		if (controls_screen || options_screen || death_log_screen || prepare_screen || evaluation_log_screen) {
 			if (!options_screen || !option_selected) {
 				play_sound(snd_putdown, false); 
 				prepare_screen = false;
 				controls_screen = false;
 				options_screen = false;
 				death_log_screen = false;
+				evaluation_log_screen = false;
 				options_pos = 0;
 				death_log_pos = 0;
 				with (obj_lava) { instance_destroy(); }
+				if (global.difficulty == difficulties.ALL) { global.difficulty = get_max_difficulty(); }
 			}
 			else if (option_selected) { play_sound(snd_putdown, false); option_selected = false; }
 		}
@@ -382,15 +410,15 @@ if (!game_manager.paused) {
 	
 	// Handle Z and Enter Key
 	else if (key_select_pressed || key_start_pressed) {
-		var just_switched = false;
-		if (!controls_screen && !options_screen && !death_log_screen && !prepare_screen) {
-			prepare_screen = (pos == 1);
+		var prev_death_log_screen = death_log_screen;
+		if (!controls_screen && !options_screen && !death_log_screen && !prepare_screen && !evaluation_log_screen) {
+			prepare_screen = (pos <= 2);
 			options_screen = (pos == 3);
 			controls_screen = (pos == 4);
 			death_log_screen = (pos == 5);
-			if (pos == 2 || pos < 1) { play_sound(snd_locked, false); }
-			else { play_sound(snd_pickup, false); }
-			if (death_log_screen) { death_log_sort = 1; just_switched = true; }  // TODO: Remember last sort?
+			evaluation_log_screen = (pos == 6);
+			play_sound(snd_pickup, false);
+			if (death_log_screen) { death_log_sort = 1; } // TODO: Remember last sort?  
 			else if (options_screen) {
 				option_selected = false;
 				instance_create(216, 176+6, obj_lava); 
@@ -402,30 +430,17 @@ if (!game_manager.paused) {
 			}
 		}
 		
+		// Update Sort
 		if (death_log_screen) {
-			// Update Sort
-			death_log_sort += 1;
+			death_log_pos = 0;
+			death_log_sort += 1
 			if (death_log_sort > 2) { death_log_sort = 0; }
-			if (!just_switched) { play_sound(snd_thud, false); }
-			
-			// Update Death Count Values
-			var death_types = get_death_types();
-			deaths_to_display = array_create(0);
-			while (array_length(death_types) > 0) {
-				var death_type = array_pop(death_types);
-		
-				var death_count = get_death_count(death_type, global.difficulty), kill_count = get_kill_count(death_type, global.difficulty), last_killed = get_last_killed(death_type, global.difficulty);
-				if (death_count > 0 || kill_count > 0) { array_push(deaths_to_display, [death_type, death_count, kill_count, last_killed]); }
-			}
-				
-			// Sort deaths to display by death count
-			array_sort(deaths_to_display, function(elm1, elm2) { 
-				switch (death_log_sort) {
-					case 1: { return elm2[1] - elm1[1]; break; }
-					case 0: { return elm2[2] - elm1[2]; break; }
-					case 2: { return elm2[3] - elm1[3]; break; }
-				}
-			});
+			if (prev_death_log_screen) { play_sound(snd_thud, false); }
+			update_death_types();
+		}
+		else if (evaluation_log_screen) {
+			evaluation_log_pos = 0;
+			evaluation_manager.load_evaluation_messages();
 		}
 	}
 }

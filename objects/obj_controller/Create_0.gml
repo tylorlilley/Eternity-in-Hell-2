@@ -32,7 +32,7 @@ if (create_game_map() == -1) {
 };
 
 // Setup room references
-var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0), lit_rooms = array_create(0), spawned_special_rooms = array_create(0);
+var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0), rooms_lit = array_create(0), spawned_special_rooms = array_create(0);
 for (var i = 0; i < array_length(game_rooms); i++) {
 	var given_room = game_rooms[i];
 	
@@ -42,7 +42,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	
 	// Add room to approprite room lists
 	with (given_room) {
-		if (lit) { array_push(lit_rooms, self); }
+		if (lit) { array_push(rooms_lit, self); }
 		if (has_lanterns) { array_push(rooms_with_lanterns, self); }
 		if (is_special_room) { array_push(spawned_special_rooms, self); }
 		if (stairs_spot_obj == -1) { array_push(rooms_with_chest_potential, self); }
@@ -86,7 +86,7 @@ if (array_length(rooms_with_lanterns) == 0) {
 }
 
 // Pre-light some lantern rooms, with at least one pre-lit
-if (array_length(lit_rooms) == 0) { 
+if (array_length(rooms_lit) == 0) { 
 	var random_lantern_room = array_random_get(rooms_with_lanterns);
 	with (random_lantern_room) {
 		if (!has_lanterns) { write_debug_message("Room without lanterns in lantern room list: " + room_get_name(room_reference), "WARNING"); }

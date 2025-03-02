@@ -15,7 +15,8 @@ enum difficulties {
 	easy,
 	medium,
 	hard,
-	very_hard
+	very_hard,
+	ALL
 }
 
 // global variables to represent the various seed options
@@ -48,7 +49,6 @@ enum graphics_modes {
 }
 
 // Setup global variables for title screen
-// TODO: clear_log();
 global.difficulty = get_setting("difficulty", difficulties.easy);
 global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, graphics_modes.standard)
 global.seed_option = get_setting("seed_option", seed_options.rand);
@@ -111,6 +111,7 @@ global.available_items = [
 	[obj_key],
 	[obj_key, obj_torch, obj_sword, obj_map],
 	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_compass],
+	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_compass, obj_meat, obj_shovel, obj_clock],
 	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_compass, obj_meat, obj_shovel, obj_clock],
 	[obj_key, obj_torch, obj_sword, obj_map, obj_rosary, obj_staff, obj_bomb, obj_compass, obj_meat, obj_shovel, obj_clock],
 ];

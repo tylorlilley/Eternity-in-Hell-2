@@ -54,14 +54,15 @@ function become_carried(new_holder) {
 	// Update drawn sand and hands for clock and compass sprites
 	var prev_time_image_index = time_image_index;
 	if (sprite_index == get_sprite_to_use(spr_compass)) {
-		time_image_index = get_compass_image_index();
+		var new_image_index = get_compass_image_index();
+		time_image_index = (new_image_index == -1) ? time_image_index : new_image_index;
 		time_sprite_index = get_sprite_to_use(spr_compass_hands);
 	}
 	else {
 		time_image_index = get_clock_image_index();
 		time_sprite_index = get_sprite_to_use(spr_clock_sand);
 		if (special) { 
-			time_sprite = (sprite_index == spr_clock) ? spr_special_clock_sand : spr_special_clock_sand_farmer; 
+			time_sprite_index = (sprite_index == spr_clock) ? spr_special_clock_sand : spr_special_clock_sand_farmer; 
 		}
 	}
 	
@@ -129,6 +130,7 @@ function make_item_special() {
 		lighting_range = TORCH_LIGHT_RANGE*2;
 		torch_light_sprite_index = spr_special_torch_light;
 	}
+	else if (object_index == obj_heart) { image_index = 0; }
 }
 
 /// @function								defuse_bomb();
@@ -157,17 +159,16 @@ function dig_hole() {
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
 		instance_create(x, y, obj_hole);
-		global.controller.holes_dug += 1;
-		write_debug_message("holes_dug += 1", "Eval");
+		global.controller.evaluation_manager.increment_evaluation_variable("holes_dug");
 	}
 }
 
 /// @function								thump();
 function thump() {
 	if (is_thump_frame()) {
-		if (image_index == 0) { play_sound(snd_thump, false); image_index = 3; }
+		if (image_index < 2) { play_sound(snd_thump, false); image_index += 2; }
 	}
-	else { image_index = 1; }
+	else if (image_index >= 2) { image_index -= 2; }
 }
 
 /// @function								mark_heart_carried();
@@ -281,7 +282,7 @@ function get_clock_image_index() {
 
 /// @function								get_compass_image_index();
 function get_compass_image_index() {
-	var controller = global.controller, hands_dir = 90;
+	var controller = global.controller, player = global.player, hands_dir = 90;
 	
 	if (controller.current_room.has_hall_of_mirrors) {
 		// Point Towards Next Hall of Mirrors Exit
@@ -299,6 +300,7 @@ function get_compass_image_index() {
 		// Point Towards Nearest Collectable in Room
 		var nearest_collectable = instance_nearest(x, y, obj_collectable);
 		hands_dir = point_direction(x, y, nearest_collectable.x, nearest_collectable.y);
+		if (is_instance_at_coordinates(player.x, player.y, nearest_collectable)) { return -1; }
 	}
 	else {
 		var current_room_x = controller.current_room.virtual_x, current_room_y = controller.current_room.virtual_y;
@@ -314,10 +316,12 @@ function get_compass_image_index() {
 			if (instance_number(obj_encased_heart) > 0) {
 				var nearest_heart = instance_nearest(x, y, obj_encased_heart);
 				hands_dir = point_direction(x, y, nearest_heart.x, nearest_heart.y);
+				if (is_instance_at_coordinates(player.x, player.y, nearest_heart)) { return -1; }
 			}
 			else if (instance_number(obj_heart) > 0) {
 				var nearest_heart = instance_nearest(x, y, obj_heart);
 				hands_dir = point_direction(x, y, nearest_heart.x, nearest_heart.y);
+				if (is_instance_at_coordinates(player.x, player.y, nearest_heart)) { return -1; }
 			}
 			else {
 				target_room_x = controller.heart_room.virtual_x;
@@ -356,8 +360,7 @@ function get_compass_image_index() {
 function light_bomb() {
 	if (fuse_timer != 0) { return false; }
 	if (lit_by_player) { 
-		global.controller.bombs_lit += 1;
-		write_debug_message("bombs_lit += 1", "Eval");
+		global.controller.evaluation_manager.increment_evaluation_variable("bombs_lit");
 	}
 	play_sound(snd_torchlight, true);
 	fuse_timer = 4*irandom_range(5,8);

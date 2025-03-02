@@ -93,8 +93,10 @@ function pick_up_or_put_down_item(dir) {
 				pick_up_item(dropped_item, true, dir);
 				
 				if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
-					global.controller.dual_wielded_items += 1;
-					write_debug_message("dual_wielded_items += 1", "Eval");
+					global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_items");
+					if (right_hand_item.object_index == obj_torch && left_hand_item.object_index == obj_torch && is_existing_instance(right_hand_item.light_source) && is_existing_instance(left_hand_item.light_source)) {
+						global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_lit_torches");
+					}
 				}
 				
 				return dropped_item;
@@ -107,13 +109,11 @@ function pick_up_or_put_down_item(dir) {
 			if (is_existing_instance(corpse) && is_instance_at_coordinates(x, y, corpse) && !corpse.headless) {
 				var new_item = create_item_in_hand(dir, obj_meat);
 				corpse.headless = true;
-				global.controller.decapitated_corpses += 1;
-				write_debug_message("decapitated_corpses += 1", "Eval");
+				global.controller.evaluation_manager.increment_evaluation_variable("decapitated_corpses");
 				play_sound(snd_crunch, true);
 				
 				if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
-					global.controller.dual_wielded_items += 1;
-					write_debug_message("dual_wielded_items += 1", "Eval");
+					global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_items");
 				}
 				
 				return new_item;
@@ -135,7 +135,7 @@ function pick_up_item(item, make_noise, dir) {
 	var used_item_types = global.controller.used_item_types;
 	if (!array_contains(used_item_types, item.object_index)) {
 		array_push(used_item_types, item.object_index);
-		write_debug_message("used_item_types += 1", "Eval"); 
+		global.controller.evaluation_manager.increment_evaluation_variable("used_item_types");
 	}
 	
 	with (item) { become_carried(other.id); }
@@ -240,8 +240,7 @@ function kill_player(killed_by_obj) {
 		player.depth = CORPSE_DEPTH;
 		player.dead = true;
 		controller.death_timer = RESPAWN_FREQUENCY;
-		write_debug_message("death_count += 1", "Eval");
-		controller.death_count += 1;
+		controller.evaluation_manager.increment_evaluation_variable("death_count");
 		play_sound(snd_lose, true);
 		with (obj_echo_generator) { instance_destroy(); }
 		

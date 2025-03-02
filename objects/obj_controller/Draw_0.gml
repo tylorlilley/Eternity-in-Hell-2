@@ -118,22 +118,21 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 	    // Draw final score information
 		hud_y_pos = 8+(16*5)-4;
 		draw_set_font(ft_hud_small);
-		calculate_evaluation_messages_and_score();
-		
+
 		// Draw Evaluation Messages
 		if (evaluation_pos > 0 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, 90, c_white, 1); }
 		for (var i = evaluation_pos; i < evaluation_pos+6; i++) {
 			hud_y_pos += 12;
-			if (i >= array_length(evaluation_messages)) { break; }
-			var next_message = evaluation_messages[i], message_text = next_message[0], use_special_text_color = next_message[1];
+			if (i >= array_length(evaluation_manager.evaluation_messages)) { break; }
+			var next_message = evaluation_manager.evaluation_messages[i], message_text = next_message[0], use_special_text_color = next_message[1];
 			draw_set_color(use_special_text_color ? special_text_color : standard_text_color);
 			draw_text(hud_x_pos, hud_y_pos, message_text);
 		}
 		hud_y_pos += 12;
-		if (evaluation_pos < array_length(evaluation_messages)-6 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, -90, c_white, 1); }
+		if (evaluation_pos < array_length(evaluation_manager.evaluation_messages)-6 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, -90, c_white, 1); }
 		draw_set_font(ft_hud)
 		draw_set_color(special_text_color);
-		draw_text(hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( global.controller.current_score )));
+		draw_text(hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( global.controller.evaluation_manager.current_score )));
 		
 		// Draw game seed information
 		if (global.is_test_mode) {
@@ -159,5 +158,5 @@ if (global.is_test_mode && !has_won && !has_lost) {
 	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
 	//draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
 	//draw_text(4, room_height-20, string(fps)+"; OLD: "+string(current_room.old_room_reference_difficulty)+"; NEW: "+string(current_room.room_reference_difficulty)+"; "); //+string(current_room.id));
-	draw_text(4, room_height-20, room_get_name(current_room.room_reference));
+	draw_text(4, room_height-20, string(fps)+"; "+room_get_name(current_room.room_reference));
 }

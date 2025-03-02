@@ -13,6 +13,10 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 		// Play map Sound Effects
 		if key_space {
 			if key_space_pressed {
+				evaluation_manager.increment_evaluation_variable("map_looks");
+				var is_using_map = false;
+				with (player) { is_using_map = is_carrying_item(obj_map); }
+				if (is_using_map) { evaluation_manager.increment_evaluation_variable("map_looks_with_map_item"); }
 				if (instance_number(obj_fat_skeleton) == 0) { play_sound(snd_pickup, false); }
 			}
 			
@@ -42,6 +46,10 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 			if (is_carrying_item_in_right_hand(obj_clock)) { time_to_decrement/= 2; }
 			if (is_carrying_item_in_left_hand(obj_clock)) { time_to_decrement/= 2; }
 			if (is_carrying_special_item(obj_clock)) { time_to_decrement = 0; }
+			if (is_carrying_item(obj_clock)) {
+				var time_saved = (get_one_unit_of_game_time() - time_to_decrement);
+				evaluation_manager.increment_evaluation_variable("clock_time_saved", time_saved);
+			}
 		}
 		time_remaining -= time_to_decrement;
 		if (is_time_up()) {
@@ -80,8 +88,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 					depth = PLAYER_DEPTH;
 					visible = false;
 					player_appear_timer = 2;
-					global.controller.rosary_use_count += 1;
-					write_debug_message("rosary_use_count += 1", "Eval"); 
+					evaluation_manager.increment_evaluation_variable("rosary_use_count");
 				}
 				transition = directions.respawn;
 				// Destroy or pick up rosary
@@ -89,10 +96,11 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 				else { with (player) { pick_up_item(carried_rosary, false, carried_dir); } }
 			}
 			else {
-				if (is_game_won()) { update_win_log(difficulty); }
 				
 				final_time_remaining = time_remaining;
 				time_remaining = time_provided;
+				evaluation_manager.calculate_evaluation_messages_and_score();
+				if (is_game_won()) { update_win_log(difficulty); } // Must be done after calculating score
 				with (player) {
 					visible = false;
 					room_goto(rm_finish);
@@ -112,7 +120,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 	global.bg_color = new_color;
 	
 	if (room == rm_finish) {
-		var max_evaluation_pos = array_length(evaluation_messages)-6;
+		var max_evaluation_pos = array_length(evaluation_manager.evaluation_messages)-6;
 	
 		if (global.game_manager.key_up_pressed && evaluation_pos > 0) { evaluation_pos -= 1; play_sound(snd_mana, false); }
 		else if (global.game_manager.key_down_pressed && evaluation_pos < max_evaluation_pos) { evaluation_pos += 1; play_sound(snd_mana, false); }
@@ -125,13 +133,12 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 // DEBUG MODE SPAWNER
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
-		var obj_type = obj_chest;
+		var obj_type = obj_floater;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
-		new_instance.contents_obj = obj_clock;
-		with (new_instance) { move_snap(8, 8); }
+		with (new_instance) { move_snap(8, 8); make_item_special(); }
 	}
 	if (mouse_check_button_pressed(mb_right)) {
-		var obj_type = obj_cockroach;
+		var obj_type = obj_rosary;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}

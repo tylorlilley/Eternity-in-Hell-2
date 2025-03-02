@@ -18,8 +18,7 @@ if (!player.dead && place_meeting(x, y, player) && get_distance_to_instance(play
 			kill_player(other.creator_obj);
 		}
 		else {
-			global.controller.staff_blocked_beams += 1;
-			write_debug_message("staff_blocked_beams += 1", "Eval");
+			global.controller.evaluation_manager.increment_evaluation_variable("staff_blocked_beams");
 		}
 	}
 }

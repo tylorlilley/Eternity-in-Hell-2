@@ -22,13 +22,10 @@ function kill_enemy(death_sound, killed_by) {
 		}
 	}
 	if (object_index == obj_gudetama) {
-		global.controller.gudetama_room_solved += 1
-		write_debug_message("gudetama_room_solved += 1", "Eval");
+		global.controller.evaluation_manager.increment_evaluation_variable("gudetama_room_solved");
 	}
 	if (killed_by != noone) {
-		update_kill_log(object_index, global.difficulty, killed_by); 
-		global.controller.kill_count += 1;
-		write_debug_message("kill_count += 1", "Eval");
+		update_kill_log(object_index, global.difficulty, killed_by);
 	}
 	instance_destroy();
 }
@@ -36,12 +33,9 @@ function kill_enemy(death_sound, killed_by) {
 /// @function								kill_with_sword();
 ///	@param		{instance}	sword			The sword being used to kill this enemy
 function kill_with_sword(sword) {
-	var killer = noone;
-	if (sword.holder == global.player) {
-		killer = sword.object_index;
-		update_kill_log(object_index, global.difficulty, obj_sword);
-		global.controller.sword_kill_count += 1;
-		write_debug_message("sword_kill_count += 1", "Eval");
+	var killer = (is_existing_instance(sword) && is_existing_instance(sword.holder)) ? sword.holder.object_index : noone;
+	if (is_existing_instance(sword) && is_existing_instance(sword.holder) && sword.holder == global.player) {
+		global.controller.evaluation_manager.increment_evaluation_variable("sword_kill_count");
 	}
 	if (!sword.special) { 
 		var sword_in_ground = instance_create(x, y, obj_sword_in_ground);
@@ -347,8 +341,7 @@ function move_segments(new_dir) {
 /// @function								explode(destroy_self);
 ///	@param		{bool}	  destroy_self		Whether to destroy the calling instance or not
 function explode(destroy_self) {
-	global.controller.spontaneously_exploded_enemy += 1;
-	write_debug_message("spontaneously_exploded_enemy += 1", "Eval");
+	global.controller.evaluation_manager.increment_evaluation_variable("spontaneously_exploded_enemy");
 	play_sound(snd_explosion, true);
 	screen_flash();
 	

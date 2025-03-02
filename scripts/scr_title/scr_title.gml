@@ -7,6 +7,7 @@ function get_difficulty_string(difficulty) {
 		case difficulties.medium: { result = "Expedition"; break; }
 		case difficulties.hard: { result = "Eons"; break; }
 		case difficulties.very_hard: { result = "Eternity"; break; }
+		case difficulties.ALL: { result = "Everything"; break; }
 	}
 	result += " in Hell";
 	return result;
@@ -67,6 +68,7 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		draw_sprite_ext(get_sprite_to_use(spr_clock), 0, x_pos, y_pos, 1, 1, 0, c_white, 1);
 		draw_sprite_ext(get_sprite_to_use(spr_clock_sand), 7, x_pos, y_pos, 1, 1, 0, c_white, 1);
 	}
+	else if (obj_index == obj_block) { draw_sprite(spr_block, 0, x_pos, y_pos); }
 	else if (obj_index == obj_spider) { draw_sprite(spr_spider, 0, x_pos, y_pos); }
 	else if (obj_index == obj_statue) { draw_sprite_ext(death_sprite, 0, x_pos, y_pos, 1, 1, 180, c_white, 1); }
 	else if (obj_index == obj_giant_worm_body) { 
@@ -80,7 +82,7 @@ function draw_death_type_sprite(x_pos, y_pos, obj_index) {
 		draw_sprite(death_sprite, 0, x_pos, y_pos);
 	}
 	else if (obj_index == obj_giant_eye) { draw_sprite(spr_giant_eye_death_sprite, 1, x_pos, y_pos); }
-	else if (obj_index == obj_living_block) { draw_sprite(spr_giant_eye_death_sprite, 2, x_pos, y_pos); }
+	else if (obj_index == obj_living_block) { draw_sprite(obj_living_block, 2, x_pos, y_pos); }
 	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
 }
 
@@ -243,6 +245,29 @@ function update_hand_options() {
 	}
 	var farmer_mode_available = (array_length(hand_options) == array_length(global.available_items[global.difficulty]));
 	update_setting_for_difficulty("extra_mode", global.difficulty, farmer_mode_available);
+}
+
+
+/// @function								update_death_types();
+function update_death_types() {
+	// Update Death Count Values
+	var death_types = get_death_types();
+	deaths_to_display = array_create(0);
+	while (array_length(death_types) > 0) {
+		var death_type = array_pop(death_types);
+		
+		var death_count = get_death_count(death_type, global.difficulty), kill_count = get_kill_count(death_type, global.difficulty), last_killed = get_last_killed(death_type, global.difficulty);
+		if (death_count > 0 || kill_count > 0) { array_push(deaths_to_display, [death_type, death_count, kill_count, last_killed]); }
+	}
+				
+	// Sort deaths to display by death count
+	array_sort(deaths_to_display, function(elm1, elm2) { 
+		switch (death_log_sort) {
+			case 1: { return elm2[1] - elm1[1]; break; }
+			case 0: { return elm2[2] - elm1[2]; break; }
+			case 2: { return elm2[3] - elm1[3]; break; }
+		}
+	});
 }
 
 /// @function								can_play_unknown_mode();

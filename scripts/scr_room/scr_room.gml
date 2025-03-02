@@ -79,6 +79,11 @@ function GameRoom(given_x, given_y) constructor {
 			}
 		}
 		
+		initial_fire_skeleton_count = 0;
+		if (get_room_reference_object_count(obj_lava) > 0 && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) {
+			initial_fire_skeleton_count += 1;
+		}
+		
 		cockroach_count = 0;
 		snake_count = 0;
 		fast_skeleton_count = 0;
@@ -171,6 +176,7 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty += initial_statue_fountain_count * 0.325;
 		room_reference_difficulty += get_room_reference_object_count(obj_mouth) * 1;
 		room_reference_difficulty += initial_nose_count * 0.75;
+		room_reference_difficulty += initial_fire_skeleton_count;
 		room_reference_difficulty += (get_room_reference_object_count(obj_spider_spot) > 0) ? 1.5 : 0;
 		room_reference_difficulty += get_room_reference_object_count(obj_spider) * 1.5;
 		room_reference_difficulty += get_room_reference_object_count(obj_statue) - initial_statue_fountain_count * 0.325;
@@ -737,7 +743,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_four_exits_21;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_one_exit_15//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();

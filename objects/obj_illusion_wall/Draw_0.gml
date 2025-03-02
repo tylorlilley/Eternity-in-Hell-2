@@ -1,23 +1,49 @@
 var player = global.player;
 
-var enemy_at_pos = instance_place(x, y, obj_enemy);
-var enemy_is_here = (is_existing_instance(enemy_at_pos) && enemy_at_pos.corporeal)
-if (is_blink_frame() && (enemy_is_here || place_meeting(x, y, player) || place_meeting(x, y, obj_fireball) || place_meeting(x, y, obj_block))) {
+
+if (is_blink_frame()) {
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
-		var x_offset = 0, y_offset = 0;
-		switch (quadrant) {
-			case 0: { y_offset = -8; x_offset = -8; break; }
-			case 1: { y_offset = -8; x_offset = 8; break; }
-			case 2: { y_offset = 8; x_offset = -8; break; }
-			case 3: { y_offset = 8 x_offset = 8; break; }
+		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
+		mask_index = spr_quadrant;
+		
+		var obj_is_here = place_meeting(x_pos, y_pos, player);
+		// Check for enemies to break illusion
+		if (!obj_is_here) {
+			var enemies_at_pos = instance_place_all(x_pos, y_pos, obj_enemy);
+			for (var i = 0; i < array_length(enemies_at_pos); i++) {
+				if (is_existing_instance(enemies_at_pos[i]) && enemies_at_pos[i].corporeal) {
+					obj_is_here = true;
+					break;
+				}
+			}
+		}
+		// Check for blocks to break illusion
+		if (!obj_is_here) {
+			var blocks_at_pos = instance_place_all(x_pos, y_pos, obj_block);
+			for (var i = 0; i < array_length(blocks_at_pos); i++) {
+				if (is_existing_instance(blocks_at_pos[i])) {
+					obj_is_here = true;
+					break;
+				}
+			}
+		}
+		// Check for fireballs to break illusion
+		if (!obj_is_here) {
+			var fireball_at_pos = instance_place_all(x_pos, y_pos, obj_fireball);
+			for (var i = 0; i < array_length(fireball_at_pos); i++) {
+				if (is_existing_instance(fireball_at_pos[i])) {
+					obj_is_here = true;
+					break;
+				}
+			}
 		}
 		
-		var prev_sprite_index = sprite_index;
-		if (!place_meeting(x+x_offset, y+y_offset, obj_enemy) && !place_meeting(x+x_offset, y+y_offset, player) && !place_meeting(x+x_offset, y+y_offset, obj_fireball) && !place_meeting(x+x_offset, y+y_offset, obj_block)) {
-			var draw_x_pos = (x_offset < 0) ? -8 : 0, draw_y_pos = (y_offset < 0) ? -8 : 0, sprite_x_pos = (x_offset < 0) ? 0 : 8, sprite_y_pos = (y_offset < 0) ? 0 : 8;
-			draw_sprite_general(prev_sprite_index, image_index, sprite_x_pos, sprite_y_pos, sprite_width/2, sprite_height/2, x+draw_x_pos, y+draw_y_pos, image_xscale, image_yscale, image_angle, image_blend, image_blend, image_blend, image_blend, image_alpha);
+		if (!obj_is_here) {
+			var draw_left_pos = (quadrant % 2 == 0) ? 0 : 8, draw_top_pos = (quadrant < 2) ? 0 : 8;
+			draw_sprite_part_ext(sprite_index, image_index, draw_left_pos, draw_top_pos, sprite_width/2, sprite_height/2, x_pos-4, y_pos-4, 1, 1, image_blend, image_alpha);
 		}
-		sprite_index = prev_sprite_index;
+		
+		mask_index = sprite_index;
 	}
 }
 else { event_inherited(); }

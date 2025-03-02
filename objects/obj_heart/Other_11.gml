@@ -1,4 +1,4 @@
-/// @description End Step
+/// @description Step
 event_inherited();
 	
 thump();

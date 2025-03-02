@@ -23,7 +23,6 @@ if (is_rustled_by_wind || is_rustled_by_occupier) {
 	play_sound(snd_bush, is_rustled_by_occupier);
 	is_occupied = (is_existing_instance(occupier));
 	if (occupier == player) { 
-		global.controller.rustled_bushes += 1;
-		write_debug_message("rustled_bushes += 1", "Eval"); 
+		global.controller.evaluation_manager.increment_evaluation_variable("rustled_bushes");
 	}
 }

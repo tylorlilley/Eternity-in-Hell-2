@@ -1,3 +1,7 @@
+eye and fire skeleton after changing self to id
+
+Hold up/down to continuously scroll on death log and game end screens
+
 eval messages for
 : projectile death
 : enemy died after you died?
@@ -8,9 +12,8 @@ are the many blocks or many columns rooms limited to harder difficulties?
 
 gate more things to final difficulty?
 cockroach gfx
-lava skeletons destroy bushes like fireballs?
 cockroach gets stuck if facing moving block
-
+should cultists not shoot if they are pinned by a block?
 
 lava edges not right?
 test EIH randomizer mode

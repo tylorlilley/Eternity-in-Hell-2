@@ -14,8 +14,6 @@ function update_death_log(obj_index, difficulty, has_rosary) {
 	update_log("killed_by", object_get_name(obj_index));
 	write_debug_message(object_get_name(obj_index)+" += 1", "Log");
 	if (!has_rosary) { write_debug_message(object_get_name(obj_index)+"_last_killed_by += 1", "Log"); }
-	
-	if (!has_rosary) { update_best_score(difficulty); }
 }
 
 /// @function								update_kill_log(obj_index, difficulty, killer);
@@ -23,6 +21,8 @@ function update_death_log(obj_index, difficulty, has_rosary) {
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
 ///	@param		{obj_id} killer				The object that did the killing
 function update_kill_log(obj_index, difficulty, killer) {
+	global.controller.evaluation_manager.increment_evaluation_variable("kill_count");
+		
 	var previous_kill_count = get_kill_count(obj_index, difficulty);
 	var previous_kills_by_killer_count = get_kills_by_killer_count(obj_index, difficulty, killer);
 	
@@ -44,8 +44,8 @@ function get_death_count(obj_index, difficulty) {
 	var all_difficulties = get_difficulties();
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
-		
-		if (difficulty == all || difficulty == next_difficulty) {
+
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			death_count += ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index), 0);
 			ini_close();
@@ -65,7 +65,7 @@ function get_kill_count(obj_index, difficulty) {
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
 		
-		if (difficulty == all || difficulty == next_difficulty) {
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			kill_count += ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index)+"_kills", 0);
 			ini_close();
@@ -86,7 +86,7 @@ function get_kills_by_killer_count(obj_index, difficulty, killer) {
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
 		
-		if (difficulty == all || difficulty == next_difficulty) {
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			kill_count += ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index)+"_kills_by_"+object_get_name(killer), 0);
 			ini_close();
@@ -106,7 +106,7 @@ function get_last_killed(obj_index, difficulty) {
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
 		
-		if (difficulty == all || difficulty == next_difficulty) {
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			last_killed = ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index)+"_last_killed_by", 0);
 			ini_close();
@@ -136,7 +136,16 @@ function get_death_count_string(difficulty) {
 	var deaths = get_total_death_count(difficulty);
 	if (deaths == 0) { return noone; }
 	
-	return "Death Count: " + string(deaths);
+	return "Deaths: " + string(deaths);
+}
+
+/// @function								get_run_count_string(difficulty);
+///	@param		{difficulty} difficulty		The difficulty to return a count for
+function get_run_count_string(difficulty) { 
+	var runs = get_run_number_count(difficulty);
+	if (runs == 0) { return noone; }
+	
+	return "Runs Attempted: " + string(runs);
 }
 
 /// @function								get_difficulties();
@@ -189,8 +198,6 @@ function update_win_log(difficulty) {
 	if (left_item != noone) { write_debug_message(object_get_name(left_item)+"_wins += 1", "Log"); }
 	if (global.graphics_mode == graphics_modes.farmer) {  write_debug_message("extra_mode_wins += 1", "Log"); }
 	if (global.graphics_mode == graphics_modes.unknown) { write_debug_message("unknown_mode_wins += 1", "Log"); }
-	
-	update_best_score(difficulty)
 }
 
 /// @function								update_run_number_log(difficulty, new_score);
@@ -209,9 +216,8 @@ function update_run_number_log(difficulty) {
 /// @function								update_best_score(difficulty);
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
 ///	@param		{real} new_score			The new score to record
-function update_best_score(difficulty) {
+function update_best_score(difficulty, new_score) {
 	var previous_best = get_best_score(difficulty);
-	var new_score = get_current_score();
 	
 	if (new_score >= previous_best) { 
 		ini_open("player_data.ini");
@@ -234,7 +240,7 @@ function get_win_count(difficulty, graphics_mode = graphics_modes.standard) {
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
 		
-		if (difficulty == all || difficulty == next_difficulty) {
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			if (graphics_mode == graphics_modes.standard) { win_count += ini_read_real(get_difficulty_string(next_difficulty), "wins", 0); }
 			if (graphics_mode == graphics_modes.farmer) { win_count += ini_read_real(get_difficulty_string(next_difficulty), "extra_mode_wins", 0); }
@@ -256,7 +262,7 @@ function get_item_win_count(item_type, difficulty) {
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
 		
-		if (difficulty == all || difficulty == next_difficulty) {
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			win_count += ini_read_real(get_difficulty_string(next_difficulty), object_get_name(item_type)+"_wins", 0);
 			ini_close();
@@ -275,7 +281,7 @@ function get_run_number_count(difficulty) {
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
 		
-		if (difficulty == all || difficulty == next_difficulty) {
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			run_count += ini_read_real(get_difficulty_string(next_difficulty), "run_number", 1);
 			ini_close();
@@ -303,7 +309,7 @@ function get_best_score(difficulty) {
 	while (array_length(all_difficulties) > 0) {
 		var next_difficulty = array_pop(all_difficulties);
 		
-		if (difficulty == all || difficulty == next_difficulty) {
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
 			var previous_score = ini_read_real(get_difficulty_string(next_difficulty), "best_score", 0);
 			if (max_score < previous_score) { max_score = previous_score; }
@@ -321,7 +327,7 @@ function get_best_score_string(difficulty) {
 }
 
 /// @function								update_setting(obj_index, setting_name, new_value);
-///	@param		{string} setting_name	The setting to update the value for
+///	@param		{string} setting_name		The setting to update the value for
 ///	@param		{real} new_value			The new value for the setting
 function update_setting(setting_name, new_value) {
 	ini_open("player_data.ini");
@@ -397,4 +403,36 @@ function update_log(line_name, new_value) {
 function write_debug_message(msg, debug_level = "Info") {
 	update_log(debug_level, msg);
 	show_debug_message(debug_level + ": " + msg);
+}
+
+/// @function								update_evaluation_variable(variable_name, difficulty, value);
+///	@param		{string} variable_name		The given name of the variable to update
+///	@param		{difficulty} difficulty		The difficulty to update the value for
+///	@param		{int} value					The amount to increase the variable by
+function update_evaluation_variable(variable_name, difficulty, value) {
+	var previous_value = get_evaluation_variable(variable_name, difficulty);
+	
+	ini_open("player_data.ini");
+	ini_write_real(get_difficulty_string(difficulty), variable_name, previous_value+value);
+	ini_close();
+}
+
+/// @function								get_evaluation_variable(obj_index, difficulty);
+///	@param		{string} variable_name		The given name of the variable to get the value for
+///	@param		{difficulty} difficulty		The difficulty to get the value for
+function get_evaluation_variable(variable_name, difficulty) {
+	var value = 0;
+	
+	var all_difficulties = get_difficulties();
+	while (array_length(all_difficulties) > 0) {
+		var next_difficulty = array_pop(all_difficulties);
+		
+		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
+			ini_open("player_data.ini");
+			value += ini_read_real(get_difficulty_string(next_difficulty), variable_name, 0);
+			ini_close();
+		}
+	}
+	
+	return value;
 }

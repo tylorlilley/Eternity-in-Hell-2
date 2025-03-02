@@ -3,8 +3,8 @@ event_inherited();
 	
 if closed {
 	var controller = global.controller, player = global.player;
-	var push_direction = get_direction_pushed_against(), carrying_key = false;
-	with (player) { carrying_key = is_carrying_item(obj_key); }
+	var push_direction = get_direction_pushed_against(), carrying_key = false, carrying_lit_torch = false;
+	with (player) { carrying_key = is_carrying_item(obj_key); carrying_lit_torch = is_carrying_lit_torch(false); }
 	if (locked) { image_index = 2; }
 	if (push_direction != directions.none) {
 		if (locked && !carrying_key) { play_sound(snd_locked, false); }
@@ -14,8 +14,7 @@ if closed {
 			with (global.player) { 
 				play_sound(snd_mana, true);
 				with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }
-				controller.unlocked_chests += 1;
-				write_debug_message("unlocked_chests += 1", "Eval");
+				controller.evaluation_manager.increment_evaluation_variable("unlocked_chests");
 			}
 		}
 		else {
@@ -30,8 +29,7 @@ if closed {
 				closed = false;
 				image_index = 1;
 				if (contents_obj == obj_statue) {
-					global.controller.trapped_chests_opened += 1;
-					write_debug_message("trapped_chests_opened += 1", "Eval");
+					controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
 					play_sound(snd_skeletonrise, true);
 					var statue = instance_create(x, y, obj_statue);
 					statue.dir = get_opposite_dir(push_direction);
@@ -39,13 +37,13 @@ if closed {
 					instance_destroy();
 				}
 				else if(contents_obj == obj_fountain) {
-					global.controller.trapped_chests_opened += 1;
-					write_debug_message("trapped_chests_opened += 1", "Eval");
+					controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
 					play_sound(snd_skeletonrise, true);
 					instance_create(x, y, obj_fountain);
 					instance_destroy();
 				}
 				else if (contents_obj != -1) { 
+					controller.evaluation_manager.increment_evaluation_variable("chests_opened");
 					controller.current_room.remove_from_instances_at_map_positions(id);
 					
 					with (player) {
@@ -57,6 +55,9 @@ if closed {
 					if (array_length(free_hands) == 0) { 
 						new_item = instance_create(player.x, player.y, contents_obj);
 						with (new_item) { become_dropped(id); }
+						if (contents_obj == obj_bomb && carrying_lit_torch) {
+							controller.evaluation_manager.increment_evaluation_variable("chests_opened_lit_bombs");
+						}
 					}
 					else {
 						new_item = create_item_in_hand(array_random_pop(free_hands), contents_obj);

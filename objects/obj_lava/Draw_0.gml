@@ -13,9 +13,7 @@ for (var quadrant = 0; quadrant < 4; quadrant++;) {
 }
 
 // Draw Quadrant lava edges
-
 for (var quadrant = 0; quadrant < 4; quadrant++) {
-	if (!is_existing_instance(parts[quadrant]) || !parts[quadrant].part_visible) { continue; }
 			
 	for (var dir = directions.up; dir < directions.stairs; dir++) {
 		var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
@@ -27,7 +25,7 @@ for (var quadrant = 0; quadrant < 4; quadrant++) {
 		}
 		
 		if (!lava_edge_visible[quadrant][dir]) { continue; }
-			
+		
 		draw_set_color(bg_color);
 		switch (dir) {
 			case directions.up: { draw_rectangle(x_pos-4, y_pos+2, x_pos+3, y_pos+3, false); break; }
@@ -35,7 +33,8 @@ for (var quadrant = 0; quadrant < 4; quadrant++) {
 			case directions.down: { draw_rectangle(x_pos-4, y_pos-4, x_pos+3, y_pos-3, false); break; }
 			case directions.left: { draw_rectangle(x_pos+2, y_pos-4, x_pos+3, y_pos+3, false); break; }
 		}
-			
+		
+		if (!is_existing_instance(parts[quadrant]) || !parts[quadrant].part_visible) { continue; }
 		if (global.lava_edge_type != lava_edge_types.none) { draw_sprite_ext(lava_edge_sprite_index, lava_edge_image_indexes[quadrant][dir], x_pos, y_pos, lava_edge_image_xscales[quadrant][dir], 1, dir*-90, image_blend, 1); }
 	}
 		

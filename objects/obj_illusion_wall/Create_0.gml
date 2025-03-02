@@ -1,3 +1,3 @@
 event_inherited();
 
-depth = SOLID_DEPTH;
+depth = ILLUSION_WALL_DEPTH;

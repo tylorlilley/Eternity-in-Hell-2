@@ -14,7 +14,7 @@ function light_torch(lighting_torch, make_noise) {
 	if (!is_existing_instance(light_source)) {
 		play_sound(snd_torchlight, true);
 		
-		torch_sprite_image_index = 1;
+		torch_light_image_index = 1;
 		torch_light_image_timer = 1;
 
 		light_source = instance_create(x, y, obj_light_source);
@@ -27,13 +27,12 @@ function light_torch(lighting_torch, make_noise) {
 		    with obj_lantern { if (!light_source) { last_lantern = false; } }
 		    controller.current_room.lit = last_lantern;
 			if (last_lantern && is_existing_instance(lighting_torch) && lighting_torch.holder == global.player) { 
-				controller.lit_rooms += 1;
-				write_debug_message("lit_rooms += 1", "Eval");
+				controller.evaluation_manager.increment_evaluation_variable("rooms_lit");
 			}
 		}
 		else if (object_index == obj_torch) {
-			controller.lit_torches += 1;
-			write_debug_message("lit_torches += 1", "Eval");
+			controller.evaluation_manager.increment_evaluation_variable("torches_lit");
+			if (special) { controller.evaluation_manager.increment_evaluation_variable("special_torches_lit"); }
 		}
 	}
 	// Light the lighting torch in response if necessary
@@ -42,7 +41,7 @@ function light_torch(lighting_torch, make_noise) {
 
 /// @function							extinguish_torch();
 function extinguish_torch() {
-	torch_sprite_image_index = 0;
+	torch_light_image_index = 0;
 	torch_light_image_timer = -1;
 	time_to_remain_lit = 0;
 	
@@ -71,9 +70,8 @@ function interact_with_other_torches() {
 		if (((is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
 			var not_carried = (!is_existing_instance(holder)), other_not_carried = (!is_existing_instance(other_torch) || !is_existing_instance(other_torch.holder));
 			if (is_existing_instance(other_torch.light_source) && not_carried != other_not_carried) {
-				if (!global.player.dead && is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) { 
-					global.controller.fireball_torch_lights += 1;
-					write_debug_message("fireball_torch_lights += 1", "Eval");
+				if (!global.player.dead && is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball && !is_existing_instance(light_source)) { 
+					global.controller.evaluation_manager.increment_evaluation_variable("torches_lit_by_fireball");
 				}
 				light_torch(other_torch, true);		
 				actively_lit = true;

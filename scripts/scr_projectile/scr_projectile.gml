@@ -21,15 +21,14 @@ function fireball_light_bombs() {
 		with (bomb) {
 			lit_by_player = other.shot_by_player;
 			if (!global.player.dead) {
-				global.controller.fireball_bomb_lights += 1;
-				write_debug_message("fireball_bomb_lights += 1", "Eval");
+				global.controller.evaluation_manager.increment_evaluation_variable("bombs_lit_by_fireball");
 			}
 			light_bomb(); 
 		}
 	}
 }
 
-/// @function									fireball_kill_enemies();
+/// @function									fireball_kill_enemies(ignore_fire_resistance, use_magic_resistance);
 ///	@param		{bool} ignore_fire_resistantce  If true will kill fire resistant enemies
 ///	@param		{bool} use_magic_resistance		If true will use magic resistance instead of fire
 function fireball_kill_enemies(use_magic_resistance = false) {
@@ -47,8 +46,7 @@ function fireball_kill_enemies(use_magic_resistance = false) {
 						var kill_type = (other.shot_by_player)? other.object_index : noone;
 						kill_enemy(kill_snd, kill_type);
 						if (kill_type != noone) {
-							global.controller.fireball_kill_count += 1;
-							write_debug_message("fireball_kill_count += 1", "Eval");
+							global.controller.evaluation_manager.increment_evaluation_variable("fireball_kill_count");
 						}
 					}
 				}
@@ -60,8 +58,7 @@ function fireball_kill_enemies(use_magic_resistance = false) {
 						var kill_type = (other.shot_by_player)? other.object_index : noone;
 						kill_enemy(kill_snd, kill_type);
 						if (kill_type != noone) {
-							global.controller.fireball_kill_count += 1;
-							write_debug_message("fireball_kill_count += 1", "Eval");
+							global.controller.evaluation_manager.increment_evaluation_variable("fireball_kill_count");
 						}
 					} 
 				}
@@ -98,12 +95,33 @@ function update_fireball_torch_position(new_x_scale = 1) {
 	}
 }
 
-/// @function								shoot_magic_beam(max_angle);
+/// @function								shoot_magic_beam(target, max_angle [number_to_shoot]);
 ///	@param		{inst} target				The instantce to shoot at
 ///	@param		{int} max_angle				The maximum angle away from the target to shoot
-function shoot_magic_beam(target, max_angle) {
-	if (!is_existing_instance(target)) { target = global.player; } // Should this not default to player?
+///	@param		{int} number_to_shoot		OPTIONAL: Number of projectiles to shoot
+function shoot_magic_beam(target, max_angle, number_to_shoot = 1) {
+	if (!is_existing_instance(target)) { target = global.player; }
 	var dir = point_direction(x, y, target.x, target.y) - max_angle + irandom_range(0,max_angle*2);
-	var target_x = x + lengthdir_x(16, dir), target_y = y + lengthdir_y(16, dir);
-	return shoot_projectile(target_x, target_y, false, obj_magic_beam);
+	var first_shot = noone
+	for (var i = 0; i < number_to_shoot; i++) {
+		var dir_offset = 15*ceil(i/2);
+		if (i % 2 == 0) { dir_offset *= -1; }
+		var target_x = x + lengthdir_x(16, dir+dir_offset), target_y = y + lengthdir_y(16, dir+dir_offset);
+		var next_shot = shoot_projectile(target_x, target_y, false, obj_magic_beam);
+		if (i == 0) { first_shot = next_shot; }
+	}
+	return first_shot;
+}
+
+/// @ function								fireball_burn_bushes()
+function fireball_burn_bushes() {
+	var blocked = false;
+	var bush = instance_place(x, y, obj_bush);
+	with (bush) {
+		blocked = true;
+		play_sound(snd_extinguish, true);
+		instance_create(x, y, obj_dirt);
+		instance_destroy();
+	}
+	return blocked;
 }

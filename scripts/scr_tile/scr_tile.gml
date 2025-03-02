@@ -150,8 +150,7 @@ function open_door() {
 		with (global.player) { 
 			play_sound(snd_mana, true);
 			with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }
-			global.controller.unlocked_doors += 1;
-			write_debug_message("unlocked_doors += 1", "Eval"); 
+			global.controller.evaluation_manager.increment_evaluation_variable("unlocked_doors");
 		}
 	}
 }
@@ -173,8 +172,6 @@ function close_door() {
 function open_portcullis() {
 	door_for_exit.open_portcullis();
 	stuck_open = true;
-	global.controller.portcullises_opened += 1;
-	write_debug_message("portcullises_opened += 1", "Eval");
 	open_door();
 }
 

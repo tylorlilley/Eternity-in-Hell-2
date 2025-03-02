@@ -20,11 +20,8 @@ if (destructive) {
 	with (chest) {
 		if (contents_obj == obj_statue || contents_obj == obj_fountain) {
 			if (shot_by_player) {
-				global.controller.kill_count += 1;
-				write_debug_message("kill_count += 1", "Eval");
-				global.controller.trapped_chests_destroyed += 1;
-				write_debug_message("trapped_chests_destroyed += 1", "Eval");
-				update_kill_log(contents_obj, global.difficulty, self);
+				global.controller.evaluation_manager.increment_evaluation_variable("trapped_chests_destroyed");
+				update_kill_log(contents_obj, global.difficulty, other.object_index);
 			}
 		}
 		instance_destroy(); 
@@ -38,9 +35,7 @@ if (destructive) {
 	}
 	with (statue) {
 		if (other.shot_by_player) { 
-			update_kill_log(object_index, global.difficulty, other.object_index); 
-			global.controller.kill_count += 1; 
-			write_debug_message("kill_count += 1", "Eval");
+			update_kill_log(object_index, global.difficulty, other.object_index);
 		}
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
@@ -63,13 +58,7 @@ if (blocked_by_enemy) { blocked = true; }
 
 // Burn Bushes
 if (!blocked) {
-	var bush = instance_place(x, y, obj_bush);
-	with (bush) {
-		blocked = true;
-		play_sound(snd_extinguish, true);
-		instance_create(x, y, obj_dirt);
-		instance_destroy();
-	}
+	blocked = fireball_burn_bushes();
 }
 
 // Kill Player
@@ -82,8 +71,7 @@ if (!blocked && !player.dead && place_meeting(x, y, player) && get_distance_to_i
 			kill_player(other.creator_obj);
 		}
 		else {
-			global.controller.staff_blocked_fireballs += 1;
-			write_debug_message("staff_blocked_fireballs += 1", "Eval");
+			global.controller.evaluation_manager.increment_evaluation_variable("staff_blocked_fireballs");
 		}
 	}
 }
@@ -97,8 +85,7 @@ if (!blocked) {
 		if (is_existing_instance(blocking_solid) && (!is_existing_instance(creator) || creator != blocking_solid) && blocking_solid.object_index != obj_mirror) { blocked = true; break; }
 		else if (is_existing_instance(blocking_solid) && blocking_solid.object_index == obj_mirror && (!is_existing_instance(reflected_by) || reflected_by != blocking_solid)) {
 			reflected_by = blocking_solid;
-			global.controller.mirror_bounced_projectile += 1;
-			write_debug_message("mirror_bounced_projectile += 1", "Eval");
+			global.controller.evaluation_manager.increment_evaluation_variable("mirror_bounced_projectile");
 		}
 	}
 }
@@ -113,5 +100,5 @@ if (blocked) {
 // Reflect Self
 else if (prev_reflected_by != reflected_by) {
 	direction = (abs(lengthdir_y(16, direction)) > abs(lengthdir_x(16, direction))) ? -direction : 180-direction;
-	play_sound(snd_yes);
+	play_sound(snd_yes, false);
 }

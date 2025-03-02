@@ -1,16 +1,15 @@
 /// @description End Step
 var dir = get_direction_pushed_against();
-var target = get_dropped_meat();
+var target = get_dropped_meat(), time_to_peek = 8;
 if (!is_existing_instance(target)) { target = global.player; }
+
 if (dir == directions.none) {
 	move_timer -= 1;
-	if (move_timer > 6 && get_distance_to_instance(target) <= TRAP_RANGE) { move_timer -= 4; }
-	if (move_timer <= 6) { image_index = 2; }
+	if (move_timer > time_to_peek && get_distance_to_instance(target) <= TRAP_RANGE+16) { move_timer -= 3; }
 	if (move_timer <= 0) {
 		var move_dir = directions.none, possible_directions = array_create(0);
-		if (get_distance_to_instance(target) <= TRAP_RANGE) {
+		if (get_distance_to_instance(target) <= TRAP_RANGE+16) {
 			// Choose random possible direction that is toward the player
-			var is_toward_up = is_direction_toward(directions.up, target);
 			if (is_direction_toward(directions.up, target) && can_move_in_direction(directions.up, false, true)) { array_push(possible_directions, directions.up); }
 			if (is_direction_toward(directions.right, target) && can_move_in_direction(directions.right, false, true)) { array_push(possible_directions, directions.right); }
 			if (is_direction_toward(directions.down, target) && can_move_in_direction(directions.down, false, true)) { array_push(possible_directions, directions.down); }
@@ -33,6 +32,8 @@ if (dir == directions.none) {
 		move_timer = irandom_range(128, 256);
 	}
 }
+if (move_timer <= time_to_peek) { image_index = 2; }
+else { image_index = 0; }
 
 event_inherited();
 	

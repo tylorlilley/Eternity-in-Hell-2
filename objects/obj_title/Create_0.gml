@@ -20,7 +20,12 @@ controls_screen = false;
 death_log_screen = false;
 death_log_pos = 0;
 death_log_sort = 0;
+death_types_on_screen = 7;
 deaths_to_display = array_create(0);
+evaluation_log_screen = false;
+evaluation_log_position = 0;
+evaluation_manager = new EvaluationMessageManager();
+held_timer = 0;
 
 // Update game graphics textures
 draw_texture_flush();

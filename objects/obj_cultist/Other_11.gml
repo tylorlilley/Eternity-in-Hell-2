@@ -9,7 +9,7 @@ if shoot_timer > 0 { shoot_timer -= 1; }
 else {
 	var target = get_dropped_meat();
 	if (!is_existing_instance(target)) { target = global.player; }
-	shoot_magic_beam(target, 22);
+	shoot_magic_beam(target, 0, 3);
 	shoot_timer = irandom_range(16, 64);
 	skeleton_speed = SKELETON_MOVE_FREQUENCY*4;
 	image_index = 0;

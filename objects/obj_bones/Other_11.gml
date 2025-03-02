@@ -10,6 +10,5 @@ if (trap && get_distance_to_instance(global.player) <= TRAP_RANGE) {
 }
 else if (!disturbed && global.player.x = x && global.player.y = y) {
 	disturbed = true;
-	global.controller.disturbed_bones += 1;
-	write_debug_message("disturbed_bones += 1", "Eval");
+	global.controller.evaluation_manager.increment_evaluation_variable("disturbed_bones");
 }

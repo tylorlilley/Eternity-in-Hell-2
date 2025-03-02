@@ -1,4 +1,4 @@
-/// @description End Step
+/// @description
 event_inherited();
 
 image_index = 0;

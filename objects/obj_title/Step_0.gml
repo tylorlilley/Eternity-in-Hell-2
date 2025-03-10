@@ -176,24 +176,32 @@ if (!game_manager.paused) {
 				
 				// Modify Value
 				var current_hex_value = string_char_at(global.game_color_string, color_options_pos+1), current_dec_value = hex_to_dec(current_hex_value);
-				if (keyboard_check_pressed(ord("1"))) { current_hex_value = "1"; current_dec_value = hex_to_dec(current_hex_value); play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("2"))) { current_hex_value = "2"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("3"))) { current_hex_value = "3"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("4"))) { current_hex_value = "4"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("5"))) { current_hex_value =  "5"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("6"))) { current_hex_value = "6"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("7"))) { current_hex_value = "7"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("8"))) { current_hex_value = "8"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("9"))) { current_hex_value = "9"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("A"))) { current_hex_value = "A"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("B"))) { current_hex_value = "B"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("C"))) { current_hex_value = "C"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("D"))) { current_hex_value = "D"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("E"))) { current_hex_value = "E"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
-				else if (keyboard_check_pressed(ord("F"))) { current_hex_value = "F"; current_dec_value = hex_to_dec(current_hex_value);play_sound(snd_move, false);  }
+				if (keyboard_check_pressed(ord("1"))) { current_hex_value = "1"; }
+				else if (keyboard_check_pressed(ord("2"))) { current_hex_value = "2"; }
+				else if (keyboard_check_pressed(ord("3"))) { current_hex_value = "3"; }
+				else if (keyboard_check_pressed(ord("4"))) { current_hex_value = "4"; }
+				else if (keyboard_check_pressed(ord("5"))) { current_hex_value = "5"; }
+				else if (keyboard_check_pressed(ord("6"))) { current_hex_value = "6"; }
+				else if (keyboard_check_pressed(ord("7"))) { current_hex_value = "7"; }
+				else if (keyboard_check_pressed(ord("8"))) { current_hex_value = "8"; }
+				else if (keyboard_check_pressed(ord("9"))) { current_hex_value = "9"; }
+				else if (keyboard_check_pressed(ord("0"))) { current_hex_value = "0"; }
+				else if (keyboard_check_pressed(ord("A"))) { current_hex_value = "A"; }
+				else if (keyboard_check_pressed(ord("B"))) { current_hex_value = "B"; }
+				else if (keyboard_check_pressed(ord("C"))) { current_hex_value = "C"; }
+				else if (keyboard_check_pressed(ord("D"))) { current_hex_value = "D"; }
+				else if (keyboard_check_pressed(ord("E"))) { current_hex_value = "E"; }
+				else if (keyboard_check_pressed(ord("F"))) { current_hex_value = "F"; }
+				/*
 				else if ((key_down_pressed) && (current_dec_value > 0)) { current_dec_value -= 1; play_sound(snd_mana, false); }
 				else if (key_up_pressed && (current_dec_value < 15)) { current_dec_value += 1; play_sound(snd_mana, false); }
 				else if (key_down_pressed || key_up_pressed) { play_sound(snd_locked, false); } 
+				*/
+				var new_dec_value = hex_to_dec(current_hex_value);
+				if (new_dec_value != current_dec_value) { 
+					play_sound(snd_move, false);
+					current_dec_value = new_dec_value;
+				}
 				
 				// Create New String Based on Hex Value
 				var new_hex_value = string_char_at("0123456789ABCDEF", current_dec_value+1), new_string = "";
@@ -231,9 +239,9 @@ if (!game_manager.paused) {
 		}
 	
 		// Move Up and Down Through Option Selections
-		if ((key_up_pressed) && (options_pos > 0) && options_pos != 5) { options_pos -= 1; play_sound(snd_mana, false); }
-		else if (key_down_pressed && (options_pos < 8) && options_pos != 5) { options_pos += 1; play_sound(snd_mana, false); }
-		else if (key_up_pressed || key_down_pressed && options_pos != 5) { play_sound(snd_locked, false); } 
+		if ((key_up_pressed) && (options_pos > 0)) { options_pos -= 1; play_sound(snd_mana, false); }
+		else if (key_down_pressed && (options_pos < 8)) { options_pos += 1; play_sound(snd_mana, false); }
+		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); } 
 		
 		// Move Left and Right Through Option Selections
 		if (!option_selected && options_pos < 8 && (key_start_pressed || key_select_pressed || key_right_pressed)) { play_sound(snd_pickup, false); option_selected = true; color_options_pos = 5; }
@@ -353,7 +361,7 @@ if (!game_manager.paused) {
 					case difficulties.medium: { difficulty_sound = snd_putdown; break; }
 					case difficulties.hard: { difficulty_sound = snd_skeletonrise; break; }
 					case difficulties.very_hard: { difficulty_sound = snd_spider; break; }
-					case difficulties.ALL: { difficulty_sound = snd_thud; break; }
+					case difficulties.ALL: { difficulty_sound = snd_magic; break; }
 				}
 				if (difficulty_sound) { play_sound(difficulty_sound, false); }
 				

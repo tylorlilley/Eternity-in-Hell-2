@@ -48,31 +48,6 @@ enum graphics_modes {
 	unknown
 }
 
-// Setup global variables for title screen
-global.difficulty = get_setting("difficulty", difficulties.easy);
-global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, graphics_modes.standard)
-global.seed_option = get_setting("seed_option", seed_options.rand);
-global.seed = get_setting("last_seed", noone);
-
-// Setup global variables for options
-global.fullscreen = get_setting("fullscreen", FULLSCREEN_DEFAULT);
-global.window_scaling = get_setting("window_size", WINDOW_SCALING_DEFAULT);
-global.window_border = get_setting("window_border", WINDOW_BORDER_DEFAULT);
-global.input = get_setting("input", INPUT_DEFAULT);
-global.can_screen_flash = get_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFUALT);
-global.lava_edge_type = get_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);
-global.game_color_fade = get_setting("game_color_fade", GAME_COLOR_FADE_DEFAULT);
-global.game_color_string = get_setting("game_color", GAME_COLOR_STRING_DEFAULT);
-global.player_outline =  get_setting("player_outline", PLAYER_OUTLINE_DEFAULT);
-
-// Setup global game type options
-global.bg_color = make_color_rgb(0, 0, 0);
-global.is_test_mode = false;
-global.is_seed_testing_mode = false;
-global.has_seed_test_passed = false;
-global.player_left_hand_item = get_setting_for_difficulty("last_player_left_hand_item", global.difficulty, obj_torch);
-global.player_right_hand_item = get_setting_for_difficulty("last_player_right_hand_item", global.difficulty, noone);
-
 // Setup generic arrays
 global.difficulties_array = [difficulties.easy, difficulties.medium, difficulties.hard, difficulties.very_hard];
 global.death_types_array = [
@@ -183,6 +158,34 @@ global.shuffled_item_sprites = array_get_duplicate(global.item_sprites);
 global.shuffled_regular_enemy_sprites = array_get_duplicate(global.regular_enemy_sprites);
 global.shuffled_rotational_enemy_sprites = array_get_duplicate(global.rotational_enemy_sprites);
 
+// Setup global game type options
+global.bg_color = make_color_rgb(0, 0, 0);
+global.is_test_mode = false;
+global.is_seed_testing_mode = false;
+global.has_seed_test_passed = false;
+
+// Setup global variables for title screen
+global.difficulty = get_setting("difficulty", difficulties.easy);
+if (global.difficulty > get_max_difficulty()) { global.difficulty = get_max_difficulty(); }
+if (global.difficulty <= difficulties.DO_NOT_USE) { global.difficulty = difficulties.easy; }
+global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, graphics_modes.standard)
+global.seed_option = get_setting("seed_option", seed_options.rand);
+global.seed = get_setting("last_seed", noone);
+
+// Setup global variables for options
+global.fullscreen = get_setting("fullscreen", FULLSCREEN_DEFAULT);
+global.window_scaling = get_setting("window_size", WINDOW_SCALING_DEFAULT);
+global.window_border = get_setting("window_border", WINDOW_BORDER_DEFAULT);
+global.input = get_setting("input", INPUT_DEFAULT);
+global.can_screen_flash = get_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFUALT);
+global.lava_edge_type = get_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);
+global.game_color_fade = get_setting("game_color_fade", GAME_COLOR_FADE_DEFAULT);
+global.game_color_string = get_setting("game_color", GAME_COLOR_STRING_DEFAULT);
+global.player_outline =  get_setting("player_outline", PLAYER_OUTLINE_DEFAULT);
+
+// Setup global variables for prepartion screen
+global.player_left_hand_item = get_setting_for_difficulty("last_player_left_hand_item", global.difficulty, obj_torch);
+global.player_right_hand_item = get_setting_for_difficulty("last_player_right_hand_item", global.difficulty, noone);
 
 // Set controls and set up drawing surface variables
 global.player = noone;

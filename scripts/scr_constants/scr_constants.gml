@@ -13,7 +13,7 @@
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
 #macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 6]) 
 #macro MISLEADING_EXITS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
-#macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 32, 12])
+#macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 32, 16])
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 16, 12, 10, 8]) // Because each exit is checked by the room on either side, this actually happens twice as often
 #macro OPEN_DOOR_PROBABILITY get_probability_for_difficulty([0, 32, 24, 12, 8])
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
@@ -32,7 +32,7 @@
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro FIRE_SKELETON_IN_LAVA_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 4, 3, 3, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
-#macro FLOATER_PROBABILITY 1//get_probability_for_difficulty([0, 48, 32, 24, 16])
+#macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 48, 32, 24, 16])
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 4])
 #macro COCKROACH_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])

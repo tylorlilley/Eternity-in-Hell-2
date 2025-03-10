@@ -340,10 +340,8 @@ if (!game_manager.paused) {
 		// Adjust Difficulty Settings
 		var prev_difficulty = global.difficulty;
 		if (death_log_screen || evaluation_log_screen || pos == 0) {
-			if ((death_log_screen || evaluation_log_screen) && global.difficulty >= get_max_difficulty()) { 
-				if (key_right_pressed) { global.difficulty = difficulties.ALL; }
-				if (key_left_pressed) { global.difficulty = get_max_difficulty(); }
-			}
+			if ((death_log_screen || evaluation_log_screen) && global.difficulty == get_max_difficulty() && key_right_pressed) { global.difficulty = difficulties.ALL; }
+			else if ((death_log_screen || evaluation_log_screen) && global.difficulty > get_max_difficulty() && key_left_pressed) { global.difficulty = get_max_difficulty(); }
 			else if (global.difficulty > difficulties.easy && key_left_pressed) { global.difficulty -= 1; }
 			else if (global.difficulty < get_max_difficulty() && key_right_pressed) { global.difficulty += 1; }
 			else if (key_left_pressed || key_right_pressed) { play_sound(snd_locked, false); }

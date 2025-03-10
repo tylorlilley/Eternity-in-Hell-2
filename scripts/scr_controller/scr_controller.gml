@@ -150,11 +150,12 @@ function transition_to_room(new_room, visited_by_player) {
 				// Complete the Hall
 				current_room.has_hall_of_mirrors = false;
 				global.controller.evaluation_manager.increment_evaluation_variable("hall_of_mirrors_room_solved");
+				with (obj_hall_of_mirrors) { instance_destroy(); }
 			}
 		}
 		else {
 			// Incorrect Transition
-			play_sound(snd_no, false); 
+			play_sound(snd_locked, false); 
 			current_room.mirror_count = 0;
 			if (get_coin_flip()) { current_room.flip_room_contents_horizontally(); }
 			if (get_coin_flip()) { current_room.flip_room_contents_vertically(); }
@@ -915,6 +916,7 @@ function get_victory_amount_score() {
 /// @function								get_probability_for_difficulty(probability_list);
 ///	@param		{array} probability_list	A 5 position array containing the probabilities for each difficulty
 function get_probability_for_difficulty(probability_list) {
+	if (global.difficulty == difficulties.ALL) { return 1; }
 	return probability_list[global.difficulty];
 }
 

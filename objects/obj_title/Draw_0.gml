@@ -385,7 +385,7 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 	// Draw Scores
 	draw_set_font(ft_hud_small);
 	draw_set_color(c_white);
-	if (win_count_string != noone) { draw_text(room_width/2, room_height-16-12-8, death_count_string+ "; "+win_count_string); }
+	if (win_count_string != "" || death_count_string != "") { draw_text(room_width/2, room_height-16-12-8, death_count_string+ "; "+win_count_string); }
 	if (best_score_string != noone) { draw_text(room_width/2, room_height-16-8, best_score_string); }
 	
 	// Draw Arrow Keys
@@ -451,8 +451,8 @@ else {
 	draw_text(message_x_pos, message_y_pos+messages_y_offset, get_seed_option_string());
 	draw_text(message_x_pos, message_y_pos+messages_y_offset+32, "Options");
 	draw_text(message_x_pos, message_y_pos+messages_y_offset+48, "View Controls");
-	if (death_count_string != noone || win_count_string != noone) { draw_text(message_x_pos, message_y_pos+messages_y_offset+64, + "View Death Log"); }
-	if (death_count_string != noone || win_count_string != noone) { draw_text(message_x_pos, message_y_pos+messages_y_offset+80, + "View Earned Traits"); }
+	if (death_count_string != "" || win_count_string != "") { draw_text(message_x_pos, message_y_pos+messages_y_offset+64, + "View Death Log"); }
+	if (death_count_string != "" || win_count_string != "") { draw_text(message_x_pos, message_y_pos+messages_y_offset+80, + "View Earned Traits"); }
 	var arrow_y =-64;
 	if (pos == 1) { arrow_y = message_y_pos; }
 	else if (pos == 2) { arrow_y = message_y_pos+16; }

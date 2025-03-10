@@ -134,7 +134,7 @@ function get_total_death_count(difficulty) {
 ///	@param		{difficulty} difficulty		The difficulty to return a count for
 function get_death_count_string(difficulty) { 
 	var deaths = get_total_death_count(difficulty);
-	if (deaths == 0) { return noone; }
+	if (deaths == 0) { return ""; }
 	
 	return "Deaths: " + string(deaths);
 }
@@ -295,7 +295,7 @@ function get_run_number_count(difficulty) {
 ///	@param		{difficulty} difficulty		The difficulty to return a count for
 function get_win_count_string(difficulty) { 
 	var wins = get_win_count(difficulty);
-	if (wins == 0) { return noone; }
+	if (wins == 0) { return ""; }
 	
 	return "Victories: " + string(wins);
 }

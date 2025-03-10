@@ -31,6 +31,9 @@ if (create_game_map() == -1) {
 	exit;
 };
 
+// Setup start and end rooms
+setup_start_and_end_rooms();
+
 // Setup room references
 var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0), rooms_lit = array_create(0), spawned_special_rooms = array_create(0);
 for (var i = 0; i < array_length(game_rooms); i++) {
@@ -38,7 +41,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	
 	// Add collectables and special room references to some rooms
 	if (get_random_chance_out_of(COLLECTABLE_PROBABILITY)) { given_room.add_collectables(); }
-	if (array_length(spawned_special_rooms) < SPECIAL_ROOM_LIMIT && get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY)) { given_room.assign_room_ref(false, true); }
+	if (given_room != start_room && given_room != heart_room && array_length(spawned_special_rooms) < SPECIAL_ROOM_LIMIT && get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY)) { given_room.assign_room_ref(false, true); }
 	
 	// Add room to approprite room lists
 	with (given_room) {
@@ -143,7 +146,6 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	next_room.add_unlocked_doors();
 }
 
-
 // Add more rooms based on difficulty
 add_rooms_to_reach_target_difficulty();
 
@@ -199,3 +201,4 @@ update_log("DIFFICULTY", get_difficulty_string(global.difficulty));
 update_log("VERSION", GM_version);
 
 write_debug_message("Total rooms generated: " + string(array_length(game_rooms)));
+if (current_room.is_special_room) { write_debug_message("START ROOM IS SPECIAL ROOM"); }

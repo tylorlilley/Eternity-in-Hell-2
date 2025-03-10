@@ -110,7 +110,7 @@ function EvaluationMessageManager() constructor {
 		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_left_hand_item == noone || controller.final_player_right_hand_item == noone))), "Returned Empty-Handed", true, -5);
 		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_right_hand_item != global.player_left_hand_item && controller.final_player_right_hand_item != global.player_right_hand_item && controller.final_player_right_hand_item != obj_heart))), "Returned with a Memento", false, 10);
 		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_left_hand_item != global.player_left_hand_item && controller.final_player_left_hand_item != global.player_right_hand_item && controller.final_player_left_hand_item != obj_heart))), "Returned with a Memento", false, 10);
-		add_evaluation_message((global.is_test_mode || (killed_by != noone && get_kill_count(killed_by, global.difficulty))), "Novel Death", false, 2);
+		add_evaluation_message((global.is_test_mode || (controller.killed_by != noone && get_kill_count(controller.killed_by, global.difficulty))), "Novel Death", false, 2);
 		add_evaluation_message((global.is_test_mode || (has_won && get_item_win_count(controller.final_player_left_hand_item, global.difficulty) == 0)), "New Item Recovered", false, 2);
 		add_evaluation_message((global.is_test_mode || (has_won && get_item_win_count(controller.final_player_right_hand_item, global.difficulty) == 0)), "New Item Recovered", false, 2);
 		
@@ -243,7 +243,8 @@ function EvaluationMessageManager() constructor {
 				}
 				default: {
 					// Increase it by the variable amount
-					update_evaluation_variable(next_variable, global.difficulty, variable_struct_get(self, next_variable));
+					var next_value = variable_struct_get(self, next_variable)
+					if (is_string(next_value) || is_real(next_value)) { update_evaluation_variable(next_variable, global.difficulty, next_value); }
 					break;
 				}
 			}

@@ -88,8 +88,8 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 					depth = PLAYER_DEPTH;
 					visible = false;
 					player_appear_timer = 2;
-					evaluation_manager.increment_evaluation_variable("rosary_use_count");
 				}
+				evaluation_manager.increment_evaluation_variable("rosary_use_count");
 				transition = directions.respawn;
 				// Destroy or pick up rosary
 				if (!carried_rosary.special) { instance_destroy(carried_rosary); } 

@@ -18,8 +18,9 @@ if (x < 0 && y < 0 && !activated) {
 		else {
 			// Set spawn timer based on distance to each lantern
 			spawn_timer = ceil(total_distance_to_lanterns) - (global.difficulty*lantern_count)
-			if (spawn_timer > 40) { spawn_timer = 40; } 
-			if (spawn_timer < 16) { spawn_timer = 16; }
+			if (spawn_timer > 32) { spawn_timer = 32; } 
+			if (spawn_timer < 12) { spawn_timer = 12; }
+			if (controller.entered_from_dir == directions.stairs) { spawn_timer += 12; }
 		}
 	}
 }

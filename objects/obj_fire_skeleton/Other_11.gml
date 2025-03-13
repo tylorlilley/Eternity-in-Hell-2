@@ -27,7 +27,7 @@ update_lava_lighting();
 //update_fireball_torch_position();
 fireball_light_bombs();
 fireball_kill_enemies();
-fireball_burn_bushes();
+// fireball_burn_bushes();
 
 // flicker sprite
 if (shoot_timer <= 4) { 

@@ -1,4 +1,4 @@
-/// @description End Step
+/// @description Step
 event_inherited();
 	
 var dir = get_direction_pushed_against();
@@ -22,8 +22,12 @@ if (just_pushed) {
 			if (enemy.corporeal) {
 				with enemy { 
 					if (is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) {
+						if (object_index == obj_nose) {
+							global.controller.evaluation_manager.increment_evaluation_variable("nose_block_kill_count");
+						}
 						kill_enemy(snd_crunch, obj_block);
 						global.controller.evaluation_manager.increment_evaluation_variable("block_kill_count");
+						other.just_killed += 1;
 					}
 				}
 			}

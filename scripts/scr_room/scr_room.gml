@@ -93,7 +93,7 @@ function GameRoom(given_x, given_y) constructor {
 		skeleton_types = array_create(0);
 		for (var i = 0; i < get_room_reference_object_count(obj_skeleton_spot); i++;) {
 			var skeleton_type = obj_skeleton;
-			if (has_eyes) { skeleton_type = obj_eyes; }
+			if (has_eyes && i == 0) { skeleton_type = obj_eyes; }
 			else if (has_all_cockroaches) { skeleton_type = obj_cockroach; }
 			else if (has_all_cultists) { skeleton_type = obj_cultist; }
 			else {
@@ -743,7 +743,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_one_exit_15//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_three_exits_22;//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();

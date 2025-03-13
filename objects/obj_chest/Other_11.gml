@@ -34,12 +34,14 @@ if closed {
 					var statue = instance_create(x, y, obj_statue);
 					statue.dir = get_opposite_dir(push_direction);
 					statue.image_angle = statue.dir * -90;
+					statue.shoot_timer += 2;
 					instance_destroy();
 				}
 				else if(contents_obj == obj_fountain) {
 					controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
 					play_sound(snd_skeletonrise, true);
-					instance_create(x, y, obj_fountain);
+					var fountain = instance_create(x, y, obj_fountain);
+					fountain.shoot_timer += 2;
 					instance_destroy();
 				}
 				else if (contents_obj != -1) { 

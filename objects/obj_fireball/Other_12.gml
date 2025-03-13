@@ -57,9 +57,7 @@ var blocked_by_enemy = fireball_kill_enemies();
 if (blocked_by_enemy) { blocked = true; }
 
 // Burn Bushes
-if (!blocked) {
-	blocked = fireball_burn_bushes();
-}
+// if (!blocked) { blocked = fireball_burn_bushes(); }
 
 // Kill Player
 var player = global.player;

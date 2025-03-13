@@ -1,6 +1,6 @@
 /// @description Step
 if (shoot_timer == -1 && !is_existing_instance(projectile)) {
-	shoot_timer = irandom_range(12, 16);
+	shoot_timer = irandom_range(12, 20);
 }
 else if (shoot_timer == 0 && !is_existing_instance(projectile)) {
 	shoot_timer = -1;

@@ -24,6 +24,8 @@ function EvaluationMessageManager() constructor {
 	kill_count = 0;
 	sword_kill_count = 0;
 	block_kill_count = 0;
+	nose_block_kill_count = 0;
+	double_block_kill_count = 0;
 	fireball_kill_count = 0;
 	meat_kill_count = 0;
 	lava_kill_count = 0;
@@ -95,10 +97,10 @@ function EvaluationMessageManager() constructor {
 		
 		// Main Scoring Messages
 		add_evaluation_message(true, time_elapsed_string, false, 0);
-		add_evaluation_message(true, "Collected: "+get_percentage_string(get_collectables_score()), false, get_collectables_score()/5);
-		add_evaluation_message(true, "Visited Rooms: "+get_percentage_string(get_mapped_rooms_score()), false, get_mapped_rooms_score()/5);
-		add_evaluation_message((global.is_test_mode || controller.completion_amount > 0), "Escaped Amount: "+get_percentage_string(get_victory_amount_score()), false, get_victory_amount_score()/5);
-		add_evaluation_message((global.is_test_mode || has_won), "Extra Time Remaining: "+get_percentage_string(get_time_remaining_score()), false, get_time_remaining_score()/5);
+		add_evaluation_message(true, "Collected: "+get_percentage_string(get_collectables_score()), false, get_collectables_score()/3);
+		add_evaluation_message(true, "Visited Rooms: "+get_percentage_string(get_mapped_rooms_score()), false, get_mapped_rooms_score()/3);
+		add_evaluation_message((global.is_test_mode || controller.completion_amount > 0), "Escaped Amount: "+get_percentage_string(get_victory_amount_score()), false, get_victory_amount_score()/10);
+		add_evaluation_message((global.is_test_mode || has_won), "Extra Time Remaining: "+get_percentage_string(get_time_remaining_score()), false, get_time_remaining_score()/10);
 		add_evaluation_message((global.is_test_mode ||((has_won && death_count > 0) || (has_lost && death_count > 1))), "Death Penalty: "+string(death_count-1), true, death_count*-5);
 		add_evaluation_message((global.is_test_mode || kill_count > 0), "Killed Enemies: "+string(kill_count), false, kill_count);
 		add_evaluation_message((global.is_test_mode || used_special_items > 0), "Cursed Items Used : "+string(used_special_items), true, used_special_items*-5);
@@ -110,20 +112,20 @@ function EvaluationMessageManager() constructor {
 		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_left_hand_item == noone || controller.final_player_right_hand_item == noone))), "Returned Empty-Handed", true, -5);
 		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_right_hand_item != global.player_left_hand_item && controller.final_player_right_hand_item != global.player_right_hand_item && controller.final_player_right_hand_item != obj_heart))), "Returned with a Memento", false, 10);
 		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_left_hand_item != global.player_left_hand_item && controller.final_player_left_hand_item != global.player_right_hand_item && controller.final_player_left_hand_item != obj_heart))), "Returned with a Memento", false, 10);
-		add_evaluation_message((global.is_test_mode || (controller.killed_by != noone && get_kill_count(controller.killed_by, global.difficulty))), "Novel Death", false, 2);
+		add_evaluation_message((global.is_test_mode || (controller.killed_by != noone && get_death_count(controller.killed_by, global.difficulty) == 0)), "Novel Death", false, 2);
 		add_evaluation_message((global.is_test_mode || (has_won && get_item_win_count(controller.final_player_left_hand_item, global.difficulty) == 0)), "New Item Recovered", false, 2);
 		add_evaluation_message((global.is_test_mode || (has_won && get_item_win_count(controller.final_player_right_hand_item, global.difficulty) == 0)), "New Item Recovered", false, 2);
 		
 		// Item Mastery Bonuses
 		add_evaluation_message((sword_kill_count >= 3), "Sword Master", false, 5);
 		add_evaluation_message((rosary_use_count >= 3), "Devoted Follower", false, 5);
-		add_evaluation_message(((unlocked_doors + unlocked_chests) >= 7), "Master Lockpicker", false, 5);
+		add_evaluation_message(((unlocked_doors + unlocked_chests) >= 5), "Master Lockpicker", false, 5);
 		add_evaluation_message((holes_dug >= 6), "Tunnel Digger", false, 5);
 		add_evaluation_message((meat_kill_count >= 3), "Expert Poisoner", false, 5);
 		add_evaluation_message((clock_time_saved >= 600), "Time Saver", false, 5);
 		add_evaluation_message((special_torches_lit > 0 || dual_wielded_lit_torches > 0), "Shone Brightly", false, 5);
-		add_evaluation_message((map_looks_with_map_item >= MAX_NUMBER_OF_ROOMS && (map_looks - map_looks_with_map_item) < MAX_NUMBER_OF_ROOMS), "Consulter of Maps", false, 5);
-		add_evaluation_message(((map_looks - map_looks_with_map_item) >= MAX_NUMBER_OF_ROOMS), "Map Overreliance", true, -2);
+		add_evaluation_message((map_looks_with_map_item >= MAX_NUMBER_OF_ROOMS/2 && (map_looks - map_looks_with_map_item) < MAX_NUMBER_OF_ROOMS/2), "Consulter of Maps", false, 5);
+		add_evaluation_message(((map_looks - map_looks_with_map_item) >= MAX_NUMBER_OF_ROOMS/2), "Map Overreliance", true, -2);
 		
 		// Misc Bonuses
 		add_evaluation_message((chests_opened >= 5), "Treasure Hunter", false, 2);
@@ -131,6 +133,8 @@ function EvaluationMessageManager() constructor {
 		add_evaluation_message((lava_kill_count > 0), "Accidental Kill", false, 2);
 		add_evaluation_message((fireball_kill_count >= 3), "Mad Bomber", false, 2);
 		add_evaluation_message((block_kill_count >= 3), "Bulldozer", false, 2);
+		add_evaluation_message((double_block_kill_count >= 1), "Two Birds One Block", false, 5);
+		add_evaluation_message((nose_block_kill_count >= 1), "Bulldozed in Lava", false, 5);
 		add_evaluation_message((rooms_lit >= 4), "Light Bringer", false, 2);
 		add_evaluation_message((bombs_lit >= 3), "Demolition Expert", false, 2);
 		add_evaluation_message((blocks_pushed_into_lava >= 9), "Bridge Maker", false, 2);
@@ -192,7 +196,7 @@ function EvaluationMessageManager() constructor {
 	/// @param		{bool} use_special_text		Whether to use the special color for this text
 	/// @param		{int} score_modifier		The amount that achieving this message modifiers your current score
 	function add_evaluation_message(criteria, msg, use_special_text, score_modifier) {
-		if (global.is_test_mode ||criteria) { 
+		if (global.is_test_mode || criteria) { 
 			array_push(evaluation_messages, [msg, use_special_text]);
 			current_score += score_modifier;
 		}
@@ -301,7 +305,7 @@ function EvaluationMessageManager() constructor {
 	/// @function								save_evaluation_messages();
 	function save_evaluation_messages() {
 		for(var i = 0; i < array_length(evaluation_messages); i++) {
-			var next_message = evaluation_messages[i];
+			var next_message = evaluation_messages[i][0];
 
 			if (string_count("Time Elapsed", next_message) ||
 				string_count("Collected", next_message) ||

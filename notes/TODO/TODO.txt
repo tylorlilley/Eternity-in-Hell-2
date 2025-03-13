@@ -1,6 +1,9 @@
-eye and fire skeleton after changing self to id
+should eyes not react if they end up unable to move (like if you are closed off in a room and they are outside of it)?
+fireball won't light torch when it is dropped next to a door?
+does red compass freak out if you are behind a blocked door and collectables can't move towards you?
+Is hall of mirrors special room working correctly?
 
-Hold up/down to continuously scroll on death log and game end screens
+Lust idea: summoner who creates many skeletons continuously. Room is solved if you stick around and survive all of them being created?
 
 eval messages for
 : projectile death

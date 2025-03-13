@@ -104,7 +104,7 @@ function shoot_magic_beam(target, max_angle, number_to_shoot = 1) {
 	var dir = point_direction(x, y, target.x, target.y) - max_angle + irandom_range(0,max_angle*2);
 	var first_shot = noone
 	for (var i = 0; i < number_to_shoot; i++) {
-		var dir_offset = 15*ceil(i/2);
+		var dir_offset = 25*ceil(i/2);
 		if (i % 2 == 0) { dir_offset *= -1; }
 		var target_x = x + lengthdir_x(16, dir+dir_offset), target_y = y + lengthdir_y(16, dir+dir_offset);
 		var next_shot = shoot_projectile(target_x, target_y, false, obj_magic_beam);

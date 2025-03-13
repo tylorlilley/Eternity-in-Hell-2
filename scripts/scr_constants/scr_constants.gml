@@ -24,7 +24,7 @@
 #macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 	
 // Initilize room start probability constants
-#macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 64, 32])
+#macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 96, 48])
 #macro STATUE_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 64, 32, 24])
 #macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
 #macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])
@@ -32,12 +32,12 @@
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
 #macro FIRE_SKELETON_IN_LAVA_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32]) 
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 4, 3, 3, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
-#macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 48, 32, 24, 16])
+#macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 32, 24, 20, 16])
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 4])
 #macro COCKROACH_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])
 #macro CULTIST_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
-#macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32]) 
+#macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 40]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 24, 22, 18]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 18, 16]) 
 #macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0// UNUSED get_probability_for_difficulty([0, 0, 12, 8, 6])
@@ -71,6 +71,7 @@
 #macro JUST_THE_WIND_PROBABILITY 2056 
 #macro BUSH_RUSTLE_FREQUENCY 16
 //#macro ILLUSION_WALL_FLICKER_FREQUENCY 256
+#macro SKELETON_MOVE_TOWARD_PLAYER_FREQUENCY get_probability_for_difficulty([0, 32, 24, 20, 18])
 #macro SKELETON_MOVE_FREQUENCY 12 
 #macro FAST_SKELETON_MOVE_FREQUENCY 4 
 #macro FAT_SKELETON_MOVE_FREQUENCY 48 

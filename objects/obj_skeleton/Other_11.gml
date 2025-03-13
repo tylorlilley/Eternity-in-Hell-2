@@ -10,7 +10,7 @@ else if (skeleton_speed > 0) {
 			target_y = dropped_meat.y;
 			set_automatic_target_path();
 		}
-		else if (get_random_chance_out_of(22)-global.difficulty) {
+		else if (get_random_chance_out_of(SKELETON_MOVE_TOWARD_PLAYER_FREQUENCY)) {
 			target_x = player.x;
 			target_y = player.y;
 			set_automatic_target_path();

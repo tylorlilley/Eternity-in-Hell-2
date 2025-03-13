@@ -360,9 +360,12 @@ function game_room_start_other() {
 		else if (!is_existing_instance(closed) && !stuck_open) { close_door(); }
 	}
 	with (obj_gudetama) { play_sound(snd_give_up, false); }
-	with (obj_statue) { if (object_index == obj_statue) { play_sound(snd_shoot, false); } }
-	with (obj_fountain) { play_sound(snd_magic, false); }
 	with (obj_giant_eye) { shoot_timer = irandom_range(24,48); }
+	
+	var random_statue = get_random_instance(obj_statue);
+	with random_statue { shoot_timer = irandom_range(1,4); }
+	var random_fountain = get_random_instance(obj_fountain);
+	with random_fountain { shoot_timer = irandom_range(1,4); }
 }
 
 /// @function										game_room_start_spawn_instances();

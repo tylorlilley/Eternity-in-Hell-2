@@ -48,7 +48,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 			if (is_carrying_special_item(obj_clock)) { time_to_decrement = 0; }
 			if (is_carrying_item(obj_clock)) {
 				var time_saved = (get_one_unit_of_game_time() - time_to_decrement);
-				evaluation_manager.increment_evaluation_variable("clock_time_saved", time_saved);
+				other.evaluation_manager.increment_evaluation_variable("clock_time_saved", time_saved);
 			}
 		}
 		time_remaining -= time_to_decrement;
@@ -133,7 +133,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 // DEBUG MODE SPAWNER
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
-		var obj_type = obj_floater;
+		var obj_type = obj_cultist;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); make_item_special(); }
 	}

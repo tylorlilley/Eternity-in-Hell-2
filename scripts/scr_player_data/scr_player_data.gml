@@ -108,7 +108,8 @@ function get_last_killed(obj_index, difficulty) {
 		
 		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
-			last_killed = ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index)+"_last_killed_by", 0);
+			var new_last_killed = ini_read_real(get_difficulty_string(next_difficulty), object_get_name(obj_index)+"_last_killed_by", 0);
+			if (new_last_killed > last_killed) { last_killed = new_last_killed; }
 			ini_close();
 		}
 	}
@@ -410,10 +411,11 @@ function write_debug_message(msg, debug_level = "Info") {
 ///	@param		{difficulty} difficulty		The difficulty to update the value for
 ///	@param		{int} value					The amount to increase the variable by
 function update_evaluation_variable(variable_name, difficulty, value) {
-	var previous_value = get_evaluation_variable(variable_name, difficulty);
+	var name_string = string_replace_all(variable_name, " ", "_");
+	var previous_value = get_evaluation_variable(name_string, difficulty);
 	
 	ini_open("player_data.ini");
-	ini_write_real(get_difficulty_string(difficulty), variable_name, previous_value+value);
+	ini_write_real(get_difficulty_string(difficulty), name_string, previous_value+value);
 	ini_close();
 }
 
@@ -421,7 +423,7 @@ function update_evaluation_variable(variable_name, difficulty, value) {
 ///	@param		{string} variable_name		The given name of the variable to get the value for
 ///	@param		{difficulty} difficulty		The difficulty to get the value for
 function get_evaluation_variable(variable_name, difficulty) {
-	var value = 0;
+	var name_string = string_replace_all(variable_name, " ", "_"), value = 0;
 	
 	var all_difficulties = get_difficulties();
 	while (array_length(all_difficulties) > 0) {
@@ -429,7 +431,7 @@ function get_evaluation_variable(variable_name, difficulty) {
 		
 		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
-			value += ini_read_real(get_difficulty_string(next_difficulty), variable_name, 0);
+			value += ini_read_real(get_difficulty_string(next_difficulty), name_string, 0);
 			ini_close();
 		}
 	}

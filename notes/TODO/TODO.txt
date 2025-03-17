@@ -1,5 +1,5 @@
 should eyes not react if they end up unable to move (like if you are closed off in a room and they are outside of it)?
-fireball won't light torch when it is dropped next to a door?
+
 does red compass freak out if you are behind a blocked door and collectables can't move towards you?
 Is hall of mirrors special room working correctly?
 
@@ -29,8 +29,7 @@ display difficulty and win count/death count on the screen
 left/right on death log to scroll through difficulties
 
 reflected fireballs are kind of wonky - limit number of bounces?
-
-lifetime stats for evaluation messages
+fireball won't light torch when it is dropped next to a door?
 
 SEED: 98878317
 SPAWNED obj_map 6

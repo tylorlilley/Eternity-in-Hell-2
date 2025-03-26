@@ -22,6 +22,8 @@ function EvaluationMessageManager() constructor {
 	
 	// Kills
 	kill_count = 0;
+	kill_after_death_count = 0;
+	worm_kill_count = 0;
 	sword_kill_count = 0;
 	block_kill_count = 0;
 	nose_block_kill_count = 0;
@@ -130,22 +132,26 @@ function EvaluationMessageManager() constructor {
 		// Misc Bonuses
 		add_evaluation_message((chests_opened >= 5), "Treasure Hunter", false, 2);
 		add_evaluation_message((kill_count >= 10), "Monster Slayer", false, 2);
-		add_evaluation_message((lava_kill_count > 0), "Accidental Kill", false, 2);
-		add_evaluation_message((fireball_kill_count >= 3), "Mad Bomber", false, 2);
+		//add_evaluation_message((lava_kill_count > 0), "Accidental Kill", false, 2);
+		add_evaluation_message((kill_after_death_count >= 1), "Posthumous Revenge", false, 2);
+		add_evaluation_message((fireball_kill_count > 0), "Friendly Fire", false, 2);
+		add_evaluation_message((worm_kill_count > 0), "Giant Enemy Worm Kill", false, 2);
 		add_evaluation_message((block_kill_count >= 3), "Bulldozer", false, 2);
 		add_evaluation_message((double_block_kill_count >= 1), "Two Birds One Block", false, 5);
 		add_evaluation_message((nose_block_kill_count >= 1), "Bulldozed in Lava", false, 5);
+		add_evaluation_message((portcullises_opened >= 3), "Gate Opener", false, portcullises_opened);
 		add_evaluation_message((rooms_lit >= 4), "Light Bringer", false, 2);
 		add_evaluation_message((bombs_lit >= 3), "Demolition Expert", false, 2);
 		add_evaluation_message((blocks_pushed_into_lava >= 9), "Bridge Maker", false, 2);
 		add_evaluation_message(((trapped_chests_opened + trapped_chests_destroyed) >= 3), "Trap Dodger", false, 2);
 		add_evaluation_message(((staff_blocked_beams + staff_blocked_fireballs) >= 3), "Projectile Deflector", false, 2);
-		add_evaluation_message((illusion_walls_discovered >= 2), "Breaker of Illusions", false, illusion_walls_discovered);
+		add_evaluation_message((illusion_walls_discovered >= 1), "Breaker of Illusions", false, illusion_walls_discovered);
 		add_evaluation_message((torches_lit_by_fireball > 0 || bombs_lit_by_fireball > 0), "Improvised Ignition", false, torches_lit_by_fireball+bombs_lit_by_fireball);
 		add_evaluation_message((has_won && spontaneously_exploded_enemy > 1), "Survived a Combustion", false, spontaneously_exploded_enemy);
 		add_evaluation_message((has_won && mirror_bounced_projectile > 1), "Survived Reflected Shot", false, 1);
 		
 		// Off and On Bonus/Penalties
+		add_evaluation_message((has_won && map_looks == 0), "Mental Mapper", false, 10);
 		add_evaluation_message((has_won && crushed_bugs == 0), "Careful Stepper", false, 10);
 		add_evaluation_message((crushed_bugs > 10), "Bug Crusher", true, -2);
 		add_evaluation_message((has_won && opened_doors == 0), "Entamaphobic", false, 10);
@@ -160,9 +166,9 @@ function EvaluationMessageManager() constructor {
 		
 		// Misc Penalties
 		add_evaluation_message((times_infected > 0), "Riddled with Parasites", true, -times_infected);
-		add_evaluation_message((item_lava_count >= 1 || chests_opened_lit_bombs >= 1), "Needlessly Wasteful", true, -2*item_lava_count+-2*chests_opened_lit_bombs);
+		add_evaluation_message((chests_opened_lit_bombs >= 1), "Lit Bomb Out of Chest", true, -2*chests_opened_lit_bombs);
+		add_evaluation_message((item_lava_count >= 1), "Destroyed Item in Lava", true, -2*item_lava_count);
 		add_evaluation_message((decapitated_corpses > 0), "Corpse Desecrator", true, -2*decapitated_corpses);
-		add_evaluation_message((portcullises_opened >= 3), "Gate Opener  ", false, portcullises_opened);
 		//add_evaluation_message((trapped_chests_opened > 0), "Foolish", false, -2);
 		
 		// Special Room Bonus and Penalties

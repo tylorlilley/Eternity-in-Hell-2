@@ -91,9 +91,19 @@ function is_cardinal_direction(dir) {
 
 /// @function								get_random_instance(obj_index);
 /// @param		{index} obj_index			The type of object to get a random existing instance of
-function get_random_instance(obj_index) {
-	// Gets a random instance of the given object index
-	return instance_find(obj_index, irandom(instance_number(obj_index) - 1));
+/// @param		{boolean} exact_index		Whether or not to get the exact object index or any ancestor
+function get_random_instance(obj_index, exact_index = false) {
+	// Gets the total number of eligible instances
+	var total_instances = instance_number(obj_index);
+	if (total_instances == 0) { return noone; }
+	
+	// Pick a random starting point and check all possible instances
+	var start_pos =  irandom(total_instances - 1);
+	for (var i = 0; i < total_instances; i++) {
+		var random_instance = instance_find(obj_index, ((i+start_pos) % total_instances));
+		if (exact_index && random_instance.object_index != obj_index) { continue; }
+		else { return random_instance; }
+	}
 }
 
 /// @function								get_random_chance_out_of(denominator);

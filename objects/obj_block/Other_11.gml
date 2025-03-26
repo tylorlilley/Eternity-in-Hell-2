@@ -4,12 +4,15 @@ event_inherited();
 var dir = get_direction_pushed_against();
 just_pushed = false;
 
-if (dir != directions.none && can_move_in_direction(dir, false, true)) {
-	play_sound(snd_thud, false);
-	snap_player_to_position(dir);
-	move_in_direction(dir, false);
-	move_player(dir);
-	just_pushed = true;
+if (dir != directions.none) {
+	if (can_move_in_direction(dir, false, true)) {
+		play_sound(snd_thud, false);
+		snap_player_to_position(dir);
+		move_in_direction(dir, false);
+		move_player(dir);
+		just_pushed = true;
+	}
+	else { play_sound(snd_locked, false); }
 }
 	
 if (just_pushed) {

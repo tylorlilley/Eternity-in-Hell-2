@@ -1,3 +1,18 @@
+is cultist noise on entrer working?
+is bonus for using multiple item types working?
+Should breaker of illusions be given out after only 1 found?
+
+are lava skeletons not spawning anymore?
+are cultist room and cockroach room working?
+
+
+
+increase special rooms?
+hands rush for meat even when deactivated?
+wiggle gets stuck (just like cockroach) when moving towards meat if between two blocks like: ___| W |___
+
+should map eval variables update based on looks per room instead of each look in general
+
 should eyes not react if they end up unable to move (like if you are closed off in a room and they are outside of it)?
 
 does red compass freak out if you are behind a blocked door and collectables can't move towards you?
@@ -7,11 +22,12 @@ Lust idea: summoner who creates many skeletons continuously. Room is solved if y
 
 eval messages for
 : projectile death
-: enemy died after you died?
 
-shoot sounds don't alert ears? But extniguish does?
+shoot sounds don't alert ears? But torch extniguish and cultist teleport does?
 
 are the many blocks or many columns rooms limited to harder difficulties?
+should rooms with floater be limited to those without locked exists?
+should the initial fountain fire be AWAY from the player? Or at least the one chosen to shoot early? Should we choose the one farthest from the player to shoot early?
 
 gate more things to final difficulty?
 cockroach gfx

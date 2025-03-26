@@ -21,7 +21,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 			}
 			
 			with (obj_fat_skeleton) {
-				if key_space_pressed { play_sound(snd_spider, false); }
+				if key_space_pressed { play_sound(snd_fatscream, false); }
 					
 				var target = get_dropped_meat();
 				if (!is_existing_instance(target)) {
@@ -133,12 +133,12 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 // DEBUG MODE SPAWNER
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
-		var obj_type = obj_cultist;
+		var obj_type = obj_compass;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); make_item_special(); }
 	}
 	if (mouse_check_button_pressed(mb_right)) {
-		var obj_type = obj_rosary;
+		var obj_type = obj_cultist;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}

@@ -12,7 +12,7 @@ if (!activated) {
 else {
 	// Change angle of movement
 	var new_dir = point_direction(x, y, player.x, player.y);
-	var max_angle_change = 8, max_speed = 1.5, dir_difference = angle_difference(new_dir, direction);
+	var max_angle_change = 8, max_speed = 1.75, dir_difference = angle_difference(new_dir, direction);
 	if (abs(dir_difference) < max_angle_change) { direction = new_dir; }
 	else { 
 		direction += sign(dir_difference) * max_angle_change; 

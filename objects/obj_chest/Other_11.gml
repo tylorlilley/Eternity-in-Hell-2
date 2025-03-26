@@ -35,6 +35,7 @@ if closed {
 					statue.dir = get_opposite_dir(push_direction);
 					statue.image_angle = statue.dir * -90;
 					statue.shoot_timer += 2;
+					statue.trap = true;
 					instance_destroy();
 				}
 				else if(contents_obj == obj_fountain) {
@@ -42,6 +43,7 @@ if closed {
 					play_sound(snd_skeletonrise, true);
 					var fountain = instance_create(x, y, obj_fountain);
 					fountain.shoot_timer += 2;
+					fountain.trap = true;
 					instance_destroy();
 				}
 				else if (contents_obj != -1) { 

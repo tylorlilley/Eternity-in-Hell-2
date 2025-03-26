@@ -362,10 +362,14 @@ function game_room_start_other() {
 	with (obj_gudetama) { play_sound(snd_give_up, false); }
 	with (obj_giant_eye) { shoot_timer = irandom_range(24,48); }
 	
-	var random_statue = get_random_instance(obj_statue);
+	var random_statue = get_random_instance(obj_statue, true);
 	with random_statue { shoot_timer = irandom_range(1,4); }
-	var random_fountain = get_random_instance(obj_fountain);
+	var random_fountain = get_random_instance(obj_fountain, true);
 	with random_fountain { shoot_timer = irandom_range(1,4); }
+	with (obj_statue) { 
+		trap = false;
+		if (other.transition >= directions.stairs) { shoot_timer += 4; }
+	}
 }
 
 /// @function										game_room_start_spawn_instances();
@@ -391,11 +395,16 @@ function game_room_start_spawn_instances() {
 	
 	with (obj_encased_heart) { if (are_all_collectables_collected()) { break_heart_case(false); } }
 	
-	/// If room has lava, consider spawning nose
-	if (instance_number(obj_nose) < global.difficulty && instance_number(obj_lava) > 0 && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(-16, -16, obj_nose); }
-	
-	/// If room has lava, consider spawning nose
-	if (instance_number(obj_fire_skeleton) == 0 && instance_number(obj_lava) > 0 && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { instance_create(-16, -16, obj_fire_skeleton); }
+	/// If room has lava, consider spawning enemies in lava
+	if (instance_number(obj_lava) > 0) {
+		if (instance_number(obj_nose) < global.difficulty && get_random_chance_out_of(NOSE_PROBABILITY*4)) { instance_create(-16, -16, obj_nose); }
+		else if (instance_number(obj_fire_skeleton) == 0 && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { 
+			var fire_skeleton = instance_create(-16, -16, obj_fire_skeleton);
+			with (fire_skeleton) {  
+				if (teleport_to_lava() == noone) { instance_destroy(self, false); }
+			}
+		}
+	}
 }
 
 /// @function										game_room_end();
@@ -900,12 +909,17 @@ function get_mapped_rooms_score() {
 function get_time_remaining_score() {
 	var controller = global.controller;
 	if (!is_existing_instance(controller)) { return 0; }
+	if (!is_game_won()) { return 0; }
 	
-	var percentage_of_possible_rooms = array_length(global.controller.game_rooms)/MAXIMUM_NUMBER_OF_ROOMS;
+	/*
+	var percentage_of_possible_rooms = array_length(global.controller.game_rooms)/MAX_NUMBER_OF_ROOMS;
 	var minimum_time_to_complete = global.controller.time_provided * percentage_of_possible_rooms * 0.25;
 	var percentage_of_time_remaining = (is_game_won()) ? 100*((global.controller.final_time_remaining + minimum_time_to_complete) / global.controller.time_provided) : 0;
 	if (percentage_of_time_remaining > 100) { percentage_of_time_remaining = 100; }
-	return percentage_of_time_remaining;
+	*/
+	
+	var minimum_time_to_complete = global.controller.time_provided * 0.25;
+	return (global.controller.final_time_remaining + minimum_time_to_complete) / global.controller.time_provided;
 }
 
 /// @function								get_victory_amount_score()

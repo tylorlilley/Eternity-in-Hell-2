@@ -69,6 +69,18 @@ function become_carried(new_holder) {
 	if (time_image_index != prev_time_image_index) {
 		play_sound(snd_clock_tick, false);
 	}
+	
+	// Add evaluation messages
+	if (new_holder == global.player) {
+		with (new_holder) {
+			if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
+				global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_items");
+				if (right_hand_item.object_index == obj_torch && left_hand_item.object_index == obj_torch && is_existing_instance(right_hand_item.light_source) && is_existing_instance(left_hand_item.light_source)) {
+					global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_lit_torches");
+				}
+			}
+		}
+	}
 }
 
 }

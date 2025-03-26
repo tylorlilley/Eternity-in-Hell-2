@@ -3,7 +3,16 @@ var player = global.player, can_process = can_process_this_frame();
 
 // Restart Game While Paused
 if (paused) {
-	if (key_z && key_x && key_enter_released) { return_to_title_screen(); exit; }
+	if (key_z && key_x && key_enter_released) {
+		with (global.controller) {
+			killed_by = obj_player;
+			update_kill_log(obj_player, global.difficulty, obj_player);
+			update_death_log(killed_by, global.difficulty, false);
+			update_run_number_log(global.difficulty);
+		}
+		return_to_title_screen(); 
+		exit; 
+	}
 }
 else {
 	// Do Step Events

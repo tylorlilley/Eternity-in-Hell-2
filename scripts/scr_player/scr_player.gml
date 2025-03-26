@@ -91,14 +91,6 @@ function pick_up_or_put_down_item(dir) {
 			var dropped_item = array_pop(dropped_items);
 			if (is_existing_instance(dropped_item) && !is_existing_instance(dropped_item.holder) && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
 				pick_up_item(dropped_item, true, dir);
-				
-				if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
-					global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_items");
-					if (right_hand_item.object_index == obj_torch && left_hand_item.object_index == obj_torch && is_existing_instance(right_hand_item.light_source) && is_existing_instance(left_hand_item.light_source)) {
-						global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_lit_torches");
-					}
-				}
-				
 				return dropped_item;
 			}
 		}
@@ -110,12 +102,7 @@ function pick_up_or_put_down_item(dir) {
 				var new_item = create_item_in_hand(dir, obj_meat);
 				corpse.headless = true;
 				global.controller.evaluation_manager.increment_evaluation_variable("decapitated_corpses");
-				play_sound(snd_crunch, true);
-				
-				if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
-					global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_items");
-				}
-				
+				play_sound(snd_crunch, true);		
 				return new_item;
 			}
 		}

@@ -2,10 +2,10 @@
 event_inherited();
 
 // flicker sprite
-if (shoot_timer <= 8) { image_index = 2; skeleton_speed = 0; }
+if (shoot_timer <= 12) { image_index = 2; skeleton_speed = 0; }
 
 // Shoot beam
-if (shoot_timer == 4) {
+if (shoot_timer == 6) {
 	var target = get_dropped_meat();
 	if (!is_existing_instance(target)) { target = global.player; }
 	shoot_magic_beam(target, 0, 3);
@@ -18,7 +18,7 @@ else {
 	shoot_timer = irandom_range(32, 64);
 	skeleton_speed = SKELETON_MOVE_FREQUENCY*4;
 	image_index = 0;
-	play_sound(snd_stairs, true);
+	play_sound(snd_magicteleport, true);
 	teleport_to_empty_space();
 }
 

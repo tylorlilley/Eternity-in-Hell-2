@@ -81,6 +81,8 @@ global.death_types_array = [
 	obj_cockroach,
 	obj_cultist,
 	obj_red_chest,
+	obj_chest,
+	obj_player
 ];
 global.available_items = [
 	[obj_key],

@@ -16,7 +16,7 @@ if (sprite_index == get_sprite_to_use(spr_clock) ||
 	if (sprite_index == get_sprite_to_use(spr_compass)) {
 		var new_image_index = get_compass_image_index();
 		time_image_index = (new_image_index == -1) ? time_image_index : new_image_index;
-		time_sprite_index = get_sprite_to_use(spr_compass_hands);
+		time_sprite_index = (special) ? get_sprite_to_use(spr_special_compass_hands) : get_sprite_to_use(spr_compass_hands);
 	}
 	else {
 		time_image_index = get_clock_image_index();

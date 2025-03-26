@@ -109,25 +109,25 @@ function GameRoom(given_x, given_y) constructor {
 						if rand <= 6 { skeleton_type = obj_cockroach; cockroach_count += 1; }
 						else if rand <= 10 { skeleton_type = obj_cultist; cultist_count += 1; }
 						else if rand <= 16 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
-						else if rand <= 17 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
+						else if rand <= 20 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
 						break;
 					}
 					case difficulties.hard: {
 						if rand <= 12 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 18 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
-						else if rand <= 26 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
+						else if rand <= 20 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
+						else if rand <= 28 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
 						else if rand <= 34 { skeleton_type = obj_cultist; cultist_count += 1; }
-						else if rand <= 38 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
-						else if rand <= 40 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 40 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
+						else if rand <= 42 { skeleton_type = obj_snake; snake_count += 1; }
 						break;
 					}
 					case difficulties.very_hard: {
-						if rand <= 25 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 37 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
+						if rand <= 15 { skeleton_type = obj_cockroach; cockroach_count += 1; }
+						else if rand <= 35 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
 						else if rand <= 50 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
 						else if rand <= 62 { skeleton_type = obj_cultist; cultist_count += 1; }
-						else if rand <= 70 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
-						else if rand <= 75 { skeleton_type = obj_snake; snake_count += 1; }
+						else if rand <= 75 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
+						else if rand <= 80 { skeleton_type = obj_snake; snake_count += 1; }
 						break;
 					}
 				}
@@ -743,7 +743,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_three_exits_22;//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_one_exit_16;//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -939,7 +939,7 @@ function GameRoom(given_x, given_y) constructor {
 }
 
 function create_game_map() {
-	var created_cardinal_exits = 0, target_rooms = MINIMUM_NUMBER_OF_ROOMS;// + irandom(MAXIMUM_NUMBER_OF_ROOMS - MINIMUM_NUMBER_OF_ROOMS);
+	var created_cardinal_exits = 0, target_rooms = MINIMUM_NUMBER_OF_ROOMS;// + irandom(MAX_NUMBER_OF_ROOMS - MINIMUM_NUMBER_OF_ROOMS);
 	
 	// Set up initial game room and game rooms array
 	game_rooms = array_create(0);

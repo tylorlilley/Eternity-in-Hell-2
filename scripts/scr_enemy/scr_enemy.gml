@@ -27,6 +27,9 @@ function kill_enemy(death_sound, killed_by) {
 	if (killed_by != noone) {
 		update_kill_log(object_index, global.difficulty, killed_by);
 	}
+	if (global.player.dead) {
+		global.controller.evaluation_manager.increment_evaluation_variable("kill_after_death_count");
+	}
 	instance_destroy();
 }
 
@@ -135,7 +138,7 @@ function shoot_projectile(target_x, target_y, make_destructive, obj = obj_fireba
 		creator = other.id;
 		creator_obj = other.object_index;
 		destructive = make_destructive;
-		move_towards_point(target_x, target_y, (obj == obj_fireball ? 2 : 0.8)); 
+		move_towards_point(target_x, target_y, (obj == obj_fireball ? 2 : 1)); 
 	}
 	return proj;
 }
@@ -390,7 +393,10 @@ function check_for_player_collision() {
 					if (!is_carrying_item(obj_staff)) { 
 						play_sound(snd_extinguish, false);
 						var killer = obj_lava;
-						if (is_existing_instance(other.creator)) { killer = other.creator.object_index; }
+						if (is_existing_instance(other.creator)) { 
+							killer = other.creator.object_index;
+							if ((killer == obj_statue || killer = obj_fountain) && killer.trap) { killer = obj_chest; }
+						}
 						kill_player(killer);
 					} 
 				}

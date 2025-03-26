@@ -5,8 +5,8 @@ update_fireball_torch_position(0.5);
 var blocked = false;
 
 // Kill Enemies
-var blocked_by_enemy = fireball_kill_enemies(true);
-if (blocked_by_enemy) { blocked = true; }
+//var blocked_by_enemy = fireball_kill_enemies(true);
+//if (blocked_by_enemy) { blocked = true; }
 
 // Kill Player
 var player = global.player;

@@ -1,8 +1,6 @@
 /// @description Step
 event_inherited();
 
-if (x < 0 && y < 0 && !activated) { teleport_to_lava(); activated = true; }
-
 // Update Torch Sprite information
 if (torch_light_image_timer > 0) { torch_light_image_timer -= 1; }
 if (torch_light_image_timer == 0) {
@@ -27,7 +25,7 @@ update_lava_lighting();
 //update_fireball_torch_position();
 fireball_light_bombs();
 fireball_kill_enemies();
-// fireball_burn_bushes();
+fireball_burn_bushes();
 
 // flicker sprite
 if (shoot_timer <= 4) { 

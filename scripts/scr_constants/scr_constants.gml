@@ -29,8 +29,8 @@
 #macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
 #macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
-#macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) 
-#macro FIRE_SKELETON_IN_LAVA_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32]) 
+#macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) // multiplied by 4 for check at every room enter
+#macro FIRE_SKELETON_IN_LAVA_PROBABILITY get_probability_for_difficulty([0, 0, 0, 48, 32])
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 4, 3, 3, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
 #macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 32, 24, 20, 16])
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
@@ -47,8 +47,7 @@
 #macro GRID_SIZE 8
 //#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
-#macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([12, 16, 24, 28, 32])
-#macro MAXIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 15, 18, 24])
+#macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 15, 18, 24]) //[12, 16, 24, 28, 32])
 #macro AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.75, 1.5, 2, 2.25])
 //#macro OLD_AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.8289, 1.1682, 1.3802, 1.5])
 //#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 

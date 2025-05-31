@@ -21,7 +21,7 @@ function initialize_door() {
 			case directions.right: { x_offset += 8; quadrants_to_delete = [0, 2]; break; }
 		}
 		
-		if (!place_meeting(x+(2*x_offset), y+(2*y_offset), obj_solid) || place_meeting(x+x_offset, y+y_offset, obj_solid)) { continue; }
+		if (!place_meeting(x+(2*x_offset), y+(2*y_offset), obj_wall) || place_meeting(x+x_offset, y+y_offset, obj_wall)) { continue; }
 
 		// Create a half wall in this direction
 		var wall = instance_create(x+x_offset, y+y_offset, obj_wall_part);

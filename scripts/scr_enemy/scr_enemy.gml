@@ -138,7 +138,7 @@ function shoot_projectile(target_x, target_y, make_destructive, obj = obj_fireba
 		creator = other.id;
 		creator_obj = other.object_index;
 		destructive = make_destructive;
-		move_towards_point(target_x, target_y, (obj == obj_fireball ? 2 : 1)); 
+		move_towards_point(target_x, target_y, (obj == obj_fireball ? 2 : 0.75)); 
 	}
 	return proj;
 }

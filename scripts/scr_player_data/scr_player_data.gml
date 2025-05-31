@@ -227,8 +227,6 @@ function update_best_score(difficulty, new_score) {
 	}
 	
 	update_log("score", new_score);
-	
-	update_run_number_log(global.difficulty);
 }
 
 /// @function									get_win_count(difficulty, [graphics_mode]);
@@ -284,7 +282,7 @@ function get_run_number_count(difficulty) {
 		
 		if (difficulty == difficulties.ALL || difficulty == next_difficulty) {
 			ini_open("player_data.ini");
-			run_count += ini_read_real(get_difficulty_string(next_difficulty), "run_number", 1);
+			run_count += ini_read_real(get_difficulty_string(next_difficulty), "run_number", 0);
 			ini_close();
 		}
 	}

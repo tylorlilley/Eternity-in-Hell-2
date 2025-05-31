@@ -133,6 +133,7 @@
     {"name":"snd_stairs","order":5,"path":"sounds/snd_stairs/snd_stairs.yy",},
     {"name":"rm_three_exits_28","order":27,"path":"rooms/rm_three_exits_28/rm_three_exits_28.yy",},
     {"name":"obj_staff","order":11,"path":"objects/obj_staff/obj_staff.yy",},
+    {"name":"obj_locked_chest","order":20,"path":"objects/obj_locked_chest/obj_locked_chest.yy",},
     {"name":"rm_three_exits_13","order":12,"path":"rooms/rm_three_exits_13/rm_three_exits_13.yy",},
     {"name":"snd_torchlight","order":7,"path":"sounds/snd_torchlight/snd_torchlight.yy",},
     {"name":"rm_unused_7","order":13,"path":"rooms/rm_unused_7/rm_unused_7.yy",},

@@ -107,9 +107,9 @@ function GameRoom(given_x, given_y) constructor {
 					}
 					case difficulties.medium: {
 						if rand <= 6 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 10 { skeleton_type = obj_cultist; cultist_count += 1; }
-						else if rand <= 16 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
-						else if rand <= 20 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
+						else if rand <= 12 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
+						else if rand <= 16 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
+						//else if rand <= 20 { skeleton_type = obj_cultist; cultist_count += 1; }
 						break;
 					}
 					case difficulties.hard: {
@@ -118,7 +118,7 @@ function GameRoom(given_x, given_y) constructor {
 						else if rand <= 28 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
 						else if rand <= 34 { skeleton_type = obj_cultist; cultist_count += 1; }
 						else if rand <= 40 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
-						else if rand <= 42 { skeleton_type = obj_snake; snake_count += 1; }
+						//else if rand <= 42 { skeleton_type = obj_snake; snake_count += 1; }
 						break;
 					}
 					case difficulties.very_hard: {
@@ -150,52 +150,53 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									update_game_room_difficulty();
 	function update_game_room_difficulty() {
-		var has_bumper = get_room_reference_object_count(obj_bumper_old) > 0;
-		var has_ears = get_room_reference_object_count(obj_ears) > 0;
-		var has_gudetama = get_room_reference_object_count(obj_gudetama) > 0;
+		// KEEP THESE VALUES IN LINE WITH THE RUBY ROOM CONVERTER SCRIPT VALUES
 		
-		room_reference_difficulty = 0;
-	
-		if (is_special_room) { room_reference_difficulty += 5; }
-		if (has_phantom) { room_reference_difficulty += 2; }
-		if (has_floater) { room_reference_difficulty += 2; }
-		if (has_bumper) { room_reference_difficulty += 1.25; }
-		if (has_eyes) { room_reference_difficulty += 2.5; }
-		if (has_all_cockroaches) { room_reference_difficulty += 0.25; }
-		if (has_all_cultists) { room_reference_difficulty += 0.5; }
-		if (has_ears) { room_reference_difficulty += 2.5; }
-		if (has_gudetama) { room_reference_difficulty += 0.025; }
-		
+		// Reset initial room values
 		if (global.controller.start_room == self) { 
 			initial_fountain_count = 0; 
 			initial_statue_fountain_count = 0;
 			has_phantom = false;
 			has_floater = false;
 		}
-		room_reference_difficulty += initial_fountain_count * 0.325;
-		room_reference_difficulty += initial_statue_fountain_count * 0.325;
+		room_reference_difficulty = 0;
+	
+		// Add to difficulty for enemies
+		var has_bumper = get_room_reference_object_count(obj_bumper_old) > 0;
+		var has_ears = get_room_reference_object_count(obj_ears) > 0;
+		var has_gudetama = get_room_reference_object_count(obj_gudetama) > 0;
+		
+		if (has_phantom) { room_reference_difficulty += 2; }
+		if (has_floater) { room_reference_difficulty += 2; }
+		if (has_bumper) { room_reference_difficulty += 1.25; }
+		if (has_eyes) { room_reference_difficulty += 4.5; } //2.5
+		if (has_ears) { room_reference_difficulty += 4.5; } //2.5
+		if (has_gudetama) { room_reference_difficulty += 4.5; } //0.025
+		
 		room_reference_difficulty += get_room_reference_object_count(obj_mouth) * 1;
 		room_reference_difficulty += initial_nose_count * 0.75;
 		room_reference_difficulty += initial_fire_skeleton_count;
 		room_reference_difficulty += (get_room_reference_object_count(obj_spider_spot) > 0) ? 1.5 : 0;
 		room_reference_difficulty += get_room_reference_object_count(obj_spider) * 1.5;
-		room_reference_difficulty += get_room_reference_object_count(obj_statue) - initial_statue_fountain_count * 0.325;
-		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.325;
-		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.25;
-		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.5
+		room_reference_difficulty += initial_fountain_count * 0.5; //0.325
+		room_reference_difficulty += initial_statue_fountain_count * 0.25; //0.325
+		room_reference_difficulty += get_room_reference_object_count(obj_statue) - initial_statue_fountain_count * 0.25; //0.325
+		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.5; //0.325
+		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.33; //0.25
+		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.66 // 0.5
 		room_reference_difficulty += fast_skeleton_count * 0.325;
 		room_reference_difficulty += fat_skeleton_count * 0.325;
 		room_reference_difficulty += cultist_count * 0.325;
 		room_reference_difficulty += fire_skeleton_count * 0.5;
-		room_reference_difficulty += ((get_room_reference_object_count(obj_giant_worm_head) * 0.25) + (get_room_reference_object_count(obj_giant_worm_body) * 0.010));
+		room_reference_difficulty += ((get_room_reference_object_count(obj_giant_worm_head) * 0.1625) + (get_room_reference_object_count(obj_giant_worm_body) * 0.0625));
 	
 		// Add a base increase if any enemies were present
-		if (room_reference_difficulty != 0) { room_reference_difficulty += 0.25; }
+		if (room_reference_difficulty != 0) { room_reference_difficulty += 0.25; }		
+		if (is_special_room) { room_reference_difficulty += 5; }		
+		if (has_all_cockroaches) { room_reference_difficulty += 0.25; } // TODO: Switch to global effect?
+		if (has_all_cultists) { room_reference_difficulty += 0.5; }
 		
-		room_reference_difficulty += clamp(get_room_reference_object_count(obj_block_spot) * 0.01, 0, 0.25);
-		room_reference_difficulty += clamp(get_room_reference_object_count(obj_lava) * 0.05, 0, 0.5);
-		room_reference_difficulty += get_room_reference_object_count(obj_bones) * 0.010;
-		
+		// Add to difficulty for other objects
 		if (has_hidden_chest) { room_reference_difficulty += 0.125; }
 		if (!has_phantom && !has_hidden_chest && has_lanterns > 0) { room_reference_difficulty -= 0.125; }		
 		if (has_lanterns && lit) { room_reference_difficulty -= 0.125; }
@@ -207,6 +208,11 @@ function GameRoom(given_x, given_y) constructor {
 		else if (chest_obj = obj_fountain) { room_reference_difficulty += 0.325; }
 		else if (!has_key && chest_obj != -1) { room_reference_difficulty -= 0.25; }
 		if (has_special_item) { room_reference_difficulty -= 2; }
+		
+		room_reference_difficulty += get_room_reference_object_count(obj_block_spot) * 0.080; //clamp(get_room_reference_object_count(obj_block_spot) * 0.01, 0, 0.25);
+		room_reference_difficulty += get_room_reference_object_count(obj_lava) * 0.010; //clamp(get_room_reference_object_count(obj_lava) * 0.05, 0, 0.5);
+		room_reference_difficulty += get_room_reference_object_count(obj_bones) * 0.050;
+		room_reference_difficulty += get_room_reference_object_count(obj_player_corpse) * 0.050;
 		
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var next_exit = exits[dir];
@@ -239,9 +245,11 @@ function GameRoom(given_x, given_y) constructor {
 		old_room_reference_difficulty += get_room_reference_object_count(obj_mouth);
 		old_room_reference_difficulty += floor(get_room_reference_object_count(obj_block_spot) * 0.08);
 		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_lava) * 0.01);
-		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_spider) * 1.2);
 		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_bones) * 0.05);
+		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_spider) * 1.5);
+		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_player_corpse) * 0.05);
 		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_statue) * 0.25);
+		//old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_column) * 0.10);
 		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_skeleton_spot) * 0.33);
 		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_snake) * 0.66);
 		old_room_reference_difficulty += ceil((get_room_reference_object_count(obj_giant_worm_head) * 0.25) + (get_room_reference_object_count(obj_giant_worm_body) * 0.10));
@@ -743,7 +751,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_one_exit_16;//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_three_exits_21;//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -1152,6 +1160,9 @@ function instances_for_room_reference(room_reference) {
 
 /// @function								difficulty_for_room_reference();
 function difficulty_for_room_reference(room_reference) {
+	// This difficulty is added to the room reference file by the ruby script.
+	// It is used to determine if the room layout should be included at a given difficulty,
+	// without considering any extra randomly determined difficulty additions.
 	var filename = room_get_name(room_reference) + ".json";
 	var file = file_text_open_read(filename);
 	if (file == -1) { return 0; }

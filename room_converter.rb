@@ -182,9 +182,9 @@ class RoomConverter
         threat_level += 1.5 if room_objects.include? "obj_bumper_old"
         threat_level += 2 if room_objects.include? "obj_floater"
         threat_level += 1.5 if room_objects.include? "obj_spider_spot"
-        threat_level += 4 if room_objects.include? "obj_eyes"
-        threat_level += 4 if room_objects.include? "obj_ears"
-        threat_level += 4 if room_objects.include? "obj_gudetama"
+        threat_level += 4.5 if room_objects.include? "obj_eyes"
+        threat_level += 4.5 if room_objects.include? "obj_ears"
+        threat_level += 4.5 if room_objects.include? "obj_gudetama"
         threat_level += 5 if room_objects.include? "obj_giant_eye"
         threat_level += 5 if room_objects.include? "obj_inverted_cross"
         threat_level += 5 if room_objects.include? "obj_hall_of_mirrors"
@@ -202,7 +202,7 @@ class RoomConverter
         threat_level += (room_objects.count("obj_fountain") * 0.5).ceil
         threat_level += (room_objects.count("obj_skeleton_spot") * 0.33).ceil
         threat_level += (room_objects.count("obj_snake") * 0.66).ceil
-        threat_level += (0.25 * room_objects.count("obj_giant_worm_head") + 0.10 * room_objects.count("obj_giant_worm_body")).ceil
+        threat_level += (0.1625 * room_objects.count("obj_giant_worm_head") + 0.0625 * room_objects.count("obj_giant_worm_body")).ceil
 
         return threat_level.round()
     end

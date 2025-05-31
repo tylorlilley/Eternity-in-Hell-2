@@ -95,28 +95,41 @@ function EvaluationMessageManager() constructor {
 		
 		var has_won = is_game_won(), has_lost = is_game_lost();
 		var time_elapsed = (global.is_test_mode) ? 0 : (controller.time_provided - controller.final_time_remaining);
-		var time_elapsed_string = "Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2);
+		var time_remaining = (global.is_test_mode) ? 0 : controller.final_time_remaining;
+		var time_provided = (global.is_test_mode) ? 0 : controller.time_provided;
+		// var time_elapsed_string = "Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2);
+		// var time_remaining_string = "Extra Time Remaining: "+string(floor(time_remaining/(60)))+":"+get_zero_padded_string(floor(modulo(time_remaining, 60)), 2);
+		var time_elapsed_string = "Time Elapsed: "+get_percentage_string((time_elapsed/time_provided));
+		var time_remaining_string = "Extra Time Remaining: "+get_percentage_string((time_remaining/time_provided));
 		
 		// Main Scoring Messages
 		add_evaluation_message(true, time_elapsed_string, false, 0);
 		add_evaluation_message(true, "Collected: "+get_percentage_string(get_collectables_score()), false, get_collectables_score()/3);
 		add_evaluation_message(true, "Visited Rooms: "+get_percentage_string(get_mapped_rooms_score()), false, get_mapped_rooms_score()/3);
 		add_evaluation_message((global.is_test_mode || controller.completion_amount > 0), "Escaped Amount: "+get_percentage_string(get_victory_amount_score()), false, get_victory_amount_score()/10);
-		add_evaluation_message((global.is_test_mode || has_won), "Extra Time Remaining: "+get_percentage_string(get_time_remaining_score()), false, get_time_remaining_score()/10);
+		add_evaluation_message((global.is_test_mode || has_won), time_remaining_string, false, get_time_remaining_score()/10);
 		add_evaluation_message((global.is_test_mode ||((has_won && death_count > 0) || (has_lost && death_count > 1))), "Death Penalty: "+string(death_count-1), true, death_count*-5);
+		add_evaluation_message((global.is_test_mode || (controller.killed_by != noone && get_death_count(controller.killed_by, global.difficulty) == 0)), "Novel Death", true, 0);
 		add_evaluation_message((global.is_test_mode || kill_count > 0), "Killed Enemies: "+string(kill_count), false, kill_count);
-		add_evaluation_message((global.is_test_mode || used_special_items > 0), "Cursed Items Used : "+string(used_special_items), true, used_special_items*-5);
+		add_evaluation_message((global.is_test_mode || used_special_items > 0), "Cursed Items Used : "+string(used_special_items), true, used_special_items*-10);
 		
 		// Item Scoring messages
-		add_evaluation_message((global.is_test_mode ||get_used_item_score() > 0), "Resourceful", false, get_used_item_score());
-		add_evaluation_message((global.is_test_mode || (has_won && global.player_left_hand_item == noone && global.player_right_hand_item == noone)), "Courageous Preperation", false, 10);
+		add_evaluation_message((global.is_test_mode || get_used_item_score() > 0), "Resourceful", false, get_used_item_score());
+		add_evaluation_message((global.is_test_mode || (has_won && global.player_left_hand_item == noone && global.player_right_hand_item == noone)), "Courageous Preparation", false, 10);
 		add_evaluation_message((global.player_left_hand_item != noone && global.player_right_hand_item != noone), "Overprepared", true, -5);
 		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_left_hand_item == noone || controller.final_player_right_hand_item == noone))), "Returned Empty-Handed", true, -5);
-		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_right_hand_item != global.player_left_hand_item && controller.final_player_right_hand_item != global.player_right_hand_item && controller.final_player_right_hand_item != obj_heart))), "Returned with a Memento", false, 10);
-		add_evaluation_message((global.is_test_mode || (has_won && (controller.final_player_left_hand_item != global.player_left_hand_item && controller.final_player_left_hand_item != global.player_right_hand_item && controller.final_player_left_hand_item != obj_heart))), "Returned with a Memento", false, 10);
-		add_evaluation_message((global.is_test_mode || (controller.killed_by != noone && get_death_count(controller.killed_by, global.difficulty) == 0)), "Novel Death", false, 2);
-		add_evaluation_message((global.is_test_mode || (has_won && get_item_win_count(controller.final_player_left_hand_item, global.difficulty) == 0)), "New Item Recovered", false, 2);
-		add_evaluation_message((global.is_test_mode || (has_won && get_item_win_count(controller.final_player_right_hand_item, global.difficulty) == 0)), "New Item Recovered", false, 2);
+		if (global.is_test_mode || (has_won && (controller.final_player_right_hand_item != global.player_left_hand_item && controller.final_player_right_hand_item != global.player_right_hand_item && controller.final_player_right_hand_item != obj_heart))) {
+			add_evaluation_message((true), "Returned with a Memento", false, 5);
+		}
+		else if ((global.is_test_mode || (has_won && (controller.final_player_left_hand_item != global.player_left_hand_item && controller.final_player_left_hand_item != global.player_right_hand_item && controller.final_player_left_hand_item != obj_heart)))) {
+			add_evaluation_message((true), "Returned with a Memento", false, 5);
+		}
+		if (global.is_test_mode || (has_won && controller.final_player_lefts_hand_item != obj_heart && get_item_win_count(controller.final_player_left_hand_item, global.difficulty) == 0)) {
+			add_evaluation_message((true), "New Item Recovered", false, 0);
+		}
+		else if (global.is_test_mode || (has_won && controller.final_player_right_hand_item != obj_heart && get_item_win_count(controller.final_player_right_hand_item, global.difficulty) == 0)) {
+			add_evaluation_message((true), "New Item Recovered", false, 0);
+		}
 		
 		// Item Mastery Bonuses
 		add_evaluation_message((sword_kill_count >= 3), "Sword Master", false, 5);
@@ -135,8 +148,8 @@ function EvaluationMessageManager() constructor {
 		//add_evaluation_message((lava_kill_count > 0), "Accidental Kill", false, 2);
 		add_evaluation_message((kill_after_death_count >= 1), "Posthumous Revenge", false, 2);
 		add_evaluation_message((fireball_kill_count > 0), "Friendly Fire", false, 2);
-		add_evaluation_message((worm_kill_count > 0), "Giant Enemy Worm Kill", false, 2);
-		add_evaluation_message((block_kill_count >= 3), "Bulldozer", false, 2);
+		add_evaluation_message((worm_kill_count > 0), "Accidental Kill", false, 2);
+		add_evaluation_message((block_kill_count >= 4), "Bulldozer", false, 2);
 		add_evaluation_message((double_block_kill_count >= 1), "Two Birds One Block", false, 5);
 		add_evaluation_message((nose_block_kill_count >= 1), "Bulldozed in Lava", false, 5);
 		add_evaluation_message((portcullises_opened >= 3), "Gate Opener", false, portcullises_opened);
@@ -149,6 +162,7 @@ function EvaluationMessageManager() constructor {
 		add_evaluation_message((torches_lit_by_fireball > 0 || bombs_lit_by_fireball > 0), "Improvised Ignition", false, torches_lit_by_fireball+bombs_lit_by_fireball);
 		add_evaluation_message((has_won && spontaneously_exploded_enemy > 1), "Survived a Combustion", false, spontaneously_exploded_enemy);
 		add_evaluation_message((has_won && mirror_bounced_projectile > 1), "Survived Reflected Shot", false, 1);
+		add_evaluation_message((has_won && times_infected > 0), "Survived a Parasite", true, 5);
 		
 		// Off and On Bonus/Penalties
 		add_evaluation_message((has_won && map_looks == 0), "Mental Mapper", false, 10);
@@ -188,6 +202,9 @@ function EvaluationMessageManager() constructor {
 		// TODO: Missing Lust Room
 		
 		if (current_score < 0) { current_score = 0; }
+		if (current_score > 100) { current_score = 100; }
+		var previous_best_score = get_best_score(global.difficulty);
+		add_evaluation_message((previous_best_score <= current_score), "New High Score!", false, 0);
 		if (!global.is_test_mode) {
 			update_best_score(global.difficulty, current_score);
 			save_evaluation_variables();
@@ -328,8 +345,9 @@ function EvaluationMessageManager() constructor {
 		}
 	}
 	
-	/// @function								load_evaluation_messages();
-	function load_evaluation_messages() {
+	/// @function								load_evaluation_messages(sort_mode);
+	/// @param		{boolean} sort_by_value		Whether to sort the eval messages by their value
+	function load_evaluation_messages(sort_by_value) {
 		var prev_test_mode = global.is_test_mode;
 		global.is_test_mode = true;
 		calculate_evaluation_messages_and_score();
@@ -349,10 +367,16 @@ function EvaluationMessageManager() constructor {
 				string_count("Cursed Items Used", next_message)) {
 					continue;
 			}
-				
+			array_push(next_message, get_evaluation_variable(next_message[0], global.difficulty));
 			array_push(loaded_eval_messages, next_message);
 		}
 		current_score = 0;
 		evaluation_messages = loaded_eval_messages;
+		// Sort evaluation messages to display by sort_type
+		if (sort_by_value) {
+			array_sort(evaluation_messages, function(elm1, elm2) {
+				return elm2[2] - elm1[2];
+			});
+		}
 	}
 }

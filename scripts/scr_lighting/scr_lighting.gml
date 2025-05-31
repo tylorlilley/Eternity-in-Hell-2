@@ -31,6 +31,11 @@ function get_greatest_lighting(skip_threshold = 0) {
 		var lighting_intensity = get_relative_light_intensity(other.id);
 		if (lighting_intensity > greatest_lighting_intensity) { greatest_lighting_intensity = lighting_intensity; }
 	}
+	var statue = instance_nearest(x, y, obj_statue); 
+	with (statue) { 			
+		var lighting_intensity = get_relative_light_intensity(other.id);
+		if (lighting_intensity > greatest_lighting_intensity) { greatest_lighting_intensity = lighting_intensity; }
+	}
 	
 	
 	// Get greatest lighting intensity

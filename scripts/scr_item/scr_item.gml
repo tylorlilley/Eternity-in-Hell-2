@@ -51,25 +51,26 @@ function become_carried(new_holder) {
 	if (sprite_index == get_sprite_to_use(spr_clock) || 
 	sprite_index == get_sprite_to_use(spr_clock_farmer) ||
 	sprite_index == get_sprite_to_use(spr_compass)) {
-	// Update drawn sand and hands for clock and compass sprites
-	var prev_time_image_index = time_image_index;
-	if (sprite_index == get_sprite_to_use(spr_compass)) {
-		var new_image_index = get_compass_image_index();
-		time_image_index = (new_image_index == -1) ? time_image_index : new_image_index;
-		time_sprite_index = get_sprite_to_use(spr_compass_hands);
-	}
-	else {
-		time_image_index = get_clock_image_index();
-		time_sprite_index = get_sprite_to_use(spr_clock_sand);
-		if (special) { 
-			time_sprite_index = (sprite_index == spr_clock) ? spr_special_clock_sand : spr_special_clock_sand_farmer; 
+		// Update drawn sand and hands for clock and compass sprites
+		var prev_time_image_index = time_image_index;
+		if (sprite_index == get_sprite_to_use(spr_compass)) {
+			var new_image_index = get_compass_image_index();
+			time_image_index = (new_image_index == -1) ? time_image_index : new_image_index;
+			time_sprite_index = get_sprite_to_use(spr_compass_hands);
+		}
+		else {
+			time_image_index = get_clock_image_index();
+			time_sprite_index = get_sprite_to_use(spr_clock_sand);
+			if (special) { 
+				time_sprite_index = (sprite_index == spr_clock) ? spr_special_clock_sand : spr_special_clock_sand_farmer; 
+			}
+		}
+	
+		if (time_image_index != prev_time_image_index) {
+			play_sound(snd_clock_tick, false);
 		}
 	}
-	
-	if (time_image_index != prev_time_image_index) {
-		play_sound(snd_clock_tick, false);
-	}
-	
+
 	// Add evaluation messages
 	if (new_holder == global.player) {
 		with (new_holder) {
@@ -81,8 +82,6 @@ function become_carried(new_holder) {
 			}
 		}
 	}
-}
-
 }
 
 /// @function								become_dropped(dropper);
@@ -320,8 +319,16 @@ function get_compass_image_index() {
 		
 		// Point toward start room if heart is collected
 		if (controller.completion_amount+1 >= TOTAL_COMPLETION_AMOUNT) {
-			 target_room_x = controller.start_room.virtual_x;
-			 target_room_y = controller.start_room.virtual_y;
+			 if (instance_number(obj_cross) > 0) {
+				var nearest_cross = instance_nearest(x, y, obj_cross);
+				hands_dir = point_direction(x, y, nearest_cross.x, nearest_cross.y);
+				if (is_instance_at_coordinates(player.x, player.y, nearest_cross)) { return -1; }
+			}
+			else {
+				 target_room_x = controller.start_room.virtual_x;
+				 target_room_y = controller.start_room.virtual_y;
+				 hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
+			}
 		}
 		// Point toward heart room if all collectables are collected
 		else if (are_all_collectables_collected()) {
@@ -338,6 +345,7 @@ function get_compass_image_index() {
 			else {
 				target_room_x = controller.heart_room.virtual_x;
 				target_room_y = controller.heart_room.virtual_y;
+				hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
 			}
 		}
 		// Point towards nearest room with collectables
@@ -353,9 +361,8 @@ function get_compass_image_index() {
 			}
 			target_room_x = target_room.virtual_x;
 			target_room_y = target_room.virtual_y;
+			hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
 		}
-		
-		hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
 	}
 	
 	// Translate from GML dir to image_index value

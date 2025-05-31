@@ -6,7 +6,7 @@
 #macro NO_CARDINAL_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 12, 8, 6, 4]) // This happens only after the stairs probability succeeds, so its combined with 1/5
 #macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
-#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 9, 7, 7, 6]) // This is only called after a room has a chest, so this is combined with that probability. It's also affected by the special item limit
+#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 9, 8, 7, 6]) // This is only called after a room has a chest, so this is combined with that probability. It's also affected by the special item limit
 #macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 8, 4])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
@@ -38,7 +38,7 @@
 #macro COCKROACH_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])
 #macro CULTIST_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 40]) 
-#macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 24, 22, 18]) 
+#macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 28, 24, 18]) //get_probability_for_difficulty([0, 32, 24, 22, 18]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 18, 16]) 
 #macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0// UNUSED get_probability_for_difficulty([0, 0, 12, 8, 6])
 #macro MOUTHS_PER_MOUTH (1+global.difficulty)
@@ -47,7 +47,7 @@
 #macro GRID_SIZE 8
 //#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
-#macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 15, 18, 24]) //[12, 16, 24, 28, 32])
+#macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 18, 22, 24]) //[12, 16, 24, 28, 32])
 #macro AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.75, 1.5, 2, 2.25])
 //#macro OLD_AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.8289, 1.1682, 1.3802, 1.5])
 //#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 
@@ -74,7 +74,7 @@
 #macro SKELETON_MOVE_FREQUENCY 12 
 #macro FAST_SKELETON_MOVE_FREQUENCY 4 
 #macro FAT_SKELETON_MOVE_FREQUENCY 48 
-#macro SNAKE_HISS_FREQUENCY 32 
+#macro SNAKE_HISS_FREQUENCY 40 //32 
 #macro SNAKE_MOVE_FREQUENCY 4 
 #macro BLOOD_REPLACEMENT_PROBABILITY 32 
 #macro CORPSE_REPLACEMENT_PROBABILITY 1024 
@@ -92,13 +92,13 @@
 // Initialize score constants and variables
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
 #macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 80, 70, 65, 65])//get_probability_for_difficulty([100, 75, 65, 60, 50])  // minutes * 60 total seconds for torch to remain lit
-#macro TIME_PROVIDED_PER_ROOM get_probability_for_difficulty([40, 30, 28, 26, 24]) 
+#macro TIME_PROVIDED_PER_ROOM get_probability_for_difficulty([40, 24, 22, 20, 18]) // get_probability_for_difficulty([40, 30, 28, 26, 24]) 
 #macro TIME_PROVIDED_PER_EASY_ROOM -5 
 #macro TIME_PROVIDED_PER_HARD_ROOM 15 
 #macro TIME_PROVIDED_PER_DEAD_END 10 
 #macro TIME_PROVIDED_PER_COLLECTABLE get_probability_for_difficulty([40, 25, 20, 16, 12]) 
-#macro TIME_PROVIEDED_PER_LOCK 15
-#macro TIME_PROVIEDED_PER_ILLUSION_WALL 15
+#macro TIME_PROVIEDED_PER_LOCK 20
+#macro TIME_PROVIEDED_PER_ILLUSION_WALL 30
 #macro TIME_PROVIEDED_PER_PORTCULLIS 15
 #macro TOTAL_COMPLETION_AMOUNT 4 
 

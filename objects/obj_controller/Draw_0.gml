@@ -92,7 +92,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 	
 		// Draw Border
 		draw_set_color(c_black);
-		var wall_spr = (has_won) ? spr_wall_inverted : spr_wall, wall_sprite_color = merge_color(c_white, c_black, 0.5);
+		var wall_spr = (has_won) ? spr_wall_inverted : spr_wall, wall_sprite_color = merge_color(c_white, c_black, (has_won ? 0.125 : 0.5));
 		for (var border_x_pos = -8; border_x_pos < room_width+8; border_x_pos += 16;) {
 			draw_sprite_ext(wall_spr, 0, border_x_pos, 8, 1, 1, 0, wall_sprite_color, 1);
 			draw_sprite_ext(wall_spr, 0, border_x_pos, 8+(16*2), 1, 1, 0, wall_sprite_color, 1);
@@ -121,7 +121,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		draw_set_font(ft_hud_small);
 
 		// Draw Evaluation Messages
-		if (evaluation_pos > 0 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, 90, c_white, 1); }
+		if (evaluation_pos > 0 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, 90, (has_won ? c_black : c_white), 1); }
 		for (var i = evaluation_pos; i < evaluation_pos+6; i++) {
 			hud_y_pos += 12;
 			if (i >= array_length(evaluation_manager.evaluation_messages)) { break; }
@@ -130,7 +130,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 			draw_text(hud_x_pos, hud_y_pos, message_text);
 		}
 		hud_y_pos += 12;
-		if (evaluation_pos < array_length(evaluation_manager.evaluation_messages)-6 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, -90, c_white, 1); }
+		if (evaluation_pos < array_length(evaluation_manager.evaluation_messages)-6 && is_blink_frame()) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, hud_y_pos, 1, 1, -90, (has_won ? c_black : c_white), 1); }
 		draw_set_font(ft_hud)
 		draw_set_color(special_text_color);
 		draw_text(hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( global.controller.evaluation_manager.current_score )));

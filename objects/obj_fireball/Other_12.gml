@@ -8,7 +8,8 @@ if (destructive) {
 	// Destroy doors
 	var door = instance_place(x, y, obj_door);
 	with (door) { 
-		if (is_existing_instance(closed)) { 
+		if (is_existing_instance(closed)) {
+			if (other.shot_by_player) { update_kill_log(obj_door, global.difficulty, other.object_index); }
 			instance_destroy(); 
 			play_sound(snd_crunch, true);
 			blocked = true;
@@ -18,8 +19,9 @@ if (destructive) {
 	// Destroy chests
 	var chest = instance_place(x, y, obj_chest);
 	with (chest) {
+		if (other.shot_by_player) { update_kill_log((locked) ? obj_locked_chest : obj_chest, global.difficulty, other.object_index); }
 		if (contents_obj == obj_statue || contents_obj == obj_fountain) {
-			if (shot_by_player) {
+			if (other.shot_by_player) {
 				global.controller.evaluation_manager.increment_evaluation_variable("trapped_chests_destroyed");
 				update_kill_log(contents_obj, global.difficulty, other.object_index);
 			}

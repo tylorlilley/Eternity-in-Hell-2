@@ -18,12 +18,14 @@ if (can_process_this_frame()) {
 	image_xscale = 1;
 
 	event_inherited();
-	if (get_distance_to_instance(global.player) <= 4 || instance_place(x, y, obj_death) || is_solid_at_position(x, y)) {
-			instance_destroy();
-			play_sound(snd_thud, false);
-			if (get_distance_to_instance(global.player) <= 4) {
-				global.controller.evaluation_manager.increment_evaluation_variable("crushed_bugs");
-			}
+	var crushed_by_player = get_distance_to_instance(global.player) <= 4;
+	var killed_by_lava = instance_place(x, y, obj_death);
+	if (crushed_by_player ||killed_by_lava || is_solid_at_position(x, y)) {
+		instance_destroy();
+		if (!killed_by_lava) { play_sound(snd_thud, false); }
+		if (crushed_by_player) {
+			global.controller.evaluation_manager.increment_evaluation_variable("crushed_bugs");
+		}
 	}
 }
 

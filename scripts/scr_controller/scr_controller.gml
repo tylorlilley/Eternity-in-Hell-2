@@ -71,6 +71,7 @@ function initialize_game_variables() {
 	final_player_right_hand_item = noone;
 	final_player_left_hand_item = noone;
 	evaluation_pos = 0;
+	killed_by = noone;
 	initialize_room_transition_values()
 	
 	// initialize evaluation message values
@@ -362,10 +363,13 @@ function game_room_start_other() {
 	with (obj_gudetama) { play_sound(snd_give_up, false); }
 	with (obj_giant_eye) { shoot_timer = irandom_range(24,48); }
 	
+	/*
+	// Make a random fountain and a random statue fire immediately
 	var random_statue = get_random_instance(obj_statue, true);
 	with random_statue { shoot_timer = irandom_range(1,4); }
 	var random_fountain = get_random_instance(obj_fountain, true);
 	with random_fountain { shoot_timer = irandom_range(1,4); }
+	*/
 	with (obj_statue) { 
 		trap = false;
 		if (other.transition >= directions.stairs) { shoot_timer += 4; }

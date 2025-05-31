@@ -51,6 +51,9 @@ enum graphics_modes {
 // Setup generic arrays
 global.difficulties_array = [difficulties.easy, difficulties.medium, difficulties.hard, difficulties.very_hard];
 global.death_types_array = [
+	obj_door,
+	obj_chest,
+	obj_locked_chest,
 	obj_controller,
 	obj_bomb,
 	obj_lava,

@@ -22,7 +22,7 @@ if (options_screen || controls_screen || death_log_screen || evaluation_log_scre
 	draw_set_color(c_white);
 	
 	var return_text = "";
-	if (death_log_screen) { return_text += get_input_z_key_string() + ": Change Sort; "; }
+	if (death_log_screen || evaluation_log_screen) { return_text += get_input_z_key_string() + ": Change Sort; "; }
 	else if (options_screen) { return_text += get_input_z_key_string() + ": Select Option; "; }
 	else if (prepare_screen) { return_text += get_input_z_key_string() + ": Begin; "; }
 	return_text += get_input_x_key_string() + ": Return";
@@ -381,7 +381,7 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 	title_y_pos = room_height*2;
 	
 	// Draw Header
-	var y_initial = 16+8, x_initial = (room_width/4)-16, y_pos = y_initial, x_pos = x_initial-16, value_x_pos = room_width-32;
+	var y_initial = 16+8, x_initial = (room_width/4)-16, y_pos = y_initial, x_pos = x_initial-20, value_x_pos = room_width-28;
 	var best_score_string = get_best_score_string(global.difficulty);
 	draw_text(room_width/2, 15, get_difficulty_string(global.difficulty));
 	
@@ -396,8 +396,8 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 	
 	// Draw Arrow Keys
 	y_pos += 28;
-	if ((blink || !game_manager.key_up) && evaluation_log_screen > 0) { draw_sprite_ext(spr_menu_arrow, 0 , room_width/2, y_pos-4, 1, 1, 90, c_white, 1); }
-	if ((blink || !game_manager.key_down) && evaluation_log_screen < array_length(evaluation_manager.evaluation_messages)-8) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, room_height-(16*3.5), 1, 1, -90, c_white, 1); }
+	if ((blink || !game_manager.key_up) && evaluation_log_pos > 0) { draw_sprite_ext(spr_menu_arrow, 0 , room_width/2, y_pos-4, 1, 1, 90, c_white, 1); }
+	if ((blink || !game_manager.key_down) && evaluation_log_pos < array_length(evaluation_manager.evaluation_messages)-8) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, room_height-(16*3.5), 1, 1, -90, c_white, 1); }
 	if (!game_manager.key_left && global.difficulty > difficulties.easy) { draw_sprite_ext(spr_menu_arrow, 0 , 24, 16, 1, 1, 180, c_white, 1); }
 	if (!game_manager.key_right && global.difficulty < difficulties.ALL) { draw_sprite_ext(spr_menu_arrow, 0, room_width-24, 16, 1, 1, 0, c_white, 1); }
 	y_pos += 8;
@@ -408,7 +408,7 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 		if (log_pos >= array_length(evaluation_manager.evaluation_messages)) { break; }
 		else {
 			var message_to_display = evaluation_manager.evaluation_messages[log_pos][0], use_special_color = evaluation_manager.evaluation_messages[log_pos][1];
-			var value_to_display = get_evaluation_variable(message_to_display, global.difficulty);
+			var value_to_display =  evaluation_manager.evaluation_messages[log_pos][2];
 			if (global.is_test_mode) { value_to_display = 9999; }
 			if (value_to_display == 0) { message_to_display = "???" }
 

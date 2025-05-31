@@ -161,7 +161,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	var reference_difficulty = game_rooms[i].room_reference_difficulty;
 	if (reference_difficulty < 0 ) { reference_difficulty = 0; }
 	var room_time_provided = TIME_PROVIDED_PER_ROOM * (reference_difficulty / AVERAGE_ROOM_DIFFICULTY);
-	if (room_time_provided < 15) { room_time_provided = 15; }
+	if (room_time_provided < 12) { room_time_provided = 12; }
 	for (var dir = directions.up; dir < directions.stairs; dir++) {
 		var given_exit = given_room.exits[dir];
 		if (given_exit == -1) { continue; }
@@ -187,6 +187,7 @@ with (global.game_manager) {
 	sounds_to_play = array_create(0);
 	clear_inputs_for_next_frame();
 	paused = false;
+	update_run_number_log(global.difficulty);
 }
 play_sound(snd_torchlight, false);
 global.player = instance_create(-16, -16, obj_player);

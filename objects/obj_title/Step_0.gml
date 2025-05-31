@@ -370,7 +370,7 @@ if (!game_manager.paused) {
 				if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
 				else if (global.graphics_mode != graphics_modes.standard) { global.graphics_mode = graphics_modes.standard; update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
 				if (death_log_screen) { update_death_types(); death_log_pos = 0; }
-				if (evaluation_log_screen) { evaluation_manager.load_evaluation_messages(); evaluation_log_pos = 0; }
+				if (evaluation_log_screen) { evaluation_log_pos = 0; evaluation_log_sort = 0; evaluation_manager.load_evaluation_messages(evaluation_log_sort); }
 			}
 		}
 	}
@@ -416,7 +416,7 @@ if (!game_manager.paused) {
 	
 	// Handle Z and Enter Key
 	else if (key_select_pressed || key_start_pressed) {
-		var prev_death_log_screen = death_log_screen;
+		var prev_death_log_screen = death_log_screen, prev_evaluation_log_screen = evaluation_log_screen;
 		if (!controls_screen && !options_screen && !death_log_screen && !prepare_screen && !evaluation_log_screen) {
 			prepare_screen = (pos <= 2);
 			options_screen = (pos == 3);
@@ -425,6 +425,7 @@ if (!game_manager.paused) {
 			evaluation_log_screen = (pos == 6);
 			play_sound(snd_pickup, false);
 			if (death_log_screen) { death_log_sort = 1; } // TODO: Remember last sort?  
+			if (evaluation_log_screen) { evaluation_log_sort = 1; } // TODO: Remember last sort?  
 			else if (options_screen) {
 				option_selected = false;
 				instance_create(216, 176+6, obj_lava); 
@@ -446,7 +447,10 @@ if (!game_manager.paused) {
 		}
 		else if (evaluation_log_screen) {
 			evaluation_log_pos = 0;
-			evaluation_manager.load_evaluation_messages();
+			evaluation_log_sort += 1
+			if (evaluation_log_sort > 1) { evaluation_log_sort = 0; }
+			if (prev_evaluation_log_screen) { play_sound(snd_thud, false); }
+			evaluation_manager.load_evaluation_messages(evaluation_log_sort);
 		}
 	}
 }

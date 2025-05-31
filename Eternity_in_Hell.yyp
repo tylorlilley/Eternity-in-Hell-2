@@ -312,6 +312,7 @@
     {"id":{"name":"snd_stairs","path":"sounds/snd_stairs/snd_stairs.yy",},"order":5,},
     {"id":{"name":"rm_three_exits_28","path":"rooms/rm_three_exits_28/rm_three_exits_28.yy",},"order":0,},
     {"id":{"name":"obj_staff","path":"objects/obj_staff/obj_staff.yy",},"order":0,},
+    {"id":{"name":"obj_locked_chest","path":"objects/obj_locked_chest/obj_locked_chest.yy",},"order":0,},
     {"id":{"name":"rm_three_exits_13","path":"rooms/rm_three_exits_13/rm_three_exits_13.yy",},"order":12,},
     {"id":{"name":"snd_torchlight","path":"sounds/snd_torchlight/snd_torchlight.yy",},"order":7,},
     {"id":{"name":"rm_unused_7","path":"rooms/rm_unused_7/rm_unused_7.yy",},"order":0,},

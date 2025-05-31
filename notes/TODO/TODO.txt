@@ -1,3 +1,4 @@
+test
 arrows on the win/lose screen blink but not on the menu screens for scrolling up and down?
 drop key under long boi. Does it disappear? This was by a thief
 reset distrubed bones count on room enter/exit?

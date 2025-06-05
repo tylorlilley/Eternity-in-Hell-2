@@ -22,4 +22,10 @@ if (global.is_test_mode && instance_exists(global.controller)) {
 			if (target_path_grid != -1 && path_exists(target_path)) { draw_path(target_path, x, y, true); }
 		}
 	}
+	
+	draw_set_alpha(1);
+	with (obj_enemy) {
+		if (target_path_grid != -1 && path_exists(target_path)) { draw_path(target_path, x, y, true); }
+	}
+	draw_set_colour(c_white);
 }

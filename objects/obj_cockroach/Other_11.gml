@@ -11,7 +11,7 @@ else {
 	in_light = (current_lighting > 0);
 	
 	// Determine movement speed
-	skeleton_speed = (in_dark_room || in_light) ? FAST_SKELETON_MOVE_FREQUENCY : SKELETON_MOVE_FREQUENCY;
+	skeleton_speed = ((in_dark_room && !is_game_lost()) || in_light) ? FAST_SKELETON_MOVE_FREQUENCY : SKELETON_MOVE_FREQUENCY;
 	
 	// Determine if movement happens this frame
 	var dir = irandom(skeleton_speed), moved = false, current_x_scale = image_xscale;

@@ -34,8 +34,8 @@ if (!start_timer) {
 else {
 	if (spawn_timer > 0) { spawn_timer -= 1;  }
 	else if (spawn_timer == 0) {
-		// Move in a random direction, and turn toward player if that direction is away from player.
-		move_toward_player(true, true, 4);
+		// Move in a random direction, and turn towards player if that direction is away from player.
+		if (irandom(4) < 4) { move_towards_meat_or_player(true, true); }
 		if (get_coin_flip()) { play_sound(snd_flicker, false); }
 		
 		// Become lethal if time is up and it is not lethal yet

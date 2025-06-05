@@ -9,11 +9,11 @@ if (dir == directions.none) {
 	if (move_timer <= 0) {
 		var move_dir = directions.none, possible_directions = array_create(0);
 		if (get_distance_to_instance(target) <= TRAP_RANGE+16) {
-			// Choose random possible direction that is toward the player
-			if (is_direction_toward(directions.up, target) && can_move_in_direction(directions.up, false, true)) { array_push(possible_directions, directions.up); }
-			if (is_direction_toward(directions.right, target) && can_move_in_direction(directions.right, false, true)) { array_push(possible_directions, directions.right); }
-			if (is_direction_toward(directions.down, target) && can_move_in_direction(directions.down, false, true)) { array_push(possible_directions, directions.down); }
-			if (is_direction_toward(directions.left, target) && can_move_in_direction(directions.left, false, true)) { array_push(possible_directions, directions.left); }
+			// Choose random possible direction that is towards the player
+			if (is_direction_towards(directions.up, target) && can_move_in_direction(directions.up, false, true)) { array_push(possible_directions, directions.up); }
+			if (is_direction_towards(directions.right, target) && can_move_in_direction(directions.right, false, true)) { array_push(possible_directions, directions.right); }
+			if (is_direction_towards(directions.down, target) && can_move_in_direction(directions.down, false, true)) { array_push(possible_directions, directions.down); }
+			if (is_direction_towards(directions.left, target) && can_move_in_direction(directions.left, false, true)) { array_push(possible_directions, directions.left); }
 		}
 		if (array_length(possible_directions) == 0) {
 			// Choose random possible direction

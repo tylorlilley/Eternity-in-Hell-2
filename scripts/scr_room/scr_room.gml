@@ -33,7 +33,6 @@ function GameRoom(given_x, given_y) constructor {
 	instances = array_create(0);
 	solid_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	lava_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
-	solid_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
 
 	/// @function									assign_room_ref(must_have_lantern, spawn_special_room);
@@ -437,20 +436,14 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								reset_room_solid_path_grid();
 	function reset_room_solid_path_grid() {
 		mp_grid_clear_all(solid_path_grid);
-		mp_grid_clear_all(solid_grid);
-		with (obj_solid) { 
-			mp_grid_add(other.solid_grid); 
-			mp_path_grid_add(other.solid_path_grid); 
-		}
+		with (obj_solid) { mp_path_grid_add(other.solid_path_grid); }
 	}
 	
 	/// @function								reset_room_lava_path_grid();
 	function reset_room_lava_path_grid() {
-		var room_lava_path_grid = lava_path_grid;
-		
-		mp_grid_clear_all(room_lava_path_grid);
-		with (obj_solid) { mp_path_grid_add(room_lava_path_grid); }
-		with (obj_lava_part) { mp_path_grid_add(room_lava_path_grid); }
+		mp_grid_clear_all(lava_path_grid);
+		with (obj_solid) { mp_path_grid_add(other.lava_path_grid); }
+		with (obj_lava_part) { mp_path_grid_add(other.lava_path_grid); }
 	}
 	
 	/// @function								add_to_instances_at_map_positions(inst);
@@ -751,7 +744,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		//room_reference = rm_three_exits_21;//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		room_reference = rm_four_exits_6969;//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();

@@ -15,10 +15,10 @@ function is_instance_at_coordinates(x_pos, y_pos, instance) {
 	return (is_existing_instance(instance) && (instance.x == x_pos && instance.y == y_pos))
 }
 
-/// @function								is_direction_toward(dir, obj);
+/// @function								is_direction_towards(dir, obj);
 /// @param		{direction} dir				The direction from the calling instance to check whether the given instance
 /// @param		{instance} obj				The object to check for the direction of
-function is_direction_toward(dir, inst) {
+function is_direction_towards(dir, inst) {
 	return ((y > inst.y && dir == directions.up) ||
 	        (x < inst.x && dir == directions.right) ||
 	        (y < inst.y && dir == directions.down) ||
@@ -29,7 +29,7 @@ function is_direction_toward(dir, inst) {
 function turn_to_face_player() {
 	var target = get_dropped_meat();
 	if (!is_existing_instance(target)) { target = global.player; }
-	if (is_direction_toward(1, target)) { image_xscale = -1; }
+	if (is_direction_towards(1, target)) { image_xscale = -1; }
 	else { image_xscale = 1; }
 }
 
@@ -294,8 +294,8 @@ function is_covered_at_each_quadrant_by(obj_index) {
 }
 
 /// @function								move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death);
-///	@param		{int} target_x				The x position to be moving toward
-///	@param		{int} target_y				The y position to be moving toward
+///	@param		{int} target_x				The x position to be moving towards
+///	@param		{int} target_y				The y position to be moving towards
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death) {	
@@ -306,8 +306,8 @@ function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death
 }
 
 /// @function								get_random_possible_direction(obj_index);
-///	@param		{int} target_x				The x position to be moving toward
-///	@param		{int} target_y				The y position to be moving toward
+///	@param		{int} target_x				The x position to be moving towards
+///	@param		{int} target_y				The y position to be moving towards
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function get_random_possible_direction(target_x, target_y, ignore_solid, ignore_death) {

@@ -1,9 +1,10 @@
 player profiles
 
+test phantom with meat
+
 arrows on the win/lose screen blink but not on the menu screens for scrolling up and down?
 drop key under long boi. Does it disappear? This was by a thief
 reset distrubed bones count on room enter/exit?
-cockroach and cultist rooms be applied to entire dungeons at once?
 should door slammer and other evals scale with number of rooms?
 
 

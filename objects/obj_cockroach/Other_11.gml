@@ -1,7 +1,7 @@
 /// @description Step
 if (spawn_timer > 0) { spawn_timer -= 1; }
 else {
-	// Determine if room is dark
+	// Determine if room is dark and if cockroach is currently in a bright light
 	var in_dark_room = false, in_light = false, current_lighting = get_greatest_lighting(PLAYER_LIGHT_RANGE);
 	var greatest_lighting_range = PLAYER_LIGHT_RANGE;
 	with obj_light_source {
@@ -11,7 +11,9 @@ else {
 	in_light = (current_lighting > 0);
 	
 	// Determine movement speed
-	skeleton_speed = ((in_dark_room && !is_game_lost()) || in_light) ? FAST_SKELETON_MOVE_FREQUENCY : SKELETON_MOVE_FREQUENCY;
+	if (in_dark_room && !is_game_lost()) { skeleton_speed = COCKROACH_HUNT_MOVE_FREQUENCY; }
+	else if (in_light) { skeleton_speed = FAST_SKELETON_MOVE_FREQUENCY; }
+	else { skeleton_speed = SKELETON_MOVE_FREQUENCY; }
 	
 	// Determine if movement happens this frame
 	var dir = irandom(skeleton_speed), moved = false, current_x_scale = image_xscale;

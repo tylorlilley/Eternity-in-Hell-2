@@ -1,5 +1,6 @@
 /// @function									initialize_lava_lighting();
 function initialize_lava_lighting() {
+	lighting_range = 0;
 	lighting_distance = LAVA_LIGHT_RANGE;
 	intensity = 0.125 + irandom(0.35-0.125);
 	maximum_intensity = 1;

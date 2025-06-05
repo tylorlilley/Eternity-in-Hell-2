@@ -135,7 +135,7 @@ if (global.is_test_mode) {
 		with (new_instance) { move_snap(8, 8); contents_obj = obj_torch; }
 	}
 	if (mouse_check_button_pressed(mb_right)) {
-		var obj_type = obj_block;
+		var obj_type = obj_bug;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}

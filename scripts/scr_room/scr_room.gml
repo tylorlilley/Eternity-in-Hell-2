@@ -56,8 +56,6 @@ function GameRoom(given_x, given_y) constructor {
 		has_lanterns = get_room_reference_object_count(obj_lantern) > 0;
 		lit = (has_lanterns && get_random_chance_out_of(PRE_LIT_PROBABILITY));
 		has_eyes = (get_room_reference_object_count(obj_eyes) > 0 || get_random_chance_out_of(EYES_PROBABILITY));
-		has_all_cockroaches = (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(COCKROACH_ROOM_PROBABILITY));
-		has_all_cultists = !has_all_cockroaches && (get_room_reference_object_count(obj_skeleton_spot) > 1 && get_random_chance_out_of(CULTIST_ROOM_PROBABILITY));
 		has_phantom = (has_lanterns && !lit && !has_eyes && get_random_chance_out_of(PHANTOM_PROBABILITY));
 		has_floater = (!has_phantom && !has_eyes && get_random_chance_out_of(FLOATER_PROBABILITY));
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
@@ -93,45 +91,19 @@ function GameRoom(given_x, given_y) constructor {
 		for (var i = 0; i < get_room_reference_object_count(obj_skeleton_spot); i++;) {
 			var skeleton_type = obj_skeleton;
 			if (has_eyes && i == 0) { skeleton_type = obj_eyes; }
-			else if (has_all_cockroaches) { skeleton_type = obj_cockroach; }
-			else if (has_all_cultists) { skeleton_type = obj_cultist; }
-			else {
-				// Determine what to spawn in this skeleton spot
-				var rand = irandom_range(1,100);
-				switch (global.difficulty) {
-					case difficulties.DO_NOT_USE: { break; }
-					case difficulties.easy: {
-						if rand <= 3 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						break;
-					}
-					case difficulties.medium: {
-						if rand <= 6 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 12 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
-						else if rand <= 16 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
-						//else if rand <= 20 { skeleton_type = obj_cultist; cultist_count += 1; }
-						break;
-					}
-					case difficulties.hard: {
-						if rand <= 12 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 20 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
-						else if rand <= 28 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
-						else if rand <= 34 { skeleton_type = obj_cultist; cultist_count += 1; }
-						else if rand <= 40 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
-						//else if rand <= 42 { skeleton_type = obj_snake; snake_count += 1; }
-						break;
-					}
-					case difficulties.very_hard: {
-						if rand <= 15 { skeleton_type = obj_cockroach; cockroach_count += 1; }
-						else if rand <= 35 { skeleton_type = obj_fat_skeleton; fat_skeleton_count += 1; }
-						else if rand <= 50 { skeleton_type = obj_fast_skeleton; fast_skeleton_count += 1; }
-						else if rand <= 62 { skeleton_type = obj_cultist; cultist_count += 1; }
-						else if rand <= 75 { skeleton_type = obj_fire_skeleton; fire_skeleton_count += 1; }
-						else if rand <= 80 { skeleton_type = obj_snake; snake_count += 1; }
-						break;
-					}
-				}
+			else if (global.controller.same_skeleton_type != noone) { skeleton_type = global.controller.same_skeleton_type; }
+			else { skeleton_type = get_skeleton_type(); }
+			
+			//skeleton_type = obj_fat_skeleton; // TODO: CHANGE HERE FOR TESTING
+			
+			switch (skeleton_type) {
+				case obj_cockroach: { cockroach_count += 1; break; }
+				case obj_fast_skeleton: { fast_skeleton_count += 1; break; }
+				case obj_fat_skeleton: { fat_skeleton_count += 1; break; }
+				case obj_fire_skeleton: { fire_skeleton_count += 1; break; }
+				case obj_cultist: { cultist_count += 1; break; }
+				case obj_snake: { snake_count += 1; break; }
 			}
-			//skeleton_type = obj_fat_skeleton; // TODO: Change here for testing
 			array_push(skeleton_types, skeleton_type);
 		}
 		
@@ -191,9 +163,7 @@ function GameRoom(given_x, given_y) constructor {
 	
 		// Add a base increase if any enemies were present
 		if (room_reference_difficulty != 0) { room_reference_difficulty += 0.25; }		
-		if (is_special_room) { room_reference_difficulty += 5; }		
-		if (has_all_cockroaches) { room_reference_difficulty += 0.25; } // TODO: Switch to global effect?
-		if (has_all_cultists) { room_reference_difficulty += 0.5; }
+		if (is_special_room) { room_reference_difficulty += 5; }
 		
 		// Add to difficulty for other objects
 		if (has_hidden_chest) { room_reference_difficulty += 0.125; }
@@ -744,7 +714,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		//if (has_misleading_exits) { write_debug_message("Generated with misleading exits: " + room_get_name(room_reference)); }
 		array_push(controller.room_references, room_reference);
-		room_reference = rm_four_exits_6969;//rm_four_exits_23;// TODO: CHANGE ROOM REFERENCE HERE FOR TESTING
+		//room_reference = rm_four_exits_6969;//rm_four_exits_23;// TODO: CHANGE ROOM HERE FOR TESTING
 	}
 	
 	/// @function					flip_room_contents_horizontally();
@@ -1165,4 +1135,43 @@ function difficulty_for_room_reference(room_reference) {
 	var decoded_content = string_digits(file_difficulty_content);          
 	file_text_close(file);
 	return decoded_content;
+}
+
+/// @function									get_skeleton_type();
+function get_skeleton_type() {
+	// Determine what to spawn in this skeleton spot
+	var rand = irandom_range(1,100), skeleton_type = obj_skeleton;
+	switch (global.difficulty) {
+		case difficulties.DO_NOT_USE: { break; }
+		case difficulties.easy: {
+			if rand <= 3 { skeleton_type = obj_cockroach; }
+			break;
+		}
+		case difficulties.medium: {
+			if rand <= 6 { skeleton_type = obj_cockroach; }
+			else if rand <= 12 { skeleton_type = obj_fast_skeleton; }
+			else if rand <= 16 { skeleton_type = obj_fat_skeleton; }
+			//else if rand <= 20 { skeleton_type = obj_cultist; }
+			break;
+		}
+		case difficulties.hard: {
+			if rand <= 12 { skeleton_type = obj_cockroach; }
+			else if rand <= 20 { skeleton_type = obj_fat_skeleton; }
+			else if rand <= 28 { skeleton_type = obj_fast_skeleton; }
+			else if rand <= 34 { skeleton_type = obj_cultist; }
+			else if rand <= 40 { skeleton_type = obj_fire_skeleton; }
+			//else if rand <= 42 { skeleton_type = obj_snake; }
+			break;
+		}
+		case difficulties.very_hard: {
+			if rand <= 15 { skeleton_type = obj_cockroach; }
+			else if rand <= 35 { skeleton_type = obj_fat_skeleton; }
+			else if rand <= 50 { skeleton_type = obj_fast_skeleton; }
+			else if rand <= 62 { skeleton_type = obj_cultist; }
+			else if rand <= 75 { skeleton_type = obj_fire_skeleton; }
+			else if rand <= 80 { skeleton_type = obj_snake; }
+			break;
+		}
+	}
+	return skeleton_type;
 }

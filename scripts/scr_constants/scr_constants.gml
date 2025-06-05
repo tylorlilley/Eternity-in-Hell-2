@@ -35,8 +35,7 @@
 #macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 32, 24, 20, 16])
 #macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 4])
-#macro COCKROACH_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])
-#macro CULTIST_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
+#macro SAME_SKELETON_TYPE_FREQUENCY 1//get_probability_for_difficulty([0, 0, 0, 48, 32])
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 40]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 28, 24, 18]) //get_probability_for_difficulty([0, 32, 24, 22, 18]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 18, 16]) 
@@ -71,11 +70,12 @@
 #macro BUSH_RUSTLE_FREQUENCY 16
 //#macro ILLUSION_WALL_FLICKER_FREQUENCY 256
 #macro SKELETON_MOVE_towards_PLAYER_FREQUENCY get_probability_for_difficulty([0, 32, 24, 20, 18])
+#macro FAT_SKELETON_MOVE_FREQUENCY 48
 #macro SKELETON_MOVE_FREQUENCY 12 
+#macro COCKROACH_HUNT_MOVE_FREQUENCY 6 
 #macro FAST_SKELETON_MOVE_FREQUENCY 4 
-#macro FAT_SKELETON_MOVE_FREQUENCY 48 
-#macro SNAKE_HISS_FREQUENCY 40 //32 
 #macro SNAKE_MOVE_FREQUENCY 4 
+#macro SNAKE_HISS_FREQUENCY 40 //32 
 #macro BLOOD_REPLACEMENT_PROBABILITY 32 
 #macro CORPSE_REPLACEMENT_PROBABILITY 1024 
 #macro CORPSE_DISINTEGRATE_PROBABILITY 8

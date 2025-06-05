@@ -1,8 +1,8 @@
 /// @description Step
 if (can_process_this_frame()) {
-	var dir = directions.none;
+	var dir = directions.none, prev_image_index = image_index
 	if (infectious) { 
-		dir = irandom(16) > 3 ? directions.none : move_towards_meat_or_player(false, false); 
+		dir = irandom(16) > 3 ? directions.none : move_towards_coordinates(global.player.x, global.player.y, false, false);
 	}
 	else { dir = run_away_from_player(false, true, false); }
 	
@@ -14,7 +14,7 @@ if (can_process_this_frame()) {
 	}
 	if (dir != directions.none) { 
 		image_angle = 90 * dir; 
-		image_index += 1;
+		image_index = prev_image_index+1;
 		if (image_index > 3) { image_index = 0; }
 	}
 	image_xscale = 1;

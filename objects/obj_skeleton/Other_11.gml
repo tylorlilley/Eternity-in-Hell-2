@@ -2,24 +2,15 @@
 if (spawn_timer > 0) { spawn_timer -= 1; }
 else if (skeleton_speed > 0) { 
 	var dir = irandom(skeleton_speed);
-	var dropped_meat = get_dropped_meat(), player = global.player;
 	if (is_cardinal_direction(dir)) {
-		// Try to set up path toward dropped meat
-		if (is_existing_instance(dropped_meat)) {
-			target_x = dropped_meat.x;
-			target_y = dropped_meat.y;
-			set_automatic_target_path();
-		}
-		else if (get_random_chance_out_of(SKELETON_MOVE_TOWARD_PLAYER_FREQUENCY)) {
-			target_x = player.x;
-			target_y = player.y;
-			set_automatic_target_path();
+		// Move on path towards meat or player
+		if (is_existing_instance(get_dropped_meat()) || get_random_chance_out_of(SKELETON_MOVE_towards_PLAYER_FREQUENCY)) {
+			move_towards_meat_or_player(false, fire_resistant);
 		}
 		else { end_target_path(); }
 		
-		// Move toward point
-		if (target_path != noone) { move_towards_coordinates_on_path(false, false, 1); }
-		else if (can_move_in_direction(dir, false, fire_resistant)) { move_in_direction(dir, true); }
+		// Otherwise, move in a random direction
+		if (can_move_in_direction(dir, false, fire_resistant)) { move_in_direction(dir, true); }
 	}
 }
 

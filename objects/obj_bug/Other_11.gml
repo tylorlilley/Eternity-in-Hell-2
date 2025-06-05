@@ -1,7 +1,9 @@
 /// @description Step
 if (can_process_this_frame()) {
 	var dir = directions.none;
-	if (infectious) { dir = move_toward_player(false, false, 16); }
+	if (infectious) { 
+		dir = irandom(16) > 3 ? directions.none : move_towards_meat_or_player(false, false); 
+	}
 	else { dir = run_away_from_player(false, true, false); }
 	
 	switch (dir) {

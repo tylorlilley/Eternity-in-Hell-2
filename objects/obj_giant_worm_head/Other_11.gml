@@ -20,7 +20,7 @@ if (timer >= 4) {
 			var target = get_dropped_meat();
 			if (!is_existing_instance(target)) { target = global.player; }
 			if (is_direction_free(new_dir, false, true)) { 
-				if (dir == directions.none || is_direction_toward(new_dir, target)) { dir = new_dir; }
+				if (dir == directions.none || is_direction_towards(new_dir, target)) { dir = new_dir; }
 			}
 		}
 		if (dir != directions.none) { play_sound(snd_thud, false); }

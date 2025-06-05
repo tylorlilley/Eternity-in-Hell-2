@@ -296,7 +296,7 @@ function get_compass_image_index() {
 	var controller = global.controller, player = global.player, hands_dir = 90;
 	
 	if (controller.current_room.has_hall_of_mirrors) {
-		// Point Towards Next Hall of Mirrors Exit
+		// Point towards Next Hall of Mirrors Exit
 		var next_dir = controller.current_room.mirror_directions[controller.current_room.mirror_count];
 		var x_pos = x, y_pos = y;
 		switch (next_dir) {
@@ -308,7 +308,7 @@ function get_compass_image_index() {
 		hands_dir = point_direction(x, y, x_pos, y_pos);
 	}
 	else if (instance_number(obj_collectable) > 0) {
-		// Point Towards Nearest Collectable in Room
+		// Point towards Nearest Collectable in Room
 		var nearest_collectable = instance_nearest(x, y, obj_collectable);
 		hands_dir = point_direction(x, y, nearest_collectable.x, nearest_collectable.y);
 		if (is_instance_at_coordinates(player.x, player.y, nearest_collectable)) { return -1; }
@@ -317,7 +317,7 @@ function get_compass_image_index() {
 		var current_room_x = controller.current_room.virtual_x, current_room_y = controller.current_room.virtual_y;
 		var target_room_x = current_room_x, target_room_y = current_room_y-1; // Default to pointing up
 		
-		// Point toward start room if heart is collected
+		// Point towards start room if heart is collected
 		if (controller.completion_amount+1 >= TOTAL_COMPLETION_AMOUNT) {
 			 if (instance_number(obj_cross) > 0) {
 				var nearest_cross = instance_nearest(x, y, obj_cross);
@@ -330,7 +330,7 @@ function get_compass_image_index() {
 				 hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
 			}
 		}
-		// Point toward heart room if all collectables are collected
+		// Point towards heart room if all collectables are collected
 		else if (are_all_collectables_collected()) {
 			if (instance_number(obj_encased_heart) > 0) {
 				var nearest_heart = instance_nearest(x, y, obj_encased_heart);

@@ -130,12 +130,12 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 // DEBUG MODE SPAWNER
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
-		var obj_type = obj_fat_skeleton;
+		var obj_type = obj_cockroach;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); contents_obj = obj_torch; }
 	}
 	if (mouse_check_button_pressed(mb_right)) {
-		var obj_type = obj_meat;
+		var obj_type = obj_block;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); }
 	}

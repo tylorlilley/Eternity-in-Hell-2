@@ -2,19 +2,15 @@ player profiles
 
 test phantom with meat
 
-arrows on the win/lose screen blink but not on the menu screens for scrolling up and down?
 drop key under long boi. Does it disappear? This was by a thief
 reset distrubed bones count on room enter/exit?
 should door slammer and other evals scale with number of rooms?
 
 
 block on bush graphics?
-
-arrows don't disapear on first or last position of the earned traits list
 enforce spawn a torch if you start without it?
 
 is the many trpaped long boy room lame/unfair to put collectables under them
-eval for win after parasites?
 
 Maybe you can "save" a red item by completing a run with it to take into future runs. But if you take it with you and you die you lose the red item?
 
@@ -22,7 +18,6 @@ red compass collectables, eyes, etc - make noise but not move at all when the ta
 - does red compass freak out if you are behind a blocked door and collectables can't move towards you?
 - should eyes not react if they end up unable to move (like if you are closed off in a room and they are outside of it)?
 are lava skeletons not spawning anymore?
-are cultist room and cockroach room working?
 
 
 Is hall of mirrors special room working correctly?
@@ -30,6 +25,7 @@ increase special rooms?
 
 hands rush for meat even when deactivated?
 wiggle gets stuck (just like cockroach) when moving towards meat if between two blocks like: ___| W |___
+- is this resolved?
 
 should map eval variables update based on looks per room instead of each look in general
 

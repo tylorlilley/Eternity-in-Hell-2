@@ -56,6 +56,8 @@ else {
 	else if (get_random_chance_out_of(skeleton_speed/4)) {
 		image_xscale = -current_x_scale;
 	}
+	if (in_dark_room && !made_noise) { play_sound(snd_cockroach, false); made_noise = true; }
+	image_index = (in_dark_room) ? 0 : 1;
 }
 
 event_inherited();

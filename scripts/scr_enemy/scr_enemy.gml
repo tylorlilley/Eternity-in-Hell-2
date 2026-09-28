@@ -63,7 +63,7 @@ function run_away_from_player(ignore_solid, ignore_death, make_sound) {
 
 /// @function								teleport_to_empty_space()
 function teleport_to_empty_space() {
-	var player = global.player, blocked_by_enemy = false;
+	var player = global.player, blocked_by_enemy = false, attempts = 0;
 	do {
 		x = irandom(room_width/8)*8;
 		y = irandom(room_height/8)*8;
@@ -74,7 +74,7 @@ function teleport_to_empty_space() {
 			if (enemy.id != id && instance_place(x, y, enemy)) { blocked_by_enemy = true; break; }
 		}
 	}
-	until (!blocked_by_enemy &&
+	until (attempts > 128 || (!blocked_by_enemy &&
 			!is_solid_at_position(x, y) && 
 			!is_lava_at_position(x, y) && 
 			!place_meeting(x, y, obj_hidden_chest) && 
@@ -83,12 +83,12 @@ function teleport_to_empty_space() {
 			!place_meeting(x, y, obj_player) &&
 			!place_meeting(x, y, obj_button) &&
 			!is_outside_room(x, y) &&
-			get_distance_to_instance(player) >= TRAP_RANGE);
+			get_distance_to_instance(player) >= TRAP_RANGE));
 }
 
 /// @function								teleport_to_lava()
 function teleport_to_lava() {
-	var total_lava = instance_number(obj_lava)-1, count = 0, current_pos = irandom(total_lava), player = global.player;
+	var total_lava = instance_number(obj_lava), count = 0, current_pos = irandom(total_lava -1), player = global.player;
 	while (count < total_lava) {
 		var lava = instance_find(obj_lava, current_pos);
 
@@ -395,7 +395,7 @@ function check_for_player_collision() {
 						var killer = obj_lava;
 						if (is_existing_instance(other.creator)) { 
 							killer = other.creator.object_index;
-							if ((killer == obj_statue || killer = obj_fountain) && killer.trap) { killer = obj_chest; }
+							if ((killer == obj_statue || killer == obj_fountain) && other.creator.trap) { killer = obj_chest; }
 						}
 						kill_player(killer);
 					} 
@@ -408,7 +408,7 @@ function check_for_player_collision() {
 				var killer = object_index;
 				if (killer == obj_skeleton) {
 					if (spawn_timer > 0) { killer = obj_bones; }
-					else if (killer.skeleton_speed == FAST_SKELETON_MOVE_FREQUENCY) { killer = obj_fast_skeleton; }
+					else if (skeleton_speed == FAST_SKELETON_MOVE_FREQUENCY) { killer = obj_fast_skeleton; }
 				}
 				if (corporeal) { play_sound(snd_crunch, false); }
 				if (object_index == obj_hands && is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_sword && !right_hand_item.special) {
@@ -500,7 +500,7 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 	// Update grid to be used for target path
 	var current_room = global.controller.current_room
 	target_path_grid = (ignore_death) ? current_room.solid_path_grid : current_room.lava_path_grid;
-	if (ignore_solid) { target_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE); }
+	if (ignore_solid) { target_path_grid = current_room.empty_path_grid; }
 	
 	// Generate new target path if one is needed
 	if (target_path == noone) {

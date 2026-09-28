@@ -11,5 +11,5 @@ if (!is_existing_instance(holder) || (holder.object_index == obj_hands && !holde
 	if (torch_light_image_timer >= 0) { draw_sprite_ext(torch_light_sprite_index, torch_light_image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
 }
 else if (holder.visible) { 
-	draw_while_carried( x-(8*image_xscale),  y-(8*image_yscale), 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend); 
+	draw_while_carried( x-(8*image_xscale),  y-(8*image_yscale), 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend, false); 
 }

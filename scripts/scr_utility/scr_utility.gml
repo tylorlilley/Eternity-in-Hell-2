@@ -57,9 +57,9 @@ function get_percentage_string(value) {
 /// @function								get_opposite_dir(dir);
 /// @param		{direction}	dir				The direction to return the opposite of
 function get_opposite_dir(dir) {
-	if (dir = directions.stairs) { return directions.stairs; }
-	if (dir = directions.respawn) { return directions.respawn; }
-	if (dir = directions.none) { return directions.none; }
+	if (dir == directions.stairs) { return directions.stairs; }
+	if (dir == directions.respawn) { return directions.respawn; }
+	if (dir == directions.none) { return directions.none; }
 	
 	return modulo((dir+2), 4);
 }
@@ -104,6 +104,9 @@ function get_random_instance(obj_index, exact_index = false) {
 		if (exact_index && random_instance.object_index != obj_index) { continue; }
 		else { return random_instance; }
 	}
+	
+	// Return noone if instance is not found
+	return noone;
 }
 
 /// @function								get_random_chance_out_of(denominator);
@@ -151,7 +154,7 @@ function get_exit_y_pos(dir) {
 	switch (dir) {
 		case directions.up: { return 8; }
 		case directions.right: { return room_width/2; }
-		case directions.down: { return room_width-8; }
+		case directions.down: { return room_height-8; }
 		case directions.left: { return room_width/2; }
 		default: { return -16; }
 	}
@@ -162,17 +165,12 @@ function get_exit_y_pos(dir) {
 /// @param		{real}	y_pos				The x_pos to check for instances
 /// @param		{real}	obj_type			The object type of instance to check for
 function instance_place_all(x_pos, y_pos, obj_type) {
-    var calling_instance_id = id, list_of_matches = array_create(0);
+	static _potential_matches = ds_list_create();
+    ds_list_clear(_potential_matches);
 	
-    with (obj_type) {
-        var potential_match_id = id;
-        with (calling_instance_id) {
-            var potential_match = instance_place(x_pos, y_pos, potential_match_id);
-            if (is_existing_instance(potential_match)) { array_push(list_of_matches, potential_match); }
-        }
-    }
-	
-    return list_of_matches;
+    var _total_potential_matches = instance_place_list(x_pos, y_pos, obj_type, _potential_matches, false), _list_of_matches = array_create(n);
+    for (var i = 0; i < _total_potential_matches; i++) { _list_of_matches[i] = _potential_matches[| i]; }
+    return _list_of_matches;
 }
 
 /// @function								play_sound();
@@ -192,7 +190,7 @@ function play_sound(snd, loud_sound) {
 						awake = true;
 						set_automatic_target_path();
 						if (target_path != noone) { 
-							play_sound(snd_ears, true);
+							play_sound(snd_ears, false);
 							if (!moved) { move_ears(); }
 						}
 				}
@@ -225,24 +223,24 @@ function get_shader_color_from_gms_color(given_color) {
 	return [red/255.0, green/255.0, blue/255.0, 1.0];
 }
 
-/// @function								get_game_color();
-function get_game_color() {
+/// @function								calculate_game_color();
+function calculate_game_color() {
 	var padded_game_color_string = global.game_color_string;
 	while (string_length(padded_game_color_string) < 6) { padded_game_color_string = "0"+padded_game_color_string; }
 	return get_gms_color_from_hex_string(padded_game_color_string);
 }
 
-/// @function								get_game_bg_color();
-function get_game_bg_color() {
+/// @function								calculate_game_bg_color();
+function calculate_game_bg_color() {
 	var controller = global.controller, tint_amount = power(1-(controller.time_remaining/controller.time_provided), 8);
-	return merge_color(c_black, get_game_color(), tint_amount);
+	return merge_color(c_black, global.gms_game_color, tint_amount);
 }
 
-/// @function								get_inverted_game_bg_color();
-function get_inverted_game_bg_color() {
+/// @function								calculate_inverted_game_bg_color();
+function calculate_inverted_game_bg_color() {
 	var controller = global.controller;
 	var tint_amount = is_existing_instance(controller) ? power(1-(controller.time_remaining/controller.time_provided), 8) : 0;
-	return merge_color(get_game_color(), c_black, tint_amount);
+	return merge_color(global.gms_game_color, c_black, tint_amount);
 }
 
 /// @function								get_gms_color_from_hex_string(hex_string);

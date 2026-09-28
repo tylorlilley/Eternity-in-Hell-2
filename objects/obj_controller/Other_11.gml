@@ -108,7 +108,7 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 	}
 	
 	// Update background color
-	var new_color = get_game_bg_color();
+	var new_color = global.gms_game_bg_color;
 	if (flash_time > 0) { 
 		new_color = merge_color(new_color, c_white, power(flash_time, 2)/power(SCREEN_FLASH_DURATION, 2));
 		flash_time -= 1;
@@ -130,13 +130,13 @@ if (game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCE
 // DEBUG MODE SPAWNER
 if (global.is_test_mode) {
 	if (mouse_check_button_pressed(mb_left)) {
-		var obj_type = obj_cockroach;
+		var obj_type = obj_mirror;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
 		with (new_instance) { move_snap(8, 8); contents_obj = obj_torch; }
 	}
 	if (mouse_check_button_pressed(mb_right)) {
-		var obj_type = obj_bug;
+		var obj_type = obj_cockroach;
 		var new_instance = instance_create(mouse_x, mouse_y, obj_type);
-		with (new_instance) { move_snap(8, 8); }
+		with (new_instance) { move_snap(8, 8); infectious = true; }
 	}
 }

@@ -257,8 +257,8 @@ if (!game_manager.paused) {
 		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); }
 	}
 	else if (evaluation_log_screen) {
-		if (key_up_pressed && evaluation_log_pos > 0) {  evaluation_log_pos -= 1; play_sound(snd_mana, false); }
-		else if (key_down_pressed && (evaluation_log_pos < array_length(evaluation_manager.evaluation_messages)-8)) { evaluation_log_pos += 1; play_sound(snd_mana, false); }
+		if (key_up_pressed && trait_surface_y_pos > 0) {  trait_surface_y_pos -= 16; play_sound(snd_mana, false); }
+		else if (key_down_pressed && (trait_surface_y_pos < trait_surface_y_max-(room_height-(16*7)))) { trait_surface_y_pos += 16; play_sound(snd_mana, false); }
 		else if (key_up_pressed || key_down_pressed) { play_sound(snd_locked, false); }
 	}
 	else {
@@ -370,7 +370,7 @@ if (!game_manager.paused) {
 				if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
 				else if (global.graphics_mode != graphics_modes.standard) { global.graphics_mode = graphics_modes.standard; update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
 				if (death_log_screen) { update_death_types(); death_log_pos = 0; }
-				if (evaluation_log_screen) { evaluation_log_pos = 0; evaluation_log_sort = 0; evaluation_manager.load_evaluation_messages(evaluation_log_sort); }
+				if (evaluation_log_screen) { trait_surface_y_pos = 0; evaluation_log_sort = 0; evaluation_manager.load_evaluation_messages(evaluation_log_sort); }
 			}
 		}
 	}
@@ -433,7 +433,7 @@ if (!game_manager.paused) {
 			}
 			else if (prepare_screen) { 
 				update_hand_options();
-				if (array_length(hand_options) < 2) { prepare_screen = false; loading = true; }
+				if (get_win_count(global.difficulty) == 0) { prepare_screen = false; loading = true; }
 			}
 		}
 		
@@ -446,7 +446,7 @@ if (!game_manager.paused) {
 			update_death_types();
 		}
 		else if (evaluation_log_screen) {
-			evaluation_log_pos = 0;
+			trait_surface_y_pos = 0;
 			evaluation_log_sort += 1
 			if (evaluation_log_sort > 1) { evaluation_log_sort = 0; }
 			if (prev_evaluation_log_screen) { play_sound(snd_thud, false); }

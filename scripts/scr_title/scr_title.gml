@@ -218,8 +218,10 @@ function reset_settings_to_defaults() {
 
 /// @function								set_game_color();
 function set_game_color() {
-	var new_color = get_game_color();
-	global.game_color = get_shader_color_from_gms_color(new_color);
+	global.gms_game_color = calculate_game_color();
+	global.gms_inverted_game_color = calculate_inverted_game_bg_color();
+	global.gms_game_bg_color = calculate_game_bg_color();
+	global.game_color = get_shader_color_from_gms_color(global.gms_game_color);
 }
 
 

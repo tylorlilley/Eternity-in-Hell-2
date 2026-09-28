@@ -1,6 +1,18 @@
-player profiles
+cockroach sometims steps towards light
+room with mirror + fireball spitter
 
+eval for crouch?
+noises cutting out in heart room?
 test phantom with meat
+
+player profiles?
+add two handed item?
+fat skeletons puke?
+
+map looks should be per room
+door slammer should be per door spawned
+kept the fire going eval - for torch never going out
+eval for collecting a large individual number of collectables
 
 drop key under long boi. Does it disappear? This was by a thief
 reset distrubed bones count on room enter/exit?

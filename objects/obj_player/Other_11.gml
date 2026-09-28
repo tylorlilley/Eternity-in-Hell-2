@@ -1,7 +1,7 @@
 /// @description Step
 dir_prev = dir;
 if (dir_prev == directions.none) { dir_prev = get_random_carindal_dir(); }
-	
+
 // Spawn Bugs in nearby dirt and bushes
 with (obj_player_corpse) { 
 	if (has_bug && get_distance_to_instance(other) <= TRAP_RANGE) {
@@ -44,8 +44,8 @@ if (!dead && is_solid_at_position(x, y)) {
 if (!dead && !is_game_won() && !is_game_lost()) {   
 	// Get input from player
 	var game_manager = global.game_manager;
-	dir = get_direction_input(false);
-		
+	dir = get_direction_input(game_manager.key_shift);
+	
 	// Deal with being infected
 	if (infected_timer > 0) {
 		bug_image_index += 1;
@@ -57,6 +57,9 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 	// Handle movement pause
 	if (pause_movement > 0) { pause_movement -= 1; }
 	else {
+		// Update crouch sprite
+		sprite_index = (game_manager.key_shift) ? get_sprite_to_use(spr_player_no_hands_crouch) : get_sprite_to_use(spr_player_no_hands);
+	
 		// Handle inventory management
 		if (game_manager.key_z_pressed) { 
 			if (lost_left_hand || !can_drop_item(left_hand_item)) { play_sound(snd_locked, false); visible = true; }
@@ -68,7 +71,7 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 		}
 			
 		// Move player in chosen direction if possible
-		if (!is_existing_instance(moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) { 
+		if (!is_existing_instance(moved_by) && dir != directions.none && can_move_in_direction(dir, false, true)) {
 			move_player(dir); 
 			moved_by = id;
 			visible = true;

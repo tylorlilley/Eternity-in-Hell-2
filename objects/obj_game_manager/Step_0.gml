@@ -27,7 +27,7 @@ else {
 	// Make clock sound
 	var has_clock = false;
 	with (player) { has_clock = is_carrying_item(obj_clock); }
-	if (has_clock && number_of_frames_since_game_began % 100*FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
+	if (has_clock && (number_of_frames_since_game_began % (100*FRAMES_TO_WAIT_BEFORE_PROCESSING) == 0)) {
 		play_sound(snd_clock_tick, false);
 	}
 }

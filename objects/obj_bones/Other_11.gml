@@ -8,7 +8,7 @@ if (trap && get_distance_to_instance(global.player) <= TRAP_RANGE) {
 	skeleton.spawn_timer += 6;
 	instance_destroy();
 }
-else if (!disturbed && global.player.x = x && global.player.y = y) {
+else if (!disturbed && global.player.x == x && global.player.y == y) {
 	disturbed = true;
 	global.controller.evaluation_manager.increment_evaluation_variable("disturbed_bones");
 }

@@ -6,3 +6,5 @@ can_interrupt_target_path = true;
 
 spawn_timer = 3+irandom(3);
 skeleton_speed = FAST_SKELETON_MOVE_FREQUENCY;
+image_index = 1;
+made_noise = false;

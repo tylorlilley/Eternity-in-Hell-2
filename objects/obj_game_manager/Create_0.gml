@@ -3,12 +3,14 @@ initialize_shader_pointers();
 audio_group_load(audiogroup_default);
 gameframe_init();
 
+global.datetime = string(current_day) + "-" + string(current_month) + "-" + string(current_year) + ":" + string(current_hour) + ":" + string(current_minute);
 depth = 10000;
 
 key_up = false;
 key_down = false;
 key_left = false;
 key_right = false;
+key_shift = false;
 
 clear_inputs_for_next_frame();
 

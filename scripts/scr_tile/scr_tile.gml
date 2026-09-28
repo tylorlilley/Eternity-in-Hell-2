@@ -94,7 +94,7 @@ function set_up_lava_edge_visibility(first_time_setup) {
 	if (edge_type == lava_edge_types.none) { lava_edge_visible = [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]]; return; }
 	else if (first_time_setup) { lava_edge_sprite_index = (is_wavy_edge_type) ? spr_lava_edge3 : spr_lava_edge; }
 	
-	sprite_index = spr_collectable;
+	mask_index = spr_collectable;
 	for (var quadrant = 0; quadrant < 4; quadrant++) {
 		for (var dir = directions.up; dir < directions.stairs; dir++) {
 			if (first_time_setup) { 
@@ -130,7 +130,7 @@ function set_up_lava_edge_visibility(first_time_setup) {
 			if (!is_existing_instance(parts[quadrant])) { lava_edge_visible[quadrant][dir] = false; }
 		}
 	}
-	sprite_index = spr_lava;
+	mask_index = -1;
 }
 
 /// @function  							open_door();
@@ -142,8 +142,7 @@ function open_door() {
 	depth = CROSS_DEPTH;
 	
 	var current_room = global.controller.current_room;	
-	current_room.reset_room_solid_path_grid(); 
-	current_room.reset_room_lava_path_grid();
+	current_room.mark_room_for_grid_update();
 	
 	if (door_for_exit != -1 && door_for_exit.has_lock) {
 		door_for_exit.unlock();
@@ -164,8 +163,7 @@ function close_door() {
 	depth = SOLID_DEPTH;
 	
 	var current_room = global.controller.current_room;
-	current_room.reset_room_solid_path_grid(); 
-	current_room.reset_room_lava_path_grid();
+	current_room.mark_room_for_grid_update();
 }
 
 /// @function							open_portcullis();

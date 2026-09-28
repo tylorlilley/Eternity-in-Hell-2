@@ -8,7 +8,7 @@ var has_lost = is_game_lost();
 var has_timed_out = is_time_up();
 var is_looking_at_map = key_space && !has_lost;
 var collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
-var bg_color = get_game_bg_color(), special_text_color = get_inverted_game_bg_color(), standard_text_color = c_white;
+var bg_color = global.gms_game_bg_color, special_text_color = global.gms_inverted_game_color, standard_text_color = c_white;
 
 if (transition != directions.none || has_won || has_timed_out || is_looking_at_map) {
 	// Draw background over entire screen
@@ -86,7 +86,7 @@ if (transition != directions.none || has_won || has_timed_out || is_looking_at_m
 		// Draw Background
 		bg_color = (has_won) ? c_white : c_black;
 		standard_text_color = (has_won) ? c_black : c_white;
-		special_text_color = get_game_color();
+		special_text_color = global.gms_game_color;
 		draw_set_color(bg_color);
 		draw_rectangle(0, 0, room_width-1, room_height-1, false);
 	

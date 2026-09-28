@@ -11,6 +11,8 @@ function EvaluationMessageManager() constructor {
 	bombs_lit = 0;
 	bombs_lit_by_fireball = 0;
 	torches_lit = 0;
+	kept_fire = true;
+	total_collectables_collected = 0;
 	torches_lit_by_fireball = 0;
 	rooms_lit = 0;
 	clock_time_saved = 0;
@@ -99,8 +101,8 @@ function EvaluationMessageManager() constructor {
 		var time_provided = (global.is_test_mode) ? 0 : controller.time_provided;
 		// var time_elapsed_string = "Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2);
 		// var time_remaining_string = "Extra Time Remaining: "+string(floor(time_remaining/(60)))+":"+get_zero_padded_string(floor(modulo(time_remaining, 60)), 2);
-		var time_elapsed_string = "Time Elapsed: "+get_percentage_string((time_elapsed/time_provided));
-		var time_remaining_string = "Extra Time Remaining: "+get_percentage_string((time_remaining/time_provided));
+		var time_elapsed_string = "Time Elapsed: "+get_percentage_string((time_elapsed/time_provided)*100);
+		var time_remaining_string = "Extra Time Remaining: "+get_percentage_string((time_remaining/time_provided)*100);
 		
 		// Main Scoring Messages
 		add_evaluation_message(true, time_elapsed_string, false, 0);
@@ -137,7 +139,7 @@ function EvaluationMessageManager() constructor {
 		add_evaluation_message(((unlocked_doors + unlocked_chests) >= 5), "Master Lockpicker", false, 5);
 		add_evaluation_message((holes_dug >= 6), "Tunnel Digger", false, 5);
 		add_evaluation_message((meat_kill_count >= 3), "Expert Poisoner", false, 5);
-		add_evaluation_message((clock_time_saved >= 600), "Time Saver", false, 5);
+		add_evaluation_message((clock_time_saved > 600), "Time Saver", false, 5);
 		add_evaluation_message((special_torches_lit > 0 || dual_wielded_lit_torches > 0), "Shone Brightly", false, 5);
 		add_evaluation_message((map_looks_with_map_item >= MAX_NUMBER_OF_ROOMS/2 && (map_looks - map_looks_with_map_item) < MAX_NUMBER_OF_ROOMS/2), "Consulter of Maps", false, 5);
 		add_evaluation_message(((map_looks - map_looks_with_map_item) >= MAX_NUMBER_OF_ROOMS/2), "Map Overreliance", true, -2);
@@ -176,7 +178,8 @@ function EvaluationMessageManager() constructor {
 		add_evaluation_message((has_won && disturbed_bones == 0), "Respected the Fallen", false, 10);
 		add_evaluation_message((disturbed_bones >= 16), "Profaner of the Dead", true, -2);
 		add_evaluation_message((has_won && torches_lit == 0), "Adapted to the Dark", false, 10);
-		add_evaluation_message((torches_lit >= 16), "Kept the Fire Burning", false, 2);
+		add_evaluation_message((has_won && kept_fire), "Kept the Fire Burning", false, 5);
+		add_evaluation_message((total_collectables_collected >= 100), "Master Collector", false, 2);
 		add_evaluation_message((dual_wielded_items > 0), "Dual Wielder", false, 1);
 		
 		// Misc Penalties
@@ -379,5 +382,55 @@ function EvaluationMessageManager() constructor {
 				return elm2[2] - elm1[2];
 			});
 		}
+	}
+}
+
+
+function EvaluationTraitManager() constructor {
+	evaluation_traits = array_create(0);
+	
+	/// @function									read_traits_from_file();
+	function read_traits_from_file() {
+		evaluation_traits = array_create(0);
+		var filename = "trait_data.json";
+		var file = file_text_open_read(filename);
+		var trait_number = 0;
+		
+		// Read in each trait from file
+		var evaluation_message_data = file_text_readln(file);
+		evaluation_message_data = file_text_readln(file);
+		while (evaluation_message_data != "]")
+		{
+			trait_number += 1;
+			var decoded_content = json_parse(evaluation_message_data);
+			var new_evaluation_trait = new EvaluationTrait(decoded_content, trait_number);
+			new_evaluation_trait.set_times_earned();
+			array_push(evaluation_traits, new_evaluation_trait);
+			evaluation_message_data = file_text_readln(file);
+		}
+		file_text_close(file);
+	}
+}
+
+function EvaluationTrait(message_data, given_trait_number) constructor {
+	trait_id = given_trait_number
+	title = message_data.title
+	variable_name = string_replace_all(title, " ", "_")
+	description = message_data.description
+	order = message_data.order
+	negative_trait = message_data.negative
+	times_earned = array_create(difficulties.ALL);
+	
+	/// @function									set_times_earned();
+	function set_times_earned() {
+		times_earned = array_create(difficulties.ALL);
+		
+		var total = 0;
+		for(var i = 0; i < difficulties.ALL; i++) {
+			var times_earned_for_difficulty = get_evaluation_variable(variable_name, i);
+			times_earned[i] = times_earned_for_difficulty;
+			total += times_earned[i];
+		}
+		times_earned[difficulties.ALL] = total;
 	}
 }

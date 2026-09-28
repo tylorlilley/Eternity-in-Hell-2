@@ -3,7 +3,7 @@
 ///	@param		{difficulty} difficulty		The difficulty to update the count for
 ///	@param		{boolean} has_rosary		The difficulty to update the count for
 function update_death_log(obj_index, difficulty, has_rosary) {
-	var previous_death_count = get_death_count(obj_index, difficulty), var current_run = get_run_number_count(difficulty);
+	var previous_death_count = get_death_count(obj_index, difficulty), current_run = get_run_number_count(difficulty);
 	
 	ini_open("player_data.ini");
 	ini_write_real(get_difficulty_string(difficulty), object_get_name(obj_index), previous_death_count+1);

@@ -1,8 +1,10 @@
 /// @function								draw_while_carried();
-function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, xscale, blend, spr = sprite_index) {
+function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, xscale, blend, is_mirrored, spr = sprite_index) {
 	if (!is_existing_instance(holder)) { return; }
 	
 	var draw_x_offset = image_xscale * -8;
+	if (is_mirrored) { draw_x_offset *= -1; }
+	y_pos += (holder.sprite_index == spr_player_no_hands_crouch) ? 1 : 0;
 
 	// Draw Main Item Sprite
 	draw_sprite_part_ext(spr, image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
@@ -210,7 +212,7 @@ function get_random_item_obj(special_item, include_key) {
 	var chosen_item_obj = -1;
 	*/
 	
-	var controller = global.controller, available_items = global.available_items[global.difficulty], var num_of_items = array_length(available_items)
+	var controller = global.controller, available_items = global.available_items[global.difficulty], num_of_items = array_length(available_items);
 	var random_pos = include_key ? irandom(num_of_items-1) : (1 + irandom(num_of_items-2));
 	var total_spawned_special_items = array_length(controller.spawned_special_items);
 	if (!include_key) { total_spawned_special_items += 1; }

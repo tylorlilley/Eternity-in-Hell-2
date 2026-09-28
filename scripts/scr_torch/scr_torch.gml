@@ -45,6 +45,10 @@ function extinguish_torch() {
 	torch_light_image_timer = -1;
 	time_to_remain_lit = 0;
 	
+	if (is_existing_instance(holder) && holder == global.player) {
+		global.controller.evaluation_manager.kept_fire = false;
+	}
+	
 	play_sound( snd_extinguish, true );
 	
 	with light_source { instance_destroy(); }

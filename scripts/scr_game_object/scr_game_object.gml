@@ -35,7 +35,7 @@ function turn_to_face_player() {
 
 /// @function  							teleport_near_player();
 function teleport_near_player() {
-	var target = get_dropped_meat();
+	var target = get_dropped_meat(), attempts = 0;
 	if (!is_existing_instance(target)) { target = global.player; }
 	
 	play_sound(snd_flicker, false);
@@ -47,8 +47,9 @@ function teleport_near_player() {
 	    if (get_coin_flip()) { y_pos *= -1; }
 	    x = target.x + x_pos;
 	    y = target.y + y_pos;
+		attempts += 1;
 	}
-	until (get_distance_to_instance(target) >= 24 && !is_outside_room(x,y));
+	until (attempts > 100 || (get_distance_to_instance(target) >= 24 && !is_outside_room(x,y)));
 }
 
 
@@ -68,8 +69,8 @@ function is_solid_at_position(x_pos, y_pos) {
 	var solids = instance_place_all(x_pos, y_pos, obj_solid), carrying_special_staff = false;
 	if (object_index == obj_hands || object_index == obj_player) { carrying_special_staff = is_carrying_special_item(obj_staff); }
 	
-	while (array_length(solids) > 0) {
-		var current_solid = array_random_pop(solids);
+	for (var _i = 0; _i < array_length(solids) > 0; _i++) {
+		var current_solid = solids[_i];
 		if (current_solid != id && (!carrying_special_staff || (current_solid.object_index != obj_solid_part && current_solid.object_index != obj_wall && current_solid.object_index != obj_column && current_solid.object_index != obj_mirror))) { return true; }
 	}
 	return false;
@@ -213,7 +214,7 @@ function move_in_direction(dir, make_noise) {
 	
 	// Update mp_grids
 	var is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body)), current_room = global.controller.current_room;
-	if (is_solid) { current_room.reset_room_solid_path_grid(); current_room.reset_room_lava_path_grid(); }
+	if (is_solid) { current_room.mark_room_for_grid_update(); }
 }
 
 
@@ -386,19 +387,50 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 	}
 	
 	// Get Farmer Version of Regular Sprite
-	switch (regular_sprite) {
+	static farmer_sprite_translation_struct = {
 		/// Tiles
-		case spr_collectable: { return spr_collectable_farmer; }
-		case spr_bones: { return spr_bones_farmer; }
-		case spr_cross: { return spr_cross_farmer; }
-		case spr_inverted_cross: { return spr_inverted_cross_farmer; }
-		case spr_giant_wurm: { return spr_giant_wurm_farmer; }
-		case spr_portcullis: { return spr_portcullis_farmer; }
-		case spr_block: { return spr_block_farmer; }
-		case spr_block_tile2: { return spr_block_tile_farmer; }
-		case spr_magic_beam: { return spr_magic_beam_farmer; }
-		case spr_red_chest: { return spr_red_chest_farmer; }
+		spr_collectable: spr_collectable_farmer,
+		spr_bones: spr_bones_farmer,
+		spr_cross: spr_cross_farmer,
+		spr_inverted_cross: spr_inverted_cross_farmer,
+		spr_giant_wurm: spr_giant_wurm_farmer,
+		spr_block: spr_block_farmer,
+		spr_block_tile2: spr_block_tile_farmer,
+		spr_magic_beam: spr_magic_beam_farmer,
+		spr_red_chest: spr_red_chest_farmer,
+		
 		/// Enemies
+		spr_gudetama: spr_gudetama_farmer,
+		spr_skeleton: spr_skeleton_farmer,
+		spr_cockroach: spr_cockroach_farmer,
+		spr_fire_skeleton: spr_fire_skeleton_farmer,
+		spr_fast_skeleton: spr_fast_skeleton_farmer,
+		spr_fat_skeleton: spr_fat_skeleton_farmer,
+		spr_living_block: spr_living_block_farmer,
+		spr_spider: spr_spider_farmer,
+		spr_mouth: spr_mouth_farmer,
+		spr_bumper: spr_bumper_farmer,
+		spr_snake: spr_snake_farmer,
+		spr_phantom: spr_phantom_farmer,
+		spr_hands: spr_hands_farmer,
+		spr_nose: spr_nose_farmer,
+		spr_statue: spr_statue_farmer,
+		spr_eyes: spr_eyes_farmer,
+		spr_ears: spr_ears_farmer,
+		spr_echo: spr_echo_farmer,
+		spr_giant_eye: spr_giant_eye_farmer,
+		spr_giant_eye_pupil: spr_giant_eye_pupil_farmer,
+		
+		/// Items
+		spr_sword: spr_sword_farmer,
+		spr_meat: spr_meat_farmer,
+		spr_bomb: spr_bomb_farmer,
+		spr_heart: spr_heart_farmer,
+		spr_clock: spr_clock_farmer,
+		spr_clock_sand: spr_clock_sand_farmer,
+	}
+	switch (regular_sprite) {
+
 		case spr_gudetama: { return spr_gudetama_farmer; }
 		case spr_skeleton: { return spr_skeleton_farmer; }
 		case spr_cockroach: { return spr_cockroach_farmer; }
@@ -428,7 +460,7 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 		case spr_clock_sand: { return spr_clock_sand_farmer; }
 	}
 	
-	return regular_sprite;
+	return variable_struct_get(farmer_sprite_translation_struct, regular_sprite) ?? regular_sprite;
 }
 
 /// @function								get_room_map_position(inst);
@@ -468,6 +500,7 @@ function draw_reflection_in_mirrors() {
 	);
 		
 	if (valid_obj && !object_is_ancestor(object_index, obj_solid) && instance_number(obj_mirror) > 0 && !instance_place(x, y, obj_mirror)) {
+		var potential_mirrors = ds_list_create();
 		for (var i = directions.up; i < 8; i++) {
 			var reflect_carried_item = false;
 			if (object_is_ancestor(object_index, obj_item) && is_existing_instance(holder) && (holder.object_index != obj_hands || holder.activated)) {
@@ -489,7 +522,7 @@ function draw_reflection_in_mirrors() {
 			var closest_solids = array_create(0);
 
 			// Get closest mirrors
-			var potential_mirrors = ds_list_create();
+			ds_list_clear(potential_mirrors);
 			var num_of_objects = collision_rectangle_list(x_to_use+x_pos_offset-1, y_to_use+y_pos_offset-1, x_pos+x_pos_offset+1, y_pos+y_pos_offset+1, obj_solid, false, true, potential_mirrors, true);
 			var minimum_distance_to_obj = 999;
 			for (var j = 0; j < num_of_objects; j++) {
@@ -503,31 +536,30 @@ function draw_reflection_in_mirrors() {
 					array_push(closest_solids, current_object);
 				}
 			}
-			ds_list_destroy(potential_mirrors);
 			
 			// Create reflections for closest mirrors
 			for (var j = 0; j < array_length(closest_solids); j++) {
-				var closest_solid = closest_solids[j];
+				var closest_solid = closest_solids[j], flipped_x_scale = image_xscale;
 				if (!is_existing_instance(closest_solid) || closest_solid.object_index != obj_mirror) { break; }
 
 				var x_offset = 0, y_offset = 0, refl_width = abs(sprite_width), refl_height = abs(sprite_height);
-				var x_pos = closest_solid.x-(image_xscale*abs(sprite_width))/2, y_pos = closest_solid.y-(image_yscale*abs(sprite_height))/2, x_dif = closest_solid.x-x_to_use, y_dif = closest_solid.y-y;
+				var x_pos = closest_solid.x-(flipped_x_scale*abs(sprite_width))/2, y_pos = closest_solid.y-(image_yscale*abs(sprite_height))/2, x_dif = closest_solid.x-x_to_use, y_dif = closest_solid.y-y;
 				var refl_blend = (colour_get_value(closest_solid.image_blend) < colour_get_value(image_blend)) ? closest_solid.image_blend : image_blend;
 
 				if (abs(y_dif) < abs(closest_solid.sprite_height) && y_to_use < closest_solid.y) { refl_height /= 2; y_offset += refl_height; y_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
 				else if (abs(y_dif) < abs(closest_solid.sprite_height) && y_to_use > closest_solid.y) { refl_height /= 2; y_pos += abs(closest_solid.sprite_height/2); }
 				else if (abs(x_dif) < abs(closest_solid.sprite_width) && x_to_use < closest_solid.x) { 
-					if (image_xscale == 1) { refl_width /= 2; x_offset += refl_width; x_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
+					if (flipped_x_scale == 1) { refl_width /= 2; x_offset += refl_width; x_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
 					else { refl_width /= 2; x_pos -= abs(closest_solid.sprite_width/2); }
 				}
 				else if (abs(x_dif) < abs(closest_solid.sprite_width) && x_to_use > closest_solid.x) {
-					if (image_xscale == -1) { refl_width /= 2; x_offset += refl_width; x_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
+					if (flipped_x_scale == -1) { refl_width /= 2; x_offset += refl_width; x_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
 					else { refl_width /= 2; x_pos += abs(closest_solid.sprite_width/2); }
 				}
 				
 				// Draw Reflection
 				if (reflect_carried_item) {
-					var carried_item_x_offset = image_xscale * 8;
+					var carried_item_x_offset = flipped_x_scale * 8;
 					refl_height += carried_y_offset;
 					y_offset -= carried_y_offset
 					y_pos -= carried_y_offset;
@@ -547,18 +579,19 @@ function draw_reflection_in_mirrors() {
 						}
 					}
 					
-					draw_while_carried(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
+					draw_while_carried(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend, false);
 				}
 				else {
-					draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, refl_width, refl_height, x_pos, y_pos, image_xscale, image_yscale, refl_blend, 1);
+					draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, refl_width, refl_height, x_pos, y_pos, flipped_x_scale, image_yscale, refl_blend, 1);
 					if (object_index == obj_player) {
-						draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
-						draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
-						draw_player_hat(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, image_xscale, refl_blend);
+						draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
+						draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
+						draw_player_hat(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
 					}
 				}
 				
 			}
 		}
+		ds_list_destroy(potential_mirrors);
 	}
 }

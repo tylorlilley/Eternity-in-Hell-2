@@ -7,7 +7,7 @@ function move_player(dir) {
 	with (player) {
 		// Move player
 		if (dir != directions.stairs) {
-			move_in_direction(dir, true);
+			move_in_direction(dir, (sprite_index != spr_player_no_hands_crouch));
 			with (obj_echo_generator) { array_push(moves, dir); }
 		}
 		// Move light source
@@ -77,7 +77,10 @@ function pick_up_or_put_down_item(dir) {
 	if (dir == directions.right) { carried_item = right_hand_item; }
 	else if (dir == directions.left) { carried_item = left_hand_item; }
 	
-	if (is_existing_instance(carried_item)) { put_down_item(carried_item, true, true); }
+	if (is_existing_instance(carried_item)) {
+		put_down_item(carried_item, true, true);
+		if (!is_carrying_item(obj_torch)) { global.controller.evaluation_manager.kept_fire = false; }
+	}
 	else {
 		// Cycle through the items you could be possibly picking up
 		var dropped_items = instance_place_all(x, y, obj_item);
@@ -264,22 +267,24 @@ function draw_staff_box() {
 /// @function				draw_player_hat();
 function draw_player_hat(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
 	if (global.graphics_mode == graphics_modes.farmer) {
-		draw_sprite_part_ext(spr_player_farmer, image_index, x_offset, y_offset, spr_width, spr_height, x_pos, y_pos, x_scale, image_yscale, blend, image_alpha);
+		var spr = (sprite_index == spr_player_no_hands_crouch) ? spr_player_farmer_crouch : spr_player_farmer;
+		draw_sprite_part_ext(spr, image_index, x_offset, y_offset, spr_width, spr_height, x_pos, y_pos, x_scale, image_yscale, blend, image_alpha);
 	}
 }
 
 /// @function				draw_player_worm();
-function draw_player_worm() {
-	if (infected_timer > 0 && !dead) { draw_sprite_ext(spr_bug_red, bug_image_index, x, y-10+image_index, image_xscale, image_yscale, image_angle, image_blend, image_alpha); }
+function draw_player_worm(x_pos, y_pos, x_scale, blend) {
+	if (infected_timer > 0 && !dead) { draw_sprite_ext(spr_bug_red, bug_image_index, x_pos, y_pos-10+image_index, x_scale, 1, 0, blend, 1); }
 }
 
 /// @function				draw_player_left_hand();
 function draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
-	if (x_scale == 1) {
+	if (x_scale == 0) { return; }
+	else if (x_scale > 0) {
 		var left_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
 		var hide_left_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
 	}
-	else if (x_scale == -1) {
+	else {
 		var left_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
 		var hide_left_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
 	}
@@ -302,6 +307,7 @@ function draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr
 
 /// @function						draw_player();
 function draw_player() {
+	var crouch_offset = (sprite_index == spr_player_no_hands_crouch) ? 1 : 0
 	// Draw box over lava or staff solids
 	draw_staff_box();
 
@@ -309,15 +315,15 @@ function draw_player() {
 	event_inherited();
 
 	// Draw Hands
-	var x_pos = x-(8*image_xscale), y_pos = y-(8*image_yscale);
+	var x_pos = x-(8*image_xscale), y_pos = y-(8*image_yscale)+crouch_offset;
 	draw_player_right_hand(x_pos, y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
 	draw_player_left_hand(x_pos, y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
 
 	// Draw hat in farm mode
-	draw_player_hat(x_pos, y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
+	draw_player_hat(x_pos, y_pos-crouch_offset, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
 
 	// Draw worm if infected
-	draw_player_worm();
+	draw_player_worm(x, y+crouch_offset, image_xscale, image_blend);
 }
 
 /// @function				snap_player_to_position(dir);

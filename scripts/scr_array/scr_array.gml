@@ -7,9 +7,13 @@ function array_random_get(list) {
 
 /// @function								array_random_pop(list);
 /// @param		{index} list				The array from which to pop a random value
-function array_random_pop(list) {
-	array_shuffle_ext(list);
-	return array_pop(list);
+function array_random_pop(_list) {
+	var _list_length = array_length(_list);
+	if (_list_length < 1) { return noone; }
+	
+	var _random_index = irandom(_list_length - 1), _return_value = _list[_random_index];
+	array_delete(_list, _random_index, 1);
+	return _return_value;
 }
 
 /// @function								array_duplicate(list, source_id);

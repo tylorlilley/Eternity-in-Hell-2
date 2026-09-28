@@ -32,10 +32,9 @@
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) // multiplied by 4 for check at every room enter
 #macro FIRE_SKELETON_IN_LAVA_PROBABILITY get_probability_for_difficulty([0, 0, 0, 48, 32])
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 4, 3, 3, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
-#macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 32, 24, 20, 16])
-#macro SPIDER_PROBABILITY get_probability_for_difficulty([0, 4, 3, 2, 1]) 
+#macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 0, 32, 24, 16])
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 4])
-#macro SAME_SKELETON_TYPE_FREQUENCY 1//get_probability_for_difficulty([0, 0, 0, 48, 32])
+#macro SAME_SKELETON_TYPE_FREQUENCY get_probability_for_difficulty([0, 0, 0, 32, 24])
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 40]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 28, 24, 18]) //get_probability_for_difficulty([0, 32, 24, 22, 18]) 
 #macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 18, 16]) 
@@ -69,7 +68,7 @@
 #macro JUST_THE_WIND_PROBABILITY 2056 
 #macro BUSH_RUSTLE_FREQUENCY 16
 //#macro ILLUSION_WALL_FLICKER_FREQUENCY 256
-#macro SKELETON_MOVE_towards_PLAYER_FREQUENCY get_probability_for_difficulty([0, 32, 24, 20, 18])
+#macro SKELETON_MOVE_TOWARDS_PLAYER_FREQUENCY get_probability_for_difficulty([0, 64, 48, 32, 24])
 #macro FAT_SKELETON_MOVE_FREQUENCY 48
 #macro SKELETON_MOVE_FREQUENCY 12 
 #macro COCKROACH_HUNT_MOVE_FREQUENCY 6 

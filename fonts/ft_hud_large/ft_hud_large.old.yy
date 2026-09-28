@@ -116,7 +116,7 @@
   "italic": false,
   "kerningPairs": [],
   "last": 0,
-  "maintainGms1Font": true,
+  "maintainGms1Font": false,
   "parent": {
     "name": "Fonts",
     "path": "folders/Fonts.yy",

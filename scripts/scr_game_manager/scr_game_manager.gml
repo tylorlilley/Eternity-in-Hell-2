@@ -24,16 +24,19 @@ function get_random_inputs() {
 	key_right_pressed = get_random_chance_out_of((prev_key_right) ? 4 : 12);
 	key_z_pressed = get_random_chance_out_of(32);
 	key_x_pressed = get_random_chance_out_of(32);
+	key_shift_pressed =  get_random_chance_out_of(32);
 	
 	key_up_released = !key_up_pressed && get_random_chance_out_of(4);
 	key_down_released = !key_down_released && get_random_chance_out_of(4);
 	key_left_released = !key_left_released && get_random_chance_out_of(4);
 	key_right_released = !key_right_released && get_random_chance_out_of(4);
+	key_shift_released = !key_shift_released && get_random_chance_out_of(4);
 	
 	key_up = !key_up_released && (key_up_pressed || prev_key_up);
 	key_down = !key_down_released && (key_down_pressed || prev_key_down);
 	key_left = !key_left_released && (key_left_pressed || prev_key_left);
 	key_right = !key_right_released && (key_right_pressed || prev_key_right);
+	key_shift = !key_shift_released && (key_shift_pressed || prev_key_shift);
 }
 
 /// @function								clear_inputs_for_next_frame();
@@ -42,6 +45,7 @@ function clear_inputs_for_next_frame() {
 	prev_key_down = key_down;
 	prev_key_left = key_left;
 	prev_key_right = key_right;
+	prev_key_shift = key_shift;
 
 	key_up = false;
 	key_down = false;
@@ -51,6 +55,7 @@ function clear_inputs_for_next_frame() {
 	key_enter = false;
 	key_z = false;
 	key_x = false;
+	key_shift = false;
 	
 	key_up_pressed = false;
 	key_down_pressed = false;
@@ -60,6 +65,7 @@ function clear_inputs_for_next_frame() {
 	key_enter_pressed = false;
 	key_z_pressed = false;
 	key_x_pressed = false;
+	key_shift_pressed = false;
 	
 	key_up_released = false;
 	key_down_released = false;
@@ -70,6 +76,7 @@ function clear_inputs_for_next_frame() {
 	key_z_released = false;
 	key_x_released = false;
 	key_esc_released = false;
+	key_shift_released = false;
 }
 
 /// @function								get_keyboard_default_inputs();
@@ -78,8 +85,9 @@ function get_keyboard_default_inputs() {
 	key_down = key_down || keyboard_check(vk_down);
 	key_left = key_left || keyboard_check(vk_left);
 	key_right = key_right || keyboard_check(vk_right);
-	key_space = key_space|| keyboard_check(vk_space);
-	key_enter = key_enter|| keyboard_check(vk_enter);
+	key_space = key_space || keyboard_check(vk_space);
+	key_enter = key_enter || keyboard_check(vk_enter);
+	key_shift = key_shift || keyboard_check(vk_shift);
 	key_z = key_z || keyboard_check(ord("Z"));
 	key_x = key_x || keyboard_check(ord("X"));
 	
@@ -91,6 +99,7 @@ function get_keyboard_default_inputs() {
 	key_enter_pressed = key_enter_pressed || keyboard_check_pressed(vk_enter);
 	key_z_pressed  = key_z_pressed || keyboard_check_pressed (ord("Z"));
 	key_x_pressed  = key_x_pressed || keyboard_check_pressed (ord("X"));
+	key_shift_pressed = key_shift_pressed || keyboard_check_pressed(vk_shift);
 	
 	key_up_released = key_up_released || keyboard_check_released(vk_up);
 	key_down_released = key_down_released || keyboard_check_released(vk_down);
@@ -101,6 +110,7 @@ function get_keyboard_default_inputs() {
 	key_z_released = key_z_released || keyboard_check_released(ord("Z"));
 	key_x_released = key_x_released || keyboard_check_released(ord("X"));
 	key_esc_released = key_esc_released || keyboard_check_released(vk_escape);
+	key_shift_released = key_shift_released || keyboard_check_released(vk_shift);
 }
 
 /// @function								get_keyboard_wasd_inputs();
@@ -113,6 +123,7 @@ function get_keyboard_wasd_inputs() {
 	key_enter = key_enter|| keyboard_check(vk_enter);
 	key_z = key_z || keyboard_check(ord("J"));
 	key_x = key_x || keyboard_check(ord("K"));
+	key_shift = key_shift || keyboard_check(vk_shift);
 	
 	key_up_pressed = key_up_pressed || keyboard_check_pressed(ord("W"));
 	key_down_pressed = key_down_pressed || keyboard_check_pressed(ord("S"));
@@ -122,6 +133,7 @@ function get_keyboard_wasd_inputs() {
 	key_enter_pressed = key_enter_pressed || keyboard_check_pressed(vk_enter);
 	key_z_pressed  = key_z_pressed || keyboard_check_pressed (ord("J"));
 	key_x_pressed  = key_x_pressed || keyboard_check_pressed (ord("K"));
+	key_shift_pressed = key_shift_pressed || keyboard_check_pressed(vk_shift);
 	
 	key_up_released = key_up_released || keyboard_check_released(ord("W"));
 	key_down_released = key_down_released || keyboard_check_released(ord("S"));
@@ -132,6 +144,7 @@ function get_keyboard_wasd_inputs() {
 	key_z_released = key_z_released || keyboard_check_released(ord("J"));
 	key_x_released = key_x_released || keyboard_check_released(ord("K"));
 	key_esc_released = key_esc_released || keyboard_check_released(vk_escape);
+	key_shift_released = key_shift_released || keyboard_check_released(vk_shift);
 }
 
 /// @function								get_gamepad_inputs();
@@ -141,29 +154,32 @@ function get_gamepad_inputs() {
 	key_down = key_down || gamepad_button_check(gamepad, gp_padd) || gamepad_axis_value(gamepad, gp_axislv) > 0.5;
 	key_left = key_left || gamepad_button_check(gamepad, gp_padl) || gamepad_axis_value(gamepad, gp_axislh) < -0.5;
 	key_right = key_right || gamepad_button_check(gamepad, gp_padr) || gamepad_axis_value(gamepad, gp_axislh) > 0.5;
-	key_space = key_space || gamepad_button_check(gamepad, gp_shoulderlb) || gamepad_button_check(gamepad, gp_shoulderrb) || gamepad_button_check(gamepad, gp_face3) || gamepad_button_check(gamepad, gp_face4);
+	key_space = key_space || gamepad_button_check(gamepad, gp_shoulderlb) || gamepad_button_check(gamepad, gp_shoulderrb) || gamepad_button_check(gamepad, gp_face4);
 	key_enter = key_enter || gamepad_button_check(gamepad, gp_start) || gamepad_button_check(gamepad, gp_select);
-	key_z = key_z || gamepad_button_check(gamepad, gp_face1) || gamepad_button_check(gamepad, gp_shoulderl);
-	key_x = key_x || gamepad_button_check(gamepad, gp_face2)  || gamepad_button_check(gamepad, gp_shoulderr);
+	key_z = key_z || gamepad_button_check(gamepad, gp_face3) || gamepad_button_check(gamepad, gp_shoulderl);
+	key_x = key_x || gamepad_button_check(gamepad, gp_face1)  || gamepad_button_check(gamepad, gp_shoulderr);
+	key_shift = key_shift ||  gamepad_button_check(gamepad, gp_face2);
 	
 	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(gamepad, gp_padu) || (prev_axislv_value >= -0.5 && gamepad_axis_value(gamepad, gp_axislv) < -0.5);
 	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(gamepad, gp_padd) || (prev_axislv_value <= 0.5 && gamepad_axis_value(gamepad, gp_axislv) > 0.5);
 	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(gamepad, gp_padl) || (prev_axislh_value >= -0.5 && gamepad_axis_value(gamepad, gp_axislh) < -0.5);
 	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(gamepad, gp_padr) || (prev_axislh_value <= 0.5 && gamepad_axis_value(gamepad, gp_axislh) > 0.5);
-	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(gamepad, gp_shoulderlb) || gamepad_button_check_pressed(gamepad, gp_shoulderrb) || gamepad_button_check_pressed(gamepad, gp_face3) || gamepad_button_check_pressed(gamepad, gp_face4);
+	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(gamepad, gp_shoulderlb) || gamepad_button_check_pressed(gamepad, gp_shoulderrb) || gamepad_button_check_pressed(gamepad, gp_face4);
 	key_enter_pressed = key_enter_pressed || gamepad_button_check_pressed(gamepad, gp_start) || gamepad_button_check_pressed(gamepad, gp_select)
-	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_shoulderl);
-	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(gamepad, gp_face2) || gamepad_button_check_pressed(gamepad, gp_shoulderr);
+	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(gamepad, gp_face3) || gamepad_button_check_pressed(gamepad, gp_shoulderl);
+	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_shoulderr);
+	key_shift_pressed = key_shift_pressed ||  gamepad_button_check_pressed(gamepad, gp_face2);
 	
 	key_up_released = key_up_released || gamepad_button_check_released(gamepad, gp_padu);
 	key_down_released = key_down_released || gamepad_button_check_released(gamepad, gp_padd);
 	key_left_released = key_left_released || gamepad_button_check_released(gamepad, gp_padl);
 	key_right_released = key_right_released || gamepad_button_check_released(gamepad, gp_padr);	
-	key_space_released = key_space_released ||  gamepad_button_check_released(gamepad, gp_shoulderlb) || gamepad_button_check_released(gamepad, gp_shoulderrb) || gamepad_button_check_released(gamepad, gp_face3) || gamepad_button_check_released(gamepad, gp_face4);
+	key_space_released = key_space_released ||  gamepad_button_check_released(gamepad, gp_shoulderlb) || gamepad_button_check_released(gamepad, gp_shoulderrb) || gamepad_button_check_released(gamepad, gp_face4);
 	key_enter_released = key_enter_released || gamepad_button_check_released(gamepad, gp_start) || gamepad_button_check_released(gamepad, gp_select);
-	key_z_released = key_z_released || gamepad_button_check_released(gamepad, gp_face1) || gamepad_button_check_released(gamepad, gp_shoulderl);
-	key_x_released = key_x_released || gamepad_button_check_released(gamepad, gp_face2) || gamepad_button_check_released(gamepad, gp_shoulderr);
+	key_z_released = key_z_released || gamepad_button_check_released(gamepad, gp_face3) || gamepad_button_check_released(gamepad, gp_shoulderl);
+	key_x_released = key_x_released || gamepad_button_check_released(gamepad, gp_face1) || gamepad_button_check_released(gamepad, gp_shoulderr);
 	key_esc_released = key_esc_released || keyboard_check_released(vk_escape);
+	key_shift_released  = key_shift_released  ||  gamepad_button_check_released(gamepad, gp_face2);
 	
 	prev_axislv_value = gamepad_axis_value(gamepad, gp_axislv);
 	prev_axislh_value = gamepad_axis_value(gamepad, gp_axislh);

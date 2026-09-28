@@ -33,6 +33,7 @@ function GameRoom(given_x, given_y) constructor {
 	instances = array_create(0);
 	solid_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	lava_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
+	empty_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
 
 	/// @function									assign_room_ref(must_have_lantern, spawn_special_room);
@@ -151,7 +152,7 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty += get_room_reference_object_count(obj_spider) * 1.5;
 		room_reference_difficulty += initial_fountain_count * 0.5; //0.325
 		room_reference_difficulty += initial_statue_fountain_count * 0.25; //0.325
-		room_reference_difficulty += get_room_reference_object_count(obj_statue) - initial_statue_fountain_count * 0.25; //0.325
+		room_reference_difficulty += (get_room_reference_object_count(obj_statue) - initial_statue_fountain_count) * 0.25; //0.325
 		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.5; //0.325
 		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.33; //0.25
 		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.66 // 0.5
@@ -173,8 +174,8 @@ function GameRoom(given_x, given_y) constructor {
 		if (has_no_cardinal_exits) { room_reference_difficulty += 0.125; }
 		if (has_collectables) { room_reference_difficulty += 0.25; }
 		if (has_misleading_exits) { room_reference_difficulty += 0.125; }
-		if (chest_obj = obj_statue) { room_reference_difficulty += 0.325; }
-		else if (chest_obj = obj_fountain) { room_reference_difficulty += 0.325; }
+		if (chest_obj == obj_statue) { room_reference_difficulty += 0.325; }
+		else if (chest_obj == obj_fountain) { room_reference_difficulty += 0.325; }
 		else if (!has_key && chest_obj != -1) { room_reference_difficulty -= 0.25; }
 		if (has_special_item) { room_reference_difficulty -= 2; }
 		
@@ -231,6 +232,8 @@ function GameRoom(given_x, given_y) constructor {
 			distance_to_start = start_distance;
 			for (var dir = directions.up; dir <= directions.stairs; dir++;) {
 				var connected_room = get_connected_room(dir);
+				if (connected_room == -1) { continue; }
+						
 				connected_room.calculate_distance_to_connected_rooms(distance_to_start+1);
 			}
 		}
@@ -403,17 +406,17 @@ function GameRoom(given_x, given_y) constructor {
 		return chosen_room;
 	}
 	
-	/// @function								reset_room_solid_path_grid();
-	function reset_room_solid_path_grid() {
-		mp_grid_clear_all(solid_path_grid);
-		with (obj_solid) { mp_path_grid_add(other.solid_path_grid); }
+	/// @function								mark_room_for_grid_update();
+	function mark_room_for_grid_update() {
+		global.controller.grid_update_timer = 1;
 	}
 	
-	/// @function								reset_room_lava_path_grid();
-	function reset_room_lava_path_grid() {
+	/// @function								rebuild_room_grids();
+	function rebuild_room_grids() {
+		mp_grid_clear_all(solid_path_grid);
 		mp_grid_clear_all(lava_path_grid);
-		with (obj_solid) { mp_path_grid_add(other.lava_path_grid); }
 		with (obj_lava_part) { mp_path_grid_add(other.lava_path_grid); }
+		with (obj_solid) { mp_path_grid_add(other.solid_path_grid); mp_path_grid_add(other.lava_path_grid); }
 	}
 	
 	/// @function								add_to_instances_at_map_positions(inst);
@@ -573,12 +576,17 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								get_room_reference_object_count();
 	/// @param		{int} obj					The object index to check for the presence of
 	function get_room_reference_object_count(obj) {
+		static cache = ds_map_create();
+		if (ds_map_exists(cache, room_reference)) { return cache[? room_reference]; }
+		
 		var reference_instances = instances_for_room_reference(room_reference);
 		var count = 0;
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
 			if (asset_get_index(ref.name) == obj) { count += 1; }
 		}
+		
+		cache[? room_reference] = count
 		return count;
 	}
 
@@ -795,7 +803,7 @@ function GameRoom(given_x, given_y) constructor {
 			var blink_frame = is_blink_frame();//modulo(global.game_manager.number_of_frames_since_game_began, 12) <= 5;
 			var bg_color = global.bg_color;
 			var white_color = merge_color(c_white, bg_color, fade_amount);
-			var red_color = merge_color(get_game_color(), bg_color, fade_amount);
+			var red_color = merge_color(global.gms_game_color, bg_color, fade_amount);
 		
 			// Darken the colors of unvisited rooms on the map
 			if (!visited) {
@@ -907,6 +915,13 @@ function GameRoom(given_x, given_y) constructor {
 		
 		return true;
 	}
+}
+
+function destroy() {
+	// The mp_grids MUST be cleaned up manually or this will cause a memory leak
+	mp_grid_destroy(solid_path_grid);
+	mp_grid_destroy(lava_path_grid);
+	mp_grid_destroy(empty_path_grid);
 }
 
 function create_game_map() {
@@ -1111,13 +1126,20 @@ function create_locked_exits_and_keys() {
 
 /// @function									instances_for_room_reference()
 function instances_for_room_reference(room_reference) {
+	static cache = ds_map_create();
+	if (ds_map_exists(cache, room_reference)) { return cache[? room_reference]; }
+	
 	var filename = room_get_name(room_reference) + ".json";
 	var file = file_text_open_read(filename);
+	if (file == -1) { return 0; }
+	
 	var file_difficulty_content = file_text_read_string(file);
 	file_text_readln(file);
 	var file_instances_content = file_text_read_string(file);
 	var decoded_content = json_parse(file_instances_content);          
 	file_text_close(file);
+	
+	cache[? room_reference] = decoded_content
 	return decoded_content;
 }
 
@@ -1134,7 +1156,7 @@ function difficulty_for_room_reference(room_reference) {
 	file_text_readln(file);
 	var decoded_content = string_digits(file_difficulty_content);          
 	file_text_close(file);
-	return decoded_content;
+	return real(decoded_content);
 }
 
 /// @function									get_skeleton_type();

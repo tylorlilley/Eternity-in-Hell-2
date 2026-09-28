@@ -5,6 +5,7 @@ function restart_game() {
 	with all { if (object_index != obj_game_manager) { instance_destroy(); } }
 	for (var i = 0; i < array_length(game_rooms); i++) {
 		room_instance_clear(game_rooms[i].room_reference);
+		game_rooms[i].destroy();
 	}
 	room_goto(rm_title);
 }
@@ -21,7 +22,7 @@ function create_room_lists() {
 	for (var i = room_first; i <= room_last; i++) {
 		var room_to_add = i, room_name = room_get_name(room_to_add);
 		
-		if (room_name = "rm_start" || room_name = "rm_finish" || room_name = "rm_title") { continue; }
+		if (room_name == "rm_start" || room_name == "rm_finish" || room_name == "rm_title") { continue; }
 		if (string_starts_with(room_name, "rm_unused")) { continue; }
 		if (difficulty_for_room_reference(room_to_add) > global.difficulty) { continue; }
 		
@@ -101,14 +102,19 @@ function is_game_won() {
 
 /// @function								is_game_lost();
 function is_game_lost() {
-	var controller = global.controller;
-	return (!is_existing_instance(controller) || global.player.dead || is_time_up());
+	var  player = global.player;
+	if (!is_existing_instance(player)) { return false; }
+	
+	return (!is_existing_instance(global.controller) || player.dead || is_time_up());
 }
 
 /// @function								is_time_up();
 function is_time_up() {
+	var  player = global.player;
+	if (!is_existing_instance(player)) { return false; }
+	
 	var controller = global.controller;
-	return (ceil(controller.time_remaining) <= 0 || (global.player.dead && controller.death_timer == 0));
+	return (ceil(controller.time_remaining) <= 0 || (player.dead && controller.death_timer == 0));
 }
 
 /// @function								are_all_collectables_collected();
@@ -246,8 +252,7 @@ function game_room_start() {
 	if (transitioning_exit != -1) { transitioning_exit.visited = true; }
 	
 	// Reset mp grids
-	current_room.reset_room_solid_path_grid();
-	current_room.reset_room_lava_path_grid();
+	current_room.mark_room_for_grid_update();
 }
 
 /// @function										reset_game_object_image_blend();
@@ -527,7 +532,7 @@ function game_room_initialize() {
 	// Flip game object positions as necesarry
 	if (current_room.flip_horizontal) { current_room.flip_room_contents_horizontally(); }
 	if (current_room.flip_vertical) { current_room.flip_room_contents_vertically(); }
-	if (current_room.rotate != -1) { current_room.rotate_room_contents_around_room_center(current_room.rotate); }
+	if (current_room.rotate != noone) { current_room.rotate_room_contents_around_room_center(current_room.rotate); }
 	with obj_game_object { image_angle = 0; }
 	with obj_placeholder { image_angle = 0; }
 	
@@ -580,24 +585,22 @@ function game_room_initialize() {
 			var new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
 			other.current_room.add_to_instances_at_map_positions(new_inst);
-			other.current_room.reset_room_solid_path_grid(); 
-			other.current_room.reset_room_lava_path_grid();
+			other.current_room.mark_room_for_grid_update();
 			instance_destroy();
 		}
 	}
 	for (var i = 0; i < current_room.initial_statue_fountain_count; i++) {
 		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_statue)) {
-			var statue = instance_place_all(x, y, obj_statue);
-			while (array_length(statue) > 0) {
-				var statue = array_pop(statue);
+			var statues = instance_place_all(x, y, obj_statue);
+			while (array_length(statues) > 0) {
+				var statue = array_pop(statues);
 				if (is_existing_instance(statue)) { instance_destroy(statue); }
 			}
 			var new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
 			other.current_room.add_to_instances_at_map_positions(new_inst);
-			other.current_room.reset_room_solid_path_grid(); 
-			other.current_room.reset_room_lava_path_grid();
+			other.current_room.mark_room_for_grid_update();
 			instance_destroy(id, false);
 		}
 	}
@@ -737,7 +740,7 @@ function game_room_initialize() {
 	// Create button; SPAWN ALL SOLIDS AND ENEMIES BEFORE THIS POINT
 	if (room_has_portcullis) {
 		// Set up spots where button could spawn
-		var possible_spots = array_create(0), var button = instance_create(-16, -16, obj_button), button_pressed = false;
+		var possible_spots = array_create(0), button = instance_create(-16, -16, obj_button), button_pressed = false;
 		if (!stairs_spot_occupied) {
 			button.x = stairs_spot.x;
 			button.y = stairs_spot.y;
@@ -851,8 +854,7 @@ function game_room_initialize() {
 	for (var i = 0; i < dirt_to_spawn; i++) { spawn_dirt(); }
 	
 	// Set up room grids
-	current_room.reset_room_solid_path_grid();
-	current_room.reset_room_lava_path_grid();
+	current_room.mark_room_for_grid_update();
 }
 
 /// @function								reset_map_generation();

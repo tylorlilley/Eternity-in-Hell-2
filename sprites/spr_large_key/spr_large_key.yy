@@ -15,6 +15,7 @@
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"d846f599-7d3e-4eb4-918c-37a3ccaefe83",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"3d5d2ec9-0c43-4370-ac23-18a5cb6604c3",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"cabd90e9-d4cf-44de-9994-326a220eeea8",},
   ],
   "gridX": 0,
   "gridY": 0,
@@ -44,7 +45,7 @@
     "events": {"resourceType":"KeyframeStore<MessageEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "eventStubScript": null,
     "eventToFunction": {},
-    "length": 2.0,
+    "length": 3.0,
     "lockOrigin": false,
     "moments": {"resourceType":"KeyframeStore<MomentsEventKeyframe>","resourceVersion":"1.0","Keyframes":[],},
     "playback": 1,
@@ -57,6 +58,7 @@
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"d846f599-7d3e-4eb4-918c-37a3ccaefe83","path":"sprites/spr_large_key/spr_large_key.yy",},},},"Disabled":false,"id":"99298e67-d63a-4c1b-9c70-482f824faacd","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"3d5d2ec9-0c43-4370-ac23-18a5cb6604c3","path":"sprites/spr_large_key/spr_large_key.yy",},},},"Disabled":false,"id":"db8ae01d-f773-4009-bdb8-cdfae265eaa1","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"cabd90e9-d4cf-44de-9994-326a220eeea8","path":"sprites/spr_large_key/spr_large_key.yy",},},},"Disabled":false,"id":"01028882-c3f4-49e5-864d-e07d8020f1f3","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

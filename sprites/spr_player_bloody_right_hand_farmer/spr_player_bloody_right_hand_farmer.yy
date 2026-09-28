@@ -3,9 +3,9 @@
   "resourceVersion": "1.0",
   "name": "spr_player_bloody_right_hand_farmer",
   "bbox_bottom": 15,
-  "bbox_left": 0,
+  "bbox_left": 8,
   "bbox_right": 12,
-  "bbox_top": 0,
+  "bbox_top": 6,
   "bboxMode": 0,
   "collisionKind": 1,
   "collisionTolerance": 0,
@@ -14,7 +14,7 @@
   "For3D": false,
   "frames": [
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"ae7c0580-d782-4c87-86ba-7df69877db47",},
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"1f174350-29b5-412b-a042-b41fa015bd77",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"db2c143a-7abe-4098-8b8c-649d06ac2c7b",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"35984529-0fd0-48d1-afda-15e9b5230129",},
     {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"e9c740fa-b09d-4520-8d65-1d7dc14441cf",},
   ],
@@ -58,7 +58,7 @@
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"ae7c0580-d782-4c87-86ba-7df69877db47","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"be41fafc-5189-4f35-974e-d9fbc72b1eba","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"1f174350-29b5-412b-a042-b41fa015bd77","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"5aa04ef0-64a4-4065-a721-37405ee1335c","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"db2c143a-7abe-4098-8b8c-649d06ac2c7b","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"220455a1-a9df-4df7-b507-218fcc32b914","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"35984529-0fd0-48d1-afda-15e9b5230129","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"61f5f63c-5ec3-4b59-a055-032e70f61563","IsCreationKey":false,"Key":2.0,"Length":1.0,"Stretch":false,},
             {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"e9c740fa-b09d-4520-8d65-1d7dc14441cf","path":"sprites/spr_player_bloody_right_hand_farmer/spr_player_bloody_right_hand_farmer.yy",},},},"Disabled":false,"id":"7d97d3f6-2bd8-4def-8a89-426165fbc011","IsCreationKey":false,"Key":3.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},

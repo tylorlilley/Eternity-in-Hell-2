@@ -1,4 +1,9 @@
 // Update game graphics textures
+var trait_manager = new EvaluationTraitManager();
+with (trait_manager) {
+	read_traits_from_file();
+	show_debug_message(evaluation_traits);
+}
 draw_texture_flush();
 sprite_prefetch(spr_collectable);
 sprite_prefetch(spr_player);
@@ -24,9 +29,8 @@ initialize_game_variables();
 create_room_lists();
 
 // Determine set skeleton type
-same_skeleton_type = noone;
-same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_FREQUENCY) ? get_skeleton_type() : obj_skeleton;
-if (same_skeleton_type == obj_skeleton) { same_skeleton_type = noone; }
+same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_FREQUENCY) ? obj_skeleton : noone;
+while (same_skeleton_type == obj_skeleton) { same_skeleton_type = get_skeleton_type(); }
 
 // Setup physical game map
 if (create_game_map() == -1) {
@@ -163,7 +167,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 	//if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }
 	//if (given_room.has_misleading_exits) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
 	//if (given_room.has_locked_chest) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
-	var reference_difficulty = game_rooms[i].room_reference_difficulty;
+	var given_room = game_rooms[i], reference_difficulty = given_room.room_reference_difficulty;
 	if (reference_difficulty < 0 ) { reference_difficulty = 0; }
 	var room_time_provided = TIME_PROVIDED_PER_ROOM * (reference_difficulty / AVERAGE_ROOM_DIFFICULTY);
 	if (room_time_provided < 12) { room_time_provided = 12; }

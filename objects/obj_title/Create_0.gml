@@ -6,6 +6,9 @@ room_speed = 60;
 global.controller = noone;
 global.bg_color = make_color_rgb(0, 0, 0);
 
+trait_surface = noone;
+trait_surface_y_pos = 0;
+trait_surface_y_max = 0;
 loading = false;
 current_seed = noone;
 pos = -2;

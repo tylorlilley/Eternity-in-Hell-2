@@ -72,6 +72,7 @@ function initialize_game_variables() {
 	final_player_left_hand_item = noone;
 	evaluation_pos = 0;
 	killed_by = noone;
+	same_skeleton_type = noone;
 	initialize_room_transition_values()
 	
 	// initialize evaluation message values

@@ -23,6 +23,11 @@ write_debug_message("SEED: "+string(random_get_seed()));
 initialize_game_variables();
 create_room_lists();
 
+// Determine set skeleton type
+same_skeleton_type = noone;
+same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_FREQUENCY) ? get_skeleton_type() : obj_skeleton;
+if (same_skeleton_type == obj_skeleton) { same_skeleton_type = noone; }
+
 // Setup physical game map
 if (create_game_map() == -1) {
 	// Should never reach this clause

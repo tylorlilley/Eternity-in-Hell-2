@@ -54,7 +54,7 @@ function kill_with_sword(sword) {
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function run_away_from_player(ignore_solid, ignore_death, make_sound) {
 	var dir = get_random_carindal_dir(), player = global.player;
-	if (is_direction_toward(dir, player)) { dir = get_opposite_dir(dir); }
+	if (is_direction_towards(dir, player)) { dir = get_opposite_dir(dir); }
 	if (get_random_chance_out_of(3)) { dir = directions.none; }
 	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { move_in_direction(dir, make_sound);  return dir; }
 	
@@ -230,7 +230,7 @@ function move_snake(iterations) {
 		array_push(new_directions, get_opposite_dir(prev_dir), get_turn_right_dir(prev_dir), get_turn_left_dir(prev_dir));
 		while (array_length(new_directions) > 0) {
 			var new_dir = array_random_pop(new_directions);
-			if ((!is_existing_instance(dropped_meat) || is_direction_toward(new_dir, dropped_meat)) && can_move_in_direction(new_dir, false, false)) { dir = new_dir; break; }
+			if ((!is_existing_instance(dropped_meat) || is_direction_towards(new_dir, dropped_meat)) && can_move_in_direction(new_dir, false, false)) { dir = new_dir; break; }
 		}
 	}
 	
@@ -493,7 +493,7 @@ function end_target_path() {
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 /// @param		{real} number_of_moves		The number of steps to take
 function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_moves, make_noise = true) {
-	//if (ignore_solid && ignore_death) { return move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death); }
+	if (ignore_solid && ignore_death) { return move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death); }
 	if (target_path == noone && !has_automatic_target_path_generation) { return false; }
 	else if (target_path_grid == -1) { return false; }
 	
@@ -548,7 +548,9 @@ function move_towards_coordinates_on_path(ignore_solid, ignore_death, number_of_
 		else {
 			move_in_direction(move_dir, make_noise);
 			move_count += 1;
-			if (is_instance_at_coordinates(target_x, target_y, id)) { end_target_path(); break; }
+			if (is_instance_at_coordinates(target_x, target_y, id)) { 
+				end_target_path(); break; 
+			}
 			else if (can_interrupt_target_path && has_automatic_target_path_generation) { set_automatic_target_path(); }
 		}
 	}
@@ -577,7 +579,7 @@ function turn_away_from_player() {
 	var start_dir = get_random_carindal_dir();
 	for (var possible_dir = directions.up; possible_dir < directions.stairs; possible_dir++) {
 		var next_dir = ((possible_dir+start_dir) % 4)
-		if (is_direction_toward(next_dir, global.player)) { dir = get_opposite_dir(next_dir); break; }
+		if (is_direction_towards(next_dir, global.player)) { dir = get_opposite_dir(next_dir); break; }
 	}
 }
 
@@ -591,16 +593,27 @@ function move_ears() {
 	return (target_path == noone);
 }
 
-/// @function								move_toward_player(ignore_solid, ignore_death, accuracy);
+/// @function								move_towards_meat_or_player(ignore_solid, ignore_death, accuracy);
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-///	@param		{real}	accuracy			How often to move correctly
-function move_toward_player(ignore_solid, ignore_death, accuracy = 3) {
+function move_towards_meat_or_player(ignore_solid, ignore_death) {
+	// Target meat if possible, and player if not
+	var target = get_dropped_meat();
+	if (!is_existing_instance(target)) { target = global.player; }
+	
+	// Set up a path towards the target
+	target_x = target.x;
+	target_y = target.y;
+	return move_towards_coordinates_on_path(ignore_solid, ignore_death, 1);
+}
+
+/*
+function move_towards_meat_or_player(ignore_solid, ignore_death, accuracy = 3) {
 	var dir = irandom(accuracy), target = get_dropped_meat();
 	if (dir >= directions.stairs) { return directions.none; }
 	
 	if (!is_existing_instance(target)) { target = global.player; }
-	if (!is_direction_toward(dir, target)) { dir = get_opposite_dir(dir); }
+	if (!is_direction_towards(dir, target)) { dir = get_opposite_dir(dir); }
 	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { 
 		move_in_direction(dir, false); 
 		return dir; 
@@ -608,6 +621,7 @@ function move_toward_player(ignore_solid, ignore_death, accuracy = 3) {
 	
 	return directions.none;
 }
+*/
 
 /// @function								reset_nose();
 function reset_nose() {

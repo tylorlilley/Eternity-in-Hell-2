@@ -55,7 +55,7 @@ else {
 					ystart = y;
 				}
 				else if (!is_existing_instance(target_item.holder)) {
-					// Move Towards New Target if still possible to pick it up
+					// Move towards New Target if still possible to pick it up
 					target_x = target_item.x;
 					target_y = target_item.y;
 					can_move_on_border = true;

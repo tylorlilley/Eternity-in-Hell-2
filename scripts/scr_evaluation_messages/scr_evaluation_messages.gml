@@ -124,7 +124,7 @@ function EvaluationMessageManager() constructor {
 		else if ((global.is_test_mode || (has_won && (controller.final_player_left_hand_item != global.player_left_hand_item && controller.final_player_left_hand_item != global.player_right_hand_item && controller.final_player_left_hand_item != obj_heart)))) {
 			add_evaluation_message((true), "Returned with a Memento", false, 5);
 		}
-		if (global.is_test_mode || (has_won && controller.final_player_lefts_hand_item != obj_heart && get_item_win_count(controller.final_player_left_hand_item, global.difficulty) == 0)) {
+		if (global.is_test_mode || (has_won && controller.final_player_left_hand_item != obj_heart && get_item_win_count(controller.final_player_left_hand_item, global.difficulty) == 0)) {
 			add_evaluation_message((true), "New Item Recovered", false, 0);
 		}
 		else if (global.is_test_mode || (has_won && controller.final_player_right_hand_item != obj_heart && get_item_win_count(controller.final_player_right_hand_item, global.difficulty) == 0)) {
@@ -162,7 +162,8 @@ function EvaluationMessageManager() constructor {
 		add_evaluation_message((torches_lit_by_fireball > 0 || bombs_lit_by_fireball > 0), "Improvised Ignition", false, torches_lit_by_fireball+bombs_lit_by_fireball);
 		add_evaluation_message((has_won && spontaneously_exploded_enemy > 1), "Survived a Combustion", false, spontaneously_exploded_enemy);
 		add_evaluation_message((has_won && mirror_bounced_projectile > 1), "Survived Reflected Shot", false, 1);
-		add_evaluation_message((has_won && times_infected > 0), "Survived a Parasite", true, 5);
+		add_evaluation_message((has_won && times_infected > 0), "Survived a Parasite", false, 5);
+		add_evaluation_message((global.is_test_mode || (has_won && controller.same_skeleton_type != noone)), "Survived a Special Swarm", false, 10);
 		
 		// Off and On Bonus/Penalties
 		add_evaluation_message((has_won && map_looks == 0), "Mental Mapper", false, 10);

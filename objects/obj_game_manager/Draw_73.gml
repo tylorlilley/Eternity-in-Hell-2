@@ -41,15 +41,14 @@ if (paused) {
 shader_reset();
 
 if (global.is_test_mode && instance_exists(global.controller)) {
-	var show_solid_path_grid = keyboard_check(vk_f1), show_lava_path_grid = keyboard_check(vk_f2), show_solid_grid = keyboard_check(vk_f3);
-	if (show_solid_path_grid || show_lava_path_grid || show_solid_grid) {
+	var show_solid_path_grid = keyboard_check(ord("Q")), show_lava_path_grid = keyboard_check(ord("W"));
+	if (show_solid_path_grid || show_lava_path_grid) {
 		draw_set_alpha(0.1);
 		draw_set_colour(c_white);
 		if (show_solid_path_grid) { 
 			mp_grid_draw(global.controller.current_room.solid_path_grid);
 		}
 		if (show_lava_path_grid) { mp_grid_draw(global.controller.current_room.lava_path_grid); }
-		if (show_solid_grid) { mp_grid_draw(global.controller.current_room.solid_grid); }
 		
 		for (var i = 0; i < room_width; i += GRID_SIZE;) {
 			draw_line_width(i, 0, i, room_height, 1);

@@ -306,12 +306,6 @@ function mp_grid_add(grid) {
 	mp_grid_add_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2, y + sprite_height/2 );
 }
 
-/// @function								mp_grid_remove(grid);
-///	@param		{id} grid					The mp_grid to remove from
-function mp_grid_remove(grid) {
-	mp_grid_clear_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2, y + sprite_height/2);
-}
-
 /// @function								destroy_instances_at_position();
 function destroy_instances_at_position() {
 	var game_objects = instance_place_all(x, y, obj_game_object);

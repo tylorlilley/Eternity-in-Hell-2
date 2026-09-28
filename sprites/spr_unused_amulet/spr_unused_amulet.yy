@@ -1,7 +1,7 @@
 {
   "resourceType": "GMSprite",
   "resourceVersion": "1.0",
-  "name": "spr_amulet",
+  "name": "spr_unused_amulet",
   "bbox_bottom": 13,
   "bbox_left": 4,
   "bbox_right": 10,
@@ -33,7 +33,7 @@
   "sequence": {
     "resourceType": "GMSequence",
     "resourceVersion": "1.4",
-    "name": "spr_amulet",
+    "name": "spr_unused_amulet",
     "autoRecord": true,
     "backdropHeight": 1080,
     "backdropImageOpacity": 0.5,
@@ -55,8 +55,8 @@
     "timeUnits": 1,
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","builtinName":0,"events":[],"inheritsTrackColour":true,"interpolation":1,"isCreationTrack":false,"keyframes":{"resourceType":"KeyframeStore<SpriteFrameKeyframe>","resourceVersion":"1.0","Keyframes":[
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"53c4a489-92c5-47ec-a159-b392e2561f49","path":"sprites/spr_amulet/spr_amulet.yy",},},},"Disabled":false,"id":"abc639ba-e208-4f54-ba7c-dee07146972b","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
-            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"43f3c631-28b0-4e5a-a1da-6e4d29fa7530","path":"sprites/spr_amulet/spr_amulet.yy",},},},"Disabled":false,"id":"3eb22529-8f52-4e02-908d-6d6e22047053","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"53c4a489-92c5-47ec-a159-b392e2561f49","path":"sprites/spr_unused_amulet/spr_unused_amulet.yy",},},},"Disabled":false,"id":"abc639ba-e208-4f54-ba7c-dee07146972b","IsCreationKey":false,"Key":0.0,"Length":1.0,"Stretch":false,},
+            {"resourceType":"Keyframe<SpriteFrameKeyframe>","resourceVersion":"1.0","Channels":{"0":{"resourceType":"SpriteFrameKeyframe","resourceVersion":"1.0","Id":{"name":"43f3c631-28b0-4e5a-a1da-6e4d29fa7530","path":"sprites/spr_unused_amulet/spr_unused_amulet.yy",},},},"Disabled":false,"id":"3eb22529-8f52-4e02-908d-6d6e22047053","IsCreationKey":false,"Key":1.0,"Length":1.0,"Stretch":false,},
           ],},"modifiers":[],"spriteId":null,"trackColour":0,"tracks":[],"traits":0,},
     ],
     "visibleRange": null,

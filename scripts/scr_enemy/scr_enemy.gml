@@ -65,6 +65,7 @@ function run_away_from_player(ignore_solid, ignore_death, make_sound) {
 function teleport_to_empty_space() {
 	var player = global.player, blocked_by_enemy = false, attempts = 0;
 	do {
+		attempts += 1;
 		x = irandom(room_width/8)*8;
 		y = irandom(room_height/8)*8;
 		blocked_by_enemy = false;

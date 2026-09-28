@@ -168,7 +168,7 @@ function instance_place_all(x_pos, y_pos, obj_type) {
 	static _potential_matches = ds_list_create();
     ds_list_clear(_potential_matches);
 	
-    var _total_potential_matches = instance_place_list(x_pos, y_pos, obj_type, _potential_matches, false), _list_of_matches = array_create(n);
+    var _total_potential_matches = instance_place_list(x_pos, y_pos, obj_type, _potential_matches, false), _list_of_matches = array_create(_total_potential_matches);
     for (var i = 0; i < _total_potential_matches; i++) { _list_of_matches[i] = _potential_matches[| i]; }
     return _list_of_matches;
 }

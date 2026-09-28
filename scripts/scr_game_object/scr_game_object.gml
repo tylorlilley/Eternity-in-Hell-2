@@ -69,7 +69,7 @@ function is_solid_at_position(x_pos, y_pos) {
 	var solids = instance_place_all(x_pos, y_pos, obj_solid), carrying_special_staff = false;
 	if (object_index == obj_hands || object_index == obj_player) { carrying_special_staff = is_carrying_special_item(obj_staff); }
 	
-	for (var _i = 0; _i < array_length(solids) > 0; _i++) {
+	for (var _i = 0; _i < array_length(solids); _i++) {
 		var current_solid = solids[_i];
 		if (current_solid != id && (!carrying_special_staff || (current_solid.object_index != obj_solid_part && current_solid.object_index != obj_wall && current_solid.object_index != obj_column && current_solid.object_index != obj_mirror))) { return true; }
 	}
@@ -398,6 +398,7 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 		spr_block_tile2: spr_block_tile_farmer,
 		spr_magic_beam: spr_magic_beam_farmer,
 		spr_red_chest: spr_red_chest_farmer,
+		spr_portcullis: spr_portcullis_farmer,
 		
 		/// Enemies
 		spr_gudetama: spr_gudetama_farmer,
@@ -429,38 +430,7 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 		spr_clock: spr_clock_farmer,
 		spr_clock_sand: spr_clock_sand_farmer,
 	}
-	switch (regular_sprite) {
-
-		case spr_gudetama: { return spr_gudetama_farmer; }
-		case spr_skeleton: { return spr_skeleton_farmer; }
-		case spr_cockroach: { return spr_cockroach_farmer; }
-		case spr_fire_skeleton: { return spr_fire_skeleton_farmer; }
-		case spr_fast_skeleton: { return spr_fast_skeleton_farmer; }
-		case spr_fat_skeleton: { return spr_fat_skeleton_farmer; }
-		case spr_living_block: { return spr_living_block_farmer; }
-		case spr_spider: { return spr_spider_farmer; }
-		case spr_mouth: { return spr_mouth_farmer; }
-		case spr_bumper: { return spr_bumper_farmer; }
-		case spr_snake: { return spr_snake_farmer; }
-		case spr_phantom: { return spr_phantom_farmer; }
-		case spr_hands: { return spr_hands_farmer; }
-		case spr_nose: { return spr_nose_farmer; }
-		case spr_statue: { return spr_statue_farmer; }
-		case spr_eyes: { return spr_eyes_farmer; }
-		case spr_ears: { return spr_ears_farmer; }
-		case spr_echo: { return spr_echo_farmer; }
-		case spr_giant_eye: { return spr_giant_eye_farmer; }
-		case spr_giant_eye_pupil: { return spr_giant_eye_pupil_farmer; }
-		/// Items
-		case spr_sword: { return spr_sword_farmer; }
-		case spr_meat: { return spr_meat_farmer; }
-		case spr_bomb: { return spr_bomb_farmer; }
-		case spr_heart: { return spr_heart_farmer; }
-		case spr_clock: { return spr_clock_farmer; }
-		case spr_clock_sand: { return spr_clock_sand_farmer; }
-	}
-	
-	return variable_struct_get(farmer_sprite_translation_struct, regular_sprite) ?? regular_sprite;
+	return variable_struct_get(farmer_sprite_translation_struct, sprite_get_name(regular_sprite)) ?? regular_sprite;
 }
 
 /// @function								get_room_map_position(inst);

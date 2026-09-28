@@ -35,6 +35,14 @@ function GameRoom(given_x, given_y) constructor {
 	lava_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	empty_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
+	
+	/// @function									destroy();
+	function destroy() {
+		// The mp_grids MUST be cleaned up manually or this will cause a memory leak
+		mp_grid_destroy(solid_path_grid);
+		mp_grid_destroy(lava_path_grid);
+		mp_grid_destroy(empty_path_grid);
+	}
 
 	/// @function									assign_room_ref(must_have_lantern, spawn_special_room);
 	/// @param		{bool} must_have_lantern	Whether or not the room_reference must have lanterns in it
@@ -567,6 +575,8 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function									initialize_from_room_reference();
 	function initialize_from_room_reference() {
 		var reference_instances = instances_for_room_reference(room_reference);
+		if (reference_instances == -1) { return -1; }
+		
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
 			instance_create(ref.x, ref.y, asset_get_index(ref.name));
@@ -577,16 +587,23 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{int} obj					The object index to check for the presence of
 	function get_room_reference_object_count(obj) {
 		static cache = ds_map_create();
-		if (ds_map_exists(cache, room_reference)) { return cache[? room_reference]; }
+		if (ds_map_exists(cache, room_reference)) {
+			var _room_cache = cache[? room_reference];
+			if (ds_map_exists(_room_cache, obj)) { return _room_cache[? obj]; }
+			else { cache[? room_reference][? obj] = ds_map_create(); }
+		}
+		else { cache[? room_reference] = ds_map_create(); }
 		
 		var reference_instances = instances_for_room_reference(room_reference);
+		if (reference_instances == -1) { return -1; }
+		
 		var count = 0;
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
 			if (asset_get_index(ref.name) == obj) { count += 1; }
 		}
 		
-		cache[? room_reference] = count
+		cache[? room_reference][? obj] = count
 		return count;
 	}
 
@@ -917,13 +934,6 @@ function GameRoom(given_x, given_y) constructor {
 	}
 }
 
-function destroy() {
-	// The mp_grids MUST be cleaned up manually or this will cause a memory leak
-	mp_grid_destroy(solid_path_grid);
-	mp_grid_destroy(lava_path_grid);
-	mp_grid_destroy(empty_path_grid);
-}
-
 function create_game_map() {
 	var created_cardinal_exits = 0, target_rooms = MINIMUM_NUMBER_OF_ROOMS;// + irandom(MAX_NUMBER_OF_ROOMS - MINIMUM_NUMBER_OF_ROOMS);
 	
@@ -1131,7 +1141,10 @@ function instances_for_room_reference(room_reference) {
 	
 	var filename = room_get_name(room_reference) + ".json";
 	var file = file_text_open_read(filename);
-	if (file == -1) { return 0; }
+	if (file == -1) {
+		write_debug_message("Failed to open file for instances_for_room_reference.", "WARNING");
+		return -1;
+	}
 	
 	var file_difficulty_content = file_text_read_string(file);
 	file_text_readln(file);
@@ -1139,7 +1152,7 @@ function instances_for_room_reference(room_reference) {
 	var decoded_content = json_parse(file_instances_content);          
 	file_text_close(file);
 	
-	cache[? room_reference] = decoded_content
+	cache[? room_reference] = decoded_content;
 	return decoded_content;
 }
 
@@ -1150,7 +1163,10 @@ function difficulty_for_room_reference(room_reference) {
 	// without considering any extra randomly determined difficulty additions.
 	var filename = room_get_name(room_reference) + ".json";
 	var file = file_text_open_read(filename);
-	if (file == -1) { return 0; }
+	if (file == -1) {
+		write_debug_message("Failed to open file for difficulty_for_room_reference.", "WARNING");
+		return -1;
+	}
 	
 	var file_difficulty_content = file_text_read_string(file);
 	file_text_readln(file);

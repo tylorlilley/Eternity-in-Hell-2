@@ -106,7 +106,8 @@ global.special_rooms = [
 	rm_one_exit_23, // Gudetama
 ];
 global.item_sprites = [
-	spr_key, spr_torch, 
+	spr_key,
+	spr_torch, 
 	spr_sword, 
 	spr_map, 
 	spr_rosary, 
@@ -114,13 +115,14 @@ global.item_sprites = [
 	spr_bomb, 
 	spr_meat, 
 	spr_shovel, 
-	spr_clock, 
+	//spr_clock, 
 	spr_heart, 
+	spr_crown,
 	spr_heart_farmer, 
 	spr_meat_farmer, 
 	spr_sword_farmer, 
 	spr_bomb_farmer, 
-	spr_clock_farmer 
+	//spr_clock_farmer 
 ];
 global.regular_enemy_sprites = [
 	spr_skeleton, 

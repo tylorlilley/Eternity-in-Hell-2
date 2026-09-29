@@ -27,6 +27,7 @@ function become_carried(new_holder) {
 	holder = new_holder;
 	persistent = new_holder.persistent;
 	depth = CARRIED_ITEM_DEPTH;
+	image_index = 1;
 	
 	// Update player map
 	controller.current_room.remove_from_instances_at_map_positions(id); 
@@ -117,6 +118,7 @@ function become_dropped(dropper) {
 	depth = DROPPED_ITEM_DEPTH;
 	x = dropper.x;
 	y = dropper.y;
+	image_index = 0;
 	
 	// Perform individual actions based on dropper
 	xstart = x;
@@ -138,7 +140,6 @@ function become_dropped(dropper) {
 /// @function								make_item_special();
 function make_item_special() {
 	special = true;
-	image_index = 1;
 	if (object_index == obj_torch) { lighting_range = TORCH_LIGHT_RANGE*2; }
 	else if (object_index == obj_heart) { image_index = 0; }
 }

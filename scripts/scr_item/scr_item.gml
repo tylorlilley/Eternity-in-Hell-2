@@ -63,9 +63,6 @@ function become_carried(new_holder) {
 		else {
 			time_image_index = get_clock_image_index();
 			time_sprite_index = get_sprite_to_use(spr_clock_sand);
-			if (special) { 
-				time_sprite_index = (sprite_index == spr_clock) ? spr_special_clock_sand : spr_special_clock_sand_farmer; 
-			}
 		}
 	
 		if (time_image_index != prev_time_image_index) {
@@ -142,10 +139,7 @@ function become_dropped(dropper) {
 function make_item_special() {
 	special = true;
 	image_index = 1;
-	if (object_index == obj_torch) { 
-		lighting_range = TORCH_LIGHT_RANGE*2;
-		torch_light_sprite_index = spr_special_torch_light;
-	}
+	if (object_index == obj_torch) { lighting_range = TORCH_LIGHT_RANGE*2; }
 	else if (object_index == obj_heart) { image_index = 0; }
 }
 

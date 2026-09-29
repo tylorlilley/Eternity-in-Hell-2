@@ -17,5 +17,5 @@ torch = noone;
 initialize_lava_lighting();
 
 torch_light_image_timer = 0;
-torch_light_sprite_index = spr_special_torch_light;
+torch_light_sprite_index = spr_torch_light;
 torch_light_image_index = 0;

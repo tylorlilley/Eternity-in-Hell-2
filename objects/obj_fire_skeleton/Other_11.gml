@@ -14,7 +14,7 @@ if (is_covered_at_each_quadrant_by(obj_lava_part)) {
 }
 else {
 	sprite_index = get_sprite_to_use(spr_fire_skeleton);
-	torch_light_sprite_index = spr_special_torch_light;
+	torch_light_sprite_index = spr_torch_light;
 }
 	
 

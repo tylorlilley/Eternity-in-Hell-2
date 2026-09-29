@@ -371,11 +371,10 @@ function get_sprite_shuffle_flip(spr) {
     static cache = ds_map_create();
     if (ds_map_exists(cache, spr)) { return cache[? spr]; }
 
-    var nm = sprite_get_name(spr), hash = 2166136261;
-    for (var i = 1; i <= string_length(nm); i++) {
-        hash = hash ^ ord(string_char_at(nm, i));
-        hash = (hash * 31 + c) & 0x7FFFFFFF
-    }
+    var nm = sprite_get_name(spr), hash = 0;
+	for (var i = 1; i <= string_length(nm); i++) {
+	    hash = (hash * 31 + ord(string_char_at(nm, i))) & 0x7FFFFFFF;
+	}
 
     var result = (((global.seed + hash) % 2) == 0);
     cache[? spr] = result;

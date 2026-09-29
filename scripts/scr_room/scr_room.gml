@@ -48,7 +48,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{bool} must_have_lantern	Whether or not the room_reference must have lanterns in it
 	/// @param		{bool} spawn_special_room	Whether or not the room_reference used should be a special room
 	function assign_room_ref(must_have_lantern, spawn_special_room) {
-		if (room_reference != -1) { array_remove(global.controller.room_references, room_reference); }
+		if (room_reference != -1) { array_remove_first(global.controller.room_references, room_reference); }
 		
 		set_room_reference(must_have_lantern, spawn_special_room);
 		update_game_room_initialize_values();
@@ -438,7 +438,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{real} inst					The instance id to remove from the room map position
 	function remove_from_instances_at_map_positions(inst) {
 		var room_map_pos = get_room_map_position(inst);
-		array_remove(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst.object_index);
+		array_remove_first(instances_at_map_positions[room_map_pos[0]][room_map_pos[1]], inst.object_index);
 	}
 	
 	/// @function								add_key();
@@ -586,25 +586,8 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								get_room_reference_object_count();
 	/// @param		{int} obj					The object index to check for the presence of
 	function get_room_reference_object_count(obj) {
-		static cache = ds_map_create();
-		if (ds_map_exists(cache, room_reference)) {
-			var _room_cache = cache[? room_reference];
-			if (ds_map_exists(_room_cache, obj)) { return _room_cache[? obj]; }
-			else { cache[? room_reference][? obj] = ds_map_create(); }
-		}
-		else { cache[? room_reference] = ds_map_create(); }
-		
-		var reference_instances = instances_for_room_reference(room_reference);
-		if (reference_instances == -1) { return -1; }
-		
-		var count = 0;
-		for(var i = 0; i < array_length(reference_instances); i++) {
-			var ref = reference_instances[i];
-			if (asset_get_index(ref.name) == obj) { count += 1; }
-		}
-		
-		cache[? room_reference][? obj] = count
-		return count;
+		// LEGACY FUNCTION to be replaced in all call sites with the below global version"
+		get_object_count_for_room_reference(room_reference, obj);
 	}
 
 	/// @function									deactivate_room_instances();
@@ -934,6 +917,26 @@ function GameRoom(given_x, given_y) constructor {
 	}
 }
 
+function get_object_count_for_room_reference(room_reference, obj) {
+	// Return the cached value if one exists
+	static cache = ds_map_create();
+	if (!ds_map_exists(cache, room_reference)) { cache[? room_reference] = ds_map_create(); }
+	var room_cache = cache[? room_reference];
+	if (ds_map_exists(room_cache, obj)) { return room_cache[? obj]; }
+		
+	// Return 0 if the file fails to open
+	var reference_instances = instances_for_room_reference(room_reference);
+	if (reference_instances == -1) { return 0; }
+		
+	// Return the count in the file if it opens and save it to the cache
+	var count = 0;
+	for (var i = 0; i < array_length(reference_instances); i++) {
+	    if (asset_get_index(reference_instances[i].name) == obj) { count += 1; }
+	}
+	room_cache[? obj] = count;
+	return count;
+}
+
 function create_game_map() {
 	var created_cardinal_exits = 0, target_rooms = MINIMUM_NUMBER_OF_ROOMS;// + irandom(MAX_NUMBER_OF_ROOMS - MINIMUM_NUMBER_OF_ROOMS);
 	
@@ -1143,7 +1146,7 @@ function instances_for_room_reference(room_reference) {
 	var file = file_text_open_read(filename);
 	if (file == -1) {
 		write_debug_message("Failed to open file for instances_for_room_reference.", "WARNING");
-		return -1;
+		return 0;
 	}
 	
 	var file_difficulty_content = file_text_read_string(file);
@@ -1176,9 +1179,20 @@ function difficulty_for_room_reference(room_reference) {
 }
 
 /// @function									get_skeleton_type();
-function get_skeleton_type() {
+function get_skeleton_type(include_basic_skeleton = true) {
+	// Determine range to use based on skeleton inclusion
+	var rand_range_max = 100;
+	if (!include_basic_skeleton) {
+		switch (rand_range) {
+			case difficulties.easy: { rand_range_max = 3; break; }
+			case difficulties.medium: { rand_range_max = 16; break; }
+			case difficulties.hard: { rand_range_max = 40; break; }
+			case difficulties.very_hard: { rand_range_max = 80; break; }
+		}
+	}
+	
 	// Determine what to spawn in this skeleton spot
-	var rand = irandom_range(1,100), skeleton_type = obj_skeleton;
+	var rand = irandom_range(1, rand_range_max), skeleton_type = obj_skeleton;
 	switch (global.difficulty) {
 		case difficulties.DO_NOT_USE: { break; }
 		case difficulties.easy: {

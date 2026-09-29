@@ -203,7 +203,7 @@ global.player = instance_create(-16, -16, obj_player);
 transition_to_room(start_room, true);
 player_appear_timer = 0;
 global.player.visible = true;
-with (global.game_manager) { array_remove(sounds_to_play, snd_win); }
+with (global.game_manager) { array_remove_first(sounds_to_play, snd_win); }
 
 
 update_log("SEED", global.seed);

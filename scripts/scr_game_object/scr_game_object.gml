@@ -162,21 +162,29 @@ function is_on_room_border(x_pos, y_pos) {
 /// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
 /// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
 function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ignore_death) {
-	if (!activated) { return false; }
+	if (!activated || !is_existing_instance(target_instance)) { return false; }
 	
-	var original_x = x, original_y = y, can_reach_target = false;
-	
-	activated = false;
-	while(can_move_in_direction(dir, ignore_solid, ignore_death) && !can_reach_target) {
-		move_in_direction(dir, false);
-		if (is_instance_at_coordinates(x, y, target_instance)) { can_reach_target = true; }
-	}
-	activated = true;
-	
-	x = original_x;
-	y = original_y;
-	
-	return can_reach_target;
+	// Determine Move Directions
+	var x_change = 0, y_change = 0;
+	if (dir == directions.up) { y_change -= 8; } 
+	else if (dir == directions.right) { x_change += 8; }
+	else if (dir == directions.down) { y_change += 8; }
+	else if (dir == directions.left) { x_change -= 8; }
+
+	// Try Reaching Target in This Direction
+    var original_x = x, original_y = y, reached = false;
+    var max_steps = room_width div 8;   // can never need more than one room's width
+
+    for (var step = 0; step < max_steps; step++) {
+        if (!can_move_in_direction(dir, ignore_solid, ignore_death)) { break; }
+        x += x_change;
+        y += y_change;
+        if (is_instance_at_coordinates(x, y, target_instance)) { reached = true; break; }
+    }
+
+    x = original_x;
+    y = original_y;
+    return reached;
 }
 
 
@@ -357,6 +365,23 @@ function can_press_button() {
 	return pressed;
 }
 
+/// @function              get_sprite_shuffle_flip(spr);
+/// @description           Deterministic per-sprite coin flip, stable across resource reordering.
+function get_sprite_shuffle_flip(spr) {
+    static cache = ds_map_create();
+    if (ds_map_exists(cache, spr)) { return cache[? spr]; }
+
+    var nm = sprite_get_name(spr), hash = 2166136261;
+    for (var i = 1; i <= string_length(nm); i++) {
+        hash = hash ^ ord(string_char_at(nm, i));
+        hash = (hash * 16777619) & 0x7FFFFFFF;   // FNV-1a, masked to stay positive
+    }
+
+    var result = (((global.seed + hash) % 2) == 0);
+    cache[? spr] = result;
+    return result;
+}
+
 /// @function								get_sprite_to_use();
 function get_sprite_to_use(regular_sprite, for_menu = false) {
 	if (global.graphics_mode == graphics_modes.standard) { return regular_sprite; }
@@ -383,54 +408,57 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 		}
 		
 		if (chosen_sprite != noone) { return chosen_sprite; }
-		else if ((global.seed % regular_sprite) % 2 == 0) { return regular_sprite; }
+		else if (get_sprite_shuffle_flip(regular_sprite)) { return regular_sprite; }
 	}
 	
 	// Get Farmer Version of Regular Sprite
-	static farmer_sprite_translation_struct = {
+	static farmer_sprite_translation_map = -1;
+	if (farmer_sprite_translation_map == -1) {
+		farmer_sprite_translation_map = ds_map_create();
 		/// Tiles
-		spr_collectable: spr_collectable_farmer,
-		spr_bones: spr_bones_farmer,
-		spr_cross: spr_cross_farmer,
-		spr_inverted_cross: spr_inverted_cross_farmer,
-		spr_giant_wurm: spr_giant_wurm_farmer,
-		spr_block: spr_block_farmer,
-		spr_block_tile2: spr_block_tile_farmer,
-		spr_magic_beam: spr_magic_beam_farmer,
-		spr_red_chest: spr_red_chest_farmer,
-		spr_portcullis: spr_portcullis_farmer,
+		ds_map_add(farmer_sprite_translation_map, spr_collectable, spr_collectable_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_bones, spr_bones_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_cross, spr_cross_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_inverted_cross, spr_inverted_cross_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_giant_wurm, spr_giant_wurm_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_block, spr_block_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_block_tile2, spr_block_tile_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_magic_beam, spr_magic_beam_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_red_chest, spr_red_chest_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_portcullis, spr_portcullis_farmer);
 		
 		/// Enemies
-		spr_gudetama: spr_gudetama_farmer,
-		spr_skeleton: spr_skeleton_farmer,
-		spr_cockroach: spr_cockroach_farmer,
-		spr_fire_skeleton: spr_fire_skeleton_farmer,
-		spr_fast_skeleton: spr_fast_skeleton_farmer,
-		spr_fat_skeleton: spr_fat_skeleton_farmer,
-		spr_living_block: spr_living_block_farmer,
-		spr_spider: spr_spider_farmer,
-		spr_mouth: spr_mouth_farmer,
-		spr_bumper: spr_bumper_farmer,
-		spr_snake: spr_snake_farmer,
-		spr_phantom: spr_phantom_farmer,
-		spr_hands: spr_hands_farmer,
-		spr_nose: spr_nose_farmer,
-		spr_statue: spr_statue_farmer,
-		spr_eyes: spr_eyes_farmer,
-		spr_ears: spr_ears_farmer,
-		spr_echo: spr_echo_farmer,
-		spr_giant_eye: spr_giant_eye_farmer,
-		spr_giant_eye_pupil: spr_giant_eye_pupil_farmer,
+		ds_map_add(farmer_sprite_translation_map, spr_gudetama, spr_gudetama_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_skeleton, spr_skeleton_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_cockroach, spr_cockroach_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_fire_skeleton, spr_fire_skeleton_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_fast_skeleton, spr_fast_skeleton_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_fat_skeleton, spr_fat_skeleton_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_living_block, spr_living_block_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_spider, spr_spider_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_mouth, spr_mouth_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_bumper, spr_bumper_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_snake, spr_snake_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_phantom, spr_phantom_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_hands, spr_hands_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_nose, spr_nose_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_statue, spr_statue_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_eyes, spr_eyes_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_ears, spr_ears_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_echo, spr_echo_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_giant_eye, spr_giant_eye_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_giant_eye_pupil, spr_giant_eye_pupil_farmer);
 		
 		/// Items
-		spr_sword: spr_sword_farmer,
-		spr_meat: spr_meat_farmer,
-		spr_bomb: spr_bomb_farmer,
-		spr_heart: spr_heart_farmer,
-		spr_clock: spr_clock_farmer,
-		spr_clock_sand: spr_clock_sand_farmer,
+		ds_map_add(farmer_sprite_translation_map, spr_sword, spr_sword_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_meat, spr_meat_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_bomb, spr_bomb_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_heart, spr_heart_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_clock, spr_clock_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_clock_sand, spr_clock_sand_farmer);
 	}
-	return variable_struct_get(farmer_sprite_translation_struct, sprite_get_name(regular_sprite)) ?? regular_sprite;
+	if (ds_map_exists(farmer_sprite_translation_map, regular_sprite)) { return farmer_sprite_translation_map[? regular_sprite]; }
+	return regular_sprite;
 }
 
 /// @function								get_room_map_position(inst);

@@ -149,13 +149,13 @@ function get_exit_x_pos(dir) {
 }
 
 /// @function								get_exit_y_pos(dir);
-/// @param		{dir}	dir					The direction of the exit to get the x pos for
+/// @param		{dir}	dir					The direction of the exit to get the y pos for
 function get_exit_y_pos(dir) {
 	switch (dir) {
 		case directions.up: { return 8; }
-		case directions.right: { return room_width/2; }
+		case directions.right: { return room_height/2; }
 		case directions.down: { return room_height-8; }
-		case directions.left: { return room_width/2; }
+		case directions.left: { return room_height/2; }
 		default: { return -16; }
 	}
 }
@@ -223,21 +223,22 @@ function get_shader_color_from_gms_color(given_color) {
 	return [red/255.0, green/255.0, blue/255.0, 1.0];
 }
 
-/// @function								calculate_game_color();
-function calculate_game_color() {
+/// @function								calculate_gms_game_color();
+function calculate_gms_game_color() {
 	var padded_game_color_string = global.game_color_string;
 	while (string_length(padded_game_color_string) < 6) { padded_game_color_string = "0"+padded_game_color_string; }
 	return get_gms_color_from_hex_string(padded_game_color_string);
 }
 
 /// @function								calculate_game_bg_color();
-function calculate_game_bg_color() {
-	var controller = global.controller, tint_amount = power(1-(controller.time_remaining/controller.time_provided), 8);
+function get_game_bg_color() {
+	var controller = global.controller;
+	var tint_amount = is_existing_instance(controller) ? power(1-(controller.time_remaining/controller.time_provided), 8) : 1;
 	return merge_color(c_black, global.gms_game_color, tint_amount);
 }
 
-/// @function								calculate_inverted_game_bg_color();
-function calculate_inverted_game_bg_color() {
+/// @function								get_inverted_game_color();
+function get_inverted_game_color() {
 	var controller = global.controller;
 	var tint_amount = is_existing_instance(controller) ? power(1-(controller.time_remaining/controller.time_provided), 8) : 0;
 	return merge_color(global.gms_game_color, c_black, tint_amount);

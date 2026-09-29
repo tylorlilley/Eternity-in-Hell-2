@@ -32,7 +32,7 @@ if (paused) {
 			draw_text(x_pos, y_pos+(16*4), "QUIT RUN");
 		}
 	}
-	draw_set_color(global.gms_inverted_game_color);
+	draw_set_color(get_inverted_game_color());
 	y_pos = room_height-32;
 	draw_text(x_pos, y_pos, "ESC: QUIT PROGRAM");
 	draw_set_color(c_white);

@@ -36,10 +36,12 @@ function kill_enemy(death_sound, killed_by) {
 /// @function								kill_with_sword();
 ///	@param		{instance}	sword			The sword being used to kill this enemy
 function kill_with_sword(sword) {
-	var killer = (is_existing_instance(sword) && is_existing_instance(sword.holder)) ? sword.holder.object_index : noone;
-	if (is_existing_instance(sword) && is_existing_instance(sword.holder) && sword.holder == global.player) {
-		global.controller.evaluation_manager.increment_evaluation_variable("sword_kill_count");
-	}
+	var holder_exists = is_existing_instance(sword.holder);
+    var killer = holder_exists ? sword.holder.object_index : noone;
+
+    if (holder_exists && sword.holder == global.player) {
+        global.controller.evaluation_manager.increment_evaluation_variable("sword_kill_count");
+    }
 	if (!sword.special) { 
 		var sword_in_ground = instance_create(x, y, obj_sword_in_ground);
 		sword_in_ground.image_xscale = sword.image_xscale;

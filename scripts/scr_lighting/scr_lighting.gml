@@ -48,7 +48,7 @@ function get_image_blend() {
 	// Invert color if object is causing a screen flash
 	var col = merge_color(global.bg_color, c_white, get_greatest_lighting()), controller = global.controller;
 	if (controller.flash_obj == id) { 
-		col = merge_color(col, global.gms_game_bg_color, power(global.controller.flash_time, 2)/power(SCREEN_FLASH_DURATION, 2)); 
+		col = merge_color(col, get_game_bg_color(), power(global.controller.flash_time, 2)/power(SCREEN_FLASH_DURATION, 2)); 
 	}
 	
 	return col;

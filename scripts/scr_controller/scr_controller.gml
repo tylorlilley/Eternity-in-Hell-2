@@ -3,10 +3,7 @@ function restart_game() {
 	// Destroy all instances in this room and in every other room, then go back to the title screen
 	play_sound(snd_stairs, false); 
 	with all { if (object_index != obj_game_manager) { instance_destroy(); } }
-	for (var i = 0; i < array_length(game_rooms); i++) {
-		room_instance_clear(game_rooms[i].room_reference);
-		game_rooms[i].destroy();
-	}
+	destroy_all_game_rooms();
 	room_goto(rm_title);
 }
 
@@ -844,7 +841,7 @@ function game_room_initialize() {
 			// This should never happen if every room has 2+ collectable spots
 			write_debug_message("Room with NO room to spawn collectables: " + room_get_name(current_room.room_reference), "WARNING");
 			current_room.has_collectables = false;
-			array_remove(rooms_with_collectables, current_room);
+			array_remove_first(rooms_with_collectables, current_room);
 			total_number_of_rooms_with_collectables -= 1;
 		}
 	}
@@ -857,10 +854,21 @@ function game_room_initialize() {
 	current_room.mark_room_for_grid_update();
 }
 
+function destroy_all_game_rooms() {
+	for (var _i = 0; _i < array_length(game_rooms); _i++) {
+		var _game_room = game_rooms[i];
+		room_instance_clear(_game_room.room_reference);
+		_game_room.destroy();
+	}
+}
+
 /// @function								reset_map_generation();
 function reset_map_generation() {
+	destroy_all_game_rooms();
+	
 	global.seed += 1;
 	if (global.seed > MAX_SEED) { global.seed = 0; }
+	
 	instance_destroy();
 	room_restart();
 }

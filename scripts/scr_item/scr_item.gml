@@ -36,7 +36,7 @@ function become_carried(new_holder) {
 		case obj_bomb: { defuse_bomb(); break; }
 		case obj_shovel: { dig_hole(); break; }
 		case obj_heart: { mark_heart_carried(); break; }
-		case obj_meat: { array_remove(controller.dropped_meat, id); break; }
+		case obj_meat: { array_remove_first(controller.dropped_meat, id); break; }
 		case obj_torch: {
 			if (!is_existing_instance(light_source)) {
 				var other_lit_torch = noone;
@@ -96,7 +96,10 @@ function become_dropped(dropper) {
 	
 	// Perform individual item drop actions
 	switch (object_index) {
-		case obj_meat: { array_push(controller.dropped_meat, id); break; }
+		case obj_meat: {
+			if (!array_contains(controller.dropped_meat, id)) { array_push(controller.dropped_meat, id); }
+			break;
+		}
 		case obj_shovel: { dropped_by_digger = (dropper.object_index == obj_player || dropper.object_index == obj_hands); break; }
 		case obj_bomb: {
 			if (is_existing_instance(dropper) && dropper.object_index == obj_player) {

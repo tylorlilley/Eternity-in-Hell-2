@@ -48,8 +48,10 @@ function destroy_lava_at_position(x_pos, y_pos) {
 	for (var quadrant = 0; quadrant < 4; quadrant++;) {
 	    if (is_instance_at_coordinates(x_pos, y_pos, parts[quadrant])) {
 	        with parts[quadrant] { 
-				mp_path_grid_remove(global.controller.current_room.lava_path_grid);
-				global.controller.grid_update_timer = 2;
+				//mp_path_grid_remove(global.controller.current_room.lava_path_grid);
+				//global.controller.grid_update_timer = 2;
+				var current_room = global.controller.current_room;	
+				current_room.mark_room_for_grid_update();
 				instance_destroy(); 
 			}
 			parts[quadrant] = noone;

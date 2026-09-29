@@ -25,10 +25,10 @@ function array_duplicate(list, source_list) {
 	array_copy(list, 0, source_list, 0, array_length(source_list));
 }
 
-/// @function									array_remove(list, value_to_find);
+/// @function									array_remove_first(list, value_to_find);
 /// @param		{index}		list				List to remove the value from
 /// @param		{value}		value_to_remove		Value to remove from the array
-function array_remove(list, value_to_remove) {
+function array_remove_first(list, value_to_remove) {
 	var list_pos = array_get_index(list, value_to_remove);
 	/*
 	while(list_pos != -1) {

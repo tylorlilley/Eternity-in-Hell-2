@@ -10,7 +10,7 @@ if ((!eye_chest && !mirror_chest && !cross_chest && current_room.lit) ||
 	var new_inst = instance_create(x, y, obj_chest);
 	current_room.remove_from_instances_at_map_positions(id);
 	current_room.add_to_instances_at_map_positions(new_inst);
-	current_room.mark_room_for_grid_update();
+	mark_current_room_for_grid_update();
 	play_sound(snd_appear, false);
 	with (new_inst) { screen_flash(); }
 	instance_destroy();

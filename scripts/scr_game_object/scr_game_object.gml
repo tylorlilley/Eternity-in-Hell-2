@@ -222,7 +222,7 @@ function move_in_direction(dir, make_noise) {
 	
 	// Update mp_grids
 	var is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body)), current_room = global.controller.current_room;
-	if (is_solid) { current_room.mark_room_for_grid_update(); }
+	if (is_solid) { mark_current_room_for_grid_update(); }
 }
 
 
@@ -374,7 +374,7 @@ function get_sprite_shuffle_flip(spr) {
     var nm = sprite_get_name(spr), hash = 2166136261;
     for (var i = 1; i <= string_length(nm); i++) {
         hash = hash ^ ord(string_char_at(nm, i));
-        hash = (hash * 16777619) & 0x7FFFFFFF;   // FNV-1a, masked to stay positive
+        hash = (hash * 31 + c) & 0x7FFFFFFF
     }
 
     var result = (((global.seed + hash) % 2) == 0);

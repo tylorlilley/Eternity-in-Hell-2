@@ -414,11 +414,6 @@ function GameRoom(given_x, given_y) constructor {
 		return chosen_room;
 	}
 	
-	/// @function								mark_room_for_grid_update();
-	function mark_room_for_grid_update() {
-		global.controller.grid_update_timer = 1;
-	}
-	
 	/// @function								rebuild_room_grids();
 	function rebuild_room_grids() {
 		mp_grid_clear_all(solid_path_grid);
@@ -586,8 +581,8 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function								get_room_reference_object_count();
 	/// @param		{int} obj					The object index to check for the presence of
 	function get_room_reference_object_count(obj) {
-		// LEGACY FUNCTION to be replaced in all call sites with the below global version"
-		get_object_count_for_room_reference(room_reference, obj);
+		// TODO: LEGACY FUNCTION to be replaced in all call sites with the below global version:
+		return get_object_count_for_room_reference(room_reference, obj);
 	}
 
 	/// @function									deactivate_room_instances();
@@ -917,6 +912,11 @@ function GameRoom(given_x, given_y) constructor {
 	}
 }
 
+/// @function								mark_room_for_grid_update();
+function mark_current_room_for_grid_update() {
+	global.controller.grid_update_timer = 1;
+}
+
 function get_object_count_for_room_reference(room_reference, obj) {
 	// Return the cached value if one exists
 	static cache = ds_map_create();
@@ -1146,7 +1146,7 @@ function instances_for_room_reference(room_reference) {
 	var file = file_text_open_read(filename);
 	if (file == -1) {
 		write_debug_message("Failed to open file for instances_for_room_reference.", "WARNING");
-		return 0;
+		return -1;
 	}
 	
 	var file_difficulty_content = file_text_read_string(file);
@@ -1183,7 +1183,7 @@ function get_skeleton_type(include_basic_skeleton = true) {
 	// Determine range to use based on skeleton inclusion
 	var rand_range_max = 100;
 	if (!include_basic_skeleton) {
-		switch (rand_range) {
+		switch (global.difficulty) {
 			case difficulties.easy: { rand_range_max = 3; break; }
 			case difficulties.medium: { rand_range_max = 16; break; }
 			case difficulties.hard: { rand_range_max = 40; break; }

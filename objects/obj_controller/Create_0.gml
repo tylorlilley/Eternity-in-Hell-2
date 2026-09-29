@@ -29,8 +29,7 @@ initialize_game_variables();
 create_room_lists();
 
 // Determine set skeleton type
-same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_FREQUENCY) ? obj_skeleton : noone;
-while (same_skeleton_type == obj_skeleton) { same_skeleton_type = get_skeleton_type(); }
+same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_FREQUENCY) ? get_skeleton_type(false) : noone;
 
 // Setup physical game map
 if (create_game_map() == -1) {

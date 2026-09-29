@@ -230,7 +230,7 @@ function calculate_gms_game_color() {
 	return get_gms_color_from_hex_string(padded_game_color_string);
 }
 
-/// @function								calculate_game_bg_color();
+/// @function								get_game_bg_color();
 function get_game_bg_color() {
 	var controller = global.controller;
 	var tint_amount = is_existing_instance(controller) ? power(1-(controller.time_remaining/controller.time_provided), 8) : 1;

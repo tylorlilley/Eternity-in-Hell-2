@@ -249,7 +249,7 @@ function game_room_start() {
 	if (transitioning_exit != -1) { transitioning_exit.visited = true; }
 	
 	// Reset mp grids
-	current_room.mark_room_for_grid_update();
+	mark_current_room_for_grid_update();
 }
 
 /// @function										reset_game_object_image_blend();
@@ -582,7 +582,7 @@ function game_room_initialize() {
 			var new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
 			other.current_room.add_to_instances_at_map_positions(new_inst);
-			other.current_room.mark_room_for_grid_update();
+			other.mark_current_room_for_grid_update();
 			instance_destroy();
 		}
 	}
@@ -597,7 +597,7 @@ function game_room_initialize() {
 			var new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
 			other.current_room.add_to_instances_at_map_positions(new_inst);
-			other.current_room.mark_room_for_grid_update();
+			other.mark_current_room_for_grid_update();
 			instance_destroy(id, false);
 		}
 	}
@@ -851,12 +851,12 @@ function game_room_initialize() {
 	for (var i = 0; i < dirt_to_spawn; i++) { spawn_dirt(); }
 	
 	// Set up room grids
-	current_room.mark_room_for_grid_update();
+	mark_current_room_for_grid_update();
 }
 
 function destroy_all_game_rooms() {
 	for (var _i = 0; _i < array_length(game_rooms); _i++) {
-		var _game_room = game_rooms[i];
+		var _game_room = game_rooms[_i];
 		room_instance_clear(_game_room.room_reference);
 		_game_room.destroy();
 	}

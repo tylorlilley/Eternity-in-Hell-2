@@ -9,7 +9,7 @@ function get_relative_light_intensity(instance_to_light) {
 	if (lighting_intensity <= 0) { lighting_intensity = 0; }
 	
 	// Get reltive intensity within minimum and maximum
-	var relative_intensity = (1-(lighting_intensity/lighting_distance));
+	var relative_intensity = (lighting_distance == 0) ? 0 : (1-(lighting_intensity/lighting_distance));
 	if (relative_intensity > maximum_intensity) { relative_intensity = maximum_intensity; }
 	else if (relative_intensity < minimum_intensity) { relative_intensity = minimum_intensity; }
 	else if (relative_intensity <= 0) { relative_intensity = 0; }

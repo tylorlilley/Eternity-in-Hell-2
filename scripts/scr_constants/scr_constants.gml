@@ -1,5 +1,9 @@
+// Shader constants
+#macro INVERTED_COLORS_ALPHA 0.5
+
 // Initialize room probability constants
 #macro MAX_SEED 99999999
+
 //#macro NUMBER_OF_EXITS_PROBABILITY 9
 #macro AVERAGE_NUMBER_OF_ROOM_EXITS (20/9)
 #macro STAIRS_PROBABILITY 5 

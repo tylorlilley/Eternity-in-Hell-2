@@ -9,7 +9,8 @@ if (!is_existing_instance(holder) || (holder.object_index == obj_hands && !holde
 	
 	// Draw Fire if Torch is Lit
 	if (torch_light_image_timer >= 0) {
-		draw_sprite_ext(torch_light_sprite_index, torch_light_image_index, x + 1, y - 1, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
+		var _light_offset = (object_index == obj_torch && image_index == 0) ? 1 : 0; // Only the dropped torch frame needs its fire nudged
+		draw_sprite_ext(torch_light_sprite_index, torch_light_image_index, x + (_light_offset * image_xscale), y - _light_offset, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 	}
 }
 else if (holder.visible) { 

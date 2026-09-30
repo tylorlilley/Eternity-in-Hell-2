@@ -444,7 +444,6 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 		ds_map_add(farmer_sprite_translation_map, spr_statue, spr_statue_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_eyes, spr_eyes_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_ears, spr_ears_farmer);
-		ds_map_add(farmer_sprite_translation_map, spr_echo, spr_echo_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_giant_eye, spr_giant_eye_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_giant_eye_pupil, spr_giant_eye_pupil_farmer);
 		
@@ -579,10 +578,13 @@ function draw_reflection_in_mirrors() {
 					draw_while_carried(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend, false);
 				}
 				else {
-					draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, refl_width, refl_height, x_pos, y_pos, flipped_x_scale, image_yscale, refl_blend, 1);
+					draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, refl_width, refl_height, x_pos, y_pos, flipped_x_scale, image_yscale, refl_blend, image_alpha);
 					if (object_index == obj_player) {
 						draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
 						draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
+						draw_player_hat(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
+					}
+					else if (object_index == obj_echo) {
 						draw_player_hat(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
 					}
 				}

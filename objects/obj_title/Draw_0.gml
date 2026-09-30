@@ -27,7 +27,7 @@ else if (prepare_screen) {
 	draw_set_color(c_white);
 	
 	// Draw Player Visuals
-	if (best_count == possible_count) { draw_sprite_ext(spr_crown, 0, player_x_pos, player_y_pos - (16*3), 3, 3, 0, c_white, (get_win_count(global.difficulty, graphics_modes.unknown) > 0) ? DRAW_ALPHA_SWAPPED : 1); }
+	if (best_count == possible_count) { draw_sprite_ext(spr_crown, 0, player_x_pos, player_y_pos - (16*3), 3, 3, 0, c_white, (get_win_count(global.difficulty, graphics_modes.unknown) > 0) ? INVERTED_COLORS_ALPHA : 1); }
 	draw_sprite_ext(spr_player, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1);
 	if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, player_x_pos, player_y_pos, 4, 4, 0, c_white, 1); }
 	//player_y_pos -= 8;

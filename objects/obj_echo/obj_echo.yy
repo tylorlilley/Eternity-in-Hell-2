@@ -33,12 +33,9 @@
   "properties": [],
   "solid": false,
   "spriteId": {
-    "name": "spr_echo",
-    "path": "sprites/spr_echo/spr_echo.yy",
-  },
-  "spriteMaskId": {
     "name": "spr_player",
     "path": "sprites/spr_player/spr_player.yy",
   },
+  "spriteMaskId": null,
   "visible": true,
 }

@@ -144,12 +144,12 @@ function make_item_special() {
 }
 
 /// @function								get_special_draw_alpha();
-/// @description							Returns the alpha to draw this item with; DRAW_ALPHA_SWAPPED makes the shader swap white and red
+/// @description							Returns the alpha to draw this item with; INVERTED_COLORS_ALPHA makes the shader swap white and red
 function get_special_draw_alpha() {
 	if (object_index == obj_lantern) { return 1; } // Lanterns are special so they never burn out, but are not recolored
 
 	var _swap_colors = (object_index == obj_heart) ? !special : special; // Regular hearts are red, special (pure) hearts are white
-	return (_swap_colors) ? DRAW_ALPHA_SWAPPED : 1;
+	return (_swap_colors) ? INVERTED_COLORS_ALPHA : 1;
 }
 
 /// @function								defuse_bomb();

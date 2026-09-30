@@ -1,4 +1,6 @@
+/// @description Invert Special Colors
+
 // Inherit the parent event
-get_special_draw_alpha();
+image_alpha = get_special_draw_alpha();
 event_inherited();
 

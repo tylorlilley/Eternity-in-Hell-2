@@ -579,16 +579,12 @@ function draw_reflection_in_mirrors() {
 				}
 				else {
 					draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, refl_width, refl_height, x_pos, y_pos, flipped_x_scale, image_yscale, refl_blend, image_alpha);
-					if (object_index == obj_player) {
+					if (object_index == obj_player || object_index == obj_echo) {
 						draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
 						draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
 						draw_player_hat(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
 					}
-					else if (object_index == obj_echo) {
-						draw_player_hat(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
-					}
 				}
-				
 			}
 		}
 		ds_list_destroy(potential_mirrors);

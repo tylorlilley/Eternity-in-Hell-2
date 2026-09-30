@@ -2,7 +2,7 @@
 // A shader to replace red with the chosen color, and then apply lighting blending
 //
 varying vec2 v_vTexcoord; // The texture coordinate of the original sprite pixel
-varying vec4 v_vColour; // The image_blend color (rgb) and the white/red swap flag (a, see DRAW_ALPHA_SWAPPED)
+varying vec4 v_vColour; // The image_blend color (rgb) and the white/red swap flag (a, see INVERTED_COLORS_ALPHA)
 
 uniform vec4 new_color;
 uniform vec4 bg_color;

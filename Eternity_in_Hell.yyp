@@ -544,6 +544,7 @@
     {"id":{"name":"scr_evaluation_messages","path":"scripts/scr_evaluation_messages/scr_evaluation_messages.yy",},"order":0,},
     {"id":{"name":"rm_two_perpendicular_exits_20","path":"rooms/rm_two_perpendicular_exits_20/rm_two_perpendicular_exits_20.yy",},"order":19,},
     {"id":{"name":"snd_explosion","path":"sounds/snd_explosion/snd_explosion.yy",},"order":60,},
+    {"id":{"name":"scr_room_layout","path":"scripts/scr_room_layout/scr_room_layout.yy",},"order":0,},
     {"id":{"name":"rm_title","path":"rooms/rm_title/rm_title.yy",},"order":0,},
     {"id":{"name":"spr_sword_farmer","path":"sprites/spr_sword_farmer/spr_sword_farmer.yy",},"order":54,},
     {"id":{"name":"spr_draw_tester","path":"sprites/spr_draw_tester/spr_draw_tester.yy",},"order":0,},

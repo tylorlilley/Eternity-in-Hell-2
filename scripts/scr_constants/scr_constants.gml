@@ -23,9 +23,11 @@
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
 #macro KEY_IN_CHEST_PROBABILITY 3
 #macro BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 8, 2, 1])
-#macro USE_CHEST_SPOT_PROBABILITY get_probability_for_difficulty([0, 16, 8, 4, 3])
+#macro CHEST_ON_STAIRS_SPOT_PROBABILITYget_probability_for_difficulty([0, 16, 8, 4, 3])
 #macro SPECIAL_ROOM_LIMIT get_probability_for_difficulty([0, 0, 0, 1, 2])
-#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
+#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32
+#macro SIN_ROOM_COUNT_PERCENTAGES get_probability_for_difficulty([[], [], [], [13], [24, 5]]) // Percent of maps with exactly 1, 2 sin rooms (R23); the rest have none
+#macro CURSED_ITEM_COUNT_PERCENTAGES get_probability_for_difficulty([[], [15], [30], [35, 13], [37, 27, 11]]) // Percent of maps with exactly 1, 2, 3 cursed items outside sin rooms (R40), before the SPECIAL_ITEM_LIMIT cap
 	
 // Initilize room start probability constants
 #macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 96, 48])
@@ -51,6 +53,8 @@
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
 #macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 18, 22, 24]) //[12, 16, 24, 28, 32])
 #macro AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.75, 1.5, 2, 2.25])
+#macro MAP_SCORE_TARGET get_probability_for_difficulty([0, 8, 25, 45, 61])
+//#macro MAP_SCORE_TARGET (AVERAGE_ROOM_DIFFICULTY * MINIMUM_NUMBER_OF_ROOMS) // Rooms are added until the finished map scores this much (R2); raise it for more rooms on average
 //#macro OLD_AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.8289, 1.1682, 1.3802, 1.5])
 //#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 
 // #macro MINIMUM_COLLECTABLES_ROOMS get_probability_for_difficulty([1, 2, 3, 4, 5]) 
@@ -95,6 +99,7 @@
 // Initialize score constants and variables
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
 #macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 80, 70, 65, 65])//get_probability_for_difficulty([100, 75, 65, 60, 50])  // minutes * 60 total seconds for torch to remain lit
+#macro MINIMUM_TIME_PROVIDED_PER_ROOM 12
 #macro TIME_PROVIDED_PER_ROOM get_probability_for_difficulty([40, 24, 22, 20, 18]) // get_probability_for_difficulty([40, 30, 28, 26, 24]) 
 #macro TIME_PROVIDED_PER_EASY_ROOM -5 
 #macro TIME_PROVIDED_PER_HARD_ROOM 15 

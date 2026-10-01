@@ -1,7 +1,7 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "scr_map_walker",
+  "name": "scr_new_map_generation",
   "isCompatibility": false,
   "isDnD": false,
   "parent": {

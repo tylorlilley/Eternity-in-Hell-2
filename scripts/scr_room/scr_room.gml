@@ -29,6 +29,14 @@ function GameRoom(given_x, given_y) constructor {
 	has_hall_of_mirrors = false;
 	is_special_room = false;
 	
+	// New MapGen Values
+	layout = undefined;						// The cached layout record this room is built from (scr_map_generation)
+	key_in_chest = false;					// The key step put this room's key, or the bomb standing in for it, in a chest (R48, R49)
+	chest_on_stairs_spot = false;			// stairs_spot_obj goes on the stairs spot instead of the chest spot (L1, R57)
+	button_on_stairs_spot = false;			// The portcullis button goes on the stairs spot instead of a collectable spot (R52, R57)
+	button_spot = -1;						// Which collectable spot, in layout file order, the portcullis button takes (R52, R57)
+	key_spot = -1;							// Which collectable spot, in layout file order, the floor key takes (R57)
+	
 	// Room Content Values
 	instances = array_create(0);
 	solid_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
@@ -569,12 +577,13 @@ function GameRoom(given_x, given_y) constructor {
 	
 	/// @function									initialize_from_room_reference();
 	function initialize_from_room_reference() {
-		var reference_instances = instances_for_room_reference(room_reference);
-		if (reference_instances == -1) { return -1; }
+		var reference_instances = layout.instances;
+		collectable_spot_instances = array_create(0);
 		
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
-			instance_create(ref.x, ref.y, asset_get_index(ref.name));
+			var new_instance = instance_create(ref.x, ref.y, asset_get_index(ref.name));
+			if (ref.name == "obj_collectable_spot") { array_push(collectable_spot_instances, new_instance); }
 		}
 	}
 	
@@ -588,6 +597,8 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function									deactivate_room_instances();
 	function deactivate_room_instances() {
 		instances = array_create(0);
+		collectable_spot_instances = array_create(0);
+		
 		with (obj_light_source) { if (!persistent) { array_push(other.instances, id); } }
 		with (obj_game_object) { if (!persistent) { array_push(other.instances, id); } }
 		with (obj_placeholder) { if (!persistent) { array_push(other.instances, id); } }

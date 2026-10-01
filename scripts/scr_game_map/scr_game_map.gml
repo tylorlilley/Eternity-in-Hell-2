@@ -68,7 +68,6 @@ function GameMap() constructor {
 	rooms = [];
 	room_at_cell = {};						// Each room by its grid cell ("x,y"), so finding a neighbor needs no search
 	side_links = [];						// Every exit joining two grid neighbors
-	stairs_links = [];						// Every exit joining two rooms by stairs
 
 	// Decorations, redone on every pass of step 6
 	start_room = undefined;

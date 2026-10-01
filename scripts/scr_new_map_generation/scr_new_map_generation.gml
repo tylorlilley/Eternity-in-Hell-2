@@ -111,7 +111,7 @@ function mapgen_fail(_map, _reason) {
 /// @returns {struct} { layouts: every layout record (see mapgen_read_layout), sins: the sin table with layout records }
 function mapgen_cache_layouts() {
 	// Every room asset named for its exits is a layout (rm_title, rm_start, rm_finish and rm_unused_* are not)
-	var _layouts = [], _sins = [
+	static _layouts = [], _sins = [
 		{ name: "pride", layouts: [rm_four_exits_23, rm_four_exits_24] },					// Hall of mirrors
 		{ name: "envy", layouts: [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30] },	// Giant eye
 		{ name: "wrath", layouts: [rm_one_exit_22] },										// Inverted cross
@@ -126,45 +126,27 @@ function mapgen_cache_layouts() {
 		if (_exit_type == -1 || string_starts_with(_name, "rm_unused")) { continue; }
 
 		var _layout = mapgen_read_layout(_room_asset, _exit_type, array_length(_layouts));
-		if (!is_undefined(_layout)) { array_push(_layouts, _layout); }
-		
-		// Mark the layout as a sin room
-		for (var _i = 0; _i < array_length(_sins); _i++) {
-			var _sin = _sins[_i];
+		if (!is_undefined(_layout)) {
+			// Mark the layout as a sin room
+			for (var _i = 0; _i < array_length(_sins); _i++) {
+				var _sin = _sins[_i];
 			
-			for (var _j = 0; _j < array_length(_sin.layouts); _j++) {
-				var _sin_layout = _sin.layouts[_j];
+				for (var _j = 0; _j < array_length(_sin.layouts); _j++) {
+					var _sin_layout = _sin.layouts[_j];
 			
-				if (_sin_layout == _layout.room_reference) {
-					_layout.is_sin_room = true;
-					_sin.layouts[_j] = _layout;
-					break;
+					if (_sin_layout == _layout.room_reference) {
+						_layout.is_sin_room = true;
+						_sin.layouts[_j] = _layout;
+						break;
+					}
 				}
 			}
+			
+			array_push(_layouts, _layout);
 		}
 	}
 	
 	return { layouts: _layouts, sins: _sins };
-}
-
-/// @function mapgen_attach_sin_layouts(_sins, _layouts)
-/// @description Swaps each sin's room assets for their layout records, and marks those layouts as the sin's.
-/// @param {array} _sins The sin table
-/// @param {array} _layouts Every layout record
-function mapgen_attach_sin_layouts(_sins, _layouts) {
-	for (var _i = 0; _i < array_length(_sins); _i++) {
-		var _sin = _sins[_i], _sin_layouts = [];
-		
-		for (var _j = 0; _j < array_length(_layouts); _j++) {
-			var _layout = _layouts[_j];
-			
-			if (array_contains(_sin.layouts, _layout.room_reference)) {
-				_layout.is_sin_room = true;
-				array_push(_sin_layouts, _layout);
-			}
-		}
-		_sin.layouts = _sin_layouts;
-	}
 }
 
 /// @function mapgen_read_layout(_room_asset, _exit_type, _index)
@@ -219,14 +201,14 @@ function mapgen_read_layout(_room_asset, _exit_type, _index) {
 		name: _name,
 		exit_type: _exit_type,
 		file_difficulty: _file_difficulty,
-		is_sin_room: false,													// Set from the sin table
 		instances: _instances,											// What building the room creates
+		is_sin_room: false,												// Set later, from the sin table
 
 		// Spots and lanterns (L1 to L6)
-		collectable_spot_count: mapgen_get_count(_counts, "obj_collectable_spot"),
 		key_spots: _key_spots,											// Collectable spot numbers a floor key can take
 		button_spots: _button_spots,									// Collectable spot numbers a button can take
 		stairs_spot_is_clear: _stairs_spot_is_clear,					// Whether a button can take the stairs spot
+		collectable_spot_count: mapgen_get_count(_counts, "obj_collectable_spot"),
 		skeleton_spot_count: mapgen_get_count(_counts, "obj_skeleton_spot"),
 		has_lanterns: mapgen_get_count(_counts, "obj_lantern") > 0,
 		is_hall_of_mirrors: mapgen_get_count(_counts, "obj_hall_of_mirrors") > 0,
@@ -261,6 +243,7 @@ function mapgen_read_layout(_room_asset, _exit_type, _index) {
 /// @param {struct} _layout The layout record
 /// @param {struct} _counts How many of each object the layout places, by object name
 function mapgen_check_layout_rules(_layout, _counts) {
+	// Enforeces that the room is valid. The ruby script also does this so it should be redundant and never warn, but good to have as a failsafe.
 	var _problems = "";
 	if (mapgen_get_count(_counts, "obj_chest_spot") != 1) { _problems += " needs exactly one chest spot (L1);"; }
 	if (mapgen_get_count(_counts, "obj_stairs_spot") != 1) { _problems += " needs exactly one stairs spot (L2);"; }
@@ -1349,7 +1332,7 @@ function mapgen_add_chest(_room) {
 /// @param {Asset.GMObject} _object What to place
 function mapgen_set_spot_object(_room, _object) {
 	_room.stairs_spot_obj = _object;
-	_room.chest_on_stairs_spot = (_object == obj_cross) || (!_room.has_exit(directions.stairs) && get_random_chance_out_of(USE_CHEST_SPOT_PROBABILITY));
+	_room.chest_on_stairs_spot = (_object == obj_cross) || (!_room.has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
 }
 
 /// @function mapgen_pick_item_type(_map, _is_cursed, _hands)

@@ -2,9 +2,61 @@
 /// @description The plan for one map (see scr_new_map_generation): the layouts its difficulty allows, its rooms
 ///	and the exits between them, its map-wide events and decorations, and what the controller keeps once
 ///	generation ends. Rooms and exits are only added through its methods, so its lookups always match its rooms.
+///	It also reads every layout file once per session (step 1), into the layout cache every map shares.
 function GameMap() constructor {
-	// Every layout file, read once per session and shared by every map (see mapgen_cache_layouts)
-	static layout_cache = mapgen_cache_layouts();
+	// =================================================================================================
+	// STEP 1: THE LAYOUT CACHE (once per session)
+	// These come first: the first map needs the cache before anything else, and a static has to be
+	// declared before it's used
+	// =================================================================================================
+
+	/// @function build_layout_cache()
+	/// @description Reads every layout and keeps what generation and building need, so no other step reads a
+	///	file. Layout files never change while the game runs.
+	/// @returns {struct} { layouts: every usable RoomLayout, sins: the sin table, with RoomLayouts in place of room assets }
+	static build_layout_cache = function() {
+		var _layouts = [], _sins = [
+			{ name: "pride", layouts: [rm_four_exits_23, rm_four_exits_24] },					// Hall of mirrors
+			{ name: "envy", layouts: [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30] },	// Giant eye
+			{ name: "wrath", layouts: [rm_one_exit_22] },										// Inverted cross
+			{ name: "greed", layouts: [rm_one_exit_30] },										// Red chest
+			{ name: "sloth", layouts: [rm_one_exit_23] }										// Gudetama
+		];
+
+		// Read each room asset as a layout, and keep the usable ones (see RoomLayout)
+		for (var _room_asset = room_first; _room_asset != -1; _room_asset = room_next(_room_asset)) {
+			var _layout = new RoomLayout(_room_asset);
+			if (!_layout.is_usable) { continue; }
+			_layout.index = array_length(_layouts);
+
+			// Mark the layout as a sin room
+			for (var _i = 0; _i < array_length(_sins); _i++) {
+				var _sin = _sins[_i];
+
+				for (var _j = 0; _j < array_length(_sin.layouts); _j++) {
+					var _sin_layout = _sin.layouts[_j];
+
+					if (_sin_layout == _layout.room_reference) {
+						_layout.is_sin_room = true;
+						_sin.layouts[_j] = _layout;
+						break;
+					}
+				}
+			}
+
+			array_push(_layouts, _layout);
+		}
+
+		return { layouts: _layouts, sins: _sins };
+	};
+
+	// Every layout file, read once per session and shared by every map
+	static layout_cache = build_layout_cache();
+
+
+	// =================================================================================================
+	// THE MAP
+	// =================================================================================================
 
 	// Layouts this difficulty allows, sin layouts aside, by exit kind, and how many rooms use each (R20)
 	layouts_by_exit_type = [];
@@ -16,7 +68,7 @@ function GameMap() constructor {
 	// Map-wide events (step 2)
 	same_skeleton_type = noone;
 	cursed_item_count = 0;
-	sins = [];
+	included_sins = [];
 
 	// The room graph (steps 3, 4 and 6)
 	rooms = [];
@@ -30,9 +82,6 @@ function GameMap() constructor {
 	guaranteed_chest_room = undefined;
 	cursed_items = [];						// Each cursed item type placed so far
 	difficulty_score = 0;
-
-	// Fitting the chest items to the starting hands (step 13)
-	guaranteed_torch_ignores_cap = false;	// The torch for bringing a map and a compass may go over the cap (R36)
 
 	// What the controller keeps once generation ends
 	time_provided = 0;
@@ -65,7 +114,9 @@ function GameMap() constructor {
 	for (var _type_checked = 0; _type_checked < mapgen_exit_types.count; _type_checked++) {
 		var _layouts_of_type = layouts_by_exit_type[_type_checked];
 		if (array_length(_layouts_of_type) == 0) {
-			write_debug_message("No layout of exit kind " + string(_type_checked) + " at this difficulty.", "ERROR");
+			var _error_message = "No layout of exit kind " + string(_type_checked) + " at this difficulty: " + string(global.difficulty);
+			write_debug_message(_error_message, "ERROR");
+			show_error(_error_message, true);
 		}
 
 		if (array_length(mapgen_select_lantern_layouts(_layouts_of_type)) == 0) {
@@ -73,25 +124,30 @@ function GameMap() constructor {
 		}
 	}
 
-
 	// =================================================================================================
 	// ROOMS AND THE EXITS BETWEEN THEM
 	// =================================================================================================
 
-	/// @function create_room(_x, _y)
+	/// @function create_room_at_map_position(_x, _y)
 	/// @description Adds a room on a free grid cell, with no exits or layout yet (R3).
 	/// @param {real} _x The grid column
 	/// @param {real} _y The grid row
 	/// @returns {GameRoom} The new room
-	static create_room = function(_x, _y) {
+	static create_room_at_map_position = function(_x, _y) {
 		var _room = new GameRoom(_x, _y);
-		_room.mapgen_index = array_length(rooms);		// Its position in rooms
+		
+		// Initialize room mapgen variables
+		// TODO: move these into GameRoom constructor instead of setting them here
 		_room.mapgen_sin = undefined;					// The sin reserved for it (step 4)
-		_room.mapgen_needs_layout = true;				// Its side exits changed since its last layout pick (R16)
 		_room.mapgen_content = undefined;				// What step 5 rolled for its layout
 		_room.mapgen_chest_lock = -1;					// Its locked chest's number in the key check
+		_room.mapgen_needs_layout = true;				// Its side exits changed since its last layout pick (R16)
+		
+		// Add room to map's rooms array, and room_at_cell lookup table
+		_room.mapgen_index = array_length(rooms);
 		array_push(rooms, _room);
-		room_at_cell[$ mapgen_cell_key(_x, _y)] = _room;
+		room_at_cell[$ get_cell_key(_x, _y)] = _room;
+		
 		return _room;
 	};
 
@@ -117,13 +173,22 @@ function GameMap() constructor {
 		return _exit;
 	};
 
+	/// @function get_cell_key(_x, _y)
+	/// @description The key a grid cell has in room_at_cell.
+	/// @param {real} _x The grid column
+	/// @param {real} _y The grid row
+	/// @returns {string}
+	static get_cell_key = function(_x, _y) {
+		return string(_x) + "," + string(_y);
+	};
+
 	/// @function get_room_at(_x, _y)
 	/// @description The room on a grid cell.
 	/// @param {real} _x The grid column
 	/// @param {real} _y The grid row
 	/// @returns {GameRoom|undefined} The room, or undefined if the cell is free
 	static get_room_at = function(_x, _y) {
-		return room_at_cell[$ mapgen_cell_key(_x, _y)];
+		return room_at_cell[$ get_cell_key(_x, _y)];
 	};
 
 	/// @function get_neighbor(_room, _dir)
@@ -183,36 +248,42 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(rooms); _i++) { mapgen_reset_room(rooms[_i]); }
 		for (var _j = 0; _j < array_length(side_links); _j++) { mapgen_reset_exit(side_links[_j]); }
 	};
+	
+	// =================================================================================================
+	// CALCULATIONS TO PASS OFF TO CONTROLLER
+	// =================================================================================================
 
-	/// @function score_rooms()
-	/// @description Scores every room and totals the scores (R2, R55).
-	/// @returns {real} The map's full score
-	static score_rooms = function() {
-		var _total_score = 0;
+
+	/// @function calculate_map_difficulty_score()
+	/// @description Scores every room and sets difficulty_score to their total (R2, R55).
+	static calculate_map_difficulty_score = function() {
+		difficulty_score = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _room = rooms[_i];
+
 			_room.room_reference_difficulty = mapgen_score_room(_room);
-			_total_score += _room.room_reference_difficulty;
+			difficulty_score += _room.room_reference_difficulty;
 		}
-		return _total_score;
 	};
 
-	/// @function get_total_time()
-	/// @description The run's time (R56): every room's time added up, from the rooms' scores.
-	/// @returns {real} Seconds
-	static get_total_time = function() {
-		var _time = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) { _time += mapgen_get_room_time(rooms[_i]); }
-		return _time;
+	/// @function calculate_time_provided()
+	/// @description Calculates the run's total time: every room's time added up, from the rooms' scores.
+	static calculate_time_provided = function() {
+		time_provided = 0;
+		for (var _i = 0; _i < array_length(rooms); _i++) { time_provided += mapgen_get_room_time(rooms[_i]); }
 	};
 
-	/// @function list_collectables_and_items()
+	/// @function calculate_collectables_and_items_lists()
 	/// @description Lists what the controller tracks during play: the rooms with collectables, and the
 	///	regular and cursed items in chests.
-	static list_collectables_and_items = function() {
+	static calculate_collectables_and_items_lists = function() {
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _room = rooms[_i];
+			
+			// Calculate collectables list
 			if (_room.has_collectables) { array_push(rooms_with_collectables, _room); }
+			
+			// Calculate item lists
 			if (mapgen_has_chest(_room) && !mapgen_is_trap(_room.chest_obj)) {
 				array_push(_room.has_special_item ? spawned_special_items : spawned_items, _room.chest_obj);
 			}

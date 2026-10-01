@@ -1006,8 +1006,8 @@ function mapgen_pick_item_type(_map, _is_cursed, _hands) {
 
 /// @function mapgen_count_regular_items(_map, _type, _hands)
 /// @description Counts the regular (non-cursed) copies of an item in chests and hands. Keys and bombs the
-///	key step placed don't count, and neither does the torch a player gets for bringing a map and a compass,
-///	which may go over the cap (step 13).
+///	key step placed don't count, and neither does a torch in the guaranteed chest, which may always go over
+///	the cap (step 13).
 /// @param {GameMap} _map The map being generated
 /// @param {Asset.GMObject} _type The item
 /// @param {array} _hands The starting hand items to count
@@ -1016,7 +1016,7 @@ function mapgen_count_regular_items(_map, _type, _hands) {
 	var _count = 0;
 	for (var _i = 0; _i < array_length(_map.rooms); _i++) {
 		var _room = _map.rooms[_i];
-		if (_room == _map.guaranteed_chest_room && _map.guaranteed_torch_ignores_cap) { continue; }
+		if (_room == _map.guaranteed_chest_room && _room.chest_obj == obj_torch) { continue; }
 		if (_room.chest_obj == _type && !_room.has_special_item && !_room.key_in_chest) { _count += 1; }
 	}
 	for (var _j = 0; _j < array_length(_hands); _j++) {
@@ -1623,11 +1623,7 @@ function mapgen_adjust_items_for_hands(_map) {
 	var _brings_map = array_contains(_hands, obj_map), _brings_compass = array_contains(_hands, obj_compass);
 	var _guaranteed = _map.guaranteed_chest_room;
 	if (!is_undefined(_guaranteed)) {
-		if (_brings_map && _brings_compass) {
-			// This torch may go over the torch cap, so no torch chest a bomb relies on is re-picked because of it
-			_guaranteed.chest_obj = obj_torch;
-			_map.guaranteed_torch_ignores_cap = true;
-		}
+		if (_brings_map && _brings_compass) { _guaranteed.chest_obj = obj_torch; }
 		else if (_brings_compass) { _guaranteed.chest_obj = obj_map; }
 		else if (_brings_map) { _guaranteed.chest_obj = (global.difficulty == difficulties.easy) ? obj_torch : obj_compass; }
 	}
@@ -1716,13 +1712,4 @@ function mapgen_copy_array(_array) {
 	var _copy = array_create(array_length(_array));
 	array_copy(_copy, 0, _array, 0, array_length(_array));
 	return _copy;
-}
-
-/// @function mapgen_cell_key(_x, _y)
-/// @description The key a grid cell has in a struct of cells, like the map's room_at_cell.
-/// @param {real} _x The grid column, or x position
-/// @param {real} _y The grid row, or y position
-/// @returns {string}
-function mapgen_cell_key(_x, _y) {
-	return string(_x) + "," + string(_y);
 }

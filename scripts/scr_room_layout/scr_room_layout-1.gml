@@ -58,6 +58,7 @@ function RoomLayout(_room_asset) constructor {
 		if (_problems != "") { write_debug_message("Layout " + name + _problems, "WARNING"); }
 	};
 
+
 	// The room
 	room_reference = _room_asset;
 	name = room_get_name(_room_asset);

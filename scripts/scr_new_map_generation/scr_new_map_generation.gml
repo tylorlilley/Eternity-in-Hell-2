@@ -134,7 +134,7 @@ function mapgen_roll_run_events(_map) {
 	}
 
 	// Set Number of Additional Special Cursed Items to Spawn outside of Sin Rooms
-	var _special_item_limit = SPECIAL_ITEM_LIMT, _special_item_count = 0;
+	var _special_item_limit = SPECIAL_ITEM_LIMIT, _special_item_count = 0;
 	for (var _i = _sin_count; _i < _special_item_limit; _i++) {
 		if (get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { _special_item_count += 1; }
 	}
@@ -158,7 +158,7 @@ function mapgen_grow_room(_map, _allow_stairs) {
 	// Check all existing rooms for a room we can add an exit to
 	for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
 		var _potential_room = _existing_rooms[_i];
-		if (!_potential_room.can_gain_exists()) { continue; }
+		if (!_potential_room.can_gain_exits()) { continue; }
 
 		// Connect via Stairs
 		if (_stairs_allowed && !_potential_room.has_exit(directions.stairs) && get_random_chance_out_of(STAIRS_PROBABILITY)) {
@@ -174,8 +174,8 @@ function mapgen_grow_room(_map, _allow_stairs) {
 			}
 		}
 
-		// Otherwise, connect via carindal direction
-		var _dir = mapgen_pick_free_direction(_map, _parent);
+		// Otherwise, connect via a cardinal direction
+		var _dir = mapgen_pick_free_direction(_map, _potential_room);
 		if (_dir != -1) {
 			var _linked_room = _map.create_room_at_map_position(_potential_room.virtual_x + get_dir_x_offset(_dir), _potential_room.virtual_y + get_dir_y_offset(_dir));
 			_map.link_rooms(_potential_room, _linked_room, _dir);
@@ -186,13 +186,13 @@ function mapgen_grow_room(_map, _allow_stairs) {
 	return undefined;
 }
 
-/// @function mapgen_find_cell_to_link_to_stairs_room(_map, _parent)
-/// @description Finds a free grid cell for a room reached by stairs from _parent: beside some room that is
-///	neither the parent nor its grid neighbor, and never beside the parent itself, since stairs never join
-///	grid neighbors (R6). Skipping the parent's neighbors, as today's code does, keeps stairs as common as
-///	they are today.
+/// @function mapgen_find_cell_to_link_to_stairs_room(_map, _stairs_room)
+/// @description Finds a free grid cell for a room reached by stairs from _stairs_room: beside some room that
+///	is neither the stairs room nor its grid neighbor, and never beside the stairs room itself, since stairs
+///	never join grid neighbors (R6). Skipping the stairs room's neighbors, as today's code does, keeps stairs
+///	as common as they are today.
 /// @param {GameMap} _map The map being generated
-/// @param {GameRoom} _parent The room the stairs leave from
+/// @param {GameRoom} _stairs_room The room the stairs leave from
 /// @returns {array|undefined} The cell as [x, y], or undefined if there is none
 function mapgen_find_cell_to_link_to_stairs_room(_map, _stairs_room) {
 	var _existing_rooms = array_shuffle(_map.rooms);
@@ -200,11 +200,11 @@ function mapgen_find_cell_to_link_to_stairs_room(_map, _stairs_room) {
 	for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
 		var _potential_room = _existing_rooms[_i];
 		
-		// Skip room if it is a direct neighbor of the stairs room
+		// Skip the stairs room itself and its grid neighbors (see the description)
 		if (abs(_potential_room.virtual_x - _stairs_room.virtual_x) + abs(_potential_room.virtual_y - _stairs_room.virtual_y) <= 1) { continue; }
 
 		// Check each exit of the potential room
-		var _dirs = array_shuffle(cardinal_exit_directions);
+		var _dirs = array_shuffle(_map.cardinal_exit_directions);
 		for (var _j = 0; _j < array_length(_dirs); _j++) {
 			var _x = _potential_room.virtual_x + get_dir_x_offset(_dirs[_j]);
 			var _y = _potential_room.virtual_y + get_dir_y_offset(_dirs[_j]);
@@ -223,7 +223,7 @@ function mapgen_find_cell_to_link_to_stairs_room(_map, _stairs_room) {
 /// @param {GameRoom} _room The room
 /// @returns {real} The direction, or -1 if every side is taken
 function mapgen_pick_free_direction(_map, _room) {
-	var _dirs = array_shuffle(cardinal_exit_directions);
+	var _dirs = array_shuffle(_map.cardinal_exit_directions);
 	for (var _i = 0; _i < array_length(_dirs); _i++) {
 		if (is_undefined(_map.get_neighbor(_room, _dirs[_i]))) { return _dirs[_i]; }
 	}
@@ -251,7 +251,7 @@ function mapgen_add_side_link(_map) {
 		var _room = _rooms[_i];
 		if (!_room.can_gain_exits()) { continue; }
 
-		var _dirs = array_shuffle(cardinal_exit_directions);
+		var _dirs = array_shuffle(_map.cardinal_exit_directions);
 		for (var _j = 0; _j < array_length(_dirs); _j++) {
 			var _dir = _dirs[_j];
 			if (_room.has_exit(_dir)) { continue; }
@@ -296,7 +296,7 @@ function mapgen_find_room_for_sin(_map, _sin) {
 	for (var _i = 0; _i < array_length(_map.rooms); _i++) {
 		var _room = _map.rooms[_i];
 		if (_room.is_special_room || _room.has_exit(directions.stairs)) { continue; }
-		if (mapgen_sin_has_exit_type(_sin, mapgen_get_exit_type(_room))) { array_push(_fitting_rooms, _room); }
+		if (mapgen_sin_has_exit_type(_sin, _room.get_exit_type())) { array_push(_fitting_rooms, _room); }
 	}
 	return (array_length(_fitting_rooms) > 0) ? array_random_get(_fitting_rooms) : undefined;
 }
@@ -338,7 +338,7 @@ function mapgen_build_four_exit_room(_map) {
 	if (array_length(_map.rooms) + mapgen_count_free_sides(_map, _best_room) > MAX_NUMBER_OF_ROOMS) { return undefined; }
 
 	// Link each missing side to its neighbor, or to a new room where the cell is free
-	var _dirs = cardinal_exit_directions
+	var _dirs = _map.cardinal_exit_directions;
 	for (var _j = 0; _j < array_length(_dirs); _j++) {
 		var _dir = _dirs[_j];
 		if (_best_room.has_exit(_dir)) { continue; }
@@ -358,7 +358,7 @@ function mapgen_build_four_exit_room(_map) {
 /// @param {GameRoom} _room The room
 /// @returns {real} How many sides are missing, or -1 if one of them can never open
 function mapgen_count_openable_missing_sides(_map, _room) {
-	var _missing = 0, _dirs = cardinal_exit_directions
+	var _missing = 0, _dirs = _map.cardinal_exit_directions;
 	for (var _i = 0; _i < array_length(_dirs); _i++) {
 		if (_room.has_exit(_dirs[_i])) { continue; }
 		var _neighbor = _map.get_neighbor(_room, _dirs[_i]);
@@ -374,7 +374,7 @@ function mapgen_count_openable_missing_sides(_map, _room) {
 /// @param {GameRoom} _room The room
 /// @returns {real}
 function mapgen_count_free_sides(_map, _room) {
-	var _free = 0, _dirs = cardinal_exit_directions;
+	var _free = 0, _dirs = _map.cardinal_exit_directions;
 	for (var _i = 0; _i < array_length(_dirs); _i++) {
 		if (is_undefined(_map.get_neighbor(_room, _dirs[_i]))) { _free += 1; }
 	}
@@ -435,7 +435,7 @@ function mapgen_pick_layout(_map, _room, _needs_lanterns) {
 	// Free the old layout, so it no longer counts as in use (R20)
 	if (!is_undefined(_room.layout)) { _map.layout_use_counts[_room.layout.index] -= 1; }
 
-	var _real_exit_type = mapgen_get_exit_type(_room), _candidates;
+	var _real_exit_type = _room.get_exit_type(), _candidates;
 	if (_room.is_special_room) {
 		// A sin room uses its sin's layout for its real exits, never a misleading one (R24, R27)
 		_candidates = mapgen_keep_layouts_of_type(_room.mapgen_sin.layouts, _real_exit_type);
@@ -476,7 +476,7 @@ function mapgen_roll_layout_exit_type(_room) {
 			if (!get_random_chance_out_of(MISLEADING_EXITS_PROBABILITY)) { break; }
 		}
 	}
-	return mapgen_get_exit_type_for_count(_exit_count, mapgen_has_opposite_exits(_room));
+	return mapgen_get_exit_type_for_count(_exit_count, _room.has_opposite_exits());
 }
 
 /// @function mapgen_choose_unused_layout(_map, _candidates)
@@ -514,7 +514,7 @@ function mapgen_roll_layout_orientation(_room) {
 		case 1:
 			// Turn the layout's one opening toward the one exit
 			_room.flip_horizontal = get_coin_flip();
-			_room.rotate = mapgen_get_first_side(_room, true);
+			_room.rotate = _room.get_first_side(true);
 			break;
 		case 2:
 			if (_up && _down) {
@@ -535,7 +535,7 @@ function mapgen_roll_layout_orientation(_room) {
 		case 3:
 			// Turn the layout's closed side toward the one missing exit
 			_room.flip_vertical = get_coin_flip();
-			_room.rotate = (mapgen_get_first_side(_room, false) + 1) % 4;
+			_room.rotate = (_room.get_first_side(false) + 1) % 4;
 			break;
 	}
 }
@@ -728,11 +728,11 @@ function mapgen_choose_start_and_heart(_map) {
 	var _longest = -1, _longest_pairs = [];
 	for (var _i = 0; _i < array_length(_map.rooms); _i++) {
 		var _start = _map.rooms[_i];
-		if (!mapgen_can_be_start(_start)) { continue; }
+		if (!_start.can_be_start()) { continue; }
 		var _distances = _map.measure_distances(_start);
 		for (var _j = 0; _j < array_length(_map.rooms); _j++) {
 			var _heart = _map.rooms[_j];
-			if (!mapgen_can_be_heart(_heart, _start)) { continue; }
+			if (!_heart.can_be_heart(_start)) { continue; }
 			var _distance = _distances[_heart.mapgen_index];
 			if (_distance > _longest) {
 				_longest = _distance;
@@ -754,21 +754,6 @@ function mapgen_choose_start_and_heart(_map) {
 	mapgen_set_spot_object(_map.start_room, obj_cross);
 	mapgen_set_spot_object(_map.heart_room, obj_encased_heart);
 	mapgen_make_start_room_safe(_map);
-	return true;
-}
-
-/// @function mapgen_can_be_heart(_heart, _start)
-/// @description Whether a room can be the heart for a given start: never a sin room, and never linked by a
-///	side exit to the start or a hall of mirrors; stairs into it are fine (R13).
-/// @param {GameRoom} _heart The heart candidate
-/// @param {GameRoom} _start The start candidate
-/// @returns {bool}
-function mapgen_can_be_heart(_heart, _start) {
-	if (_heart == _start || _heart.is_special_room) { return false; }
-	for (var _dir = directions.up; _dir <= directions.left; _dir++) {
-		var _neighbor = _heart.get_connected_room(_dir);
-		if (_neighbor != -1 && (_neighbor == _start || _neighbor.has_hall_of_mirrors)) { return false; }
-	}
 	return true;
 }
 
@@ -895,7 +880,7 @@ function mapgen_place_chests(_map) {
 
 		// Plain chests (visible, unlocked and not cursed) hold a statue or fountain trap 1 in 8/4 (H+), but
 		// never the guaranteed chest (R41)
-		if (_chest_room != _map.guaranteed_chest_room && mapgen_is_plain_chest(_chest_room) && get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) {
+		if (_chest_room != _map.guaranteed_chest_room && _chest_room.has_plain_chest() && get_random_chance_out_of(TRAP_CHEST_PROBABILITY)) {
 			_chest_room.chest_obj = get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY) ? obj_fountain : obj_statue;
 		}
 	}
@@ -903,7 +888,7 @@ function mapgen_place_chests(_map) {
 	// Every other chest gets an item (R42)
 	for (var _n = 0; _n < array_length(_rooms); _n++) {
 		var _item_room = _rooms[_n];
-		if (mapgen_has_chest(_item_room) && _item_room.chest_obj == -1) {
+		if (_item_room.has_chest() && _item_room.chest_obj == -1) {
 			_item_room.chest_obj = mapgen_pick_item_type(_map, _item_room.has_special_item, []);
 		}
 	}
@@ -921,7 +906,7 @@ function mapgen_place_cursed_items(_map, _rooms) {
 	// Chests already placed
 	for (var _i = 0; _i < array_length(_rooms) && _left_to_place > 0; _i++) {
 		var _chest_room = _rooms[_i];
-		if (mapgen_has_chest(_chest_room) && !_chest_room.has_special_item && _chest_room != _map.guaranteed_chest_room && _chest_room.distance_to_start >= 2) {
+		if (_chest_room.has_chest() && !_chest_room.has_special_item && _chest_room != _map.guaranteed_chest_room && _chest_room.distance_to_start >= 2) {
 			_chest_room.has_special_item = true;
 			_left_to_place -= 1;
 		}
@@ -1036,30 +1021,6 @@ function mapgen_get_item_cap(_item) {
 /// @returns {bool}
 function mapgen_can_hold_chest(_map, _room) {
 	return _room != _map.start_room && _room != _map.heart_room && _room.stairs_spot_obj == -1;
-}
-
-/// @function mapgen_has_chest(_room)
-/// @description Whether a room holds a chest, hidden or not.
-/// @param {GameRoom} _room The room
-/// @returns {bool}
-function mapgen_has_chest(_room) {
-	return _room.stairs_spot_obj == obj_chest || _room.stairs_spot_obj == obj_hidden_chest;
-}
-
-/// @function mapgen_is_plain_chest(_room)
-/// @description Whether a room holds a visible chest that is neither locked nor cursed.
-/// @param {GameRoom} _room The room
-/// @returns {bool}
-function mapgen_is_plain_chest(_room) {
-	return _room.stairs_spot_obj == obj_chest && !_room.has_locked_chest && !_room.has_special_item;
-}
-
-/// @function mapgen_is_trap(_chest_obj)
-/// @description Whether a chest holds a trap instead of an item (R41).
-/// @param {Asset.GMObject} _chest_obj What the chest holds
-/// @returns {bool}
-function mapgen_is_trap(_chest_obj) {
-	return _chest_obj == obj_statue || _chest_obj == obj_fountain;
 }
 
 
@@ -1415,19 +1376,7 @@ function mapgen_place_special_exits(_map) {
 /// @returns {bool}
 function mapgen_can_roll_special_exits(_map, _room) {
 	return !_room.has_no_cardinal_exits && _room != _map.start_room && _room != _map.heart_room
-		&& !_room.has_hall_of_mirrors && !mapgen_is_next_to_hall_of_mirrors(_room);
-}
-
-/// @function mapgen_is_next_to_hall_of_mirrors(_room)
-/// @description Whether a side exit joins a room to a hall of mirrors.
-/// @param {GameRoom} _room The room
-/// @returns {bool}
-function mapgen_is_next_to_hall_of_mirrors(_room) {
-	for (var _dir = directions.up; _dir <= directions.left; _dir++) {
-		var _neighbor = _room.get_connected_room(_dir);
-		if (_neighbor != -1 && _neighbor.has_hall_of_mirrors) { return true; }
-	}
-	return false;
+		&& !_room.is_connected_to_hall_of_mirrors();
 }
 
 /// @function mapgen_can_take_portcullis(_map, _room)
@@ -1444,7 +1393,7 @@ function mapgen_can_take_portcullis(_map, _room) {
 		if (_exit == -1) { continue; }
 		if (_exit.has_door || _exit.has_illusion_walls > 0 || _exit.get_connected_room(_room).has_portcullis_button) { return false; }
 	}
-	return array_length(mapgen_list_button_spots(_room)) > 0;
+	return array_length(_room.list_button_spots()) > 0;
 }
 
 /// @function mapgen_add_portcullis(_room)
@@ -1461,141 +1410,17 @@ function mapgen_add_portcullis(_room) {
 		if (_exit != -1) { _exit.set_portcullis_to_trigger_for_room(_room, true); }
 	}
 
-	var _spot = array_random_get(mapgen_list_button_spots(_room));
+	var _spot = array_random_get(_room.list_button_spots());
 	_room.button_on_stairs_spot = (_spot == -1);
 	_room.button_spot = _spot;
 }
 
-/// @function mapgen_list_button_spots(_room)
-/// @description The free spots a room's portcullis button could take (R52, L3): the stairs spot when nothing
-///	uses it, and each collectable spot the floor key doesn't take, as long as one stays free for the room's
-///	collectables. A spot only counts if nothing else shares its tile, since that could hold the button
-///	down. The chest spot never holds a button.
-/// @param {GameRoom} _room The room
-/// @returns {array} Collectable spot numbers in layout file order, with -1 for the stairs spot
-function mapgen_list_button_spots(_room) {
-	var _layout = _room.layout, _spots = [];
-	if (mapgen_is_stairs_spot_free(_room) && _layout.stairs_spot_is_clear) { array_push(_spots, -1); }
-
-	var _spots_left_by_key = array_length(_layout.key_spots) - ((_room.key_spot != -1) ? 1 : 0);
-	if (!_room.has_collectables || _spots_left_by_key >= 2) {
-		for (var _i = 0; _i < array_length(_layout.button_spots); _i++) {
-			var _spot = _layout.button_spots[_i];
-			if (_spot != _room.key_spot) { array_push(_spots, _spot); }
-		}
-	}
-	return _spots;
-}
-
-/// @function mapgen_is_stairs_spot_free(_room)
-/// @description Whether nothing takes a room's stairs spot: no stairs, and no cross, heart or chest placed
-///	on it (L1, L2).
-/// @param {GameRoom} _room The room
-/// @returns {bool}
-function mapgen_is_stairs_spot_free(_room) {
-	if (_room.has_exit(directions.stairs)) { return false; }
-	return _room.stairs_spot_obj == -1 || !_room.chest_on_stairs_spot;
-}
-
 
 // =====================================================================================================
-// STEP 13: SCORE, TIME AND THE STARTING HANDS
+// STEP 13: THE STARTING HANDS
+// Each room's score and time are GameRoom methods (get_difficulty_score, get_time_provided), which GameMap
+// adds up
 // =====================================================================================================
-
-/// @function mapgen_score_room(_room)
-/// @description Scores a room (R55): its layout file's contents, its rolled and placed contents, and its
-///	exits. Higher means harder. room_converter.rb weighs layout contents separately to set each file's
-///	difficulty.
-/// @param {GameRoom} _room The room
-/// @returns {real}
-function mapgen_score_room(_room) {
-	var _layout = _room.layout;
-
-	// Enemies, statues and fountains
-	var _score = 0;
-	if (_room.has_phantom) { _score += 2; }
-	if (_room.has_floater) { _score += 2; }
-	if (_room.has_eyes) { _score += 4.5; }												// Placed or rolled
-	if (_layout.ears_count > 0) { _score += 4.5; }
-	if (_layout.gudetama_count > 0) { _score += 4.5; }
-	if (_layout.bumper_count > 0) { _score += 1.25; }
-	_score += _layout.mouth_count * 1;													// Placed mouths; the extra ones they bring don't count
-	_score += _room.initial_nose_count * 0.75;
-	_score += _room.initial_fire_skeleton_count * 1;									// Lava fire skeletons
-	if (_layout.spider_spot_count > 0) { _score += 1.5; }
-	_score += _layout.spider_count * 1.5;
-	_score += (_layout.fountain_count + _room.initial_fountain_count) * 0.5;			// Placed, or turned from columns
-	_score += _layout.statue_count * 0.25;												// Plain, or turned fountain
-	for (var _i = 0; _i < array_length(_room.skeleton_types); _i++) {
-		_score += mapgen_score_skeleton_spot(_room.skeleton_types[_i]);
-	}
-	_score += _layout.snake_count * 0.66;												// Placed snakes
-	_score += (_layout.worm_head_count * 0.1625) + (_layout.worm_body_count * 0.0625);
-	if (_score > 0) { _score += 0.25; }													// Any of the above
-
-	// The room's other contents
-	if (_room.is_special_room) { _score += 5; }
-	if (_room.has_hidden_chest) { _score += 0.125; }
-	if (_room.has_lanterns && !_room.has_phantom && !_room.has_hidden_chest) { _score -= 0.125; }
-	if (_room.lit) { _score -= 0.125; }
-	if (_room.has_locked_chest && !_room.has_special_item) { _score += 0.125; }
-	if (_room.has_no_cardinal_exits) { _score += 0.125; }
-	if (_room.has_collectables) { _score += 0.25; }
-	if (_room.has_misleading_exits) { _score += 0.125; }
-	if (mapgen_is_trap(_room.chest_obj)) { _score += 0.325; }
-	else if (_room.chest_obj != -1 && !_room.has_key) { _score -= 0.25; }				// A chest with no key-role item
-	if (_room.has_special_item) { _score -= 2; }
-	_score += (_layout.block_spot_count * 0.08) + (_layout.lava_count * 0.01) + (_layout.bones_count * 0.05) + (_layout.corpse_count * 0.05);
-
-	// Its side exits; each room an exit joins counts it
-	for (var _dir = directions.up; _dir <= directions.left; _dir++) {
-		var _exit = _room.exits[_dir];
-		if (_exit == -1) { continue; }
-		if (_exit.has_closed_portcullis_for_room(_room)) { _score += 0.325; }
-		if (_exit.has_door) { _score += 0.025; }
-		if (_exit.has_lock) { _score += 0.125; }
-		if (_exit.has_illusion_walls > 0) { _score += 0.25; }
-	}
-	return _score;
-}
-
-/// @function mapgen_score_skeleton_spot(_spawn)
-/// @description Scores a skeleton spot by what spawns there, each value replacing the basic skeleton's
-///	(R55). A spot holding eyes scores nothing here, since the room's eyes score once.
-/// @param {Asset.GMObject} _spawn What spawns on the spot
-/// @returns {real}
-function mapgen_score_skeleton_spot(_spawn) {
-	switch (_spawn) {
-		case obj_skeleton: return 0.125;
-		case obj_cockroach: return 0.25;
-		case obj_fast_skeleton:
-		case obj_fat_skeleton:
-		case obj_cultist: return 0.325;
-		case obj_fire_skeleton: return 0.5;
-		case obj_snake: return 0.66;
-		default: return 0;
-	}
-}
-
-/// @function mapgen_get_room_time(_room)
-/// @description A room's share of the run's time (R56): the larger of 12 s and its share by score (a negative
-///	score counting as zero), plus time for collectables and for each locked or illusion side exit. A lock
-///	or illusion wall counts once in each room it joins, and a portcullis only in its trap room.
-/// @param {GameRoom} _room The room, already scored
-/// @returns {real} Seconds
-function mapgen_get_room_time(_room) {
-	var _score_time = TIME_PROVIDED_PER_ROOM * max(0, _room.room_reference_difficulty) / AVERAGE_ROOM_DIFFICULTY;
-	var _time = max(MINIMUM_TIME_PROVIDED_PER_ROOM, _score_time);
-	if (_room.has_collectables) { _time += TIME_PROVIDED_PER_COLLECTABLE; }
-	for (var _dir = directions.up; _dir <= directions.left; _dir++) {
-		var _exit = _room.exits[_dir];
-		if (_exit == -1) { continue; }
-		if (_exit.has_lock) { _time += TIME_PROVIEDED_PER_LOCK; }
-		if (_exit.has_illusion_walls > 0) { _time += TIME_PROVIEDED_PER_ILLUSION_WALL; }
-		if (_exit.has_closed_portcullis_for_room(_room)) { _time += TIME_PROVIEDED_PER_PORTCULLIS; }
-	}
-	return _time;
-}
 
 /// @function mapgen_adjust_items_for_hands(_map)
 /// @description The very last step, once the map is final (step 13): fits the chest items to the starting
@@ -1616,7 +1441,7 @@ function mapgen_adjust_items_for_hands(_map) {
 	var _rooms = array_shuffle(_map.rooms);
 	for (var _i = 0; _i < array_length(_rooms); _i++) {
 		var _room = _rooms[_i];
-		if (_room == _guaranteed || !mapgen_holds_regular_item(_room)) { continue; }
+		if (_room == _guaranteed || !_room.holds_regular_item()) { continue; }
 		if (mapgen_count_regular_items(_map, _room.chest_obj, _hands) > mapgen_get_item_cap(_room.chest_obj)) {
 			_room.chest_obj = -1;
 			_room.chest_obj = mapgen_pick_item_type(_map, false, _hands);
@@ -1624,50 +1449,10 @@ function mapgen_adjust_items_for_hands(_map) {
 	}
 }
 
-/// @function mapgen_holds_regular_item(_room)
-/// @description Whether a room's chest holds a regular item: not cursed, not a trap, and not a key-role
-///	item the key step placed.
-/// @param {GameRoom} _room The room
-/// @returns {bool}
-function mapgen_holds_regular_item(_room) {
-	return mapgen_has_chest(_room) && !_room.has_special_item && !_room.key_in_chest && !mapgen_is_trap(_room.chest_obj);
-}
-
 
 // =====================================================================================================
 // SMALL HELPERS
 // =====================================================================================================
-
-static cardinal_exit_directions = [directions.up, directions.right, directions.down, directions.left];
-
-/// @function mapgen_get_first_side(_room, _with_exit)
-/// @description The first side direction, from up going clockwise, that has (or lacks) an exit.
-/// @param {GameRoom} _room The room
-/// @param {bool} _with_exit True to find a side with an exit, false to find one without
-/// @returns {real} The direction, or -1 if there is none
-function mapgen_get_first_side(_room, _with_exit) {
-	for (var _dir = directions.up; _dir <= directions.left; _dir++) {
-		if (_room.has_exit(_dir) == _with_exit) { return _dir; }
-	}
-	return -1;
-}
-
-/// @function mapgen_has_opposite_exits(_room)
-/// @description Whether a room has side exits on two opposite sides.
-/// @param {GameRoom} _room The room
-/// @returns {bool}
-function mapgen_has_opposite_exits(_room) {
-	return (_room.has_exit(directions.up) && _room.has_exit(directions.down))
-		|| (_room.has_exit(directions.left) && _room.has_exit(directions.right));
-}
-
-/// @function mapgen_get_exit_type(_room)
-/// @description The layout exit kind matching a room's real side exits.
-/// @param {GameRoom} _room The room
-/// @returns {real} A mapgen_exit_types kind
-function mapgen_get_exit_type(_room) {
-	return mapgen_get_exit_type_for_count(_room.get_cardinal_exits_count(), mapgen_has_opposite_exits(_room));
-}
 
 /// @function mapgen_get_exit_type_for_count(_exit_count, _has_opposite_exits)
 /// @description The layout exit kind for a number of side exits.

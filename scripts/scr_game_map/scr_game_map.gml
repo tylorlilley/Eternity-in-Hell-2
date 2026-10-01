@@ -4,11 +4,15 @@
 ///	generation ends. Rooms and exits are only added through its methods, so its lookups always match its rooms.
 ///	It also reads every layout file once per session (step 1), into the layout cache every map shares.
 function GameMap() constructor {
-	/// @function build_layout_cache()
-	/// @description Reads every layout and keeps what generation and building need, so no other step reads a
-	///	file. Layout files never change while the game runs.
-	/// @returns {struct} { layouts: every usable RoomLayout, sins: the sin table, with RoomLayouts in place of room assets }
-	static build_layout_cache = function() {
+	// =================================================================================================
+	// SHARED BY EVERY MAP
+	// =================================================================================================
+
+	// Every layout file, read once per session, when the first map is made (step 1). A static's line runs only
+	// on the first call, but the rest of the constructor runs for every map, so the files are read only while
+	// the cache is empty. It comes first, since layout_use_counts needs it
+	static layout_cache = undefined;
+	if (is_undefined(layout_cache)) {
 		var _layouts = [], _sins = [
 			{ name: "pride", layouts: [rm_four_exits_23, rm_four_exits_24] },					// Hall of mirrors
 			{ name: "envy", layouts: [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30] },	// Giant eye
@@ -40,12 +44,12 @@ function GameMap() constructor {
 
 			array_push(_layouts, _layout);
 		}
+		layout_cache = { layouts: _layouts, sins: _sins };
+	}
 
-		return { layouts: _layouts, sins: _sins };
-	};
-
-	// Every layout file, read once per session and shared by every map
-	static layout_cache = build_layout_cache();
+	// The four side directions, clockwise from up. Every map shares this one array, so nothing may change
+	// it; array_shuffle returns a shuffled copy, so shuffling it is fine
+	static cardinal_exit_directions = [directions.up, directions.right, directions.down, directions.left];
 
 
 	// =================================================================================================
@@ -81,40 +85,6 @@ function GameMap() constructor {
 	rooms_with_collectables = [];
 	spawned_items = [];
 	spawned_special_items = [];
-	
-	// Initialize the static layout cache
-	var _layouts = [], _sins = [
-		{ name: "pride", layouts: [rm_four_exits_23, rm_four_exits_24] },					// Hall of mirrors
-		{ name: "envy", layouts: [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30] },	// Giant eye
-		{ name: "wrath", layouts: [rm_one_exit_22] },										// Inverted cross
-		{ name: "greed", layouts: [rm_one_exit_30] },										// Red chest
-		{ name: "sloth", layouts: [rm_one_exit_23] }										// Gudetama
-	];
-
-	// Read each room asset as a layout, and keep the usable ones (see RoomLayout)
-	for (var _room_asset = room_first; _room_asset != -1; _room_asset = room_next(_room_asset)) {
-		var _layout = new RoomLayout(_room_asset);
-		if (!_layout.is_usable) { continue; }
-		_layout.index = array_length(_layouts);
-
-		// Mark the layout as a sin room
-		for (var _i = 0; _i < array_length(_sins); _i++) {
-			var _sin = _sins[_i];
-
-			for (var _j = 0; _j < array_length(_sin.layouts); _j++) {
-				var _sin_layout = _sin.layouts[_j];
-
-				if (_sin_layout == _layout.room_reference) {
-					_layout.is_sin_room = true;
-					_sin.layouts[_j] = _layout;
-					break;
-				}
-			}
-		}
-
-		array_push(_layouts, _layout);
-	}
-	static layout_cache = { layouts: _layouts, sins: _sins };
 
 	// Initialize layouts by exit type with blank arrays
 	for (var _type = 0; _type < mapgen_exit_types.count; _type++) { array_push(layouts_by_exit_type, []); }
@@ -190,7 +160,7 @@ function GameMap() constructor {
 		_room.exits[_dir] = _exit;
 		_other_room.exits[get_opposite_dir(_dir)] = _exit;
 		
-		// Add room to list of adjacent rooms, and mark both linked rooms as needing a new room layout
+		// Add the exit to the side links, and mark both linked rooms as needing a new room layout
 		if (_dir != directions.stairs) {
 			array_push(side_links, _exit);
 			_room.mapgen_needs_layout = true;
@@ -288,7 +258,7 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _room = rooms[_i];
 
-			_room.room_reference_difficulty = mapgen_score_room(_room);
+			_room.room_reference_difficulty = _room.get_difficulty_score();
 			difficulty_score += _room.room_reference_difficulty;
 		}
 	};
@@ -297,7 +267,7 @@ function GameMap() constructor {
 	/// @description Calculates the run's total time: every room's time added up, from the rooms' scores.
 	static calculate_time_provided = function() {
 		time_provided = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) { time_provided += mapgen_get_room_time(rooms[_i]); }
+		for (var _i = 0; _i < array_length(rooms); _i++) { time_provided += rooms[_i].get_time_provided(); }
 	};
 
 	/// @function calculate_collectables_and_items_lists()
@@ -311,7 +281,7 @@ function GameMap() constructor {
 			if (_room.has_collectables) { array_push(rooms_with_collectables, _room); }
 			
 			// Calculate item lists
-			if (mapgen_has_chest(_room) && !mapgen_is_trap(_room.chest_obj)) {
+			if (_room.has_chest() && !_room.has_trap_chest()) {
 				array_push(_room.has_special_item ? spawned_special_items : spawned_items, _room.chest_obj);
 			}
 		}

@@ -5,16 +5,14 @@
 ///	It also reads every layout file once per session (step 1), into the layout cache every map shares.
 function GameMap() constructor {
 	// =================================================================================================
-	// STEP 1: THE LAYOUT CACHE (once per session)
-	// These come first: the first map needs the cache before anything else, and a static has to be
-	// declared before it's used
+	// SHARED BY EVERY MAP
 	// =================================================================================================
 
-	/// @function build_layout_cache()
-	/// @description Reads every layout and keeps what generation and building need, so no other step reads a
-	///	file. Layout files never change while the game runs.
-	/// @returns {struct} { layouts: every usable RoomLayout, sins: the sin table, with RoomLayouts in place of room assets }
-	static build_layout_cache = function() {
+	// Every layout file, read once per session, when the first map is made (step 1). A static's line runs only
+	// on the first call, but the rest of the constructor runs for every map, so the files are read only while
+	// the cache is empty. It comes first, since layout_use_counts needs it
+	static layout_cache = undefined;
+	if (is_undefined(layout_cache)) {
 		var _layouts = [], _sins = [
 			{ name: "pride", layouts: [rm_four_exits_23, rm_four_exits_24] },					// Hall of mirrors
 			{ name: "envy", layouts: [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30] },	// Giant eye
@@ -46,12 +44,12 @@ function GameMap() constructor {
 
 			array_push(_layouts, _layout);
 		}
+		layout_cache = { layouts: _layouts, sins: _sins };
+	}
 
-		return { layouts: _layouts, sins: _sins };
-	};
-
-	// Every layout file, read once per session and shared by every map
-	static layout_cache = build_layout_cache();
+	// The four side directions, clockwise from up. Every map shares this one array, so nothing may change
+	// it; array_shuffle returns a shuffled copy, so shuffling it is fine
+	static cardinal_exit_directions = [directions.up, directions.right, directions.down, directions.left];
 
 
 	// =================================================================================================
@@ -74,7 +72,6 @@ function GameMap() constructor {
 	rooms = [];
 	room_at_cell = {};						// Each room by its grid cell ("x,y"), so finding a neighbor needs no search
 	side_links = [];						// Every exit joining two grid neighbors
-	stairs_links = [];						// Every exit joining two rooms by stairs
 
 	// Decorations, redone on every pass of step 6
 	start_room = undefined;
@@ -158,18 +155,18 @@ function GameMap() constructor {
 	/// @param {real} _dir The direction from _room to _other_room, or directions.stairs
 	/// @returns {RoomExit} The new exit
 	static link_rooms = function(_room, _other_room, _dir) {
+		// Create a new Exit to Link the rooms With
 		var _exit = new RoomExit(_room, _other_room);
 		_room.exits[_dir] = _exit;
 		_other_room.exits[get_opposite_dir(_dir)] = _exit;
-		if (_dir == directions.stairs) {
-			array_push(stairs_links, _exit);
-		}
-		else {
+		
+		// Add the exit to the side links, and mark both linked rooms as needing a new room layout
+		if (_dir != directions.stairs) {
 			array_push(side_links, _exit);
-			// A layout depends on the room's side exits, so both rooms need a new one (R16)
 			_room.mapgen_needs_layout = true;
 			_other_room.mapgen_needs_layout = true;
 		}
+		
 		return _exit;
 	};
 
@@ -206,11 +203,11 @@ function GameMap() constructor {
 	static count_possible_starts = function() {
 		var _count = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
-			if (mapgen_can_be_start(rooms[_i])) { _count += 1; }
+			if (rooms[_i].can_be_start()) { _count += 1; }
 		}
 		return _count;
 	};
-
+	
 	/// @function measure_distances(_from_room)
 	/// @description Counts the steps from one room to every other by the quickest route, a stairs trip being
 	///	one step, ignoring locks.
@@ -261,7 +258,7 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _room = rooms[_i];
 
-			_room.room_reference_difficulty = mapgen_score_room(_room);
+			_room.room_reference_difficulty = _room.get_difficulty_score();
 			difficulty_score += _room.room_reference_difficulty;
 		}
 	};
@@ -270,7 +267,7 @@ function GameMap() constructor {
 	/// @description Calculates the run's total time: every room's time added up, from the rooms' scores.
 	static calculate_time_provided = function() {
 		time_provided = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) { time_provided += mapgen_get_room_time(rooms[_i]); }
+		for (var _i = 0; _i < array_length(rooms); _i++) { time_provided += rooms[_i].get_time_provided(); }
 	};
 
 	/// @function calculate_collectables_and_items_lists()
@@ -284,7 +281,7 @@ function GameMap() constructor {
 			if (_room.has_collectables) { array_push(rooms_with_collectables, _room); }
 			
 			// Calculate item lists
-			if (mapgen_has_chest(_room) && !mapgen_is_trap(_room.chest_obj)) {
+			if (_room.has_chest() && !_room.has_trap_chest()) {
 				array_push(_room.has_special_item ? spawned_special_items : spawned_items, _room.chest_obj);
 			}
 		}

@@ -13,18 +13,27 @@ enum mapgen_exit_types {
 /// @description Plans a whole map for global.difficulty from the current random stream (steps 1 to 13).
 /// @returns {struct} The finished map (see mapgen_create_map)
 function mapgen_generate() {
-	var _map = mapgen_try_generate();
-	var _failed_attempts = 0;
-	
-	// A good generator never needs a retry. This is here as a failsafe.
+	// Generate maps up to 100 times before giving up. It should always work on the first try, this is here as a failsafe.
+	// As a failsafe, switch to the next seed after 100 failures and try again.
+	var _map = undefined;
 	while (is_undefined(_map)) {
-		_failed_attempts += 1;
-		if (_failed_attempts >= 100) { show_error("Map generation failed 100 times in a row.", true); }
-		_map = mapgen_try_generate();
+		// Attempt map generation on this seed up to 100 times
+		var _failed_attempts = 0;
+		do {
+			_failed_attempts += 1;
+			_map = mapgen_try_generate();
+		}
+		until (!is_undefined(_map) || _failed_attempts >= 100);
+	
+		// If map is still undefined give up and move on to next seed
+		if (is_undefined(_map)) {
+			write_debug_message("Map generation failed 100 times for seed: " + string(global.seed), "ERROR");
+			global.seed += 1;
+			random_set_seed(global.seed);
+		}
 	}
-
-	// Fit the chest items to the starting hands in a random stream of their own, then reseed for
-	// building, so the hands change nothing else (step 13, R58)
+	
+	// Once map generation has succeeded, deal with the starting hand items
 	var _hands_seed = irandom(MAX_SEED), _build_seed = irandom(MAX_SEED);
 	random_set_seed(_hands_seed);
 	mapgen_adjust_items_for_hands(_map);
@@ -38,8 +47,8 @@ function mapgen_generate() {
 /// @description Makes one attempt at steps 2 to 13, everything but fitting items to the hands.
 /// @returns {struct|undefined} The map, or undefined if a last resort failed (its rooms are freed)
 function mapgen_try_generate() {
-	static _cache = mapgen_cache_layouts();
-	var _map = mapgen_create_map(_cache);
+	// Step 1: create initial map using cached version of room layouts read from disk
+	var _map = mapgen_create_map();
 
 	// Step 2: map-wide events, the run's sins and how many other cursed items spawn
 	mapgen_roll_run_events(_map);
@@ -61,8 +70,8 @@ function mapgen_try_generate() {
 	// decorate again, so every point counted is something the map really has (R2)
 	while (true) {
 		if (!mapgen_decorate(_map)) { return mapgen_fail(_map, "the start and heart or the heart's keys could not be placed"); }
-		_map.total_score = mapgen_score_map(_map);
-		if (_map.total_score >= MAP_SCORE_TARGET || array_length(_map.rooms) >= MAX_NUMBER_OF_ROOMS) { break; }
+		_map.difficulty_score = mapgen_score_map(_map);
+		if (_map.difficulty_score >= MAP_SCORE_TARGET || array_length(_map.rooms) >= MAX_NUMBER_OF_ROOMS) { break; }
 		if (is_undefined(mapgen_grow_room(_map, true))) { break; }
 		mapgen_add_side_links(_map);
 		mapgen_pick_layouts(_map);
@@ -111,7 +120,7 @@ function mapgen_fail(_map, _reason) {
 /// @returns {struct} { layouts: every layout record (see mapgen_read_layout), sins: the sin table with layout records }
 function mapgen_cache_layouts() {
 	// Every room asset named for its exits is a layout (rm_title, rm_start, rm_finish and rm_unused_* are not)
-	static _layouts = [], _sins = [
+	var _layouts  = [] _sins = [
 		{ name: "pride", layouts: [rm_four_exits_23, rm_four_exits_24] },					// Hall of mirrors
 		{ name: "envy", layouts: [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30] },	// Giant eye
 		{ name: "wrath", layouts: [rm_one_exit_22] },										// Inverted cross
@@ -289,13 +298,20 @@ function mapgen_get_count(_counts, _key) {
 ///	difficulty is at or below it (R19).
 /// @param {struct} _cache The layout cache (see mapgen_cache_layouts)
 /// @returns {struct} The map
-function mapgen_create_map(_cache) {
+function mapgen_create_map() {
+	static _cache = mapgen_cache_layouts();
+	
 	var _map = {
 		// Layouts this difficulty allows, sin layouts aside, by exit kind, and how many rooms use each (R20)
 		layouts_by_exit_type: [],
 		layout_use_counts: array_create(array_length(_cache.layouts), 0),
 		// Sins with a layout this difficulty allows, each with those layouts
+		
+		// Map-wide events (step 2)
+		same_skeleton_type: noone,
+		cursed_item_count: 0,
 		available_sins: [],
+		sins: [],
 
 		// The room graph (steps 3, 4 and 6)
 		rooms: [],
@@ -303,20 +319,12 @@ function mapgen_create_map(_cache) {
 		side_links: [],							// Every exit joining two grid neighbors
 		stairs_links: [],						// Every exit joining two rooms by stairs
 
-		// Map-wide events (step 2)
-		same_skeleton_type: noone,
-		sins: [],
-		other_cursed_item_count: 0,
-
 		// Decorations, redone on every pass of step 6
 		start_room: undefined,
 		heart_room: undefined,
 		guaranteed_chest_room: undefined,
 		cursed_items: [],						// Each cursed item type placed so far
-		total_score: 0,
-
-		// Fitting the chest items to the starting hands (step 13)
-		guaranteed_torch_ignores_cap: false,	// The torch for bringing a map and a compass may go over the cap (R36)
+		difficulty_score: 0,
 
 		// What the controller keeps once generation ends
 		time_provided: 0,
@@ -325,26 +333,35 @@ function mapgen_create_map(_cache) {
 		spawned_special_items: []
 	};
 
+	// Initialize layouts by exit type with blank arrays
 	for (var _type = 0; _type < mapgen_exit_types.count; _type++) { array_push(_map.layouts_by_exit_type, []); }
+	
+	// Assign the cached layouts to their appropriate layout by exit type array, if difficulty allows
 	for (var _i = 0; _i < array_length(_cache.layouts); _i++) {
 		var _layout = _cache.layouts[_i];
 		if (_layout.file_difficulty <= global.difficulty && !_layout.is_sin_room) {
 			array_push(_map.layouts_by_exit_type[_layout.exit_type], _layout);
 		}
 	}
+	
+	// For each sin type, assign the layouts to the available sin types. if difficulty allows
 	for (var _j = 0; _j < array_length(_cache.sins); _j++) {
 		var _sin = _cache.sins[_j], _allowed_layouts = [];
+		
 		for (var _k = 0; _k < array_length(_sin.layouts); _k++) {
 			if (_sin.layouts[_k].file_difficulty <= global.difficulty) { array_push(_allowed_layouts, _sin.layouts[_k]); }
 		}
 		if (array_length(_allowed_layouts) > 0) { array_push(_map.available_sins, { name: _sin.name, layouts: _allowed_layouts }); }
 	}
 
-	// Every room needs a layout for its exits, and the lantern rule needs lantern layouts (R17, R28)
+	// Check that every exit type has at least one layout, and at least one layout with a lantern. This should always be true, but good to check.
 	for (var _type_checked = 0; _type_checked < mapgen_exit_types.count; _type_checked++) {
 		var _layouts_of_type = _map.layouts_by_exit_type[_type_checked];
-		if (array_length(_layouts_of_type) == 0) { show_error("No layout of exit kind " + string(_type_checked) + " at this difficulty.", true); }
-		if (array_length(mapgen_keep_lantern_layouts(_layouts_of_type)) == 0) {
+		if (array_length(_layouts_of_type) == 0) {
+			write_debug_message("No layout of exit kind " + string(_type_checked) + " at this difficulty.", "ERROR");
+		}
+		
+		if (array_length(mapgen_select_lantern_layouts(_layouts_of_type)) == 0) {
 			write_debug_message("No lantern layout of exit kind " + string(_type_checked) + " at this difficulty.", "WARNING");
 		}
 	}
@@ -445,7 +462,7 @@ function mapgen_roll_run_events(_map) {
 	// Cursed items outside sin rooms, at today's odds, capped so the map holds at most 1/1/2/3 cursed
 	// items counting the sin rooms' (R40)
 	var _cursed_items_allowed = max(0, SPECIAL_ITEM_LIMIT - _sin_count);
-	_map.other_cursed_item_count = min(mapgen_roll_count(CURSED_ITEM_COUNT_PERCENTAGES), _cursed_items_allowed);
+	_map.cursed_item_count = min(mapgen_roll_count(CURSED_ITEM_COUNT_PERCENTAGES), _cursed_items_allowed);
 }
 
 /// @function mapgen_roll_count(_percentages)
@@ -763,7 +780,7 @@ function mapgen_pick_layout(_map, _room, _needs_lanterns) {
 	else {
 		_candidates = _map.layouts_by_exit_type[mapgen_roll_layout_exit_type(_room)];
 		if (_needs_lanterns) {
-			var _lantern_layouts = mapgen_keep_lantern_layouts(_candidates);
+			var _lantern_layouts = mapgen_select_lantern_layouts(_candidates);
 			if (array_length(_lantern_layouts) > 0) { _candidates = _lantern_layouts; }
 		}
 	}
@@ -965,11 +982,11 @@ function mapgen_keep_layouts_of_type(_layouts, _exit_type) {
 	return _kept;
 }
 
-/// @function mapgen_keep_lantern_layouts(_layouts)
-/// @description The layouts with lanterns.
+/// @function mapgen_select_lantern_layouts(_layouts)
+/// @description Returns only the layouts with lanterns from the given layouts
 /// @param {array} _layouts Layout records
 /// @returns {array}
-function mapgen_keep_lantern_layouts(_layouts) {
+function mapgen_select_lantern_layouts(_layouts) {
 	var _kept = [];
 	for (var _i = 0; _i < array_length(_layouts); _i++) {
 		if (_layouts[_i].has_lanterns) { array_push(_kept, _layouts[_i]); }
@@ -1291,7 +1308,7 @@ function mapgen_place_chests(_map) {
 /// @param {struct} _map The map being generated
 /// @param {array} _rooms The map's rooms, in random order
 function mapgen_place_cursed_items(_map, _rooms) {
-	var _left_to_place = _map.other_cursed_item_count;
+	var _left_to_place = _map.cursed_item_count;
 
 	// Chests already placed
 	for (var _i = 0; _i < array_length(_rooms) && _left_to_place > 0; _i++) {

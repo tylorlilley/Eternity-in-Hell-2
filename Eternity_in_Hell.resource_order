@@ -313,6 +313,7 @@
     {"name":"GML method usage","order":3,"path":"notes/GML method usage/GML method usage.yy",},
     {"name":"obj_lantern","order":6,"path":"objects/obj_lantern/obj_lantern.yy",},
     {"name":"spr_block_tile_farmer","order":69,"path":"sprites/spr_block_tile_farmer/spr_block_tile_farmer.yy",},
+    {"name":"scr_game_map","order":10,"path":"scripts/scr_game_map/scr_game_map.yy",},
     {"name":"obj_sword","order":7,"path":"objects/obj_sword/obj_sword.yy",},
     {"name":"spr_wall_right","order":54,"path":"sprites/spr_wall_right/spr_wall_right.yy",},
     {"name":"obj_solid","order":1,"path":"objects/obj_solid/obj_solid.yy",},

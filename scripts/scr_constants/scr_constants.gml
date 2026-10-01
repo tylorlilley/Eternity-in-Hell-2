@@ -25,7 +25,7 @@
 #macro BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 8, 2, 1])
 #macro CHEST_ON_STAIRS_SPOT_PROBABILITY get_probability_for_difficulty([0, 16, 8, 4, 3])
 #macro SPECIAL_ROOM_LIMIT get_probability_for_difficulty([0, 0, 0, 1, 2])
-#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32
+#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 #macro SIN_ROOM_COUNT_PERCENTAGES get_probability_for_difficulty([[], [], [], [13], [24, 5]]) // Percent of maps with exactly 1, 2 sin rooms (R23); the rest have none
 #macro CURSED_ITEM_COUNT_PERCENTAGES get_probability_for_difficulty([[], [15], [30], [35, 13], [37, 27, 11]]) // Percent of maps with exactly 1, 2, 3 cursed items outside sin rooms (R40), before the SPECIAL_ITEM_LIMIT cap
 	

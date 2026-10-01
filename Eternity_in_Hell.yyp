@@ -501,6 +501,7 @@
     {"id":{"name":"GML method usage","path":"notes/GML method usage/GML method usage.yy",},"order":3,},
     {"id":{"name":"obj_lantern","path":"objects/obj_lantern/obj_lantern.yy",},"order":6,},
     {"id":{"name":"spr_block_tile_farmer","path":"sprites/spr_block_tile_farmer/spr_block_tile_farmer.yy",},"order":0,},
+    {"id":{"name":"scr_game_map","path":"scripts/scr_game_map/scr_game_map.yy",},"order":0,},
     {"id":{"name":"obj_sword","path":"objects/obj_sword/obj_sword.yy",},"order":7,},
     {"id":{"name":"spr_wall_right","path":"sprites/spr_wall_right/spr_wall_right.yy",},"order":0,},
     {"id":{"name":"obj_solid","path":"objects/obj_solid/obj_solid.yy",},"order":1,},

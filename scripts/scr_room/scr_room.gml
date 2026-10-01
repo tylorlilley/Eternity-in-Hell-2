@@ -51,6 +51,21 @@ function GameRoom(given_x, given_y) constructor {
 		mp_grid_destroy(lava_path_grid);
 		mp_grid_destroy(empty_path_grid);
 	}
+	
+	/// @function mapgen_can_be_start(_room)
+	/// @description Whether a room can be the start: never a room with stairs or a sin room
+	/// @returns {bool}
+	function can_be_start() {
+		return !has_exit(directions.stairs) && !is_special_room;
+	}
+	
+	/// @function mapgen_can_gain_exits(_room)
+	/// @description Whether a room may still gain exits. Stairs-only rooms never get a side exit (R8), and a
+	///	sin room's exits stay fixed once reserved, so its sin layout keeps fitting (step 6).
+	/// @returns {bool}
+	function can_gain_exits() {
+		return !has_no_cardinal_exits && !is_special_room;
+	}
 
 	/// @function									assign_room_ref(must_have_lantern, spawn_special_room);
 	/// @param		{bool} must_have_lantern	Whether or not the room_reference must have lanterns in it

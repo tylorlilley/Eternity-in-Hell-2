@@ -16,22 +16,13 @@ function RoomLayout(_room_asset) constructor {
 		return -1;
 	};
 
-	/// @function get_count(_counts, _key)
-	/// @description A count kept in a struct of counts, like how many of an object the layout places.
-	/// @param {struct} _counts Counts by key
-	/// @param {string} _key The key, like an object's name
-	/// @returns {real} The count, or 0 if the key has none
-	static get_count = function(_counts, _key) {
-		var _count = _counts[$ _key];
-		return is_undefined(_count) ? 0 : _count;
-	};
-
 	/// @function get_object_count(_object_name)
 	/// @description How many of an object the layout places.
 	/// @param {string} _object_name The object's name, like "obj_lantern"
-	/// @returns {real}
+	/// @returns {real} The count, or 0 if the layout places none
 	static get_object_count = function(_object_name) {
-		return get_count(object_counts, _object_name);
+		var _count = object_counts[$ _object_name];
+		return is_undefined(_count) ? 0 : _count;
 	};
 
 	/// @function get_tile_key(_x, _y)
@@ -94,7 +85,8 @@ function RoomLayout(_room_asset) constructor {
 		var _instance = instances[_i];
 		var _tile = get_tile_key(_instance.x, _instance.y);
 		object_counts[$ _instance.name] = get_object_count(_instance.name) + 1;
-		_instances_on_tile[$ _tile] = get_count(_instances_on_tile, _tile) + 1;
+		var _tile_count = _instances_on_tile[$ _tile];
+		_instances_on_tile[$ _tile] = is_undefined(_tile_count) ? 1 : _tile_count + 1;
 		if (string_starts_with(_instance.name, "obj_exit_spot") || _instance.name == "obj_chest_spot") { _cleared_tiles[$ _tile] = true; }
 	}
 
@@ -108,7 +100,7 @@ function RoomLayout(_room_asset) constructor {
 	for (var _j = 0; _j < array_length(instances); _j++) {
 		var _spot = instances[_j];
 		var _spot_tile = get_tile_key(_spot.x, _spot.y);
-		var _is_alone = (get_count(_instances_on_tile, _spot_tile) == 1);
+		var _is_alone = (_instances_on_tile[$ _spot_tile] == 1);			// The loop above counted every instance's tile
 		if (_spot.name == "obj_stairs_spot") { stairs_spot_is_clear = _is_alone; }
 		if (_spot.name != "obj_collectable_spot") { continue; }
 		if (is_undefined(_cleared_tiles[$ _spot_tile])) { array_push(key_spots, _spot_number); }
@@ -116,8 +108,7 @@ function RoomLayout(_room_asset) constructor {
 		_spot_number += 1;
 	}
 
-	// Spots and lanterns (L1 to L6)
-	collectable_spot_count = get_object_count("obj_collectable_spot");
+	// Skeleton spots (L5), lanterns (L6) and the hall of mirrors
 	skeleton_spot_count = get_object_count("obj_skeleton_spot");
 	has_lanterns = get_object_count("obj_lantern") > 0;
 	is_hall_of_mirrors = get_object_count("obj_hall_of_mirrors") > 0;

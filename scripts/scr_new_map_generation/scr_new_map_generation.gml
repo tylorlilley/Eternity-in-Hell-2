@@ -53,7 +53,7 @@ function mapgen_try_generate() {
 	// Step 2: map-wide events, the run's sins and how many other cursed items spawn
 	mapgen_roll_run_events(_map);
 
-	// Step 3: grow the graph to the minimum room count, with no layouts yet (R1)
+	// Step 3: grow the graph to the minimum room count, with no layouts yet
 	_map.create_room_at_map_position(0, 0);
 	while (array_length(_map.rooms) < MINIMUM_NUMBER_OF_ROOMS) {
 		if (is_undefined(mapgen_grow_room(_map, true))) { return mapgen_fail(_map, "no room could grow"); }
@@ -118,79 +118,75 @@ function mapgen_fail(_map, _reason) {
 ///	the run's sins, and how many cursed items spawn outside sin rooms.
 /// @param {GameMap} _map The map being generated
 function mapgen_roll_run_events(_map) {
-	// Every skeleton spot spawns the same variant this run (H 1 in 32, VH 1 in 24)
+	// Set Same Skeleton Type Event
 	_map.same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_FREQUENCY) ? get_skeleton_type(false) : noone;
 
-	// The run's sins: how many at today's odds, then each picked with equal odds among the available
-	// sins, never the same one twice (R23, R24)
-	var _sins_left = mapgen_copy_array(_map.available_sins);
-	var _sin_count = min(mapgen_roll_count(SIN_ROOM_COUNT_PERCENTAGES), array_length(_sins_left));
+	// Set Number of Special Sin Rooms to Include
+	var _sins_left = mapgen_copy_array(_map.available_sins), _sin_limit = SPECIAL_ROOM_LIMIT, _sin_count = 0;
+	for (var _i = 0; _i < _sin_limit; _i++) {
+		if (get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY)) { _sin_count += 1; }
+	}
+	_sin_count = min(_sin_count, array_length(_sins_left));
+	
+	// Include one room of a random sin type, for each sin in sin count
 	for (var _i = 0; _i < _sin_count; _i++) {
 		array_push(_map.included_sins, array_random_pop(_sins_left));
 	}
 
-	// Cursed items outside sin rooms, at today's odds, capped so the map holds at most 1/1/2/3 cursed
-	// items counting the sin rooms' (R40)
-	var _cursed_items_allowed = max(0, SPECIAL_ITEM_LIMIT - _sin_count);
-	_map.cursed_item_count = min(mapgen_roll_count(CURSED_ITEM_COUNT_PERCENTAGES), _cursed_items_allowed);
-}
-
-/// @function mapgen_roll_count(_percentages)
-/// @description Rolls how many of something a map gets, from the percent of maps that get exactly 1, 2,
-///	3 and so on. The remaining maps get none.
-/// @param {array} _percentages Percent of maps with exactly 1, 2, 3...
-/// @returns {real}
-function mapgen_roll_count(_percentages) {
-	var _roll = random(100);
-	for (var _i = 0; _i < array_length(_percentages); _i++) {
-		_roll -= _percentages[_i];
-		if (_roll < 0) { return _i + 1; }
+	// Set Number of Additional Special Cursed Items to Spawn outside of Sin Rooms
+	var _special_item_limit = SPECIAL_ITEM_LIMT, _special_item_count = 0;
+	for (var _i = _sin_count; _i < _special_item_limit; _i++) {
+		if (get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { _special_item_count += 1; }
 	}
-	return 0;
+	_map.cursed_item_count = _special_item_count;
 }
-
 
 // =====================================================================================================
 // STEPS 3 AND 4: GROW THE GRAPH, ADD SIDE LINKS AND RESERVE SIN ROOMS
 // =====================================================================================================
 
 /// @function mapgen_grow_room(_map, _allow_stairs)
-/// @description Adds one room, joined to a random room by a side exit or, about 1 in 5 times, by stairs.
-///	Steps 3, 4 and 6 all grow rooms this way, so every room comes from one process.
+/// @description Adds one room to the given map, joined to a random room by a side exit or, about 1 in 5 times, by stairs.
 /// @param {GameMap} _map The map being generated
 /// @param {bool} _allow_stairs False to always join by a side exit
 /// @returns {GameRoom|undefined} The new room, or undefined if no room can grow
 function mapgen_grow_room(_map, _allow_stairs) {
-	// Stairs never take the last room the start could use, since the start has no stairs (R11)
+	// Stairs never take the last room the start could use, since the start has no stairs
 	var _stairs_allowed = _allow_stairs && (_map.count_possible_starts() > 1);
-	var _parents = array_shuffle(_map.rooms);
-	for (var _i = 0; _i < array_length(_parents); _i++) {
-		var _parent = _parents[_i];
-		if (!mapgen_can_gain_exits(_parent)) { continue; }
+	var _existing_rooms = array_shuffle(_map.rooms);
 
-		// About 1 in 5 growths use stairs, and a room has at most one stairs exit (R6, R7)
-		if (_stairs_allowed && !_parent.has_exit(directions.stairs) && get_random_chance_out_of(STAIRS_PROBABILITY)) {
-			var _cell = mapgen_find_stairs_cell(_map, _parent);
+	// Check all existing rooms for a room we can add an exit to
+	for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
+		var _potential_room = _existing_rooms[_i];
+		if (!_potential_room.can_gain_exists()) { continue; }
+
+		// Connect via Stairs
+		if (_stairs_allowed && !_potential_room.has_exit(directions.stairs) && get_random_chance_out_of(STAIRS_PROBABILITY)) {
+			// Find a grid spot to generate the linking room at
+			var _cell = mapgen_find_cell_to_link_to_stairs_room(_map, _potential_room);
+			
+			// Create new room to link via stairs
 			if (!is_undefined(_cell)) {
-				var _stairs_room = _map.create_room_at_map_position(_cell[0], _cell[1]);
-				_map.link_rooms(_parent, _stairs_room, directions.stairs);
-				// 1 in 12/8/6/4 new stairs rooms are reached only by stairs, and never get a side exit (R7, R8)
-				_stairs_room.has_no_cardinal_exits = get_random_chance_out_of(NO_CARDINAL_EXIT_ROOM_PROBABILITY);
-				return _stairs_room;
+				var _linked_room = _map.create_room_at_map_position(_cell[0], _cell[1]);
+				_map.link_rooms(_potential_room, _linked_room, directions.stairs);
+				_linked_room.has_no_cardinal_exits = get_random_chance_out_of(NO_CARDINAL_EXIT_ROOM_PROBABILITY);
+				return _linked_room;
 			}
 		}
 
+		// Otherwise, connect via carindal direction
 		var _dir = mapgen_pick_free_direction(_map, _parent);
 		if (_dir != -1) {
-			var _side_room = _map.create_room_at_map_position(_parent.virtual_x + get_dir_x_offset(_dir), _parent.virtual_y + get_dir_y_offset(_dir));
-			_map.link_rooms(_parent, _side_room, _dir);
-			return _side_room;
+			var _linked_room = _map.create_room_at_map_position(_potential_room.virtual_x + get_dir_x_offset(_dir), _potential_room.virtual_y + get_dir_y_offset(_dir));
+			_map.link_rooms(_potential_room, _linked_room, _dir);
+			return _linked_room;
 		}
 	}
+	
 	return undefined;
 }
 
-/// @function mapgen_find_stairs_cell(_map, _parent)
+/// @function mapgen_find_cell_to_link_to_stairs_room(_map, _parent)
 /// @description Finds a free grid cell for a room reached by stairs from _parent: beside some room that is
 ///	neither the parent nor its grid neighbor, and never beside the parent itself, since stairs never join
 ///	grid neighbors (R6). Skipping the parent's neighbors, as today's code does, keeps stairs as common as
@@ -198,18 +194,24 @@ function mapgen_grow_room(_map, _allow_stairs) {
 /// @param {GameMap} _map The map being generated
 /// @param {GameRoom} _parent The room the stairs leave from
 /// @returns {array|undefined} The cell as [x, y], or undefined if there is none
-function mapgen_find_stairs_cell(_map, _parent) {
-	var _anchors = array_shuffle(_map.rooms);
-	for (var _i = 0; _i < array_length(_anchors); _i++) {
-		var _anchor = _anchors[_i];
-		if (abs(_anchor.virtual_x - _parent.virtual_x) + abs(_anchor.virtual_y - _parent.virtual_y) <= 1) { continue; }
+function mapgen_find_cell_to_link_to_stairs_room(_map, _stairs_room) {
+	var _existing_rooms = array_shuffle(_map.rooms);
+	
+	for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
+		var _potential_room = _existing_rooms[_i];
+		
+		// Skip room if it is a direct neighbor of the stairs room
+		if (abs(_potential_room.virtual_x - _stairs_room.virtual_x) + abs(_potential_room.virtual_y - _stairs_room.virtual_y) <= 1) { continue; }
 
-		var _dirs = array_shuffle(mapgen_get_side_directions());
+		// Check each exit of the potential room
+		var _dirs = array_shuffle(cardinal_exit_directions);
 		for (var _j = 0; _j < array_length(_dirs); _j++) {
-			var _x = _anchor.virtual_x + get_dir_x_offset(_dirs[_j]);
-			var _y = _anchor.virtual_y + get_dir_y_offset(_dirs[_j]);
-			var _is_beside_parent = (abs(_x - _parent.virtual_x) + abs(_y - _parent.virtual_y) == 1);
-			if (!_is_beside_parent && is_undefined(_map.get_room_at(_x, _y))) { return [_x, _y]; }
+			var _x = _potential_room.virtual_x + get_dir_x_offset(_dirs[_j]);
+			var _y = _potential_room.virtual_y + get_dir_y_offset(_dirs[_j]);
+			var _is_adjacent_to_stairs_room = (abs(_x - _stairs_room.virtual_x) + abs(_y - _stairs_room.virtual_y) == 1);
+			
+			// Return the potential room as the room to link via stairs
+			if (!_is_adjacent_to_stairs_room && is_undefined(_map.get_room_at(_x, _y))) { return [_x, _y]; }
 		}
 	}
 	return undefined;
@@ -221,20 +223,11 @@ function mapgen_find_stairs_cell(_map, _parent) {
 /// @param {GameRoom} _room The room
 /// @returns {real} The direction, or -1 if every side is taken
 function mapgen_pick_free_direction(_map, _room) {
-	var _dirs = array_shuffle(mapgen_get_side_directions());
+	var _dirs = array_shuffle(cardinal_exit_directions);
 	for (var _i = 0; _i < array_length(_dirs); _i++) {
 		if (is_undefined(_map.get_neighbor(_room, _dirs[_i]))) { return _dirs[_i]; }
 	}
 	return -1;
-}
-
-/// @function mapgen_can_gain_exits(_room)
-/// @description Whether a room may still gain exits. Stairs-only rooms never get a side exit (R8), and a
-///	sin room's exits stay fixed once reserved, so its sin layout keeps fitting (step 6).
-/// @param {GameRoom} _room The room
-/// @returns {bool}
-function mapgen_can_gain_exits(_room) {
-	return !_room.has_no_cardinal_exits && !_room.is_special_room;
 }
 
 /// @function mapgen_add_side_links(_map)
@@ -256,14 +249,14 @@ function mapgen_add_side_link(_map) {
 	var _rooms = array_shuffle(_map.rooms);
 	for (var _i = 0; _i < array_length(_rooms); _i++) {
 		var _room = _rooms[_i];
-		if (!mapgen_can_gain_exits(_room)) { continue; }
+		if (!_room.can_gain_exits()) { continue; }
 
-		var _dirs = array_shuffle(mapgen_get_side_directions());
+		var _dirs = array_shuffle(cardinal_exit_directions);
 		for (var _j = 0; _j < array_length(_dirs); _j++) {
 			var _dir = _dirs[_j];
 			if (_room.has_exit(_dir)) { continue; }
 			var _neighbor = _map.get_neighbor(_room, _dir);
-			if (!is_undefined(_neighbor) && mapgen_can_gain_exits(_neighbor)) {
+			if (!is_undefined(_neighbor) && _neighbor.can_gain_exits()) {
 				_map.link_rooms(_room, _neighbor, _dir);
 				return true;
 			}
@@ -345,7 +338,7 @@ function mapgen_build_four_exit_room(_map) {
 	if (array_length(_map.rooms) + mapgen_count_free_sides(_map, _best_room) > MAX_NUMBER_OF_ROOMS) { return undefined; }
 
 	// Link each missing side to its neighbor, or to a new room where the cell is free
-	var _dirs = mapgen_get_side_directions();
+	var _dirs = cardinal_exit_directions
 	for (var _j = 0; _j < array_length(_dirs); _j++) {
 		var _dir = _dirs[_j];
 		if (_best_room.has_exit(_dir)) { continue; }
@@ -365,11 +358,11 @@ function mapgen_build_four_exit_room(_map) {
 /// @param {GameRoom} _room The room
 /// @returns {real} How many sides are missing, or -1 if one of them can never open
 function mapgen_count_openable_missing_sides(_map, _room) {
-	var _missing = 0, _dirs = mapgen_get_side_directions();
+	var _missing = 0, _dirs = cardinal_exit_directions
 	for (var _i = 0; _i < array_length(_dirs); _i++) {
 		if (_room.has_exit(_dirs[_i])) { continue; }
 		var _neighbor = _map.get_neighbor(_room, _dirs[_i]);
-		if (!is_undefined(_neighbor) && !mapgen_can_gain_exits(_neighbor)) { return -1; }
+		if (!is_undefined(_neighbor) && !_neighbor.can_gain_exits()) { return -1; }
 		_missing += 1;
 	}
 	return _missing;
@@ -381,7 +374,7 @@ function mapgen_count_openable_missing_sides(_map, _room) {
 /// @param {GameRoom} _room The room
 /// @returns {real}
 function mapgen_count_free_sides(_map, _room) {
-	var _free = 0, _dirs = mapgen_get_side_directions();
+	var _free = 0, _dirs = cardinal_exit_directions;
 	for (var _i = 0; _i < array_length(_dirs); _i++) {
 		if (is_undefined(_map.get_neighbor(_room, _dirs[_i]))) { _free += 1; }
 	}
@@ -762,14 +755,6 @@ function mapgen_choose_start_and_heart(_map) {
 	mapgen_set_spot_object(_map.heart_room, obj_encased_heart);
 	mapgen_make_start_room_safe(_map);
 	return true;
-}
-
-/// @function mapgen_can_be_start(_room)
-/// @description Whether a room can be the start: never a room with stairs or a sin room (R11).
-/// @param {GameRoom} _room The room
-/// @returns {bool}
-function mapgen_can_be_start(_room) {
-	return !_room.has_exit(directions.stairs) && !_room.is_special_room;
 }
 
 /// @function mapgen_can_be_heart(_heart, _start)
@@ -1653,12 +1638,7 @@ function mapgen_holds_regular_item(_room) {
 // SMALL HELPERS
 // =====================================================================================================
 
-/// @function mapgen_get_side_directions()
-/// @description The four side directions, as a new array that is safe to shuffle.
-/// @returns {array}
-function mapgen_get_side_directions() {
-	return [directions.up, directions.right, directions.down, directions.left];
-}
+static cardinal_exit_directions = [directions.up, directions.right, directions.down, directions.left];
 
 /// @function mapgen_get_first_side(_room, _with_exit)
 /// @description The first side direction, from up going clockwise, that has (or lacks) an exit.

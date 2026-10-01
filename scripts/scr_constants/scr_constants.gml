@@ -10,7 +10,8 @@
 #macro NO_CARDINAL_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 12, 8, 6, 4]) // This happens only after the stairs probability succeeds, so its combined with 1/5
 #macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
-#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 9, 8, 7, 6]) // This is only called after a room has a chest, so this is combined with that probability. It's also affected by the special item limit
+//#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 9, 8, 7, 6]) // This is only called after a room has a chest, so this is combined with that probability. It's also affected by the special item limit
+#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 15, 30, 35, 45])
 #macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])
 #macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 8, 4])  // This happens only after the chest probability succeeds, so its combined with that probability.
 #macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
@@ -25,10 +26,9 @@
 #macro BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 8, 2, 1])
 #macro CHEST_ON_STAIRS_SPOT_PROBABILITY get_probability_for_difficulty([0, 16, 8, 4, 3])
 #macro SPECIAL_ROOM_LIMIT get_probability_for_difficulty([0, 0, 0, 1, 2])
-#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
-#macro SIN_ROOM_COUNT_PERCENTAGES get_probability_for_difficulty([[], [], [], [13], [24, 5]]) // Percent of maps with exactly 1, 2 sin rooms (R23); the rest have none
-#macro CURSED_ITEM_COUNT_PERCENTAGES get_probability_for_difficulty([[], [15], [30], [35, 13], [37, 27, 11]]) // Percent of maps with exactly 1, 2, 3 cursed items outside sin rooms (R40), before the SPECIAL_ITEM_LIMIT cap
-	
+//#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
+#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 13, 24])
+
 // Initilize room start probability constants
 #macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 96, 48])
 #macro STATUE_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 64, 32, 24])

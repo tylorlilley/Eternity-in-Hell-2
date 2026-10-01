@@ -186,18 +186,18 @@ function GameMap() constructor {
 	/// @param {real} _dir The direction from _room to _other_room, or directions.stairs
 	/// @returns {RoomExit} The new exit
 	static link_rooms = function(_room, _other_room, _dir) {
+		// Create a new Exit to Link the rooms With
 		var _exit = new RoomExit(_room, _other_room);
 		_room.exits[_dir] = _exit;
 		_other_room.exits[get_opposite_dir(_dir)] = _exit;
-		if (_dir == directions.stairs) {
-			array_push(stairs_links, _exit);
-		}
-		else {
+		
+		// Add room to list of adjacent rooms, and mark both linked rooms as needing a new room layout
+		if (_dir != directions.stairs) {
 			array_push(side_links, _exit);
-			// A layout depends on the room's side exits, so both rooms need a new one (R16)
 			_room.mapgen_needs_layout = true;
 			_other_room.mapgen_needs_layout = true;
 		}
+		
 		return _exit;
 	};
 
@@ -234,11 +234,11 @@ function GameMap() constructor {
 	static count_possible_starts = function() {
 		var _count = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
-			if (mapgen_can_be_start(rooms[_i])) { _count += 1; }
+			if (rooms[_i].can_be_start()) { _count += 1; }
 		}
 		return _count;
 	};
-
+	
 	/// @function measure_distances(_from_room)
 	/// @description Counts the steps from one room to every other by the quickest route, a stairs trip being
 	///	one step, ignoring locks.

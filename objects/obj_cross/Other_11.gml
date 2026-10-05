@@ -19,7 +19,7 @@ if (is_instance_at_coordinates(x, y, player)) {
 		}
 		else { 
 			with (obj_echo_generator) { 
-				global.controller.evaluation_manager.increment_evaluation_variable("hall_of_mirrors_room_solved");
+				global.controller.evaluation_manager.increment_evaluation_variable("inverted_cross_room_solved");
 				play_sound(snd_impact, false); 
 				instance_destroy(); 
 			} 

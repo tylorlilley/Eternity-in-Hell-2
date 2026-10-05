@@ -120,7 +120,7 @@ function teleport_to_lava() {
 		
 		// Setup next iteration
 		count += 1;
-		current_pos = (current_pos + 1 > total_lava) ? 0 : current_pos + 1;
+		current_pos = (current_pos + 1 >= total_lava) ? 0 : current_pos + 1;
 	}
 	
 	// No suitable teleport spot; Should never need to reach this clause

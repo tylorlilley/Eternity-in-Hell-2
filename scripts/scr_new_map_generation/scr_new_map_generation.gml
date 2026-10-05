@@ -10,7 +10,7 @@ enum mapgen_exit_types {
 }
 
 /// @function mapgen_generate()
-/// @description Plans a whole map for global.difficulty from the current random stream (steps 1 to 13).
+/// @description Creates a whole map for global.difficulty
 /// @returns {GameMap} The finished map
 function mapgen_generate() {
 	// Generate maps up to 100 times before giving up. It should always work on the first try, this is here as a failsafe.
@@ -700,18 +700,6 @@ function mapgen_reset_room(_room) {
 	_room.room_reference_difficulty = 0;
 }
 
-/// @function mapgen_reset_exit(_exit)
-/// @description Clears an exit's lock, door, illusion walls and portcullis.
-/// @param {RoomExit} _exit The exit
-function mapgen_reset_exit(_exit) {
-	_exit.has_lock = false;
-	_exit.has_door = false;
-	_exit.has_illusion_walls = 0;
-	_exit.has_portcullis = false;
-	_exit.room_1_has_closed_portcullis = false;
-	_exit.room_2_has_closed_portcullis = false;
-}
-
 
 // =====================================================================================================
 // STEP 7: START AND HEART
@@ -1037,7 +1025,7 @@ function mapgen_place_locks_and_keys(_map) {
 	// Every side exit of the heart is locked; the map only needs enough keys to get in once (R14)
 	for (var _dir = directions.up; _dir <= directions.left; _dir++) {
 		var _heart_exit = _map.heart_room.exits[_dir];
-		if (_heart_exit != -1) { mapgen_set_lock(_heart_exit, true); }
+		if (_heart_exit != -1) { _heart_exit.set_lock(true); }
 	}
 	if (!mapgen_back_locks_with_keys(_map, undefined)) { return false; }
 
@@ -1046,7 +1034,7 @@ function mapgen_place_locks_and_keys(_map) {
 	for (var _i = 0; _i < array_length(_exits); _i++) {
 		var _exit = _exits[_i];
 		if (!mapgen_can_lock_exit(_map, _exit) || !get_random_chance_out_of(LOCKED_DOOR_PROBABILITY / 2)) { continue; }
-		mapgen_set_lock(_exit, true);
+		_exit.set_lock(true);
 		if (!mapgen_back_locks_with_keys(_map, _exit)) { return false; }
 	}
 	return true;
@@ -1072,13 +1060,13 @@ function mapgen_back_locks_with_keys(_map, _newest_lock) {
 			write_debug_message("No room could take a key for a lock that cannot move.", "WARNING");
 			return false;
 		}
-		mapgen_set_lock(_newest_lock, false);
+		_newest_lock.set_lock(false);
 		_newest_lock = mapgen_pick_untried_lockable_exit(_map, _tried_exits);
 		if (is_undefined(_newest_lock)) {
 			write_debug_message("Dropped a lock that no key could back (R50).", "WARNING");
 			continue;
 		}
-		mapgen_set_lock(_newest_lock, true);
+		_newest_lock.set_lock(true);
 		array_push(_tried_exits, _newest_lock);
 	}
 }
@@ -1139,16 +1127,6 @@ function mapgen_pick_untried_lockable_exit(_map, _tried_exits) {
 		if (mapgen_can_lock_exit(_map, _exit) && !array_contains(_tried_exits, _exit)) { array_push(_candidates, _exit); }
 	}
 	return (array_length(_candidates) > 0) ? array_random_get(_candidates) : undefined;
-}
-
-/// @function mapgen_set_lock(_exit, _is_locked)
-/// @description Locks or unlocks a side exit. A locked exit has a door, and plain doors come later
-///	(step 12), so unlocking removes the door too.
-/// @param {RoomExit} _exit A side exit
-/// @param {bool} _is_locked Whether to lock it
-function mapgen_set_lock(_exit, _is_locked) {
-	_exit.has_lock = _is_locked;
-	_exit.has_door = _is_locked;
 }
 
 /// @function mapgen_check_key_orders(_map)
@@ -1425,7 +1403,8 @@ function mapgen_add_portcullis(_room) {
 /// @function mapgen_adjust_items_for_hands(_map)
 /// @description The very last step, once the map is final (step 13): fits the chest items to the starting
 ///	hands. The guaranteed chest becomes the map, compass or torch the hands call for (R36), and any regular
-///	item over its cap once the hands count is re-picked (R42). Nothing else changes; the map never relies on
+///	item over its cap once the hands count is re-picked (R42), unless that would strand the player, like
+///	taking the torch a bomb needs to stand in for a key (R46). Nothing else changes; the map never relies on
 ///	the starting items (R45). Runs in its own random stream (see mapgen_generate).
 /// @param {GameMap} _map The finished map
 function mapgen_adjust_items_for_hands(_map) {
@@ -1443,8 +1422,12 @@ function mapgen_adjust_items_for_hands(_map) {
 		var _room = _rooms[_i];
 		if (_room == _guaranteed || !_room.holds_regular_item()) { continue; }
 		if (mapgen_count_regular_items(_map, _room.chest_obj, _hands) > mapgen_get_item_cap(_room.chest_obj)) {
+			var _item = _room.chest_obj;
 			_room.chest_obj = -1;
 			_room.chest_obj = mapgen_pick_item_type(_map, false, _hands);
+
+			// The item stays, over its cap, if the map needs it to stay winnable (R46)
+			if (!is_undefined(mapgen_check_key_orders(_map))) { _room.chest_obj = _item; }
 		}
 	}
 }

@@ -93,4 +93,27 @@ function RoomExit(current_room, linked_room) constructor {
 	
 	/// @function								unlock();
 	function unlock() { has_lock = false; }
+	
+	// Map generation (see scr_new_map_generation)
+	
+	/// @function set_lock(_is_locked)
+	/// @description Locks or unlocks the exit while the map is generated. A locked exit has a door, and plain
+	///	doors come later (step 12), so unlocking removes the door too, unlike unlock().
+	/// @param {bool} _is_locked Whether to lock it
+	function set_lock(_is_locked) {
+		has_lock = _is_locked;
+		has_door = _is_locked;
+	}
+	
+	/// @function reset_decorations()
+	/// @description Clears the exit's lock, door, illusion walls and portcullis, so each pass of step 6 can
+	///	decorate it again.
+	function reset_decorations() {
+		has_lock = false;
+		has_door = false;
+		has_illusion_walls = 0;
+		has_portcullis = false;
+		room_1_has_closed_portcullis = false;
+		room_2_has_closed_portcullis = false;
+	}
 }

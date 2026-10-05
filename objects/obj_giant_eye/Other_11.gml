@@ -34,13 +34,13 @@ if (can_process_this_frame()) {
 		dying -= 1;
 		if (get_random_chance_out_of(4)) { 
 			play_sound(snd_eyeball_explosion, true); image_index = 1;
-			for (var i = 0; i < 9; i++) {
+			for (var i = 0; i < GIANT_EYE_PARTS_COUNT; i++) {
 				var eye_part = eye_parts[i];
 				eye_part.image_index = i+9;
 			}
 		}
 		else {
-			for (var i = 0; i < 9; i++) {
+			for (var i = 0; i < GIANT_EYE_PARTS_COUNT; i++) {
 				var eye_part = eye_parts[i];
 				eye_part.image_index = i;
 			}

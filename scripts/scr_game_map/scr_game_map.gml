@@ -243,7 +243,7 @@ function GameMap() constructor {
 		guaranteed_chest_room = undefined;
 		cursed_items = [];
 		for (var _i = 0; _i < array_length(rooms); _i++) { mapgen_reset_room(rooms[_i]); }
-		for (var _j = 0; _j < array_length(side_links); _j++) { mapgen_reset_exit(side_links[_j]); }
+		for (var _j = 0; _j < array_length(side_links); _j++) { side_links[_j].reset_decorations(); }
 	};
 	
 	// =================================================================================================

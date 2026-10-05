@@ -34,6 +34,20 @@ function RoomLayout(_room_asset) constructor {
 		return string(_x) + "," + string(_y);
 	};
 
+	/// @function is_cleared_by(_spot, _clearing_spots)
+	/// @description Whether building clears a spot. It destroys everything overlapping the 16-pixel square of an
+	///	exit spot (as it opens or closes that side) or of the chest spot (for a chest), and a spot's 8-pixel
+	///	square overlaps one when their centres are less than 12 pixels apart on both axes.
+	/// @param {struct} _spot An instance from the layout file
+	/// @param {array} _clearing_spots The layout's exit spots and chest spot
+	/// @returns {bool}
+	static is_cleared_by = function(_spot, _clearing_spots) {
+		for (var _i = 0; _i < array_length(_clearing_spots); _i++) {
+			if (abs(_spot.x - _clearing_spots[_i].x) < 12 && abs(_spot.y - _clearing_spots[_i].y) < 12) { return true; }
+		}
+		return false;
+	};
+
 	/// @function check_rules()
 	/// @description Logs any way the layout breaks the spot rules generation relies on (L1 to L4). The ruby
 	///	script also enforces these, so this should never warn, but it's a good failsafe.
@@ -78,20 +92,20 @@ function RoomLayout(_room_asset) constructor {
 	}
 
 	// How many of each object the layout places, by object name, how many instances share each tile, and
-	// which tiles building may clear: an exit spot's, when its side closes, and the chest spot's
+	// the spots whose squares building may clear: the exit spots and the chest spot
 	object_counts = {};
-	var _instances_on_tile = {}, _cleared_tiles = {};
+	var _instances_on_tile = {}, _clearing_spots = [];
 	for (var _i = 0; _i < array_length(instances); _i++) {
 		var _instance = instances[_i];
 		var _tile = get_tile_key(_instance.x, _instance.y);
 		object_counts[$ _instance.name] = get_object_count(_instance.name) + 1;
 		var _tile_count = _instances_on_tile[$ _tile];
 		_instances_on_tile[$ _tile] = is_undefined(_tile_count) ? 1 : _tile_count + 1;
-		if (string_starts_with(_instance.name, "obj_exit_spot") || _instance.name == "obj_chest_spot") { _cleared_tiles[$ _tile] = true; }
+		if (string_starts_with(_instance.name, "obj_exit_spot") || _instance.name == "obj_chest_spot") { array_push(_clearing_spots, _instance); }
 	}
 
 	// Collectable spots are numbered in file order, so building can find the ones generation picks (R57). A
-	// floor key can take any spot building never clears. A portcullis button needs a spot alone on its tile,
+	// floor key can take any spot building never clears. A portcullis button needs one too, alone on its tile,
 	// since anything else there, like an enemy or a block, could hold it down (R52)
 	key_spots = [];										// Collectable spot numbers a floor key can take
 	button_spots = [];									// Collectable spot numbers a button can take
@@ -103,8 +117,9 @@ function RoomLayout(_room_asset) constructor {
 		var _is_alone = (_instances_on_tile[$ _spot_tile] == 1);			// The loop above counted every instance's tile
 		if (_spot.name == "obj_stairs_spot") { stairs_spot_is_clear = _is_alone; }
 		if (_spot.name != "obj_collectable_spot") { continue; }
-		if (is_undefined(_cleared_tiles[$ _spot_tile])) { array_push(key_spots, _spot_number); }
-		if (_is_alone) { array_push(button_spots, _spot_number); }
+		var _is_cleared = is_cleared_by(_spot, _clearing_spots);
+		if (!_is_cleared) { array_push(key_spots, _spot_number); }
+		if (_is_alone && !_is_cleared) { array_push(button_spots, _spot_number); }
 		_spot_number += 1;
 	}
 

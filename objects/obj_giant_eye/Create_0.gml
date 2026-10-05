@@ -1,3 +1,5 @@
+#macro GIANT_EYE_PARTS_COUNT 9
+
 event_inherited();
 
 depth = GIANT_WORM_DEPTH-1;
@@ -11,4 +13,4 @@ pupil_y = y;
 flip_sprite_at_random(true);
 rotate_sprite_to_random_angle();
 
-eye_parts = array_create(0);
+eye_parts = array_create(GIANT_EYE_PARTS_COUNT);

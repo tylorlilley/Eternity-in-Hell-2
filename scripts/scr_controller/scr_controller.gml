@@ -400,7 +400,7 @@ function game_room_start_spawn_instances() {
 
 		if (entered_from_dir != directions.respawn && can_trade) {
 			for (var i = 0; i < array_length(potential_items); i++) {
-				var potential_item = potential_items[i]
+				var potential_item = potential_items[i];
 				if (get_random_chance_out_of(HANDS_PROBABILITY)) { 
 					var new_hands = instance_create(potential_item.x, potential_item.y, obj_hands);
 					new_hands.target_item = potential_item;

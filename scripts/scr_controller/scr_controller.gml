@@ -225,6 +225,7 @@ function game_room_start() {
 				eye_part.sprite_index = get_sprite_to_use(spr_giant_eye_part);
 				eye_part.image_index = i;
 				eye_part.depth = GIANT_WORM_DEPTH;
+				eye_parts[i] = eye_part;
 			}
 		}
 		
@@ -390,17 +391,22 @@ function game_room_start_spawn_instances() {
 		}
 		
 		// Spawn a hand on each potential item if probability is met
-		for (var i = 0; i < array_length(potential_items); i++) {
-			var potential_item = potential_items[i], player = global.player;
-			if (entered_from_dir != directions.respawn &&
-				(
-					(is_existing_instance(player.right_hand_item) && !player.is_carrying_item_in_right_hand(obj_key) && !player.is_carrying_item_in_right_hand(obj_bomb)) ||
-					(is_existing_instance(player.left_hand_item) && !player.is_carrying_item_in_left_hand(obj_key) && !player.is_carrying_item_in_left_hand(obj_bomb))
-				) && get_random_chance_out_of(HANDS_PROBABILITY)) { 
-				var new_hands = instance_create(potential_item.x, potential_item.y, obj_hands);
-				new_hands.target_item = potential_item;
-				new_hands.xstart = potential_item.x;
-				new_hands.ystart = potential_item.y;
+		// Hands only spawn if the player holds something besides a key or bomb to trade
+		var can_trade = false, player = global.player;
+		with (player) {
+			can_trade = (is_existing_instance(right_hand_item) && !is_carrying_item_in_right_hand(obj_key) && !is_carrying_item_in_right_hand(obj_bomb))
+				|| (is_existing_instance(left_hand_item) && !is_carrying_item_in_left_hand(obj_key) && !is_carrying_item_in_left_hand(obj_bomb));
+		}
+
+		if (entered_from_dir != directions.respawn && can_trade) {
+			for (var i = 0; i < array_length(potential_items); i++) {
+				var potential_item = potential_items[i]
+				if (get_random_chance_out_of(HANDS_PROBABILITY)) { 
+					var new_hands = instance_create(potential_item.x, potential_item.y, obj_hands);
+					new_hands.target_item = potential_item;
+					new_hands.xstart = potential_item.x;
+					new_hands.ystart = potential_item.y;
+				}
 			}
 		}
 	}
@@ -634,7 +640,13 @@ function game_room_initialize() {
 	for (var i = 0; i < current_room.initial_nose_count; i++;) { instance_create(-16, -16, obj_nose); }
 	
 	// Spawn fire skeletons
-	for (var i = 0; i < current_room.initial_fire_skeleton_count; i++;) { instance_create(-16, -16, obj_fire_skeleton); }
+	for (var i = 0; i < current_room.initial_fire_skeleton_count; i++;) {
+		var fire_skeleton = instance_create(-16, -16, obj_fire_skeleton);
+		with (fire_skeleton) {  
+			if (teleport_to_lava() == noone) { instance_destroy(self, false); }
+			else { xstart = x; ystart = y; }
+		}
+	}
 		
 	// If room has mouth, spawn more mouths
 	var extra_mouths = 0;

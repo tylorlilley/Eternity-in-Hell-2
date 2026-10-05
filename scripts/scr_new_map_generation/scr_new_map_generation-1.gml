@@ -5,8 +5,7 @@
 /// @description Creates a whole map for global.difficulty
 /// @returns {GameMap} The finished map
 function mapgen_generate() {
-	// Generate maps up to 100 times before giving up. It should always work on the first try, this is here as a failsafe
-	
+	// Generate maps up to 100 times before giving up. It should always work on the first try, this is here as a failsafe.
 	// As a failsafe, switch to the next seed after 100 failures and try again.
 	var _map = undefined;
 	while (is_undefined(_map)) {
@@ -14,6 +13,8 @@ function mapgen_generate() {
 		var _failed_attempts = 0;
 		do {
 			_failed_attempts += 1;
+
+			// Step 1: create initial map using cached version of room layouts read from disk, then try steps 2 to 13 on it
 			_map = new GameMap();
 			if (!_map.try_generate()) { _map = undefined; }
 		}

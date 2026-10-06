@@ -52,8 +52,8 @@ function GameRoom(given_x, given_y) constructor {
 	has_phantom = false;
 	has_floater = false;
 	has_moving_collectable = false;
-	initial_fountain_count = 0;
-	initial_statue_fountain_count = 0;
+	replaced_column_fountain_count = 0;
+	replaced_statue_fountain_count = 0;
 	initial_nose_count = 0;
 	initial_fire_skeleton_count = 0;
 	initial_mouth_count = 0;
@@ -76,8 +76,9 @@ function GameRoom(given_x, given_y) constructor {
 		mp_grid_destroy(empty_path_grid);
 	}
 	
-	// Map generation checks (see GameMap): what generation asks about this room. None of
-	// these change the room
+	// Map generation checks (see GameMap): what generation asks about this room. None of these change the room
+	
+	
 
 	/// @function can_be_start()
 	/// @description Whether a room can be the start: never a room with stairs or a sin room
@@ -93,7 +94,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @returns {bool}
 	function can_be_heart(_start) {
 		if (self == _start || is_special_room) { return false; }
-		for (var _dir = directions.up; _dir <= directions.left; _dir++) {
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _neighbor = get_connected_room(_dir);
 			if (_neighbor != -1 && (_neighbor == _start || _neighbor.has_hall_of_mirrors)) { return false; }
 		}
@@ -117,7 +118,7 @@ function GameRoom(given_x, given_y) constructor {
 
 	/// @function get_exit_type()
 	/// @description The layout exit kind matching the room's real side exits.
-	/// @returns {real} A mapgen_exit_types kind
+	/// @returns {real} A layout_exit_types kind
 	function get_exit_type() {
 		return get_exit_type_for_count(get_cardinal_exits_count());
 	}
@@ -126,14 +127,14 @@ function GameRoom(given_x, given_y) constructor {
 	/// @description The layout exit kind for a number of side exits. For two exits, it uses whether the room's own
 	///	side exits are on opposite sides.
 	/// @param {real} _exit_count 0 to 4
-	/// @returns {real} A mapgen_exit_types kind
+	/// @returns {real} A layout_exit_types kind
 	function get_exit_type_for_count(_exit_count) {
 		switch (_exit_count) {
-			case 0: return mapgen_exit_types.none;
-			case 1: return mapgen_exit_types.one;
-			case 2: return has_opposite_exits() ? mapgen_exit_types.two_opposite : mapgen_exit_types.two_perpendicular;
-			case 3: return mapgen_exit_types.three;
-			default: return mapgen_exit_types.four;
+			case 0: return layout_exit_types.none;
+			case 1: return layout_exit_types.one;
+			case 2: return has_opposite_exits() ? layout_exit_types.two_opposite : layout_exit_types.two_perpendicular;
+			case 3: return layout_exit_types.three;
+			default: return layout_exit_types.four;
 		}
 	}
 
@@ -142,7 +143,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param {bool} _with_exit True to find a side with an exit, false to find one without
 	/// @returns {real} The direction, or -1 if there is none
 	function get_first_side(_with_exit) {
-		for (var _dir = directions.up; _dir <= directions.left; _dir++) {
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			if (has_exit(_dir) == _with_exit) { return _dir; }
 		}
 		return -1;
@@ -233,7 +234,7 @@ function GameRoom(given_x, given_y) constructor {
 		_score += initial_fire_skeleton_count * 1;										// Lava fire skeletons
 		if (layout.spider_spot_count > 0) { _score += 1.5; }
 		_score += layout.spider_count * 1.5;
-		_score += (layout.fountain_count + initial_fountain_count) * 0.5;				// Placed, or turned from columns
+		_score += (layout.fountain_count + replaced_column_fountain_count) * 0.5;				// Placed, or turned from columns
 		_score += layout.statue_count * 0.25;											// Plain, or turned fountain
 		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
 			_score += get_skeleton_spot_score(skeleton_types[_i]);
@@ -257,7 +258,7 @@ function GameRoom(given_x, given_y) constructor {
 		_score += (layout.block_spot_count * 0.08) + (layout.lava_count * 0.01) + (layout.bones_count * 0.05) + (layout.corpse_count * 0.05);
 
 		// Its side exits; each room an exit joins counts it
-		for (var _dir = directions.up; _dir <= directions.left; _dir++) {
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _exit = exits[_dir];
 			if (_exit == -1) { continue; }
 			if (_exit.has_closed_portcullis_for_room(self)) { _score += 0.325; }
@@ -296,7 +297,7 @@ function GameRoom(given_x, given_y) constructor {
 		var _score_time = TIME_PROVIDED_PER_ROOM * max(0, room_reference_difficulty) / AVERAGE_ROOM_DIFFICULTY;
 		var _time = max(MINIMUM_TIME_PROVIDED_PER_ROOM, _score_time);
 		if (has_collectables) { _time += TIME_PROVIDED_PER_COLLECTABLE; }
-		for (var _dir = directions.up; _dir <= directions.left; _dir++) {
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _exit = exits[_dir];
 			if (_exit == -1) { continue; }
 			if (_exit.has_lock) { _time += TIME_PROVIEDED_PER_LOCK; }
@@ -308,35 +309,40 @@ function GameRoom(given_x, given_y) constructor {
 
 	// Map generation changes (see GameMap): what generation does to this room on its own
 
-	/// @function roll_layout_exit_type()
-	/// @description Rolls which exit kind of layout the room uses, when it isn't a sin room. From M, 1 in 12/6/4
-	///	picks use a misleading layout: the exit count steps one way, more or fewer, and keeps stepping while
-	///	further rolls succeed, always staying at 1 to 4 exits (R18).
-	/// @returns {real} A mapgen_exit_types kind
-	function roll_layout_exit_type() {
+	/// @function determine_layout_exit_type()
+	/// @description Returns what kind of exit type to use, including determining if it uses a misleading layout or not
+	/// @returns {real} A layout_exit_types kind
+	function determine_layout_exit_type() {
+		// Start with the real exit count for this room
 		var _exit_count = get_cardinal_exits_count();
+		
 		if (get_random_chance_out_of(MISLEADING_EXITS_PROBABILITY)) {
+			// Randomly determine if it should have more or less layouts than intended
 			var _step = get_coin_flip() ? 1 : -1;
 			if (_exit_count == 0) { _step = 1; }
 			if (_exit_count == 4) { _step = -1; }
+			
+			// Keep adding/removing exits to become more or less misleading
 			while (_exit_count + _step >= 1 && _exit_count + _step <= 4) {
 				_exit_count += _step;
 				if (!get_random_chance_out_of(MISLEADING_EXITS_PROBABILITY)) { break; }
 			}
 		}
+		
+		// Return the calculated exit count
 		return get_exit_type_for_count(_exit_count);
 	}
 
-	/// @function roll_layout_orientation()
-	/// @description Rolls how the room's layout is flipped and rotated, so its openings face the room's real
-	///	side exits; the build step turns walls into openings to match.
-	function roll_layout_orientation() {
-		var _up = has_exit(directions.up), _right = has_exit(directions.right);
-		var _down = has_exit(directions.down), _left = has_exit(directions.left);
+	/// @function determine_layout_orientation()
+	/// @description Determines how the room's layout is flipped and rotated
+	function determine_layout_orientation() {
+		var _has_exit_up = has_exit(directions.up), _has_exit_right = has_exit(directions.right);
+		var _has_exit_down = has_exit(directions.down), _has_exit_left = has_exit(directions.left);
 		flip_horizontal = false;
 		flip_vertical = false;
 		rotate = noone;
 
+		// Check the real exit count for this room, and determine which flips and rotations are possible
 		switch (get_cardinal_exits_count()) {
 			case 0:
 			case 4:
@@ -351,19 +357,19 @@ function GameRoom(given_x, given_y) constructor {
 				rotate = get_first_side(true);
 				break;
 			case 2:
-				if (_up && _down) {
+				if (_has_exit_up && _has_exit_down) {
 					flip_horizontal = get_coin_flip();
 					flip_vertical = get_coin_flip();
 				}
-				else if (_left && _right) {
+				else if (_has_exit_left && _has_exit_right) {
 					flip_horizontal = get_coin_flip();
 					flip_vertical = get_coin_flip();
 					rotate = get_coin_flip() ? directions.right : directions.left;
 				}
 				else {
 					// The layout opens up and right; flip it onto the room's corner
-					flip_horizontal = _left;
-					flip_vertical = _down;
+					flip_horizontal = _has_exit_left;
+					flip_vertical = _has_exit_down;
 				}
 				break;
 			case 3:
@@ -384,8 +390,8 @@ function GameRoom(given_x, given_y) constructor {
 		has_phantom = _content.has_phantom;
 		has_floater = _content.has_floater;
 		has_moving_collectable = _content.has_moving_collectable;
-		initial_fountain_count = _content.initial_fountain_count;
-		initial_statue_fountain_count = _content.initial_statue_fountain_count;
+		replaced_column_fountain_count = _content.replaced_column_fountain_count;
+		replaced_statue_fountain_count = _content.replaced_statue_fountain_count;
 		initial_nose_count = _content.initial_nose_count;
 		initial_fire_skeleton_count = _content.initial_fire_skeleton_count;
 		initial_mouth_count = _content.initial_mouth_count;
@@ -409,6 +415,24 @@ function GameRoom(given_x, given_y) constructor {
 		button_on_stairs_spot = false;
 		button_spot = -1;
 		room_reference_difficulty = 0;
+	}
+
+	/// @function remove_generated_hazards_from_room()
+	/// @description Removes the hazards generation rolled for the room (hazards in its room layout file remain):
+	///	phantoms, floaters, fountains, noses, lava fire skeletons and rolled eyes
+	function remove_generated_hazards_from_room() {
+		has_phantom = false;
+		has_floater = false;
+		replaced_column_fountain_count = 0;
+		replaced_statue_fountain_count = 0;
+		initial_nose_count = 0;
+		initial_fire_skeleton_count = 0;
+		
+		// Replace any dangerous randomly rolled skeleton types with basic skeletons
+		for (var _i = 0; _i < array_length(mapgen_content.skeleton_types); _i++) {
+			var _current_type = mapgen_content.skeleton_types[_i]
+			if (_current_type != obj_skeleton && _current_type != obj_fast_skeleton && _current_type != obj_cockroach) { mapgen_content.skeleton_types[_i] = obj_skeleton; }
+		}
 	}
 
 	/// @function set_spot_object(_object)
@@ -437,7 +461,7 @@ function GameRoom(given_x, given_y) constructor {
 		has_portcullis_button = true;
 		has_phantom = false;
 		has_floater = false;
-		for (var _dir = directions.up; _dir <= directions.left; _dir++) {
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _exit = exits[_dir];
 			if (_exit != -1) { _exit.set_portcullis_to_trigger_for_room(self, true); }
 		}
@@ -472,13 +496,13 @@ function GameRoom(given_x, given_y) constructor {
 		has_floater = (!has_phantom && !has_eyes && get_random_chance_out_of(FLOATER_PROBABILITY));
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
 		
-		initial_fountain_count = 0
-		initial_statue_fountain_count = 0
+		replaced_column_fountain_count = 0
+		replaced_statue_fountain_count = 0
 		for (var i = 0; i < get_room_reference_object_count(obj_column); i++) {
-			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { initial_fountain_count += 1; }
+			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { replaced_column_fountain_count += 1; }
 		}
 		for (var i = 0; i < get_room_reference_object_count(obj_statue); i++) {
-			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { initial_statue_fountain_count += 1; }
+			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { replaced_statue_fountain_count += 1; }
 		}
 		
 		initial_nose_count = 0;
@@ -537,8 +561,8 @@ function GameRoom(given_x, given_y) constructor {
 		
 		// Reset initial room values
 		if (global.controller.start_room == self) { 
-			initial_fountain_count = 0; 
-			initial_statue_fountain_count = 0;
+			replaced_column_fountain_count = 0; 
+			replaced_statue_fountain_count = 0;
 			has_phantom = false;
 			has_floater = false;
 		}
@@ -561,9 +585,9 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty += initial_fire_skeleton_count;
 		room_reference_difficulty += (get_room_reference_object_count(obj_spider_spot) > 0) ? 1.5 : 0;
 		room_reference_difficulty += get_room_reference_object_count(obj_spider) * 1.5;
-		room_reference_difficulty += initial_fountain_count * 0.5; //0.325
-		room_reference_difficulty += initial_statue_fountain_count * 0.25; //0.325
-		room_reference_difficulty += (get_room_reference_object_count(obj_statue) - initial_statue_fountain_count) * 0.25; //0.325
+		room_reference_difficulty += replaced_column_fountain_count * 0.5; //0.325
+		room_reference_difficulty += replaced_statue_fountain_count * 0.25; //0.325
+		room_reference_difficulty += (get_room_reference_object_count(obj_statue) - replaced_statue_fountain_count) * 0.25; //0.325
 		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.5; //0.325
 		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.33; //0.25
 		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.66 // 0.5

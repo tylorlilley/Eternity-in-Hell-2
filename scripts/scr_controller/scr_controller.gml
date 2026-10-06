@@ -583,7 +583,7 @@ function game_room_initialize() {
 	}
 	
 	// Spawn Fountains
-	for (var i = 0; i < current_room.initial_fountain_count; i++) {
+	for (var i = 0; i < current_room.replaced_column_fountain_count; i++) {
 		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_column)) {
 			var columns = instance_place_all(x, y, obj_column);
@@ -598,7 +598,7 @@ function game_room_initialize() {
 			instance_destroy();
 		}
 	}
-	for (var i = 0; i < current_room.initial_statue_fountain_count; i++) {
+	for (var i = 0; i < current_room.replaced_statue_fountain_count; i++) {
 		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_statue)) {
 			var statues = instance_place_all(x, y, obj_statue);

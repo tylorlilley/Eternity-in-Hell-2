@@ -1,5 +1,5 @@
 // The six kinds of layout file, named after the side exits they open
-enum mapgen_exit_types {
+enum layout_exit_types {
 	none,				// rm_no_exits_*: rooms reached only by stairs
 	one,				// rm_one_exit_*
 	two_opposite,		// rm_two_opposite_exits_*
@@ -16,14 +16,14 @@ function RoomLayout(_room_asset) constructor {
 	/// @function get_exit_type_from_name(_name)
 	/// @description Reads a layout's exit kind from its room name, like rm_three_exits_12.
 	/// @param {string} _name The room name
-	/// @returns {real} A mapgen_exit_types kind, or -1 if the room is not a layout
+	/// @returns {real} A layout_exit_types kind, or -1 if the room is not a layout
 	static get_exit_type_from_name = function(_name) {
-		if (string_pos("no_exits", _name) != 0) { return mapgen_exit_types.none; }
-		if (string_pos("one_exit", _name) != 0) { return mapgen_exit_types.one; }
-		if (string_pos("two_opposite_exits", _name) != 0) { return mapgen_exit_types.two_opposite; }
-		if (string_pos("two_perpendicular_exits", _name) != 0) { return mapgen_exit_types.two_perpendicular; }
-		if (string_pos("three_exits", _name) != 0) { return mapgen_exit_types.three; }
-		if (string_pos("four_exits", _name) != 0) { return mapgen_exit_types.four; }
+		if (string_pos("no_exits", _name) != 0) { return layout_exit_types.none; }
+		if (string_pos("one_exit", _name) != 0) { return layout_exit_types.one; }
+		if (string_pos("two_opposite_exits", _name) != 0) { return layout_exit_types.two_opposite; }
+		if (string_pos("two_perpendicular_exits", _name) != 0) { return layout_exit_types.two_perpendicular; }
+		if (string_pos("three_exits", _name) != 0) { return layout_exit_types.three; }
+		if (string_pos("four_exits", _name) != 0) { return layout_exit_types.four; }
 		return -1;
 	};
 
@@ -164,11 +164,11 @@ function RoomLayout(_room_asset) constructor {
 	if (is_usable) { check_rules(); }
 }
 
-/// @function select_lantern_layouts(_layouts)
+/// @function get_only_lantern_layouts(_layouts)
 /// @description Returns only the layouts with lanterns from the given layouts
 /// @param {array} _layouts Layouts (RoomLayout)
 /// @returns {array}
-function select_lantern_layouts(_layouts) {
+function get_only_lantern_layouts(_layouts) {
 	var _kept = [];
 	for (var _i = 0; _i < array_length(_layouts); _i++) {
 		if (_layouts[_i].has_lanterns) { array_push(_kept, _layouts[_i]); }

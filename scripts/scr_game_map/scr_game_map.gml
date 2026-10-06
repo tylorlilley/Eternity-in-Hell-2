@@ -101,11 +101,11 @@ function GameMap() constructor {
 		if (array_length(_layouts_of_type) == 0) {
 			var _error_message = "No layout of exit kind " + string(_type_checked) + " at this difficulty: " + string(global.difficulty);
 			write_debug_message(_error_message, "ERROR");
-			show_error(_error_message, true);
 		}
 
 		if (array_length(get_only_lantern_layouts(_layouts_of_type)) == 0) {
-			write_debug_message("No lantern layout of exit kind " + string(_type_checked) + " at this difficulty.", "WARNING");
+			var _error_message = "No lantern layout of exit kind " + string(_type_checked) + " at this difficulty."
+			write_debug_message(_error_message, "ERROR");
 		}
 	}
 
@@ -131,7 +131,7 @@ function GameMap() constructor {
 		if (!find_or_create_sin_rooms()) { return fail_generation("no room could be shaped for a sin"); }
 		if (!find_or_create_starting_rooms()) { return fail_generation("no room could be created as a starting room"); }
 
-		// Step 5: every room's layout and rolled content
+		// Assign layouts to each room, and generate it's random orientation and room content
 		assign_room_layouts();
 
 		// Step 6: decorate and score the whole map. While the score is short of the target, add one room and
@@ -295,7 +295,7 @@ function GameMap() constructor {
 	/// @param {string} _reason What failed
 	/// @returns {bool} Always false, so try_generate can return it
 	static fail_generation = function(_reason) {
-		write_debug_message("Map generation attempt failed, retrying on the same random stream: " + _reason, "WARNING");
+		write_debug_message("Map generation attempt failed, retrying on the same random stream: " + _reason, debug_message_level.warning);
 		destroy();
 		return false;
 	};
@@ -645,7 +645,7 @@ function GameMap() constructor {
 		}
 	};
 
-	/// @function assign_layout(_room, [_needs_lanterns])
+	/// @function assign_layout_to_room(_room, [_needs_lanterns])
 	/// @description Assigns a room's layout, including flips and rotations
 	/// @param {GameRoom} _room The room
 	/// @param {bool} [_needs_lanterns] Whether the layout must have lanterns (false by default; sin rooms ignore it)
@@ -654,7 +654,7 @@ function GameMap() constructor {
 		if (!is_undefined(_room.layout)) { layout_use_counts[_room.layout.index] -= 1; }
 
 		// Assign a new minimally used layout for the room
-		var _real_exit_type = _room.get_exit_type(), _possible_layouts, layout;
+		var _real_exit_type = _room.get_exit_type(), _possible_layouts, _layout;
 		if (_room.is_special_room) {
 			// Special rooms can't be misleading, can't be the pre-lit lantern room, and must be one of the chosen sin's layouts
 			_possible_layouts = _room.mapgen_sin.get_layouts_of_type(_real_exit_type);
@@ -683,7 +683,7 @@ function GameMap() constructor {
 			determine_layout_orientation();
 			
 			// Decide how to fill in the random room content for the chosen static layout
-			determine_random_room_content();
+			determine_random_room_content(other.same_skeleton_type);
 		}
 		
 	};
@@ -692,13 +692,13 @@ function GameMap() constructor {
 	/// @description Picks a random layout, preferring ones that have been used the least
 	/// @param {array} _candidates The layouts that fit
 	/// @returns {struct} The layout record
-	static choose_minimally_used_layout = function(_possible_layouts, must_have_lanterns) {
+	static choose_minimally_used_layout = function(_possible_layouts, _must_have_lanterns = false) {
 		var _minimum_use_count = 0, _minimally_used_layouts = [];
 		do {
 			_minimally_used_layouts = [];
 			for (var _i = 0; _i < array_length(_possible_layouts); _i++) {
 				var _possible_layout = _possible_layouts[_i];
-				if (must_have_lanterns && !_possible_layout.has_lanterns) { continue; }
+				if (_must_have_lanterns && !_possible_layout.has_lanterns) { continue; }
 				
 				if (layout_use_counts[_possible_layout.index] == _minimum_use_count) { array_push(_minimally_used_layouts, _possible_layout); }
 			}
@@ -707,71 +707,6 @@ function GameMap() constructor {
 		until (array_length(_minimally_used_layouts) > 0);
 		
 		return array_random_get(_minimally_used_layouts);
-	};
-	
-	/// @function determine_random_room_content(_room)
-	/// @description Determines the randomly generated content for a room
-	static determine_random_room_content = function() {
-		var _content = {
-			lit: false,
-			has_eyes: false,
-			has_phantom: false,
-			has_floater: false,
-			has_moving_collectable: false,
-			replaced_column_fountain_count: 0,
-			replaced_statue_fountain_count: 0,
-			initial_nose_count: 0,
-			initial_fire_skeleton_count: 0,
-			initial_mouth_count: 0,
-			skeleton_types: [],
-			mirror_directions: []
-		};
-
-		// Only lantern rooms that aren't special rooms can start lit
-		_content.lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
-
-		// Determine how many columns and how many statues to replace with fountains
-		for (var _column = 0; _column < layout.column_count; _column++) {
-			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { _content.replaced_column_fountain_count += 1; }
-		}
-		for (var _statue = 0; _statue < layout.statue_count; _statue++) {
-			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { _content.replaced_statue_fountain_count += 1; }
-		}
-
-		// Determine lava enemy spawns
-		if (layout.lava_count > 0) {
-			if (get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { _content.initial_fire_skeleton_count = 1; }
-			for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
-				if (get_random_chance_out_of(NOSE_PROBABILITY)) { _content.initial_nose_count += 1; }
-			}
-		}
-
-		// Determine skeleton spot enemies
-		for (var _spot = 0; _spot < layout.skeleton_spot_count; _spot++) {
-			array_push(_content.skeleton_types, roll_skeleton_type());
-		}
-		
-		// Determine additional enemy spawns
-		_content.has_eyes = array_contains(_content.skeleton_types, obj_eyes) || (layout.eyes_count > 0);
-		_content.has_phantom = layout.has_lanterns && !_content.lit && !_content.has_eyes && !is_special_room && get_random_chance_out_of(PHANTOM_PROBABILITY);
-		_content.has_floater = !_content.has_phantom && !_content.has_eyes && !is_special_room && get_random_chance_out_of(FLOATER_PROBABILITY);
-		_content.has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
-		_content.initial_mouth_count = layout.mouth_count;
-
-		// A hall of mirrors' sequence of exits to take
-		if (layout.is_hall_of_mirrors) {
-			for (var _mirror = 0; _mirror < 4; _mirror++) { array_push(_content.mirror_directions, get_random_carindal_dir()); }
-		}
-
-		_room.mapgen_content = _content;
-	};
-
-	/// @function roll_skeleton_type()
-	/// @description Rolls what spawns on a skeleton spot: the run's one skeleton type if that event is on,
-	///	otherwise a skeleton or a variant at this difficulty's odds.
-	/// @returns {Asset.GMObject}
-	static roll_skeleton_type = function() {
-		return (same_skeleton_type != noone) ? same_skeleton_type : get_skeleton_type();
 	};
 
 	/// @function has_any_lantern_rooms([_ignored_room])
@@ -851,7 +786,7 @@ function GameMap() constructor {
 		// Setup start and heart rooms
 		start_room = _pair[0];
 		start_room.set_spot_object(obj_cross);
-		start_room.remove_generated_hazards_from_room();
+		start_room.remove_random_room_content();
 		heart_room = _pair[1];
 		heart_room.set_spot_object(obj_encased_heart);
 		
@@ -907,7 +842,7 @@ function GameMap() constructor {
 			array_push(_lantern_rooms, _room);
 		}
 		if (array_length(_lantern_rooms) == 0) {
-			write_debug_message("Map has no lantern room to light.", "WARNING");
+			write_debug_message("Map has no lantern room to light.", debug_message_level.warning);
 			return;
 		}
 		var _lit_room = array_random_get(_lantern_rooms);
@@ -1007,7 +942,7 @@ function GameMap() constructor {
 			}
 		}
 
-		if (_left_to_place > 0) { write_debug_message("No room left for " + string(_left_to_place) + " cursed item(s).", "WARNING"); }
+		if (_left_to_place > 0) { write_debug_message("No room left for " + string(_left_to_place) + " cursed item(s).", debug_message_level.warning); }
 	};
 
 	/// @function pick_item_type(_is_cursed, _hands)
@@ -1029,7 +964,7 @@ function GameMap() constructor {
 			}
 		}
 		if (array_length(_choices) == 0) {
-			write_debug_message("No item type left to pick, so a torch spawns instead.", "WARNING");
+			write_debug_message("No item type left to pick, so a torch spawns instead.", debug_message_level.warning);
 			return obj_torch;
 		}
 
@@ -1129,13 +1064,13 @@ function GameMap() constructor {
 
 			// No room in the stuck area can take another key, so move the newest lock
 			if (is_undefined(_newest_lock)) {
-				write_debug_message("No room could take a key for a lock that cannot move.", "WARNING");
+				write_debug_message("No room could take a key for a lock that cannot move.", debug_message_level.warning);
 				return false;
 			}
 			_newest_lock.set_lock(false);
 			_newest_lock = pick_untried_lockable_exit(_tried_exits);
 			if (is_undefined(_newest_lock)) {
-				write_debug_message("Dropped a lock that no key could back (R50).", "WARNING");
+				write_debug_message("Dropped a lock that no key could back (R50).", debug_message_level.warning);
 				continue;
 			}
 			_newest_lock.set_lock(true);

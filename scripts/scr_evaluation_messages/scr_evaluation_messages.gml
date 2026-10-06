@@ -85,7 +85,7 @@ function EvaluationMessageManager() constructor {
 			write_debug_message(var_name + " += " + string(value), "Eval");
 		}
 		else {
-			write_debug_message("Non-existent evaluation variable referenced.", "WARNING");
+			write_debug_message("Non-existent evaluation variable referenced.", debug_message_level.warning);
 		}
 	}
 	

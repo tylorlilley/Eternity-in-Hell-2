@@ -225,7 +225,7 @@ function get_random_item_obj(special_item, include_key) {
 	var chosen_item_obj = noone;
 	
 	if (special_item && total_spawned_special_items >= num_of_items) {
-		write_debug_message("Tried to spawn a special item and failed.", "WARNING");
+		write_debug_message("Tried to spawn a special item and failed.", debug_message_level.warning);
 		return obj_torch;
 	}
 	

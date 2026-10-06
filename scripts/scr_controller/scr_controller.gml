@@ -671,7 +671,7 @@ function game_room_initialize() {
 	
 	// Pre-light room if the room is marked as lit and spawn objects that interact with torches
 	if (current_room.lit) {
-		if (instance_number(obj_lantern) == 0) { write_debug_message("Room marked as lit has no lanterns: "  + room_get_name(current_room.room_reference), "WARNING"); current_room.lit = false; }
+		if (instance_number(obj_lantern) == 0) { write_debug_message("Room marked as lit has no lanterns: "  + room_get_name(current_room.room_reference), debug_message_level.warning); current_room.lit = false; }
 		with obj_lantern { light_torch(noone, false); }
 	}
 	if (current_room.has_phantom) {
@@ -810,7 +810,7 @@ function game_room_initialize() {
 		if (current_exit != -1 && dir == directions.stairs) { portcullis_exit_count += 1; }
 	}
 	if (current_room.has_portcullis_button && portcullis_exit_count != exit_count) {
-		write_debug_message("Portcullis button room has exits without a portcullis: " + room_get_name(current_room.room_reference), "WARNING");
+		write_debug_message("Portcullis button room has exits without a portcullis: " + room_get_name(current_room.room_reference), debug_message_level.warning);
 	}
 	with (obj_door) { 
 		initialize_door(); 
@@ -831,7 +831,7 @@ function game_room_initialize() {
 		}
 		if (instance_number(obj_collectable) == 0) { 
 			// This should never happen if every room has 2+ collectable spots
-			write_debug_message("Room with NO room to spawn collectables: " + room_get_name(current_room.room_reference), "WARNING");
+			write_debug_message("Room with NO room to spawn collectables: " + room_get_name(current_room.room_reference), debug_message_level.warning);
 			current_room.has_collectables = false;
 			array_remove_first(rooms_with_collectables, current_room);
 			total_number_of_rooms_with_collectables -= 1;
@@ -1043,7 +1043,7 @@ function old_controller_init() {
 	// Setup physical game map
 	if (create_game_map() == -1) {
 		// Should never reach this clause
-		write_debug_message("Map generation failed.", "WARNING");
+		write_debug_message("Map generation failed.", debug_message_level.warning);
 		reset_map_generation();
 		exit;
 	};
@@ -1082,7 +1082,7 @@ function old_controller_init() {
 		}
 		if (!new_collectables) {
 			// Should never reach this clause
-			write_debug_message("Not enough collectables rooms generated.", "WARNING");
+			write_debug_message("Not enough collectables rooms generated.", debug_message_level.warning);
 			reset_map_generation();
 			exit;
 		}
@@ -1099,7 +1099,7 @@ function old_controller_init() {
 		}
 		if (!random_room.has_lanterns && !global.is_test_mode) {
 			// This should NEVER happen
-			write_debug_message("No lantern rooms generated.", "WARNING");
+			write_debug_message("No lantern rooms generated.", debug_message_level.warning);
 			reset_map_generation();
 			exit;
 		}
@@ -1109,7 +1109,7 @@ function old_controller_init() {
 	if (array_length(rooms_lit) == 0) { 
 		var random_lantern_room = array_random_get(rooms_with_lanterns);
 		with (random_lantern_room) {
-			if (!has_lanterns) { write_debug_message("Room without lanterns in lantern room list: " + room_get_name(room_reference), "WARNING"); }
+			if (!has_lanterns) { write_debug_message("Room without lanterns in lantern room list: " + room_get_name(room_reference), debug_message_level.warning); }
 			lit = true;
 			has_phantom = false;
 		}
@@ -1118,7 +1118,7 @@ function old_controller_init() {
 	// Ensure at least one room with chest potential exists
 	if (array_length(rooms_with_chest_potential) == 0) {
 		// This should NEVER happen
-		write_debug_message("No rooms with chest potential generated.", "WARNING");
+		write_debug_message("No rooms with chest potential generated.", debug_message_level.warning);
 		reset_map_generation();
 		exit;
 	}
@@ -1147,7 +1147,7 @@ function old_controller_init() {
 	// Set up locks and keys on game map
 	if (create_locked_exits_and_keys() == -1) {
 		// Should never reach this clause
-		write_debug_message("Lock and key generation failed.", "WARNING");
+		write_debug_message("Lock and key generation failed.", debug_message_level.warning);
 		reset_map_generation();
 		exit;
 	}

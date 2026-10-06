@@ -308,7 +308,7 @@ function GameRoom(given_x, given_y) constructor {
 	}
 
 	// Map generation changes (see GameMap): what generation does to this room on its own
-
+	
 	/// @function determine_layout_exit_type()
 	/// @description Returns what kind of exit type to use, including determining if it uses a misleading layout or not
 	/// @returns {real} A layout_exit_types kind
@@ -336,49 +336,97 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function determine_layout_orientation()
 	/// @description Determines how the room's layout is flipped and rotated
 	function determine_layout_orientation() {
-		var _has_exit_up = has_exit(directions.up), _has_exit_right = has_exit(directions.right);
-		var _has_exit_down = has_exit(directions.down), _has_exit_left = has_exit(directions.left);
-		flip_horizontal = false;
-		flip_vertical = false;
-		rotate = noone;
+		flip_horizontal = get_coin_flip();
+		flip_vertical = get_coin_flip();
 
-		// Check the real exit count for this room, and determine which flips and rotations are possible
-		switch (get_cardinal_exits_count()) {
-			case 0:
-			case 4:
-				// Any orientation fits
-				flip_horizontal = get_coin_flip();
-				flip_vertical = get_coin_flip();
-				rotate = get_random_carindal_dir();
-				break;
-			case 1:
-				// Turn the layout's one opening toward the one exit
-				flip_horizontal = get_coin_flip();
-				rotate = get_first_side(true);
-				break;
-			case 2:
-				if (_has_exit_up && _has_exit_down) {
-					flip_horizontal = get_coin_flip();
-					flip_vertical = get_coin_flip();
-				}
-				else if (_has_exit_left && _has_exit_right) {
-					flip_horizontal = get_coin_flip();
-					flip_vertical = get_coin_flip();
-					rotate = get_coin_flip() ? directions.right : directions.left;
-				}
-				else {
-					// The layout opens up and right; flip it onto the room's corner
-					flip_horizontal = _has_exit_left;
-					flip_vertical = _has_exit_down;
-				}
-				break;
-			case 3:
-				// Turn the layout's closed side toward the one missing exit
-				flip_vertical = get_coin_flip();
-				rotate = (get_first_side(false) + 1) % 4;
-				break;
+		// Where the layout's openings end up once flipped
+		var _open_dirs = layout.get_open_dirs();
+		for (var _dir = 0; _dir < array_length(_open_dirs); _dir++) {
+			var _open_dir = _open_dirs[_dir];
+			if (flip_horizontal && (_open_dir == directions.left || _open_dir == directions.right)) { _open_dir = get_opposite_dir(_open_dir); }
+			if (flip_vertical && (_open_dir == directions.up || _open_dir == directions.down)) { _open_dir = get_opposite_dir(_open_dir); }
+			_open_dirs[_dir] = _open_dir;
 		}
+	
+		// Keep the rotations that put the most openings on real side exits, and pick one at random
+		var _best_rotations = [], _most_matches = -1;
+		for (var _rotation = directions.up; _rotation < directions.stairs; _rotation++) {
+			var _matches = 0;
+			for (var _dir = 0; _dir < array_length(_open_dirs); _dir++) {
+				if (has_exit(get_rotated_dir(_open_dirs[_dir], _rotation))) { _matches += 1; }
+			}
+			if (_matches > _most_matches) { _most_matches = _matches; _best_rotations = []; }
+			if (_matches == _most_matches) { array_push(_best_rotations, _rotation); }
+		}
+		rotate = array_random_get(_best_rotations);
 	}
+
+	/// @function determine_random_room_content(_room)
+	/// @description Determines the randomly generated content for a room
+	function determine_random_room_content(_same_skeleton_type) {
+		var _content = {
+			lit: false,
+			has_eyes: false,
+			has_phantom: false,
+			has_floater: false,
+			has_moving_collectable: false,
+			replaced_column_fountain_count: 0,
+			replaced_statue_fountain_count: 0,
+			initial_nose_count: 0,
+			initial_fire_skeleton_count: 0,
+			initial_mouth_count: 0,
+			skeleton_types: [],
+			mirror_directions: []
+		};
+
+		// Only lantern rooms that aren't special rooms can start lit
+		_content.lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
+
+		// Determine how many columns and how many statues to replace with fountains
+		for (var _column = 0; _column < layout.column_count; _column++) {
+			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { _content.replaced_column_fountain_count += 1; }
+		}
+		for (var _statue = 0; _statue < layout.statue_count; _statue++) {
+			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { _content.replaced_statue_fountain_count += 1; }
+		}
+
+		// Determine lava enemy spawns
+		if (layout.lava_count > 0) {
+			if (get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { _content.initial_fire_skeleton_count = 1; }
+			for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
+				if (get_random_chance_out_of(NOSE_PROBABILITY)) { _content.initial_nose_count += 1; }
+			}
+		}
+		
+		// Determine eyes enemy spawn
+		var _skeleton_spot_with_eyes = -1;
+		_content.has_eyes = (layout.eyes_count > 0);
+		if (!_content.has_eyes && layout.skeleton_spot_count > 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
+			_content.has_eyes = true;
+		   	_skeleton_spot_with_eyes = irandom(layout.skeleton_spot_count - 1);
+		}
+
+		// Determine skeleton spot enemies
+		for (var _spot = 0; _spot < layout.skeleton_spot_count; _spot++) {
+			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type() : _same_skeleton_type;
+			if (_spot == _skeleton_spot_with_eyes) { _skeleton_type = obj_eyes; }
+			
+			array_push(_content.skeleton_types, _skeleton_type);
+		}
+		
+		// Determine additional enemy spawns
+		_content.has_phantom = layout.has_lanterns && !_content.lit && !_content.has_eyes && !is_special_room && get_random_chance_out_of(PHANTOM_PROBABILITY);
+		_content.has_floater = !_content.has_phantom && !_content.has_eyes && !is_special_room && get_random_chance_out_of(FLOATER_PROBABILITY);
+		_content.has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
+		_content.initial_mouth_count = layout.mouth_count * (MOUTHS_PER_MOUTH - 1);
+
+		// A hall of mirrors' sequence of exits to take
+		if (layout.is_hall_of_mirrors) {
+			for (var _mirror = 0; _mirror < 4; _mirror++) { array_push(_content.mirror_directions, get_random_carindal_dir()); }
+		}
+
+		mapgen_content = _content;
+	};
 
 	/// @function reset_decorations()
 	/// @description Gives the room back the content step 5 rolled for its layout, and clears its decorations.
@@ -417,22 +465,23 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty = 0;
 	}
 
-	/// @function remove_generated_hazards_from_room()
-	/// @description Removes the hazards generation rolled for the room (hazards in its room layout file remain):
-	///	phantoms, floaters, fountains, noses, lava fire skeletons and rolled eyes
-	function remove_generated_hazards_from_room() {
+	/// @function remove_random_room_content()
+	/// @description Removes any randomly generated content from the room, limiting it to the static json version
+	function remove_random_room_content() {
+		// Replace any dangerous randomly rolled skeleton types with basic skeletons
+		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
+			var _current_type = skeleton_types[_i]
+			if (_current_type != obj_skeleton && _current_type != obj_fast_skeleton && _current_type != obj_cockroach && _current_type != obj_fat_skeleton) { skeleton_types[_i] = obj_skeleton; }
+		}
+		
+		// Remove any other dangers generated for this room
+		has_eyes = (layout.eyes_count > 0);
 		has_phantom = false;
 		has_floater = false;
 		replaced_column_fountain_count = 0;
 		replaced_statue_fountain_count = 0;
 		initial_nose_count = 0;
 		initial_fire_skeleton_count = 0;
-		
-		// Replace any dangerous randomly rolled skeleton types with basic skeletons
-		for (var _i = 0; _i < array_length(mapgen_content.skeleton_types); _i++) {
-			var _current_type = mapgen_content.skeleton_types[_i]
-			if (_current_type != obj_skeleton && _current_type != obj_fast_skeleton && _current_type != obj_cockroach) { mapgen_content.skeleton_types[_i] = obj_skeleton; }
-		}
 	}
 
 	/// @function set_spot_object(_object)
@@ -1562,7 +1611,7 @@ function create_locked_exits_and_keys() {
 			// Unlock chest if key was for a locked chest
 			if (lock_dir == -1) { room_to_lock.has_locked_chest = false; }
 			// Skip locking any exit
-			write_debug_message("Couldn't add key for room at (" + string(room_to_lock.virtual_x) + ", " + string(room_to_lock.virtual_y) + ") with dist: " + string(room_to_lock.distance_to_start), "WARNING"); 
+			write_debug_message("Couldn't add key for room at (" + string(room_to_lock.virtual_x) + ", " + string(room_to_lock.virtual_y) + ") with dist: " + string(room_to_lock.distance_to_start), debug_message_level.warning); 
 		}
 	}
 }
@@ -1575,7 +1624,7 @@ function instances_for_room_reference(room_reference) {
 	var filename = room_get_name(room_reference) + ".json";
 	var file = file_text_open_read(filename);
 	if (file == -1) {
-		write_debug_message("Failed to open file for instances_for_room_reference.", "WARNING");
+		write_debug_message("Failed to open file for instances_for_room_reference.", debug_message_level.warning);
 		return -1;
 	}
 	
@@ -1597,7 +1646,7 @@ function difficulty_for_room_reference(room_reference) {
 	var filename = room_get_name(room_reference) + ".json";
 	var file = file_text_open_read(filename);
 	if (file == -1) {
-		write_debug_message("Failed to open file for difficulty_for_room_reference.", "WARNING");
+		write_debug_message("Failed to open file for difficulty_for_room_reference.", debug_message_level.warning);
 		return -1;
 	}
 	

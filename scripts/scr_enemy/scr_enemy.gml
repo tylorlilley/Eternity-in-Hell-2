@@ -124,7 +124,7 @@ function teleport_to_lava() {
 	}
 	
 	// No suitable teleport spot; Should never need to reach this clause
-	write_debug_message("Teleport to lava failed.", "WARNING");
+	write_debug_message("Teleport to lava failed.", debug_message_level.warning);
 	instance_destroy(id, false);
 	return noone;
 }

@@ -78,6 +78,20 @@ function get_turn_left_dir(dir) {
 	else { return modulo((dir-1), 4); }
 }
 
+/// @function get_rotated_dir(_dir, _rotation)
+/// @description The direction a side faces once its room is rotated to face _rotation
+/// @param {real} _dir A side direction
+/// @param {real} _rotation The direction the room is rotated to face (directions.up leaves it unturned)
+/// @returns {real}
+function get_rotated_dir(_dir, _rotation) {
+	switch (_rotation) {
+		case directions.right: return get_turn_right_dir(_dir);
+		case directions.down: return get_opposite_dir(_dir);
+		case directions.left: return get_turn_left_dir(_dir);
+		default: return _dir;
+	}
+}
+
 /// @function								get_random_carindal_dir();
 function get_random_carindal_dir() {
 	return irandom(3);
@@ -344,6 +358,37 @@ function hex_to_dec(hex)
     }
  
     return dec;
+}
+
+/// Debug Messaging
+
+enum debug_message_level {
+	eval,
+	log,
+	warning,
+	error
+}
+
+/// @function									get_debug_message_level_string(msg, [debug_level]);
+///	@param		{real} _debug_message_level		The debug message level to translate to a string value
+function get_debug_message_level_string(_debug_message_level) {
+	switch (_debug_message_level) {
+		case debug_message_level.eval: { return "Eval"; }
+		case debug_message_level.log: { return "Log"; }
+		case debug_message_level.warning: { return "WARNING"; }
+		case debug_message_level.error: { return "ERROR"; }
+		default: { return ""; }
+	}
+}
+
+/// @function								update_log(msg, [debug_level]);
+///	@param		{string} msg				The message to write
+///	@param		{string} debug_level		Optional level to file the message under
+function write_debug_message(msg, debug_level = debug_message_level.info) {
+	var _debug_message_level_string = get_debug_message_level_string(debug_level);
+	update_log(_debug_message_level_string, msg);
+	show_debug_message(_debug_message_level_string + ": " + msg);
+	if (debug_level == debug_message_level.error) { show_error(msg, true); }
 }
 
 /*

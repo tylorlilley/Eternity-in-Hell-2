@@ -26,6 +26,21 @@ function RoomLayout(_room_asset) constructor {
 		if (string_pos("four_exits", _name) != 0) { return layout_exit_types.four; }
 		return -1;
 	};
+	
+	/// @function get_open_dirs()
+	/// @description The sides the layout file opens before it is flipped or rotated. Every layout opens up, then
+	///	right, down and left in that order as its exit kind adds sides
+	/// @returns {array} Directions, in a new array each call so the caller can change it
+	static get_open_dirs = function() {
+		switch (exit_type) {
+			case layout_exit_types.one: return [directions.up];
+			case layout_exit_types.two_opposite: return [directions.up, directions.down];
+			case layout_exit_types.two_perpendicular: return [directions.up, directions.right];
+			case layout_exit_types.three: return [directions.up, directions.right, directions.down];
+			case layout_exit_types.four: return [directions.up, directions.right, directions.down, directions.left];
+			default: return [];
+		}
+	};
 
 	/// @function get_object_count(_object_name)
 	/// @description How many of an object the layout places.
@@ -71,7 +86,7 @@ function RoomLayout(_room_asset) constructor {
 			get_object_count("obj_exit_spot_down") == 0 || get_object_count("obj_exit_spot_left") == 0) {
 			_problems += " needs an exit spot on every side (L4);";
 		}
-		if (_problems != "") { write_debug_message("Layout " + name + _problems, "WARNING"); }
+		if (_problems != "") { write_debug_message("Layout " + name + _problems, debug_message_level.warning); }
 	};
 
 	// The room
@@ -91,7 +106,7 @@ function RoomLayout(_room_asset) constructor {
 	if (is_usable) {
 		var _file = file_text_open_read(name + ".json");
 		if (_file == -1) {
-			write_debug_message("Missing layout file, so the layout is never used: " + name + ".json", "WARNING");
+			write_debug_message("Missing layout file, so the layout is never used: " + name + ".json", debug_message_level.warning);
 			is_usable = false;
 		}
 		else {

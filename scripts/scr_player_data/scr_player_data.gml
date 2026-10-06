@@ -396,14 +396,6 @@ function update_log(line_name, new_value) {
 	file_text_close(file_id);
 }
 
-/// @function								update_log(msg, [debug_level]);
-///	@param		{string} msg				The message to write
-///	@param		{string} debug_level		Optional level to file the message under
-function write_debug_message(msg, debug_level = "Info") {
-	update_log(debug_level, msg);
-	show_debug_message(debug_level + ": " + msg);
-}
-
 /// @function								update_evaluation_variable(variable_name, difficulty, value);
 ///	@param		{string} variable_name		The given name of the variable to update
 ///	@param		{difficulty} difficulty		The difficulty to update the value for

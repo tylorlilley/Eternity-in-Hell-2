@@ -25,17 +25,22 @@ function array_duplicate(list, source_list) {
 	array_copy(list, 0, source_list, 0, array_length(source_list));
 }
 
+/// @function									array_shift(list);
+/// @param		{index}		list				List to remove and return the first value from
+function array_shift(_list)
+{
+    if (array_length(_list) <= 0) return undefined;
+
+    var _first = _list[0];
+    array_delete(_list, 0, 1);
+    return _first;
+}
+
 /// @function									array_remove_first(list, value_to_find);
 /// @param		{index}		list				List to remove the value from
 /// @param		{value}		value_to_remove		Value to remove from the array
 function array_remove_first(list, value_to_remove) {
 	var list_pos = array_get_index(list, value_to_remove);
-	/*
-	while(list_pos != -1) {
-		array_delete(list, list_pos, 1);
-		list_pos = array_get_index(list, value_to_remove);
-	}
-	*/
 	if (list_pos != -1) { array_delete(list, list_pos, 1); }
 }
 

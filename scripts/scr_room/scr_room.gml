@@ -28,6 +28,8 @@ function GameRoom(given_x, given_y) constructor {
 	has_misleading_exits = false;
 	has_hall_of_mirrors = false;
 	is_special_room = false;
+	is_start_room = false;
+	is_heart_room = false;
 	
 	// New MapGen Values
 	layout = undefined;						// The cached layout this room is built from (see RoomLayout)
@@ -148,6 +150,20 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		return -1;
 	}
+	
+	/// @function can_have_chest()
+	/// @description Whether the room is allowed to have a chest added to it
+	/// @returns {bool}
+	function can_have_chest() {
+		return (!is_start_room && !is_heart_room && stairs_spot_obj == -1);
+	}
+
+	/// @function can_have_special_item()
+	/// @description Whether the room is allowed to have a special item added to it
+	/// @returns {bool}
+	function can_have_special_item() {
+		return (!has_special_item && distance_to_start >= 2);
+	}
 
 	/// @function has_chest()
 	/// @description Whether the room holds a chest, hidden or not.
@@ -155,11 +171,18 @@ function GameRoom(given_x, given_y) constructor {
 	function has_chest() {
 		return stairs_spot_obj == obj_chest || stairs_spot_obj == obj_hidden_chest;
 	}
+	
+	/// @function has_regular_item_chest()
+	/// @description Whether the room has a chest with a regular item: not cursed, not a trap, and not a key-role item
+	/// @returns {bool}
+	function has_regular_item_chest() {
+		return (has_chest() && !has_special_item && !key_in_chest && !has_trap_chest());
+	}
 
-	/// @function has_plain_chest()
+	/// @function has_basic_chest()
 	/// @description Whether the room holds a visible chest that is neither locked nor cursed.
 	/// @returns {bool}
-	function has_plain_chest() {
+	function has_basic_chest() {
 		return stairs_spot_obj == obj_chest && !has_locked_chest && !has_special_item;
 	}
 
@@ -168,14 +191,6 @@ function GameRoom(given_x, given_y) constructor {
 	/// @returns {bool}
 	function has_trap_chest() {
 		return chest_obj == obj_statue || chest_obj == obj_fountain;
-	}
-
-	/// @function holds_regular_item()
-	/// @description Whether the room's chest holds a regular item: not cursed, not a trap, and not a key-role
-	///	item the key step placed.
-	/// @returns {bool}
-	function holds_regular_item() {
-		return has_chest() && !has_special_item && !key_in_chest && !has_trap_chest();
 	}
 
 	/// @function is_stairs_spot_free()
@@ -206,9 +221,38 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		return _spots;
 	}
+	
+	/// @function add_reachable_rooms_to_bitmask(_start_room, _reached_rooms_bitmask)
+	/// @description Returns a bitmask of all rooms reachable from this room through unlocked exits and stairs
+	/// @returns {real} The new bitmask
+	function get_reachable_rooms_bitmask() {
+		// For each room in the queue, add to the queue all new rooms reachable from that room
+		var _queue = [id], _reached_rooms_bitmask = 0;
+		while (array_length(_queue) > 0) {
+			// Get the next room in the queue and mark it as reached in the bitmask
+			var _room = array_shift(_queue);
+			_reached_rooms_bitmask |= (1 << _room.mapgen_index);
+			
+			// For each exit out of this room, including stairs, add new connecting rooms to the queue
+			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
+				// Skip no or locked exits
+				var _exit = _room.exits[_dir];
+				if (_exit == -1 || _exit.has_lock) { continue; }
+				
+				// Skip if the room connected by this exit is already in the bitmask
+				var _other_room = _exit.get_connected_room(_room);
+				if (_other_room.is_in_bitmask(_reached_rooms_bitmask)) { continue; }
+				
+				// Otherwise, add the connecting room to the queue
+				array_push(_queue, _other_room);
+			}
+		}
+
+		return _reached_rooms_bitmask;
+	};
 
 	/// @function is_in_bitmask(_bitmask)
-	/// @description Whether the room is in a bitmask of rooms, like the key check's reached rooms (see GameMap).
+	/// @description Whether the room is in a bitmask of rooms
 	/// @param {real} _bitmask Bitmask of rooms, by mapgen_index
 	/// @returns {bool}
 	function is_in_bitmask(_bitmask) {
@@ -307,7 +351,21 @@ function GameRoom(given_x, given_y) constructor {
 		return _time;
 	}
 
+	// ==========
 	// Map generation changes (see GameMap): what generation does to this room on its own
+	// ==========
+	
+	/// @function assign_layout(_layout)
+	/// @description Associates a room with a layout and set's it's related variables
+	/// @param {struct} _layout The layout to assign to this room
+	function assign_layout(_layout) {
+		layout = _layout;
+		room_reference = layout.room_reference;
+		has_lanterns = layout.has_lanterns;
+		has_hall_of_mirrors = layout.is_hall_of_mirrors;
+		has_misleading_exits = (layout.exit_type != get_exit_type());
+		mapgen_needs_layout = false;
+	}
 	
 	/// @function determine_layout_exit_type()
 	/// @description Returns what kind of exit type to use, including determining if it uses a misleading layout or not
@@ -340,7 +398,7 @@ function GameRoom(given_x, given_y) constructor {
 		flip_vertical = get_coin_flip();
 
 		// Where the layout's openings end up once flipped
-		var _open_dirs = layout.get_open_dirs();
+		var _open_dirs = layout.get_open_directions();
 		for (var _dir = 0; _dir < array_length(_open_dirs); _dir++) {
 			var _open_dir = _open_dirs[_dir];
 			if (flip_horizontal && (_open_dir == directions.left || _open_dir == directions.right)) { _open_dir = get_opposite_dir(_open_dir); }
@@ -361,8 +419,9 @@ function GameRoom(given_x, given_y) constructor {
 		rotate = array_random_get(_best_rotations);
 	}
 
-	/// @function determine_random_room_content(_room)
+	/// @function determine_random_room_content(_same_skeleton_type)
 	/// @description Determines the randomly generated content for a room
+	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
 	function determine_random_room_content(_same_skeleton_type) {
 		var _content = {
 			lit: false,
@@ -432,6 +491,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @description Gives the room back the content step 5 rolled for its layout, and clears its decorations.
 	function reset_decorations() {
 		// The rolled content
+		// TODO: Why is this being reset - does this change later? Why keep mapgen_content around at all?
 		var _content = mapgen_content;
 		lit = _content.lit;
 		has_eyes = _content.has_eyes;
@@ -448,6 +508,8 @@ function GameRoom(given_x, given_y) constructor {
 		mirror_count = 0;
 
 		// No decorations yet
+		is_start_room = false;
+		is_heart_room = false;
 		distance_to_start = 9999;
 		stairs_spot_obj = -1;
 		chest_on_stairs_spot = false;
@@ -484,22 +546,20 @@ function GameRoom(given_x, given_y) constructor {
 		initial_fire_skeleton_count = 0;
 	}
 
-	/// @function set_spot_object(_object)
-	/// @description Places the room's stairs-spot object (the cross, the encased heart or a chest) and rolls which
-	///	spot it takes, so building never has to (L1, R57). The cross always takes the stairs spot; anything
-	///	else takes the chest spot, or 1 in 16/8/4/3 the stairs spot when the room has no stairs.
+	/// @function set_stairs_spot_object(_object)
+	/// @description Places the room's stairs-spot object (the cross, the encased heart, or a chest) and whether it appears on the chest or stairs spot.
 	/// @param {Asset.GMObject} _object What to place
-	function set_spot_object(_object) {
+	function set_stairs_spot_object(_object) {
 		stairs_spot_obj = _object;
 		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
 	}
 
-	/// @function place_chest()
-	/// @description Puts a chest with no item yet in the room. Hidden chests appear only in unlit lantern rooms
-	///	without a phantom (1 in 2/2/1/1), where lighting every lantern reveals them (R38, L7).
-	function place_chest() {
-		has_hidden_chest = has_lanterns && !lit && !has_phantom && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY);
-		set_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
+	/// @function add_chest()
+	/// @description Puts a chest with no item yet in the room. Hidden chests can appear only in unlit lantern rooms with no phantom
+	/// @param {bool} _must_be_hidden Whether to force a hidden chest to spawn or not
+	function add_chest(_must_be_hidden) {
+		has_hidden_chest = _must_be_hidden || (has_lanterns && !lit && !has_phantom && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
+		set_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
 	}
 
 	/// @function add_portcullis_trap()
@@ -1440,7 +1500,7 @@ function create_game_map() {
 		
 		if (new_exit_dir == -1) {
 			// SHOULD NEVER REACH THIS POINT
-			write_debug_message("Couldn't create connected room for any room.", "ERROR");
+			write_debug_message("Couldn't create connected room for any room.", debug_message_level.warning);
 			return -1;
 		}
 	}
@@ -1457,7 +1517,7 @@ function create_game_map() {
 		}		
 		if (connected_room == -1) {
 			// SHOULD NEVER REACH THIS POINT
-			write_debug_message("Couldn't create new exit for any room", "ERROR");
+			write_debug_message("Couldn't create new exit for any room", debug_message_level.warning);
 			return -1;
 			break;
 		}
@@ -1477,7 +1537,7 @@ function setup_start_and_end_rooms() {
 	}
 	if (start_room == -1) {
 		// SHOULD NEVER REACH THIS POINT
-		write_debug_message("Couldn't pick a start room because all rooms had stairs.", "ERROR");
+		write_debug_message("Couldn't pick a start room because all rooms had stairs.", debug_message_level.warning);
 		return -1;
 	}
 	
@@ -1495,7 +1555,9 @@ function setup_start_and_end_rooms() {
 	heart_room = game_rooms[0];
 	heart_room.add_collectables();
 	heart_room.stairs_spot_obj = obj_encased_heart;
+	heart_room.is_heart_room = true;
 	start_room.stairs_spot_obj = obj_cross;
+	start_room.is_start_room = true;
 	current_room = start_room;
 }
 
@@ -1528,7 +1590,7 @@ function add_rooms_to_reach_target_difficulty() {
 		
 		if (new_exit_dir == -1) {
 			// SHOULD NEVER REACH THIS POINT
-			write_debug_message("Couldn't create connected room for any room.", "ERROR");
+			write_debug_message("Couldn't create connected room for any room.", debug_message_level.warning);
 			return -1;
 		}
 	}

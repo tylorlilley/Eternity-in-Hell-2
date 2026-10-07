@@ -82,7 +82,7 @@ function EvaluationMessageManager() constructor {
 		if (variable_struct_exists(self, var_name)) {
 			var current_value = variable_struct_get(self, var_name);
 			variable_struct_set(self, var_name, current_value + value);
-			write_debug_message(var_name + " += " + string(value), "Eval");
+			write_debug_message(var_name + " += " + string(value), debug_message_level.eval);
 		}
 		else {
 			write_debug_message("Non-existent evaluation variable referenced.", debug_message_level.warning);

@@ -572,13 +572,13 @@ function game_room_initialize() {
 	var stairs_spot = instance_find(obj_stairs_spot, 0);
 	if (stairs_spot == noone) {
 		// This should never happen if every room has a stairs spot
-		write_debug_message("Rroom with NO room to spawn stairs spot object: " + room_get_name(current_room.room_reference), "ERROR");
+		write_debug_message("Rroom with NO room to spawn stairs spot object: " + room_get_name(current_room.room_reference), debug_message_level.error);
 		current_room.stairs_spot_obj = -1;
 	}
 	var chest_spot = instance_find(obj_chest_spot, 0);
 	if (chest_spot == noone) {
 		// This should never happen if every room has a stairs spot
-		write_debug_message("Room with NO room to spawn chest spot object: " + room_get_name(current_room.room_reference), "ERROR");
+		write_debug_message("Room with NO room to spawn chest spot object: " + room_get_name(current_room.room_reference), debug_message_level.warning);
 		current_room.stairs_spot_obj = -1;
 	}
 	

@@ -105,6 +105,15 @@ function RoomExit(current_room, linked_room) constructor {
 		has_door = _is_locked;
 	}
 	
+	/// @function can_be_locked(_exit)
+	/// @description Whether a lock can be added to this exit
+	/// @returns {bool}
+	static can_be_locked = function() {
+		return !has_lock
+			&& !room_1.is_start_room && !room_2.is_start_room
+			&& !room_1.has_hall_of_mirrors && !room_2.has_hall_of_mirrors;
+	};
+	
 	/// @function reset_decorations()
 	/// @description Clears the exit's lock, door, illusion walls and portcullis, so each pass of step 6 can
 	///	decorate it again.

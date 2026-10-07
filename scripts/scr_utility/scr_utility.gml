@@ -363,14 +363,15 @@ function hex_to_dec(hex)
 /// Debug Messaging
 
 enum debug_message_level {
-	eval,
 	log,
+	eval,
 	warning,
 	error
 }
 
-/// @function									get_debug_message_level_string(msg, [debug_level]);
+/// @function									get_debug_message_level_string(_debug_message_level);
 ///	@param		{real} _debug_message_level		The debug message level to translate to a string value
+///	@returns	{string}
 function get_debug_message_level_string(_debug_message_level) {
 	switch (_debug_message_level) {
 		case debug_message_level.eval: { return "Eval"; }
@@ -381,10 +382,10 @@ function get_debug_message_level_string(_debug_message_level) {
 	}
 }
 
-/// @function								update_log(msg, [debug_level]);
+/// @function								write_debug_message(msg, [debug_level]);
 ///	@param		{string} msg				The message to write
-///	@param		{string} debug_level		Optional level to file the message under
-function write_debug_message(msg, debug_level = debug_message_level.info) {
+///	@param		{real} [debug_level]		Optional level to file the message under
+function write_debug_message(msg, debug_level = debug_message_level.log) {
 	var _debug_message_level_string = get_debug_message_level_string(debug_level);
 	update_log(_debug_message_level_string, msg);
 	show_debug_message(_debug_message_level_string + ": " + msg);

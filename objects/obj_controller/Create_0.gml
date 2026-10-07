@@ -28,7 +28,7 @@ write_debug_message("SEED: "+string(random_get_seed()));
 initialize_game_variables();
 
 // Plan the whole map: its rooms, layouts, contents, locks and keys, score and time (scr_map_generation)
-var _map = mapgen_generate();
+var _map = generate_map();
 game_rooms = _map.rooms;
 start_room = _map.start_room;
 heart_room = _map.heart_room;
@@ -62,7 +62,6 @@ transition_to_room(start_room, true);
 player_appear_timer = 0;
 global.player.visible = true;
 with (global.game_manager) { array_remove_first(sounds_to_play, snd_win); }
-
 
 update_log("SEED", global.seed);
 update_log("DIFFICULTY", get_difficulty_string(global.difficulty));

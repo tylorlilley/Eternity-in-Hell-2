@@ -27,11 +27,10 @@ function RoomLayout(_room_asset) constructor {
 		return -1;
 	};
 	
-	/// @function get_open_dirs()
-	/// @description The sides the layout file opens before it is flipped or rotated. Every layout opens up, then
-	///	right, down and left in that order as its exit kind adds sides
+	/// @function get_open_directions()
+	/// @description The sides of the raw json room file that start open, before it is flipped or rotated
 	/// @returns {array} Directions, in a new array each call so the caller can change it
-	static get_open_dirs = function() {
+	static get_open_directions = function() {
 		switch (exit_type) {
 			case layout_exit_types.one: return [directions.up];
 			case layout_exit_types.two_opposite: return [directions.up, directions.down];

@@ -1,7 +1,7 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "scr_new_map_generation",
+  "name": "scr_lock_search_area",
   "isCompatibility": false,
   "isDnD": false,
   "parent": {

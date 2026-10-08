@@ -797,11 +797,11 @@ function GameMap() constructor {
 		var _possible_rooms = array_shuffle(rooms), _collectables_rooms = 1;
 		heart_room.has_collectables = true;
 		
-		// Add collectables to hert room and other rooms at random
+		// Add collectables to heart room and other rooms at random
 		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
 			var _possible_room = _possible_rooms[_i];
-			if (!_possible_room.is_start_room && (_possible_room.is_heart_room || get_random_chance_out_of(COLLECTABLE_PROBABILITY))) {
-				_room.has_collectables = true;
+			if (!_possible_room.is_start_room && !_possible_room.is_heart_room && (_possible_room.is_heart_room || get_random_chance_out_of(COLLECTABLE_PROBABILITY))) {
+				_possible_room.has_collectables = true;
 				_collectables_rooms += 1;
 			}
 		}
@@ -810,7 +810,7 @@ function GameMap() constructor {
 		var _minimum_collectable_rooms = ceil(array_length(rooms) / 4) + 1;
 		for (var _j = 0; _j < array_length(_possible_rooms) && _collectables_rooms < _minimum_collectable_rooms; _j++) {
 			var _extra_room = _possible_rooms[_j];
-			if (!_possible_room.is_start_room && !_extra_room.has_collectables) {
+			if (!_extra_room.is_start_room && !_extra_room.has_collectables) {
 				_extra_room.has_collectables = true;
 				_collectables_rooms += 1;
 			}

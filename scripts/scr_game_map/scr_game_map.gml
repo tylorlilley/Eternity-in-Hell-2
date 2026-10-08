@@ -879,9 +879,10 @@ function GameMap() constructor {
 	/// @function assign_chest_contents(_rooms)
 	/// @description Handles assigning regular items to any remaining chests
 	static assign_chest_contents = function() {
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			var _chest_room = rooms[_i];
-			if (!_chest_room.has_regular_item_chest()) { continue; }
+		_possible_rooms = array_shuffle(rooms);
+		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
+			var _chest_room = _possible_rooms[_i];
+			if (!_chest_room.has_chest()) { continue; }
 
 			// Lock special item chests and some other chests
 			if (_chest_room.stairs_spot_obj == obj_chest) {
@@ -922,7 +923,7 @@ function GameMap() constructor {
 			if (!_empty_room.can_have_chest() || !_empty_room.can_have_special_item()) { continue; }
 
 			// Create a new chest to hold the special item in this room
-			_empty_room.add_chest(_empty_room.is_special_room);
+			_empty_room.add_chest();
 			_empty_room.has_special_item = true;
 			_cursed_items_to_assign -= 1;
 		}

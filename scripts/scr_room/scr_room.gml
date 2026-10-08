@@ -41,7 +41,7 @@ function GameRoom(given_x, given_y) constructor {
 	key_spot = -1;							// Which collectable spot, in layout file order, the floor key takes (R57)
 	mapgen_index = -1;						// Its place in its map's rooms, which the key check's room bitmasks use (set by GameMap)
 	mapgen_sin = undefined;					// The sin reserved for it (step 4)
-	mapgen_chest_lock = -1;					// Its locked chest's number in the key check
+	unlocked_chests_bitmask_index = -1;					// Its locked chest's number in the key check
 	mapgen_needs_layout = true;				// Its side exits changed since its last layout pick (R16)
 	
 	// Its layout's orientation, so the layout's openings face its side exits (step 5)
@@ -266,7 +266,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @returns {real} The new bitmask
 	function get_reachable_rooms_bitmask() {
 		// For each room in the queue, add to the queue all new rooms reachable from that room
-		var _queue = [id], _reached_rooms_bitmask = 0;
+		var _queue = [self], _reached_rooms_bitmask = 0;
 		while (array_length(_queue) > 0) {
 			// Get the next room in the queue and mark it as reached in the bitmask
 			var _room = array_shift(_queue);

@@ -908,7 +908,7 @@ function GameMap() constructor {
 		// Assign to already placed chests
 		for (var _i = 0; _i < array_length(_possible_rooms) && _cursed_items_to_assign > 0; _i++) {
 			// Skip rooms with no chest or that can't have a cursed item
-			var _chest_room = _rooms[_i];
+			var _chest_room = _possible_rooms[_i];
 			if (!_chest_room.has_chest() || _chest_room == guaranteed_chest_room || !_chest_room.can_have_special_item()) { continue; }
 
 			// Assign the room to contain a cursed item
@@ -918,11 +918,11 @@ function GameMap() constructor {
 
 		// Create new chests as needed
 		for (var _j = 0; _j < array_length(_possible_rooms) && _cursed_items_to_assign > 0; _j++) {
-			var _empty_room = _rooms[_j];
-			if (!_empty_room.can_have_chest() || !_chest_room.can_have_special_item()) { continue; }
+			var _empty_room = _possible_rooms[_j];
+			if (!_empty_room.can_have_chest() || !_empty_room.can_have_special_item()) { continue; }
 
 			// Create a new chest to hold the special item in this room
-			_empty_room.add_chest(true);
+			_empty_room.add_chest(_empty_room.is_special_room);
 			_empty_room.has_special_item = true;
 			_cursed_items_to_assign -= 1;
 		}

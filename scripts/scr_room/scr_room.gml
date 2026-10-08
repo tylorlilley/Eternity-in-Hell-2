@@ -730,10 +730,10 @@ function GameRoom(given_x, given_y) constructor {
 		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
 	}
 
-	/// @function add_chest()
+	/// @function add_chest(_must_be_hidden)
 	/// @description Puts a chest with no item yet in the room. Hidden chests can appear only in unlit lantern rooms with no phantom
 	/// @param {bool} _must_be_hidden Whether to force a hidden chest to spawn or not
-	function add_chest(_must_be_hidden) {
+	function add_chest(_must_be_hidden = false) {
 		has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && !spawns_phantom() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
 		set_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
 	}

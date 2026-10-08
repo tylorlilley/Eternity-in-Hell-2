@@ -383,6 +383,7 @@ function GameRoom(given_x, given_y) constructor {
 		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
 		if (spawns_rolled_dangers()) {
 			hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
+			hazard_count_add(_counts, "obj_column", -replaced_column_fountain_count);
 			hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
 			hazard_count_add(_counts, "obj_nose", initial_nose_count);
 			hazard_count_add(_counts, "obj_fire_skeleton", initial_fire_skeleton_count); // These are ones spawned in lava, in addition to any skeleton spots above

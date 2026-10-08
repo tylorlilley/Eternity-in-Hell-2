@@ -11,12 +11,6 @@ function LockSearchArea(_reached_rooms, _unlocked_chests, _rooms) constructor {
 	reached_torch = false;
 	reached_special_key = false;
 	
-	/// @function get_key(_area)
-	/// @description Returns the unique key for this search area
-	static get_key = function() {
-		return get_search_area_key(reached_rooms, unlocked_chests);
-	}
-	
 	/// @function initialize_area(_rooms)
 	/// @description Initializes the values for what can be reached within this search area
 	function initialize_area(_rooms) {

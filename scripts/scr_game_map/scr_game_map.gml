@@ -129,13 +129,17 @@ function GameMap() constructor {
 		var _first_pass = true;
 		do {
 			// Add another room to the layout
-			if (is_undefined(add_new_room())) { break; }
+			if (is_undefined(add_new_room())) {
+				if (!_first_pass) break;
+				else { return fail_generation("no room could grow"); }
+			}
 			
 			// add additional room links up to a minimum amount
 			link_adjacent_rooms();
 			
-			// On first pass, also mark a room as a sin room or a starting room
-			// TODO: Why only do this on first pass? This should get reset and re-assigned on each loop of this do until with other decorations?
+			// On first pass, also mark a room as a sin room and ensure at least one possible start room exists.
+			// This is only needed on the first pass because the sin rooms change the shape of the map and its links, which can't be undone.
+			// The starting room check also only needs to happen here in case a sin room used up the last room that could have been the start.
 			if (_first_pass) {
 				_first_pass = false;
 				if (!find_or_create_sin_rooms()) { return fail_generation("no room could be shaped for a sin"); }

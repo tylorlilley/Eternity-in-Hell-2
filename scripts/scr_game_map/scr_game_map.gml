@@ -865,13 +865,13 @@ function GameMap() constructor {
 			else if (is_undefined(guaranteed_chest_room)) {
 				// Spawn a guaranteed chest which holds a map on E, or a map or compass from M.
 				// It may be hidden or locked but is never cursed, and thus never in a special room
-				_possible_room.place_chest();
+				_possible_room.add_chest();
 				_possible_room.chest_obj = (global.difficulty == difficulties.easy || get_coin_flip()) ? obj_map : obj_compass;
 				guaranteed_chest_room = _possible_room;
 			}
 			else if (get_random_chance_out_of(CHEST_PROBABILITY)) {
 				// For all other rooms, place a regular chest
-				_possible_room.place_chest();
+				_possible_room.add_chest();
 			}
 		}
 	};
@@ -922,7 +922,7 @@ function GameMap() constructor {
 			if (!_empty_room.can_have_chest() || !_chest_room.can_have_special_item()) { continue; }
 
 			// Create a new chest to hold the special item in this room
-			_empty_room.place_chest();
+			_empty_room.add_chest(true);
 			_empty_room.has_special_item = true;
 			_cursed_items_to_assign -= 1;
 		}

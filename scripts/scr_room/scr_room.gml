@@ -1275,6 +1275,7 @@ function GameRoom(given_x, given_y) constructor {
 	}
 	
 	/// @function								add_chest();
+	/*
 	function add_chest(must_spawn, given_item_obj) {
 		if (!must_spawn && !get_random_chance_out_of(CHEST_PROBABILITY) && !is_special_room) { return -1; }
 		
@@ -1296,6 +1297,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		return spawned_item_obj;
 	}
+	*/
 	
 	/// @function									initialize_from_room_reference();
 	function initialize_from_room_reference() {

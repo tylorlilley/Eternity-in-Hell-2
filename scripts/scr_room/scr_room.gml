@@ -97,8 +97,8 @@ function GameRoom(given_x, given_y) constructor {
 	function can_be_heart(_start) {
 		if (self == _start || is_special_room) { return false; }
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-			var _neighbor = get_connected_room(_dir);
-			if (_neighbor != -1 && (_neighbor == _start || _neighbor.has_hall_of_mirrors)) { return false; }
+			var _connected_room = get_connected_room(_dir);
+			if (_connected_room != -1 && (_connected_room == _start || _connected_room.has_hall_of_mirrors)) { return false; }
 		}
 		return true;
 	}
@@ -320,10 +320,10 @@ function GameRoom(given_x, given_y) constructor {
  
 		// Determine predictive spawn counts
 		// TODO: Why is just this one calcualted based on probabilities instead of what has actually been spawned? We should move the spawning of these earlier in the flow so the difficulty score can work with what actually spawned and no probabilities like this
-		var _living_block_count = (LIVING_BLOCK_PROBABILITY > 0) ? layout.block_spot_count / LIVING_BLOCK_PROBABILITY : 0;
+		var _living_block_count = (LIVING_BLOCK_PROBABILITY > 0) ? layout.get_hazard_count("obj_block_spot") / LIVING_BLOCK_PROBABILITY : 0;
 		
 		// Adjust counts based on what has been spawned
-		hazard_count_add(_counts, "living_block", _living_block_count);
+		hazard_count_add(_counts, "obj_living_block", _living_block_count);
 		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
 		hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
 		hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
@@ -392,7 +392,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @returns {real}
 	function get_time_score() {
 		var _time = get_time_score_for_hazard_counts(get_hazard_counts());
-		if (has_phantom) { _time += PHANTOM_TIME_PER_LANTERN * layout.lantern_count; }
+		if (has_phantom) { _time += PHANTOM_TIME_PER_LANTERN * layout.get_object_count("obj_lantern"); } // Lanterns aren't in the difficulty score table
 		return _time;
 	}
  
@@ -561,7 +561,7 @@ function GameRoom(given_x, given_y) constructor {
 		flip_vertical = get_coin_flip();
 
 		// Where the layout's openings end up once flipped
-		var _open_dirs = layout.get_open_directions();
+		var _open_dirs = layout.get_open_cardinal_exits();
 		for (var _dir = 0; _dir < array_length(_open_dirs); _dir++) {
 			var _open_dir = _open_dirs[_dir];
 			if (flip_horizontal && (_open_dir == directions.left || _open_dir == directions.right)) { _open_dir = get_opposite_dir(_open_dir); }
@@ -605,15 +605,15 @@ function GameRoom(given_x, given_y) constructor {
 		_content.lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
 
 		// Determine how many columns and how many statues to replace with fountains
-		for (var _column = 0; _column < layout.column_count; _column++) {
+		for (var _column = 0; _column < layout.get_hazard_count("obj_column"); _column++) {
 			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { _content.replaced_column_fountain_count += 1; }
 		}
-		for (var _statue = 0; _statue < layout.statue_count; _statue++) {
+		for (var _statue = 0; _statue < layout.get_hazard_count("obj_statue"); _statue++) {
 			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { _content.replaced_statue_fountain_count += 1; }
 		}
 
 		// Determine lava enemy spawns
-		if (layout.lava_count > 0) {
+		if (layout.get_hazard_count("obj_lava") > 0) {
 			if (get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { _content.initial_fire_skeleton_count = 1; }
 			for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
 				if (get_random_chance_out_of(NOSE_PROBABILITY)) { _content.initial_nose_count += 1; }
@@ -621,15 +621,15 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		
 		// Determine eyes enemy spawn
-		var _skeleton_spot_with_eyes = -1;
-		_content.has_eyes = (layout.eyes_count > 0);
-		if (!_content.has_eyes && layout.skeleton_spot_count > 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
+		var _skeleton_spot_count = layout.get_object_count("obj_skeleton_spot"), _skeleton_spot_with_eyes = -1; // Skeleton spots aren't in the difficulty score table
+		_content.has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
+		if (!_content.has_eyes && _skeleton_spot_count > 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
 			_content.has_eyes = true;
-		   	_skeleton_spot_with_eyes = irandom(layout.skeleton_spot_count - 1);
+			_skeleton_spot_with_eyes = irandom(_skeleton_spot_count - 1);
 		}
 
 		// Determine skeleton spot enemies
-		for (var _spot = 0; _spot < layout.skeleton_spot_count; _spot++) {
+		for (var _spot = 0; _spot < _skeleton_spot_count; _spot++) {
 			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type() : _same_skeleton_type;
 			if (_spot == _skeleton_spot_with_eyes) { _skeleton_type = obj_eyes; }
 			
@@ -640,7 +640,7 @@ function GameRoom(given_x, given_y) constructor {
 		_content.has_phantom = layout.has_lanterns && !_content.lit && !_content.has_eyes && !is_special_room && get_random_chance_out_of(PHANTOM_PROBABILITY);
 		_content.has_floater = !_content.has_phantom && !_content.has_eyes && !is_special_room && get_random_chance_out_of(FLOATER_PROBABILITY);
 		_content.has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
-		_content.initial_mouth_count = layout.mouth_count * (MOUTHS_PER_MOUTH - 1);
+		_content.initial_mouth_count = layout.get_hazard_count("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
 
 		// A hall of mirrors' sequence of exits to take
 		if (layout.is_hall_of_mirrors) {
@@ -700,7 +700,7 @@ function GameRoom(given_x, given_y) constructor {
 		}
 		
 		// Remove any other dangers generated for this room
-		has_eyes = (layout.eyes_count > 0);
+		has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
 		has_phantom = false;
 		has_floater = false;
 		replaced_column_fountain_count = 0;
@@ -1857,7 +1857,7 @@ function instances_for_room_reference(room_reference) {
 		return -1;
 	}
 	
-	var minimum_difficulty_content = file_text_read_string(file);
+	var file_difficulty_content = file_text_read_string(file);
 	file_text_readln(file);
 	var file_instances_content = file_text_read_string(file);
 	var decoded_content = json_parse(file_instances_content);          
@@ -1879,9 +1879,9 @@ function difficulty_for_room_reference(room_reference) {
 		return -1;
 	}
 	
-	var minimum_difficulty_content = file_text_read_string(file);
+	var file_difficulty_content = file_text_read_string(file);
 	file_text_readln(file);
-	var decoded_content = string_digits(minimum_difficulty_content);          
+	var decoded_content = string_digits(file_difficulty_content);          
 	file_text_close(file);
 	return real(decoded_content);
 }

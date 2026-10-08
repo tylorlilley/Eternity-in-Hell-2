@@ -27,10 +27,10 @@ function RoomLayout(_room_asset) constructor {
 		return -1;
 	};
 	
-	/// @function get_open_directions()
-	/// @description The sides of the raw json room file that start open, before it is flipped or rotated
+	/// @function get_open_cardinal_exits()
+	/// @description The cardinal exits the raw json room file starts with open, before it is flipped or rotated
 	/// @returns {array} Directions, in a new array each call so the caller can change it
-	static get_open_directions = function() {
+	static get_open_cardinal_exits = function() {
 		switch (exit_type) {
 			case layout_exit_types.one: return [directions.up];
 			case layout_exit_types.two_opposite: return [directions.up, directions.down];
@@ -47,6 +47,15 @@ function RoomLayout(_room_asset) constructor {
 	/// @returns {real} The count, or 0 if the layout places none
 	static get_object_count = function(_object_name) {
 		var _count = object_counts[$ _object_name];
+		return is_undefined(_count) ? 0 : _count;
+	};
+
+	/// @function get_hazard_count(_hazard_name)
+	/// @description How many of a hazard from the difficulty score table the layout places.
+	/// @param {string} _hazard_name The hazard's name in the table, like "obj_column"
+	/// @returns {real} The count, or 0 if the layout places none
+	static get_hazard_count = function(_hazard_name) {
+		var _count = hazard_counts[$ _hazard_name];
 		return is_undefined(_count) ? 0 : _count;
 	};
 
@@ -115,21 +124,6 @@ function RoomLayout(_room_asset) constructor {
 			_difficulty = max(_difficulty, _hazard_table_entry.min_difficulty);
 		}
 		return _difficulty;
-	};
- 
-	/// @function get_open_cardinal_exits()
-	/// @description The sides the layout opens in its own frame, by its exit kind. The orientation step turns them
-	///	to face the room's real exits (mapgen_roll_layout_orientation).
-	/// @returns {array} Side directions
-	static get_open_cardinal_exits = function() {
-		switch (exit_type) {
-			case layout_exit_types.one: return [directions.up];
-			case layout_exit_types.two_opposite: return [directions.up, directions.down];
-			case layout_exit_types.two_perpendicular: return [directions.up, directions.right];
-			case layout_exit_types.three: return [directions.up, directions.right, directions.down];
-			case layout_exit_types.four: return [directions.up, directions.right, directions.down, directions.left];
-			default: return [];
-		}
 	};
  
 	/// @function block_walking_area(_grid, _x, _y, _half)

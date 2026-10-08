@@ -31,7 +31,7 @@ function LockSearchArea(_reached_rooms, _unlocked_chests) constructor {
 				if (_room.key_in_chest && _room.chest_obj == obj_bomb) { bombs_reached += 1; }
 				else { keys_reached += 1; }
 			}
-			if (_room.lit) { reached_lit_room = true; }
+			if (_room.is_lit()) { reached_lit_room = true; }
 			if (_room.has_locked_chest && _room.mapgen_chest_lock == -1) { useless_locked_chests_reached += 1; } // TODO: What is mapgen_chest_lock for?
 			
 			// If the room has a lockless or unlocked chest

@@ -734,7 +734,7 @@ function GameMap() constructor {
 
 	/// @function determine_start_and_heart_rooms()
 	/// @description Makes the start and heart the two ends of the longest path, including stairs. Then measures every room's distance from the start,
-	/// places the cross and the encased heart, and makes the start safe.
+	/// and places the cross and the encased heart. Being the start keeps the room's rolled dangers from spawning (see GameRoom.spawns_rolled_dangers).
 	/// @returns {bool} False if no pair is allowed
 	static determine_start_and_heart_rooms = function() {
 		var _longest_distance = -1, _longest_pairs = [];
@@ -776,7 +776,6 @@ function GameMap() constructor {
 		start_room = _pair[0];
 		start_room.is_start_room = true;
 		start_room.set_stairs_spot_object(obj_cross);
-		start_room.remove_random_room_content();
 		heart_room = _pair[1];
 		heart_room.is_heart_room = true;
 		heart_room.set_stairs_spot_object(obj_encased_heart);
@@ -819,7 +818,8 @@ function GameMap() constructor {
 	};
 
 	/// @function find_or_set_one_lit_room()
-	/// @description Ensures at least one lantern room starts lit; if none rolled lit, lights a random non-sin lantern
+	/// @description Ensures at least one lantern room starts lit; if none rolled lit, makes a random non-special lantern room
+	///	the guaranteed lit room. Being lit keeps that room's phantom from spawning (see GameRoom.spawns_phantom).
 	static find_or_set_one_lit_room = function() {
 		// Check all rooms to find a viable room to lit, or already lit room
 		var _lantern_rooms = [];
@@ -829,7 +829,7 @@ function GameMap() constructor {
 			if (!_room.has_lanterns || _room.is_special_room) { continue; }
 			
 			// Return if a an already lit room is found
-			if (_room.lit) { return; }
+			if (_room.is_lit()) { return; }
 			
 			// Otherwise, add to array of lightable lantern rooms
 			array_push(_lantern_rooms, _room);
@@ -844,8 +844,7 @@ function GameMap() constructor {
 		
 		// Set one of the random unlit rooms to lit
 		var _lit_room = array_random_get(_lantern_rooms);
-		_lit_room.lit = true;
-		_lit_room.has_phantom = false;
+		_lit_room.is_guaranteed_lit_room = true;
 	};
 
 	/// @function create_chests()
@@ -1408,6 +1407,13 @@ function GameMap() constructor {
 		return _extra;
 	};
 
+	/// @function apply_room_roles()
+	/// @description Has every room write what it spawns, given its role, into the content fields building reads
+	///	(see GameRoom.apply_roles_to_content). Only for the finished map.
+	static apply_room_roles = function() {
+		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].apply_roles_to_content(); }
+	};
+
 	/// @function calculate_collectables_and_items_lists()
 	/// @description Lists what the controller tracks during play: the rooms with collectables, and the
 	///	regular and cursed items in chests.
@@ -1464,6 +1470,7 @@ function generate_map() {
 	
 	// Pass the necessary variables onto the controller
 	random_set_seed(_build_seed);
+	_map.apply_room_roles();
 	_map.calculate_collectables_and_items_lists();
 
 	return _map;

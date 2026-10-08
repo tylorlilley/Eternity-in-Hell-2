@@ -30,6 +30,7 @@ function GameRoom(given_x, given_y) constructor {
 	is_special_room = false;
 	is_start_room = false;
 	is_heart_room = false;
+	is_guaranteed_lit_room = false;			// Generation lit it so the map has at least one lit room (see is_lit)
 	
 	// New MapGen Values
 	layout = undefined;						// The cached layout this room is built from (see RoomLayout)
@@ -40,7 +41,6 @@ function GameRoom(given_x, given_y) constructor {
 	key_spot = -1;							// Which collectable spot, in layout file order, the floor key takes (R57)
 	mapgen_index = -1;						// Its place in its map's rooms, which the key check's room bitmasks use (set by GameMap)
 	mapgen_sin = undefined;					// The sin reserved for it (step 4)
-	mapgen_content = undefined;				// What step 5 rolled for its layout
 	mapgen_chest_lock = -1;					// Its locked chest's number in the key check
 	mapgen_needs_layout = true;				// Its side exits changed since its last layout pick (R16)
 	
@@ -49,7 +49,9 @@ function GameRoom(given_x, given_y) constructor {
 	flip_vertical = false;
 	rotate = noone;
 	
-	// The content step 5 rolls for its layout, given back to it at the start of every decoration pass (step 6)
+	// The content rolled for its layout, along with lit above. Generation never edits it after rolling it; the room's
+	// role decides which of it spawns (see is_lit, spawns_rolled_dangers, spawns_phantom and spawns_floater), and
+	// apply_roles_to_content writes that into these fields once the map is finished
 	has_eyes = false;
 	has_phantom = false;
 	has_floater = false;
@@ -296,6 +298,52 @@ function GameRoom(given_x, given_y) constructor {
 		return (_bitmask & (1 << mapgen_index)) != 0;
 	}
 
+	/// @function is_lit()
+	/// @description Whether the room starts with its lanterns lit: it rolled lit, or generation lit it so the map has a lit room
+	/// @returns {bool}
+	function is_lit() {
+		return lit || is_guaranteed_lit_room;
+	}
+
+	/// @function spawns_rolled_dangers()
+	/// @description Whether the dangers rolled for the room spawn. The start room spawns none of them, so nothing can hurt
+	///	the player before they act: no phantom, floater, fountains, noses or lava fire skeletons, and only safe skeleton types.
+	/// @returns {bool}
+	function spawns_rolled_dangers() {
+		return !is_start_room;
+	}
+
+	/// @function spawns_phantom()
+	/// @description Whether the room's rolled phantom spawns: never in the start room, a lit room or a portcullis trap room
+	/// @returns {bool}
+	function spawns_phantom() {
+		return has_phantom && spawns_rolled_dangers() && !is_lit() && !has_portcullis_button;
+	}
+
+	/// @function spawns_floater()
+	/// @description Whether the room's rolled floater spawns: never in the start room or a portcullis trap room
+	/// @returns {bool}
+	function spawns_floater() {
+		return has_floater && spawns_rolled_dangers() && !has_portcullis_button;
+	}
+
+	/// @function get_spawned_skeleton_types()
+	/// @description What spawns on the room's skeleton spots. If the room doesn't spawn its rolled dangers, each dangerous
+	///	type rolled for a spot, rolled eyes included, spawns as a basic skeleton instead.
+	/// @returns {array} One object per skeleton spot; a new array for a room that doesn't spawn its rolled dangers, so the rolled types stay as rolled
+	function get_spawned_skeleton_types() {
+		if (spawns_rolled_dangers()) { return skeleton_types; }
+
+		var _spawned_types = [];
+		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
+			var _skeleton_type = skeleton_types[_i];
+			var _is_dangerous = (_skeleton_type != obj_skeleton && _skeleton_type != obj_fast_skeleton && _skeleton_type != obj_cockroach && _skeleton_type != obj_fat_skeleton);
+			array_push(_spawned_types, _is_dangerous ? obj_skeleton : _skeleton_type);
+		}
+
+		return _spawned_types;
+	}
+
 	/// @function get_skeleton_spot_score(_spawn)
 	/// @description Scores a skeleton spot by what spawns there, each value replacing the basic skeleton's
 	///	(R55). A spot holding eyes scores nothing here, since the room's eyes score once.
@@ -320,9 +368,10 @@ function GameRoom(given_x, given_y) constructor {
 	function get_hazard_counts() {
 		var _counts = hazard_counts_copy(layout.hazard_counts);
 		
-		// Fill in what spawned on the skeleton spots
-		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
-			hazard_count_add(_counts, object_get_name(skeleton_types[_i]), 1);
+		// Fill in what spawns on the skeleton spots
+		var _skeleton_types = get_spawned_skeleton_types();
+		for (var _i = 0; _i < array_length(_skeleton_types); _i++) {
+			hazard_count_add(_counts, object_get_name(_skeleton_types[_i]), 1);
 		}
  
 		// Determine predictive spawn counts
@@ -332,12 +381,14 @@ function GameRoom(given_x, given_y) constructor {
 		// Adjust counts based on what has been spawned
 		hazard_count_add(_counts, "obj_living_block", _living_block_count);
 		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
-		hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
-		hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
-		hazard_count_add(_counts, "obj_nose", initial_nose_count);
-		hazard_count_add(_counts, "obj_fire_skeleton", initial_fire_skeleton_count); // These are ones spawned in lava, in addition to any skeleton spots above
-		hazard_count_add(_counts, "obj_phantom", ((has_phantom) ? 1 : 0));
-		hazard_count_add(_counts, "obj_floater", ((has_floater) ? 1 : 0));
+		if (spawns_rolled_dangers()) {
+			hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
+			hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
+			hazard_count_add(_counts, "obj_nose", initial_nose_count);
+			hazard_count_add(_counts, "obj_fire_skeleton", initial_fire_skeleton_count); // These are ones spawned in lava, in addition to any skeleton spots above
+		}
+		hazard_count_add(_counts, "obj_phantom", ((spawns_phantom()) ? 1 : 0));
+		hazard_count_add(_counts, "obj_floater", ((spawns_floater()) ? 1 : 0));
 		hazard_count_add(_counts, "obj_chest", ((has_trap_chest()) ? 1 : 0));
 		hazard_count_add(_counts, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
 		
@@ -399,7 +450,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @returns {real}
 	function get_time_score() {
 		var _time = get_time_score_for_hazard_counts(get_hazard_counts());
-		if (has_phantom) { _time += PHANTOM_TIME_PER_LANTERN * layout.get_object_count("obj_lantern"); } // Lanterns aren't in the difficulty score table
+		if (spawns_phantom()) { _time += PHANTOM_TIME_PER_LANTERN * layout.get_object_count("obj_lantern"); } // Lanterns aren't in the difficulty score table
 		return _time;
 	}
  
@@ -440,7 +491,7 @@ function GameRoom(given_x, given_y) constructor {
 			}
 		}
 		if (has_portcullis_button) {
-			var _spots = lit ? [button_on_stairs_spot ? -1 : button_spot] : list_button_spots();
+			var _spots = is_lit() ? [button_on_stairs_spot ? -1 : button_spot] : get_portcullis_button_spots();
 			for (var _j = 0; _j < array_length(_spots); _j++) {
 				add_walk_target(_targets, (_spots[_j] == -1) ? layout.walk_stairs_point : layout.walk_collectable_points[_spots[_j]]);
 			}
@@ -590,96 +641,70 @@ function GameRoom(given_x, given_y) constructor {
 	}
 
 	/// @function determine_random_room_content(_same_skeleton_type)
-	/// @description Determines the randomly generated content for a room
+	/// @description Rolls the random content for the room's layout, straight onto the room. It's rolled once per layout
+	///	pick and never edited afterwards; the room's role decides which of it spawns (see spawns_rolled_dangers).
 	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
 	function determine_random_room_content(_same_skeleton_type) {
-		var _content = {
-			lit: false,
-			has_eyes: false,
-			has_phantom: false,
-			has_floater: false,
-			has_moving_collectable: false,
-			replaced_column_fountain_count: 0,
-			replaced_statue_fountain_count: 0,
-			initial_nose_count: 0,
-			initial_fire_skeleton_count: 0,
-			initial_mouth_count: 0,
-			skeleton_types: [],
-			mirror_directions: []
-		};
-
 		// Only lantern rooms that aren't special rooms can start lit
-		_content.lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
+		lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
 
 		// Determine how many columns and how many statues to replace with fountains
+		replaced_column_fountain_count = 0;
 		for (var _column = 0; _column < layout.get_hazard_count("obj_column"); _column++) {
-			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { _content.replaced_column_fountain_count += 1; }
+			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { replaced_column_fountain_count += 1; }
 		}
+		replaced_statue_fountain_count = 0;
 		for (var _statue = 0; _statue < layout.get_hazard_count("obj_statue"); _statue++) {
-			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { _content.replaced_statue_fountain_count += 1; }
+			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { replaced_statue_fountain_count += 1; }
 		}
 
 		// Determine lava enemy spawns
+		initial_fire_skeleton_count = 0;
+		initial_nose_count = 0;
 		if (layout.get_hazard_count("obj_lava") > 0) {
-			if (get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { _content.initial_fire_skeleton_count = 1; }
+			if (get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { initial_fire_skeleton_count = 1; }
 			for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
-				if (get_random_chance_out_of(NOSE_PROBABILITY)) { _content.initial_nose_count += 1; }
+				if (get_random_chance_out_of(NOSE_PROBABILITY)) { initial_nose_count += 1; }
 			}
 		}
 		
 		// Determine eyes enemy spawn
 		var _skeleton_spot_count = layout.get_object_count("obj_skeleton_spot"), _skeleton_spot_with_eyes = -1; // Skeleton spots aren't in the difficulty score table
-		_content.has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
-		if (!_content.has_eyes && _skeleton_spot_count > 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
-			_content.has_eyes = true;
+		has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
+		if (!has_eyes && _skeleton_spot_count > 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
+			has_eyes = true;
 			_skeleton_spot_with_eyes = irandom(_skeleton_spot_count - 1);
 		}
 
 		// Determine skeleton spot enemies
+		skeleton_types = [];
 		for (var _spot = 0; _spot < _skeleton_spot_count; _spot++) {
 			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type() : _same_skeleton_type;
 			if (_spot == _skeleton_spot_with_eyes) { _skeleton_type = obj_eyes; }
 			
-			array_push(_content.skeleton_types, _skeleton_type);
+			array_push(skeleton_types, _skeleton_type);
 		}
 		
 		// Determine additional enemy spawns
-		_content.has_phantom = layout.has_lanterns && !_content.lit && !_content.has_eyes && !is_special_room && get_random_chance_out_of(PHANTOM_PROBABILITY);
-		_content.has_floater = !_content.has_phantom && !_content.has_eyes && !is_special_room && get_random_chance_out_of(FLOATER_PROBABILITY);
-		_content.has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
-		_content.initial_mouth_count = layout.get_hazard_count("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
+		has_phantom = layout.has_lanterns && !lit && !has_eyes && !is_special_room && get_random_chance_out_of(PHANTOM_PROBABILITY);
+		has_floater = !has_phantom && !has_eyes && !is_special_room && get_random_chance_out_of(FLOATER_PROBABILITY);
+		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
+		initial_mouth_count = layout.get_hazard_count("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
 
 		// A hall of mirrors' sequence of exits to take
+		mirror_directions = [];
 		if (layout.is_hall_of_mirrors) {
-			for (var _mirror = 0; _mirror < 4; _mirror++) { array_push(_content.mirror_directions, get_random_carindal_dir()); }
+			for (var _mirror = 0; _mirror < 4; _mirror++) { array_push(mirror_directions, get_random_carindal_dir()); }
 		}
-
-		mapgen_content = _content;
 	};
 
 	/// @function reset_decorations()
-	/// @description Gives the room back the content step 5 rolled for its layout, and clears its decorations.
+	/// @description Clears the room's decorations and roles, so a new decoration pass can place them again. Its rolled
+	///	content stays as it is, since decorations never change it.
 	function reset_decorations() {
-		// The rolled content
-		// TODO: Why is this being reset - does this change later? Why keep mapgen_content around at all?
-		var _content = mapgen_content;
-		lit = _content.lit;
-		has_eyes = _content.has_eyes;
-		has_phantom = _content.has_phantom;
-		has_floater = _content.has_floater;
-		has_moving_collectable = _content.has_moving_collectable;
-		replaced_column_fountain_count = _content.replaced_column_fountain_count;
-		replaced_statue_fountain_count = _content.replaced_statue_fountain_count;
-		initial_nose_count = _content.initial_nose_count;
-		initial_fire_skeleton_count = _content.initial_fire_skeleton_count;
-		initial_mouth_count = _content.initial_mouth_count;
-		skeleton_types = array_get_duplicate(_content.skeleton_types);
-		mirror_directions = array_get_duplicate(_content.mirror_directions);
-		mirror_count = 0;
-
-		// No decorations yet
 		is_start_room = false;
 		is_heart_room = false;
+		is_guaranteed_lit_room = false;
 		distance_to_start = 9999;
 		stairs_spot_obj = -1;
 		chest_on_stairs_spot = false;
@@ -697,25 +722,6 @@ function GameRoom(given_x, given_y) constructor {
 		room_reference_difficulty_score = 0;
 	}
 
-	/// @function remove_random_room_content()
-	/// @description Removes any randomly generated content from the room, limiting it to the static json version
-	function remove_random_room_content() {
-		// Replace any dangerous randomly rolled skeleton types with basic skeletons
-		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
-			var _current_type = skeleton_types[_i]
-			if (_current_type != obj_skeleton && _current_type != obj_fast_skeleton && _current_type != obj_cockroach && _current_type != obj_fat_skeleton) { skeleton_types[_i] = obj_skeleton; }
-		}
-		
-		// Remove any other dangers generated for this room
-		has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
-		has_phantom = false;
-		has_floater = false;
-		replaced_column_fountain_count = 0;
-		replaced_statue_fountain_count = 0;
-		initial_nose_count = 0;
-		initial_fire_skeleton_count = 0;
-	}
-
 	/// @function set_stairs_spot_object(_object)
 	/// @description Places the room's stairs-spot object (the cross, the encased heart, or a chest) and whether it appears on the chest or stairs spot.
 	/// @param {Asset.GMObject} _object What to place
@@ -728,20 +734,18 @@ function GameRoom(given_x, given_y) constructor {
 	/// @description Puts a chest with no item yet in the room. Hidden chests can appear only in unlit lantern rooms with no phantom
 	/// @param {bool} _must_be_hidden Whether to force a hidden chest to spawn or not
 	function add_chest(_must_be_hidden) {
-		has_hidden_chest = _must_be_hidden || (has_lanterns && !lit && !has_phantom && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
+		has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && !spawns_phantom() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
 		set_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
 	}
 
 	/// @function add_portcullis_trap()
 	/// @description Traps the room: the portcullis on its side of each side exit closes until the player presses
-	///	its button. The room loses any phantom or floater, and the button's spot is picked at random from all
-	///	free spots, so building places it exactly there (R52, R57).
+	///	its button. A trap room's phantom and floater don't spawn (see spawns_phantom and spawns_floater), and the
+	///	button's spot is picked at random from all free spots, so building places it exactly there (R52, R57).
 	function add_portcullis_trap() {
-		// Set portcullis flag and unset any flags that shouldn't spawn in portcullis rooms
+		// Set the portcullis flag, which also keeps the room's phantom and floater from spawning
 		has_portcullis_button = true;
-		has_phantom = false;
-		has_floater = false;
-		
+
 		// Add portcullis trigger to each cardinal exit
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _exit = exits[_dir];
@@ -752,6 +756,22 @@ function GameRoom(given_x, given_y) constructor {
 		var _spot = array_random_get(get_portcullis_button_spots());
 		button_on_stairs_spot = (_spot == -1);
 		button_spot = _spot;
+	}
+
+	/// @function apply_roles_to_content()
+	/// @description Writes what the room spawns, given its role, into its content fields, which is what building the
+	///	room reads. Only for a finished map: while generation is still deciding roles, it needs the content as rolled.
+	function apply_roles_to_content() {
+		lit = is_lit();
+		has_phantom = spawns_phantom();
+		has_floater = spawns_floater();
+		skeleton_types = get_spawned_skeleton_types();
+		if (!spawns_rolled_dangers()) {
+			replaced_column_fountain_count = 0;
+			replaced_statue_fountain_count = 0;
+			initial_nose_count = 0;
+			initial_fire_skeleton_count = 0;
+		}
 	}
 
 	/// @function									assign_room_ref(must_have_lantern, spawn_special_room);

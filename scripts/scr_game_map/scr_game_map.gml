@@ -89,7 +89,7 @@ function GameMap() constructor {
 		var _sin = layout_cache.sins[_j], _allowed_layouts = [];
 
 		for (var _k = 0; _k < array_length(_sin.layouts); _k++) {
-			if (_sin.layouts[_k].minimum_difficulty <= global.difficulty) { array_push(_allowed_layouts, _sin.layouts[_k]); }
+			if (is_struct(_sin.layouts[_k]) && _sin.layouts[_k].minimum_difficulty <= global.difficulty) { array_push(_allowed_layouts, _sin.layouts[_k]); }
 		}
 		if (array_length(_allowed_layouts) > 0) { array_push(available_sins, new Sin(_sin.name, _allowed_layouts)); }
 	}
@@ -482,8 +482,8 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _room = rooms[_i];
 			
-			// If room is already a sin room or has stairs, skip it
-			if (_room.is_special_room || _room.has_exit(directions.stairs)) { continue; }
+			// If room can't become a special room, skip it
+			if (!_room.can_become_special_room()) { continue; }
 			
 			// Add room to list of possibilities if one of the sin's layouts matches the room's exit type
 			if (_sin.has_layout_of_type(_room.get_exit_type())) { array_push(_possible_rooms, _room); }
@@ -539,9 +539,9 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
 			var _possible_room = _existing_rooms[_i];
 
-			// Skip rooms that are already special or have stairs
-			// TODO: this only works because this function is currently only used for assigning sin rooms, and for sin rooms we don't want those
-			if (_possible_room.is_special_room || _possible_room.has_exit(directions.stairs)) { continue; }
+			// Skip rooms that cannot become special rooms
+			// NOTE: this only works because this function is currently only used for assigning special rooms
+			if (!_possible_room.can_become_special_room()) { continue; }
 
 			// Skip rooms that can't reach the target, and keep the one needing the fewest new exits
 			var _sides = get_openable_cardinal_exits(_possible_room, _target_exit_count, _needs_opposite_exits);

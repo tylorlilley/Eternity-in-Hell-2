@@ -82,6 +82,13 @@ function GameRoom(given_x, given_y) constructor {
 	// Map generation checks (see GameMap): what generation asks about this room. None of these change the room
 	/// =========
 	
+	/// @function can_become_special_room()
+	/// @description Whether the room can be reserved as a special room
+	/// @returns {bool}
+	function can_become_special_room() {
+		return !is_special_room && !has_exit(directions.stairs);
+	}
+	
 	/// @function can_be_start()
 	/// @description Whether a room can be the start: never a room with stairs or a sin room
 	/// @returns {bool}

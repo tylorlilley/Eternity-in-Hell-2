@@ -194,7 +194,7 @@ function GameRoom(given_x, given_y) constructor {
 			if (_exit == -1) { continue; }
 			
 			// Return false if any exit already has a door, illusion wall, or button
-			if (_exit.has_door || _exit.has_illusion_walls > 0 || _exit.get_connected_room(id).has_portcullis_button) { return false; }
+			if (_exit.has_door || _exit.has_illusion_walls > 0 || _exit.get_connected_room(self).has_portcullis_button) { return false; }
 		}
 		
 		// Return if there is at least one potential button spot
@@ -246,7 +246,7 @@ function GameRoom(given_x, given_y) constructor {
 	function get_portcullis_button_spots() {
 		// Add the stairs spot to the potential button spots
 		var _possible_spots = [];
-		if (is_stairs_spot_free() && layout.stairs_spot_is_clear) { array_push(_spots, -1); }
+		if (is_stairs_spot_free() && layout.stairs_spot_is_clear) { array_push(_possible_spots, -1); }
 
 		// Add any unused key spots to the potential button spots
 		var _spawned_keys = (key_spot != -1) ? 1 : 0;

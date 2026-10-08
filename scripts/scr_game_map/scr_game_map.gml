@@ -1244,20 +1244,19 @@ function GameMap() constructor {
 			if (!_possible_room.can_have_special_exit_types()) { continue; }
 			
 			// Chance to add portcullis trap
-			if (_room.can_have_portcullis() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _room.add_portcullis_trap();  continue; }
+			if (_possible_room.can_have_portcullis() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _possible_room.add_portcullis_trap();  continue; }
 
 			// Otherwise, loop through cardinal exits to decorate them individually
-			// TODO: Did re-ordering this change the probabilities at all? Do we need to correct for that?
 			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 				// Skip exists that don't exist, are connected to the start room, or already have a door or portcullis on either side
 				var _exit = _possible_room.exits[_dir];
-				if (_exit == -1 || _exit.has_door || _exit.room_1_has_closed_portcullis || _exit.room_2_has_closed_portcullis || _exit.get_connected_room(_room).is_start_room || _exit.has_illusion_walls) { continue; }
+				if (_exit == -1 || _exit.has_door || _exit.room_1_has_closed_portcullis || _exit.room_2_has_closed_portcullis || _exit.has_illusion_walls) { continue; }
 
 				// Randomly try to set the exit to contain illusion walls
-				if (get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.has_illusion_walls = 1; continue; }
+				if (!_exit.get_connected_room(_possible_room).is_start_room && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.has_illusion_walls = 1; continue; }
 				
 				// Otherwise, try to set the exit to have regular doors
-				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY)) { _exit.has_door = true; continue; }
+				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY * 2)) { _exit.has_door = true; continue; }
 			}
 		}
 	};

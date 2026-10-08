@@ -1197,8 +1197,7 @@ function GameMap() constructor {
 				var _new_room = (_room_1_reached) ? _locked_exit.room_1 :  _locked_exit.room_2;
 				
 				var _new_reached_rooms = _search_area.reached_rooms | _new_room.get_reachable_rooms_bitmask();
-				var _new_search_area = new LockSearchArea(_new_reached_rooms, _search_area.unlocked_chests, rooms);
-				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _new_search_area);
+				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _new_reached_rooms, _search_area.unlocked_chests);
 			}
 			
 			// ...or a locked chest that matters, in the area
@@ -1211,8 +1210,7 @@ function GameMap() constructor {
 				if (!_chests_that_matter[_chest].is_in_bitmask(_search_area.reached_rooms)) { continue; }
 				
 				// Otherwise, add a new area to the queue of areas to check, which is this same area with the new chest unlocked
-				var _new_search_area = new LockSearchArea(_search_area.reached_rooms, _new_unlocked_chests, rooms);
-				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _new_search_area);
+				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _search_area.reached_rooms, _new_unlocked_chests);
 			}
 		}
 		
@@ -1224,12 +1222,13 @@ function GameMap() constructor {
 	/// @param {array} _search_area_check_queue			The ordered queue of areas to check
 	/// @param {struct} _search_areas_in_queue_map		Map of areas in the check queue; used to determine if the new area is unique
 	/// @param {LockSearchArea} _search_area			Struct containg the reached bitmask and the opened chests bitmask
-	static add_search_area_to_queue_if_unique = function(_search_area_check_queue, _search_areas_in_queue_map, _search_area) {
+	static add_search_area_to_queue_if_unique = function(_search_area_check_queue, _search_areas_in_queue_map, _new_reached_rooms, _new_unlocked_chests) {
 		// Skip adding to the queue if this state was already reached
-		var _area_key = _search_area.get_key();
+		var _area_key = get_search_area_key(_new_reached_rooms, _new_unlocked_chests);
 		if (!is_undefined(_search_areas_in_queue_map[$ _area_key])) { return; }
 		
 		// Mark area as reached and add it to the areas array
+		var _search_area = new LockSearchArea(_new_reached_rooms, _new_unlocked_chests, rooms);
 		_search_areas_in_queue_map[$ _area_key] = true;
 		array_push(_search_area_check_queue, _search_area);
 	};

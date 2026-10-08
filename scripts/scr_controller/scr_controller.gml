@@ -1038,7 +1038,7 @@ function old_controller_init() {
 	create_room_lists();
 
 	// Determine set skeleton type
-	same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_FREQUENCY) ? get_skeleton_type(false) : noone;
+	same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY) ? get_skeleton_type(false) : noone;
 
 	// Setup physical game map
 	if (create_game_map() == -1) {
@@ -1175,7 +1175,7 @@ function old_controller_init() {
 		//if (room_difficulty == difficulties.hard) { room_time_provided += TIME_PROVIDED_PER_HARD_ROOM; }
 		//if (given_room.has_misleading_exits) { room_time_provided += TIME_PROVIDED_PER_DEAD_END; }
 		//if (given_room.has_locked_chest) { room_time_provided += TIME_PROVIEDED_PER_LOCK; }
-		var given_room = game_rooms[i], reference_difficulty = given_room.room_reference_difficulty;
+		var given_room = game_rooms[i], reference_difficulty = given_room.room_reference_difficulty_score;
 		if (reference_difficulty < 0 ) { reference_difficulty = 0; }
 		var room_time_provided = TIME_PROVIDED_PER_ROOM * (reference_difficulty / AVERAGE_ROOM_DIFFICULTY);
 		if (room_time_provided < 12) { room_time_provided = 12; }

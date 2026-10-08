@@ -79,7 +79,7 @@ function GameMap() constructor {
 	// Assign the cached layouts to their exit type's array, if the difficulty allows
 	for (var _i = 0; _i < array_length(layout_cache.layouts); _i++) {
 		var _layout = layout_cache.layouts[_i];
-		if (_layout.file_difficulty <= global.difficulty && !_layout.is_sin_room) {
+		if (_layout.minimum_difficulty <= global.difficulty && !_layout.is_sin_room) {
 			array_push(layouts_by_exit_type[_layout.exit_type], _layout);
 		}
 	}
@@ -89,7 +89,7 @@ function GameMap() constructor {
 		var _sin = layout_cache.sins[_j], _allowed_layouts = [];
 
 		for (var _k = 0; _k < array_length(_sin.layouts); _k++) {
-			if (_sin.layouts[_k].file_difficulty <= global.difficulty) { array_push(_allowed_layouts, _sin.layouts[_k]); }
+			if (_sin.layouts[_k].minimum_difficulty <= global.difficulty) { array_push(_allowed_layouts, _sin.layouts[_k]); }
 		}
 		if (array_length(_allowed_layouts) > 0) { array_push(available_sins, new Sin(_sin.name, _allowed_layouts)); }
 	}
@@ -120,7 +120,7 @@ function GameMap() constructor {
 		roll_map_events();
 
 		// grow the graph to the minimum room count, without assigning room layouts
-		create_room_at_map_position(0, 0);
+		create_room_at_cell(0, 0);
 		while (array_length(rooms) < MINIMUM_NUMBER_OF_ROOMS - 1) {
 			if (is_undefined(add_new_room())) { return fail_generation("no room could grow"); }
 		}
@@ -154,12 +154,12 @@ function GameMap() constructor {
 			assign_or_create_cursed_item_chests();
 			assign_chest_contents();
 			if (!create_locked_exits_and_keys()) { return fail_generation("the locks and keys could not be placed"); }
-			determine_other_exit_types();
+			determine_special_exit_types();
 			
 			// Calculate total map difficulty
 			calculate_map_difficulty_score();
 		}
-		until (difficulty_score >= MAP_SCORE_TARGET || array_length(rooms) >= MAX_NUMBER_OF_ROOMS);
+		until (difficulty_score >= MAP_DIFFICULTY_SCORE_TARGET || array_length(rooms) >= MAX_NUMBER_OF_ROOMS);
 	
 		// Calculate the time provided for the final map
 		calculate_time_provided();
@@ -171,8 +171,8 @@ function GameMap() constructor {
 	///	the map-wide events, the map's sins, and how many cursed items spawn outside sin rooms.
 	static roll_map_events = function() {
 		// Set the Map Shape and Same Skeleton Type Events
-		long_and_straight_map = get_random_chance_out_of(SPECIAL_MAP_SHAPE_FREQUENCY); // TODO: Implement this and other shapes. Add eval messages
-		same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_FREQUENCY) ? get_skeleton_type(false) : noone; // TODO: Add eval messages
+		long_and_straight_map = get_random_chance_out_of(SPECIAL_MAP_SHAPE_PROBABILITY); // TODO: Implement this and other shapes. Add eval messages
+		same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY) ? get_skeleton_type(false) : noone; // TODO: Add eval messages
 
 		// Set Number of Special Sin Rooms to Include
 		var _sins_left = array_get_duplicate(available_sins), _sin_limit = SPECIAL_ROOM_LIMIT, _sin_count = 0;
@@ -194,12 +194,12 @@ function GameMap() constructor {
 		cursed_item_count = _special_item_count;
 	};
 
-	/// @function create_room_at_map_position(_x, _y)
+	/// @function create_room_at_cell(_x, _y)
 	/// @description Adds a room on a free grid cell, with no exits or layout yet (R3).
 	/// @param {real} _x The grid column
 	/// @param {real} _y The grid row
 	/// @returns {GameRoom} The new room
-	static create_room_at_map_position = function(_x, _y) {
+	static create_room_at_cell = function(_x, _y) {
 		var _room = new GameRoom(_x, _y);
 		
 		// Add room to map's rooms array, and room_at_cell lookup table
@@ -250,12 +250,12 @@ function GameMap() constructor {
 		return room_at_cell[$ get_cell_key(_x, _y)];
 	};
 
-	/// @function get_neighbor(_room, _dir)
+	/// @function get_adjacent_room(_room, _dir)
 	/// @description The room on the grid cell beside a room, linked to it or not.
 	/// @param {GameRoom} _room The room
 	/// @param {real} _dir A side direction
 	/// @returns {GameRoom|undefined} The neighbor, or undefined if the cell is free
-	static get_neighbor = function(_room, _dir) {
+	static get_adjacent_room = function(_room, _dir) {
 		return get_room_at(_room.virtual_x + get_dir_x_offset(_dir), _room.virtual_y + get_dir_y_offset(_dir));
 	};
 
@@ -322,7 +322,7 @@ function GameMap() constructor {
 				
 				// Create new room to link via stairs in that grid cell
 				if (!is_undefined(_cell)) {
-					_linked_room = create_room_at_map_position(_cell[0], _cell[1]);
+					_linked_room = create_room_at_cell(_cell[0], _cell[1]);
 					link_rooms_with_new_exit(_potential_room, _linked_room, directions.stairs);
 
 					// Set the room to be accessed by stairs only sometimes
@@ -334,7 +334,7 @@ function GameMap() constructor {
 			if (is_undefined(_linked_room)) {
 				var _dir = find_unoccupied_adjacent_cell_direction(_potential_room);
 				if (_dir != -1) {
-					_linked_room = create_room_at_map_position(_potential_room.virtual_x + get_dir_x_offset(_dir), _potential_room.virtual_y + get_dir_y_offset(_dir));
+					_linked_room = create_room_at_cell(_potential_room.virtual_x + get_dir_x_offset(_dir), _potential_room.virtual_y + get_dir_y_offset(_dir));
 					link_rooms_with_new_exit(_potential_room, _linked_room, _dir);
 				}
 			}
@@ -387,7 +387,7 @@ function GameMap() constructor {
 		var _dirs = array_shuffle(cardinal_exit_directions);
 		for (var _dir = 0; _dir < array_length(_dirs); _dir++) {
 			// If the map grid's cell is unoccupied at this space, return this direction
-			if (is_undefined(get_neighbor(_room, _dirs[_dir]))) { return _dirs[_dir]; }
+			if (is_undefined(get_adjacent_room(_room, _dirs[_dir]))) { return _dirs[_dir]; }
 		}
 		
 		// If no adjacent map grid cells are unoccupied, return -1
@@ -421,7 +421,7 @@ function GameMap() constructor {
 				if (_potential_room.has_exit(_dirs[_dir])) { continue; }
 				
 				// Continue if no neighboring room exists in the grid in this direction or it can't gain exits
-				var _adjacent_room = get_neighbor(_potential_room, _dirs[_dir]);
+				var _adjacent_room = get_adjacent_room(_potential_room, _dirs[_dir]);
 				if (is_undefined(_adjacent_room) || !_adjacent_room.can_gain_exits()) { continue; }
 
 				link_rooms_with_new_exit(_potential_room, _adjacent_room, _dirs[_dir]);
@@ -540,7 +540,7 @@ function GameMap() constructor {
 			if (_possible_room.is_special_room || _possible_room.has_exit(directions.stairs)) { continue; }
 
 			// Skip rooms that can't reach the target, and keep the one needing the fewest new exits
-			var _sides = get_openable_sides(_possible_room, _target_exit_count, _needs_opposite_exits);
+			var _sides = get_openable_cardinal_exits(_possible_room, _target_exit_count, _needs_opposite_exits);
 			if (is_undefined(_sides)) { continue; }
 			if (is_undefined(_best_sides) || _sides.exits_needed < _best_sides.exits_needed) {
 				_best_room = _possible_room;
@@ -556,24 +556,24 @@ function GameMap() constructor {
 		array_copy(_dirs, array_length(_dirs), array_shuffle(_best_sides.free_sides), 0, array_length(_best_sides.free_sides));
 		for (var _dir = 0; _dir < _best_sides.exits_needed; _dir++) {
 			// Create a new room if none exists
-			var _neighbor_room = get_neighbor(_best_room, _dirs[_dir]);
-			if (is_undefined(_neighbor_room)) { _neighbor_room = create_room_at_map_position(_best_room.virtual_x + get_dir_x_offset(_dirs[_dir]), _best_room.virtual_y + get_dir_y_offset(_dirs[_dir])); }
+			var _adjacent_room = get_adjacent_room(_best_room, _dirs[_dir]);
+			if (is_undefined(_adjacent_room)) { _adjacent_room = create_room_at_cell(_best_room.virtual_x + get_dir_x_offset(_dirs[_dir]), _best_room.virtual_y + get_dir_y_offset(_dirs[_dir])); }
 
 			// Create a new exit between the rooms
-			link_rooms_with_new_exit(_best_room, _neighbor_room, _dirs[_dir]);
+			link_rooms_with_new_exit(_best_room, _adjacent_room, _dirs[_dir]);
 		}
 
 		return _best_room;
 	};
 
-	/// @function get_openable_sides(_room, _target_exit_count, [_needs_opposite_exits])
+	/// @function get_openable_cardinal_exits(_room, _target_exit_count, [_needs_opposite_exits])
 	/// @description Sorts the sides a room could open to end up with exactly the target number of side exits:
 	///	sides whose neighbor can gain exits, and sides on a free cell, where a new room would go.
 	/// @param {GameRoom} _room The room
 	/// @param {real} _target_exit_count How many side exits the room needs, 2 to 4
 	/// @param {bool} [_needs_opposite_exits] For two exits: true for opposite sides, false for a corner, undefined for either
 	/// @returns {struct|undefined} { exits_needed, linkable_sides, free_sides }, or undefined if the room can't reach the target
-	static get_openable_sides = function(_room, _target_exit_count, _needs_opposite_exits = undefined) {
+	static get_openable_cardinal_exits = function(_room, _target_exit_count, _needs_opposite_exits = undefined) {
 		// Exits are never removed, so the room can't already have more than the target
 		var _exits_needed = _target_exit_count - _room.get_cardinal_exits_count();
 		if (_exits_needed < 0) { return undefined; }
@@ -594,9 +594,9 @@ function GameMap() constructor {
 			if (_check_arrangement && _room.has_exit(get_opposite_dir(_dir)) != _needs_opposite_exits) { continue; }
 
 			// A free cell gets a new room, and a neighbor only links if it can gain exits
-			var _neighbor_room = get_neighbor(_room, _dir);
-			if (is_undefined(_neighbor_room)) { array_push(_free_sides, _dir); }
-			else if (_neighbor_room.can_gain_exits()) { array_push(_linkable_sides, _dir); }
+			var _adjacent_room = get_adjacent_room(_room, _dir);
+			if (is_undefined(_adjacent_room)) { array_push(_free_sides, _dir); }
+			else if (_adjacent_room.can_gain_exits()) { array_push(_linkable_sides, _dir); }
 		}
 
 		// Enough sides must open, and the new rooms needed must fit under the room limit
@@ -1156,8 +1156,8 @@ function GameMap() constructor {
 		}
 
 		// Set up the initial queue of areas to check, map of area check queue keys, and initial area
-		var _all_rooms_reached_bitmask = (1 << array_length(rooms)) - 1, _reached_rooms_bitmask = start_room.get_reachable_rooms_bitmask(), _opened_chests_bitmask = 0;
-		var _initial_search_area = LockSearchArea(_reached_rooms_bitmask, _opened_chests_bitmask), _search_area_check_queue = [_initial_search_area];
+		var _all_rooms_reached_bitmask = (1 << array_length(rooms)) - 1, _reached_rooms_bitmask = start_room.get_reachable_rooms_bitmask(), _unlocked_chests_bitmask = 0;
+		var _initial_search_area = LockSearchArea(_reached_rooms_bitmask, _unlocked_chests_bitmask), _search_area_check_queue = [_initial_search_area];
 		var _search_areas_in_queue_map = {};
 		_search_areas_in_queue_map[$ _initial_search_area.get_key()] = true;
 		
@@ -1208,7 +1208,7 @@ function GameMap() constructor {
 		return undefined;
 	};
 
-	/// @function add_search_area_to_queue_if_unique(_areas, _queued, _reached_rooms_bitmask, _opened_chests)
+	/// @function add_search_area_to_queue_if_unique(_areas, _queued, _reached_rooms_bitmask, _unlocked_chests_bitmask)
 	/// @description Adds an area to the key check's search, unless the same area was already added.
 	/// @param {array} _search_area_check_queue			The ordered queue of areas to check
 	/// @param {struct} _search_areas_in_queue_map		Map of areas in the check queue; used to determine if the new area is unique
@@ -1223,15 +1223,15 @@ function GameMap() constructor {
 		array_push(_search_area_check_queue, _search_area);
 	};
 
-	/// @function determine_other_exit_types()
+	/// @function determine_special_exit_types()
 	/// @description Adds illusion walls, portcullis traps and plain doors, to random exits
-	static determine_other_exit_types = function() {
+	static determine_special_exit_types = function() {
 		// Loop throgh all the exisitin rooms
 		var _possible_rooms = array_shuffle(rooms);
 		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
 			// Skip any ineligible rooms
 			var _possible_room = _possible_rooms[_i];
-			if (!_possible_room.can_have_other_exit_types()) { continue; }
+			if (!_possible_room.can_have_special_exit_types()) { continue; }
 			
 			// Chance to add portcullis trap
 			if (_room.can_have_portcullis() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _room.add_portcullis_trap();  continue; }
@@ -1305,8 +1305,8 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _room = rooms[_i];
 
-			_room.room_reference_difficulty = _room.get_current_difficulty_score();
-			difficulty_score += _room.room_reference_difficulty;
+			_room.room_reference_difficulty_score = _room.get_current_difficulty_score();
+			difficulty_score += _room.room_reference_difficulty_score;
 		}
 	};
 
@@ -1362,8 +1362,8 @@ function GameMap() constructor {
 		var _to_finish = _heart_times[start_room.mapgen_index];
 		if (_to_finish > 0) { _extra += _to_finish; }
  
-		for (var _j = 0; _j < array_length(side_links); _j++) {
-			var _exit = side_links[_j];
+		for (var _j = 0; _j < array_length(cardinal_exits); _j++) {
+			var _exit = cardinal_exits[_j];
 			if (!_exit.has_lock && _exit.has_illusion_walls <= 0) { continue; }
  
 			// The player reaches the side nearer the start first
@@ -1433,7 +1433,7 @@ function GameMap() constructor {
 /// @description Creates a valid map for global.difficulty
 /// @returns {GameMap} The finished map
 function generate_map() {
-	// Generates maps up to 100 times before giving up. It should always work on the first try, this is here as a failsafe
+	// Generates maps up to 100 times before giving up and trying the next seed. It should always work on the first try, this is here as a failsafe
 	var _map = undefined;
 	while (is_undefined(_map)) {
 		// Attempt map generation on this seed up to 100 times

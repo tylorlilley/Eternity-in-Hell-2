@@ -110,7 +110,7 @@ function get_difficulty_score_table() {
 		//lava_fire_skeleton:		{ danger: 0.20,		many: 1,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["fires_at_player"] },	// Out of reach of a sword or block; its shots can be dodged on bridges, like a nose's
 		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["slows_player_movement"] },				// Per expected living block
 		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["static"] }, // For trapped chests only
-		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.easy		tags: [] } // For moving collectables only
+		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.easy,		tags: [] } // For moving collectables only
 	};
 	return _table;
 }

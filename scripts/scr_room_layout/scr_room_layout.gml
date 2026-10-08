@@ -97,15 +97,16 @@ function RoomLayout(_room_asset) constructor {
 		for (var _i = 0; _i < array_length(_names); _i++) {
 			var _hazard_name = _names[_i];
 			var _hazard_count = get_object_count(_hazard_name); // Get the count of this hazard from the file
-			if (_hazard_counts > 0) { _hazard_counts[$ _hazard_name] = _hazard_count; }
+			if (_hazard_count > 0) { _hazard_counts[$ _hazard_name] = _hazard_count; }
 		}
-		return _hazard_count;
+		
+		return _hazard_counts;
 	};
  
-	/// @function get_file_difficulty()
+	/// @function get_minimum_difficulty()
 	/// @description The lowest difficulty that can use the layout: set by its danger and time at Hard
 	/// @returns {real} A difficulties value
-	static get_file_difficulty = function() {
+	static get_minimum_difficulty = function() {
 		var _difficulty = difficulties.easy;
 		var _difficulty_score_table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(hazard_counts);
 		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
@@ -116,17 +117,17 @@ function RoomLayout(_room_asset) constructor {
 		return _difficulty;
 	};
  
-	/// @function get_open_sides()
+	/// @function get_open_cardinal_exits()
 	/// @description The sides the layout opens in its own frame, by its exit kind. The orientation step turns them
 	///	to face the room's real exits (mapgen_roll_layout_orientation).
 	/// @returns {array} Side directions
-	static get_open_sides = function() {
+	static get_open_cardinal_exits = function() {
 		switch (exit_type) {
-			case mapgen_exit_types.one: return [directions.up];
-			case mapgen_exit_types.two_opposite: return [directions.up, directions.down];
-			case mapgen_exit_types.two_perpendicular: return [directions.up, directions.right];
-			case mapgen_exit_types.three: return [directions.up, directions.right, directions.down];
-			case mapgen_exit_types.four: return [directions.up, directions.right, directions.down, directions.left];
+			case layout_exit_types.one: return [directions.up];
+			case layout_exit_types.two_opposite: return [directions.up, directions.down];
+			case layout_exit_types.two_perpendicular: return [directions.up, directions.right];
+			case layout_exit_types.three: return [directions.up, directions.right, directions.down];
+			case layout_exit_types.four: return [directions.up, directions.right, directions.down, directions.left];
 			default: return [];
 		}
 	};
@@ -162,7 +163,7 @@ function RoomLayout(_room_asset) constructor {
 		if (walk_measured) { return; }
 		walk_measured = true;
 		var _sides = ["obj_exit_spot_up", "obj_exit_spot_right", "obj_exit_spot_down", "obj_exit_spot_left"];
-		var _open = get_open_sides();
+		var _open = get_open_cardinal_exits();
  
 		// The walk points: each open side's entrance (the middle of its exit spots on the room's edge), then the
 		// stairs spot, the chest spot and every collectable spot in file order
@@ -262,12 +263,12 @@ function RoomLayout(_room_asset) constructor {
 
 	// The layout file: line 1 holds the difficulty room_converter.rb wrote, which is no longer used (the
 	// layout's difficulty is worked out from the hazard table, below), and line 2 the placed instances
-	file_difficulty = -1;
+	minimum_difficulty = -1;
 	instances = [];										// What building the room creates
 	if (is_usable) {
 		var _file = file_text_open_read(name + ".json");
 		if (_file == -1) {
-			write_debug_message("Missing layout file, so the layout is never used: " + name + ".json", "WARNING");
+			write_debug_message("Missing layout file, so the layout is never used: " + name + ".json", debug_message_level.warning);
 			is_usable = false;
 		}
 		else {
@@ -310,33 +311,10 @@ function RoomLayout(_room_asset) constructor {
 	}
 
 	// Skeleton spots (L5), lanterns (L6) and the hall of mirrors
-	skeleton_spot_count = get_object_count("obj_skeleton_spot");
 	has_lanterns = get_object_count("obj_lantern") > 0;
 	is_hall_of_mirrors = get_object_count("obj_hall_of_mirrors") > 0;
-
-	// Placed objects that rolled content builds on
-	column_count = get_object_count("obj_column");
-	statue_count = get_object_count("obj_statue");
-	lava_count = get_object_count("obj_lava");
-	mouth_count = get_object_count("obj_mouth");
-	eyes_count = get_object_count("obj_eyes");
-
-	// Other placed objects the score counts (R55)
-	ears_count = get_object_count("obj_ears");
-	gudetama_count = get_object_count("obj_gudetama");
-	bumper_count = get_object_count("obj_bumper_old");
-	spider_spot_count = get_object_count("obj_spider_spot");
-	spider_count = get_object_count("obj_spider");
-	fountain_count = get_object_count("obj_fountain");
-	snake_count = get_object_count("obj_snake");
-	worm_head_count = get_object_count("obj_giant_worm_head");
-	worm_body_count = get_object_count("obj_giant_worm_body");
-	block_spot_count = get_object_count("obj_block_spot");
-	bones_count = get_object_count("obj_bones");
-	corpse_count = get_object_count("obj_player_corpse");
-	lantern_count = get_object_count("obj_lantern");
-	hazard_counts = get_hazard_counts_from_file();			// TODO: Why do we have so many variables calling for different object counts if we also count them this way? Isn't that redundant? Should we delete them all?
-	file_difficulty = get_file_difficulty();
+	hazard_counts = get_hazard_counts_from_file();
+	minimum_difficulty = get_minimum_difficulty();
  
 	// Its walking distances (R56), measured by ensure_walking the first time a room needs them
 	walk_measured = false;

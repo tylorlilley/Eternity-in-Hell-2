@@ -7,8 +7,8 @@ function GameRoom(given_x, given_y) constructor {
 	
 	// Instance Positioning Values
 	room_reference = -1;
-	room_reference_difficulty = 0;
-	old_room_reference_difficulty = 0;
+	room_reference_difficulty_score = 0;
+	old_room_reference_difficulty_score = 0;
 	
 	// Room Initialization Values
 	visited = false;
@@ -78,10 +78,10 @@ function GameRoom(given_x, given_y) constructor {
 		mp_grid_destroy(empty_path_grid);
 	}
 	
+	/// =========
 	// Map generation checks (see GameMap): what generation asks about this room. None of these change the room
+	/// =========
 	
-	
-
 	/// @function can_be_start()
 	/// @description Whether a room can be the start: never a room with stairs or a sin room
 	/// @returns {bool}
@@ -165,10 +165,10 @@ function GameRoom(given_x, given_y) constructor {
 		return (!has_special_item && distance_to_start >= 2);
 	}
 	
-	/// @function can_have_other_exit_types()
+	/// @function can_have_special_exit_types()
 	/// @description Whether a room can have illusion walls, portcullis traps and plain doors
 	/// @returns {bool}
-	function can_have_other_exit_types() {
+	function can_have_special_exit_types() {
 		return (!has_no_cardinal_exits && !is_start_room && !is_heart_room && !is_connected_to_hall_of_mirrors());
 	};
 	
@@ -176,7 +176,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @description Whether a room can have a portcullis spawn in it
 	/// @returns {bool}
 	function can_have_portcullis() {
-		if (!can_have_other_exit_types()) { return false; }
+		if (!can_have_special_exit_types()) { return false; }
 		
 		// Check each of the rooms cardinal exits
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
@@ -323,7 +323,7 @@ function GameRoom(given_x, given_y) constructor {
 		var _living_block_count = (LIVING_BLOCK_PROBABILITY > 0) ? layout.block_spot_count / LIVING_BLOCK_PROBABILITY : 0;
 		
 		// Adjust counts based on what has been spawned
-		hazard_count_add(_counts, "living_block", _living_block_count); }
+		hazard_count_add(_counts, "living_block", _living_block_count);
 		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
 		hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
 		hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
@@ -687,7 +687,7 @@ function GameRoom(given_x, given_y) constructor {
 		has_portcullis_button = false;
 		button_on_stairs_spot = false;
 		button_spot = -1;
-		room_reference_difficulty = 0;
+		room_reference_difficulty_score = 0;
 	}
 
 	/// @function remove_random_room_content()
@@ -842,67 +842,67 @@ function GameRoom(given_x, given_y) constructor {
 			has_phantom = false;
 			has_floater = false;
 		}
-		room_reference_difficulty = 0;
+		room_reference_difficulty_score = 0;
 	
 		// Add to difficulty for enemies
 		var has_bumper = get_room_reference_object_count(obj_bumper_old) > 0;
 		var has_ears = get_room_reference_object_count(obj_ears) > 0;
 		var has_gudetama = get_room_reference_object_count(obj_gudetama) > 0;
 		
-		if (has_phantom) { room_reference_difficulty += 2; }
-		if (has_floater) { room_reference_difficulty += 2; }
-		if (has_bumper) { room_reference_difficulty += 1.25; }
-		if (has_eyes) { room_reference_difficulty += 4.5; } //2.5
-		if (has_ears) { room_reference_difficulty += 4.5; } //2.5
-		if (has_gudetama) { room_reference_difficulty += 4.5; } //0.025
+		if (has_phantom) { room_reference_difficulty_score += 2; }
+		if (has_floater) { room_reference_difficulty_score += 2; }
+		if (has_bumper) { room_reference_difficulty_score += 1.25; }
+		if (has_eyes) { room_reference_difficulty_score += 4.5; } //2.5
+		if (has_ears) { room_reference_difficulty_score += 4.5; } //2.5
+		if (has_gudetama) { room_reference_difficulty_score += 4.5; } //0.025
 		
-		room_reference_difficulty += get_room_reference_object_count(obj_mouth) * 1;
-		room_reference_difficulty += initial_nose_count * 0.75;
-		room_reference_difficulty += initial_fire_skeleton_count;
-		room_reference_difficulty += (get_room_reference_object_count(obj_spider_spot) > 0) ? 1.5 : 0;
-		room_reference_difficulty += get_room_reference_object_count(obj_spider) * 1.5;
-		room_reference_difficulty += replaced_column_fountain_count * 0.5; //0.325
-		room_reference_difficulty += replaced_statue_fountain_count * 0.25; //0.325
-		room_reference_difficulty += (get_room_reference_object_count(obj_statue) - replaced_statue_fountain_count) * 0.25; //0.325
-		room_reference_difficulty += get_room_reference_object_count(obj_fountain) * 0.5; //0.325
-		room_reference_difficulty += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.33; //0.25
-		room_reference_difficulty += (get_room_reference_object_count(obj_snake) + snake_count) * 0.66 // 0.5
-		room_reference_difficulty += fast_skeleton_count * 0.325;
-		room_reference_difficulty += fat_skeleton_count * 0.325;
-		room_reference_difficulty += cultist_count * 0.325;
-		room_reference_difficulty += fire_skeleton_count * 0.5;
-		room_reference_difficulty += ((get_room_reference_object_count(obj_giant_worm_head) * 0.1625) + (get_room_reference_object_count(obj_giant_worm_body) * 0.0625));
+		room_reference_difficulty_score += get_room_reference_object_count(obj_mouth) * 1;
+		room_reference_difficulty_score += initial_nose_count * 0.75;
+		room_reference_difficulty_score += initial_fire_skeleton_count;
+		room_reference_difficulty_score += (get_room_reference_object_count(obj_spider_spot) > 0) ? 1.5 : 0;
+		room_reference_difficulty_score += get_room_reference_object_count(obj_spider) * 1.5;
+		room_reference_difficulty_score += replaced_column_fountain_count * 0.5; //0.325
+		room_reference_difficulty_score += replaced_statue_fountain_count * 0.25; //0.325
+		room_reference_difficulty_score += (get_room_reference_object_count(obj_statue) - replaced_statue_fountain_count) * 0.25; //0.325
+		room_reference_difficulty_score += get_room_reference_object_count(obj_fountain) * 0.5; //0.325
+		room_reference_difficulty_score += (get_room_reference_object_count(obj_skeleton_spot) - fast_skeleton_count - fat_skeleton_count - snake_count - fire_skeleton_count - cultist_count - ((has_eyes) ? 1 : 0)) * 0.33; //0.25
+		room_reference_difficulty_score += (get_room_reference_object_count(obj_snake) + snake_count) * 0.66 // 0.5
+		room_reference_difficulty_score += fast_skeleton_count * 0.325;
+		room_reference_difficulty_score += fat_skeleton_count * 0.325;
+		room_reference_difficulty_score += cultist_count * 0.325;
+		room_reference_difficulty_score += fire_skeleton_count * 0.5;
+		room_reference_difficulty_score += ((get_room_reference_object_count(obj_giant_worm_head) * 0.1625) + (get_room_reference_object_count(obj_giant_worm_body) * 0.0625));
 	
 		// Add a base increase if any enemies were present
-		if (room_reference_difficulty != 0) { room_reference_difficulty += 0.25; }		
-		if (is_special_room) { room_reference_difficulty += 5; }
+		if (room_reference_difficulty_score != 0) { room_reference_difficulty_score += 0.25; }		
+		if (is_special_room) { room_reference_difficulty_score += 5; }
 		
 		// Add to difficulty for other objects
-		if (has_hidden_chest) { room_reference_difficulty += 0.125; }
-		if (!has_phantom && !has_hidden_chest && has_lanterns > 0) { room_reference_difficulty -= 0.125; }		
-		if (has_lanterns && lit) { room_reference_difficulty -= 0.125; }
-		if (has_locked_chest && !has_special_item) { room_reference_difficulty += 0.125; }
-		if (has_no_cardinal_exits) { room_reference_difficulty += 0.125; }
-		if (has_collectables) { room_reference_difficulty += 0.25; }
-		if (has_misleading_exits) { room_reference_difficulty += 0.125; }
-		if (chest_obj == obj_statue) { room_reference_difficulty += 0.325; }
-		else if (chest_obj == obj_fountain) { room_reference_difficulty += 0.325; }
-		else if (!has_key && chest_obj != -1) { room_reference_difficulty -= 0.25; }
-		if (has_special_item) { room_reference_difficulty -= 2; }
+		if (has_hidden_chest) { room_reference_difficulty_score += 0.125; }
+		if (!has_phantom && !has_hidden_chest && has_lanterns > 0) { room_reference_difficulty_score -= 0.125; }		
+		if (has_lanterns && lit) { room_reference_difficulty_score -= 0.125; }
+		if (has_locked_chest && !has_special_item) { room_reference_difficulty_score += 0.125; }
+		if (has_no_cardinal_exits) { room_reference_difficulty_score += 0.125; }
+		if (has_collectables) { room_reference_difficulty_score += 0.25; }
+		if (has_misleading_exits) { room_reference_difficulty_score += 0.125; }
+		if (chest_obj == obj_statue) { room_reference_difficulty_score += 0.325; }
+		else if (chest_obj == obj_fountain) { room_reference_difficulty_score += 0.325; }
+		else if (!has_key && chest_obj != -1) { room_reference_difficulty_score -= 0.25; }
+		if (has_special_item) { room_reference_difficulty_score -= 2; }
 		
-		room_reference_difficulty += get_room_reference_object_count(obj_block_spot) * 0.080; //clamp(get_room_reference_object_count(obj_block_spot) * 0.01, 0, 0.25);
-		room_reference_difficulty += get_room_reference_object_count(obj_lava) * 0.010; //clamp(get_room_reference_object_count(obj_lava) * 0.05, 0, 0.5);
-		room_reference_difficulty += get_room_reference_object_count(obj_bones) * 0.050;
-		room_reference_difficulty += get_room_reference_object_count(obj_player_corpse) * 0.050;
+		room_reference_difficulty_score += get_room_reference_object_count(obj_block_spot) * 0.080; //clamp(get_room_reference_object_count(obj_block_spot) * 0.01, 0, 0.25);
+		room_reference_difficulty_score += get_room_reference_object_count(obj_lava) * 0.010; //clamp(get_room_reference_object_count(obj_lava) * 0.05, 0, 0.5);
+		room_reference_difficulty_score += get_room_reference_object_count(obj_bones) * 0.050;
+		room_reference_difficulty_score += get_room_reference_object_count(obj_player_corpse) * 0.050;
 		
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var next_exit = exits[dir];
 			if (next_exit != -1) {
-				if (next_exit.has_closed_portcullis_for_room(self)) { room_reference_difficulty += 0.325; }
+				if (next_exit.has_closed_portcullis_for_room(self)) { room_reference_difficulty_score += 0.325; }
 				// These are all counted twice, once by each room the exit is connected to, and so should be halved
-				if (next_exit.has_door) { room_reference_difficulty += 0.025; }
-				if (next_exit.has_lock) { room_reference_difficulty += 0.125; }
-				if (next_exit.has_illusion_walls > 0) { room_reference_difficulty += 0.25; }
+				if (next_exit.has_door) { room_reference_difficulty_score += 0.025; }
+				if (next_exit.has_lock) { room_reference_difficulty_score += 0.125; }
+				if (next_exit.has_illusion_walls > 0) { room_reference_difficulty_score += 0.25; }
 			}
 		}
 	}
@@ -914,26 +914,26 @@ function GameRoom(given_x, given_y) constructor {
 		var has_gudetama = get_room_reference_object_count(obj_gudetama) > 0;
 		var has_echo = get_room_reference_object_count(obj_inverted_cross) > 0;
 		
-		old_room_reference_difficulty = 0;
+		old_room_reference_difficulty_score = 0;
 		
-		if (get_room_reference_object_count(obj_lantern) > 0) { old_room_reference_difficulty += 1; }
-		if (has_bumper) { old_room_reference_difficulty += 1.5; }
-		if (has_echo) { old_room_reference_difficulty += 5; }
-		if (get_room_reference_object_count(obj_eyes) > 0) { old_room_reference_difficulty += 4; }
-		if (has_ears) { old_room_reference_difficulty += 4; }
-		if (has_gudetama) { old_room_reference_difficulty += 4; }
+		if (get_room_reference_object_count(obj_lantern) > 0) { old_room_reference_difficulty_score += 1; }
+		if (has_bumper) { old_room_reference_difficulty_score += 1.5; }
+		if (has_echo) { old_room_reference_difficulty_score += 5; }
+		if (get_room_reference_object_count(obj_eyes) > 0) { old_room_reference_difficulty_score += 4; }
+		if (has_ears) { old_room_reference_difficulty_score += 4; }
+		if (has_gudetama) { old_room_reference_difficulty_score += 4; }
 		
-		old_room_reference_difficulty += get_room_reference_object_count(obj_mouth);
-		old_room_reference_difficulty += floor(get_room_reference_object_count(obj_block_spot) * 0.08);
-		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_lava) * 0.01);
-		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_bones) * 0.05);
-		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_spider) * 1.5);
-		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_player_corpse) * 0.05);
-		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_statue) * 0.25);
-		//old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_column) * 0.10);
-		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_skeleton_spot) * 0.33);
-		old_room_reference_difficulty += ceil(get_room_reference_object_count(obj_snake) * 0.66);
-		old_room_reference_difficulty += ceil((get_room_reference_object_count(obj_giant_worm_head) * 0.25) + (get_room_reference_object_count(obj_giant_worm_body) * 0.10));
+		old_room_reference_difficulty_score += get_room_reference_object_count(obj_mouth);
+		old_room_reference_difficulty_score += floor(get_room_reference_object_count(obj_block_spot) * 0.08);
+		old_room_reference_difficulty_score += ceil(get_room_reference_object_count(obj_lava) * 0.01);
+		old_room_reference_difficulty_score += ceil(get_room_reference_object_count(obj_bones) * 0.05);
+		old_room_reference_difficulty_score += ceil(get_room_reference_object_count(obj_spider) * 1.5);
+		old_room_reference_difficulty_score += ceil(get_room_reference_object_count(obj_player_corpse) * 0.05);
+		old_room_reference_difficulty_score += ceil(get_room_reference_object_count(obj_statue) * 0.25);
+		//old_room_reference_difficulty_score += ceil(get_room_reference_object_count(obj_column) * 0.10);
+		old_room_reference_difficulty_score += ceil(get_room_reference_object_count(obj_skeleton_spot) * 0.33);
+		old_room_reference_difficulty_score += ceil(get_room_reference_object_count(obj_snake) * 0.66);
+		old_room_reference_difficulty_score += ceil((get_room_reference_object_count(obj_giant_worm_head) * 0.25) + (get_room_reference_object_count(obj_giant_worm_body) * 0.10));
 	}
 	
 	/// @function									calculate_distance_to_connected_rooms(start_distance);
@@ -1609,7 +1609,7 @@ function GameRoom(given_x, given_y) constructor {
 		       draw_set_color(c_lime);
 		        draw_set_halign(fa_center);
 		        draw_set_valign(fa_middle);
-		        draw_text(x_pos, y_pos, string_hash_to_newline(string(room_reference_difficulty)));
+		        draw_text(x_pos, y_pos, string_hash_to_newline(string(room_reference_difficulty_score)));
 		    }
 			
 		}
@@ -1735,7 +1735,7 @@ function add_rooms_to_reach_target_difficulty() {
 		var next_room = game_rooms[i];
 		with (next_room) {
 			update_game_room_difficulty();
-			total_difficulty += room_reference_difficulty;
+			total_difficulty += room_reference_difficulty_score;
 		}
 	}
 		
@@ -1753,7 +1753,7 @@ function add_rooms_to_reach_target_difficulty() {
 		// Update difficulty tally
 		total_difficulty= 0;
 		added_rooms += 1;
-		for (var i = 0; i < array_length(game_rooms); i++;) { total_difficulty += game_rooms[i].room_reference_difficulty; }
+		for (var i = 0; i < array_length(game_rooms); i++;) { total_difficulty += game_rooms[i].room_reference_difficulty_score; }
 		
 		if (new_exit_dir == -1) {
 			// SHOULD NEVER REACH THIS POINT
@@ -1857,7 +1857,7 @@ function instances_for_room_reference(room_reference) {
 		return -1;
 	}
 	
-	var file_difficulty_content = file_text_read_string(file);
+	var minimum_difficulty_content = file_text_read_string(file);
 	file_text_readln(file);
 	var file_instances_content = file_text_read_string(file);
 	var decoded_content = json_parse(file_instances_content);          
@@ -1879,9 +1879,9 @@ function difficulty_for_room_reference(room_reference) {
 		return -1;
 	}
 	
-	var file_difficulty_content = file_text_read_string(file);
+	var minimum_difficulty_content = file_text_read_string(file);
 	file_text_readln(file);
-	var decoded_content = string_digits(file_difficulty_content);          
+	var decoded_content = string_digits(minimum_difficulty_content);          
 	file_text_close(file);
 	return real(decoded_content);
 }

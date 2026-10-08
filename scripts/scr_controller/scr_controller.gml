@@ -614,6 +614,19 @@ function game_room_initialize() {
 		}
 	}
 	
+	// Spawn living blocks: turn the blocks on random block spots into as many living blocks as map generation rolled
+	var _block_spots = array_create(0);
+	with (obj_block_spot) { if (is_existing_instance(spawned_block)) { array_push(_block_spots, id); } }
+	array_shuffle_ext(_block_spots);
+	var _living_block_count = min(current_room.living_block_count, array_length(_block_spots));
+	for (var _i = 0; _i < _living_block_count; _i++) {
+		with (_block_spots[_i]) {
+			var _block_x = spawned_block.x, _block_y = spawned_block.y;
+			instance_destroy(spawned_block, false);
+			spawned_block = instance_create(_block_x, _block_y, obj_living_block);
+		}
+	}
+	
 			
 	// Spawn skeletons
 	array_shuffle_ext(current_room.skeleton_types);

@@ -82,7 +82,7 @@ function get_difficulty_score_table() {
 		obj_eyes:				{ danger: 0.12,		many: 0,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["stops_player_movement", "slows_player_movement", "moves_towards_player", "killed_by_sword", "makes_loud_noise"]},
 		obj_ears:				{ danger: 0.30,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["slows_player_movement", "killed_by_sword"] },
 		obj_lava:				{ danger: 0.04,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["static", "immune_with_staff"]},				// Per room, not per tile
-		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"]},				// Their danger is living_block, below
+		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"]},				// Their danger is obj_living_block, below
 		obj_column:				{ danger: 0,		many: 1,	time: 0.004,	time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"] },				// More columns mean more chances for a statue or fountain to spawn
 		obj_wall:				{ danger: 0,		many: 1,	time: 0.004,	time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"] },				// More columns mean more chances for a statue or fountain to spawn
 		obj_bones:				{ danger: 0.0024,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static", "slows_player_movement", "killed_by_sword", "makes_loud_noise"] },
@@ -108,7 +108,7 @@ function get_difficulty_score_table() {
 		obj_floater:				{ danger: 0.08,		many: 0,	time: 0.15,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["moves_towards_player"] },
 		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["fires_at_player"] },	// Aimed where the player is, so walking along a bridge dodges it too
 		//lava_fire_skeleton:		{ danger: 0.20,		many: 1,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["fires_at_player"] },	// Out of reach of a sword or block; its shots can be dodged on bridges, like a nose's
-		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["slows_player_movement"] },				// Per expected living block
+		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["slows_player_movement"] },				// Per living block
 		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["static"] }, // For trapped chests only
 		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.easy,		tags: [] } // For moving collectables only
 	};

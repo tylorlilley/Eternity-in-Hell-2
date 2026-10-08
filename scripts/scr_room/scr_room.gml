@@ -58,6 +58,7 @@ function GameRoom(given_x, given_y) constructor {
 	has_moving_collectable = false;
 	replaced_column_fountain_count = 0;
 	replaced_statue_fountain_count = 0;
+	living_block_count = 0;
 	initial_nose_count = 0;
 	initial_fire_skeleton_count = 0;
 	initial_mouth_count = 0;
@@ -307,7 +308,7 @@ function GameRoom(given_x, given_y) constructor {
 
 	/// @function spawns_rolled_dangers()
 	/// @description Whether the dangers rolled for the room spawn. The start room spawns none of them, so nothing can hurt
-	///	the player before they act: no phantom, floater, fountains, noses or lava fire skeletons, and only safe skeleton types.
+	///	the player before they act: no phantom, floater, fountains, living blocks, noses or lava fire skeletons, and only safe skeleton types.
 	/// @returns {bool}
 	function spawns_rolled_dangers() {
 		return !is_start_room;
@@ -373,18 +374,14 @@ function GameRoom(given_x, given_y) constructor {
 		for (var _i = 0; _i < array_length(_skeleton_types); _i++) {
 			hazard_count_add(_counts, object_get_name(_skeleton_types[_i]), 1);
 		}
- 
-		// Determine predictive spawn counts
-		// TODO: Why is just this one calcualted based on probabilities instead of what has actually been spawned? We should move the spawning of these earlier in the flow so the difficulty score can work with what actually spawned and no probabilities like this
-		var _living_block_count = (LIVING_BLOCK_PROBABILITY > 0) ? layout.get_hazard_count("obj_block_spot") / LIVING_BLOCK_PROBABILITY : 0;
 		
 		// Adjust counts based on what has been spawned
-		hazard_count_add(_counts, "obj_living_block", _living_block_count);
 		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
 		if (spawns_rolled_dangers()) {
 			hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
 			hazard_count_add(_counts, "obj_column", -replaced_column_fountain_count);
 			hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
+			hazard_count_add(_counts, "obj_living_block", living_block_count);
 			hazard_count_add(_counts, "obj_nose", initial_nose_count);
 			hazard_count_add(_counts, "obj_fire_skeleton", initial_fire_skeleton_count); // These are ones spawned in lava, in addition to any skeleton spots above
 		}
@@ -659,6 +656,12 @@ function GameRoom(given_x, given_y) constructor {
 			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { replaced_statue_fountain_count += 1; }
 		}
 
+		// Determine how many of the blocks on block spots come alive
+		living_block_count = 0;
+		for (var _block_spot = 0; _block_spot < layout.get_hazard_count("obj_block_spot"); _block_spot++) {
+			if (get_random_chance_out_of(LIVING_BLOCK_PROBABILITY)) { living_block_count += 1; }
+		}
+
 		// Determine lava enemy spawns
 		initial_fire_skeleton_count = 0;
 		initial_nose_count = 0;
@@ -770,6 +773,7 @@ function GameRoom(given_x, given_y) constructor {
 		if (!spawns_rolled_dangers()) {
 			replaced_column_fountain_count = 0;
 			replaced_statue_fountain_count = 0;
+			living_block_count = 0;
 			initial_nose_count = 0;
 			initial_fire_skeleton_count = 0;
 		}

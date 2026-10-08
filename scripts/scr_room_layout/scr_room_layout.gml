@@ -87,6 +87,167 @@ function RoomLayout(_room_asset) constructor {
 		}
 		if (_problems != "") { write_debug_message("Layout " + name + _problems, debug_message_level.warning); }
 	};
+	
+	// @function get_hazard_counts_from_file()
+	/// @description How many of each hazard in the hazard table the layout places.
+	/// @returns {struct}
+	static get_hazard_counts_from_file = function() {
+		// Loop through every key-value pair as defined in the static difficulty score table
+		var _hazard_counts = {}, _names = variable_struct_get_names(get_difficulty_score_table());
+		for (var _i = 0; _i < array_length(_names); _i++) {
+			var _hazard_name = _names[_i];
+			var _hazard_count = get_object_count(_hazard_name); // Get the count of this hazard from the file
+			if (_hazard_counts > 0) { _hazard_counts[$ _hazard_name] = _hazard_count; }
+		}
+		return _hazard_count;
+	};
+ 
+	/// @function get_file_difficulty()
+	/// @description The lowest difficulty that can use the layout: set by its danger and time at Hard
+	/// @returns {real} A difficulties value
+	static get_file_difficulty = function() {
+		var _difficulty = difficulties.easy;
+		var _difficulty_score_table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(hazard_counts);
+		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
+			var _hazard_name = _hazard_names[_i];
+			var _hazard_table_entry = _difficulty_score_table[$ _hazard_name];
+			_difficulty = max(_difficulty, _hazard_table_entry.min_difficulty);
+		}
+		return _difficulty;
+	};
+ 
+	/// @function get_open_sides()
+	/// @description The sides the layout opens in its own frame, by its exit kind. The orientation step turns them
+	///	to face the room's real exits (mapgen_roll_layout_orientation).
+	/// @returns {array} Side directions
+	static get_open_sides = function() {
+		switch (exit_type) {
+			case mapgen_exit_types.one: return [directions.up];
+			case mapgen_exit_types.two_opposite: return [directions.up, directions.down];
+			case mapgen_exit_types.two_perpendicular: return [directions.up, directions.right];
+			case mapgen_exit_types.three: return [directions.up, directions.right, directions.down];
+			case mapgen_exit_types.four: return [directions.up, directions.right, directions.down, directions.left];
+			default: return [];
+		}
+	};
+ 
+	/// @function block_walking_area(_grid, _x, _y, _half)
+	/// @description Marks every player position whose 16-pixel body would overlap a square obstacle. The grids'
+	///	cells are player positions 8 pixels apart, so a cell's centre is a position.
+	/// @param {Id.MpGrid} _grid The grid
+	/// @param {real} _x The obstacle's centre
+	/// @param {real} _y The obstacle's centre
+	/// @param {real} _half Half the obstacle's width, 8 for a tile
+	static block_walking_area = function(_grid, _x, _y, _half) {
+		mp_grid_add_rectangle(_grid, _x - _half - 3, _y - _half - 3, _x + _half + 3, _y + _half + 3);
+	};
+ 
+	/// @function measure_walk(_grid, _path, _from, _to)
+	/// @description Steps on the shortest 4-way walk between two walk points.
+	/// @param {Id.MpGrid} _grid The grid
+	/// @param {Asset.GMPath} _path A spare path
+	/// @param {struct} _from A walk point
+	/// @param {struct} _to A walk point
+	/// @returns {real} Steps, or -1 if there's no way
+	static measure_walk = function(_grid, _path, _from, _to) {
+		var _x1 = round(_from.x / 8) * 8, _y1 = round(_from.y / 8) * 8, _x2 = round(_to.x / 8) * 8, _y2 = round(_to.y / 8) * 8;
+		if (!mp_grid_path(_grid, _path, _x1, _y1, _x2, _y2, false)) { return -1; }
+		return round(path_get_length(_path) / 8);
+	};
+ 
+	/// @function ensure_walking()
+	/// @description Measures the layout's walking distances the first time a room asks (R56), so loading stays
+	///	quick and each layout is only measured once.
+	static ensure_walking = function() {
+		if (walk_measured) { return; }
+		walk_measured = true;
+		var _sides = ["obj_exit_spot_up", "obj_exit_spot_right", "obj_exit_spot_down", "obj_exit_spot_left"];
+		var _open = get_open_sides();
+ 
+		// The walk points: each open side's entrance (the middle of its exit spots on the room's edge), then the
+		// stairs spot, the chest spot and every collectable spot in file order
+		walk_points = [];
+		for (var _s = 0; _s < array_length(_open); _s++) {
+			var _side = _open[_s], _sum_x = 0, _sum_y = 0, _count = 0;
+			for (var _i = 0; _i < array_length(instances); _i++) {
+				var _inst = instances[_i];
+				if (_inst.name != _sides[_side]) { continue; }
+				var _across = (_side == directions.left || _side == directions.right) ? _inst.x : _inst.y;
+				if (_across > 16 && _across < LAYOUT_SIZE - 16) { continue; }
+				_sum_x += _inst.x;
+				_sum_y += _inst.y;
+				_count += 1;
+			}
+			if (_count > 0) { array_push(walk_points, { x: _sum_x / _count, y: _sum_y / _count }); }
+		}
+		walk_entrance_count = array_length(walk_points);
+		walk_collectable_points = [];
+		for (var _j = 0; _j < array_length(instances); _j++) {
+			var _spot = instances[_j];
+			if (_spot.name == "obj_stairs_spot") { walk_stairs_point = array_length(walk_points); }
+			else if (_spot.name == "obj_chest_spot") { walk_chest_point = array_length(walk_points); }
+			else if (_spot.name == "obj_collectable_spot") { array_push(walk_collectable_points, array_length(walk_points)); }
+			else { continue; }
+			array_push(walk_points, { x: _spot.x, y: _spot.y });
+		}
+ 
+		// The floor as building leaves it: the open sides' exit spots and the chest and stairs spots cleared, and
+		// the closed sides' exit spots walled. Walls, columns, mirrors, statues, fountains, the red chest and the
+		// giant eye's 3x3 body are in the way; push blocks aren't, since pushing one moves you along with it.
+		// Lava is in the way too, unless nothing else reaches a point (then a block bridge or a staff is assumed)
+		var _cells = LAYOUT_SIZE / 8 + 1;
+		var _with_lava = mp_grid_create(-4, -4, _cells, _cells, 8, 8), _without_lava = mp_grid_create(-4, -4, _cells, _cells, 8, 8);
+		for (var _edge = 0; _edge < _cells; _edge++) {
+			mp_grid_add_cell(_with_lava, _edge, 0);				mp_grid_add_cell(_without_lava, _edge, 0);
+			mp_grid_add_cell(_with_lava, _edge, _cells - 1);	mp_grid_add_cell(_without_lava, _edge, _cells - 1);
+			mp_grid_add_cell(_with_lava, 0, _edge);				mp_grid_add_cell(_without_lava, 0, _edge);
+			mp_grid_add_cell(_with_lava, _cells - 1, _edge);	mp_grid_add_cell(_without_lava, _cells - 1, _edge);
+		}
+		var _cleared = {};
+		for (var _k = 0; _k < array_length(instances); _k++) {
+			var _marker = instances[_k], _marker_side = -1;
+			for (var _q = 0; _q < 4; _q++) { if (_marker.name == _sides[_q]) { _marker_side = _q; } }
+			var _is_open = (_marker_side != -1) && array_contains(_open, _marker_side);
+			if (_is_open || _marker.name == "obj_chest_spot" || _marker.name == "obj_stairs_spot") { _cleared[$ get_tile_key(_marker.x, _marker.y)] = true; }
+			else if (_marker_side != -1) {
+				block_walking_area(_with_lava, _marker.x, _marker.y, 8);
+				block_walking_area(_without_lava, _marker.x, _marker.y, 8);
+			}
+		}
+		for (var _m = 0; _m < array_length(instances); _m++) {
+			var _obstacle = instances[_m];
+			if (!is_undefined(_cleared[$ get_tile_key(_obstacle.x, _obstacle.y)])) { continue; }
+			var _half = 0;
+			switch (_obstacle.name) {
+				case "obj_wall": case "obj_column": case "obj_mirror": case "obj_statue": case "obj_fountain": case "obj_red_chest": _half = 8; break;
+				case "obj_giant_eye": _half = 24; break;
+			}
+			if (_half > 0) {
+				block_walking_area(_with_lava, _obstacle.x, _obstacle.y, _half);
+				block_walking_area(_without_lava, _obstacle.x, _obstacle.y, _half);
+			}
+			else if (_obstacle.name == "obj_lava") { block_walking_area(_with_lava, _obstacle.x, _obstacle.y, 8); }
+		}
+ 
+		// Steps between every pair of walk points
+		var _count_points = array_length(walk_points), _path = path_add();
+		walk_steps = array_create(_count_points);
+		for (var _a = 0; _a < _count_points; _a++) {
+			walk_steps[_a] = array_create(_count_points, -1);
+			walk_steps[_a][_a] = 0;
+		}
+		for (var _from = 0; _from < _count_points; _from++) {
+			for (var _to = _from + 1; _to < _count_points; _to++) {
+				var _steps = measure_walk(_with_lava, _path, walk_points[_from], walk_points[_to]);
+				if (_steps < 0) { _steps = measure_walk(_without_lava, _path, walk_points[_from], walk_points[_to]); }
+				walk_steps[_from][_to] = _steps;
+				walk_steps[_to][_from] = _steps;
+			}
+		}
+		path_delete(_path);
+		mp_grid_destroy(_with_lava);
+		mp_grid_destroy(_without_lava);
+	};
 
 	// The room
 	room_reference = _room_asset;
@@ -99,18 +260,18 @@ function RoomLayout(_room_asset) constructor {
 	// layout is only usable if its file can be read
 	is_usable = (exit_type != -1) && !string_starts_with(name, "rm_unused");
 
-	// The layout file: line 1 holds the file difficulty written by room_converter.rb, and line 2 the placed instances
+	// The layout file: line 1 holds the difficulty room_converter.rb wrote, which is no longer used (the
+	// layout's difficulty is worked out from the hazard table, below), and line 2 the placed instances
 	file_difficulty = -1;
 	instances = [];										// What building the room creates
 	if (is_usable) {
 		var _file = file_text_open_read(name + ".json");
 		if (_file == -1) {
-			write_debug_message("Missing layout file, so the layout is never used: " + name + ".json", debug_message_level.warning);
+			write_debug_message("Missing layout file, so the layout is never used: " + name + ".json", "WARNING");
 			is_usable = false;
 		}
 		else {
-			file_difficulty = real(string_digits(file_text_read_string(_file)));
-			file_text_readln(_file);
+			file_text_readln(_file);					// Skip line 1
 			instances = json_parse(file_text_read_string(_file));
 			file_text_close(_file);
 		}
@@ -173,7 +334,19 @@ function RoomLayout(_room_asset) constructor {
 	block_spot_count = get_object_count("obj_block_spot");
 	bones_count = get_object_count("obj_bones");
 	corpse_count = get_object_count("obj_player_corpse");
-
+	lantern_count = get_object_count("obj_lantern");
+	hazard_counts = get_hazard_counts_from_file();			// TODO: Why do we have so many variables calling for different object counts if we also count them this way? Isn't that redundant? Should we delete them all?
+	file_difficulty = get_file_difficulty();
+ 
+	// Its walking distances (R56), measured by ensure_walking the first time a room needs them
+	walk_measured = false;
+	walk_points = [];									// { x, y }: the open sides' entrances, then the stairs, chest and collectable spots
+	walk_entrance_count = 0;							// The first this many walk points are entrances
+	walk_stairs_point = -1;
+	walk_chest_point = -1;
+	walk_collectable_points = [];						// The walk point of each collectable spot, by spot number
+	walk_steps = [];									// walk_steps[a][b]: steps from walk point a to b, or -1 if there's no way
+ 
 	// Only a usable layout has spots to check
 	if (is_usable) { check_rules(); }
 }

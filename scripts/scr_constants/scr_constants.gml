@@ -54,7 +54,7 @@
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
 #macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 18, 22, 24]) //[12, 16, 24, 28, 32])
 #macro AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.75, 1.5, 2, 2.25])
-#macro MAP_SCORE_TARGET get_probability_for_difficulty([0, 8, 24, 40, 55])
+#macro MAP_SCORE_TARGET get_probability_for_difficulty([0, 4, 12, 30, 45])// get_probability_for_difficulty([0, 8, 24, 40, 55])
 //#macro MAP_SCORE_TARGET (AVERAGE_ROOM_DIFFICULTY * MINIMUM_NUMBER_OF_ROOMS) // Rooms are added until the finished map scores this much (R2); raise it for more rooms on average
 //#macro OLD_AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.8289, 1.1682, 1.3802, 1.5])
 //#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 

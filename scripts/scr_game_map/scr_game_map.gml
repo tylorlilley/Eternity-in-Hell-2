@@ -1224,65 +1224,35 @@ function GameMap() constructor {
 	};
 
 	/// @function determine_other_exit_types()
-	/// @description Adds illusion walls, portcullis traps and plain doors, room by room in random order, as
-	///	today's code does. An exit holds at most one of them, so each room rolls its illusion walls first, then
-	///	maybe a trap, then its doors, and what an earlier room placed rules out later rolls on the same exit.
-	///	None of them change which rooms the player can reach, so they come after the keys. Stairs-only rooms,
-	///	the start, the heart, halls of mirrors and their neighbors never roll any of them themselves (R54).
+	/// @description Adds illusion walls, portcullis traps and plain doors, to random exits
 	static determine_other_exit_types = function() {
-		var _rooms = array_shuffle(rooms), _door_rolled_exits = [];
-		for (var _i = 0; _i < array_length(_rooms); _i++) {
-			var _room = _rooms[_i];
-			if (!can_roll_special_exits(_room)) { continue; }
+		// Loop throgh all the exisitin rooms
+		var _possible_rooms = array_shuffle(rooms);
+		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
+			// Skip any ineligible rooms
+			var _possible_room = _possible_rooms[_i];
+			if (!_possible_room.can_have_other_exit_types()) { continue; }
+			
+			// Chance to add portcullis trap
+			if (_room.can_have_portcullis() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _room.add_portcullis_trap();  continue; }
 
-			// Illusion walls (H+): 1 in 32/16 for each side exit, never on a door, a lock, a portcullis or an exit
-			// into the start (R51)
+			// Otherwise, loop through cardinal exits to decorate them individually
+			// TODO: Did re-ordering this change the probabilities at all? Do we need to correct for that?
 			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-				var _exit = _room.exits[_dir];
-				if (_exit == -1 || _exit.has_door || _exit.room_1_has_closed_portcullis || _exit.room_2_has_closed_portcullis) { continue; }
-				if (_exit.get_connected_room(_room).is_start_room) { continue; }
-				if (get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.has_illusion_walls = 1; }
-			}
+				// Skip exists that don't exist, are connected to the start room, or already have a door or portcullis on either side
+				var _exit = _possible_room.exits[_dir];
+				if (_exit == -1 || _exit.has_door || _exit.room_1_has_closed_portcullis || _exit.room_2_has_closed_portcullis || _exit.get_connected_room(_room).is_start_room || _exit.has_illusion_walls) { continue; }
 
-			// A portcullis trap (M+): 1 in 12/8/6 (R52)
-			if (can_take_portcullis(_room) && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _room.add_portcullis_trap(); }
-
-			// Plain doors: 1 in 64/48/24/16, rolled once per side exit, never on a lock, an illusion wall or a
-			// portcullis exit (R53). A room next to the start can still put one on the exit they share
-			for (var _door_dir = directions.up; _door_dir < directions.stairs; _door_dir++) {
-				var _door_exit = _room.exits[_door_dir];
-				if (_door_exit == -1 || array_contains(_door_rolled_exits, _door_exit)) { continue; }
-				if (_door_exit.has_lock || _door_exit.has_illusion_walls > 0) { continue; }
-				if (_room.has_portcullis_button || _door_exit.get_connected_room(_room).has_portcullis_button) { continue; }
-				array_push(_door_rolled_exits, _door_exit);
-				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY * 2)) { _door_exit.has_door = true; }
+				// Randomly try to set the exit to contain illusion walls
+				if (get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.has_illusion_walls = 1; continue; }
+				
+				// Otherwise, try to set the exit to have regular doors
+				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY)) { _exit.has_door = true; continue; }
 			}
 		}
 	};
 
-	/// @function can_roll_special_exits(_room)
-	/// @description Whether a room rolls illusion walls, portcullis traps and plain doors itself (R54).
-	/// @param {GameRoom} _room The room
-	/// @returns {bool}
-	static can_roll_special_exits = function(_room) {
-		return (!_room.has_no_cardinal_exits && !_room.is_start_room && !_room.is_heart_room && !_room.is_connected_to_hall_of_mirrors());
-	};
 
-	/// @function can_take_portcullis(_room)
-	/// @description Whether a room can take a portcullis trap (R52, R53): it rolls special exits itself (which
-	///	rules out the start, heart and stairs-only rooms), none of its side exits has a door (locked or plain) or
-	///	an illusion wall, no neighbor has a trap, and its button has a free spot.
-	/// @param {GameRoom} _room The room
-	/// @returns {bool}
-	static can_take_portcullis = function(_room) {
-		if (!can_roll_special_exits(_room)) { return false; }
-		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-			var _exit = _room.exits[_dir];
-			if (_exit == -1) { continue; }
-			if (_exit.has_door || _exit.has_illusion_walls > 0 || _exit.get_connected_room(_room).has_portcullis_button) { return false; }
-		}
-		return array_length(_room.list_button_spots()) > 0;
-	};
 
 
 	// =================================================================================================
@@ -1329,22 +1299,109 @@ function GameMap() constructor {
 
 
 	/// @function calculate_map_difficulty_score()
-	/// @description Scores every room and sets difficulty_score to their total (R2, R55).
+	/// @description Scores every room and sets difficulty_score to their total
 	static calculate_map_difficulty_score = function() {
 		difficulty_score = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _room = rooms[_i];
 
-			_room.room_reference_difficulty = _room.get_difficulty_score();
+			_room.room_reference_difficulty = _room.get_current_difficulty_score();
 			difficulty_score += _room.room_reference_difficulty;
 		}
 	};
 
 	/// @function calculate_time_provided()
-	/// @description Calculates the run's total time: every room's time added up, from the rooms' scores.
+	/// @description The run's total time: every room's share, plus the trips between rooms the map adds.
 	static calculate_time_provided = function() {
 		time_provided = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) { time_provided += rooms[_i].get_time_provided(); }
+		time_provided += TIME_ALLOWANCE * get_backtracking_time();
+	};
+ 
+	/// @function measure_travel_times(_from_room, _skip_exit, _crossing)
+	/// @description Seconds from one room to every other by the quickest way, through side exits and stairs
+	///	with locks ignored, counting the crossing time of each room entered.
+	/// @param {GameRoom} _from_room Where to start
+	/// @param {RoomExit|undefined} _skip_exit An exit not to use, or undefined
+	/// @param {array} _crossing Each room's crossing time, by mapgen_index
+	/// @returns {array} Seconds to each room by mapgen_index, or -1 where it can't be reached
+	static measure_travel_times = function(_from_room, _skip_exit, _crossing) {
+		var _count = array_length(rooms), _times = array_create(_count, -1), _settled = array_create(_count, false);
+		_times[_from_room.mapgen_index] = 0;
+		repeat (_count) {
+			var _room = undefined, _best = infinity;
+			for (var _i = 0; _i < _count; _i++) {
+				var _index = rooms[_i].mapgen_index;
+				if (!_settled[_index] && _times[_index] >= 0 && _times[_index] < _best) { _best = _times[_index]; _room = rooms[_i]; }
+			}
+			if (is_undefined(_room)) { break; }
+			_settled[_room.mapgen_index] = true;
+			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
+				var _exit = _room.exits[_dir];
+				if (_exit == -1 || _exit == _skip_exit) { continue; }
+				var _other = _exit.get_connected_room(_room);
+				var _time = _best + _crossing[_other.mapgen_index];
+				if (!_settled[_other.mapgen_index] && (_times[_other.mapgen_index] < 0 || _time < _times[_other.mapgen_index])) { _times[_other.mapgen_index] = _time; }
+			}
+		}
+		return _times;
+	};
+ 
+	/// @function get_backtracking_time()
+	/// @description Seconds of walking between rooms on top of each room's own visit (R56): carrying the heart
+	///	back to the start cross, going back for a key when a lock comes first, coming back to an illusion wall
+	///	taken for a dead end, and the wrath quest's trip to the start cross and back. Trips take the quickest way
+	///	through the rooms, stairs included, so shortcuts shorten them.
+	/// @returns {real}
+	static get_backtracking_time = function() {
+		var _crossing = array_create(array_length(rooms), 0), _from_start = measure_distances(start_room), _extra = 0;
+		for (var _i = 0; _i < array_length(rooms); _i++) { _crossing[rooms[_i].mapgen_index] = rooms[_i].get_crossing_time(); }
+ 
+		// The finish: the heart has to be carried back to the start cross, from the far end of the map (R10)
+		var _heart_times = measure_travel_times(heart_room, undefined, _crossing);
+		var _to_finish = _heart_times[start_room.mapgen_index];
+		if (_to_finish > 0) { _extra += _to_finish; }
+ 
+		for (var _j = 0; _j < array_length(side_links); _j++) {
+			var _exit = side_links[_j];
+			if (!_exit.has_lock && _exit.has_illusion_walls <= 0) { continue; }
+ 
+			// The player reaches the side nearer the start first
+			var _near = (_from_start[_exit.room_2.mapgen_index] < _from_start[_exit.room_1.mapgen_index]) ? _exit.room_2 : _exit.room_1;
+			var _times = measure_travel_times(_near, _exit, _crossing);
+ 
+			// A lock met before its key: the trip from it to the nearest key on its near side, and back
+			if (_exit.has_lock) {
+				var _nearest = infinity;
+				for (var _k = 0; _k < array_length(rooms); _k++) {
+					var _to_key = _times[rooms[_k].mapgen_index];
+					if (rooms[_k].has_key && _to_key >= 0) { _nearest = min(_nearest, _to_key); }
+				}
+				if (_nearest != infinity) { _extra += LOCK_BACKTRACK_SHARE * 2 * _nearest; }
+			}
+ 
+			// An illusion wall taken for a dead end: the trip back to it once everything else on its side is done
+			// (on average the mean trip from those rooms), and the search
+			if (_exit.has_illusion_walls > 0) {
+				var _sum = 0, _rooms_on_side = 0;
+				for (var _m = 0; _m < array_length(rooms); _m++) {
+					var _back = _times[rooms[_m].mapgen_index];
+					if (_back > 0) { _sum += _back; _rooms_on_side += 1; }
+				}
+				if (_rooms_on_side > 0) { _extra += ILLUSION_WALL_MISS_CHANCE * _sum / _rooms_on_side; }
+				_extra += ILLUSION_WALL_SEARCH_TIME;
+			}
+		}
+ 
+		// Wrath: the trip to the start cross to lift the curse, and back for the chest
+		for (var _n = 0; _n < array_length(rooms); _n++) {
+			var _room = rooms[_n];
+			if (_room.layout.get_object_count("obj_inverted_cross") == 0) { continue; }
+			var _wrath_times = measure_travel_times(_room, undefined, _crossing);
+			var _to_start = _wrath_times[start_room.mapgen_index];
+			if (_to_start > 0) { _extra += 2 * _to_start; }
+		}
+		return _extra;
 	};
 
 	/// @function calculate_collectables_and_items_lists()

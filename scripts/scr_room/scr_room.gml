@@ -164,6 +164,33 @@ function GameRoom(given_x, given_y) constructor {
 	function can_have_special_item() {
 		return (!has_special_item && distance_to_start >= 2);
 	}
+	
+	/// @function can_have_other_exit_types()
+	/// @description Whether a room can have illusion walls, portcullis traps and plain doors
+	/// @returns {bool}
+	function can_have_other_exit_types() {
+		return (!has_no_cardinal_exits && !is_start_room && !is_heart_room && !is_connected_to_hall_of_mirrors());
+	};
+	
+	/// @function can_have_portcullis(_room)
+	/// @description Whether a room can have a portcullis spawn in it
+	/// @returns {bool}
+	function can_have_portcullis() {
+		if (!can_have_other_exit_types()) { return false; }
+		
+		// Check each of the rooms cardinal exits
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
+			// Skip if there is no exit in this direction
+			var _exit = exits[_dir];
+			if (_exit == -1) { continue; }
+			
+			// Return false if any exit already has a door, illusion wall, or button
+			if (_exit.has_door || _exit.has_illusion_walls > 0 || _exit.get_connected_room(id).has_portcullis_button) { return false; }
+		}
+		
+		// Return if there is at least one potential button spot
+		return array_length(get_portcullis_button_spots()) > 0;
+	};
 
 	/// @function has_chest()
 	/// @description Whether the room holds a chest, hidden or not.
@@ -195,31 +222,34 @@ function GameRoom(given_x, given_y) constructor {
 
 	/// @function is_stairs_spot_free()
 	/// @description Whether nothing takes the room's stairs spot: no stairs, and no cross, heart or chest placed
-	///	on it (L1, L2).
 	/// @returns {bool}
 	function is_stairs_spot_free() {
 		if (has_exit(directions.stairs)) { return false; }
 		return stairs_spot_obj == -1 || !chest_on_stairs_spot;
 	}
 
-	/// @function list_button_spots()
-	/// @description The free spots the room's portcullis button could take (R52, L3): the stairs spot when
+	/// @function get_portcullis_button_spots()
+	/// @description The free spots the room's portcullis button could take; the stairs spot when
 	///	nothing uses it, and each collectable spot the floor key doesn't take, as long as one stays free for the
 	///	room's collectables. A spot only counts if nothing else shares its tile, since that could hold the
 	///	button down. The chest spot never holds a button.
 	/// @returns {array} Collectable spot numbers in layout file order, with -1 for the stairs spot
-	function list_button_spots() {
-		var _spots = [];
+	function get_portcullis_button_spots() {
+		// Add the stairs spot to the potential button spots
+		var _possible_spots = [];
 		if (is_stairs_spot_free() && layout.stairs_spot_is_clear) { array_push(_spots, -1); }
 
-		var _spots_left_by_key = array_length(layout.key_spots) - ((key_spot != -1) ? 1 : 0);
+		// Add any unused key spots to the potential button spots
+		var _spawned_keys = (key_spot != -1) ? 1 : 0;
+		var _spots_left_by_key = array_length(layout.key_spots) - _spawned_keys;
 		if (!has_collectables || _spots_left_by_key >= 2) {
+			// Loop through all spots in the layout, and add them to the potential button spots
 			for (var _i = 0; _i < array_length(layout.button_spots); _i++) {
 				var _spot = layout.button_spots[_i];
-				if (_spot != key_spot) { array_push(_spots, _spot); }
+				if (_spot != key_spot) { array_push(_possible_spots, _spot); }
 			}
 		}
-		return _spots;
+		return _possible_spots;
 	}
 	
 	/// @function add_reachable_rooms_to_bitmask(_start_room, _reached_rooms_bitmask)
@@ -259,60 +289,6 @@ function GameRoom(given_x, given_y) constructor {
 		return (_bitmask & (1 << mapgen_index)) != 0;
 	}
 
-	/// @function get_difficulty_score()
-	/// @description Scores the room (R55): its layout file's contents, its rolled and placed contents, and its
-	///	exits. Higher means harder. room_converter.rb weighs layout contents separately to set each file's
-	///	difficulty.
-	/// @returns {real}
-	function get_difficulty_score() {
-		// Enemies, statues and fountains
-		var _score = 0;
-		if (has_phantom) { _score += 2; }
-		if (has_floater) { _score += 2; }
-		if (has_eyes) { _score += 4.5; }												// Placed or rolled
-		if (layout.ears_count > 0) { _score += 4.5; }
-		if (layout.gudetama_count > 0) { _score += 4.5; }
-		if (layout.bumper_count > 0) { _score += 1.25; }
-		_score += layout.mouth_count * 1;												// Placed mouths; the extra ones they bring don't count
-		_score += initial_nose_count * 0.75;
-		_score += initial_fire_skeleton_count * 1;										// Lava fire skeletons
-		if (layout.spider_spot_count > 0) { _score += 1.5; }
-		_score += layout.spider_count * 1.5;
-		_score += (layout.fountain_count + replaced_column_fountain_count) * 0.5;				// Placed, or turned from columns
-		_score += layout.statue_count * 0.25;											// Plain, or turned fountain
-		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
-			_score += get_skeleton_spot_score(skeleton_types[_i]);
-		}
-		_score += layout.snake_count * 0.66;											// Placed snakes
-		_score += (layout.worm_head_count * 0.1625) + (layout.worm_body_count * 0.0625);
-		if (_score > 0) { _score += 0.25; }												// Any of the above
-
-		// The room's other contents
-		if (is_special_room) { _score += 5; }
-		if (has_hidden_chest) { _score += 0.125; }
-		if (has_lanterns && !has_phantom && !has_hidden_chest) { _score -= 0.125; }
-		if (lit) { _score -= 0.125; }
-		if (has_locked_chest && !has_special_item) { _score += 0.125; }
-		if (has_no_cardinal_exits) { _score += 0.125; }
-		if (has_collectables) { _score += 0.25; }
-		if (has_misleading_exits) { _score += 0.125; }
-		if (has_trap_chest()) { _score += 0.325; }
-		else if (chest_obj != -1 && !has_key) { _score -= 0.25; }						// A chest with no key-role item
-		if (has_special_item) { _score -= 2; }
-		_score += (layout.block_spot_count * 0.08) + (layout.lava_count * 0.01) + (layout.bones_count * 0.05) + (layout.corpse_count * 0.05);
-
-		// Its side exits; each room an exit joins counts it
-		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-			var _exit = exits[_dir];
-			if (_exit == -1) { continue; }
-			if (_exit.has_closed_portcullis_for_room(self)) { _score += 0.325; }
-			if (_exit.has_door) { _score += 0.025; }
-			if (_exit.has_lock) { _score += 0.125; }
-			if (_exit.has_illusion_walls > 0) { _score += 0.25; }
-		}
-		return _score;
-	}
-
 	/// @function get_skeleton_spot_score(_spawn)
 	/// @description Scores a skeleton spot by what spawns there, each value replacing the basic skeleton's
 	///	(R55). A spot holding eyes scores nothing here, since the room's eyes score once.
@@ -331,24 +307,211 @@ function GameRoom(given_x, given_y) constructor {
 		}
 	}
 
+	/// @function get_hazard_counts()
+	/// @description How many of each hazard the room holds, from the layout and from spawned hazards
+	/// @returns {struct}
+	function get_hazard_counts() {
+		var _counts = hazard_counts_copy(layout.hazard_counts);
+		
+		// Fill in what spawned on the skeleton spots
+		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
+			hazard_count_add(_counts, object_get_name(skeleton_types[_i]), 1);
+		}
+ 
+		// Determine predictive spawn counts
+		// TODO: Why is just this one calcualted based on probabilities instead of what has actually been spawned? We should move the spawning of these earlier in the flow so the difficulty score can work with what actually spawned and no probabilities like this
+		var _living_block_count = (LIVING_BLOCK_PROBABILITY > 0) ? layout.block_spot_count / LIVING_BLOCK_PROBABILITY : 0;
+		
+		// Adjust counts based on what has been spawned
+		hazard_count_add(_counts, "living_block", _living_block_count); }
+		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
+		hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
+		hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
+		hazard_count_add(_counts, "obj_nose", initial_nose_count);
+		hazard_count_add(_counts, "obj_fire_skeleton", initial_fire_skeleton_count); // These are ones spawned in lava, in addition to any skeleton spots above
+		hazard_count_add(_counts, "obj_phantom", ((has_phantom) ? 1 : 0));
+		hazard_count_add(_counts, "obj_floater", ((has_floater) ? 1 : 0));
+		hazard_count_add(_counts, "obj_chest", ((has_trap_chest()) ? 1 : 0));
+		hazard_count_add(_counts, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
+		
+		// Return the modified counts
+		return _counts;
+	}
+ 
+	/// @function get_potential_difficulty_score(_counts)
+	/// @description Returnsthe difficulty score for this room for the given hazard counts. Scores only difficulty NOT time.
+	/// @param {struct} _counts The hazard counts to use for this difficulty score
+	/// @returns {real}
+	function get_potential_difficulty_score(_counts) {
+		var _difficulty_score = get_difficulty_score_for_hazard_counts(_counts);
+ 
+		// Collecting everything crosses the whole room, not just the way to one objective
+		if (has_collectables) { _difficulty_score *= COLLECTABLES_EXPOSURE; }
+ 
+		// Shut in until the button is pressed. One button opens every exit, so it counts once
+		// TODO: Convert PORTCULLIS_TRAP_DANGER to the difficulty score value so we don't need to call a function here
+		if (has_portcullis_button) { _difficulty_score += get_difficulty_score_for_danger_level(PORTCULLIS_TRAP_DANGER); }
+ 
+		// Items make the rest of the run easier
+		if (has_special_item) { _difficulty_score += SPECIAL_ITEM_REWARD_POINTS; }
+		else {
+			switch (chest_obj) {
+				case obj_rosary: { _difficulty_score += -1.5; break; }			// One extra life
+				case obj_sword: { _difficulty_score += -1; break; }				// Kills most enemy types
+				case obj_staff: { _difficulty_score += -1; break; }				// Lava, fireballs and beams can't kill you while you hold it
+				case obj_meat: { _difficulty_score += -0.75; break; }			// The strongest counter, but you have to use it proactively
+				case obj_bomb: { _difficulty_score += -0.5; break; }			// Can kill multiple enemies, but can also kill self
+			}
+		}
+ 
+		return _difficulty_score;
+	}
+ 
+	/// @function get_current_difficulty_score()
+	/// @description Returns how danegerous the room is with it's current hazard counts
+	/// @returns {real}
+	function get_current_difficulty_score() {
+		return get_potential_difficulty_score(get_hazard_counts());
+	}
+ 
+	/// @function get_difficulty_score_with(_name, _count)
+	/// @description The room's score if it also held _count more of a hazard, so generation can skip a roll that
+	///	would make the room too dangerous.
+	/// @param {string} _name The hazard's name in the table
+	/// @param {real} _count How many more
+	/// @returns {real}
+	function get_difficulty_score_with(_name, _count) {
+		var _counts = get_hazard_counts();
+		hazard_count_add(_counts, _name, _count);
+		return get_potential_difficulty_score(_counts);
+	}
+ 
+	/// @function get_time_score()
+	/// @description How much time the room's hazards cost (R56): 0 for none, and about 1 for each very
+	///	significant hold-up, like solving a sin's quest.
+	/// @returns {real}
+	function get_time_score() {
+		var _time = get_time_score_for_hazard_counts(get_hazard_counts());
+		if (has_phantom) { _time += PHANTOM_TIME_PER_LANTERN * layout.lantern_count; }
+		return _time;
+	}
+ 
+	/// @function get_walk_entrances()
+	/// @description The walk points a visit can start and end at (R56): the layout's open sides, which the
+	///	orientation step turned to face the room's real exits, and the stairs spot when the room has stairs.
+	/// @returns {array} Walk point numbers
+	function get_walk_entrances() {
+		layout.ensure_walking();
+		var _entrances = [];
+		for (var _i = 0; _i < layout.walk_entrance_count; _i++) { array_push(_entrances, _i); }
+		if ((has_exit(directions.stairs) || array_length(_entrances) == 0) && layout.walk_stairs_point >= 0) { array_push(_entrances, layout.walk_stairs_point); }
+		return _entrances;
+	}
+ 
+	/// @function add_walk_target(_targets, _point)
+	/// @description Adds a walk point to a list of targets, once.
+	/// @param {array} _targets The targets so far
+	/// @param {real} _point A walk point number, or -1 for none
+	function add_walk_target(_targets, _point) {
+		if (_point >= 0 && !array_contains(_targets, _point)) { array_push(_targets, _point); }
+	}
+ 
+	/// @function get_walk_targets()
+	/// @description The list of places a player walking through the room must visit.
+	/// @returns {array} Walk point numbers
+	function get_walk_targets() {
+		layout.ensure_walking();
+		var _targets = [];
+		if (stairs_spot_obj == obj_chest || stairs_spot_obj == obj_encased_heart) {
+			add_walk_target(_targets, chest_on_stairs_spot ? layout.walk_stairs_point : layout.walk_chest_point);
+		}
+		if (has_key && !key_in_chest && key_spot != -1) { add_walk_target(_targets, layout.walk_collectable_points[key_spot]); }
+		if (has_collectables) {
+			for (var _i = 0; _i < array_length(layout.key_spots); _i++) {
+				var _spot = layout.key_spots[_i];
+				if (_spot != key_spot && _spot != button_spot) { add_walk_target(_targets, layout.walk_collectable_points[_spot]); }
+			}
+		}
+		if (has_portcullis_button) {
+			var _spots = lit ? [button_on_stairs_spot ? -1 : button_spot] : list_button_spots();
+			for (var _j = 0; _j < array_length(_spots); _j++) {
+				add_walk_target(_targets, (_spots[_j] == -1) ? layout.walk_stairs_point : layout.walk_collectable_points[_spots[_j]]);
+			}
+		}
+		return _targets;
+	}
+ 
+	/// @function get_walk_route_steps(_from, _to, _targets)
+	/// @description Steps from one walk point to another past every target, taking the nearest one next.
+	/// @param {real} _from A walk point number
+	/// @param {real} _to A walk point number
+	/// @param {array} _targets Walk point numbers
+	/// @returns {real}
+	function get_walk_route_steps(_from, _to, _targets) {
+		var _steps = layout.walk_steps, _left = array_create(array_length(_targets)), _here = _from, _total = 0;
+		array_copy(_left, 0, _targets, 0, array_length(_targets));
+		while (array_length(_left) > 0) {
+			var _next = 0, _next_steps = infinity;
+			for (var _i = 0; _i < array_length(_left); _i++) {
+				var _try = _steps[_here][_left[_i]];
+				if (_try >= 0 && _try < _next_steps) { _next = _i; _next_steps = _try; }
+			}
+			if (_next_steps != infinity) { _total += _next_steps; }
+			_here = _left[_next];
+			array_delete(_left, _next, 1);
+		}
+		return _total + max(0, _steps[_here][_to]);
+	}
+ 
+	/// @function get_walk_steps(_targets)
+	/// @description Steps a careful player walks in one visit (R56): in by one entrance, past every target, and
+	///	out by another (or back out, in a dead end), averaged over the ways through. A dead end with nothing to
+	///	do still gets a look around, as far as its chest spot.
+	/// @param {array} _targets Walk point numbers to reach; [] to just pass through
+	/// @returns {real}
+	function get_walk_steps(_targets) {
+		var _entrances = get_walk_entrances(), _count = array_length(_entrances), _total = 0, _routes = 0;
+		if (array_length(_targets) == 0 && _count == 1 && layout.walk_chest_point >= 0) { _targets = [layout.walk_chest_point]; }
+		for (var _a = 0; _a < _count; _a++) {
+			for (var _b = 0; _b < _count; _b++) {
+				if (_a == _b && _count > 1) { continue; }
+				_total += get_walk_route_steps(_entrances[_a], _entrances[_b], _targets);
+				_routes += 1;
+			}
+		}
+		return (_routes > 0) ? _total / _routes : 0;
+	}
+ 
+	/// @function get_caution_factor()
+	/// @description How much the room's hazards slow walking (R56): 1, plus CAUTION_PER_DANGER_POINT for each
+	///	point of their danger.
+	/// @returns {real}
+	function get_caution_factor() {
+		return 1 + CAUTION_PER_DANGER_POINT * max(0, get_potential_difficulty_score(get_hazard_counts()));
+	}
+ 
+	/// @function get_crossing_time()
+	/// @description Seconds to pass through the room with nothing to do in it, for trips through the map (R56).
+	/// @returns {real}
+	function get_crossing_time() {
+		return ROOM_ENTRY_TIME + get_walk_steps([]) / PLAYER_STEPS_PER_SECOND * get_caution_factor();
+	}
+ 
+	/// @function get_time_needed()
+	/// @description Seconds a careful novice needs for one visit (R56): a moment on entering, the walk through
+	///	the room slowed by its danger, and the hold-ups its hazards cause, like freezing for eyes or luring ears.
+	/// @returns {real}
+	function get_time_needed() {
+		var _walk = get_walk_steps(get_walk_targets()) / PLAYER_STEPS_PER_SECOND;
+		return ROOM_ENTRY_TIME + _walk * get_caution_factor() + HAZARD_FULL_TIME * get_time_score();
+	}
+ 
 	/// @function get_time_provided()
-	/// @description The room's share of the run's time (R56): the larger of 12 s and its share by score (a
-	///	negative score counting as zero), plus time for collectables and for each locked or illusion side exit.
-	///	A lock or illusion wall counts once in each room it joins, and a portcullis only in its trap room. Uses
-	///	the score in room_reference_difficulty, so score the room first.
+	/// @description The room's share of the run's time (R56): the time it needs, times the difficulty's
+	///	allowance. Trips between rooms are added once for the whole map (GameMap.get_backtracking_time).
 	/// @returns {real} Seconds
 	function get_time_provided() {
-		var _score_time = TIME_PROVIDED_PER_ROOM * max(0, room_reference_difficulty) / AVERAGE_ROOM_DIFFICULTY;
-		var _time = max(MINIMUM_TIME_PROVIDED_PER_ROOM, _score_time);
-		if (has_collectables) { _time += TIME_PROVIDED_PER_COLLECTABLE; }
-		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-			var _exit = exits[_dir];
-			if (_exit == -1) { continue; }
-			if (_exit.has_lock) { _time += TIME_PROVIEDED_PER_LOCK; }
-			if (_exit.has_illusion_walls > 0) { _time += TIME_PROVIEDED_PER_ILLUSION_WALL; }
-			if (_exit.has_closed_portcullis_for_room(self)) { _time += TIME_PROVIEDED_PER_PORTCULLIS; }
-		}
-		return _time;
+		return TIME_ALLOWANCE * get_time_needed();
 	}
 
 	// ==========
@@ -567,15 +730,19 @@ function GameRoom(given_x, given_y) constructor {
 	///	its button. The room loses any phantom or floater, and the button's spot is picked at random from all
 	///	free spots, so building places it exactly there (R52, R57).
 	function add_portcullis_trap() {
+		// Set portcullis flag and unset any flags that shouldn't spawn in portcullis rooms
 		has_portcullis_button = true;
 		has_phantom = false;
 		has_floater = false;
+		
+		// Add portcullis trigger to each cardinal exit
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _exit = exits[_dir];
 			if (_exit != -1) { _exit.set_portcullis_to_trigger_for_room(self, true); }
 		}
 
-		var _spot = array_random_get(list_button_spots());
+		// Pick a spot to spawn the portcullis button
+		var _spot = array_random_get(get_portcullis_button_spots());
 		button_on_stairs_spot = (_spot == -1);
 		button_spot = _spot;
 	}

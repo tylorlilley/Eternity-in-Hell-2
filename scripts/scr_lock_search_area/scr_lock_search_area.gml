@@ -13,8 +13,8 @@ function LockSearchArea(_reached_rooms, _unlocked_chests, _rooms) constructor {
 	
 	/// @function get_key(_area)
 	/// @description Returns the unique key for this search area
-	static get_search_area_key = function() {
-		return get_area_key(reached_rooms, unlocked_chests);
+	static get_key = function() {
+		return get_search_area_key(reached_rooms, unlocked_chests);
 	}
 	
 	/// @function initialize_area(_rooms)
@@ -32,7 +32,7 @@ function LockSearchArea(_reached_rooms, _unlocked_chests, _rooms) constructor {
 				else { keys_reached += 1; }
 			}
 			if (_room.is_lit()) { reached_lit_room = true; }
-			if (_room.has_locked_chest && _room.unlocked_chests_bitmask_index == -1) { useless_locked_chests_reached += 1; } // TODO: What is unlocked_chests_bitmask_index for?
+			if (_room.has_locked_chest && _room.unlocked_chests_bitmask_index == -1) { useless_locked_chests_reached += 1; }
 			
 			// If the room has a lockless or unlocked chest
 			if ((_room.stairs_spot_obj == obj_chest) && (!_room.has_locked_chest || is_locked_chest_opened(_room))) {
@@ -79,5 +79,5 @@ function LockSearchArea(_reached_rooms, _unlocked_chests, _rooms) constructor {
 /// @function get_search_area_key(_reached_rooms, _unlocked_chests)
 /// @description Returns the unique search area key for this combination of rooms and chests
 function get_search_area_key(_reached_rooms, _unlocked_chests) {
-	return (string(_reached_rooms) + "," + string(_unlocked_chests)
+	return (string(_reached_rooms) + "," + string(_unlocked_chests));
 }

@@ -1165,7 +1165,7 @@ function GameMap() constructor {
 		var _all_rooms_reached_bitmask = (1 << array_length(rooms)) - 1, _reached_rooms_bitmask = start_room.get_reachable_rooms_bitmask(), _unlocked_chests_bitmask = 0;
 		var _initial_search_area = new LockSearchArea(_reached_rooms_bitmask, _unlocked_chests_bitmask, rooms), _search_area_check_queue = [_initial_search_area];
 		var _search_areas_in_queue_map = {};
-		_search_areas_in_queue_map[$ _initial_search_area.get_key()] = true;
+		_search_areas_in_queue_map[$ get_search_area_key(_reached_rooms_bitmask, _unlocked_chests_bitmask)] = true;
 		
 		// Iterate through the searched area queue, checking that each one is possible
 		while (array_length(_search_area_check_queue) > 0) {
@@ -1188,13 +1188,13 @@ function GameMap() constructor {
 			// Otherwise, spend a key to open a locked door at the edge of the area, reaching the rooms behind it...
 			for (var _i = 0; _i < array_length(_locked_exits); _i++) {
 				// Skip unlocking the exit if both sides or neither side of it have been reached yet
-				var _locked_exit = _locked_doors[_i];
+				var _locked_exit = _locked_exits[_i];
 				var _room_1_reached = _locked_exit.room_1.is_in_bitmask(_search_area.reached_rooms);
 				var _room_2_reached = _locked_exit.room_2.is_in_bitmask(_search_area.reached_rooms);
 				if (_room_1_reached == _room_2_reached) { continue; }
 				
 				// Add a new area to the queue of areas to check, which is the same area plus the new unlock of this exit
-				var _new_room = (_room_1_reached) ? _locked_exit.room_1 :  _locked_exit.room_2;
+				var _new_room = (_room_1_reached) ? _locked_exit.room_2 :  _locked_exit.room_1;
 				
 				var _new_reached_rooms = _search_area.reached_rooms | _new_room.get_reachable_rooms_bitmask();
 				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _new_reached_rooms, _search_area.unlocked_chests);

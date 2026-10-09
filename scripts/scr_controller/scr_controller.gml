@@ -583,11 +583,6 @@ function game_room_initialize() {
 	for (var i = 0; i < current_room.replaced_column_fountain_count; i++) {
 		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_column)) {
-			var columns = instance_place_all(x, y, obj_column);
-			while (array_length(columns) > 0) {
-				var column = array_pop(columns);
-				if (is_existing_instance(column)) { instance_destroy(column); }
-			}
 			var new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
 			other.current_room.add_to_instances_at_map_positions(new_inst);
@@ -598,11 +593,6 @@ function game_room_initialize() {
 	for (var i = 0; i < current_room.replaced_statue_fountain_count; i++) {
 		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_statue, true)) { // Exact statues only, since fountains are children of obj_statue
-			var statues = instance_place_all(x, y, obj_statue);
-			while (array_length(statues) > 0) {
-				var statue = array_pop(statues);
-				if (is_existing_instance(statue)) { instance_destroy(statue); }
-			}
 			var new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
 			other.current_room.add_to_instances_at_map_positions(new_inst);
@@ -611,16 +601,14 @@ function game_room_initialize() {
 		}
 	}
 	
-	// Spawn living blocks instead of regular blocks on spome block spots
+	// Spawn living blocks instead of regular blocks on some block spots
 	for (var _i = 0; _i < current_room.living_block_count; _i++) {
 		if (current_room == start_room) { continue; }
 		
-		with (get_random_instance(obj_block)) {
-			var new_inst = instance_create(_block_x, _block_y, obj_living_block);
+		with (get_random_instance(obj_block, true)) { // Exact blocks only, since living blocks are children of obj_block
+			var new_inst = instance_create(x, y, obj_living_block);
 			new_inst.creator = creator;
 			creator.spawned_block = new_inst;
-			other.current_room.remove_from_instances_at_map_positions(id);
-			other.current_room.add_to_instances_at_map_positions(new_inst);
 			mark_current_room_for_grid_update();
 			instance_destroy(id, false);
 		}

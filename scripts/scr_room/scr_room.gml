@@ -44,6 +44,13 @@ function GameRoom(given_x, given_y) constructor {
 	unlocked_chests_bitmask_index = -1;					// Its locked chest's number in the key check
 	mapgen_needs_layout = true;				// Its side exits changed since its last layout pick (R16)
 	
+	// How likely the player is to arrive holding each counter, and to have light here (set by GameMap.determine_counter_chances).
+	// Until then, the hazard table's own assumption: no item, and light
+	chance_holding_staff = 0;
+	chance_holding_sword = 0;
+	chance_holding_special_sword = 0;
+	chance_of_light = 1;
+	
 	// Its layout's orientation, so the layout's openings face its side exits (step 5)
 	flip_horizontal = false;
 	flip_vertical = false;
@@ -306,6 +313,14 @@ function GameRoom(given_x, given_y) constructor {
 		return lit || is_guaranteed_lit_room;
 	}
 
+	/// @function can_light_torch()
+	/// @description Whether a torch can be lit in the room: its lanterns start lit, or something in it shoots fireballs that
+	///	light a torch dropped in their way
+	/// @returns {bool}
+	function can_light_torch() {
+		return is_lit() || (count_other_hazards_with_tags(get_hazard_counts(), undefined, hazard_tags.lights_torches) > 0);
+	}
+
 	/// @function spawns_phantom()
 	/// @description Whether the room's rolled phantom spawns: never in the start room, a lit room or a portcullis trap room
 	/// @returns {bool}
@@ -355,34 +370,47 @@ function GameRoom(given_x, given_y) constructor {
 		}
 	}
 
-	/// @function get_hazard_counts()
-	/// @description How many of each hazard the room holds, from the layout and from spawned hazards
+	/// @function get_hazard_counts([_with_role])
+	/// @description How many of each hazard the room holds, from the layout and from spawned hazards. With its role, it also
+	///	counts what the room's role and decorations change: the start room spawns none of its rolled dangers, lit and trap
+	///	rooms no phantom, and chests and collectables add their own.
+	/// @param {bool} [_with_role] False to count the rolled content just as it was rolled, while generation is still rolling it
 	/// @returns {struct}
-	function get_hazard_counts() {
+	function get_hazard_counts(_with_role = true) {
 		var _counts = hazard_counts_copy(layout.hazard_counts);
 		
 		// Fill in what spawns on the skeleton spots
-		var _skeleton_types = get_spawned_skeleton_types();
+		var _skeleton_types = _with_role ? get_spawned_skeleton_types() : skeleton_types;
 		for (var _i = 0; _i < array_length(_skeleton_types); _i++) {
 			hazard_count_add(_counts, object_get_name(_skeleton_types[_i]), 1);
 		}
 		
-		// Adjust counts based on what has been spawned
-		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
-		if (!is_start_room) {
+		// Adjust counts based on what has been spawned. The extra mouths higher difficulties add to each placed one aren't counted
+		if (!_with_role || !is_start_room) {
 			hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
 			hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
 			hazard_count_add(_counts, "obj_living_block", living_block_count);
 			hazard_count_add(_counts, "obj_nose", initial_nose_count);
 			hazard_count_add(_counts, "obj_fire_skeleton", initial_fire_skeleton_count); // These are ones spawned in lava, in addition to any skeleton spots above
 		}
-		hazard_count_add(_counts, "obj_phantom", ((spawns_phantom()) ? 1 : 0));
-		hazard_count_add(_counts, "obj_floater", ((spawns_floater()) ? 1 : 0));
-		hazard_count_add(_counts, "obj_chest", ((has_trap_chest()) ? 1 : 0));
-		hazard_count_add(_counts, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
+		hazard_count_add(_counts, "obj_phantom", (((_with_role) ? spawns_phantom() : has_phantom) ? 1 : 0));
+		hazard_count_add(_counts, "obj_floater", (((_with_role) ? spawns_floater() : has_floater) ? 1 : 0));
+		if (_with_role) {
+			hazard_count_add(_counts, "obj_chest", ((has_trap_chest()) ? 1 : 0));
+			hazard_count_add(_counts, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
+		}
 		
 		// Return the modified counts
 		return _counts;
+	}
+	
+	/// @function can_roll_hazard(_hazard_name)
+	/// @description Whether a hazard may be rolled for the room. Eyes stop the player in place, so a room with eyes never
+	///	rolls anything that chases or shoots at the player.
+	/// @param {string} _hazard_name The hazard's name in the difficulty score table
+	/// @returns {bool}
+	function can_roll_hazard(_hazard_name) {
+		return !has_eyes || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
 	}
  
 	/// @function get_potential_difficulty_score(_counts)
@@ -390,16 +418,16 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param {struct} _counts The hazard counts to use for this difficulty score
 	/// @returns {real}
 	function get_potential_difficulty_score(_counts) {
-		var _difficulty_score = get_difficulty_score_for_hazard_counts(_counts);
+		var _difficulty_score = get_difficulty_score_for_hazard_counts(_counts, self);
  
 		// Collecting everything crosses the whole room, not just the way to one objective
 		if (has_collectables) { _difficulty_score *= COLLECTABLES_EXPOSURE; }
  
 		// Shut in until the button is pressed. One button opens every exit, so it counts once
-		// TODO: Convert PORTCULLIS_TRAP_DANGER to the difficulty score value so we don't need to call a function here
 		if (has_portcullis_button) { _difficulty_score += get_difficulty_score_for_danger_level(PORTCULLIS_TRAP_DANGER); }
  
-		// Items make the rest of the run easier
+		// Items make the rest of the run easier. Swords and staffs also lower the danger of the hazards they counter, through how
+		// likely the player is to hold one (see GameMap.determine_counter_chances)
 		if (has_special_item) { _difficulty_score += SPECIAL_ITEM_REWARD_POINTS; }
 		else {
 			switch (chest_obj) {
@@ -421,16 +449,20 @@ function GameRoom(given_x, given_y) constructor {
 		return get_potential_difficulty_score(get_hazard_counts());
 	}
  
-	/// @function get_difficulty_score_with(_name, _count)
-	/// @description The room's score if it also held _count more of a hazard, so generation can skip a roll that
-	///	would make the room too dangerous.
-	/// @param {string} _name The hazard's name in the table
-	/// @param {real} _count How many more
-	/// @returns {real}
-	function get_difficulty_score_with(_name, _count) {
-		var _counts = get_hazard_counts();
-		hazard_count_add(_counts, _name, _count);
-		return get_potential_difficulty_score(_counts);
+	/// @function would_exceed_max_difficulty(_hazard_name, [_replaced_hazard_name])
+	/// @description Whether one more of a hazard would take the threats rolled into the room past ROOM_DIFFICULTY_SCORE_MAX,
+	///	so generation can skip that roll. The room is scored as a player holding nothing meets it, with light only if it
+	///	rolled lit: chests and torches move between generation passes, but what's rolled into a room stays.
+	/// @param {string} _hazard_name The hazard's name in the table
+	/// @param {string} [_replaced_hazard_name] A hazard the new one takes the place of, like a skeleton spot's basic skeleton
+	/// @returns {bool}
+	function would_exceed_max_difficulty(_hazard_name, _replaced_hazard_name = undefined) {
+		var _counts = get_hazard_counts(false);
+		hazard_count_add(_counts, _hazard_name, 1);
+		if (!is_undefined(_replaced_hazard_name)) { hazard_count_add(_counts, _replaced_hazard_name, -1); }
+		
+		var _holding_nothing = { chance_holding_staff: 0, chance_holding_sword: 0, chance_holding_special_sword: 0, chance_of_light: lit ? 1 : 0 };
+		return get_difficulty_score_for_hazard_counts(_counts, _holding_nothing) > ROOM_DIFFICULTY_SCORE_MAX;
 	}
  
 	/// @function get_time_score()
@@ -535,7 +567,7 @@ function GameRoom(given_x, given_y) constructor {
 	///	doesn't change how carefully it's walked.
 	/// @returns {real}
 	function get_caution_factor() {
-		return 1 + CAUTION_PER_DANGER_POINT * max(0, get_difficulty_score_for_hazard_counts(get_hazard_counts()));
+		return 1 + CAUTION_PER_DANGER_POINT * max(0, get_difficulty_score_for_hazard_counts(get_hazard_counts(), self));
 	}
  
 	/// @function get_crossing_time()
@@ -632,60 +664,75 @@ function GameRoom(given_x, given_y) constructor {
 
 	/// @function determine_random_room_content(_same_skeleton_type)
 	/// @description Rolls the random content for the room's layout, straight onto the room. It's rolled once per layout
-	///	pick and never edited afterwards; the room's role decides which of it spawns
+	///	pick and never edited afterwards; the room's role decides which of it spawns. Any roll that would take the room past
+	///	ROOM_DIFFICULTY_SCORE_MAX is skipped (see would_exceed_max_difficulty), so each one is checked against what the
+	///	layout spawns for sure and everything rolled before it
 	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
 	function determine_random_room_content(_same_skeleton_type) {
+		// Start from what the layout spawns for sure. Every skeleton spot holds a basic skeleton until its roll replaces it
+		var _skeleton_spot_count = layout.get_object_count("obj_skeleton_spot"); // Skeleton spots aren't in the difficulty score table
+		skeleton_types = array_create(_skeleton_spot_count, obj_skeleton);
+		replaced_column_fountain_count = 0;
+		replaced_statue_fountain_count = 0;
+		living_block_count = 0;
+		initial_fire_skeleton_count = 0;
+		initial_nose_count = 0;
+		has_phantom = false;
+		has_floater = false;
+		
 		// Only lantern rooms that aren't special rooms can start lit
 		lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
 
+		// Eyes the layout places stop the player in place, so nothing rolled below may chase or shoot at them (see can_roll_hazard)
+		has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
+		
 		// Determine how many columns and how many statues to replace with fountains
-		replaced_column_fountain_count = 0;
-		for (var _column = 0; _column < layout.get_object_count("obj_column"); _column++) { // Columns aren't in the difficulty score table
-			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { replaced_column_fountain_count += 1; }
-		}
-		replaced_statue_fountain_count = 0;
-		for (var _statue = 0; _statue < layout.get_hazard_count("obj_statue"); _statue++) {
-			if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) { replaced_statue_fountain_count += 1; }
+		if (can_roll_hazard("obj_fountain")) {
+			for (var _column = 0; _column < layout.get_object_count("obj_column"); _column++) { // Columns aren't in the difficulty score table
+				if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain")) { replaced_column_fountain_count += 1; }
+			}
+			for (var _statue = 0; _statue < layout.get_hazard_count("obj_statue"); _statue++) {
+				if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain", "obj_statue")) { replaced_statue_fountain_count += 1; }
+			}
 		}
 
 		// Determine how many of the blocks on block spots come alive
-		living_block_count = 0;
 		for (var _block_spot = 0; _block_spot < layout.get_hazard_count("obj_block_spot"); _block_spot++) {
-			if (get_random_chance_out_of(LIVING_BLOCK_PROBABILITY)) { living_block_count += 1; }
+			if (get_random_chance_out_of(LIVING_BLOCK_PROBABILITY) && !would_exceed_max_difficulty("obj_living_block")) { living_block_count += 1; }
 		}
 
 		// Determine lava enemy spawns
-		initial_fire_skeleton_count = 0;
-		initial_nose_count = 0;
 		if (layout.get_hazard_count("obj_lava") > 0) {
-			if (get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { initial_fire_skeleton_count = 1; }
-			for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
-				if (get_random_chance_out_of(NOSE_PROBABILITY)) { initial_nose_count += 1; }
+			if (can_roll_hazard("obj_fire_skeleton") && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) && !would_exceed_max_difficulty("obj_fire_skeleton")) { initial_fire_skeleton_count = 1; }
+			if (can_roll_hazard("obj_nose")) {
+				for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
+					if (get_random_chance_out_of(NOSE_PROBABILITY) && !would_exceed_max_difficulty("obj_nose")) { initial_nose_count += 1; }
+				}
 			}
 		}
 		
-		// Determine eyes enemy spawn
-		var _skeleton_spot_count = layout.get_object_count("obj_skeleton_spot"), _skeleton_spot_with_eyes = -1; // Skeleton spots aren't in the difficulty score table
-		has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
-		if (!has_eyes && _skeleton_spot_count > 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
-			has_eyes = true;
-			_skeleton_spot_with_eyes = irandom(_skeleton_spot_count - 1);
-		}
-
-		// Determine skeleton spot enemies
-		skeleton_types = [];
+		// Determine skeleton spot enemies. A spot keeps its basic skeleton when its roll is skipped, or in a room with eyes,
+		// when the rolled type would chase or shoot at the player
 		for (var _spot = 0; _spot < _skeleton_spot_count; _spot++) {
 			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type() : _same_skeleton_type;
-			if (_spot == _skeleton_spot_with_eyes) { _skeleton_type = obj_eyes; }
-			
-			array_push(skeleton_types, _skeleton_type);
+			var _skeleton_name = object_get_name(_skeleton_type);
+			if (_skeleton_type != obj_skeleton && can_roll_hazard(_skeleton_name) && !would_exceed_max_difficulty(_skeleton_name, "obj_skeleton")) { skeleton_types[_spot] = _skeleton_type; }
 		}
 		
 		// Determine additional enemy spawns
-		has_phantom = layout.has_lanterns && !lit && !has_eyes && !is_special_room && get_random_chance_out_of(PHANTOM_PROBABILITY);
-		has_floater = !has_phantom && !has_eyes && !is_special_room && get_random_chance_out_of(FLOATER_PROBABILITY);
+		has_phantom = layout.has_lanterns && !lit && !is_special_room && can_roll_hazard("obj_phantom") && get_random_chance_out_of(PHANTOM_PROBABILITY) && !would_exceed_max_difficulty("obj_phantom");
+		has_floater = !has_phantom && !is_special_room && can_roll_hazard("obj_floater") && get_random_chance_out_of(FLOATER_PROBABILITY) && !would_exceed_max_difficulty("obj_floater");
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
 		initial_mouth_count = layout.get_hazard_count("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
+		
+		// Eyes rolled onto a skeleton spot come last, so they only join a room where nothing chases or shoots at the player
+		if (!has_eyes && _skeleton_spot_count > 0 && count_other_hazards_with_tags(get_hazard_counts(false), undefined, TARGETS_PLAYER_TAGS) == 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
+			var _eyes_spot = irandom(_skeleton_spot_count - 1);
+			if (!would_exceed_max_difficulty("obj_eyes", object_get_name(skeleton_types[_eyes_spot]))) {
+				has_eyes = true;
+				skeleton_types[_eyes_spot] = obj_eyes;
+			}
+		}
 
 		// A hall of mirrors' sequence of exits to take
 		mirror_directions = [];

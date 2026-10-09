@@ -1,28 +1,26 @@
 // Turning scores into game values
 #macro DANGER_POINT_SCALE 8					// Score points per unit of danger
 #macro HAZARD_FULL_TIME 30					// Extra Seconds a time score of 1 is worth: hold-ups on top of walking,
-#macro SWORD_CARRY_CHANCE 0.15				// Rough average of how often a player will have a sword
-#macro STAFF_CARRY_CHANCE 0.1				// Rough average of how often a player will have a staff
  
-// Difficulty and Time Thresholds
-#macro LAYOUT_MEDIUM_DANGER 1.0				// Difficulty Threshold for Medium and Up
-#macro LAYOUT_HARD_DANGER 2.2				// Time Threshold for Hard and Up
-#macro LAYOUT_MEDIUM_TIME 0.3				// Time Threshold for Hard and up
-#macro LAYOUT_HARD_TIME 0.5
- 
-// Hazards that make each other worse
-#macro COCKROACH_WITH_DARK_DANGER 0.07		// Banishing a phantom means lighting every lantern, which takes longer the more there 
-#macro EYES_WITH_FORCER_DANGER 0.70			// STOP vs GO: eyes, plus anything that keeps the player moving
-#macro MOUTHS_WITH_HURRIER_DANGER 0.50		// RUSH vs MINES: 3 or more mouths, plus anything that makes the player hurry
-#macro STATUE_WITH_CHASER_DANGER 0.15		// TIMING vs CHASE: each statue, when something chases the player
-#macro EARS_DANGER_PER_LOUD_KIND 0.10		// SILENCE: added to the ears for each kind of hazard here that makes loud sounds on its own
+// Hazards that make each other worse. Each hazard's danger assumes the player can deal with it on their own terms, and the
+// more likely the room is to take that away, the closer it gets to its worst case (see get_hazard_combination_multiplier)
+#macro WORST_CASE_MULTIPLIER 3				// A hazard the player slows down for, rushed past instead, or ears drawn to the player by noise: like facing it three times, so a spider goes from 0.15 to about 0.39 danger
+#macro STOPPED_WORST_CASE_MULTIPLIER 9		// A hazard that stops the player, while they're made to keep moving: eyes go from 0.12 to about 0.68 danger
+#macro KEEPS_PLAYER_MOVING_DANGER 0.20		// A chaser or shooter this deadly, like a phantom, keeps the player moving all the time, and a less deadly one that share of the time
+#macro WANDERER_KEEPS_PLAYER_MOVING_SHARE 0.5	// A wanderer only gets in the way by chance, so it keeps the player moving half as much for its danger
+#macro LURE_CHANCE_PER_LOUD_KIND 0.33		// How often each kind of hazard that makes loud noises on its own draws ears to the player
+#macro DARK_DANGER_MULTIPLIER 5				// A hazard that's worse in the dark, when the player has no light: a cockroach goes from 0.02 to about 0.10 danger
 #macro PHANTOM_TIME_PER_LANTERN 0.03		// Banishing a phantom means lighting every lantern, which takes longer the more there are
+#macro TARGETS_PLAYER_TAGS (hazard_tags.moves_towards_player | hazard_tags.fires_at_player)						// What keeps the player on the move by coming for them
+#macro STOPPED_BY_STAFF_TAGS (hazard_tags.fires_at_player | hazard_tags.fires_in_place | hazard_tags.immune_with_staff)	// What can't hurt a player holding a staff
+ 
+// The counters the player might be holding (see GameMap.determine_counter_chances)
+#macro MAP_SHARE_CHANCE_MULTIPLIER 3		// How likely the player is to have something, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
  
 // The room's other content Multipliers
 #macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its hazard danger counts 1.4 times
 #macro PORTCULLIS_TRAP_DANGER 0.03			// Shut in until the button is pressed, once per trap room
 #macro SPECIAL_ITEM_REWARD_POINTS -2		// A cursed item makes the rest of the run easier, so the map can take more
-// Regular items count through item_reward_points [-0.25 for any chest without a key-role item]
  
 // Time variables hat a careful novice needs, then how many times that the run gives
 #macro PLAYER_STEPS_PER_SECOND 10			// One 8-pixel step a tick, 10 ticks a second
@@ -34,13 +32,31 @@
 #macro ILLUSION_WALL_SEARCH_TIME 10			// Seconds to find the wall once back at it
 #macro LAYOUT_SIZE 256						// Every layout room is this many pixels square
  
+// What the combination rules and counters need to know about each hazard. Each tag is its own bit, so a hazard's tags
+// combine with |, and checking for any of several tags takes one &
+enum hazard_tags {
+	none = 0,
+	stationary = 1,				// Always covers a set spot or path in the room, and can't move off it ("static" is a GML keyword)
+	stops_player_movement = 2,		// While in the room, forces the player to stop moving entirely
+	slows_player_movement = 4,		// While in the room, forces the player to move slower and more carefully
+	moves_towards_player = 8,		// Always moves towards and chases the player
+	fires_at_player = 16,			// Shoots projectiles aimed at the player
+	fires_in_place = 32,			// Shoots projectiles in a fixed direction from where it stands
+	killed_by_sword = 64,			// Can be destroyed with a sword
+	makes_loud_noise = 128,			// Makes noises on its own that can alert ears
+	listens_to_loud_noise = 256,	// Hunts down loud noises
+	dangerous_in_dark = 512,		// Becomes much harder when the player has no light
+	immune_with_staff = 1024,		// Can't hurt a player holding a staff, like lava
+	lights_torches = 2048			// Shoots fireballs, which light a torch dropped in their way
+}
+ 
 /// @function get_difficulty_score_table()
-/// @description Every hazard's scores, in one place. Placed hazards are named for their objects,
-///	so a layout's object counts read straight into the table; generated ones have names of their own.
+/// @description Every hazard's scores, in one place. Hazards are named for their objects, so a layout's object counts read
+///	straight into the table, and the ones generation adds use their objects' names too.
 ///
 ///	danger: the chance a novice dies to one in a typical room visit, from 0 to 1. It assumes the player knows
-///		what the hazard does (luring the ears included), can see by a lit torch as R55 does, and holds no item;
-///		swords come in through SWORD_CARRY_CHANCE.
+///		what the hazard does (luring the ears included), has light, and holds no item. The counters they might
+///		hold, and the chance they have no light, come in through the room (see GameMap.determine_counter_chances).
 ///
 ///	time: the hold-ups it causes on top of walking, from 0 (none) to 1 (HAZARD_FULL_TIME seconds, like a sin's
 ///		quest). The walking itself is measured on the layout and slowed by danger (get_time_needed).
@@ -48,76 +64,81 @@
 ///	many, time_many: how more copies in one room add up, as a power of the count: 1 additive, under 1
 ///		diminishing, over 1 compounding, and 0 flat (only the first one counts).
 ///
-///	min_difficulty: the lowest difficulty a layout that places it can appear on.
+///	min_difficulty: the lowest difficulty the hazard appears on. Nothing reads it while layouts take their lowest
+///		difficulty from line 1 of their layout files (see RoomLayout.get_difficulty_from_file_line).
 ///
-///	sword: how much of the danger a held sword can absorb, from 0 to 1: 1 for what it kills on touch, a part for
-///		what it kills but that mostly shoots, and 0 (or missing) for what it can't kill.
-///
-///	Tags for the conflict rules:
-		
-///		static					(hazard always covers a set spot or path in the room and it cannot move out o fit)
-///		stops_player_movement	(while in the room, forces player to stop moving entirely)
-///		slows_player_movement	(while in the room, forces a player to move slower and more carefully)
-///		moves_towards_player	(always moves towards and chases the player)
-///		fires_at_player			(shoots projectiles that are aimed at the player)
-///		killed_by_sword			(can be destroyed with a sword)
-///		makes_loud_noise		(makes a noise that can alert ears)
-//		dangerous_in_dark		(becomes much harder in the dark)
-		
-///
+///	tags: what the combination rules and counters need to know about it (see hazard_tags).
 /// @returns {struct}
 function get_difficulty_score_table() {
-	// TODO: We should turn these tags into enums and not strings?
 	static _table = {
 		// Placed by layouts
-		obj_statue:				{ danger: 0.04,		many: 1,	time: 0.03,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static", "fires_in_place"]},
-		obj_fountain:			{ danger: 0.06,		many: 1.1,	time: 0.05,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static", "fires_at_player"]},
-		obj_mouth:				{ danger: 0.08,		many: 0.8,	time: 0.30,		time_many: 0.3,		min_difficulty: difficulties.easy,		tags: ["slows_player_movement", "killed_by_sword", "makes_loud_noise"]},	// Per mouth, extra ones included
-		obj_spider:				{ danger: 0.15,		many: 1.3,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: ["slows_player_movement", "killed_by_sword", "makes_loud_noise"]},
-		obj_spider_spot:		{ danger: 0.20,		many: 0,	time: 0.10,		time_many: 0,		min_difficulty: difficulties.medium,	tags: [] },	// One hidden spider, whatever the spot count
-		obj_snake:				{ danger: 0.07,		many: 1.4,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: ["slows_player_movement", "killed_by_sword"] },
-		obj_giant_worm_head:	{ danger: 0.04,		many: 0.75,	time: 0.05,		time_many: 0.75,	min_difficulty: difficulties.medium,	tags: ["static"]},
-		obj_giant_worm_body:	{ danger: 0,		many: 1,	time: 0.003,	time_many: 1,		min_difficulty: difficulties.medium,	tags: ["static"] },				// Per segment: long worms block corridors longer
-		obj_eyes:				{ danger: 0.12,		many: 0,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["stops_player_movement", "slows_player_movement", "killed_by_sword", "makes_loud_noise"]},
-		obj_ears:				{ danger: 0.30,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["slows_player_movement", "killed_by_sword", "listens_to_loud_noise"] },
-		obj_lava:				{ danger: 0.04,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["static", "immune_with_staff"]},				// Per room, not per tile
-		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"]},				// Their danger is obj_living_block, below
-		obj_bones:				{ danger: 0.0024,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static", "slows_player_movement", "killed_by_sword", "makes_loud_noise"] },
-		obj_player_corpse:		{ danger: 0.005,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"] }, // Score is for the red bugs it could spawn
+		obj_statue:				{ danger: 0.04,		many: 1,	time: 0.03,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.fires_in_place | hazard_tags.lights_torches },
+		obj_fountain:			{ danger: 0.06,		many: 1.1,	time: 0.05,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.fires_at_player},
+		obj_mouth:				{ danger: 0.08,		many: 0.8,	time: 0.30,		time_many: 0.3,		min_difficulty: difficulties.easy,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise},	// Per mouth the layout places; the extra ones higher difficulties add aren't counted
+		obj_spider:				{ danger: 0.15,		many: 1.3,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise},
+		obj_spider_spot:		{ danger: 0.20,		many: 0,	time: 0.10,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise },	// One hidden spider, whatever the spot count: building always puts a spider on one of the spots, so it's tagged like one
+		obj_snake:				{ danger: 0.07,		many: 1.4,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword },
+		obj_giant_worm_head:	{ danger: 0.04,		many: 0.75,	time: 0.05,		time_many: 0.75,	min_difficulty: difficulties.medium,	tags: hazard_tags.stationary},
+		obj_giant_worm_body:	{ danger: 0,		many: 1,	time: 0.003,	time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.stationary },				// Per segment: long worms block corridors longer
+		obj_eyes:				{ danger: 0.12,		many: 0,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stops_player_movement | hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise},
+		obj_ears:				{ danger: 0.30,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.listens_to_loud_noise },
+		obj_lava:				{ danger: 0.04,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.immune_with_staff},				// Per room, not per tile
+		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary},				// Their danger is obj_living_block, below
+		obj_bones:				{ danger: 0.0024,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise },
+		obj_player_corpse:		{ danger: 0.005,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary }, // Score is for the red bugs it could spawn
  
 		// Sin objects. The sin limit already keeps their rooms off Easy and Medium; time covers each sin's quest
-		obj_giant_eye:			{ danger: 0.17,		many: 1,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["static", "fires_at_player"] },	// Killing it takes about 0.45 danger
-		obj_inverted_cross:		{ danger: 0.25,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["moves_towards_player"] },				// The trip to the start cross and back is map travel (GameMap.get_backtracking_time)
-		obj_hall_of_mirrors:	{ danger: 0,		many: 0,	time: 1.00,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["static"] },
-		obj_red_chest:			{ danger: 0.01,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["static"] },
-		obj_gudetama:			{ danger: 0.01,		many: 1,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["static", "killed_by_sword"] },
+		obj_giant_eye:			{ danger: 0.17,		many: 1,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary | hazard_tags.fires_at_player },	// Killing it takes about 0.45 danger
+		obj_inverted_cross:		{ danger: 0.25,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.moves_towards_player },				// The trip to the start cross and back is map travel (GameMap.get_backtracking_time)
+		obj_hall_of_mirrors:	{ danger: 0,		many: 0,	time: 1.00,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary },
+		obj_red_chest:			{ danger: 0.01,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary },
+		obj_gudetama:			{ danger: 0.01,		many: 1,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary | hazard_tags.killed_by_sword },
  
 		// Spawns on skeleton spots, named for their objects too (snakes and eyes use the entries above)
-		obj_skeleton:			{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["killed_by_sword"] },
-		obj_cockroach:			{ danger: 0.02,		many: 1,	time: 0.01,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["killed_by_sword", "dangerous_in_dark"] },				// In light; hunting in the dark it's 0.10
-		obj_fast_skeleton:		{ danger: 0.13,		many: 1,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["killed_by_sword", "slows_player_movement"] },
-		obj_fat_skeleton:		{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["killed_by_sword", "makes_loud_noise"] },
-		obj_cultist:			{ danger: 0.16,		many: 1.2,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["killed_by_sword", "makes_loud_noise", "fires_at_player"] },	// A sword only helps against its touch, not its beams
-		obj_fire_skeleton:		{ danger: 0.18,		many: 1.15,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["killed_by_sword", "fires_at_player", "immune_with_staff"] },	// A sword only helps against its touch, not its shots
+		obj_skeleton:			{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword },
+		obj_cockroach:			{ danger: 0.02,		many: 1,	time: 0.01,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.dangerous_in_dark },				// In light; hunting in the dark it's 0.10
+		obj_fast_skeleton:		{ danger: 0.13,		many: 1,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.slows_player_movement },
+		obj_fat_skeleton:		{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise },
+		obj_cultist:			{ danger: 0.16,		many: 1.2,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.fires_at_player },
+		obj_fire_skeleton:		{ danger: 0.18,		many: 1.15,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.fires_at_player | hazard_tags.immune_with_staff | hazard_tags.lights_torches },
  
 		// Spawns during map creation
-		obj_phantom:				{ danger: 0.20,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["moves_towards_player"] },
-		obj_floater:				{ danger: 0.08,		many: 0,	time: 0.15,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["moves_towards_player"] },
-		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["fires_at_player"] },	// Aimed where the player is, so walking along a bridge dodges it too
-		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["slows_player_movement"] },
-		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["static"] }, // For trapped chests only
-		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.easy,		tags: [] } // For moving collectables only
+		obj_phantom:				{ danger: 0.20,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.moves_towards_player },
+		obj_floater:				{ danger: 0.08,		many: 0,	time: 0.15,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.moves_towards_player },
+		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.fires_at_player | hazard_tags.lights_torches },	// Aimed where the player is, so walking along a bridge dodges it too
+		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.slows_player_movement },
+		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary }, // For trapped chests only
+		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.none } // For moving collectables only
 	};
 	return _table;
 }
  
 /// @function get_difficulty_score_for_danger_level(_danger)
-/// @description Translate the danger value to a difficulty_score
+/// @description Turns a danger, the chance of dying, into difficulty points. Chances of dying don't add up: two hazards that
+///	each kill half the time kill three times out of four together, not always. -ln(1 - danger) does add up, the way the
+///	chances of surviving each hazard multiply, so points can be summed across hazards and rooms. Anything that mixes chances,
+///	like whether the player holds a counter, has to mix the chances of surviving instead of the points (see
+///	get_difficulty_score_for_hazard_counts). DANGER_POINT_SCALE only sets the size of a point.
 /// @param {real} _danger From 0 to 1
 /// @returns {real}
 function get_difficulty_score_for_danger_level(_danger) {
-	// TODO: Why do we need to maintain a separate scoring system for danger and difficulty points? Can't we simply convert everywhere that used difficulty points to be 1/8 their points and thus equivalent to the difficulty score? Then we don't need to do this extra translation
 	return (_danger <= 0) ? 0 : -ln(1 - min(_danger, 0.99)) * DANGER_POINT_SCALE;
+}
+ 
+/// @function get_survival_chance_for_difficulty_score(_difficulty_score)
+/// @description The chance of surviving hazards worth some difficulty points, the other way around from get_difficulty_score_for_danger_level
+/// @param {real} _difficulty_score The points
+/// @returns {real} From 0 to 1
+function get_survival_chance_for_difficulty_score(_difficulty_score) {
+	return exp(-_difficulty_score / DANGER_POINT_SCALE);
+}
+ 
+/// @function get_difficulty_score_for_survival_chance(_survival_chance)
+/// @description The difficulty points for a chance of surviving, so a mix of chances can be turned back into points
+/// @param {real} _survival_chance From 0 to 1
+/// @returns {real}
+function get_difficulty_score_for_survival_chance(_survival_chance) {
+	return -ln(max(_survival_chance, 0.000001)) * DANGER_POINT_SCALE;
 }
 
 /// @function get_hazard_difficulty_score(_name, _count)
@@ -150,14 +171,34 @@ function get_hazard_time_score(_name, _count) {
 	return min(1, _entry.time * _copies);
 }
  
-/// @function hazard_has_tag(_name, _tag)
-/// @description Whether a hazard has a conflict-rule tag: forces, hurries, chases or loud.
-/// @param {string} _name The hazard's name in the table
-/// @param {string} _tag The tag
+/// @function hazard_has_tag(_hazard_name, _tags)
+/// @description Whether a hazard has any of some tags
+/// @param {string} _hazard_name The hazard's name in the table
+/// @param {real} _tags One hazard_tags flag, or several combined with |
 /// @returns {bool}
-function hazard_has_tag(_name, _tag) {
-	var _table = get_difficulty_score_table(), _entry = _table[$ _name];
-	return !is_undefined(_entry) && variable_struct_exists(_entry, _tag) && _entry[$ _tag];
+function hazard_has_tag(_hazard_name, _tags) {
+	var _table = get_difficulty_score_table(), _entry = _table[$ _hazard_name];
+	return !is_undefined(_entry) && ((_entry.tags & _tags) != 0);
+}
+ 
+/// @function count_other_hazards_with_tags(_counts, _hazard_name, _tags)
+/// @description How many kinds of hazard in a room, besides one of them, have any of some tags
+/// @param {struct} _counts Hazard names and how many of each, for the room
+/// @param {string|undefined} _hazard_name The hazard to leave out, or undefined to count every hazard in the room
+/// @param {real} _tags hazard_tags flags a hazard needs any of to count, or hazard_tags.none to count it whatever its tags
+/// @returns {real}
+function count_other_hazards_with_tags(_counts, _hazard_name, _tags) {
+	var _table = get_difficulty_score_table(), _names = variable_struct_get_names(_counts), _count = 0;
+	for (var _i = 0; _i < array_length(_names); _i++) {
+		// Skip the hazard itself, and any that isn't in the room or the table
+		var _name = _names[_i], _entry = _table[$ _name];
+		if ((!is_undefined(_hazard_name) && _name == _hazard_name) || is_undefined(_entry) || _counts[$ _name] <= 0) { continue; }
+		
+		// Count it if it has one of the tags
+		if ((_tags == hazard_tags.none) || ((_entry.tags & _tags) != 0)) { _count += 1; }
+	}
+	
+	return _count;
 }
  
 /// @function hazard_count_add(_counts, _name, _amount)
@@ -181,110 +222,131 @@ function hazard_counts_copy(_counts) {
 	return _copy;
 }
  
-/// @function get_difficulty_score_for_hazard_counts(_counts)
-/// @description Totals the difficulty score for all hazards in the room. Takes into account multiple coppies of a given hazard, and how hazard's traits affect each other.
-/// @param {struct} _counts Hazard names and how many of each
-/// @returns {real}
-function get_difficulty_score_for_hazard_counts(_counts) {
-	var _hazard_names = variable_struct_get_names(_counts), _table = get_difficulty_score_table()
-	// TODO: for this and the sword carry chance, we should base this on what items were spawned on the map, not on a hardcoded average chance.
-	// It should be the chance that the item spawned and the player encountered it before hand - maybe a dumb approach like total rooms divded by
-	// rooms with that item type assigned? And a separate count should be used for the regular and special sword. Similar for lit rooms, total lit rooms/total rooms?
-	var _staff_carry_chance = 0.125;
-	var _sword_carry_chance = 0.15;
-	var _special_sword_carry_chance = 0.01;
-	var _torch_carry_chance = 0.2;
-	var _lit_room_encountered_chance = 0.2;
- 
-	// Loop through each row of the table, to accumulate what tags are present for this room
-	var _room_hazard_tag_counts = {};
-	for (var _i = 0; _i < array_length(_hazard_names); _i++) {
-		// Skip hazards that aren't present in the room
-		var _hazard_name = _hazard_names[_i], _hazard_count = _counts[$ _hazard_name];
-		if (_hazard_count == 0) { continue; }
+/// @function get_chance_kept_moving(_counts, _hazard_name)
+/// @description How likely the other hazards in a room are to keep the player moving while they deal with one hazard. One
+///	that chases or shoots at them does it in proportion to its danger, all the time once it's as deadly as
+///	KEEPS_PLAYER_MOVING_DANGER, and one that wanders about does it less (WANDERER_KEEPS_PLAYER_MOVING_SHARE). Hazards that
+///	stay put or slow the player down don't. They all push at once, so their chances overlap rather than add up.
+/// @param {struct} _counts Hazard names and how many of each, for the room
+/// @param {string} _hazard_name The hazard being dealt with
+/// @returns {real} From 0 to 1
+function get_chance_kept_moving(_counts, _hazard_name) {
+	var _table = get_difficulty_score_table(), _names = variable_struct_get_names(_counts), _chance_never_kept_moving = 1;
+	var _always_keeps_moving_points = get_difficulty_score_for_danger_level(KEEPS_PLAYER_MOVING_DANGER);
+	for (var _i = 0; _i < array_length(_names); _i++) {
+		// Skip the hazard itself, and any that isn't in the room or the table
+		var _name = _names[_i], _entry = _table[$ _name];
+		if (_name == _hazard_name || is_undefined(_entry) || _counts[$ _name] <= 0) { continue; }
 		
-		// Add each tag for this hazard to the present tag counts
-		var _hazard_tags = _table[$ _hazard_name].tags
-		for (var _j = 0; _j < array_length(_hazard_tags); _j++) {
-			var _hazard_tag = _hazard_tags[_j];
-			_room_hazard_tag_counts[$ _hazard_tag] ??= 0;
-			_room_hazard_tag_counts[$ _hazard_tag] += 1;
-		}
-		
-		// Add tags based on the lack of other present tags
-		if (!array_contains(_hazard_tags, "slows_player_movement") && !array_contains(_hazard_tags, "static")) {
-			_room_hazard_tag_counts[$ "does_not_slow_player_movement"] ??= 0;
-			_room_hazard_tag_counts[$ "does_not_slow_player_movement"] += 1;
-		}
-	}
-
-	// Loop through each row of the difficulty table, and sum it's score appropriately for the given counts
-	var _max_difficulty_saved_by_sword = 0; // Assume a sword is used on just a single one of the worst enemies in the room
-	var _hazard_tags = variable_struct_get_names(_room_hazard_tag_counts), _total_room_difficulty = 0;
-	for (var _j = 0; _j < array_length(_hazard_names); _j++) {
-		// Skip hazards that aren't present in the room
-		var _hazard_name = _hazard_names[_j], _hazard_count = _counts[$ _hazard_name], _hazard_tags = _table[$ _hazard_name].tags;
-		if (_hazard_count == 0) { continue; }
-		
-		// Get the standard difficulty score for this hazard type
-		var _hazard_difficulty_score = get_hazard_difficulty_score(_hazard_name, _hazard_count);
-		if (array_contains(_hazard_tags, "killed_by_sword")) {
-			var _hazard_difficulty_score_after_used_sword = get_hazard_difficulty_score(_hazard_name, _hazard_count-1);
-			var _difficulty_saved_by_sword = _hazard_difficulty_score - _hazard_difficulty_score_after_used_sword
-			_max_difficulty_saved_by_sword = max(_max_difficulty_saved_by_sword, _difficulty_saved_by_sword);
-		}
-		
-		// Modify difficulty score based on tags that are present
-		// TODO: Can we genericize any of the below repeated code into functions?
-		if (array_contains(_hazard_tags, "stops_player_movement")) {
-			// Flag as an impossible combination; this should NEVER happen
-			var _impossible_combination_tag_count = _room_hazard_tag_counts[$ "moves_towards_player"] + _room_hazard_tag_counts[$ "fires_at_player"]
-			if (_impossible_combination_tag_count > 0) {
-				_hazard_difficulty_score *= 4;
-				write_debug_message("Impossible tag combination encountered", debug_message_level.warning);
-			}
-		}
-		if (array_contains(_hazard_tags, "slows_player_movement")) {
-			// Multiply difficulty when combined with other hazard types that do not slow the player down
-			// TODO: What should these multiplier constants be? I took a guess
-			var _non_slow_tag_count = _room_hazard_tag_counts[$ "does_not_slow_player_movement"];
-			_hazard_difficulty_score += _non_slow_tag_count * 1.12;
-			
-			var _other_chase_tag_count = _room_hazard_tag_counts[$ "moves_towards_player"]
-			if array_contains(_hazard_tags, "moves_towards_player") { _other_chase_tag_count -= 1; } // Doesn't count itself
-			_hazard_difficulty_score += _other_chase_tag_count * 2.25;
-			
-			var _other_shoot_tag_count = _room_hazard_tag_counts[$ "fires_at_player"]
-			if array_contains(_hazard_tags, "fires_at_player") { _other_shoot_tag_count -= 1; } // Doesn't count itself
-			_hazard_difficulty_score += _other_shoot_tag_count * 2.25;
-		}
-		if ( array_contains(_hazard_tags, "listens_to_loud_noise")) {
-			// Noises make things much harder in an ears room
-			var _other_noise_tag_count = _room_hazard_tag_counts[$ "makes_loud_noise"]
-			if array_contains(_hazard_tags, "makes_loud_noise") { _other_noise_tag_count -= 1; } // Doesn't count itself
-			_hazard_difficulty_score += _other_noise_tag_count * 2.25;
-		}
-		if (array_contains(_hazard_tags, "fires_at_player") || array_contains(_hazard_tags, "fires_in_place") || array_contains(_hazard_tags, "immune_with_staff")) {
-			// Having a staff fully protects against this hazard
-			_hazard_difficulty_score *= (1 - _staff_carry_chance);
-		}
-		if (array_contains(_hazard_tags, "killed_by_sword")) {
-			// Having a special sword fully protects against this hazard
-			_hazard_difficulty_score *= (1 - _special_sword_carry_chance);
-		}
-		if (array_contains(_hazard_tags, "dangerous_in_dark")) {
-			// Having a special sword fully protects against this hazard
-			// TODO: Don't increase score at all if current room is pre-lit
-			// This attempts to increase the score based on the chance that a player will show up without a lit torch
-			_hazard_difficulty_score *= 2 * (1 - (_lit_room_encountered_chance * _torch_carry_chance));
-		}
-
-		// Add score for hazard to running total
-		_total_room_difficulty += _hazard_difficulty_score;
+		// Chasers and shooters keep the player moving in full for their danger, and wanderers in part
+		var _share = 0;
+		if ((_entry.tags & TARGETS_PLAYER_TAGS) != 0) { _share = 1; }
+		else if ((_entry.tags & (hazard_tags.stationary | hazard_tags.slows_player_movement)) == 0) { _share = WANDERER_KEEPS_PLAYER_MOVING_SHARE; }
+		var _chance_this_keeps_moving = min(1, _share * get_hazard_difficulty_score(_name, _counts[$ _name]) / _always_keeps_moving_points);
+		_chance_never_kept_moving *= 1 - _chance_this_keeps_moving;
 	}
 	
-	// Return the running total, minus the calculated effect of the sword, converted from danger to difficulty points
-	return (_total_room_difficulty - (_max_difficulty_saved_by_sword * _sword_carry_chance));
+	return 1 - _chance_never_kept_moving;
+}
+ 
+/// @function get_hazard_combination_multiplier(_counts, _hazard_name)
+/// @description How many times its own danger points a hazard is worth, for the hazards it shares a room with. Its danger
+///	assumes the player can deal with it on their own terms: slowing down for it, stopping when it says to, or keeping it
+///	from hearing them. The more likely the others are to take that away, by keeping the player moving or by drawing the
+///	ears to them with their noise, the closer it gets to its worst case: WORST_CASE_MULTIPLIER, or
+///	STOPPED_WORST_CASE_MULTIPLIER for one that stops the player.
+/// @param {struct} _counts Hazard names and how many of each, for the room
+/// @param {string} _hazard_name The hazard's name in the table
+/// @returns {real} At least 1
+function get_hazard_combination_multiplier(_counts, _hazard_name) {
+	// Work out how likely the player is to deal with it on their own terms
+	var _chance_on_own_terms = 1;
+	if (hazard_has_tag(_hazard_name, hazard_tags.slows_player_movement | hazard_tags.stops_player_movement)) {
+		_chance_on_own_terms *= 1 - get_chance_kept_moving(_counts, _hazard_name);
+	}
+	if (hazard_has_tag(_hazard_name, hazard_tags.listens_to_loud_noise)) {
+		_chance_on_own_terms *= power(1 - LURE_CHANCE_PER_LOUD_KIND, count_other_hazards_with_tags(_counts, _hazard_name, hazard_tags.makes_loud_noise));
+	}
+	
+	// Then move it that much of the way to its worst case
+	var _worst_case_multiplier = hazard_has_tag(_hazard_name, hazard_tags.stops_player_movement) ? STOPPED_WORST_CASE_MULTIPLIER : WORST_CASE_MULTIPLIER;
+	return 1 + ((_worst_case_multiplier - 1) * (1 - _chance_on_own_terms));
+}
+ 
+/// @function get_hazard_points_in_room(_hazard_name, _count, _multiplier, _room)
+/// @description A hazard's danger points in a room: its count's points times its combination multiplier. For one that's
+///	worse in the dark, the chance of surviving it is mixed over whether the player has light there.
+/// @param {string} _hazard_name The hazard's name in the table
+/// @param {real} _count How many of it
+/// @param {real} _multiplier Its combination multiplier (see get_hazard_combination_multiplier)
+/// @param {struct} _room The room, or a struct with the same chances, for its chance_of_light
+/// @returns {real}
+function get_hazard_points_in_room(_hazard_name, _count, _multiplier, _room) {
+	var _points = get_hazard_difficulty_score(_hazard_name, _count) * _multiplier;
+	if (!hazard_has_tag(_hazard_name, hazard_tags.dangerous_in_dark)) { return _points; }
+	
+	var _survival_chance_with_light = get_survival_chance_for_difficulty_score(_points);
+	var _survival_chance_in_dark = get_survival_chance_for_difficulty_score(_points * DARK_DANGER_MULTIPLIER);
+	return get_difficulty_score_for_survival_chance((_room.chance_of_light * _survival_chance_with_light) + ((1 - _room.chance_of_light) * _survival_chance_in_dark));
+}
+ 
+/// @function get_difficulty_score_for_hazard_counts(_counts, _room)
+/// @description The difficulty points for a room's hazards. Each hazard's points grow for the hazards it shares the room
+///	with, then the chance of surviving them all is averaged over which counters the player might hold: a staff stops
+///	anything that shoots and lava, a special sword kills anything a sword can, and a plain sword kills the deadliest of
+///	those, once. The average has to be taken over the chances of surviving, so it's turned back into points at the end.
+/// @param {struct} _counts Hazard names and how many of each
+/// @param {struct} _room The room, or a struct with the same chances, for how likely the player is to hold each counter and to have light there (see GameMap.determine_counter_chances)
+/// @returns {real}
+function get_difficulty_score_for_hazard_counts(_counts, _room) {
+	// Work out each hazard's points in this room, and how much one sword kill would save
+	var _table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(_counts), _hazards = [];
+	for (var _i = 0; _i < array_length(_hazard_names); _i++) {
+		// Skip hazards that aren't in the room or the table
+		var _hazard_name = _hazard_names[_i], _hazard_count = _counts[$ _hazard_name], _entry = _table[$ _hazard_name];
+		if (is_undefined(_entry) || _hazard_count <= 0) { continue; }
+		
+		// Grow its points for the hazards around it
+		var _multiplier = get_hazard_combination_multiplier(_counts, _hazard_name);
+		var _points = get_hazard_points_in_room(_hazard_name, _hazard_count, _multiplier, _room);
+		
+		// Generation never lets something that stops the player share a room with something that chases or shoots at them.
+		// The multiplier above scores it if it ever does, and this flags it
+		if (((_entry.tags & hazard_tags.stops_player_movement) != 0) && count_other_hazards_with_tags(_counts, _hazard_name, TARGETS_PLAYER_TAGS) > 0) {
+			write_debug_message("A hazard that stops the player shares a room with one that chases or shoots at them: " + _hazard_name, debug_message_level.warning);
+		}
+		
+		// How much a plain sword saves by killing one of them
+		var _sword_kill_points = 0;
+		if ((_entry.tags & hazard_tags.killed_by_sword) != 0) { _sword_kill_points = _points - get_hazard_points_in_room(_hazard_name, _hazard_count - 1, _multiplier, _room); }
+		array_push(_hazards, { points: _points, sword_kill_points: _sword_kill_points, tags: _entry.tags });
+	}
+	
+	// Average the chance of surviving over every mix of counters the player might hold: a staff, a special sword and a plain sword
+	var _survival_chance = 0;
+	for (var _held_counters = 0; _held_counters < 8; _held_counters++) {
+		// Skip mixes that can't happen on this map
+		var _holds_staff = (_held_counters & 1) != 0, _holds_special_sword = (_held_counters & 2) != 0, _holds_sword = (_held_counters & 4) != 0;
+		var _mix_chance = (_holds_staff ? _room.chance_holding_staff : 1 - _room.chance_holding_staff) *
+			(_holds_special_sword ? _room.chance_holding_special_sword : 1 - _room.chance_holding_special_sword) *
+			(_holds_sword ? _room.chance_holding_sword : 1 - _room.chance_holding_sword);
+		if (_mix_chance <= 0) { continue; }
+		
+		// Total the points of every hazard these counters don't stop, less what a plain sword's one kill saves
+		var _mix_points = 0, _best_sword_kill_points = 0;
+		for (var _j = 0; _j < array_length(_hazards); _j++) {
+			var _hazard = _hazards[_j];
+			if (_holds_staff && ((_hazard.tags & STOPPED_BY_STAFF_TAGS) != 0)) { continue; }
+			
+			if (_holds_special_sword && ((_hazard.tags & hazard_tags.killed_by_sword) != 0)) { continue; }
+			
+			_mix_points += _hazard.points;
+			if (_holds_sword) { _best_sword_kill_points = max(_best_sword_kill_points, _hazard.sword_kill_points); }
+		}
+		_survival_chance += _mix_chance * get_survival_chance_for_difficulty_score(_mix_points - _best_sword_kill_points);
+	}
+	
+	return get_difficulty_score_for_survival_chance(_survival_chance);
 }
  
 /// @function hazard_counts_time(_counts)

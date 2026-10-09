@@ -83,8 +83,9 @@ function RoomLayout(_room_asset) constructor {
 	};
 
 	/// @function check_rules()
-	/// @description Logs any way the layout breaks the spot rules generation relies on (L1 to L4). The ruby
-	///	script also enforces these, so this should never warn, but it's a good failsafe.
+	/// @description Logs any way the layout breaks the spot rules generation relies on (L1 to L4), or places eyes, which stop
+	///	the player in place, alongside something that chases or shoots at them. The ruby script enforces the spot rules too,
+	///	so this should never warn, but it's a good failsafe.
 	static check_rules = function() {
 		var _problems = "";
 		if (get_object_count("obj_chest_spot") != 1) { _problems += " needs exactly one chest spot (L1);"; }
@@ -93,6 +94,9 @@ function RoomLayout(_room_asset) constructor {
 		if (get_object_count("obj_exit_spot_up") == 0 || get_object_count("obj_exit_spot_right") == 0 ||
 			get_object_count("obj_exit_spot_down") == 0 || get_object_count("obj_exit_spot_left") == 0) {
 			_problems += " needs an exit spot on every side (L4);";
+		}
+		if (count_other_hazards_with_tags(hazard_counts, undefined, hazard_tags.stops_player_movement) > 0 && count_other_hazards_with_tags(hazard_counts, undefined, TARGETS_PLAYER_TAGS) > 0) {
+			_problems += " places a hazard that stops the player alongside one that chases or shoots at them;";
 		}
 		if (_problems != "") { write_debug_message("Layout " + name + _problems, debug_message_level.warning); }
 	};
@@ -112,18 +116,15 @@ function RoomLayout(_room_asset) constructor {
 		return _hazard_counts;
 	};
  
-	/// @function get_minimum_difficulty()
-	/// @description The lowest difficulty that can use the layout: set by its danger and time at Hard
+	/// @function get_difficulty_from_file_line(_line)
+	/// @description The lowest difficulty the layout appears on, from line 1 of its layout file ("difficulty: 2,"). The ruby
+	///	script that converts rooms into layout files works it out from everything the room places, and the old generator
+	///	filtered layouts on it the same way.
+	/// @param {string} _line Line 1 of the layout file
 	/// @returns {real} A difficulties value
-	static get_minimum_difficulty = function() {
-		var _difficulty = difficulties.easy;
-		var _difficulty_score_table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(hazard_counts);
-		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
-			var _hazard_name = _hazard_names[_i];
-			var _hazard_table_entry = _difficulty_score_table[$ _hazard_name];
-			_difficulty = max(_difficulty, _hazard_table_entry.min_difficulty);
-		}
-		return _difficulty;
+	static get_difficulty_from_file_line = function(_line) {
+		var _digits = string_digits(_line);
+		return (_digits == "") ? difficulties.easy : max(difficulties.easy, real(_digits));
 	};
  
 	/// @function block_walking_area(_grid, _x, _y, _half)
@@ -255,8 +256,8 @@ function RoomLayout(_room_asset) constructor {
 	// layout is only usable if its file can be read
 	is_usable = (exit_type != -1) && !string_starts_with(name, "rm_unused");
 
-	// The layout file: line 1 holds the difficulty room_converter.rb wrote, which is no longer used (the
-	// layout's difficulty is worked out from the hazard table, below), and line 2 the placed instances
+	// The layout file: line 1 holds the difficulty room_converter.rb worked out, which sets the lowest difficulty the
+	// layout appears on, and line 2 the placed instances
 	minimum_difficulty = -1;
 	instances = [];										// What building the room creates
 	if (is_usable) {
@@ -266,7 +267,8 @@ function RoomLayout(_room_asset) constructor {
 			is_usable = false;
 		}
 		else {
-			file_text_readln(_file);					// Skip line 1
+			minimum_difficulty = get_difficulty_from_file_line(file_text_read_string(_file));
+			file_text_readln(_file);
 			instances = json_parse(file_text_read_string(_file));
 			file_text_close(_file);
 		}
@@ -308,7 +310,6 @@ function RoomLayout(_room_asset) constructor {
 	has_lanterns = get_object_count("obj_lantern") > 0;
 	is_hall_of_mirrors = get_object_count("obj_hall_of_mirrors") > 0;
 	hazard_counts = get_hazard_counts_from_file();
-	minimum_difficulty = get_minimum_difficulty();
  
 	// Its walking distances (R56), measured by ensure_walking the first time a room needs them
 	walk_measured = false;

@@ -68,7 +68,6 @@
 /// @returns {struct}
 function get_difficulty_score_table() {
 	// TODO: We should turn these tags into enums and not strings?
-	// TODO: Should we even include columns and walls here? Is their time value right if so? Seems high
 	static _table = {
 		// Placed by layouts
 		obj_statue:				{ danger: 0.04,		many: 1,	time: 0.03,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"]},
@@ -83,8 +82,6 @@ function get_difficulty_score_table() {
 		obj_ears:				{ danger: 0.30,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.hard,		tags: ["slows_player_movement", "killed_by_sword"] },
 		obj_lava:				{ danger: 0.04,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: ["static", "immune_with_staff"]},				// Per room, not per tile
 		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"]},				// Their danger is obj_living_block, below
-		obj_column:				{ danger: 0,		many: 1,	time: 0.004,	time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"] },				// More columns mean more chances for a statue or fountain to spawn
-		obj_wall:				{ danger: 0,		many: 1,	time: 0.004,	time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"] },				// More columns mean more chances for a statue or fountain to spawn
 		obj_bones:				{ danger: 0.0024,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static", "slows_player_movement", "killed_by_sword", "makes_loud_noise"] },
 		obj_player_corpse:		{ danger: 0.005,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: ["static"] }, // Score is for the red bugs it could spawn
  

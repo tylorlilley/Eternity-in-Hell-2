@@ -52,7 +52,7 @@ function RoomLayout(_room_asset) constructor {
 
 	/// @function get_hazard_count(_hazard_name)
 	/// @description How many of a hazard from the difficulty score table the layout places.
-	/// @param {string} _hazard_name The hazard's name in the table, like "obj_column"
+	/// @param {string} _hazard_name The hazard's name in the table, like "obj_statue"
 	/// @returns {real} The count, or 0 if the layout places none
 	static get_hazard_count = function(_hazard_name) {
 		var _count = hazard_counts[$ _hazard_name];

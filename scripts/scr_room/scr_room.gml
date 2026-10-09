@@ -379,7 +379,6 @@ function GameRoom(given_x, given_y) constructor {
 		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
 		if (spawns_rolled_dangers()) {
 			hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
-			hazard_count_add(_counts, "obj_column", -replaced_column_fountain_count);
 			hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
 			hazard_count_add(_counts, "obj_living_block", living_block_count);
 			hazard_count_add(_counts, "obj_nose", initial_nose_count);
@@ -648,7 +647,7 @@ function GameRoom(given_x, given_y) constructor {
 
 		// Determine how many columns and how many statues to replace with fountains
 		replaced_column_fountain_count = 0;
-		for (var _column = 0; _column < layout.get_hazard_count("obj_column"); _column++) {
+		for (var _column = 0; _column < layout.get_object_count("obj_column"); _column++) { // Columns aren't in the difficulty score table
 			if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY)) { replaced_column_fountain_count += 1; }
 		}
 		replaced_statue_fountain_count = 0;

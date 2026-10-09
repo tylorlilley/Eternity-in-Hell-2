@@ -44,11 +44,8 @@ function initialize_game_variables() {
 	
 	// initialize room list values
 	game_rooms = array_create(0);
-	room_references = array_create(0);
 	mapped_rooms = array_create(0);
 	rooms_with_collectables = array_create(0);
-	rooms_with_key = array_create(0);
-	rooms_with_locked_chest = array_create(0);
 	spawned_items = array_create(0);
 	spawned_special_items = array_create(0);
 
@@ -679,9 +676,6 @@ function game_room_initialize() {
 		current_room.add_to_instances_at_map_positions(key);
 	}
 		
-	// Set up room's chest_obj
-	if (current_room.stairs_spot_obj == obj_chest && current_room.chest_obj == -1) { current_room.chest_obj = array_random_pop(spawned_items); }
-	
 	// Pre-light room if the room is marked as lit and spawn objects that interact with torches
 	if (current_room.lit) {
 		if (instance_number(obj_lantern) == 0) { write_debug_message("Room marked as lit has no lanterns: "  + room_get_name(current_room.room_reference), debug_message_level.warning); current_room.lit = false; }

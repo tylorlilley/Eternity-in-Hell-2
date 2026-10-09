@@ -1266,8 +1266,6 @@ function GameMap() constructor {
 
 	// =================================================================================================
 	// STEP 13: THE STARTING HANDS
-	// Each room's score and time are GameRoom methods (get_difficulty_score, get_time_provided), which
-	// the calculations below add up
 	// =================================================================================================
 
 	/// @function adjust_items_for_hands()
@@ -1275,7 +1273,7 @@ function GameMap() constructor {
 	///	hands. The guaranteed chest becomes the map, compass or torch the hands call for (R36), and any regular
 	///	item over its cap once the hands count is re-picked (R42), unless that would strand the player, like
 	///	taking the torch a bomb needs to stand in for a key (R46). Nothing else changes; the map never relies on
-	///	the starting items (R45). Runs in its own random stream (see mapgen_generate).
+	///	the starting items (R45). Runs in its own random stream (see generate_map).
 	static adjust_items_for_hands = function() {
 		var _hands = [global.player_left_hand_item, global.player_right_hand_item];
 		var _brings_map = array_contains(_hands, obj_map), _brings_compass = array_contains(_hands, obj_compass);
@@ -1291,6 +1289,7 @@ function GameMap() constructor {
 			var _room = _rooms[_i];
 			if (_room == _guaranteed || !_room.has_regular_item_chest()) { continue; }
 			if (count_regular_items(_room.chest_obj, _hands) > get_item_cap(_room.chest_obj)) {
+				// Empty the chest before picking, so the pick doesn't count the item it's replacing
 				var _item = _room.chest_obj;
 				_room.chest_obj = -1;
 				_room.chest_obj = pick_item_type(false, _hands);
@@ -1304,6 +1303,8 @@ function GameMap() constructor {
 
 	// =================================================================================================
 	// CALCULATIONS TO PASS OFF TO CONTROLLER
+	// Each room's score and time are GameRoom methods (get_current_difficulty_score, get_time_provided),
+	// which the calculations below add up
 	// =================================================================================================
 
 

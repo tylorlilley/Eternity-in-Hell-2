@@ -539,10 +539,11 @@ function GameRoom(given_x, given_y) constructor {
  
 	/// @function get_caution_factor()
 	/// @description How much the room's hazards slow walking (R56): 1, plus CAUTION_PER_DANGER_POINT for each
-	///	point of their danger.
+	///	point of their danger. Only the hazards count: the room's other scoring, like the reward for its chest's item,
+	///	doesn't change how carefully it's walked.
 	/// @returns {real}
 	function get_caution_factor() {
-		return 1 + CAUTION_PER_DANGER_POINT * max(0, get_potential_difficulty_score(get_hazard_counts()));
+		return 1 + CAUTION_PER_DANGER_POINT * max(0, get_difficulty_score_for_hazard_counts(get_hazard_counts()));
 	}
  
 	/// @function get_crossing_time()

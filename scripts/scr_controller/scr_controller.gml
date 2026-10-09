@@ -600,7 +600,7 @@ function game_room_initialize() {
 	}
 	for (var i = 0; i < current_room.replaced_statue_fountain_count; i++) {
 		if (current_room == start_room) { continue; }
-		with (get_random_instance(obj_statue)) {
+		with (get_random_instance(obj_statue, true)) { // Exact statues only, since fountains are children of obj_statue
 			var statues = instance_place_all(x, y, obj_statue);
 			while (array_length(statues) > 0) {
 				var statue = array_pop(statues);

@@ -16,5 +16,5 @@ clear_inputs_for_next_frame();
 
 paused = false;
 number_of_frames_since_game_began = 0;
-sounds_to_play = array_create(0);
+sounds_to_play = [];
 global.game_manager = id;

@@ -3,7 +3,7 @@ event_inherited();
 /*
 // FLICKER WHEN ON TOP OF A RED STAFF HOLDER
 if (is_blink_frame()) {
-	var blinkers = array_create(0);
+	var blinkers = [];
 	if instance_place(x, y, global.player) {
 		with global.player {
 			if is_carrying_special_item(obj_staff) { array_push(blinkers, self); }

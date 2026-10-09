@@ -9,12 +9,12 @@ function restart_game() {
 
 /// @function								create_room_lists();
 function create_room_lists() {
-	rooms_with_no_exits = array_create(0); 
-	rooms_with_one_exit = array_create(0); 
-	rooms_with_two_opposite_exits = array_create(0);
-	rooms_with_two_perpendicular_exits = array_create(0); 
-	rooms_with_three_exits = array_create(0); 
-	rooms_with_four_exits = array_create(0);
+	rooms_with_no_exits = []; 
+	rooms_with_one_exit = []; 
+	rooms_with_two_opposite_exits = [];
+	rooms_with_two_perpendicular_exits = []; 
+	rooms_with_three_exits = []; 
+	rooms_with_four_exits = [];
 	
 	for (var i = room_first; i <= room_last; i++) {
 		var room_to_add = i, room_name = room_get_name(room_to_add);
@@ -43,11 +43,11 @@ function initialize_game_variables() {
 	global.player = noone;
 	
 	// initialize room list values
-	game_rooms = array_create(0);
-	mapped_rooms = array_create(0);
-	rooms_with_collectables = array_create(0);
-	spawned_items = array_create(0);
-	spawned_special_items = array_create(0);
+	game_rooms = [];
+	mapped_rooms = [];
+	rooms_with_collectables = [];
+	spawned_items = [];
+	spawned_special_items = [];
 
 	// initialize game state values
 	final_time_remaining = 0;
@@ -60,7 +60,7 @@ function initialize_game_variables() {
 	total_number_of_rooms_with_collectables = 0;
 	death_timer = 0;
 	completion_amount = 0;
-	sounds_to_play = array_create(0);
+	sounds_to_play = [];
 	carried_heart = false;
 	flash_time = 0;
 	final_player_right_hand_item = noone;
@@ -72,7 +72,7 @@ function initialize_game_variables() {
 	
 	// initialize evaluation message values
 	evaluation_manager = new EvaluationMessageManager();
-	used_item_types = array_create(0);
+	used_item_types = [];
 }
 
 /// @function								initialize_room_transition_values();
@@ -382,7 +382,7 @@ function game_room_start_spawn_instances() {
 	//// If room has dropped item, consider spawning hands
 	if (instance_number(obj_item) > 0) {
 		// Set up list of items that could cause hands to spawn
-		var potential_items = array_create(0);
+		var potential_items = [];
 		with (obj_item) { if (!is_existing_instance(holder) && can_pick_up && object_index != obj_heart && object_index != obj_meat && !is_solid_at_position(x, y) && !place_meeting(x, y, obj_hands)) { 
 			array_push(potential_items, id); } 
 		}
@@ -504,7 +504,7 @@ function game_room_start_reposition_instances() {
 		var player = global.player;
 		play_sound(snd_echo, false); 
 		spawn_timer = 16;
-		moves = array_create(0);
+		moves = [];
 		x = player.x;
 		y = player.y;
 	}
@@ -611,19 +611,20 @@ function game_room_initialize() {
 		}
 	}
 	
-	// Spawn living blocks: turn the blocks on random block spots into as many living blocks as map generation rolled
-	var _block_spots = array_create(0);
-	with (obj_block_spot) { if (is_existing_instance(spawned_block)) { array_push(_block_spots, id); } }
-	array_shuffle_ext(_block_spots);
-	var _living_block_count = min(current_room.living_block_count, array_length(_block_spots));
-	for (var _i = 0; _i < _living_block_count; _i++) {
-		with (_block_spots[_i]) {
-			var _block_x = spawned_block.x, _block_y = spawned_block.y;
-			instance_destroy(spawned_block, false);
-			spawned_block = instance_create(_block_x, _block_y, obj_living_block);
+	// Spawn living blocks instead of regular blocks on spome block spots
+	for (var _i = 0; _i < current_room.living_block_count; _i++) {
+		if (current_room == start_room) { continue; }
+		
+		with (get_random_instance(obj_block)) {
+			var new_inst = instance_create(_block_x, _block_y, obj_living_block);
+			new_inst.creator = creator;
+			creator.spawned_block = new_inst;
+			other.current_room.remove_from_instances_at_map_positions(id);
+			other.current_room.add_to_instances_at_map_positions(new_inst);
+			mark_current_room_for_grid_update();
+			instance_destroy(id, false);
 		}
 	}
-	
 			
 	// Spawn skeletons
 	array_shuffle_ext(current_room.skeleton_types);
@@ -761,7 +762,7 @@ function game_room_initialize() {
 	
 	// Create button on the spot generation picked (R52, R57); SPAWN ALL SOLIDS AND ENEMIES BEFORE THIS POINT
 	if (room_has_portcullis) {
-		var button = instance_create(-16, -16, obj_button), button_pressed = false, possible_decoy_spots = array_create(0), decoy_spots = array_create(0);
+		var button = instance_create(-16, -16, obj_button), button_pressed = false, possible_decoy_spots = [], decoy_spots = [];
 		var button_spot = (current_room.button_on_stairs_spot) ? stairs_spot : current_room.collectable_spot_instances[current_room.button_spot];
 		
 		// Find the other free spots nothing presses, for decoy dirt: the stairs spot when nothing uses it, and the collectable spots the room's collectables don't need
@@ -959,7 +960,7 @@ function get_direction_input(key_pressed_only) {
 	if (player.dead || game_manager.key_space) { return directions.none; }
 	
 	// Starting with the previous direction, check each direction for inputs
-	var possible_directions = array_create(0);
+	var possible_directions = [];
 	for (var dir = directions.up; dir < directions.stairs; dir++) {
 		var current_dir = (dir+player.dir_prev) % 4;
 		
@@ -1027,7 +1028,7 @@ function old_controller_init() {
 	grid_update_timer = 0;
 	player_appear_timer = 0;
 	flash_obj = noone;
-	dropped_meat = array_create(0);
+	dropped_meat = [];
 	global.datetime = string(current_day) + "-" + string(current_month) + "-" + string(current_year) + ":" + string(current_hour) + ":" + string(current_minute);
 	depth = -9999;
 
@@ -1059,7 +1060,7 @@ function old_controller_init() {
 	setup_start_and_end_rooms();
 
 	// Setup room references
-	var rooms_with_lanterns = array_create(0), rooms_with_chest_potential = array_create(0), rooms_lit = array_create(0), spawned_special_rooms = array_create(0);
+	var rooms_with_lanterns = [], rooms_with_chest_potential = [], rooms_lit = [], spawned_special_rooms = [];
 	for (var i = 0; i < array_length(game_rooms); i++) {
 		var given_room = game_rooms[i];
 	
@@ -1208,7 +1209,7 @@ function old_controller_init() {
 	// Transition to start room to begin game
 	with (global.game_manager) { 
 		number_of_frames_since_game_began = 0;
-		sounds_to_play = array_create(0);
+		sounds_to_play = [];
 		clear_inputs_for_next_frame();
 		paused = false;
 		update_run_number_log(global.difficulty);

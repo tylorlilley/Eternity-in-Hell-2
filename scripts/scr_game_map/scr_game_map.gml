@@ -734,7 +734,7 @@ function GameMap() constructor {
 
 	/// @function determine_start_and_heart_rooms()
 	/// @description Makes the start and heart the two ends of the longest path, including stairs. Then measures every room's distance from the start,
-	/// and places the cross and the encased heart. Being the start keeps the room's rolled dangers from spawning (see GameRoom.spawns_rolled_dangers).
+	/// and places the cross and the encased heart. Being the start keeps the room's rolled dangers from spawning
 	/// @returns {bool} False if no pair is allowed
 	static determine_start_and_heart_rooms = function() {
 		var _longest_distance = -1, _longest_pairs = [];
@@ -943,14 +943,14 @@ function GameMap() constructor {
 	/// @returns {Asset.GMObject}
 	static pick_item_type = function(_is_cursed_item, _items_in_hands = []) {
 		// Loop through all possible item types to see which are still possible to spawn
-		var _available_item_types = global.available_items[global.difficulty], _possible_item_types = [];
+		var _available_item_types = global.available_items[global.difficulty], _possible_item_types = [], _torch_in_hand = array_contains(_items_in_hands, obj_torch);
 		for (var _i = 0; _i < array_length(_available_item_types); _i++) {
 			var _item_type = _available_item_types[_i];
 			if (_is_cursed_item) {
 				// Add any cursed item that's not already been spawned to the list of possibilities 
 				if (!array_contains(cursed_items, _item_type)) { array_push(_possible_item_types, _item_type); }
 			}
-			else if (_item_type != obj_key && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type)) {
+			else if (_item_type != obj_key && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type, _torch_in_hand)) {
 				// Add any non-key item that's not already been spawned too many times to the list of possibilities 
 				array_push(_possible_item_types, _item_type);
 			}
@@ -970,12 +970,12 @@ function GameMap() constructor {
 	};
 
 	/// @function count_regular_items(_type, _hands)
-	/// @description Counts the regular (non-cursed) copies of an item in chests and hands. Keys and bombs the
+	/// @description Counts the spawned copies of regular (non-cursed) copies of an item in chests and hands. Keys and bombs the
 	///	key step placed don't count, and neither does the fallback torch in the guaranteed chest.
 	/// @param {Asset.GMObject} _type The item
 	/// @param {array} _hands The starting hand items to count
 	/// @returns {real}
-	static count_regular_items = function(_type, _hands) {
+	static count_regular_items = function(_item_type, _hands) {
 		// Loop through all rooms are count the regular items of this type
 		var _count = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
@@ -984,12 +984,12 @@ function GameMap() constructor {
 			if (_room == guaranteed_chest_room && _room.chest_obj == obj_torch) { continue; }
 			
 			// Count it if the chest type matches and is not a spceial item or key-type item
-			if (_room.chest_obj == _type && !_room.has_special_item && !_room.key_in_chest) { _count += 1; }
+			if (_room.chest_obj == _item_type && !_room.has_special_item && !_room.key_in_chest) { _count += 1; }
 		}
 		
-		// Loop through the given hand items and add those item types to the ocunt
+		// Loop through the given hand items and add those item types to the count
 		for (var _j = 0; _j < array_length(_hands); _j++) {
-			if (_hands[_j] == _type) { _count += 1; }
+			if (_hands[_j] == _item_type) { _count += 1; }
 		}
 		
 		// Return the count
@@ -1000,7 +1000,7 @@ function GameMap() constructor {
 	/// @description How many regular copies of an item chests and starting hands may hold together (R42).
 	/// @param {Asset.GMObject} _item The item
 	/// @returns {real}
-	static get_item_cap = function(_item) {
+	static get_item_cap = function(_item, _torch_in_hand = false) {
 		switch (_item) {
 			case obj_map:
 			case obj_compass:
@@ -1008,8 +1008,9 @@ function GameMap() constructor {
 			case obj_clock:
 				return 1;
 			case obj_shovel:
-			case obj_torch:
 				return 2;
+			case obj_torch:
+				return (_torch_in_hand) ? 3 : 2;
 			default:
 				return infinity;
 		}
@@ -1261,45 +1262,43 @@ function GameMap() constructor {
 		}
 	};
 
-
-
-
-	// =================================================================================================
-	// STEP 13: THE STARTING HANDS
-	// =================================================================================================
-
 	/// @function adjust_items_for_hands()
-	/// @description The very last step, once the map is final (step 13): fits the chest items to the starting
-	///	hands. The guaranteed chest becomes the map, compass or torch the hands call for (R36), and any regular
-	///	item over its cap once the hands count is re-picked (R42), unless that would strand the player, like
-	///	taking the torch a bomb needs to stand in for a key (R46). Nothing else changes; the map never relies on
-	///	the starting items (R45). Runs in its own random stream (see generate_map).
+	/// @description The very last step, once the map is final. Swaps out chest contents based on the hand items
 	static adjust_items_for_hands = function() {
-		var _hands = [global.player_left_hand_item, global.player_right_hand_item];
-		var _brings_map = array_contains(_hands, obj_map), _brings_compass = array_contains(_hands, obj_compass);
-		var _guaranteed = guaranteed_chest_room;
-		if (!is_undefined(_guaranteed)) {
-			if (_brings_map && _brings_compass) { _guaranteed.chest_obj = obj_torch; }
-			else if (_brings_compass) { _guaranteed.chest_obj = obj_map; }
-			else if (_brings_map) { _guaranteed.chest_obj = (global.difficulty == difficulties.easy) ? obj_torch : obj_compass; }
+		// Setup variables based on the items the player chose to start with
+		var _hand_items = [global.player_left_hand_item, global.player_right_hand_item];
+		var _map_in_hand = array_contains(_hand_items, obj_map), _compass_in_hand = array_contains(_hand_items, obj_compass), _torch_in_hand = array_contains(_hand_items, obj_torch)
+
+		// Swap out items in the guaranteed chest room
+		if (!is_undefined(guaranteed_chest_room)) {
+			if (_map_in_hand && _compass_in_hand) { guaranteed_chest_room.chest_obj = obj_torch; }
+			else if (_compass_in_hand) { guaranteed_chest_room.chest_obj = obj_map; }
+			else if (_map_in_hand) { guaranteed_chest_room.chest_obj = (global.difficulty == difficulties.easy) ? obj_torch : obj_compass; }
 		}
 
-		var _rooms = array_shuffle(rooms);
-		for (var _i = 0; _i < array_length(_rooms); _i++) {
-			var _room = _rooms[_i];
-			if (_room == _guaranteed || !_room.has_regular_item_chest()) { continue; }
-			if (count_regular_items(_room.chest_obj, _hands) > get_item_cap(_room.chest_obj)) {
+		// Swap out items in other rooms
+		var _existing_rooms = array_shuffle(rooms);
+		for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
+			// Skip rooms without a regular item and skip the guaranteed room
+			var _room = _existing_rooms[_i];
+			if (_room == guaranteed_chest_room || !_room.has_regular_item_chest()) { continue; }
+			
+			// Replace the item if it is over the item cap
+			if (count_regular_items(_room.chest_obj, _hand_items) > get_item_cap(_room.chest_obj, _torch_in_hand)) {
 				// Empty the chest before picking, so the pick doesn't count the item it's replacing
 				var _item = _room.chest_obj;
 				_room.chest_obj = -1;
-				_room.chest_obj = pick_item_type(false, _hands);
+				_room.chest_obj = pick_item_type(false, _hand_items);
 
-				// The item stays, over its cap, if the map needs it to stay winnable (R46)
-				if (!is_undefined(get_failing_lock_and_key_search_area())) { _room.chest_obj = _item; }
+				// The item stays, over its cap, if the map needs it to stay winnable
+				if (!is_undefined(get_failing_lock_and_key_search_area())) {
+					// This should NEVER happen
+					show_debug_message("Item type was over cap but allowed to stay: " + string(_item), debug_message_level.warning);
+					_room.chest_obj = _item;
+				}
 			}
 		}
 	};
-
 
 	// =================================================================================================
 	// CALCULATIONS TO PASS OFF TO CONTROLLER
@@ -1415,8 +1414,7 @@ function GameMap() constructor {
 	};
 
 	/// @function apply_room_roles()
-	/// @description Has every room write what it spawns, given its role, into the content fields building reads
-	///	(see GameRoom.apply_roles_to_content). Only for the finished map.
+	/// @description Has every room write what it spawns, given its role, into the content fields building reads. Only for the finished map.
 	static apply_room_roles = function() {
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].apply_roles_to_content(); }
 	};

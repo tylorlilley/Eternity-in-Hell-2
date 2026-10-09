@@ -13,7 +13,7 @@ function initialize_tile() {
 function initialize_door() { 
 	// Create a half wall in each direction of this door that needs it
 	for (var dir = directions.up; dir < directions.stairs; dir++;) {
-		var x_offset = 0, y_offset = 0, quadrants_to_delete = array_create(0);
+		var x_offset = 0, y_offset = 0, quadrants_to_delete = [];
 		switch (dir) {
 			case directions.up: { y_offset -= 8; quadrants_to_delete = [2, 3]; break; }
 			case directions.down: { y_offset += 8; quadrants_to_delete = [0, 1]; break; }

@@ -141,7 +141,7 @@ function is_on_room_border(x_pos, y_pos) {
 	if (array_length(target_exit_spots) == 0) { return false; }
 	
 	// Check if target pos is on a type of exit spot this isn't already on
-	var on_exit_spots = instance_place_all(x, y, obj_exit_spot), on_exit_types = array_create(0);
+	var on_exit_spots = instance_place_all(x, y, obj_exit_spot), on_exit_types = [];
 	while (array_length(on_exit_spots) > 0) {
 		var next_exit_spot = array_pop(on_exit_spots);
 		array_push(on_exit_types, next_exit_spot.object_index);
@@ -327,7 +327,7 @@ function get_random_possible_direction(target_x, target_y, ignore_solid, ignore_
 	var can_move_down = can_move_in_direction(directions.down, ignore_solid, ignore_death);
 	
 	// Determine which directions one should move in to get closer to target
-	var possible_directions = array_create(0);
+	var possible_directions = [];
 	if (y > target_y && can_move_up) { array_push(possible_directions, directions.up); }
 	if (x < target_x && can_move_right) { array_push(possible_directions, directions.right); }
 	if (y < target_y && can_move_down) { array_push(possible_directions, directions.down); }
@@ -515,7 +515,7 @@ function draw_reflection_in_mirrors() {
 				case 6: { y_pos = room_height; x_pos_offset -= abs(sprite_width/4); break; }
 				case 7: { y_pos = room_height; x_pos_offset += abs(sprite_width/4); break; }
 			}
-			var closest_solids = array_create(0);
+			var closest_solids = [];
 
 			// Get closest mirrors
 			ds_list_clear(potential_mirrors);
@@ -526,7 +526,7 @@ function draw_reflection_in_mirrors() {
 				if (!is_existing_instance(current_object)) { continue; }
 				
 				var distance_to_obj = point_distance(x_to_use, y_to_use, current_object.x, current_object.y)
-				if (distance_to_obj < minimum_distance_to_obj) { closest_solids = array_create(0); }
+				if (distance_to_obj < minimum_distance_to_obj) { closest_solids = []; }
 				if (distance_to_obj <= minimum_distance_to_obj) { 
 					minimum_distance_to_obj = distance_to_obj;
 					array_push(closest_solids, current_object);

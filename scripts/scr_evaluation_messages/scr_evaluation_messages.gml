@@ -1,5 +1,5 @@
 function EvaluationMessageManager() constructor {
-	evaluation_messages = array_create(0);
+	evaluation_messages = [];
 	current_score = 0;
 	
 	// Item Usage
@@ -92,7 +92,7 @@ function EvaluationMessageManager() constructor {
 	/// @function									calculate_evaluation_messages_and_score();
 	function calculate_evaluation_messages_and_score() {
 		var controller = global.controller;
-		evaluation_messages = array_create(0);
+		evaluation_messages = [];
 		current_score = 0;
 		
 		var has_won = is_game_won(), has_lost = is_game_lost();
@@ -357,7 +357,7 @@ function EvaluationMessageManager() constructor {
 		calculate_evaluation_messages_and_score();
 		global.is_test_mode = prev_test_mode;
 		
-		var loaded_eval_messages = array_create(0);
+		var loaded_eval_messages = [];
 		for(var i = 0; i < array_length(evaluation_messages); i++) {
 			var next_message = evaluation_messages[i];
 
@@ -387,11 +387,11 @@ function EvaluationMessageManager() constructor {
 
 
 function EvaluationTraitManager() constructor {
-	evaluation_traits = array_create(0);
+	evaluation_traits = [];
 	
 	/// @function									read_traits_from_file();
 	function read_traits_from_file() {
-		evaluation_traits = array_create(0);
+		evaluation_traits = [];
 		var filename = "trait_data.json";
 		var file = file_text_open_read(filename);
 		var trait_number = 0;

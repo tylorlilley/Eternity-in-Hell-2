@@ -10,7 +10,7 @@ if (!closed && push_direction != directions.none) {
 		image_index = 0;
 	}
 	else {
-		var occupied_hands = array_create(0);
+		var occupied_hands = [];
 		if (is_existing_instance(player.right_hand_item) && !player.lost_right_hand) { array_push(occupied_hands, directions.right); } 
 		if (is_existing_instance(player.left_hand_item) && !player.lost_left_hand) { array_push(occupied_hands, directions.left); }
 		array_shuffle(occupied_hands);

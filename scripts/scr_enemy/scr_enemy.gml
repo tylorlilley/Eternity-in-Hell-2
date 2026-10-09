@@ -229,7 +229,7 @@ function move_snake(iterations) {
 	
 	// Choose new direction to turn in
 	if (dir == directions.none) {
-		var new_directions = array_create(0);
+		var new_directions = [];
 		array_push(new_directions, get_opposite_dir(prev_dir), get_turn_right_dir(prev_dir), get_turn_left_dir(prev_dir));
 		while (array_length(new_directions) > 0) {
 			var new_dir = array_random_pop(new_directions);
@@ -352,7 +352,7 @@ function explode(destroy_self) {
 	screen_flash();
 	
 	// The Rest
-	var projectiles = array_create(0);
+	var projectiles = [];
 	array_push(projectiles, shoot_projectile(x-8, y-4, true));
 	array_push(projectiles, shoot_projectile(x-4, y-8, true));
 	array_push(projectiles, shoot_projectile(x+4, y-8, true));

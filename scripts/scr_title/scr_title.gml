@@ -230,7 +230,7 @@ function set_game_color() {
 /// @function								update_hand_options();
 function update_hand_options() {
 	// Set up array of item options
-	hand_options = array_create(0);
+	hand_options = [];
 	left_hand_pos = -1;
 	right_hand_pos = -1;
 	global.player_left_hand_item = get_setting_for_difficulty("last_player_left_hand_item", global.difficulty, obj_torch);
@@ -258,7 +258,7 @@ function update_hand_options() {
 function update_death_types() {
 	// Update Death Count Values
 	var death_types = get_death_types();
-	deaths_to_display = array_create(0);
+	deaths_to_display = [];
 	while (array_length(death_types) > 0) {
 		var death_type = array_pop(death_types);
 		

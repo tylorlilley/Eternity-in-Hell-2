@@ -1,14 +1,14 @@
 
 function RoomGroup(given_rooms, given_keys, given_distance) constructor {
 	rooms = given_rooms;
-	room_group_size = array_create(0);
+	room_group_size = [];
 	keys = given_keys;
 }
 
 function MapWalker() constructor {
-	rooms_to_visit = array_create(0); 
-	visited_rooms = array_create(0);
-	locked_exits = array_create(0);
+	rooms_to_visit = []; 
+	visited_rooms = [];
+	locked_exits = [];
 	keys = 0;
 	internal_locks = 0;
 	
@@ -36,7 +36,7 @@ function MapWalker() constructor {
 }
 
 function walk_the_map() {
-	var controller = global.controller, walker = new MapWalker(), visited_room_groups = array_create(0);
+	var controller = global.controller, walker = new MapWalker(), visited_room_groups = [];
 	
 	with (walker) {
 		array_push(rooms_to_visit, controller.start_room);

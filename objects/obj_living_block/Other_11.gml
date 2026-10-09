@@ -7,7 +7,7 @@ if (dir == directions.none) {
 	move_timer -= 1;
 	if (move_timer > time_to_peek && get_distance_to_instance(target) <= TRAP_RANGE+16) { move_timer -= 3; }
 	if (move_timer <= 0) {
-		var move_dir = directions.none, possible_directions = array_create(0);
+		var move_dir = directions.none, possible_directions = [];
 		if (get_distance_to_instance(target) <= TRAP_RANGE+16) {
 			// Choose random possible direction that is towards the player
 			if (is_direction_towards(directions.up, target) && can_move_in_direction(directions.up, false, true)) { array_push(possible_directions, directions.up); }

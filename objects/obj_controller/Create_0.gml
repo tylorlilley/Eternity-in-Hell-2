@@ -11,7 +11,7 @@ if (global.graphics_mode == graphics_modes.farmer) { sprite_prefetch(spr_player_
 grid_update_timer = 0;
 player_appear_timer = 0;
 flash_obj = noone;
-dropped_meat = array_create(0);
+dropped_meat = [];
 global.datetime = string(current_day) + "-" + string(current_month) + "-" + string(current_year) + ":" + string(current_hour) + ":" + string(current_minute);
 depth = -9999;
 
@@ -51,7 +51,7 @@ for (var i = 0; i < array_length(game_rooms); i++) {
 // Transition to start room to begin game
 with (global.game_manager) { 
 	number_of_frames_since_game_began = 0;
-	sounds_to_play = array_create(0);
+	sounds_to_play = [];
 	clear_inputs_for_next_frame();
 	paused = false;
 	update_run_number_log(global.difficulty);

@@ -50,8 +50,8 @@ function GameRoom(given_x, given_y) constructor {
 	rotate = noone;
 	
 	// The content rolled for its layout, along with lit above. Generation never edits it after rolling it; the room's
-	// role decides which of it spawns (see is_lit, spawns_rolled_dangers, spawns_phantom and spawns_floater), and
-	// apply_roles_to_content writes that into these fields once the map is finished
+	// role decides which of it spawns, and apply_roles_to_content writes that into these fields once the map is finished
+	// NOTE: This is the same, statistically, as if we only roll for them after deciding if the room is eligible
 	has_eyes = false;
 	has_phantom = false;
 	has_floater = false;
@@ -67,7 +67,7 @@ function GameRoom(given_x, given_y) constructor {
 	mirror_count = 0;
 	
 	// Room Content Values
-	instances = array_create(0);
+	instances = [];
 	solid_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	lava_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	empty_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
@@ -306,26 +306,18 @@ function GameRoom(given_x, given_y) constructor {
 		return lit || is_guaranteed_lit_room;
 	}
 
-	/// @function spawns_rolled_dangers()
-	/// @description Whether the dangers rolled for the room spawn. The start room spawns none of them, so nothing can hurt
-	///	the player before they act: no phantom, floater, fountains, living blocks, noses or lava fire skeletons, and only safe skeleton types.
-	/// @returns {bool}
-	function spawns_rolled_dangers() {
-		return !is_start_room;
-	}
-
 	/// @function spawns_phantom()
 	/// @description Whether the room's rolled phantom spawns: never in the start room, a lit room or a portcullis trap room
 	/// @returns {bool}
 	function spawns_phantom() {
-		return has_phantom && spawns_rolled_dangers() && !is_lit() && !has_portcullis_button;
+		return has_phantom && !is_start_room && !is_lit() && !has_portcullis_button;
 	}
 
 	/// @function spawns_floater()
 	/// @description Whether the room's rolled floater spawns: never in the start room or a portcullis trap room
 	/// @returns {bool}
 	function spawns_floater() {
-		return has_floater && spawns_rolled_dangers() && !has_portcullis_button;
+		return has_floater && !is_start_room && !has_portcullis_button;
 	}
 
 	/// @function get_spawned_skeleton_types()
@@ -333,7 +325,7 @@ function GameRoom(given_x, given_y) constructor {
 	///	type rolled for a spot, rolled eyes included, spawns as a basic skeleton instead.
 	/// @returns {array} One object per skeleton spot; a new array for a room that doesn't spawn its rolled dangers, so the rolled types stay as rolled
 	function get_spawned_skeleton_types() {
-		if (spawns_rolled_dangers()) { return skeleton_types; }
+		if (!is_start_room) { return skeleton_types; }
 
 		var _spawned_types = [];
 		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
@@ -377,7 +369,7 @@ function GameRoom(given_x, given_y) constructor {
 		
 		// Adjust counts based on what has been spawned
 		hazard_count_add(_counts, "obj_mouth", initial_mouth_count);
-		if (spawns_rolled_dangers()) {
+		if (!is_start_room) {
 			hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
 			hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
 			hazard_count_add(_counts, "obj_living_block", living_block_count);
@@ -640,7 +632,7 @@ function GameRoom(given_x, given_y) constructor {
 
 	/// @function determine_random_room_content(_same_skeleton_type)
 	/// @description Rolls the random content for the room's layout, straight onto the room. It's rolled once per layout
-	///	pick and never edited afterwards; the room's role decides which of it spawns (see spawns_rolled_dangers).
+	///	pick and never edited afterwards; the room's role decides which of it spawns
 	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
 	function determine_random_room_content(_same_skeleton_type) {
 		// Only lantern rooms that aren't special rooms can start lit
@@ -770,7 +762,7 @@ function GameRoom(given_x, given_y) constructor {
 		has_phantom = spawns_phantom();
 		has_floater = spawns_floater();
 		skeleton_types = get_spawned_skeleton_types();
-		if (!spawns_rolled_dangers()) {
+		if (is_start_room) {
 			replaced_column_fountain_count = 0;
 			replaced_statue_fountain_count = 0;
 			living_block_count = 0;
@@ -831,7 +823,7 @@ function GameRoom(given_x, given_y) constructor {
 		fat_skeleton_count = 0;
 		fire_skeleton_count = 0;
 		cultist_count = 0;
-		skeleton_types = array_create(0);
+		skeleton_types = [];
 		for (var i = 0; i < get_room_reference_object_count(obj_skeleton_spot); i++;) {
 			var skeleton_type = obj_skeleton;
 			if (has_eyes && i == 0) { skeleton_type = obj_eyes; }
@@ -855,7 +847,7 @@ function GameRoom(given_x, given_y) constructor {
 		initial_mouth_count = (initial_mouths * MOUTHS_PER_MOUTH) - initial_mouths;
 		
 		if (has_hall_of_mirrors) {
-			mirror_directions = array_create(0);
+			mirror_directions = [];
 			for (var i = 0; i < 4; i++) {
 				array_push(mirror_directions, get_random_carindal_dir())
 			}
@@ -1005,7 +997,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{boolean} is_empty				Whether to return directions with adjacent rooms that do or don't exist
 	function get_adjacent_room_directions(is_empty) {
 		// Get which adjacent directions are empty
-		var adjacent_room_directions = array_create(0);
+		var adjacent_room_directions = [];
 		for (var dir = directions.up; dir < directions.stairs; dir++;) {
 			var adj_room = get_adjacent_room(dir);
 			if (adj_room != -1 && adj_room.has_no_cardinal_exits) { continue; }
@@ -1018,7 +1010,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @param		{boolean} is_empty				Whether to return directions with connected rooms that do or don't exist
 	function get_connected_room_directions(is_empty) {
 		// Get which connected directions are not empty
-		var connected_room_directions = array_create(0);
+		var connected_room_directions = [];
 		for (var dir = directions.up; dir <= directions.stairs; dir++;) {
 			if ((get_connected_room(dir) == -1) == is_empty) { array_push(connected_room_directions, dir); }
 		}
@@ -1307,7 +1299,7 @@ function GameRoom(given_x, given_y) constructor {
 	/// @function									initialize_from_room_reference();
 	function initialize_from_room_reference() {
 		var reference_instances = layout.instances;
-		collectable_spot_instances = array_create(0);
+		collectable_spot_instances = [];
 		
 		for(var i = 0; i < array_length(reference_instances); i++) {
 			var ref = reference_instances[i];
@@ -1325,8 +1317,8 @@ function GameRoom(given_x, given_y) constructor {
 
 	/// @function									deactivate_room_instances();
 	function deactivate_room_instances() {
-		instances = array_create(0);
-		collectable_spot_instances = array_create(0);
+		instances = [];
+		collectable_spot_instances = [];
 		
 		with (obj_light_source) { if (!persistent) { array_push(other.instances, id); } }
 		with (obj_game_object) { if (!persistent) { array_push(other.instances, id); } }
@@ -1681,7 +1673,7 @@ function create_game_map() {
 	var created_cardinal_exits = 0, target_rooms = MINIMUM_NUMBER_OF_ROOMS;// + irandom(MAX_NUMBER_OF_ROOMS - MINIMUM_NUMBER_OF_ROOMS);
 	
 	// Set up initial game room and game rooms array
-	game_rooms = array_create(0);
+	game_rooms = [];
 	var initial_room = new GameRoom(0, 0);
 	initial_room.assign_room_ref(false, false);
 	array_push(game_rooms, initial_room);
@@ -1800,7 +1792,7 @@ function add_rooms_to_reach_target_difficulty() {
 /// @function									get_earlier_room_without_key(target_dist);
 /// @param		{real}	target_dist				The maximum distance from start of the keyless room to return
 function get_earlier_room_without_key(target_dist) {
-	var possible_rooms = array_create(0);
+	var possible_rooms = [];
 	for (var pos = 0; pos < array_length(game_rooms); pos++;) {
 		var next_room = game_rooms[pos];
 		if (!next_room.has_key && next_room.distance_to_start < target_dist && (next_room != start_room || target_dist <= 1)) { array_push(possible_rooms, next_room); }
@@ -1813,7 +1805,7 @@ function get_earlier_room_without_key(target_dist) {
 /// @function									create_locked_exits_and_keys();
 function create_locked_exits_and_keys() {
 	// Add keys and locks to rooms
-	var exits_to_create_lock_and_key_for = array_create(0), attempted_exits = array_create(0), extra_locks = -1;
+	var exits_to_create_lock_and_key_for = [], attempted_exits = [], extra_locks = -1;
 	
 	for (var pos = 0; pos < array_length(game_rooms); pos++;) {
 		var next_room = game_rooms[pos], is_heart_room_exit = (next_room == heart_room), is_start_room_exit = (next_room == start_room);

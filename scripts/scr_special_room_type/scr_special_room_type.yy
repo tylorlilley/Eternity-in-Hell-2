@@ -1,7 +1,7 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "scr_sin",
+  "name": "scr_special_room_type",
   "isCompatibility": false,
   "isDnD": false,
   "parent": {

@@ -4,7 +4,6 @@
 // Initialize room probability constants
 #macro MAX_SEED 99999999
 
-//#macro NUMBER_OF_EXITS_PROBABILITY 9
 #macro AVERAGE_NUMBER_OF_ROOM_EXITS (20/9)
 #macro STAIRS_PROBABILITY 5 
 #macro NO_CARDINAL_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 12, 8, 6, 4]) // This happens only after the stairs probability succeeds, so its combined with 1/5
@@ -50,18 +49,12 @@
 
 // Initialize map drawing constants
 #macro GRID_SIZE 8
-//#macro MAX_WALKING_DEPTH get_probability_for_difficulty([16, 16, 32, 48, 56]) 
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
 #macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 18, 22, 24]) //[12, 16, 24, 28, 32])
-#macro AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.75, 1.5, 2, 2.25])
 #macro MAP_DIFFICULTY_SCORE_TARGET get_probability_for_difficulty([0, 2, 8.5, 21, 33]) // Rooms are added until the map's difficulty score reaches this, up to MAX_NUMBER_OF_ROOMS. It's about what a map of MINIMUM_NUMBER_OF_ROOMS scores on average, so about half of maps stop at the minimum and a map of easier rooms grows toward the maximum
 #macro ROOM_DIFFICULTY_SCORE_MAX 8 // Generation skips any roll that would take the threats rolled into a room past this (see GameRoom.would_exceed_max_difficulty)
 #macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.5, 2.2, infinity, infinity]) // A layout appears from the lowest difficulty whose limits its difficulty and time scores fit in (see RoomLayout.determine_minimum_difficulty). These keep about as many layouts on each difficulty as the ruby script's difficulties did
 #macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.1, 0.5, infinity, infinity])
-//#macro MAP_DIFFICULTY_SCORE_TARGET (AVERAGE_ROOM_DIFFICULTY * MINIMUM_NUMBER_OF_ROOMS) // Rooms are added until the finished map scores this much (R2); raise it for more rooms on average
-//#macro OLD_AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.8289, 1.1682, 1.3802, 1.5])
-//#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 
-// #macro MINIMUM_COLLECTABLES_ROOMS get_probability_for_difficulty([1, 2, 3, 4, 5]) 
 //#macro MAX_MAP_DRAW_DISTANCE 8 
 
 // Initialize lighting constants
@@ -103,15 +96,6 @@
 // Initialize score constants and variables
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
 #macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 80, 70, 65, 65])//get_probability_for_difficulty([100, 75, 65, 60, 50])  // minutes * 60 total seconds for torch to remain lit
-#macro MINIMUM_TIME_PROVIDED_PER_ROOM 12
-#macro TIME_PROVIDED_PER_ROOM get_probability_for_difficulty([40, 24, 22, 20, 18]) // get_probability_for_difficulty([40, 30, 28, 26, 24]) 
-#macro TIME_PROVIDED_PER_EASY_ROOM -5 
-#macro TIME_PROVIDED_PER_HARD_ROOM 15 
-#macro TIME_PROVIDED_PER_DEAD_END 10 
-#macro TIME_PROVIDED_PER_COLLECTABLE get_probability_for_difficulty([40, 25, 20, 16, 12]) 
-#macro TIME_PROVIEDED_PER_LOCK 20
-#macro TIME_PROVIEDED_PER_ILLUSION_WALL 30
-#macro TIME_PROVIEDED_PER_PORTCULLIS 15
 #macro TOTAL_COMPLETION_AMOUNT 4 
 
 // Depth Constants

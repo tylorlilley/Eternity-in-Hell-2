@@ -1,13 +1,14 @@
-/// @function Sin(_name, _layouts)
-/// @description One of the sins a map can include, each with a name and the layouts its room can use.
+/// @function SpecialRoomType(_name, _layouts)
+/// @description One type of special room a map can include, with the layouts a room of that type can use
 /// @param {string} _name Its name, like "pride"
-/// @param {array} _layouts Its layouts: room assets in the layout cache's sin table, RoomLayouts once the cache is read
-function Sin(_name, _layouts) constructor {
+/// @param {array} _layouts Its layouts: room assets in GameMap's table of special room types, then RoomLayouts once the
+///	layout cache is built
+function SpecialRoomType(_name, _layouts) constructor {
 	name = _name;
 	layouts = _layouts;
 
 	/// @function has_layout_of_type(_exit_type)
-	/// @description Cycle through each of the sin's RoomLayouts and return whether one of the given _exit_type is found
+	/// @description Whether one of the type's layouts has a given exit kind
 	/// @param {real} _exit_type A layout_exit_types kind
 	/// @returns {bool}
 	static has_layout_of_type = function(_exit_type) {
@@ -18,9 +19,9 @@ function Sin(_name, _layouts) constructor {
 	};
 
 	/// @function get_layouts_of_type(_exit_type)
-	/// @description Cycle through each of the sin's RoomLayouts and return the ones of the given _exit_type
+	/// @description The type's layouts that have a given exit kind
 	/// @param {real} _exit_type A layout_exit_types kind
-	/// @returns {array}
+	/// @returns {array} RoomLayouts, in a new array
 	static get_layouts_of_type = function(_exit_type) {
 		var _kept = [];
 		for (var _i = 0; _i < array_length(layouts); _i++) {
@@ -30,7 +31,7 @@ function Sin(_name, _layouts) constructor {
 	};
 
 	/// @function get_exit_types()
-	/// @description Cycle through each of the sin's RoomLayouts and return each exit kind they have, once
+	/// @description Each exit kind the type's layouts have, once
 	/// @returns {array} layout_exit_types kinds
 	static get_exit_types = function() {
 		var _exit_types = [];

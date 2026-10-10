@@ -439,10 +439,9 @@ class RoomConverter
         #    puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - old #{old_difficulty}; new - #{difficulty}"
         #end
 
-        # Write to room file
-        difficulty_string = "difficulty: #{difficulty},\n"
-        File.write("./datafiles/#{room_name}.json", difficulty_string)
-        File.write("./datafiles/#{room_name}.json", string, mode: "a")
+        # Write the room's instances to its layout file. The game works out each layout's difficulty itself (see
+        # RoomLayout.determine_minimum_difficulty), so the difficulty above only feeds the counts this script prints
+        File.write("./datafiles/#{room_name}.json", string)
     end
 
     def pretty_string(number)

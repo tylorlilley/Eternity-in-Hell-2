@@ -1,4 +1,4 @@
-// The six kinds of layout file, named after the side exits they open
+// The six kinds of layout file, named after the cardinal exits they open
 enum layout_exit_types {
 	none,				// rm_no_exits_*: rooms reached only by stairs
 	one,				// rm_one_exit_*
@@ -10,7 +10,10 @@ enum layout_exit_types {
 }
 
 /// @function RoomLayout(_room_asset)
-/// @description One room layout, read from its room and its layout file when GameMap builds the layout cache: its exit kind and the lowest difficulty it appears on, the instances building creates, which spots a floor key or a portcullis button can take (R52, R57), and how many of each object it places (R55). A room that isn't a usable layout gets is_usable = false, and GameMap leaves it out of the cache.
+/// @description One room layout, read from its room and its layout file when GameMap builds the layout cache: its exit
+///	kind and the lowest difficulty it appears on, the instances building creates, which spots a floor key or a
+///	portcullis button can take, how many of each object it places, and its walking distances. A room that isn't a
+///	usable layout gets is_usable = false, and GameMap leaves it out of the cache.
 /// @param {Asset.GMRoom} _room_asset The room
 function RoomLayout(_room_asset) constructor {
 	/// @function get_exit_type_from_name(_name)
@@ -83,17 +86,18 @@ function RoomLayout(_room_asset) constructor {
 	};
 
 	/// @function check_rules()
-	/// @description Logs any way the layout breaks the spot rules generation relies on (L1 to L4), or places eyes, which stop
-	///	the player in place, alongside something that chases or shoots at them. The ruby script enforces the spot rules too,
-	///	so this should never warn, but it's a good failsafe.
+	/// @description Logs any way the layout breaks the spot rules generation relies on, or places eyes, which stop the
+	///	player in place, alongside something that chases or shoots at them. A layout needs one chest spot, one stairs spot,
+	///	at least two collectable spots that building never clears, and an exit spot on every side. The ruby script enforces
+	///	the spot rules too, so this should never warn, but it's a good failsafe.
 	static check_rules = function() {
 		var _problems = "";
-		if (get_object_count("obj_chest_spot") != 1) { _problems += " needs exactly one chest spot (L1);"; }
-		if (get_object_count("obj_stairs_spot") != 1) { _problems += " needs exactly one stairs spot (L2);"; }
-		if (array_length(key_spots) < 2) { _problems += " needs at least two collectable spots off the exit and chest spots (L3);"; }
+		if (get_object_count("obj_chest_spot") != 1) { _problems += " needs exactly one chest spot;"; }
+		if (get_object_count("obj_stairs_spot") != 1) { _problems += " needs exactly one stairs spot;"; }
+		if (array_length(key_spots) < 2) { _problems += " needs at least two collectable spots off the exit and chest spots;"; }
 		if (get_object_count("obj_exit_spot_up") == 0 || get_object_count("obj_exit_spot_right") == 0 ||
 			get_object_count("obj_exit_spot_down") == 0 || get_object_count("obj_exit_spot_left") == 0) {
-			_problems += " needs an exit spot on every side (L4);";
+			_problems += " needs an exit spot on every side;";
 		}
 		if (count_hazards_with_tags(hazard_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) > 0) {
 			_problems += " places a hazard that stops the player alongside one that chases or shoots at them;";
@@ -101,7 +105,7 @@ function RoomLayout(_room_asset) constructor {
 		if (_problems != "") { write_debug_message("Layout " + name + _problems, debug_message_level.warning); }
 	};
 	
-	// @function get_hazard_counts_from_file()
+	/// @function get_hazard_counts_from_file()
 	/// @description How many of each hazard in the hazard table the layout places.
 	/// @returns {struct}
 	static get_hazard_counts_from_file = function() {
@@ -174,13 +178,13 @@ function RoomLayout(_room_asset) constructor {
 			}
 		}
 		
-		// A phantom in a lantern room that doesn't start lit, or else a floater. Sin rooms get neither
+		// A phantom in a lantern room that doesn't start lit, or else a floater. Special rooms get neither
 		var _phantom_chance = 0;
-		if (has_lanterns && !is_sin_room && can_have_hazard_with_eyes("obj_phantom")) {
+		if (has_lanterns && !is_special_room && can_have_hazard_with_eyes("obj_phantom")) {
 			_phantom_chance = (1 - get_chance_out_of(PRE_LIT_PROBABILITY)) * get_chance_out_of(PHANTOM_PROBABILITY);
 			array_push(_spawns, new ExpectedSpawn("obj_phantom", _phantom_chance));
 		}
-		if (!is_sin_room && can_have_hazard_with_eyes("obj_floater")) { array_push(_spawns, new ExpectedSpawn("obj_floater", (1 - _phantom_chance) * get_chance_out_of(FLOATER_PROBABILITY))); }
+		if (!is_special_room && can_have_hazard_with_eyes("obj_floater")) { array_push(_spawns, new ExpectedSpawn("obj_floater", (1 - _phantom_chance) * get_chance_out_of(FLOATER_PROBABILITY))); }
 		
 		// Eyes on a skeleton spot, only in a room where nothing chases or shoots at the player
 		if (_skeleton_spot_count > 0 && get_hazard_count("obj_eyes") == 0 && count_hazards_with_tags(_counts, TARGETS_PLAYER_TAGS) == 0) {
@@ -210,7 +214,7 @@ function RoomLayout(_room_asset) constructor {
 	/// @returns {real}
 	static get_layout_difficulty_score = function() {
 		var _counts = get_base_hazard_counts();
-		var _chance_starts_lit = (has_lanterns && !is_sin_room) ? get_chance_out_of(PRE_LIT_PROBABILITY) : 0;
+		var _chance_starts_lit = (has_lanterns && !is_special_room) ? get_chance_out_of(PRE_LIT_PROBABILITY) : 0;
 		var _room = { chance_holding_staff: 0, chance_holding_sword: 0, chance_holding_special_sword: 0, chance_of_light: _chance_starts_lit };
 		return get_difficulty_score_with_spawns(_counts, get_expected_spawns(_counts), _room);
 	};
@@ -245,7 +249,7 @@ function RoomLayout(_room_asset) constructor {
 	/// @description Sets the lowest difficulty the layout appears on: the lowest one, from the highest min_difficulty of the
 	///	hazards it places, whose LAYOUT_DIFFICULTY_SCORE_LIMIT and LAYOUT_TIME_SCORE_LIMIT its scores fit in. Hard and Very
 	///	Hard have no limits, so every layout appears from Hard at the latest. GameMap calls it while building the layout
-	///	cache, once the layout knows whether it's a sin room.
+	///	cache, once the layout knows whether it's a special room.
 	static determine_minimum_difficulty = function() {
 		// The chances behind the scores and the limits all read global.difficulty, so score the layout as each difficulty in
 		// turn, and then put it back
@@ -287,7 +291,7 @@ function RoomLayout(_room_asset) constructor {
 	};
  
 	/// @function ensure_walking()
-	/// @description Measures the layout's walking distances the first time a room asks (R56), so loading stays
+	/// @description Measures the layout's walking distances the first time a room asks, so loading stays
 	///	quick and each layout is only measured once.
 	static ensure_walking = function() {
 		if (walk_measured) { return; }
@@ -295,7 +299,7 @@ function RoomLayout(_room_asset) constructor {
 		var _sides = ["obj_exit_spot_up", "obj_exit_spot_right", "obj_exit_spot_down", "obj_exit_spot_left"];
 		var _open = get_open_cardinal_exits();
  
-		// The walk points: each open side's entrance (the middle of its exit spots on the room's edge), then the
+		// The walk points: each open cardinal exit's entrance (the middle of its exit spots on the room's edge), then the
 		// stairs spot, the chest spot and every collectable spot in file order
 		walk_points = [];
 		for (var _s = 0; _s < array_length(_open); _s++) {
@@ -322,8 +326,8 @@ function RoomLayout(_room_asset) constructor {
 			array_push(walk_points, { x: _spot.x, y: _spot.y });
 		}
  
-		// The floor as building leaves it: the open sides' exit spots and the chest and stairs spots cleared, and
-		// the closed sides' exit spots walled. Walls, columns, mirrors, statues, fountains, the red chest and the
+		// The floor as building leaves it: the open cardinal exits' exit spots and the chest and stairs spots cleared,
+		// and the closed ones' exit spots walled. Walls, columns, mirrors, statues, fountains, the red chest and the
 		// giant eye's 3x3 body are in the way; push blocks aren't, since pushing one moves you along with it.
 		// Lava is in the way too, unless nothing else reaches a point (then a block bridge or a staff is assumed)
 		var _cells = LAYOUT_SIZE / 8 + 1;
@@ -385,14 +389,13 @@ function RoomLayout(_room_asset) constructor {
 	name = room_get_name(_room_asset);
 	exit_type = get_exit_type_from_name(name);
 	index = -1;											// Its position in the layout cache, set when GameMap builds the cache
-	is_sin_room = false;								// Set when GameMap builds the layout cache, from the sin table
+	is_special_room = false;								// Set when GameMap builds the layout cache, from its table of special room types
 
 	// Only rooms named for their exits are layouts (rm_title, rm_start, rm_finish and rm_unused_* are not), and a
 	// layout is only usable if its file can be read
 	is_usable = (exit_type != -1) && !string_starts_with(name, "rm_unused");
 
-	// The layout file: line 1 holds the difficulty room_converter.rb worked out, which nothing reads any more, and line 2
-	// the placed instances
+	// The layout file holds the instances the layout places, on one line. room_converter.rb writes it from the room asset
 	minimum_difficulty = difficulties.very_hard;		// The lowest difficulty it appears on, set when GameMap builds the layout cache (see determine_minimum_difficulty)
 	instances = [];										// What building the room creates
 	if (is_usable) {
@@ -402,7 +405,6 @@ function RoomLayout(_room_asset) constructor {
 			is_usable = false;
 		}
 		else {
-			file_text_readln(_file);
 			instances = json_parse(file_text_read_string(_file));
 			file_text_close(_file);
 		}
@@ -421,9 +423,9 @@ function RoomLayout(_room_asset) constructor {
 		if (string_starts_with(_instance.name, "obj_exit_spot") || _instance.name == "obj_chest_spot") { array_push(_clearing_spots, _instance); }
 	}
 
-	// Collectable spots are numbered in file order, so building can find the ones generation picks (R57). A
-	// floor key can take any spot building never clears. A portcullis button needs one too, alone on its tile,
-	// since anything else there, like an enemy or a block, could hold it down (R52)
+	// Collectable spots are numbered in file order, so building can find the ones generation picks. A floor key
+	// can take any spot building never clears. A portcullis button needs one too, alone on its tile, since anything
+	// else there, like an enemy or a block, could hold it down
 	key_spots = [];										// Collectable spot numbers a floor key can take
 	button_spots = [];									// Collectable spot numbers a button can take
 	stairs_spot_is_clear = false;						// Whether a button can take the stairs spot
@@ -440,14 +442,14 @@ function RoomLayout(_room_asset) constructor {
 		_spot_number += 1;
 	}
 
-	// Skeleton spots (L5), lanterns (L6) and the hall of mirrors
+	// Its lanterns, its hall of mirrors, and the hazards it places
 	has_lanterns = get_object_count("obj_lantern") > 0;
-	is_hall_of_mirrors = get_object_count("obj_hall_of_mirrors") > 0;
+	has_hall_of_mirrors = get_object_count("obj_hall_of_mirrors") > 0;
 	hazard_counts = get_hazard_counts_from_file();
  
-	// Its walking distances (R56), measured by ensure_walking the first time a room needs them
+	// Its walking distances, measured by ensure_walking the first time a room needs them
 	walk_measured = false;
-	walk_points = [];									// { x, y }: the open sides' entrances, then the stairs, chest and collectable spots
+	walk_points = [];									// { x, y }: the open cardinal exits' entrances, then the stairs, chest and collectable spots
 	walk_entrance_count = 0;							// The first this many walk points are entrances
 	walk_stairs_point = -1;
 	walk_chest_point = -1;
@@ -459,9 +461,9 @@ function RoomLayout(_room_asset) constructor {
 }
 
 /// @function get_only_lantern_layouts(_layouts)
-/// @description Returns only the layouts with lanterns from the given layouts
-/// @param {array} _layouts Layouts (RoomLayout)
-/// @returns {array}
+/// @description The layouts with lanterns among some layouts
+/// @param {array} _layouts RoomLayouts
+/// @returns {array} The ones with lanterns, in a new array
 function get_only_lantern_layouts(_layouts) {
 	var _kept = [];
 	for (var _i = 0; _i < array_length(_layouts); _i++) {

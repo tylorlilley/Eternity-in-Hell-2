@@ -1,6 +1,6 @@
 // Turning scores into game values
 #macro DANGER_POINT_SCALE 8					// Score points per unit of danger
-#macro HAZARD_FULL_TIME 30					// Extra Seconds a time score of 1 is worth: hold-ups on top of walking,
+#macro HAZARD_FULL_TIME 30					// Seconds a time score of 1 is worth: hold-ups on top of walking
  
 // Hazards that make each other worse. Each hazard's danger assumes the player can deal with it on their own terms, and the
 // more likely the room is to take that away, the closer it gets to its worst case (see get_hazard_combination_multiplier)
@@ -16,12 +16,12 @@
 #macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3		// How likely the player is to have something, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
 #macro BLOCK_COUNTER_MULTIPLIER 0.6			// A hazard a block can stop keeps this share of its danger: the layout lets a block be lined up with it about half the time, and setting the block up carries about a fifth of the hazard's own risk
  
-// The room's other content Multipliers
+// The room's other content
 #macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its hazard danger counts 1.4 times
 #macro PORTCULLIS_TRAP_DANGER 0.03			// Shut in until the button is pressed, once per trap room
-#macro SPECIAL_ITEM_REWARD_POINTS -2		// A cursed item makes the rest of the run easier, so the map can take more
+#macro SPECIAL_ITEM_REWARD_POINTS -2		// A special item makes the rest of the run easier, so the map can take more
  
-// Time variables hat a careful novice needs, then how many times that the run gives
+// The time a careful novice needs, and how many times that the run gives
 #macro PLAYER_STEPS_PER_SECOND 10			// One 8-pixel step a tick, 10 ticks a second
 #macro ROOM_ENTRY_TIME 2					// Seconds each visit costs before any walking: the transition and a look around
 #macro CAUTION_PER_DANGER_POINT 0.2			// Walking slows by this share for each point of the room's hazard danger
@@ -59,14 +59,15 @@ enum hazard_tags {
 ///		what the hazard does (luring the ears included), has light, and holds no item. The counters they might
 ///		hold, and the chance they have no light, come in through the room
 ///
-///	time: the hold-ups it causes on top of walking, from 0 (none) to 1 (HAZARD_FULL_TIME seconds, like a sin's
+///	time: the hold-ups it causes on top of walking, from 0 (none) to 1 (HAZARD_FULL_TIME seconds, like a special room's
 ///		quest). The walking itself is measured on the layout and slowed by danger (get_time_needed).
 ///
 ///	many, time_many: how more copies in one room add up, as a power of the count: 1 additive, under 1
 ///		diminishing, over 1 compounding, and 0 flat (only the first one counts).
 ///
-///	min_difficulty: the lowest difficulty a layout that places it appears on, however low its scores (see
-///		RoomLayout.determine_minimum_difficulty).
+///	min_difficulty: the lowest difficulty it appears on. A layout that places it only appears from there, however low
+///		its scores (see RoomLayout.determine_minimum_difficulty). For a hazard no layout places, it only records the
+///		lowest difficulty whose spawn chances can spawn it.
 ///
 ///	tags: what the combination rules and counters need to know about it (see hazard_tags).
 ///
@@ -96,7 +97,7 @@ function get_difficulty_score_table() {
 		// The block each spot spawns, plain or living: no danger, but it takes time to push out of the way, and it can stop some hazards (see BLOCK_COUNTER_MULTIPLIER)
 		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary},
  
-		// Sin objects. The sin limit already keeps their rooms off Easy and Medium; time covers each sin's quest
+		// Special room objects. The special room limit already keeps their rooms off Easy and Medium; time covers each special room's quest
 		obj_giant_eye:			{ danger: 0.17,		many: 1,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary | hazard_tags.fires_at_player },
 		// The trip to the start cross and back is map travel (GameMap.get_backtracking_time)
 		obj_inverted_cross:		{ danger: 0.25,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.moves_towards_player },
@@ -107,21 +108,21 @@ function get_difficulty_score_table() {
 		// Spawns on skeleton spots, named for their objects too (snakes and eyes use the entries above)
 		obj_skeleton:			{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.stopped_by_block },
 		obj_cockroach:			{ danger: 0.02,		many: 1,	time: 0.01,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.dangerous_in_dark | hazard_tags.stopped_by_block },				// In light; hunting in the dark it's 0.10
-		obj_fast_skeleton:		{ danger: 0.13,		many: 1,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.slows_player_movement | hazard_tags.stopped_by_block },
-		obj_fat_skeleton:		{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.stopped_by_block },
-		obj_cultist:			{ danger: 0.16,		many: 1.2,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.fires_at_player | hazard_tags.stopped_by_block },
-		obj_fire_skeleton:		{ danger: 0.18,		many: 1.15,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.fires_at_player | hazard_tags.immune_with_staff | hazard_tags.lights_torches | hazard_tags.uses_up_block },
+		obj_fast_skeleton:		{ danger: 0.13,		many: 1,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.slows_player_movement | hazard_tags.stopped_by_block },
+		obj_fat_skeleton:		{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.stopped_by_block },
+		obj_cultist:			{ danger: 0.16,		many: 1.2,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.fires_at_player | hazard_tags.stopped_by_block },
+		obj_fire_skeleton:		{ danger: 0.18,		many: 1.15,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.killed_by_sword | hazard_tags.fires_at_player | hazard_tags.immune_with_staff | hazard_tags.lights_torches | hazard_tags.uses_up_block },
  
 		// Spawns during map creation
 		obj_phantom:				{ danger: 0.20,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.moves_towards_player },
-		obj_floater:				{ danger: 0.08,		many: 0,	time: 0.15,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.moves_towards_player },
-		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.fires_at_player | hazard_tags.lights_torches },	// Aimed where the player is, so walking along a bridge dodges it too
+		obj_floater:				{ danger: 0.08,		many: 0,	time: 0.15,		time_many: 0,		min_difficulty: difficulties.medium,	tags: hazard_tags.moves_towards_player },
+		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.fires_at_player | hazard_tags.lights_torches },	// Aimed where the player is, so walking along a bridge dodges it too
 		// Its spot still counts its block, for the push time and what it can stop
-		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.slows_player_movement },
+		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.slows_player_movement },
 		// For trapped chests only:
-		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary },
+		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary },
 		// For moving collectables only:
-		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.none },
+		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.medium,	tags: hazard_tags.none },
  
 		// Spawns during play (see get_mid_game_spawns)
 		// A red bug: once it reaches the player, their moves are left to chance for a while. Bugs of other colors run away and can't harm them

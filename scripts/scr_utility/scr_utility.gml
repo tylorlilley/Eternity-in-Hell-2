@@ -131,6 +131,14 @@ function get_random_chance_out_of(denominator) {
 	return (irandom(denominator-1) == 0);
 }
 
+/// @function get_chance_out_of(_denominator)
+/// @description How likely get_random_chance_out_of is to come up true for the same denominator: one in _denominator, or never for 0
+/// @param {real} _denominator The denominator of the one-in-x chance
+/// @returns {real} From 0 to 1
+function get_chance_out_of(_denominator) {
+	return (_denominator == 0) ? 0 : 1 / _denominator;
+}
+
 /// @function								get_coin_flip();
 function get_coin_flip() {
 	return (irandom(1) == 0);

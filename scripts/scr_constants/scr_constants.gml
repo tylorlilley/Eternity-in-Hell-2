@@ -54,8 +54,10 @@
 #macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
 #macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 18, 22, 24]) //[12, 16, 24, 28, 32])
 #macro AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.75, 1.5, 2, 2.25])
-#macro MAP_DIFFICULTY_SCORE_TARGET get_probability_for_difficulty([0, 4, 12, 30, 45])// get_probability_for_difficulty([0, 8, 24, 40, 55])
+#macro MAP_DIFFICULTY_SCORE_TARGET get_probability_for_difficulty([0, 2, 8.5, 21, 33]) // Rooms are added until the map's difficulty score reaches this, up to MAX_NUMBER_OF_ROOMS. It's about what a map of MINIMUM_NUMBER_OF_ROOMS scores on average, so about half of maps stop at the minimum and a map of easier rooms grows toward the maximum
 #macro ROOM_DIFFICULTY_SCORE_MAX 8 // Generation skips any roll that would take the threats rolled into a room past this (see GameRoom.would_exceed_max_difficulty)
+#macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.5, 2.2, infinity, infinity]) // A layout appears from the lowest difficulty whose limits its difficulty and time scores fit in (see RoomLayout.determine_minimum_difficulty). These keep about as many layouts on each difficulty as the ruby script's difficulties did
+#macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.1, 0.5, infinity, infinity])
 //#macro MAP_DIFFICULTY_SCORE_TARGET (AVERAGE_ROOM_DIFFICULTY * MINIMUM_NUMBER_OF_ROOMS) // Rooms are added until the finished map scores this much (R2); raise it for more rooms on average
 //#macro OLD_AVERAGE_ROOM_DIFFICULTY get_probability_for_difficulty([0, 0.8289, 1.1682, 1.3802, 1.5])
 //#macro ADDITIONAL_ROOMS get_probability_for_difficulty([3, 3, 6, 9, 12]) 

@@ -37,6 +37,8 @@ function GameMap() constructor {
 				}
 			}
 
+			// Work out the lowest difficulty it appears on, now that it knows whether it's a sin room
+			_layout.determine_minimum_difficulty();
 			array_push(_layouts, _layout);
 		}
 		layout_cache = { layouts: _layouts, sins: _sins };

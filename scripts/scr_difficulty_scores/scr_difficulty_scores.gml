@@ -65,10 +65,13 @@ enum hazard_tags {
 ///	many, time_many: how more copies in one room add up, as a power of the count: 1 additive, under 1
 ///		diminishing, over 1 compounding, and 0 flat (only the first one counts).
 ///
-///	min_difficulty: the lowest difficulty the hazard appears on. Nothing reads it while layouts take their lowest
-///		difficulty from line 1 of their layout files (see RoomLayout.get_difficulty_from_file_line).
+///	min_difficulty: the lowest difficulty a layout that places it appears on, however low its scores (see
+///		RoomLayout.determine_minimum_difficulty).
 ///
 ///	tags: what the combination rules and counters need to know about it (see hazard_tags).
+///
+///	Bones, bushes and corpses aren't in the table: they aren't dangerous themselves, only what spawns from them during
+///	play (see get_mid_game_spawns).
 /// @returns {struct}
 function get_difficulty_score_table() {
 	static _table = {
@@ -92,9 +95,6 @@ function get_difficulty_score_table() {
 		obj_lava:				{ danger: 0.04,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.immune_with_staff | hazard_tags.uses_up_block },
 		// The block each spot spawns, plain or living: no danger, but it takes time to push out of the way, and it can stop some hazards (see BLOCK_COUNTER_MULTIPLIER)
 		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary},
-		obj_bones:				{ danger: 0.0024,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise },
-		// Score is for the red bugs it could spawn
-		obj_player_corpse:		{ danger: 0.005,	many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary },
  
 		// Sin objects. The sin limit already keeps their rooms off Easy and Medium; time covers each sin's quest
 		obj_giant_eye:			{ danger: 0.17,		many: 1,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary | hazard_tags.fires_at_player },
@@ -121,7 +121,13 @@ function get_difficulty_score_table() {
 		// For trapped chests only:
 		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary },
 		// For moving collectables only:
-		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.none }
+		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.none },
+ 
+		// Spawns during play (see get_mid_game_spawns)
+		// A red bug: once it reaches the player, their moves are left to chance for a while. Bugs of other colors run away and can't harm them
+		obj_bug:					{ danger: 0.05,		many: 1,	time: 0.20,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.moves_towards_player | hazard_tags.stopped_by_block },
+		// Comes for an item lying on the floor and runs off with it, laughing. It's deadly to touch, and the item has to be won back
+		obj_hands:					{ danger: 0.06,		many: 1,	time: 0.30,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.stopped_by_block }
 	};
 	return _table;
 }
@@ -357,15 +363,10 @@ function get_difficulty_score_for_hazard_counts(_counts, _room = undefined, _has
 		var _hazard_name = _hazard_names[_i], _hazard_count = _counts[$ _hazard_name], _entry = _table[$ _hazard_name];
 		if (is_undefined(_entry) || _hazard_count <= 0) { continue; }
 		
-		// Grow its points for the hazards around it
+		// Grow its points for the hazards around it. Generation never puts something that stops the player in a room with
+		// something that chases or shoots at them, but what spawns during play can, and the multiplier scores that too
 		var _multiplier = get_hazard_combination_multiplier(_counts, _hazard_name);
 		var _points = get_hazard_points_in_room(_hazard_name, _hazard_count, _multiplier, _room);
-		
-		// Generation never lets something that stops the player share a room with something that chases or shoots at them.
-		// The multiplier above scores it if it ever does, and this flags it
-		if (((_entry.tags & hazard_tags.stops_player_movement) != 0) && count_hazards_with_tags(_counts, TARGETS_PLAYER_TAGS, _hazard_name) > 0) {
-			write_debug_message("A hazard that stops the player shares a room with one that chases or shoots at them: " + _hazard_name, debug_message_level.warning);
-		}
 		
 		// How much a plain sword saves by killing one of them
 		var _sword_kill_points = 0;
@@ -403,7 +404,7 @@ function get_difficulty_score_for_hazard_counts(_counts, _room = undefined, _has
 	return get_difficulty_score_for_survival_chance(_survival_chance);
 }
  
-/// @function hazard_counts_time(_counts)
+/// @function get_time_score_for_hazard_counts(_counts)
 /// @description The time score for a set of hazards in one room: each one's time score, added up.
 /// @param {struct} _counts Hazard names and how many of each
 /// @returns {real}
@@ -411,4 +412,102 @@ function get_time_score_for_hazard_counts(_counts) {
 	var _names = variable_struct_get_names(_counts), _time = 0;
 	for (var _i = 0; _i < array_length(_names); _i++) { _time += get_hazard_time_score(_names[_i], _counts[$ _names[_i]]); }
 	return _time;
+}
+ 
+/// @function ExpectedSpawn(_hazard_name, _expected_count, [_replaced_hazard_name])
+/// @description Something that might spawn into a room, with how many of it spawn there on average
+/// @param {string} _hazard_name The hazard's name in the table
+/// @param {real} _expected_count How many spawn on average, which for one roll is its chance
+/// @param {string} [_replaced_hazard_name] A hazard it takes the place of, like a skeleton spot's basic skeleton
+function ExpectedSpawn(_hazard_name, _expected_count, _replaced_hazard_name = undefined) constructor {
+	hazard_name = _hazard_name;
+	expected_count = _expected_count;
+	replaced_hazard_name = _replaced_hazard_name;
+}
+ 
+/// @function get_hazard_counts_with_spawn(_counts, _spawn)
+/// @description A copy of a room's hazard counts with one more of something that might spawn, in place of what it replaces
+/// @param {struct} _counts Hazard names and how many of each
+/// @param {struct} _spawn What spawns (see ExpectedSpawn)
+/// @returns {struct}
+function get_hazard_counts_with_spawn(_counts, _spawn) {
+	var _spawned_counts = hazard_counts_copy(_counts);
+	hazard_count_add(_spawned_counts, _spawn.hazard_name, 1);
+	if (!is_undefined(_spawn.replaced_hazard_name)) { hazard_count_add(_spawned_counts, _spawn.replaced_hazard_name, -1); }
+	return _spawned_counts;
+}
+ 
+/// @function get_difficulty_score_with_spawns(_counts, _spawns, [_room], [_has_light])
+/// @description The difficulty points for a room's hazards (see get_difficulty_score_for_hazard_counts), with what might
+///	spawn into it added on average: for each, how many spawn on average times the points one more of it adds to the room.
+///	Each is scored against the room as it is, not alongside the others.
+/// @param {struct} _counts Hazard names and how many of each, for the room
+/// @param {array} _spawns What might spawn (see ExpectedSpawn)
+/// @param {struct} [_room] The room, or a struct with the same chances, as for get_difficulty_score_for_hazard_counts
+/// @param {bool} [_has_light] Without a room, whether the player has light
+/// @returns {real}
+function get_difficulty_score_with_spawns(_counts, _spawns, _room = undefined, _has_light = false) {
+	var _difficulty_score = get_difficulty_score_for_hazard_counts(_counts, _room, _has_light), _expected_difficulty_score = 0;
+	for (var _i = 0; _i < array_length(_spawns); _i++) {
+		var _spawn = _spawns[_i];
+		if (_spawn.expected_count <= 0) { continue; }
+		
+		var _spawned_difficulty_score = get_difficulty_score_for_hazard_counts(get_hazard_counts_with_spawn(_counts, _spawn), _room, _has_light);
+		_expected_difficulty_score += _spawn.expected_count * (_spawned_difficulty_score - _difficulty_score);
+	}
+	
+	return _difficulty_score + _expected_difficulty_score;
+}
+ 
+/// @function get_time_score_with_spawns(_counts, _spawns)
+/// @description The time score for a room's hazards (see get_time_score_for_hazard_counts), with what might spawn into it
+///	added on average, the same way get_difficulty_score_with_spawns adds their difficulty points
+/// @param {struct} _counts Hazard names and how many of each, for the room
+/// @param {array} _spawns What might spawn (see ExpectedSpawn)
+/// @returns {real}
+function get_time_score_with_spawns(_counts, _spawns) {
+	var _time_score = get_time_score_for_hazard_counts(_counts), _expected_time_score = 0;
+	for (var _i = 0; _i < array_length(_spawns); _i++) {
+		var _spawn = _spawns[_i];
+		if (_spawn.expected_count <= 0) { continue; }
+		
+		_expected_time_score += _spawn.expected_count * (get_time_score_for_hazard_counts(get_hazard_counts_with_spawn(_counts, _spawn)) - _time_score);
+	}
+	
+	return _time_score + _expected_time_score;
+}
+ 
+/// @function get_mid_game_spawns(_counts, _layout, _floor_item_count)
+/// @description What can spawn into a room each time the player enters it, and how many of each on average, from what the
+///	room holds (see game_room_start and game_room_start_spawn_instances, which roll these again on every visit):
+///	- each bone can be a trap that rises as a skeleton when the player comes near
+///	- each bone and bush can hide a bug, and a corpse always hides two unless it crumbles first. Only red bugs can harm the
+///		player, so only they count
+///	- lava brings up a nose, or failing that a fire skeleton if the room has none. One roll for the room, however much
+///		lava it has
+///	- hands come for each item lying on the floor, as long as the player holds something to trade, which they nearly
+///		always do
+/// @param {struct} _counts Hazard names and how many of each, for the room
+/// @param {struct} _layout The room's layout (see RoomLayout), for its bones, bushes and corpses
+/// @param {real} _floor_item_count How many items lie on the room's floor, like a key
+/// @returns {array} Each spawn (see ExpectedSpawn)
+function get_mid_game_spawns(_counts, _layout, _floor_item_count) {
+	// Skeletons rising from trapped bones
+	var _bone_count = _layout.get_object_count("obj_bones"), _bush_count = _layout.get_object_count("obj_bush"), _corpse_count = _layout.get_object_count("obj_player_corpse");
+	var _spawns = [new ExpectedSpawn("obj_skeleton", _bone_count * get_chance_out_of(TRAP_BONES_PROBABILITY))];
+	
+	// Red bugs from bones, bushes and corpses
+	var _bug_count = ((_bone_count + _bush_count) * get_chance_out_of(BUG_PROBABILITY)) + (_corpse_count * (1 - get_chance_out_of(CORPSE_DISINTEGRATE_PROBABILITY)) * 2);
+	array_push(_spawns, new ExpectedSpawn("obj_bug", _bug_count * get_chance_out_of(RED_BUG_PROBABILITY)));
+	
+	// A nose or a fire skeleton from the lava
+	if ((_counts[$ "obj_lava"] ?? 0) > 0) {
+		var _nose_chance = get_chance_out_of(NOSE_PROBABILITY * 4);
+		array_push(_spawns, new ExpectedSpawn("obj_nose", _nose_chance));
+		if ((_counts[$ "obj_fire_skeleton"] ?? 0) <= 0) { array_push(_spawns, new ExpectedSpawn("obj_fire_skeleton", (1 - _nose_chance) * get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY))); }
+	}
+	
+	// Hands for the items on the floor
+	array_push(_spawns, new ExpectedSpawn("obj_hands", _floor_item_count * get_chance_out_of(HANDS_PROBABILITY)));
+	return _spawns;
 }

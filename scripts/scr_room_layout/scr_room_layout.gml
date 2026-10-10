@@ -10,7 +10,7 @@ enum layout_exit_types {
 }
 
 /// @function RoomLayout(_room_asset)
-/// @description One room layout, read from its room and its layout file when GameMap builds the layout cache: its exit kind and file difficulty, the instances building creates, which spots a floor key or a portcullis button can take (R52, R57), and how many of each object it places (R55). A room that isn't a usable layout gets is_usable = false, and GameMap leaves it out of the cache.
+/// @description One room layout, read from its room and its layout file when GameMap builds the layout cache: its exit kind and the lowest difficulty it appears on, the instances building creates, which spots a floor key or a portcullis button can take (R52, R57), and how many of each object it places (R55). A room that isn't a usable layout gets is_usable = false, and GameMap leaves it out of the cache.
 /// @param {Asset.GMRoom} _room_asset The room
 function RoomLayout(_room_asset) constructor {
 	/// @function get_exit_type_from_name(_name)
@@ -116,15 +116,150 @@ function RoomLayout(_room_asset) constructor {
 		return _hazard_counts;
 	};
  
-	/// @function get_difficulty_from_file_line(_line)
-	/// @description The lowest difficulty the layout appears on, from line 1 of its layout file ("difficulty: 2,"). The ruby
-	///	script that converts rooms into layout files works it out from everything the room places, and the old generator
-	///	filtered layouts on it the same way.
-	/// @param {string} _line Line 1 of the layout file
+	/// @function can_have_hazard_with_eyes(_hazard_name)
+	/// @description Whether generation can roll a hazard into a room with this layout: never one that chases or shoots at the
+	///	player when the layout places eyes (see GameRoom.can_have_hazard_with_eyes)
+	/// @param {string} _hazard_name The hazard's name in the difficulty score table
+	/// @returns {bool}
+	static can_have_hazard_with_eyes = function(_hazard_name) {
+		return get_hazard_count("obj_eyes") == 0 || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
+	};
+ 
+	/// @function get_base_hazard_counts()
+	/// @description What a room with this layout spawns for sure: the hazards the layout places, and a basic skeleton on each
+	///	skeleton spot, which is what a spot holds until generation rolls something else for it
+	/// @returns {struct} A new struct, so the caller can change it
+	static get_base_hazard_counts = function() {
+		var _counts = hazard_counts_copy(hazard_counts);
+		hazard_count_add(_counts, "obj_skeleton", get_object_count("obj_skeleton_spot")); // Skeleton spots aren't in the difficulty score table
+		return _counts;
+	};
+ 
+	/// @function get_expected_map_generation_spawns(_counts)
+	/// @description What generation can roll into a room with this layout at the current difficulty, and how many of each on
+	///	average (see GameRoom.determine_random_room_content). The room maximum generation checks each roll against is left
+	///	out, and so are the room's role and decorations, which the layout doesn't decide.
+	/// @param {struct} _counts What the layout spawns for sure (see get_base_hazard_counts)
+	/// @returns {array} Each spawn (see ExpectedSpawn)
+	static get_expected_map_generation_spawns = function(_counts) {
+		var _spawns = [];
+		
+		// Columns and statues that become fountains
+		if (can_have_hazard_with_eyes("obj_fountain")) {
+			array_push(_spawns, new ExpectedSpawn("obj_fountain", get_object_count("obj_column") * get_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY))); // Columns aren't in the difficulty score table
+			array_push(_spawns, new ExpectedSpawn("obj_fountain", get_hazard_count("obj_statue") * get_chance_out_of(STATUE_FOUNTAIN_PROBABILITY), "obj_statue"));
+		}
+		
+		// Blocks that come alive
+		array_push(_spawns, new ExpectedSpawn("obj_living_block", get_hazard_count("obj_block_spot") * get_chance_out_of(LIVING_BLOCK_PROBABILITY)));
+		
+		// The lava's fire skeleton and noses
+		if (get_hazard_count("obj_lava") > 0) {
+			if (can_have_hazard_with_eyes("obj_fire_skeleton")) { array_push(_spawns, new ExpectedSpawn("obj_fire_skeleton", get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY))); }
+			if (can_have_hazard_with_eyes("obj_nose")) { array_push(_spawns, new ExpectedSpawn("obj_nose", (global.difficulty - 1) * get_chance_out_of(NOSE_PROBABILITY))); }
+		}
+		
+		// What each skeleton spot holds instead of its basic skeleton. On a map with the same skeleton type event, every
+		// spot holds one type that isn't a basic skeleton, with the same chances between them
+		var _skeleton_spot_count = get_object_count("obj_skeleton_spot"); // Skeleton spots aren't in the difficulty score table
+		if (_skeleton_spot_count > 0) {
+			var _type_chances = get_skeleton_type_chances(), _total_type_chance = 0, _same_type_chance = get_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY);
+			for (var _i = 0; _i < array_length(_type_chances); _i++) { _total_type_chance += _type_chances[_i].chance; }
+			for (var _j = 0; _j < array_length(_type_chances); _j++) {
+				var _type_name = object_get_name(_type_chances[_j].type);
+				if (!can_have_hazard_with_eyes(_type_name)) { continue; }
+				
+				var _spot_chance = ((1 - _same_type_chance) * _type_chances[_j].chance / 100) + (_same_type_chance * _type_chances[_j].chance / _total_type_chance);
+				array_push(_spawns, new ExpectedSpawn(_type_name, _skeleton_spot_count * _spot_chance, "obj_skeleton"));
+			}
+		}
+		
+		// A phantom in a lantern room that doesn't start lit, or else a floater. Sin rooms get neither
+		var _phantom_chance = 0;
+		if (has_lanterns && !is_sin_room && can_have_hazard_with_eyes("obj_phantom")) {
+			_phantom_chance = (1 - get_chance_out_of(PRE_LIT_PROBABILITY)) * get_chance_out_of(PHANTOM_PROBABILITY);
+			array_push(_spawns, new ExpectedSpawn("obj_phantom", _phantom_chance));
+		}
+		if (!is_sin_room && can_have_hazard_with_eyes("obj_floater")) { array_push(_spawns, new ExpectedSpawn("obj_floater", (1 - _phantom_chance) * get_chance_out_of(FLOATER_PROBABILITY))); }
+		
+		// Eyes on a skeleton spot, only in a room where nothing chases or shoots at the player
+		if (_skeleton_spot_count > 0 && get_hazard_count("obj_eyes") == 0 && count_hazards_with_tags(_counts, TARGETS_PLAYER_TAGS) == 0) {
+			array_push(_spawns, new ExpectedSpawn("obj_eyes", get_chance_out_of(EYES_PROBABILITY), "obj_skeleton"));
+		}
+		
+		return _spawns;
+	};
+ 
+	/// @function get_expected_spawns(_counts)
+	/// @description Everything that might spawn into a room with this layout on top of what the layout spawns for sure, at
+	///	the current difficulty: what generation rolls into it (see get_expected_map_generation_spawns) and what spawns into
+	///	it during play (see get_mid_game_spawns), with no key on its floor, since the layout doesn't decide that
+	/// @param {struct} _counts What the layout spawns for sure (see get_base_hazard_counts)
+	/// @returns {array} Each spawn (see ExpectedSpawn)
+	static get_expected_spawns = function(_counts) {
+		var _spawns = get_expected_map_generation_spawns(_counts), _mid_game_spawns = get_mid_game_spawns(_counts, self, 0);
+		array_copy(_spawns, array_length(_spawns), _mid_game_spawns, 0, array_length(_mid_game_spawns));
+		return _spawns;
+	};
+ 
+	/// @function get_layout_difficulty_score()
+	/// @description How hard a room with this layout is at the current difficulty, which decides whether the difficulty uses
+	///	it at all (see determine_minimum_difficulty): what the layout spawns for sure, with what generation rolls into it and
+	///	what spawns into it during play added on average. It's scored for a player holding nothing, who has light as often as
+	///	the room starts lit.
+	/// @returns {real}
+	static get_layout_difficulty_score = function() {
+		var _counts = get_base_hazard_counts();
+		var _chance_starts_lit = (has_lanterns && !is_sin_room) ? get_chance_out_of(PRE_LIT_PROBABILITY) : 0;
+		var _room = { chance_holding_staff: 0, chance_holding_sword: 0, chance_holding_special_sword: 0, chance_of_light: _chance_starts_lit };
+		return get_difficulty_score_with_spawns(_counts, get_expected_spawns(_counts), _room);
+	};
+ 
+	/// @function get_layout_time_score()
+	/// @description How much time a room with this layout costs at the current difficulty, on top of walking, the same way
+	///	get_layout_difficulty_score scores how hard it is
+	/// @returns {real}
+	static get_layout_time_score = function() {
+		var _counts = get_base_hazard_counts(), _spawns = get_expected_spawns(_counts);
+		var _time_score = get_time_score_with_spawns(_counts, _spawns);
+		
+		// Banishing a phantom means lighting every lantern (see GameRoom.get_time_score)
+		for (var _i = 0; _i < array_length(_spawns); _i++) {
+			var _spawn = _spawns[_i];
+			if (_spawn.hazard_name == "obj_phantom") { _time_score += _spawn.expected_count * PHANTOM_TIME_PER_LANTERN * get_object_count("obj_lantern"); }
+		}
+		
+		return _time_score;
+	};
+ 
+	/// @function get_placed_hazards_minimum_difficulty()
+	/// @description The highest min_difficulty of the hazards the layout places (see get_difficulty_score_table)
 	/// @returns {real} A difficulties value
-	static get_difficulty_from_file_line = function(_line) {
-		var _digits = string_digits(_line);
-		return (_digits == "") ? difficulties.easy : max(difficulties.easy, real(_digits));
+	static get_placed_hazards_minimum_difficulty = function() {
+		var _table = get_difficulty_score_table(), _names = variable_struct_get_names(hazard_counts), _minimum_difficulty = difficulties.easy;
+		for (var _i = 0; _i < array_length(_names); _i++) { _minimum_difficulty = max(_minimum_difficulty, _table[$ _names[_i]].min_difficulty); }
+		return _minimum_difficulty;
+	};
+ 
+	/// @function determine_minimum_difficulty()
+	/// @description Sets the lowest difficulty the layout appears on: the lowest one, from the highest min_difficulty of the
+	///	hazards it places, whose LAYOUT_DIFFICULTY_SCORE_LIMIT and LAYOUT_TIME_SCORE_LIMIT its scores fit in. Hard and Very
+	///	Hard have no limits, so every layout appears from Hard at the latest. GameMap calls it while building the layout
+	///	cache, once the layout knows whether it's a sin room.
+	static determine_minimum_difficulty = function() {
+		// The chances behind the scores and the limits all read global.difficulty, so score the layout as each difficulty in
+		// turn, and then put it back
+		var _current_difficulty = global.difficulty;
+		minimum_difficulty = difficulties.very_hard;
+		for (var _difficulty = get_placed_hazards_minimum_difficulty(); _difficulty < difficulties.very_hard; _difficulty++) {
+			global.difficulty = _difficulty;
+			if (get_layout_difficulty_score() <= LAYOUT_DIFFICULTY_SCORE_LIMIT && get_layout_time_score() <= LAYOUT_TIME_SCORE_LIMIT) {
+				minimum_difficulty = _difficulty;
+				break;
+			}
+		}
+		
+		global.difficulty = _current_difficulty;
 	};
  
 	/// @function block_walking_area(_grid, _x, _y, _half)
@@ -256,9 +391,9 @@ function RoomLayout(_room_asset) constructor {
 	// layout is only usable if its file can be read
 	is_usable = (exit_type != -1) && !string_starts_with(name, "rm_unused");
 
-	// The layout file: line 1 holds the difficulty room_converter.rb worked out, which sets the lowest difficulty the
-	// layout appears on, and line 2 the placed instances
-	minimum_difficulty = -1;
+	// The layout file: line 1 holds the difficulty room_converter.rb worked out, which nothing reads any more, and line 2
+	// the placed instances
+	minimum_difficulty = difficulties.very_hard;		// The lowest difficulty it appears on, set when GameMap builds the layout cache (see determine_minimum_difficulty)
 	instances = [];										// What building the room creates
 	if (is_usable) {
 		var _file = file_text_open_read(name + ".json");
@@ -267,7 +402,6 @@ function RoomLayout(_room_asset) constructor {
 			is_usable = false;
 		}
 		else {
-			minimum_difficulty = get_difficulty_from_file_line(file_text_read_string(_file));
 			file_text_readln(_file);
 			instances = json_parse(file_text_read_string(_file));
 			file_text_close(_file);

@@ -44,12 +44,11 @@ function GameRoom(given_x, given_y) constructor {
 	unlocked_chests_bitmask_index = -1;					// Its locked chest's number in the key check
 	mapgen_needs_layout = true;				// Its side exits changed since its last layout pick (R16)
 	
-	// How likely the player is to arrive holding each counter, and to have light here (set by GameMap.determine_counter_chances).
-	// Until then, the hazard table's own assumption: no item, and light
+	// How likely the player is to arrive holding each counter, and to have light here
 	chance_holding_staff = 0;
 	chance_holding_sword = 0;
 	chance_holding_special_sword = 0;
-	chance_of_light = 1;
+	chance_of_light = 0;
 	
 	// Its layout's orientation, so the layout's openings face its side exits (step 5)
 	flip_horizontal = false;
@@ -318,7 +317,7 @@ function GameRoom(given_x, given_y) constructor {
 	///	light a torch dropped in their way
 	/// @returns {bool}
 	function can_light_torch() {
-		return is_lit() || (count_other_hazards_with_tags(get_hazard_counts(), undefined, hazard_tags.lights_torches) > 0);
+		return is_lit() || (count_hazards_with_tags(get_hazard_counts(), hazard_tags.lights_torches) > 0);
 	}
 
 	/// @function spawns_phantom()
@@ -385,7 +384,8 @@ function GameRoom(given_x, given_y) constructor {
 			hazard_count_add(_counts, object_get_name(_skeleton_types[_i]), 1);
 		}
 		
-		// Adjust counts based on what has been spawned. The extra mouths higher difficulties add to each placed one aren't counted
+		// Adjust counts based on what has been spawned. A fountain takes its statue's place, but a block that comes alive still
+		// counts on its spot, since it can still be pushed. The extra mouths higher difficulties add to each placed one aren't counted
 		if (!_with_role || !is_start_room) {
 			hazard_count_add(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
 			hazard_count_add(_counts, "obj_statue", -replaced_statue_fountain_count);
@@ -404,12 +404,11 @@ function GameRoom(given_x, given_y) constructor {
 		return _counts;
 	}
 	
-	/// @function can_roll_hazard(_hazard_name)
-	/// @description Whether a hazard may be rolled for the room. Eyes stop the player in place, so a room with eyes never
-	///	rolls anything that chases or shoots at the player.
+	/// @function can_have_hazard_with_eyes(_hazard_name)
+	/// @description Whether a hazard may be rolled for the room when it already has eyes
 	/// @param {string} _hazard_name The hazard's name in the difficulty score table
 	/// @returns {bool}
-	function can_roll_hazard(_hazard_name) {
+	function can_have_hazard_with_eyes(_hazard_name) {
 		return !has_eyes || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
 	}
  
@@ -426,8 +425,7 @@ function GameRoom(given_x, given_y) constructor {
 		// Shut in until the button is pressed. One button opens every exit, so it counts once
 		if (has_portcullis_button) { _difficulty_score += get_difficulty_score_for_danger_level(PORTCULLIS_TRAP_DANGER); }
  
-		// Items make the rest of the run easier. Swords and staffs also lower the danger of the hazards they counter, through how
-		// likely the player is to hold one (see GameMap.determine_counter_chances)
+		// Items make the rest of the run easier
 		if (has_special_item) { _difficulty_score += SPECIAL_ITEM_REWARD_POINTS; }
 		else {
 			switch (chest_obj) {
@@ -461,8 +459,7 @@ function GameRoom(given_x, given_y) constructor {
 		hazard_count_add(_counts, _hazard_name, 1);
 		if (!is_undefined(_replaced_hazard_name)) { hazard_count_add(_counts, _replaced_hazard_name, -1); }
 		
-		var _holding_nothing = { chance_holding_staff: 0, chance_holding_sword: 0, chance_holding_special_sword: 0, chance_of_light: lit ? 1 : 0 };
-		return get_difficulty_score_for_hazard_counts(_counts, _holding_nothing) > ROOM_DIFFICULTY_SCORE_MAX;
+		return get_difficulty_score_for_hazard_counts(_counts, undefined, lit) > ROOM_DIFFICULTY_SCORE_MAX;
 	}
  
 	/// @function get_time_score()
@@ -683,11 +680,11 @@ function GameRoom(given_x, given_y) constructor {
 		// Only lantern rooms that aren't special rooms can start lit
 		lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
 
-		// Eyes the layout places stop the player in place, so nothing rolled below may chase or shoot at them (see can_roll_hazard)
+		// Eyes the layout places stop the player in place, so nothing rolled below may chase or shoot at them
 		has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
 		
 		// Determine how many columns and how many statues to replace with fountains
-		if (can_roll_hazard("obj_fountain")) {
+		if (can_have_hazard_with_eyes("obj_fountain")) {
 			for (var _column = 0; _column < layout.get_object_count("obj_column"); _column++) { // Columns aren't in the difficulty score table
 				if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain")) { replaced_column_fountain_count += 1; }
 			}
@@ -703,8 +700,9 @@ function GameRoom(given_x, given_y) constructor {
 
 		// Determine lava enemy spawns
 		if (layout.get_hazard_count("obj_lava") > 0) {
-			if (can_roll_hazard("obj_fire_skeleton") && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) && !would_exceed_max_difficulty("obj_fire_skeleton")) { initial_fire_skeleton_count = 1; }
-			if (can_roll_hazard("obj_nose")) {
+			if (can_have_hazard_with_eyes("obj_fire_skeleton") && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) && !would_exceed_max_difficulty("obj_fire_skeleton")) { initial_fire_skeleton_count = 1; }
+			
+			if (can_have_hazard_with_eyes("obj_nose")) {
 				for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
 					if (get_random_chance_out_of(NOSE_PROBABILITY) && !would_exceed_max_difficulty("obj_nose")) { initial_nose_count += 1; }
 				}
@@ -716,17 +714,17 @@ function GameRoom(given_x, given_y) constructor {
 		for (var _spot = 0; _spot < _skeleton_spot_count; _spot++) {
 			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type() : _same_skeleton_type;
 			var _skeleton_name = object_get_name(_skeleton_type);
-			if (_skeleton_type != obj_skeleton && can_roll_hazard(_skeleton_name) && !would_exceed_max_difficulty(_skeleton_name, "obj_skeleton")) { skeleton_types[_spot] = _skeleton_type; }
+			if (_skeleton_type != obj_skeleton && can_have_hazard_with_eyes(_skeleton_name) && !would_exceed_max_difficulty(_skeleton_name, "obj_skeleton")) { skeleton_types[_spot] = _skeleton_type; }
 		}
 		
 		// Determine additional enemy spawns
-		has_phantom = layout.has_lanterns && !lit && !is_special_room && can_roll_hazard("obj_phantom") && get_random_chance_out_of(PHANTOM_PROBABILITY) && !would_exceed_max_difficulty("obj_phantom");
-		has_floater = !has_phantom && !is_special_room && can_roll_hazard("obj_floater") && get_random_chance_out_of(FLOATER_PROBABILITY) && !would_exceed_max_difficulty("obj_floater");
+		has_phantom = layout.has_lanterns && !lit && !is_special_room && can_have_hazard_with_eyes("obj_phantom") && get_random_chance_out_of(PHANTOM_PROBABILITY) && !would_exceed_max_difficulty("obj_phantom");
+		has_floater = !has_phantom && !is_special_room && can_have_hazard_with_eyes("obj_floater") && get_random_chance_out_of(FLOATER_PROBABILITY) && !would_exceed_max_difficulty("obj_floater");
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
 		initial_mouth_count = layout.get_hazard_count("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
 		
 		// Eyes rolled onto a skeleton spot come last, so they only join a room where nothing chases or shoots at the player
-		if (!has_eyes && _skeleton_spot_count > 0 && count_other_hazards_with_tags(get_hazard_counts(false), undefined, TARGETS_PLAYER_TAGS) == 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
+		if (!has_eyes && _skeleton_spot_count > 0 && count_hazards_with_tags(get_hazard_counts(false), TARGETS_PLAYER_TAGS) == 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
 			var _eyes_spot = irandom(_skeleton_spot_count - 1);
 			if (!would_exceed_max_difficulty("obj_eyes", object_get_name(skeleton_types[_eyes_spot]))) {
 				has_eyes = true;

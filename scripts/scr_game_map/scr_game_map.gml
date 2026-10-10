@@ -161,7 +161,7 @@ function GameMap() constructor {
 			determine_special_exit_types();
 			
 			// Calculate total map difficulty, from how likely the player is to arrive at each room holding counters
-			determine_counter_chances();
+			calculate_item_chances();
 			calculate_map_difficulty_score();
 		}
 		until (difficulty_score >= MAP_DIFFICULTY_SCORE_TARGET || array_length(rooms) >= MAX_NUMBER_OF_ROOMS);
@@ -944,15 +944,21 @@ function GameMap() constructor {
 	/// @param {array} _hands The starting hand items to count, or [] to ignore the hands
 	/// @returns {Asset.GMObject}
 	static pick_item_type = function(_is_cursed_item, _items_in_hands = []) {
+		// Get the count of extra torches being brought in
+		var _torches_in_hand = 0;
+		for (var _i = 0; _i < array_length(_items_in_hands); _i++) {
+			if (_items_in_hands[_i] == obj_torch) { _torches_in_hand += 1; }
+		}
+		
 		// Loop through all possible item types to see which are still possible to spawn
-		var _available_item_types = global.available_items[global.difficulty], _possible_item_types = [], _torch_in_hand = array_contains(_items_in_hands, obj_torch);
+		var _available_item_types = global.available_items[global.difficulty], _possible_item_types = [];
 		for (var _i = 0; _i < array_length(_available_item_types); _i++) {
 			var _item_type = _available_item_types[_i];
 			if (_is_cursed_item) {
 				// Add any cursed item that's not already been spawned to the list of possibilities 
 				if (!array_contains(cursed_items, _item_type)) { array_push(_possible_item_types, _item_type); }
 			}
-			else if (_item_type != obj_key && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type, _torch_in_hand)) {
+			else if (_item_type != obj_key && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type, _torches_in_hand)) {
 				// Add any non-key item that's not already been spawned too many times to the list of possibilities 
 				array_push(_possible_item_types, _item_type);
 			}
@@ -998,11 +1004,12 @@ function GameMap() constructor {
 		return _count;
 	};
 
-	/// @function get_item_cap(_item)
+	/// @function get_item_cap(_item, [_torches_in_hands])
 	/// @description How many regular copies of an item chests and starting hands may hold together (R42).
 	/// @param {Asset.GMObject} _item The item
+	/// @param {real} [_torches_in_hands] How many torches the player starts with, each of which raises the torch cap by one
 	/// @returns {real}
-	static get_item_cap = function(_item, _torch_in_hand = false) {
+	static get_item_cap = function(_item, _torches_in_hands = 0) {
 		switch (_item) {
 			case obj_map:
 			case obj_compass:
@@ -1012,7 +1019,7 @@ function GameMap() constructor {
 			case obj_shovel:
 				return 2;
 			case obj_torch:
-				return (_torch_in_hand) ? 3 : 2;
+				return 2 + _torches_in_hands;
 			default:
 				return infinity;
 		}
@@ -1269,7 +1276,13 @@ function GameMap() constructor {
 	static adjust_items_for_hands = function() {
 		// Setup variables based on the items the player chose to start with
 		var _hand_items = [global.player_left_hand_item, global.player_right_hand_item];
-		var _map_in_hand = array_contains(_hand_items, obj_map), _compass_in_hand = array_contains(_hand_items, obj_compass), _torch_in_hand = array_contains(_hand_items, obj_torch);
+		var _map_in_hand = array_contains(_hand_items, obj_map), _compass_in_hand = array_contains(_hand_items, obj_compass);
+		
+		// Get the count of extra torches being brought in
+		var _torches_in_hand = 0;
+		for (var _i = 0; _i < array_length(_hand_items); _i++) {
+			if (_hand_items[_i] == obj_torch) { _torches_in_hand += 1; }
+		}
 
 		// Swap out items in the guaranteed chest room
 		if (!is_undefined(guaranteed_chest_room)) {
@@ -1286,7 +1299,7 @@ function GameMap() constructor {
 			if (_room == guaranteed_chest_room || !_room.has_regular_item_chest()) { continue; }
 			
 			// Replace the item if it is over the item cap
-			if (count_regular_items(_room.chest_obj, _hand_items) > get_item_cap(_room.chest_obj, _torch_in_hand)) {
+			if (count_regular_items(_room.chest_obj, _hand_items) > get_item_cap(_room.chest_obj, _torches_in_hand)) {
 				// Empty the chest before picking, so the pick doesn't count the item it's replacing
 				var _item = _room.chest_obj;
 				_room.chest_obj = -1;
@@ -1294,7 +1307,7 @@ function GameMap() constructor {
 
 				// The item stays, over its cap, if the map needs it to stay winnable
 				if (!is_undefined(get_failing_lock_and_key_search_area())) {
-					// Only a torch that bombs need can stay this way, when the player starts with two torches
+					// This should NEVER happen
 					write_debug_message("Item type was over cap but allowed to stay: " + object_get_name(_item), debug_message_level.warning);
 					_room.chest_obj = _item;
 				}
@@ -1309,29 +1322,29 @@ function GameMap() constructor {
 	// =================================================================================================
 
 
-	/// @function determine_counter_chances()
-	/// @description Works out how likely the player is to be holding each item that counters hazards, and to have light. Rooms
-	///	can be reached in any order and doubled back through, so each chance comes from how much of the whole map holds the
-	///	item (see get_map_share_chance). A lit room always has light, and anywhere else needs a torch that's been lit in one
-	///	of the map's rooms that can light it (see GameRoom.can_light_torch). The starting hand items are left out, so the map
-	///	never depends on them.
-	static determine_counter_chances = function() {
+	/// @function calculate_item_chances()
+	/// @description Determines how likely a player is to have an item (or encounter a lit room) for the difficulty scoring.
+	///	The starting hand items are left out, so the map never depends on them.
+	static calculate_item_chances = function() {
 		// Count the rooms a torch can be lit in
 		var _torch_lighting_room_count = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			if (rooms[_i].can_light_torch()) { _torch_lighting_room_count += 1; }
 		}
 		var _torch_chance = get_carry_chance(obj_torch);
-		var _lit_torch_chance = _torch_chance * get_map_share_chance(_torch_lighting_room_count);
+		var _lit_torch_chance = _torch_chance * get_map_encounter_chance(_torch_lighting_room_count);
 
-		// Every room shares the map's chances, except for light: a lit room always has it, and a carried torch can be lit
-		// right there in a room that can light it
+		// Loop through each room and set its holding chances
 		var _staff_chance = get_carry_chance(obj_staff), _sword_chance = get_carry_chance(obj_sword, false), _special_sword_chance = get_carry_chance(obj_sword, true);
 		for (var _j = 0; _j < array_length(rooms); _j++) {
 			var _room = rooms[_j];
+			
+			// Set item holding chances
 			_room.chance_holding_staff = _staff_chance;
 			_room.chance_holding_sword = _sword_chance;
 			_room.chance_holding_special_sword = _special_sword_chance;
+			
+			// Set its lit room chances
 			if (_room.is_lit()) { _room.chance_of_light = 1; }
 			else if (_room.can_light_torch()) { _room.chance_of_light = _torch_chance; }
 			else { _room.chance_of_light = _lit_torch_chance; }
@@ -1344,25 +1357,29 @@ function GameMap() constructor {
 	/// @param {bool|undefined} [_is_special] True to count only special items, false only regular ones, undefined for both
 	/// @returns {real}
 	static get_carry_chance = function(_item, _is_special = undefined) {
-		// Count the chests that hold the item. Keys and bombs the key step placed are for locks
+		// Count the chests that hold the item, leaving out the keys and bombs the key step placed for locks
 		var _chests_with_item = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
+			// Skip rooms with no item or a key item
 			var _room = rooms[_i];
-			var _holds_item = _room.has_chest() && _room.chest_obj == _item && !_room.key_in_chest;
-			var _is_right_kind = is_undefined(_is_special) || (_room.has_special_item == _is_special);
-			if (_holds_item && _is_right_kind) { _chests_with_item += 1; }
+			if (!_room.has_chest() || _room.chest_obj != _item || _room.key_in_chest) { continue; }
+			
+			// Skip rooms with a different kind of item
+			if (!is_undefined(_is_special) && _room.has_special_item != _is_special) { continue; }
+			
+			_chests_with_item += 1;
 		}
 
-		return get_map_share_chance(_chests_with_item);
+		return get_map_encounter_chance(_chests_with_item);
 	};
 
-	/// @function get_map_share_chance(_room_count)
+	/// @function get_map_encounter_chance(_room_count)
 	/// @description How likely the player is to have come across something some of the map's rooms hold: the share of the map's
-	///	rooms that hold it, times MAP_SHARE_CHANCE_MULTIPLIER, at most 1
+	///	rooms that hold it, times MAP_ENCOUNTER_CHANCE_MULTIPLIER, at most 1
 	/// @param {real} _room_count How many rooms hold it
 	/// @returns {real}
-	static get_map_share_chance = function(_room_count) {
-		return min(1, (_room_count / array_length(rooms)) * MAP_SHARE_CHANCE_MULTIPLIER);
+	static get_map_encounter_chance = function(_room_count) {
+		return min(1, (_room_count / array_length(rooms)) * MAP_ENCOUNTER_CHANCE_MULTIPLIER);
 	};
 
 	/// @function calculate_map_difficulty_score()

@@ -95,7 +95,7 @@ function RoomLayout(_room_asset) constructor {
 			get_object_count("obj_exit_spot_down") == 0 || get_object_count("obj_exit_spot_left") == 0) {
 			_problems += " needs an exit spot on every side (L4);";
 		}
-		if (count_other_hazards_with_tags(hazard_counts, undefined, hazard_tags.stops_player_movement) > 0 && count_other_hazards_with_tags(hazard_counts, undefined, TARGETS_PLAYER_TAGS) > 0) {
+		if (count_hazards_with_tags(hazard_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) > 0) {
 			_problems += " places a hazard that stops the player alongside one that chases or shoots at them;";
 		}
 		if (_problems != "") { write_debug_message("Layout " + name + _problems, debug_message_level.warning); }

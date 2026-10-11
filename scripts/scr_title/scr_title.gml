@@ -245,7 +245,11 @@ function update_hand_options() {
 }
 
 
-/// @function								update_death_types();
+/// @function update_death_types()
+/// @description Lists the rows of the death log for the selected difficulty and graphics mode: each thing that has
+///	killed the player or that the player has killed, with its deaths, the player's kills of it (see
+///	is_player_killer) and the last run it ended, sorted by the column death_log_sort picks (0 kills, 1 deaths,
+///	2 last run ended)
 function update_death_types() {
 	// Update Death Count Values
 	var _death_types = get_death_types();
@@ -253,7 +257,7 @@ function update_death_types() {
 	while (array_length(_death_types) > 0) {
 		var _death_type = array_pop(_death_types);
 		
-		var _death_count = get_death_count(_death_type, global.difficulty), _kill_count = get_kill_count(_death_type, global.difficulty), _last_killed = get_last_killed(_death_type, global.difficulty);
+		var _death_count = get_death_count(_death_type, global.difficulty, global.graphics_mode), _kill_count = get_player_kill_count(_death_type, global.difficulty, global.graphics_mode), _last_killed = get_last_killed(_death_type, global.difficulty, global.graphics_mode);
 		if (_death_count > 0 || _kill_count > 0) { array_push(deaths_to_display, [_death_type, _death_count, _kill_count, _last_killed]); }
 	}
 				
@@ -265,6 +269,38 @@ function update_death_types() {
 			case 2: { return _elm2[3] - _elm1[3]; break; }
 		}
 	});
+}
+
+/// @function update_traits_to_display()
+/// @description Lists the rows of the trait list for the selected difficulty and graphics mode: each achievement
+///	earned (see get_evaluation_messages) with how many runs earned it, in the order evaluation_log_sort picks (0 the
+///	evaluation's order, 1 the most earned first). Test mode lists every achievement.
+function update_traits_to_display() {
+	traits_to_display = [];
+	var _evaluation_messages = get_evaluation_messages();
+	for (var _i = 0; _i < array_length(_evaluation_messages); _i++) {
+		var _message = _evaluation_messages[_i];
+		if (!_message.is_achievement) { continue; }
+
+		var _times_earned = (global.is_test_mode) ? 9999 : get_evaluation_message_count(_message.title, global.difficulty, global.graphics_mode);
+		if (_times_earned > 0) { array_push(traits_to_display, [_message, _times_earned, _i]); }
+	}
+
+	// Sort by times earned, keeping the evaluation's order among ties
+	if (evaluation_log_sort == 1) {
+		array_sort(traits_to_display, function(_trait_1, _trait_2) {
+			return (_trait_1[1] != _trait_2[1]) ? _trait_2[1] - _trait_1[1] : _trait_1[2] - _trait_2[2];
+		});
+	}
+}
+
+/// @function has_finished_a_run(_difficulty)
+/// @description Whether a run on a difficulty has ended, in any graphics mode, which unlocks the main menu's death
+///	log and trait list for it
+/// @param {real} _difficulty The difficulty (see difficulties)
+/// @returns {bool}
+function has_finished_a_run(_difficulty) {
+	return (get_run_number_count(_difficulty) > 0);
 }
 
 /// @function								can_play_unknown_mode();

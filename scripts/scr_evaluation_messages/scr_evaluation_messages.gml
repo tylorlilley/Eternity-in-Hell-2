@@ -174,7 +174,7 @@ function EvaluationMessageList() constructor {
 	add_score_line("Escaped Amount", false, function(_stats, _run) { return _run.escaped_percent / 10; },
 		function(_stats, _run) { return _run.completion_amount > 0; },
 		function(_stats, _run) { return "Escaped Amount: " + get_percentage_string(_run.escaped_percent); });
-	add_score_line("Extra Time Remaining", false, function(_stats, _run) { return _run.time_remaining_score / 10; },
+	add_score_line("Extra Time Remaining", false, function(_stats, _run) { return _run.time_remaining_percent / 10; },
 		function(_stats, _run) { return _run.has_won; },
 		function(_stats, _run) { return "Extra Time Remaining: " + get_percentage_string(_run.time_remaining_percent); });
 	add_score_line("Death Penalty", true, function(_stats) { return _stats.rosary_use_count * -5; },

@@ -263,7 +263,7 @@ if (!_game_manager.paused) {
 	}
 	else {
 		// Adjust selected setting
-		var _completed_attempts_count = get_total_death_count(global.difficulty) + get_win_count(global.difficulty);
+		var _has_finished_a_run = has_finished_a_run(global.difficulty);
 		var _can_access_seed_options = global.is_test_mode;
 		if (_key_up_pressed && pos > -1) { 
 			pos -= 1;
@@ -275,7 +275,7 @@ if (!_game_manager.paused) {
 		else if (_key_down_pressed && (pos < 6)) { 
 			pos += 1; 
 			if (pos == 2 && global.seed_option != seed_options.specified) { pos = 3; }
-			if (_completed_attempts_count == 0 && pos > 4 && !global.is_test_mode) { pos = 4; play_sound(snd_locked, false); }
+			if (!_has_finished_a_run && pos > 4 && !global.is_test_mode) { pos = 4; play_sound(snd_locked, false); }
 			else { play_sound(snd_mana, false); }
 		}
 		else if (_key_up_pressed || _key_down_pressed) { play_sound(snd_locked, false); }
@@ -367,10 +367,14 @@ if (!_game_manager.paused) {
 				
 				update_setting("difficulty", global.difficulty);
 				update_hand_options();
-				if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
-				else if (global.graphics_mode != graphics_modes.standard) { global.graphics_mode = graphics_modes.standard; update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
+
+				// Each difficulty remembers its graphics mode, which the logs show; the ALL view keeps the mode it came from
+				if (global.difficulty != difficulties.ALL) {
+					if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
+					else if (global.graphics_mode != graphics_modes.standard) { global.graphics_mode = graphics_modes.standard; update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
+				}
 				if (death_log_screen) { update_death_types(); death_log_pos = 0; }
-				if (evaluation_log_screen) { trait_surface_y_pos = 0; evaluation_log_sort = 0; }
+				if (evaluation_log_screen) { trait_surface_y_pos = 0; evaluation_log_sort = 0; update_traits_to_display(); }
 			}
 		}
 	}
@@ -450,6 +454,7 @@ if (!_game_manager.paused) {
 			evaluation_log_sort += 1
 			if (evaluation_log_sort > 1) { evaluation_log_sort = 0; }
 			if (_prev_evaluation_log_screen) { play_sound(snd_thud, false); }
+			update_traits_to_display();
 		}
 	}
 }

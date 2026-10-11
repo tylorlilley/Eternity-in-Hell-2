@@ -25,6 +25,7 @@ death_log_sort = 0;
 death_types_on_screen = 6;
 deaths_to_display = [];
 evaluation_log_screen = false;
+traits_to_display = [];
 held_timer = 0;
 
 // Update game graphics textures

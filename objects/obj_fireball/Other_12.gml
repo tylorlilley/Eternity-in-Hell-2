@@ -43,10 +43,10 @@ if (destructive) {
 		play_sound(snd_crunch, true);
 	}
 	
-	// Destroy giant eyes
+	// Destroy giant eyes, crediting a bomb the player set off
 	var _giant_eye = instance_place(x, y, obj_giant_eye);
 	with (_giant_eye) {
-		if (dying == 0) { dying = 32; }
+		if (dying == 0) { dying = 32; killed_by = (other.shot_by_player) ? other.creator_obj : noone; }
 		play_sound(snd_crunch, true);
 	}
 }

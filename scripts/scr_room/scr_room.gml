@@ -18,6 +18,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	// Room Initialization Values
 	visited = false;
 	lit = false;
+	lit_by_player = false;			// Whether the player's torch lit the last of its lanterns, which banishes its phantom
 	stairs_spot_obj = -1;
 	chest_obj = -1;
 	

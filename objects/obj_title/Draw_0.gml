@@ -1,6 +1,8 @@
 var _game_manager = global.game_manager, _game_color = global.gms_game_color;
-var _run_count_string = (global.is_test_mode) ? "Runs Attempted: 99999" : get_run_count_string(global.difficulty);
-var _death_count_string = (global.is_test_mode) ? "Deaths: 9999" : get_death_count_string(global.difficulty), _win_count_string = (global.is_test_mode) ? "Victories: 9999" : get_win_count_string(global.difficulty);
+// Counts shown are for the selected graphics mode; the logs unlock once a run has ended in any of them
+var _run_count_string = (global.is_test_mode) ? "Runs Attempted: 99999" : get_run_count_string(global.difficulty, global.graphics_mode);
+var _death_count_string = (global.is_test_mode) ? "Deaths: 9999" : get_death_count_string(global.difficulty, global.graphics_mode), _win_count_string = (global.is_test_mode) ? "Victories: 9999" : get_win_count_string(global.difficulty, global.graphics_mode);
+var _can_view_logs = (global.is_test_mode || has_finished_a_run(global.difficulty));
 var _title_y_pos = room_height*2, _blink = is_blink_frame();
 
 draw_set_color(c_white);
@@ -307,15 +309,11 @@ else if (death_log_screen) { // && (death_count_string != noone || win_count_str
 	}
 }
 else if (evaluation_log_screen) {// && (death_count_string != noone || win_count_string != noone)) {	
-	// Draw Traits: each achievement the evaluation can award (see get_evaluation_messages)
-	var _evaluation_messages = get_evaluation_messages();
+	// Draw Traits: each achievement earned (see update_traits_to_display)
 	var _surface_width = room_width-(16*3);
 	var _x_pos = 24, _y_pos = 0-trait_surface_y_pos, _y_offset = (16*3.5)-4;
-	for (var _trait_pos = 0; _trait_pos < array_length(_evaluation_messages); _trait_pos += 1) {
-		var _trait = _evaluation_messages[_trait_pos];
-		if (!_trait.is_achievement) { continue; }
-
-		var _earned_count = (global.is_test_mode) ? 9999 : get_evaluation_message_count(_trait.title, global.difficulty);
+	for (var _trait_pos = 0; _trait_pos < array_length(traits_to_display); _trait_pos += 1) {
+		var _trait = traits_to_display[_trait_pos][0], _earned_count = traits_to_display[_trait_pos][1];
 		
 		// Draw Title
 		draw_set_valign(fa_top);
@@ -323,14 +321,13 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 		draw_set_halign(fa_left);
 		draw_set_font(ft_trait_title);
 		draw_set_color((_trait.is_negative) ? _game_color : c_white);
-		draw_text(_x_pos, _y_pos+_y_offset, (_earned_count > 0) ? _trait.title : "");
+		draw_text(_x_pos, _y_pos+_y_offset, _trait.title);
 		
 		// Draw Value
 		draw_set_halign(fa_right);
-		draw_text(room_width-24, _y_pos+_y_offset, (_earned_count > 0) ? string(_earned_count) : "");
+		draw_text(room_width-24, _y_pos+_y_offset, string(_earned_count));
 		
 		// Draw Description
-		if (_earned_count == 0) { continue; }
 		_y_pos += 14;
 		draw_set_halign(fa_left);
 		draw_set_color(c_white);
@@ -353,7 +350,7 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 	// Draw Header
 	draw_set_color(c_white);
 	var _y_initial = 16+8, _x_initial = (room_width/4)-16, _y_pos = _y_initial, _x_pos = _x_initial-20;
-	var _best_score_string = get_best_score_string(global.difficulty);
+	var _best_score_string = get_best_score_string(global.difficulty, global.graphics_mode);
 	draw_text(room_width/2, 15, get_difficulty_string(global.difficulty));
 	
 	// Draw Scores
@@ -371,28 +368,6 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 	if ((_blink || !_game_manager.key_down) && trait_surface_y_pos < trait_surface_y_max-(room_height-(16*7))) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, room_height-(16*3.5)+4, 1, 1, -90, c_white, 1); }
 	if (!_game_manager.key_left && global.difficulty > difficulties.easy) { draw_sprite_ext(spr_menu_arrow, 0 , 24, 16, 1, 1, 180, c_white, 1); }
 	if (!_game_manager.key_right && global.difficulty < difficulties.ALL) { draw_sprite_ext(spr_menu_arrow, 0, room_width-24, 16, 1, 1, 0, c_white, 1); }
-	_y_pos += 8;
-	
-	// Draw Messages
-	/*
-	for (var i = 0; i < 8; i++) {
-		var log_pos = evaluation_log_pos + i;
-		if (log_pos >= array_length(evaluation_manager.evaluation_messages)) { break; }
-		else {
-			var message_to_display = evaluation_manager.evaluation_messages[log_pos][0], use_special_color = evaluation_manager.evaluation_messages[log_pos][1];
-			var value_to_display =  evaluation_manager.evaluation_messages[log_pos][2];
-			if (global.is_test_mode) { value_to_display = 9999; }
-			if (value_to_display == 0) { message_to_display = "???" }
-
-			draw_set_color((use_special_color) ? game_color : c_white);
-			draw_set_halign(fa_left);
-			draw_text(x_pos, y_pos,message_to_display);
-			draw_set_halign(fa_right);
-			draw_text(value_x_pos, y_pos, string(value_to_display));
-			y_pos += 18;
-		}
-	}
-	*/
 }
 else {
 	// Draw Main Menu
@@ -432,8 +407,8 @@ else {
 	draw_text(_message_x_pos, _message_y_pos+_messages_y_offset, get_seed_option_string());
 	draw_text(_message_x_pos, _message_y_pos+_messages_y_offset+32, "Options");
 	draw_text(_message_x_pos, _message_y_pos+_messages_y_offset+48, "View Controls");
-	if (_death_count_string != "" || _win_count_string != "") { draw_text(_message_x_pos, _message_y_pos+_messages_y_offset+64, + "View Death Log"); }
-	if (_death_count_string != "" || _win_count_string != "") { draw_text(_message_x_pos, _message_y_pos+_messages_y_offset+80, + "View Earned Traits"); }
+	if (_can_view_logs) { draw_text(_message_x_pos, _message_y_pos+_messages_y_offset+64, + "View Death Log"); }
+	if (_can_view_logs) { draw_text(_message_x_pos, _message_y_pos+_messages_y_offset+80, + "View Earned Traits"); }
 	var _arrow_y =-64;
 	if (pos == 1) { _arrow_y = _message_y_pos; }
 	else if (pos == 2) { _arrow_y = _message_y_pos+16; }

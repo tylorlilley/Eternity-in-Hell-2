@@ -5,6 +5,7 @@ event_inherited();
 depth = GIANT_WORM_DEPTH-1;
 pupil_sprite = get_sprite_to_use(spr_giant_eye_pupil);
 dying = 0;
+killed_by = noone;			// What set off its death, for the kill log: the player for spinning it, or the bomb the player set off
 spin_counter = 0;
 shoot_timer = irandom_range(18,24);
 pupil_x = x;

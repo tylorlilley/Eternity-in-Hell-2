@@ -46,14 +46,14 @@ else {
 	}
 }
 
-// If room becomes fully lit, destroy self
+// If room becomes fully lit, destroy self: the player's kill if their torch lit the last lantern
 if (_controller.current_room.lit) { 
 	if (spawn_timer >= 0) {
 		audio_stop_sound(snd_dread);
 		play_sound(snd_impact, false); 
 		screen_flash(); 
 		instance_destroy();
-		record_run_kill(object_index, object_index);
+		record_run_kill(object_index, (_controller.current_room.lit_by_player) ? obj_player : object_index);
 	}
 }
 	

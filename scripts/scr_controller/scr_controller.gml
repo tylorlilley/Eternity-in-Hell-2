@@ -879,23 +879,6 @@ function get_mapped_rooms_score() {
 	return floor(100*(array_length(global.controller.mapped_rooms)/array_length(global.controller.game_rooms)));
 }
 
-/// @function								get_time_remaining_score()
-function get_time_remaining_score() {
-	var _controller = global.controller;
-	if (!is_existing_instance(_controller)) { return 0; }
-	if (!is_game_won()) { return 0; }
-	
-	/*
-	var percentage_of_possible_rooms = array_length(global.controller.game_rooms)/MAX_NUMBER_OF_ROOMS;
-	var minimum_time_to_complete = global.controller.time_provided * percentage_of_possible_rooms * 0.25;
-	var percentage_of_time_remaining = (is_game_won()) ? 100*((global.controller.final_time_remaining + minimum_time_to_complete) / global.controller.time_provided) : 0;
-	if (percentage_of_time_remaining > 100) { percentage_of_time_remaining = 100; }
-	*/
-	
-	var _minimum_time_to_complete = global.controller.time_provided * 0.25;
-	return (global.controller.final_time_remaining + _minimum_time_to_complete) / global.controller.time_provided;
-}
-
 /// @function								get_victory_amount_score()
 function get_victory_amount_score() {
 	var _controller = global.controller;

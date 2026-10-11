@@ -23,7 +23,6 @@ function RunRecord() constructor {
 	has_won = false;
 	time_elapsed_percent = 0;
 	time_remaining_percent = 0;
-	time_remaining_score = 0;
 	collected_percent = 0;
 	visited_rooms_percent = 0;
 	escaped_percent = 0;
@@ -61,10 +60,7 @@ function RunRecord() constructor {
 	/// @param {Asset.GMObject} _victim What was killed or destroyed
 	/// @param {Asset.GMObject} _killer What killed or destroyed it
 	static record_kill = function(_victim, _killer) {
-		var _victim_name = object_get_name(_victim);
-		add_to_struct_number(stats_record.kills, _victim_name, 1);
-		if (!is_struct(stats_record.kills_by_killer[$ _victim_name])) { stats_record.kills_by_killer[$ _victim_name] = {}; }
-		add_to_struct_number(stats_record.kills_by_killer[$ _victim_name], object_get_name(_killer), 1);
+		add_kills_by_killer(stats_record, object_get_name(_victim), object_get_name(_killer), 1);
 		if (is_enemy_object(_victim)) { increment_stat("kill_count"); }
 	};
 
@@ -149,7 +145,6 @@ function RunRecord() constructor {
 		has_won = is_game_won();
 		time_elapsed_percent = 100 * (_time_provided - _time_remaining) / _time_provided;
 		time_remaining_percent = 100 * _time_remaining / _time_provided;
-		time_remaining_score = get_time_remaining_score();
 		collected_percent = get_collectables_score();
 		visited_rooms_percent = get_mapped_rooms_score();
 		escaped_percent = get_victory_amount_score();
@@ -236,9 +231,9 @@ function increment_run_stat(_stat_name, _amount = 1) {
 }
 
 /// @function record_run_kill(_victim, _killer)
-/// @description Counts one thing the run killed or destroyed and what did it, for the title screen's death log.
-///	Enemy kills also count toward kill_count (see is_enemy_object). An enemy killed by another enemy's projectile
-///	isn't recorded, as no player action caused it.
+/// @description Counts one thing the run killed or destroyed and what did it. The title screen's death log shows the
+///	kills whose killer is_player_killer says was the player's doing. Enemy kills also count toward kill_count (see
+///	is_enemy_object). An enemy killed by another enemy's projectile isn't recorded, as no player action caused it.
 /// @param {Asset.GMObject} _victim What was killed or destroyed
 /// @param {Asset.GMObject} _killer What killed or destroyed it
 function record_run_kill(_victim, _killer) {
@@ -264,4 +259,16 @@ function record_run_death(_killer) {
 /// @returns {bool}
 function is_enemy_object(_object_index) {
 	return (_object_index == obj_living_block || _object_index == obj_giant_eye || object_is_ancestor(_object_index, obj_enemy));
+}
+
+/// @function is_player_killer(_object_index)
+/// @description Whether a kill credited to this killer was the player's doing, for the death log's kill column. The
+///	player is credited for a sword in their hand, a living block they pushed into lava, a phantom banished when their
+///	torch lit the last lantern, a giant eye they spun until it died, and giving up from the pause menu. A block only
+///	crushes when the player pushes it, special meat is bait the player left, and a bomb is only credited when the
+///	player set it off. Lava, the giant worm and an enemy's sword aren't the player's doing.
+/// @param {Asset.GMObject} _object_index The killer
+/// @returns {bool}
+function is_player_killer(_object_index) {
+	return (_object_index == obj_player || _object_index == obj_block || _object_index == obj_meat || _object_index == obj_bomb);
 }

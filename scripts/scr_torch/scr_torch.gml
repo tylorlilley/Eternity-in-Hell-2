@@ -21,14 +21,13 @@ function light_torch(_lighting_torch, _make_noise) {
 		light_source.lighting_range = lighting_range;
 		light_source.persistent = (is_existing_instance(holder));
 		
-		// Mark room as lit if this was the last lantern in the room
+		// Mark room as lit if this was the last lantern in the room, and whether the player lit it
 		if (object_index == obj_lantern) {
 			var _last_lantern = true;
 		    with obj_lantern { if (!light_source) { _last_lantern = false; } }
 		    _controller.current_room.lit = _last_lantern;
-			if (_last_lantern && is_existing_instance(_lighting_torch) && _lighting_torch.holder == global.player) { 
-				increment_run_stat("rooms_lit");
-			}
+			_controller.current_room.lit_by_player = (_last_lantern && is_existing_instance(_lighting_torch) && _lighting_torch.holder == global.player);
+			if (_controller.current_room.lit_by_player) { increment_run_stat("rooms_lit"); }
 		}
 		else if (object_index == obj_torch) {
 			increment_run_stat("torches_lit");

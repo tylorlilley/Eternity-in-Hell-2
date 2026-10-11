@@ -13,7 +13,7 @@ if (can_process_this_frame()) {
 		else { spin_counter = 0; }
 		
 		// Kill Self
-		if (spin_counter > 512 || spin_counter < -512) { dying = 32; }
+		if (spin_counter > 512 || spin_counter < -512) { dying = 32; killed_by = obj_player; }
 		else {
 			// Shoot Beam
 			if (shoot_timer > 0) { shoot_timer -= 1; }
@@ -56,7 +56,7 @@ if (can_process_this_frame()) {
 				instance_create(_x_pos, _y_pos, obj_blood);
 			}
 			instance_destroy();
-			record_run_kill(object_index, object_index);
+			if (killed_by != noone) { record_run_kill(object_index, killed_by); }
 			increment_run_stat("giant_eye_room_solved");
 		}
 	}

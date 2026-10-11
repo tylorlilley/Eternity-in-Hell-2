@@ -139,6 +139,51 @@ function get_chance_out_of(_denominator) {
 	return (_denominator == 0) ? 0 : 1 / _denominator;
 }
 
+/// @function get_binomial_chance(_tries, _chance, _successes)
+/// @description The chance that rolling a chance a number of times succeeds exactly a given number of times
+/// @param {real} _tries How many times it rolls
+/// @param {real} _chance The chance each roll succeeds, from 0 to 1
+/// @param {real} _successes How many successes
+/// @returns {real} From 0 to 1
+function get_binomial_chance(_tries, _chance, _successes) {
+	if (_successes < 0 || _successes > _tries) { return 0; }
+
+	var _ways = 1;
+	for (var _i = 0; _i < _successes; _i++) { _ways = _ways * (_tries - _i) / (_i + 1); }
+	return _ways * power(_chance, _successes) * power(1 - _chance, _tries - _successes);
+}
+
+/// @function get_capped_successes_chance(_tries, _chance, _cap, _successes)
+/// @description The chance that rolling a chance up to a number of times, and stopping once it has succeeded a capped
+///	number of times, ends with exactly a given number of successes
+/// @param {real} _tries How many times it can roll
+/// @param {real} _chance The chance each roll succeeds, from 0 to 1
+/// @param {real} _cap The number of successes it stops at
+/// @param {real} _successes How many successes, from 0 to the cap
+/// @returns {real} From 0 to 1
+function get_capped_successes_chance(_tries, _chance, _cap, _successes) {
+	if (_successes < 0 || _successes > _cap) { return 0; }
+	if (_successes < _cap) { return get_binomial_chance(_tries, _chance, _successes); }
+
+	// Reaching the cap takes at least that many successes from the uncapped rolls
+	var _below_cap = 0;
+	for (var _k = 0; _k < _cap; _k++) { _below_cap += get_binomial_chance(_tries, _chance, _k); }
+	return max(0, 1 - _below_cap);
+}
+
+/// @function get_expected_capped_successes(_tries, _chance, _cap)
+/// @description How many successes rolling a chance up to a number of times gives on average, when it stops once it has
+///	succeeded a capped number of times
+/// @param {real} _tries How many times it can roll
+/// @param {real} _chance The chance each roll succeeds, from 0 to 1
+/// @param {real} _cap The number of successes it stops at
+/// @returns {real}
+function get_expected_capped_successes(_tries, _chance, _cap) {
+	var _expected = 0;
+	for (var _k = 1; _k <= _cap; _k++) { _expected += _k * get_capped_successes_chance(_tries, _chance, _cap, _k); }
+	return _expected;
+}
+
 /// @function								get_coin_flip();
 function get_coin_flip() {
 	return (irandom(1) == 0);

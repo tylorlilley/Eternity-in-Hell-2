@@ -43,6 +43,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	button_on_stairs_spot = false;			// The portcullis button goes on the stairs spot instead of a collectable spot
 	button_spot = -1;						// Which collectable spot, in layout file order, the portcullis button takes
 	key_spot = -1;							// Which collectable spot, in layout file order, the floor key takes
+	has_extra_key = false;					// Its floor key is the extra key the first bomb standing in for a key brings, which the lock search doesn't count (see GameMap.add_extra_key_to_area)
 	mapgen_index = -1;						// Its place in its map's rooms, which the lock search's room bitmasks use (set by GameMap)
 	special_room_type = undefined;			// The special room type it's reserved for, if it's a special room
 	unlocked_chests_bitmask_index = -1;		// Its locked chest's bit in the lock search's chest bitmasks, or -1 if the chest doesn't matter to it
@@ -228,6 +229,17 @@ function GameRoom(_given_x, _given_y) constructor {
 		return stairs_spot_obj == obj_chest && !has_locked_chest && !has_special_item;
 	}
 
+	/// @function holds_gudetama_counter()
+	/// @description Whether the room's chest holds an item that can defeat a gudetama or get the player past it: a sword, a
+	///	bomb or a special staff. It must be unlocked, so the player can always open it, and the keys and bombs placed for
+	///	the locks don't count, since the locks need them.
+	/// @returns {bool}
+	function holds_gudetama_counter() {
+		if (!has_chest() || has_locked_chest || key_in_chest) { return false; }
+
+		return chest_obj == obj_sword || chest_obj == obj_bomb || (chest_obj == obj_staff && has_special_item);
+	}
+
 	/// @function has_trap_chest()
 	/// @description Whether the room's chest holds a statue or fountain trap instead of an item
 	/// @returns {bool}
@@ -394,11 +406,19 @@ function GameRoom(_given_x, _given_y) constructor {
 		return !has_eyes || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
 	}
  
+	/// @function has_floor_key()
+	/// @description Whether a key lies on one of the room's key spots: its own key, unless that's in a chest, or the extra
+	///	key the first bomb standing in for a key brings
+	/// @returns {bool}
+	function has_floor_key() {
+		return (has_key && !key_in_chest) || has_extra_key;
+	}
+
 	/// @function get_floor_item_count()
-	/// @description How many items lie on the room's floor for hands to come for: its key, unless the key is in a chest
+	/// @description How many items lie on the room's floor for hands to come for: a key on one of its key spots
 	/// @returns {real}
 	function get_floor_item_count() {
-		return (has_key && !key_in_chest) ? 1 : 0;
+		return has_floor_key() ? 1 : 0;
 	}
  
 	/// @function get_potential_difficulty_score(_counts)
@@ -496,7 +516,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (stairs_spot_obj == obj_chest || stairs_spot_obj == obj_encased_heart) {
 			add_walk_target(_targets, chest_on_stairs_spot ? layout.walk_stairs_point : layout.walk_chest_point);
 		}
-		if (has_key && !key_in_chest && key_spot != -1) { add_walk_target(_targets, layout.walk_collectable_points[key_spot]); }
+		if (has_floor_key() && key_spot != -1) { add_walk_target(_targets, layout.walk_collectable_points[key_spot]); }
 		if (has_collectables) {
 			for (var _i = 0; _i < array_length(layout.key_spots); _i++) {
 				var _spot = layout.key_spots[_i];
@@ -681,12 +701,14 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Eyes the layout places stop the player in place, so nothing rolled below may chase or shoot at them
 		has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
 		
-		// Determine how many columns and how many statues to replace with fountains
+		// Determine how many columns and how many statues to replace with fountains: each column rolls, then each statue,
+		// until the room has MAX_REPLACED_FOUNTAINS between them
 		if (can_have_hazard_with_eyes("obj_fountain")) {
-			for (var _column = 0; _column < layout.get_object_count("obj_column"); _column++) { // Columns aren't in the difficulty score table
+			var _max_replaced_fountains = MAX_REPLACED_FOUNTAINS;
+			for (var _column = 0; _column < layout.get_object_count("obj_column") && replaced_column_fountain_count < _max_replaced_fountains; _column++) { // Columns aren't in the difficulty score table
 				if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain")) { replaced_column_fountain_count += 1; }
 			}
-			for (var _statue = 0; _statue < layout.get_hazard_count("obj_statue"); _statue++) {
+			for (var _statue = 0; _statue < layout.get_hazard_count("obj_statue") && replaced_column_fountain_count + replaced_statue_fountain_count < _max_replaced_fountains; _statue++) {
 				if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain", "obj_statue")) { replaced_statue_fountain_count += 1; }
 			}
 		}
@@ -761,6 +783,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		has_key = false;
 		key_in_chest = false;
 		key_spot = -1;
+		has_extra_key = false;
 		has_collectables = false;
 		has_portcullis_trap = false;
 		button_on_stairs_spot = false;
@@ -1097,7 +1120,7 @@ function GameRoom(_given_x, _given_y) constructor {
 								}
 								else if (_room_map_obj == obj_hole) { _pos_color = _white_color; continue; }
 								else if (_is_test_mode_on && has_locked_chest && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) { _pos_color = c_aqua; continue; }
-								else if (_is_test_mode_on && has_key && ((chest_obj == obj_key && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) || _room_map_obj == obj_key)) { _pos_color = c_lime; continue; }
+								else if (_is_test_mode_on && (has_key || has_extra_key) && ((chest_obj == obj_key && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) || _room_map_obj == obj_key)) { _pos_color = c_lime; continue; }
 								else if (_is_test_mode_on && has_hidden_chest && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) { _pos_color = c_yellow; continue; }
 								else if (_pos_color == -1 && _show_detailed_map && (_show_collectables || _room_map_obj != obj_hidden_chest)) { _pos_color = _inverse_color; }
 							}

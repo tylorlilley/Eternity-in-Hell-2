@@ -629,9 +629,10 @@ function game_room_initialize() {
 	// Update objects in room to reflect new x, y position as initial positions
 	set_initial_positions();
 	
-	// Create the floor key on the collectable spot generation picked, unless generation put the key, or a bomb standing in for it, in a chest
-	var _key_in_chest = current_room.key_in_chest;
-	if (current_room.has_key && !_key_in_chest) {
+	// Create the floor key on the collectable spot generation picked: the room's own key, unless generation put it, or a
+	// bomb standing in for it, in a chest, or the extra key the first such bomb brings
+	var _has_floor_key = current_room.has_floor_key();
+	if (_has_floor_key) {
 		var _key = noone;
 		with (current_room.collectable_spot_instances[current_room.key_spot]) {
 			_key = instance_create(x, y, obj_key);
@@ -733,7 +734,7 @@ function game_room_initialize() {
 		
 		// Find the other free spots nothing presses, for decoy dirt: the stairs spot when nothing uses it, and the collectable spots the room's collectables don't need
 		if (!_stairs_spot_occupied && _button_spot != _stairs_spot) { array_push(_possible_decoy_spots, _stairs_spot); }
-		if (!current_room.has_collectables || !current_room.has_key || _key_in_chest) {
+		if (!current_room.has_collectables || !_has_floor_key) {
 			with (obj_collectable_spot) { if (id != _button_spot) { array_push(_possible_decoy_spots, id); } }
 		}
 		for (var _i = 0; _i < array_length(_possible_decoy_spots); _i++) {

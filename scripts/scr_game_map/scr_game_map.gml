@@ -69,6 +69,7 @@ function GameMap() constructor {
 	heart_room = undefined;
 	guaranteed_chest_room = undefined;
 	special_item_types = [];						// Each item type placed as a special item so far
+	extra_key_placed = false;					// Whether the first bomb standing in for a key has brought its extra key yet (see add_extra_key_to_area)
 	difficulty_score = 0;
 
 	// What is passed to the controller on a successful map generation
@@ -164,6 +165,7 @@ function GameMap() constructor {
 			create_chests();
 			assign_or_create_special_item_chests();
 			assign_chest_contents();
+			guarantee_gudetama_counter();
 			if (!create_locked_exits_and_keys()) { return fail_generation("the locks and keys could not be placed"); }
 			determine_special_exit_types();
 			
@@ -741,6 +743,7 @@ function GameMap() constructor {
 		heart_room = undefined;
 		guaranteed_chest_room = undefined;
 		special_item_types = [];
+		extra_key_placed = false;
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_decorations(); }
 		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_decorations(); }
 	};
@@ -1124,24 +1127,88 @@ function GameMap() constructor {
 			var _possible_room = rooms[_i];
 			if (!_possible_room.is_in_bitmask(_stuck_area.reached_rooms)) { continue; }
 
-			if (!_possible_room.is_heart_room && !_possible_room.has_key && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
+			if (!_possible_room.is_heart_room && !_possible_room.has_key && !_possible_room.has_extra_key && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
 		}
 		if (array_length(_possible_rooms) == 0) { return false; }
 
 		// Select a random room out of the possible rooms to add the key to
-		var _room = array_random_get(_possible_rooms);
+		var _room = array_random_get(_possible_rooms), _key_is_bomb = false;
 		if (_room.can_have_chest() && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY)) {
 			// The chest is never locked or hidden, and never holds a special item
 			_room.key_in_chest = true;
 			_room.set_stairs_spot_object(obj_chest);
-			_room.chest_obj = (_stuck_area.can_use_bombs_as_keys() && get_random_chance_out_of(BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY)) ? obj_bomb : obj_key;
-			// TODO: The first time on a map we use a bomb instead of a key, we should also add another extra key to the map. This extra key should NOT count towards the lock checking algorithm as it will count the bomb instead; this is purely additive
+			_key_is_bomb = _stuck_area.can_use_bombs_as_keys() && get_random_chance_out_of(BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY);
+			_room.chest_obj = _key_is_bomb ? obj_bomb : obj_key;
 		}
 		else { _room.key_spot = array_random_get(_room.layout.key_spots); }
-		
-		// Return true for successful key placement
 		_room.has_key = true;
+
+		// The first bomb standing in for a key on the map also brings an extra key to the same area
+		if (_key_is_bomb && !extra_key_placed) { add_extra_key_to_area(_stuck_area); }
+
+		// Return true for successful key placement
 		return true;
+	};
+
+	/// @function add_extra_key_to_area(_stuck_area)
+	/// @description Puts an extra key on a free key spot of a random room in a search area, for the first bomb that
+	///	stands in for a key there. The room's has_key stays as it is, so the lock search never counts the extra key: it's
+	///	a spare on top of the keys and bombs the locks need.
+	/// @param {LockSearchArea} _stuck_area The search area the bomb went to
+	static add_extra_key_to_area = function(_stuck_area) {
+		// Rooms in the area with no key on their key spots yet, which the bomb's own room always is
+		var _possible_rooms = [];
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			var _possible_room = rooms[_i];
+			if (!_possible_room.is_in_bitmask(_stuck_area.reached_rooms)) { continue; }
+
+			if (!_possible_room.is_heart_room && _possible_room.key_spot == -1 && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
+		}
+		if (array_length(_possible_rooms) == 0) {
+			// This should NEVER happen, since the bomb's own room always has a free key spot
+			write_debug_message("No room could take the extra key a bomb brings.", debug_message_level.warning);
+			return;
+		}
+
+		// Put the extra key on a random key spot of a random one of them
+		var _room = array_random_get(_possible_rooms);
+		_room.has_extra_key = true;
+		_room.key_spot = array_random_get(_room.layout.key_spots);
+		extra_key_placed = true;
+	};
+
+	/// @function guarantee_gudetama_counter()
+	/// @description Makes sure a map with a gudetama, which blocks the sloth room's chest, has an item in another room that
+	///	can defeat it or get the player past it: a sword, a bomb or a special staff (see GameRoom.holds_gudetama_counter).
+	///	If no chest holds one yet, a sword or a bomb goes in a new visible chest in a random other room. It runs before
+	///	the locks and keys, so the new chest is never locked.
+	static guarantee_gudetama_counter = function() {
+		// Find the room with the gudetama, if the map has one
+		var _gudetama_room = undefined;
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			if (rooms[_i].layout.get_object_count("obj_gudetama") > 0) { _gudetama_room = rooms[_i]; break; }
+		}
+		if (is_undefined(_gudetama_room)) { return; }
+
+		// Return if a chest in another room already holds a counter, and list the other rooms that could take a chest
+		var _possible_rooms = [];
+		for (var _j = 0; _j < array_length(rooms); _j++) {
+			var _room = rooms[_j];
+			if (_room == _gudetama_room) { continue; }
+			if (_room.holds_gudetama_counter()) { return; }
+
+			if (_room.can_have_chest()) { array_push(_possible_rooms, _room); }
+		}
+		if (array_length(_possible_rooms) == 0) {
+			// This should NEVER happen
+			write_debug_message("No room could take a chest for an item that gets past the gudetama.", debug_message_level.warning);
+			return;
+		}
+
+		// Otherwise, put a sword or a bomb in a new visible chest
+		var _counter_room = array_random_get(_possible_rooms);
+		_counter_room.set_stairs_spot_object(obj_chest);
+		_counter_room.chest_obj = get_coin_flip() ? obj_sword : obj_bomb;
 	};
 
 	/// @function get_untried_lockable_exit(_tried_exits)
@@ -1488,7 +1555,7 @@ function GameMap() constructor {
 				var _nearest = infinity;
 				for (var _k = 0; _k < array_length(rooms); _k++) {
 					var _to_key = _times[rooms[_k].mapgen_index];
-					if (rooms[_k].has_key && _to_key >= 0) { _nearest = min(_nearest, _to_key); }
+					if ((rooms[_k].has_key || rooms[_k].has_extra_key) && _to_key >= 0) { _nearest = min(_nearest, _to_key); }
 				}
 				if (_nearest != infinity) { _extra += LOCK_BACKTRACK_SHARE * 2 * _nearest; }
 			}

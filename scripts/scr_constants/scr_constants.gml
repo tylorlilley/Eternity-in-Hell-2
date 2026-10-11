@@ -32,6 +32,7 @@
 // Initilize room start probability constants
 #macro COLUMN_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 128, 96, 48])
 #macro STATUE_FOUNTAIN_PROBABILITY get_probability_for_difficulty([0, 0, 64, 32, 24])
+#macro MAX_REPLACED_FOUNTAINS get_probability_for_difficulty([0, 0, 1, 1, 2]) // The most columns and statues, between them, that one room turns into fountains
 #macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
 #macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 

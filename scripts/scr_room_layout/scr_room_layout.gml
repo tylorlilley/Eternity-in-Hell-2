@@ -148,10 +148,16 @@ function RoomLayout(_room_asset) constructor {
 	static get_expected_map_generation_spawns = function(_counts) {
 		var _spawns = [];
 		
-		// Columns and statues that become fountains
+		// Columns, then statues, that become fountains, until there are MAX_REPLACED_FOUNTAINS between them. Statues only
+		// roll for what the columns leave, so their average is taken over how many columns became fountains
 		if (can_have_hazard_with_eyes("obj_fountain")) {
-			array_push(_spawns, new ExpectedSpawn("obj_fountain", get_object_count("obj_column") * get_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY))); // Columns aren't in the difficulty score table
-			array_push(_spawns, new ExpectedSpawn("obj_fountain", get_hazard_count("obj_statue") * get_chance_out_of(STATUE_FOUNTAIN_PROBABILITY), "obj_statue"));
+			var _max_fountains = MAX_REPLACED_FOUNTAINS, _columns = get_object_count("obj_column"), _statues = get_hazard_count("obj_statue"); // Columns aren't in the difficulty score table
+			var _column_chance = get_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY), _statue_chance = get_chance_out_of(STATUE_FOUNTAIN_PROBABILITY), _statue_fountains = 0;
+			for (var _column_fountains = 0; _column_fountains <= _max_fountains; _column_fountains++) {
+				_statue_fountains += get_capped_successes_chance(_columns, _column_chance, _max_fountains, _column_fountains) * get_expected_capped_successes(_statues, _statue_chance, _max_fountains - _column_fountains);
+			}
+			array_push(_spawns, new ExpectedSpawn("obj_fountain", get_expected_capped_successes(_columns, _column_chance, _max_fountains)));
+			array_push(_spawns, new ExpectedSpawn("obj_fountain", _statue_fountains, "obj_statue"));
 		}
 		
 		// Blocks that come alive

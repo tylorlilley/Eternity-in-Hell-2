@@ -9,8 +9,8 @@ while (array_length(_enemies_at_position) > 0) {
 		if (_enemy.corporeal) {
 			with _enemy { 
 				if (is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) {
-					kill_enemy(snd_crunch, obj_block);
-					global.controller.evaluation_manager.increment_evaluation_variable("worm_kill_count");
+					kill_enemy(snd_crunch, obj_giant_worm_body);
+					increment_run_stat("worm_kill_count");
 				}
 			}
 		}

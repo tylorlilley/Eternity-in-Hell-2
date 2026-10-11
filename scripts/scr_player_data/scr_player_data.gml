@@ -1,155 +1,412 @@
-/// @function								update_death_log(_obj_index, _difficulty, _has_rosary);
-///	@param		{obj_id} _obj_index			The object_index value to update
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
-///	@param		{boolean} _has_rosary		The difficulty to update the count for
-function update_death_log(_obj_index, _difficulty, _has_rosary) {
-	var _previous_death_count = get_death_count(_obj_index, _difficulty), _current_run = get_run_number_count(_difficulty);
-	
-	ini_open("player_data.ini");
-	ini_write_real(get_difficulty_string(_difficulty), object_get_name(_obj_index), _previous_death_count+1);
-	if (!_has_rosary) { ini_write_real(get_difficulty_string(_difficulty), object_get_name(_obj_index)+"_last_killed_by", _current_run); }
-	ini_close();
-	
-	if (!_has_rosary) { update_log("outcome", "lost"); }
-	update_log("killed_by", object_get_name(_obj_index));
-	write_debug_message(object_get_name(_obj_index)+" += 1", debug_message_level.log);
-	if (!_has_rosary) { write_debug_message(object_get_name(_obj_index)+"_last_killed_by += 1", debug_message_level.log); }
+// Save files: one per difficulty and graphics mode, each holding a stats record of every run played with that pair
+
+/// @function create_stats_record()
+/// @description An empty stats record. It's the shape of every save file, of the run being played
+///	(RunRecord.stats_record), and of the totals of any mix of save files, which add_stats_record adds together:
+///	runs: how many runs ended, won, lost or given up
+///	wins: how many runs were won
+///	best_score: the best final grade
+///	stats: each stat's total (see create_run_stats)
+///	evaluation_messages: how many runs earned each achievement, by title (see get_evaluation_messages)
+///	deaths: how many times each object killed the player, by object name
+///	last_death_run_numbers: the number of the last run each object ended by killing the player, by object name
+///	kills: how many of each object were killed or destroyed, by object name
+///	kills_by_killer: for each object killed, how many of them each killer killed, by object names
+///	item_wins: how many runs were won holding each item type, by object name
+/// @returns {struct}
+function create_stats_record() {
+	return {
+		runs: 0,
+		wins: 0,
+		best_score: 0,
+		stats: create_run_stats(),
+		evaluation_messages: {},
+		deaths: {},
+		last_death_run_numbers: {},
+		kills: {},
+		kills_by_killer: {},
+		item_wins: {}
+	};
 }
 
-/// @function								update_kill_log(_obj_index, _difficulty, _killer);
-///	@param		{obj_id} _obj_index			The object_index value to update
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
-///	@param		{obj_id} _killer				The object that did the killing
-function update_kill_log(_obj_index, _difficulty, _killer) {
-	global.controller.evaluation_manager.increment_evaluation_variable("kill_count");
-		
-	var _previous_kill_count = get_kill_count(_obj_index, _difficulty);
-	var _previous_kills_by_killer_count = get_kills_by_killer_count(_obj_index, _difficulty, _killer);
-	
-	ini_open("player_data.ini");
-	ini_write_real(get_difficulty_string(_difficulty), object_get_name(_obj_index)+"_kills", _previous_kill_count+1);
-	ini_write_real(get_difficulty_string(_difficulty), object_get_name(_obj_index)+"_kills_by_"+object_get_name(_killer), _previous_kills_by_killer_count+1);
-	ini_close();
-	
-	write_debug_message(object_get_name(_obj_index)+"_kills += 1", debug_message_level.log);
-	write_debug_message(object_get_name(_obj_index)+"_kills_by_"+object_get_name(_killer)+"_kills += 1", debug_message_level.log);
+/// @function get_stats_file_name(_difficulty, _graphics_mode)
+/// @description The name of the save file for one difficulty and graphics mode, like stats_easy_standard.json
+/// @param {real} _difficulty The difficulty (see difficulties), not ALL
+/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
+/// @returns {string}
+function get_stats_file_name(_difficulty, _graphics_mode) {
+	static difficulty_names = ["", "easy", "medium", "hard", "very_hard"];
+	static graphics_mode_names = ["standard", "farmer", "unknown"];
+	return "stats_" + difficulty_names[_difficulty] + "_" + graphics_mode_names[_graphics_mode] + ".json";
 }
 
-/// @function								get_death_count(_obj_index, _difficulty);
-///	@param		{obj_id} _obj_index			The object_index value to get the death count of
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_death_count(_obj_index, _difficulty) {
-	var _death_count = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
+/// @function get_saved_stats_record(_difficulty, _graphics_mode)
+/// @description The stats record saved for one difficulty and graphics mode. Each file is read once and then kept
+///	in memory (global.saved_stats_records), and a missing file starts from what an older version of the game
+///	saved in player_data.ini, if anything. Change it only to add a finished run, then write it.
+/// @param {real} _difficulty The difficulty (see difficulties), not ALL
+/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
+/// @returns {struct} The stats record (see create_stats_record)
+function get_saved_stats_record(_difficulty, _graphics_mode) {
+	var _file_name = get_stats_file_name(_difficulty, _graphics_mode);
+	var _stats_record = global.saved_stats_records[$ _file_name];
+	if (!is_undefined(_stats_record)) { return _stats_record; }
 
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			_death_count += ini_read_real(get_difficulty_string(_next_difficulty), object_get_name(_obj_index), 0);
-			ini_close();
+	_stats_record = create_stats_record();
+	if (file_exists(_file_name)) { read_stats_record_file(_file_name, _stats_record); }
+	else { import_stats_from_player_data_ini(_difficulty, _graphics_mode, _stats_record); }
+	global.saved_stats_records[$ _file_name] = _stats_record;
+	return _stats_record;
+}
+
+/// @function read_stats_record_file(_file_name, _stats_record)
+/// @description Adds what a save file holds to a stats record. A file that can't be read adds nothing and leaves a
+///	warning in the log.
+/// @param {string} _file_name The save file
+/// @param {struct} _stats_record The stats record to add to
+function read_stats_record_file(_file_name, _stats_record) {
+	var _buffer = buffer_load(_file_name);
+	if (_buffer == -1) {
+		write_debug_message("Couldn't open " + _file_name, debug_message_level.warning);
+		return;
+	}
+
+	try { add_stats_record(_stats_record, json_parse(buffer_read(_buffer, buffer_string))); }
+	catch (_error) { write_debug_message("Couldn't read " + _file_name + ": " + string(_error), debug_message_level.warning); }
+	buffer_delete(_buffer);
+}
+
+/// @function write_saved_stats_record(_difficulty, _graphics_mode)
+/// @description Writes the stats record for one difficulty and graphics mode to its save file, and forgets the
+///	totals worked out from the old one
+/// @param {real} _difficulty The difficulty (see difficulties), not ALL
+/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
+function write_saved_stats_record(_difficulty, _graphics_mode) {
+	var _json = json_stringify(get_saved_stats_record(_difficulty, _graphics_mode));
+	var _buffer = buffer_create(string_byte_length(_json) + 1, buffer_fixed, 1);
+	buffer_write(_buffer, buffer_string, _json);
+	buffer_save(_buffer, get_stats_file_name(_difficulty, _graphics_mode));
+	buffer_delete(_buffer);
+	global.stats_record_totals = {};
+}
+
+/// @function get_stats_record_total(_difficulty, [_graphics_mode])
+/// @description The saved stats records of one or every difficulty and one or every graphics mode, added together.
+///	Totals are kept until the next save, so asking again costs nothing. Don't change the record it returns.
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {struct} A stats record (see create_stats_record)
+function get_stats_record_total(_difficulty, _graphics_mode = graphics_modes.ALL) {
+	var _total_name = string(_difficulty) + "_" + string(_graphics_mode);
+	var _total = global.stats_record_totals[$ _total_name];
+	if (!is_undefined(_total)) { return _total; }
+
+	_total = create_stats_record();
+	for (var _i = 0; _i < array_length(global.difficulties_array); _i++) {
+		var _next_difficulty = global.difficulties_array[_i];
+		if (_difficulty != difficulties.ALL && _difficulty != _next_difficulty) { continue; }
+
+		for (var _j = 0; _j < array_length(global.graphics_modes_array); _j++) {
+			var _next_graphics_mode = global.graphics_modes_array[_j];
+			if (_graphics_mode != graphics_modes.ALL && _graphics_mode != _next_graphics_mode) { continue; }
+
+			add_stats_record(_total, get_saved_stats_record(_next_difficulty, _next_graphics_mode));
 		}
 	}
-	
+	global.stats_record_totals[$ _total_name] = _total;
+	return _total;
+}
+
+/// @function add_stats_record(_into, _from)
+/// @description Adds one stats record to another: counts add up, while best_score and last_death_run_numbers keep
+///	the highest. Anything _from lacks counts as 0, so files saved before a stat or message existed still add in.
+/// @param {struct} _into The stats record to add to (see create_stats_record)
+/// @param {struct} _from The stats record to add, which may be one read from a file
+function add_stats_record(_into, _from) {
+	_into.runs += get_struct_number(_from, "runs");
+	_into.wins += get_struct_number(_from, "wins");
+	_into.best_score = max(_into.best_score, get_struct_number(_from, "best_score"));
+	add_struct_numbers(_into.stats, _from[$ "stats"]);
+	add_struct_numbers(_into.evaluation_messages, _from[$ "evaluation_messages"]);
+	add_struct_numbers(_into.deaths, _from[$ "deaths"]);
+	keep_highest_struct_numbers(_into.last_death_run_numbers, _from[$ "last_death_run_numbers"]);
+	add_struct_numbers(_into.kills, _from[$ "kills"]);
+	add_struct_numbers(_into.item_wins, _from[$ "item_wins"]);
+
+	// Kills by killer hold a struct of killers for each object killed
+	var _kills_by_killer = _from[$ "kills_by_killer"];
+	if (!is_struct(_kills_by_killer)) { return; }
+
+	var _victim_names = variable_struct_get_names(_kills_by_killer);
+	for (var _i = 0; _i < array_length(_victim_names); _i++) {
+		var _victim_name = _victim_names[_i];
+		if (!is_struct(_into.kills_by_killer[$ _victim_name])) { _into.kills_by_killer[$ _victim_name] = {}; }
+		add_struct_numbers(_into.kills_by_killer[$ _victim_name], _kills_by_killer[$ _victim_name]);
+	}
+}
+
+/// @function get_struct_number(_struct, _name)
+/// @description A number kept in a struct under a name
+/// @param {struct} _struct The struct, which may be undefined
+/// @param {string} _name The name
+/// @returns {real} The number, or 0 when there's no number under that name
+function get_struct_number(_struct, _name) {
+	if (!is_struct(_struct)) { return 0; }
+
+	var _value = _struct[$ _name];
+	return (is_numeric(_value)) ? _value : 0;
+}
+
+/// @function add_to_struct_number(_struct, _name, _amount)
+/// @description Adds to a number kept in a struct under a name, starting it from 0 if there's none
+/// @param {struct} _struct The struct
+/// @param {string} _name The name
+/// @param {real} _amount How much to add
+function add_to_struct_number(_struct, _name, _amount) {
+	_struct[$ _name] = get_struct_number(_struct, _name) + _amount;
+}
+
+/// @function add_struct_numbers(_into, _from)
+/// @description Adds each number in one struct to the number under the same name in another
+/// @param {struct} _into The struct to add to
+/// @param {struct} _from The struct of numbers to add, which may be undefined
+function add_struct_numbers(_into, _from) {
+	if (!is_struct(_from)) { return; }
+
+	var _names = variable_struct_get_names(_from);
+	for (var _i = 0; _i < array_length(_names); _i++) { add_to_struct_number(_into, _names[_i], get_struct_number(_from, _names[_i])); }
+}
+
+/// @function keep_highest_struct_numbers(_into, _from)
+/// @description Raises each number in one struct to the number under the same name in another, where that's higher
+/// @param {struct} _into The struct to raise numbers in
+/// @param {struct} _from The struct of numbers to compare, which may be undefined
+function keep_highest_struct_numbers(_into, _from) {
+	if (!is_struct(_from)) { return; }
+
+	var _names = variable_struct_get_names(_from);
+	for (var _i = 0; _i < array_length(_names); _i++) { _into[$ _names[_i]] = max(get_struct_number(_into, _names[_i]), get_struct_number(_from, _names[_i])); }
+}
+
+/// @function import_stats_from_player_data_ini(_difficulty, _graphics_mode, _stats_record)
+/// @description Copies what an older version of the game saved in player_data.ini into the stats record of a save
+///	file that doesn't exist yet, so a player's history and unlocks carry over. That version kept one section per
+///	difficulty and only told graphics modes apart for wins, so the standard file takes everything but the farmer and
+///	unknown wins, which go to their own files. Kills by killer aren't copied, since nothing showed them. The ini is
+///	only read; once the file is first saved, this isn't needed again.
+/// @param {real} _difficulty The difficulty (see difficulties), not ALL
+/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
+/// @param {struct} _stats_record The empty stats record to copy into (see create_stats_record)
+function import_stats_from_player_data_ini(_difficulty, _graphics_mode, _stats_record) {
+	var _section = get_difficulty_string(_difficulty);
+	ini_open("player_data.ini");
+	var _farmer_wins = ini_read_real(_section, "extra_mode_wins", 0), _unknown_wins = ini_read_real(_section, "unknown_mode_wins", 0);
+	switch (_graphics_mode) {
+		case graphics_modes.farmer: { _stats_record.wins = _farmer_wins; break; }
+		case graphics_modes.unknown: { _stats_record.wins = _unknown_wins; break; }
+		case graphics_modes.standard: {
+			_stats_record.wins = max(0, ini_read_real(_section, "wins", 0) - _farmer_wins - _unknown_wins);
+			_stats_record.runs = ini_read_real(_section, "run_number", 0);
+			_stats_record.best_score = ini_read_real(_section, "best_score", 0);
+
+			// Deaths, kills and last deaths were saved under each object's name
+			for (var _i = 0; _i < array_length(global.death_types_array); _i++) {
+				var _object_name = object_get_name(global.death_types_array[_i]);
+				var _deaths = ini_read_real(_section, _object_name, 0), _kills = ini_read_real(_section, _object_name + "_kills", 0), _last_death_run_number = ini_read_real(_section, _object_name + "_last_killed_by", 0);
+				if (_deaths > 0) { _stats_record.deaths[$ _object_name] = _deaths; }
+				if (_kills > 0) { _stats_record.kills[$ _object_name] = _kills; }
+				if (_last_death_run_number > 0) { _stats_record.last_death_run_numbers[$ _object_name] = _last_death_run_number; }
+			}
+
+			// Item wins were saved under each item's name
+			var _item_types = global.available_items[difficulties.very_hard];
+			for (var _i = 0; _i < array_length(_item_types); _i++) {
+				var _item_name = object_get_name(_item_types[_i]), _item_wins = ini_read_real(_section, _item_name + "_wins", 0);
+				if (_item_wins > 0) { _stats_record.item_wins[$ _item_name] = _item_wins; }
+			}
+
+			// Stats were saved under their names, and bomb kills were called fireball kills
+			var _stat_names = variable_struct_get_names(_stats_record.stats);
+			for (var _i = 0; _i < array_length(_stat_names); _i++) {
+				var _stat_name = _stat_names[_i];
+				_stats_record.stats[$ _stat_name] = ini_read_real(_section, (_stat_name == "bomb_kill_count") ? "fireball_kill_count" : _stat_name, 0);
+			}
+
+			// Achievements were saved under their titles, with underscores for spaces
+			var _messages = get_evaluation_messages();
+			for (var _i = 0; _i < array_length(_messages); _i++) {
+				if (!_messages[_i].is_achievement) { continue; }
+
+				var _title = _messages[_i].title, _times_earned = ini_read_real(_section, string_replace_all(_title, " ", "_"), 0);
+				if (_times_earned > 0) { _stats_record.evaluation_messages[$ _title] = _times_earned; }
+			}
+			break;
+		}
+	}
+	ini_close();
+}
+
+
+// Reading saved stats
+
+/// @function get_death_count(_obj_index, _difficulty, [_graphics_mode])
+/// @description How many times one type of thing has killed the player
+/// @param {Asset.GMObject} _obj_index The killer
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_death_count(_obj_index, _difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).deaths, object_get_name(_obj_index));
+}
+
+/// @function get_kill_count(_obj_index, _difficulty, [_graphics_mode])
+/// @description How many of one type of thing have been killed or destroyed, by anything (see record_run_kill)
+/// @param {Asset.GMObject} _obj_index The type killed
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_kill_count(_obj_index, _difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).kills, object_get_name(_obj_index));
+}
+
+/// @function get_kills_by_killer_count(_obj_index, _difficulty, _killer, [_graphics_mode])
+/// @description How many of one type of thing one killer has killed or destroyed
+/// @param {Asset.GMObject} _obj_index The type killed
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {Asset.GMObject} _killer The killer
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_kills_by_killer_count(_obj_index, _difficulty, _killer, _graphics_mode = graphics_modes.ALL) {
+	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).kills_by_killer[$ object_get_name(_obj_index)], object_get_name(_killer));
+}
+
+/// @function get_last_killed(_obj_index, _difficulty, [_graphics_mode])
+/// @description The number of the last run one type of thing ended by killing the player. Runs are numbered per
+///	difficulty, so across every difficulty this is the highest of each difficulty's numbers.
+/// @param {Asset.GMObject} _obj_index The killer
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real} The run number, or 0 if it never has
+function get_last_killed(_obj_index, _difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).last_death_run_numbers, object_get_name(_obj_index));
+}
+
+/// @function get_total_death_count(_difficulty, [_graphics_mode])
+/// @description How many times the player has died, to anything
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_total_death_count(_difficulty, _graphics_mode = graphics_modes.ALL) {
+	var _deaths = get_stats_record_total(_difficulty, _graphics_mode).deaths, _killer_names = variable_struct_get_names(_deaths), _death_count = 0;
+	for (var _i = 0; _i < array_length(_killer_names); _i++) { _death_count += get_struct_number(_deaths, _killer_names[_i]); }
 	return _death_count;
 }
 
-/// @function								get_kill_count(_obj_index, _difficulty);
-///	@param		{obj_id} _obj_index			The object_index value to get the death count of
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_kill_count(_obj_index, _difficulty) {
-	var _kill_count = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
-		
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			_kill_count += ini_read_real(get_difficulty_string(_next_difficulty), object_get_name(_obj_index)+"_kills", 0);
-			ini_close();
-		}
-	}
-	
-	return _kill_count;
-}
-
-/// @function								get_kills_by_killer_count(_obj_index, _difficulty);
-///	@param		{obj_id} _obj_index			The object_index value to get the death count of
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-///	@param		{obj_id} _killer				The object that did the killing
-function get_kills_by_killer_count(_obj_index, _difficulty, _killer) {
-	var _kill_count = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
-		
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			_kill_count += ini_read_real(get_difficulty_string(_next_difficulty), object_get_name(_obj_index)+"_kills_by_"+object_get_name(_killer), 0);
-			ini_close();
-		}
-	}
-	
-	return _kill_count;
-}
-
-/// @function								get_last_killed(_obj_index, _difficulty);
-///	@param		{obj_id} _obj_index			The object_index value to get the last run killed 
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_last_killed(_obj_index, _difficulty) {
-	var _last_killed = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
-		
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			var _new_last_killed = ini_read_real(get_difficulty_string(_next_difficulty), object_get_name(_obj_index)+"_last_killed_by", 0);
-			if (_new_last_killed > _last_killed) { _last_killed = _new_last_killed; }
-			ini_close();
-		}
-	}
-	
-	return _last_killed;
-}
-
-/// @function								get_total_death_count(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_total_death_count(_difficulty) {
-	var _death_count = 0;
-	
-	var _death_types = get_death_types();
-	while(array_length(_death_types) > 0) {
-		var _death_type = array_pop(_death_types);
-		_death_count += get_death_count(_death_type, _difficulty);
-	}
-	
-	return _death_count;
-}
-
-/// @function								get_death_count_string(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_death_count_string(_difficulty) { 
+/// @function get_death_count_string(_difficulty)
+/// @description The title screen's death count for a difficulty
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {string} An empty string if the player has never died
+function get_death_count_string(_difficulty) {
 	var _deaths = get_total_death_count(_difficulty);
 	if (_deaths == 0) { return ""; }
-	
+
 	return "Deaths: " + string(_deaths);
 }
 
-/// @function								get_run_count_string(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_run_count_string(_difficulty) { 
+/// @function get_run_count_string(_difficulty)
+/// @description The title screen's run count for a difficulty
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {string|real} The string, or noone if no run has ended
+function get_run_count_string(_difficulty) {
 	var _runs = get_run_number_count(_difficulty);
 	if (_runs == 0) { return noone; }
-	
+
 	return "Runs Attempted: " + string(_runs);
 }
 
-/// @function								get_difficulties();
+/// @function get_win_count(_difficulty, [_graphics_mode])
+/// @description How many runs the player has won
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_win_count(_difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_stats_record_total(_difficulty, _graphics_mode).wins;
+}
+
+/// @function get_item_win_count(_item_type, _difficulty, [_graphics_mode])
+/// @description How many runs the player has won while holding an item of one type
+/// @param {Asset.GMObject} _item_type The item type
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_item_win_count(_item_type, _difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).item_wins, object_get_name(_item_type));
+}
+
+/// @function get_run_number_count(_difficulty, [_graphics_mode])
+/// @description How many runs have ended, won, lost or given up. A run's number is one more than this for its
+///	difficulty when it begins.
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_run_number_count(_difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_stats_record_total(_difficulty, _graphics_mode).runs;
+}
+
+/// @function get_win_count_string(_difficulty)
+/// @description The title screen's win count for a difficulty
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {string} An empty string if the player has never won
+function get_win_count_string(_difficulty) {
+	var _wins = get_win_count(_difficulty);
+	if (_wins == 0) { return ""; }
+
+	return "Victories: " + string(_wins);
+}
+
+/// @function get_best_score(_difficulty, [_graphics_mode])
+/// @description The best final grade the player has earned
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_best_score(_difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_stats_record_total(_difficulty, _graphics_mode).best_score;
+}
+
+/// @function get_best_score_string(_difficulty)
+/// @description The title screen's best grade for a difficulty
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {string}
+function get_best_score_string(_difficulty) {
+	return "Highest Grade: " + get_percentage_string(get_best_score(_difficulty));
+}
+
+/// @function get_saved_stat(_stat_name, _difficulty, [_graphics_mode])
+/// @description One stat's total over every saved run
+/// @param {string} _stat_name The stat (see create_run_stats)
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_saved_stat(_stat_name, _difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).stats, _stat_name);
+}
+
+/// @function get_evaluation_message_count(_title, _difficulty, [_graphics_mode])
+/// @description How many saved runs earned one achievement
+/// @param {string} _title The achievement's title (see get_evaluation_messages)
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
+/// @returns {real}
+function get_evaluation_message_count(_title, _difficulty, _graphics_mode = graphics_modes.ALL) {
+	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).evaluation_messages, _title);
+}
+
+
+// Lists
+
+/// @function get_difficulties()
+/// @description Every difficulty (see global.difficulties_array)
+/// @returns {array} A copy the caller may change
 function get_difficulties() {
 	var _difficulties_array = global.difficulties_array;
 	var _new_array = array_create(array_length(_difficulties_array));
@@ -157,12 +414,17 @@ function get_difficulties() {
 	return _new_array;
 }
 
-/// @function								get_death_types();
+/// @function get_death_types()
+/// @description Everything that can kill the player, in the death log's order (see global.death_types_array)
+/// @returns {array} A copy the caller may change
 function get_death_types() {
 	return array_get_duplicate(global.death_types_array);
 }
 
-/// @function								get_death_types();
+/// @function array_get_duplicate(_old_array)
+/// @description A copy of an array
+/// @param {array} _old_array The array to copy
+/// @returns {array}
 function array_get_duplicate(_old_array) {
 	var _new_array = array_create(array_length(_old_array));
 	array_duplicate(_new_array, _old_array);
@@ -170,164 +432,12 @@ function array_get_duplicate(_old_array) {
 }
 
 
-/// @function								update_win_log(_difficulty, new_score);
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
-function update_win_log(_difficulty) {
-	var _previous_win_count = get_win_count(_difficulty), _previous_unknown_mode_win_count = 0, _previous_extra_mode_win_count = 0, _right_item = noone, _left_item = noone, _right_count = 0, _left_count = 0;
-	if (final_player_right_hand_item != noone) { var _right_item = final_player_right_hand_item; _right_count = get_item_win_count(_right_item, _difficulty); }
-	if (final_player_left_hand_item != noone) { var _left_item = final_player_left_hand_item; _left_count = get_item_win_count(_left_item, _difficulty); }
-	if (global.graphics_mode == graphics_modes.farmer) { _previous_extra_mode_win_count = get_win_count(_difficulty, graphics_modes.farmer); }
-	if (global.graphics_mode == graphics_modes.unknown) { _previous_unknown_mode_win_count = get_win_count(_difficulty, graphics_modes.unknown); }
-	
-	ini_open("player_data.ini");
-	ini_write_real(get_difficulty_string(_difficulty), "wins", _previous_win_count+1);
-	if (_right_item != noone) { ini_write_real(get_difficulty_string(_difficulty), object_get_name(_right_item)+"_wins", _right_count+1); }
-	if (_left_item != noone) { ini_write_real(get_difficulty_string(_difficulty), object_get_name(_left_item)+"_wins", _left_count+1); }
-	if (global.graphics_mode == graphics_modes.farmer) { ini_write_real(get_difficulty_string(_difficulty), "extra_mode_wins", _previous_extra_mode_win_count+1); }
-	if (global.graphics_mode == graphics_modes.unknown) { ini_write_real(get_difficulty_string(_difficulty), "unknown_mode_wins", _previous_unknown_mode_win_count+1); }
-	ini_close();
-	
-	var _outcome_to_log = "won";
-	if (_right_item != noone) { _outcome_to_log += "; right hand: "+object_get_name(_right_item); }
-	if (_left_item != noone) { _outcome_to_log += "; left hand: "+object_get_name(_left_item); }
-	
-	update_log("outcome", _outcome_to_log);
-	
-	
-	write_debug_message("wins += 1", debug_message_level.log);
-	if (_right_item != noone) { write_debug_message(object_get_name(_right_item)+"_wins += 1", debug_message_level.log); }
-	if (_left_item != noone) { write_debug_message(object_get_name(_left_item)+"_wins += 1", debug_message_level.log); }
-	if (global.graphics_mode == graphics_modes.farmer) {  write_debug_message("extra_mode_wins += 1", debug_message_level.log); }
-	if (global.graphics_mode == graphics_modes.unknown) { write_debug_message("unknown_mode_wins += 1", debug_message_level.log); }
-}
+// Settings, which stay in player_data.ini
 
-/// @function								update_run_number_log(_difficulty, new_score);
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
-function update_run_number_log(_difficulty) {
-	var _previous_run_number = get_run_number_count(_difficulty);
-	
-	ini_open("player_data.ini");
-	ini_write_real(get_difficulty_string(_difficulty), "run_number", _previous_run_number+1);
-	ini_close();
-	
-	write_debug_message("updated_run_number += 1", debug_message_level.log);
-	update_log("run_number", _previous_run_number+1);
-}
-
-/// @function								update_best_score(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
-///	@param		{real} _new_score			The new score to record
-function update_best_score(_difficulty, _new_score) {
-	var _previous_best = get_best_score(_difficulty);
-	
-	if (_new_score >= _previous_best) { 
-		ini_open("player_data.ini");
-		ini_write_real(get_difficulty_string(_difficulty), "best_score", _new_score);
-		ini_close();
-	}
-	
-	update_log("score", _new_score);
-}
-
-/// @function									get_win_count(_difficulty, [_graphics_mode]);
-///	@param		{difficulty} _difficulty			The difficulty to return a count for
-///	@param		{graphics_mode} _graphics_mode	The graphics mode to return a count for
-function get_win_count(_difficulty, _graphics_mode = graphics_modes.standard) {
-	var _win_count = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
-		
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			if (_graphics_mode == graphics_modes.standard) { _win_count += ini_read_real(get_difficulty_string(_next_difficulty), "wins", 0); }
-			if (_graphics_mode == graphics_modes.farmer) { _win_count += ini_read_real(get_difficulty_string(_next_difficulty), "extra_mode_wins", 0); }
-			if (_graphics_mode == graphics_modes.unknown) { _win_count += ini_read_real(get_difficulty_string(_next_difficulty), "unknown_mode_wins", 0); }
-			ini_close();
-		}
-	}
-	
-	return _win_count;
-}
-
-/// @function								get_item_win_count(_item_type, _difficulty);
-///	@param		{obj} _item_type				The object index of the item to check for
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_item_win_count(_item_type, _difficulty) {
-	var _win_count = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
-		
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			_win_count += ini_read_real(get_difficulty_string(_next_difficulty), object_get_name(_item_type)+"_wins", 0);
-			ini_close();
-		}
-	}
-	
-	return _win_count;
-}
-
-/// @function								get_run_number_count(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_run_number_count(_difficulty) {
-	var _run_count = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
-		
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			_run_count += ini_read_real(get_difficulty_string(_next_difficulty), "run_number", 0);
-			ini_close();
-		}
-	}
-	
-	return _run_count;
-}
-
-/// @function								get_win_count_string(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_win_count_string(_difficulty) { 
-	var _wins = get_win_count(_difficulty);
-	if (_wins == 0) { return ""; }
-	
-	return "Victories: " + string(_wins);
-}
-
-/// @function								get_best_score(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a score for
-function get_best_score(_difficulty) { 
-	var _max_score = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
-		
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			var _previous_score = ini_read_real(get_difficulty_string(_next_difficulty), "best_score", 0);
-			if (_max_score < _previous_score) { _max_score = _previous_score; }
-			ini_close();
-		}
-	}
-	
-	return _max_score;
-}
-
-/// @function								get_best_score_string(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-function get_best_score_string(_difficulty) { 
-	return "Highest Grade: " + get_percentage_string(get_best_score(_difficulty));
-}
-
-/// @function								update_setting(obj_index, _setting_name, _new_value);
-///	@param		{string} _setting_name		The setting to update the value for
-///	@param		{real} _new_value			The new value for the setting
+/// @function update_setting(_setting_name, _new_value)
+/// @description Saves a setting
+/// @param {string} _setting_name The setting
+/// @param {real|string} _new_value Its new value
 function update_setting(_setting_name, _new_value) {
 	ini_open("player_data.ini");
 	if (is_string(_new_value)) { ini_write_string("Settings", _setting_name, _new_value); }
@@ -335,24 +445,27 @@ function update_setting(_setting_name, _new_value) {
 	ini_close();
 }
 
-/// @function								get_setting(_setting_name, _default_value);
-///	@param		{string} _setting_name		The setting to get the value of
-///	@param		{real} new_value			The default value for the setting
-function get_setting(_setting_name, _default_value) { 
+/// @function get_setting(_setting_name, _default_value)
+/// @description A saved setting
+/// @param {string} _setting_name The setting
+/// @param {real|string} _default_value Its value if it was never saved, which also says whether it's a string
+/// @returns {real|string}
+function get_setting(_setting_name, _default_value) {
 	var _setting_value = _default_value;
-	
+
 	ini_open("player_data.ini");
 	if (is_string(_default_value)) { _setting_value = ini_read_string("Settings", _setting_name, _default_value); }
 	else { _setting_value = ini_read_real("Settings", _setting_name, _default_value); }
 	ini_close();
-	
+
 	return _setting_value;
 }
 
-/// @function								update_setting_for_difficulty(obj_index, _setting_name, _new_value);
-///	@param		{string} _setting_name		The setting to update the value for
-///	@param		{enum} _difficulty			The difficulty to refrence when setting the setting
-///	@param		{real} _new_value			The new value for the setting
+/// @function update_setting_for_difficulty(_setting_name, _difficulty, _new_value)
+/// @description Saves a setting kept separately for each difficulty
+/// @param {string} _setting_name The setting
+/// @param {real} _difficulty The difficulty (see difficulties)
+/// @param {real|string} _new_value Its new value
 function update_setting_for_difficulty(_setting_name, _difficulty, _new_value) {
 	ini_open("player_data.ini");
 	if (is_string(_new_value)) { ini_write_string(get_difficulty_string(_difficulty), _setting_name, _new_value); }
@@ -360,64 +473,36 @@ function update_setting_for_difficulty(_setting_name, _difficulty, _new_value) {
 	ini_close();
 }
 
-/// @function								get_setting_for_difficulty(_setting_name, _default_value);
-///	@param		{string} _setting_name		The setting to get the value of
-///	@param		{enum} _difficulty			The difficulty to refrence when getting the setting
-///	@param		{real} new_value			The default value for the setting
-function get_setting_for_difficulty(_setting_name, _difficulty, _default_value) { 
+/// @function get_setting_for_difficulty(_setting_name, _difficulty, _default_value)
+/// @description A saved setting kept separately for each difficulty
+/// @param {string} _setting_name The setting
+/// @param {real} _difficulty The difficulty (see difficulties)
+/// @param {real|string} _default_value Its value if it was never saved, which also says whether it's a string
+/// @returns {real|string}
+function get_setting_for_difficulty(_setting_name, _difficulty, _default_value) {
 	var _setting_value = _default_value;
-	
+
 	ini_open("player_data.ini");
 	if (is_string(_default_value)) { _setting_value = ini_read_string(get_difficulty_string(_difficulty), _setting_name, _default_value); }
 	else { _setting_value = ini_read_real(get_difficulty_string(_difficulty), _setting_name, _default_value); }
 	ini_close();
-	
+
 	return _setting_value;
 }
 
 
-/// @function								update_log(_line_name, _new_value);
-///	@param		{string} _line_name			The line to update the date for
-///	@param		{real} _new_value			The new value for the setting
+// Game log
+
+/// @function update_log(_line_name, _new_value)
+/// @description Adds a line to game_log.txt, stamped with when the game or run began
+/// @param {string} _line_name What the line records
+/// @param {real|string} _new_value The value to record
 function update_log(_line_name, _new_value) {
 	var _file_id = file_text_open_append(working_directory + "game_log.txt");
 	var _value_string = is_string(_new_value) ? _new_value : string(_new_value);
 	var _new_line = "[" + global.datetime + "] - " + _line_name + ": " + _value_string;
-	
-    file_text_writeln(_file_id);
+
+	file_text_writeln(_file_id);
 	file_text_write_string(_file_id, _new_line);
 	file_text_close(_file_id);
-}
-
-/// @function								update_evaluation_variable(_variable_name, _difficulty, _value);
-///	@param		{string} _variable_name		The given name of the variable to update
-///	@param		{difficulty} _difficulty		The difficulty to update the value for
-///	@param		{int} _value					The amount to increase the variable by
-function update_evaluation_variable(_variable_name, _difficulty, _value) {
-	var _name_string = string_replace_all(_variable_name, " ", "_");
-	var _previous_value = get_evaluation_variable(_name_string, _difficulty);
-	
-	ini_open("player_data.ini");
-	ini_write_real(get_difficulty_string(_difficulty), _name_string, _previous_value+_value);
-	ini_close();
-}
-
-/// @function								get_evaluation_variable(obj_index, _difficulty);
-///	@param		{string} _variable_name		The given name of the variable to get the value for
-///	@param		{difficulty} _difficulty		The difficulty to get the value for
-function get_evaluation_variable(_variable_name, _difficulty) {
-	var _name_string = string_replace_all(_variable_name, " ", "_"), _value = 0;
-	
-	var _all_difficulties = get_difficulties();
-	while (array_length(_all_difficulties) > 0) {
-		var _next_difficulty = array_pop(_all_difficulties);
-		
-		if (_difficulty == difficulties.ALL || _difficulty == _next_difficulty) {
-			ini_open("player_data.ini");
-			_value += ini_read_real(get_difficulty_string(_next_difficulty), _name_string, 0);
-			ini_close();
-		}
-	}
-	
-	return _value;
 }

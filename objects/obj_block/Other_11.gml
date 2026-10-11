@@ -26,10 +26,10 @@ if (just_pushed) {
 				with _enemy { 
 					if (is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) {
 						if (object_index == obj_nose) {
-							global.controller.evaluation_manager.increment_evaluation_variable("nose_block_kill_count");
+							increment_run_stat("nose_block_kill_count");
 						}
 						kill_enemy(snd_crunch, obj_block);
-						global.controller.evaluation_manager.increment_evaluation_variable("block_kill_count");
+						increment_run_stat("block_kill_count");
 						other.just_killed += 1;
 					}
 				}
@@ -53,9 +53,9 @@ if (just_pushed) {
 			_tile.image_yscale = image_yscale;
 		}
 		
-		global.controller.evaluation_manager.increment_evaluation_variable("blocks_pushed_into_lava");
+		increment_run_stat("blocks_pushed_into_lava");
 		if (object_index == obj_living_block) {
-			update_kill_log(obj_living_block, global.difficulty, (just_pushed) ? obj_player : obj_living_block);
+			record_run_kill(obj_living_block, (just_pushed) ? obj_player : obj_living_block);
 		}
 		play_sound(snd_extinguish, true);
 		instance_destroy();

@@ -17,7 +17,7 @@ else {
 		image_index = 2;
 	}
 	else if (shoot_timer == 0) {
-		if (get_random_chance_out_of(NOSE_SELF_DESTRUCT_PROBABILITY)) { explode(true); } 
+		if (get_random_chance_out_of(NOSE_SELF_DESTRUCT_PROBABILITY)) { increment_run_stat("spontaneously_exploded_enemy"); explode(true); }
 		else {
 			var _target = get_dropped_meat();
 			if (!is_existing_instance(_target)) { _target = global.player; }

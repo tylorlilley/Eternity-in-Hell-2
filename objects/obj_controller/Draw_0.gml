@@ -124,16 +124,16 @@ if (transition != directions.none || _has_won || _has_timed_out || _is_looking_a
 		if (evaluation_pos > 0 && !_game_manager.key_up_pressed) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, _hud_y_pos, 1, 1, 90, (_has_won ? c_black : c_white), 1); }
 		for (var _i = evaluation_pos; _i < evaluation_pos+6; _i++) {
 			_hud_y_pos += 12;
-			if (_i >= array_length(evaluation_manager.evaluation_messages)) { break; }
-			var _next_message = evaluation_manager.evaluation_messages[_i], _message_text = _next_message[0], _use_special_text_color = _next_message[1];
+			if (_i >= array_length(run_record.evaluation_messages)) { break; }
+			var _next_message = run_record.evaluation_messages[_i], _message_text = _next_message[0], _use_special_text_color = _next_message[1];
 			draw_set_color(_use_special_text_color ? _special_text_color : _standard_text_color);
 			draw_text(_hud_x_pos, _hud_y_pos, _message_text);
 		}
 		_hud_y_pos += 12;
-		if (evaluation_pos < array_length(evaluation_manager.evaluation_messages)-6 && !_game_manager.key_down_pressed) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, _hud_y_pos, 1, 1, -90, (_has_won ? c_black : c_white), 1); }
+		if (evaluation_pos < array_length(run_record.evaluation_messages)-6 && !_game_manager.key_down_pressed) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, _hud_y_pos, 1, 1, -90, (_has_won ? c_black : c_white), 1); }
 		draw_set_font(ft_hud)
 		draw_set_color(_special_text_color);
-		draw_text(_hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( global.controller.evaluation_manager.current_score )));
+		draw_text(_hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( global.controller.run_record.run_score )));
 		
 		// Draw game seed information
 		if (global.is_test_mode) {

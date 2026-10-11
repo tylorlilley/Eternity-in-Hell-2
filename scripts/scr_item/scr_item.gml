@@ -75,9 +75,9 @@ function become_carried(_new_holder) {
 	if (_new_holder == global.player) {
 		with (_new_holder) {
 			if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
-				global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_items");
+				increment_run_stat("dual_wielded_items");
 				if (right_hand_item.object_index == obj_torch && left_hand_item.object_index == obj_torch && is_existing_instance(right_hand_item.light_source) && is_existing_instance(left_hand_item.light_source)) {
-					global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_lit_torches");
+					increment_run_stat("dual_wielded_lit_torches");
 				}
 			}
 		}
@@ -178,7 +178,7 @@ function dig_hole() {
 		play_sound(snd_shovel, true);
 		if (!special) { damaged += 1; }
 		instance_create(x, y, obj_hole);
-		global.controller.evaluation_manager.increment_evaluation_variable("holes_dug");
+		increment_run_stat("holes_dug");
 	}
 }
 
@@ -387,7 +387,7 @@ function get_compass_image_index() {
 function light_bomb() {
 	if (fuse_timer != 0) { return false; }
 	if (lit_by_player) { 
-		global.controller.evaluation_manager.increment_evaluation_variable("bombs_lit");
+		increment_run_stat("bombs_lit");
 	}
 	play_sound(snd_torchlight, true);
 	fuse_timer = 4*irandom_range(5,8);

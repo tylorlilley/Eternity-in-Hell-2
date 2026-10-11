@@ -206,7 +206,6 @@
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_no_exits_7.json","CopyToMask":-1,"filePath":"datafiles",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_no_exits_8.json","CopyToMask":-1,"filePath":"datafiles",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_four_exits_6969.json","CopyToMask":-1,"filePath":"datafiles",},
-    {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"trait_data.json","CopyToMask":-1,"filePath":"datafiles",},
   ],
   "isEcma": false,
   "MetaData": {
@@ -536,6 +535,7 @@
     {"id":{"name":"spr_quadrant","path":"sprites/spr_quadrant/spr_quadrant.yy",},"order":0,},
     {"id":{"name":"obj_bumper_old","path":"objects/obj_bumper_old/obj_bumper_old.yy",},"order":0,},
     {"id":{"name":"scr_evaluation_messages","path":"scripts/scr_evaluation_messages/scr_evaluation_messages.yy",},"order":0,},
+    {"id":{"name":"scr_run_record","path":"scripts/scr_run_record/scr_run_record.yy",},"order":0,},
     {"id":{"name":"rm_two_perpendicular_exits_20","path":"rooms/rm_two_perpendicular_exits_20/rm_two_perpendicular_exits_20.yy",},"order":19,},
     {"id":{"name":"snd_explosion","path":"sounds/snd_explosion/snd_explosion.yy",},"order":60,},
     {"id":{"name":"scr_room_layout","path":"scripts/scr_room_layout/scr_room_layout.yy",},"order":0,},

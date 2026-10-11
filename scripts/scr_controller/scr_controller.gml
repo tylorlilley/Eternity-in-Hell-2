@@ -45,8 +45,8 @@ function initialize_game_variables() {
 	same_skeleton_type = noone;
 	initialize_room_transition_values()
 	
-	// initialize evaluation message values
-	evaluation_manager = new EvaluationMessageManager();
+	// Start the record of the run, kept in memory until the run ends (see scr_run_record)
+	run_record = new RunRecord();
 	used_item_types = [];
 }
 
@@ -126,7 +126,7 @@ function transition_to_room(_new_room, _visited_by_player) {
 			else {
 				// Complete the Hall
 				current_room.has_hall_of_mirrors = false;
-				global.controller.evaluation_manager.increment_evaluation_variable("hall_of_mirrors_room_solved");
+				increment_run_stat("hall_of_mirrors_room_solved");
 				with (obj_hall_of_mirrors) { instance_destroy(); }
 			}
 		}
@@ -143,7 +143,7 @@ function transition_to_room(_new_room, _visited_by_player) {
 	else {
 		if (_new_room.exits[entered_from_dir].has_illusion_walls == 1) {
 			_new_room.exits[entered_from_dir].has_illusion_walls += 1;
-			global.controller.evaluation_manager.increment_evaluation_variable("illusion_walls_discovered");
+			increment_run_stat("illusion_walls_discovered");
 		}
 		play_sound(snd_move, false); 
 	}
@@ -185,7 +185,7 @@ function game_room_start() {
 		}
 		
 		with (obj_giant_eye) {
-			global.controller.evaluation_manager.increment_evaluation_variable("giant_eye_room_visited");
+			increment_run_stat("giant_eye_room_visited");
 			for (var _i = 0; _i < 9; _i++) {
 				var _x_pos = x, _y_pos = y;
 				if (_i % 3 == 0) { _x_pos -=16; }
@@ -201,16 +201,16 @@ function game_room_start() {
 		}
 		
 		if (instance_number(obj_gudetama) > 0) {
-			global.controller.evaluation_manager.increment_evaluation_variable("gudetama_room_visited");
+			increment_run_stat("gudetama_room_visited");
 		}
 		else if (instance_number(obj_hall_of_mirrors) > 0) { 
-			global.controller.evaluation_manager.increment_evaluation_variable("hall_of_mirrors_room_visited");
+			increment_run_stat("hall_of_mirrors_room_visited");
 		}
 		else if (instance_number(obj_red_chest) > 0) { 
-			global.controller.evaluation_manager.increment_evaluation_variable("red_chest_room_visited");
+			increment_run_stat("red_chest_room_visited");
 		}
 		else if (instance_number(obj_inverted_cross) > 0) { 
-			global.controller.evaluation_manager.increment_evaluation_variable("inverted_cross_room_visited");
+			increment_run_stat("inverted_cross_room_visited");
 		}
 		
 			
@@ -287,7 +287,7 @@ function game_room_start_other() {
 	}
 	with (obj_item) {
 		if (special && is_existing_instance(holder) && holder == _player && !counted) {
-			other.evaluation_manager.increment_evaluation_variable("used_special_items");
+			increment_run_stat("used_special_items");
 			counted = true;
 		}
 	}
@@ -437,7 +437,7 @@ function game_room_start_destroy_instances() {
 				// If special, kill any enemies that were eating the meat
 				with (obj_enemy) { if (corporeal && place_meeting(x, y, other.id)) { 
 					kill_enemy(noone, obj_meat);
-					global.controller.evaluation_manager.increment_evaluation_variable("meat_kill_count");
+					increment_run_stat("meat_kill_count");
 				} 
 			}
 			}

@@ -4,7 +4,7 @@ event_inherited();
 if (!is_existing_instance(holder) && is_lava_at_position(x, y)) {
 	instance_destroy();
 	play_sound(snd_extinguish, true);
-	global.controller.evaluation_manager.increment_evaluation_variable("item_lava_count");
+	increment_run_stat("item_lava_count");
 }
 
 // Draw Clock Time

@@ -45,11 +45,13 @@ enum lava_edge_types {
 enum graphics_modes {
 	standard,
 	farmer,
-	unknown
+	unknown,
+	ALL
 }
 
 // Setup generic arrays
 global.difficulties_array = [difficulties.easy, difficulties.medium, difficulties.hard, difficulties.very_hard];
+global.graphics_modes_array = [graphics_modes.standard, graphics_modes.farmer, graphics_modes.unknown];
 global.death_types_array = [
 	obj_door,
 	obj_chest,
@@ -84,7 +86,6 @@ global.death_types_array = [
 	obj_cockroach,
 	obj_cultist,
 	obj_red_chest,
-	obj_chest,
 	obj_player
 ];
 global.available_items = [
@@ -160,6 +161,10 @@ global.bg_color = make_color_rgb(0, 0, 0);
 global.is_test_mode = false;
 global.is_seed_testing_mode = false;
 global.has_seed_test_passed = false;
+
+// Saved stats, each save file read when first needed and kept, and the totals worked out from them (see scr_player_data)
+global.saved_stats_records = {};
+global.stats_record_totals = {};
 
 // Setup global variables for title screen
 global.difficulty = get_setting("difficulty", difficulties.easy);

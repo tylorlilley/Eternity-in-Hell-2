@@ -56,8 +56,8 @@ if (can_process_this_frame()) {
 				instance_create(_x_pos, _y_pos, obj_blood);
 			}
 			instance_destroy();
-			update_kill_log(object_index, global.difficulty, object_index);
-			global.controller.evaluation_manager.increment_evaluation_variable("giant_eye_room_solved");
+			record_run_kill(object_index, object_index);
+			increment_run_stat("giant_eye_room_solved");
 		}
 	}
 }

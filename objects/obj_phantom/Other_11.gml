@@ -53,7 +53,7 @@ if (_controller.current_room.lit) {
 		play_sound(snd_impact, false); 
 		screen_flash(); 
 		instance_destroy();
-		update_kill_log(object_index, global.difficulty, object_index);
+		record_run_kill(object_index, object_index);
 	}
 }
 	

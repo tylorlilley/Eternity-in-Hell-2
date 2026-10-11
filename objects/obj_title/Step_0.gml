@@ -370,7 +370,7 @@ if (!_game_manager.paused) {
 				if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { global.graphics_mode = get_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
 				else if (global.graphics_mode != graphics_modes.standard) { global.graphics_mode = graphics_modes.standard; update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode); }
 				if (death_log_screen) { update_death_types(); death_log_pos = 0; }
-				if (evaluation_log_screen) { trait_surface_y_pos = 0; evaluation_log_sort = 0; evaluation_manager.load_evaluation_messages(evaluation_log_sort); }
+				if (evaluation_log_screen) { trait_surface_y_pos = 0; evaluation_log_sort = 0; }
 			}
 		}
 	}
@@ -450,7 +450,6 @@ if (!_game_manager.paused) {
 			evaluation_log_sort += 1
 			if (evaluation_log_sort > 1) { evaluation_log_sort = 0; }
 			if (_prev_evaluation_log_screen) { play_sound(snd_thud, false); }
-			evaluation_manager.load_evaluation_messages(evaluation_log_sort);
 		}
 	}
 }

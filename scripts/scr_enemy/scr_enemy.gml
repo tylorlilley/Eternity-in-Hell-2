@@ -22,13 +22,13 @@ function kill_enemy(_death_sound, _killed_by) {
 		}
 	}
 	if (object_index == obj_gudetama) {
-		global.controller.evaluation_manager.increment_evaluation_variable("gudetama_room_solved");
+		increment_run_stat("gudetama_room_solved");
 	}
 	if (_killed_by != noone) {
-		update_kill_log(object_index, global.difficulty, _killed_by);
+		record_run_kill(object_index, _killed_by);
 	}
 	if (global.player.dead) {
-		global.controller.evaluation_manager.increment_evaluation_variable("kill_after_death_count");
+		increment_run_stat("kill_after_death_count");
 	}
 	instance_destroy();
 }
@@ -40,7 +40,7 @@ function kill_with_sword(_sword) {
     var _killer = _holder_exists ? _sword.holder.object_index : noone;
 
     if (_holder_exists && _sword.holder == global.player) {
-        global.controller.evaluation_manager.increment_evaluation_variable("sword_kill_count");
+        increment_run_stat("sword_kill_count");
     }
 	if (!_sword.special) { 
 		var _sword_in_ground = instance_create(x, y, obj_sword_in_ground);
@@ -347,7 +347,6 @@ function move_segments(_new_dir) {
 /// @function								explode(_destroy_self);
 ///	@param		{bool}	  _destroy_self		Whether to destroy the calling instance or not
 function explode(_destroy_self) {
-	global.controller.evaluation_manager.increment_evaluation_variable("spontaneously_exploded_enemy");
 	play_sound(snd_explosion, true);
 	screen_flash();
 	

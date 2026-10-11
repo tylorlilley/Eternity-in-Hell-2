@@ -27,12 +27,12 @@ function light_torch(_lighting_torch, _make_noise) {
 		    with obj_lantern { if (!light_source) { _last_lantern = false; } }
 		    _controller.current_room.lit = _last_lantern;
 			if (_last_lantern && is_existing_instance(_lighting_torch) && _lighting_torch.holder == global.player) { 
-				_controller.evaluation_manager.increment_evaluation_variable("rooms_lit");
+				increment_run_stat("rooms_lit");
 			}
 		}
 		else if (object_index == obj_torch) {
-			_controller.evaluation_manager.increment_evaluation_variable("torches_lit");
-			if (special) { _controller.evaluation_manager.increment_evaluation_variable("special_torches_lit"); }
+			increment_run_stat("torches_lit");
+			if (special) { increment_run_stat("special_torches_lit"); }
 		}
 	}
 	// Light the lighting torch in response if necessary
@@ -46,7 +46,7 @@ function extinguish_torch() {
 	time_to_remain_lit = 0;
 	
 	if (is_existing_instance(holder) && holder == global.player) {
-		global.controller.evaluation_manager.kept_fire = false;
+		increment_run_stat("carried_torch_lost_count");
 	}
 	
 	play_sound( snd_extinguish, true );
@@ -75,7 +75,7 @@ function interact_with_other_torches() {
 			var _not_carried = (!is_existing_instance(holder)), _other_not_carried = (!is_existing_instance(_other_torch) || !is_existing_instance(_other_torch.holder));
 			if (is_existing_instance(_other_torch.light_source) && _not_carried != _other_not_carried) {
 				if (!global.player.dead && is_existing_instance(_other_torch) && is_existing_instance(_other_torch.holder) && _other_torch.holder.object_index == obj_fireball && !is_existing_instance(light_source)) { 
-					global.controller.evaluation_manager.increment_evaluation_variable("torches_lit_by_fireball");
+					increment_run_stat("torches_lit_by_fireball");
 				}
 				light_torch(_other_torch, true);		
 				_actively_lit = true;

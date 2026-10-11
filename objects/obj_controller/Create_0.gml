@@ -1,9 +1,4 @@
 // Update game graphics textures
-var _trait_manager = new EvaluationTraitManager();
-with (_trait_manager) {
-	read_traits_from_file();
-	show_debug_message(evaluation_traits);
-}
 draw_texture_flush();
 sprite_prefetch(spr_collectable);
 sprite_prefetch(spr_player);
@@ -54,7 +49,6 @@ with (global.game_manager) {
 	sounds_to_play = [];
 	clear_inputs_for_next_frame();
 	paused = false;
-	update_run_number_log(global.difficulty);
 }
 play_sound(snd_torchlight, false);
 global.player = instance_create(-16, -16, obj_player);
@@ -63,6 +57,7 @@ player_appear_timer = 0;
 global.player.visible = true;
 with (global.game_manager) { array_remove_first(sounds_to_play, snd_win); }
 
+update_log("run_number", run_record.run_number);
 update_log("SEED", global.seed);
 update_log("DIFFICULTY", get_difficulty_string(global.difficulty));
 update_log("VERSION", GM_version);

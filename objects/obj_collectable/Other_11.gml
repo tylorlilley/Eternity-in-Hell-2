@@ -17,7 +17,7 @@ if (is_instance_at_coordinates(x, y, _player)) {
 		}
 	}
 	else { play_sound(snd_mana, true); }
-	global.controller.evaluation_manager.total_collectables_collected += 1;
+	increment_run_stat("total_collectables_collected");
 	instance_destroy();
 }
 

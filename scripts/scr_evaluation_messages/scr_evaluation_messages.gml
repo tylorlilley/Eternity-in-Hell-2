@@ -1,386 +1,336 @@
-function EvaluationMessageManager() constructor {
-	evaluation_messages = [];
-	current_score = 0;
-	
-	// Item Usage
-	death_count = 0;
-	rosary_use_count = 0;
-	staff_blocked_fireballs = 0;
-	staff_blocked_beams = 0;
-	holes_dug = 0;
-	bombs_lit = 0;
-	bombs_lit_by_fireball = 0;
-	torches_lit = 0;
-	kept_fire = true;
-	total_collectables_collected = 0;
-	torches_lit_by_fireball = 0;
-	rooms_lit = 0;
-	clock_time_saved = 0;
-	map_looks = 0;
-	map_looks_with_map_item = 0;
-	special_torches_lit = 0;
-	used_item_types = 0;
-	used_special_items = 0;
-	
-	// Kills
-	kill_count = 0;
-	kill_after_death_count = 0;
-	worm_kill_count = 0;
-	sword_kill_count = 0;
-	block_kill_count = 0;
-	nose_block_kill_count = 0;
-	double_block_kill_count = 0;
-	fireball_kill_count = 0;
-	meat_kill_count = 0;
-	lava_kill_count = 0;
-	
-	// Misc.
-	item_lava_count = 0;
-	decapitated_corpses = 0;
-	spontaneously_exploded_enemy = 0;
-	dual_wielded_items = 0;
-	dual_wielded_lit_torches = 0;
-	mirror_bounced_projectile = 0;
-	blocks_pushed_into_lava = 0;
-	
-	// Chests
-	chests_opened = 0;
-	chests_opened_lit_bombs = 0;
-	trapped_chests_opened = 0;
-	trapped_chests_destroyed = 0;
-	unlocked_chests = 0;
-	
-	// Doors and Exits
-	opened_doors = 0;
-	unlocked_doors = 0;
-	portcullises_opened = 0;
-	illusion_walls_discovered = 0;
-	
-	// Tiles
-	crushed_bugs = 0;
-	times_infected = 0;
-	rustled_bushes = 0;
-	disturbed_bones = 0;
-	
-	// Special Rooms
-	giant_eye_room_visited = 0;
-	giant_eye_room_solved = 0;
-	gudetama_room_visited = 0;
-	gudetama_room_solved = 0;
-	hall_of_mirrors_room_visited = 0;
-	hall_of_mirrors_room_solved = 0;
-	red_chest_room_visited = 0;
-	red_chest_room_solved = 0;
-	special_heart_victory = 0;
-	inverted_cross_room_visited = 0;
-	inverted_cross_room_solved = 0;
-	
-	/// @function									increment_evaluation_variable(must_have_lantern, spawn_special_room);
-	/// @param		{string} _var_name				A string representing the evaluation varibale name
-	/// @param		{int} _value						OPTIONAL: the value to increment by
-	function increment_evaluation_variable(_var_name, _value = 1) {
-		if (variable_struct_exists(self, _var_name)) {
-			var _current_value = variable_struct_get(self, _var_name);
-			variable_struct_set(self, _var_name, _current_value + _value);
-			write_debug_message(_var_name + " += " + string(_value), debug_message_level.eval);
-		}
-		else {
-			write_debug_message("Non-existent evaluation variable referenced.", debug_message_level.warning);
-		}
-	}
-	
-	/// @function									calculate_evaluation_messages_and_score();
-	function calculate_evaluation_messages_and_score() {
-		var _controller = global.controller;
-		evaluation_messages = [];
-		current_score = 0;
-		
-		var _has_won = is_game_won(), _has_lost = is_game_lost();
-		var _time_elapsed = (global.is_test_mode) ? 0 : (_controller.time_provided - _controller.final_time_remaining);
-		var _time_remaining = (global.is_test_mode) ? 0 : _controller.final_time_remaining;
-		var _time_provided = (global.is_test_mode) ? 0 : _controller.time_provided;
-		// var time_elapsed_string = "Time Elapsed: "+string(floor(time_elapsed/(60)))+":"+get_zero_padded_string(floor(modulo(time_elapsed, 60)), 2);
-		// var time_remaining_string = "Extra Time Remaining: "+string(floor(time_remaining/(60)))+":"+get_zero_padded_string(floor(modulo(time_remaining, 60)), 2);
-		var _time_elapsed_string = "Time Elapsed: "+get_percentage_string((_time_elapsed/_time_provided)*100);
-		var _time_remaining_string = "Extra Time Remaining: "+get_percentage_string((_time_remaining/_time_provided)*100);
-		
-		// Main Scoring Messages
-		add_evaluation_message(true, _time_elapsed_string, false, 0);
-		add_evaluation_message(true, "Collected: "+get_percentage_string(get_collectables_score()), false, get_collectables_score()/3);
-		add_evaluation_message(true, "Visited Rooms: "+get_percentage_string(get_mapped_rooms_score()), false, get_mapped_rooms_score()/3);
-		add_evaluation_message((global.is_test_mode || _controller.completion_amount > 0), "Escaped Amount: "+get_percentage_string(get_victory_amount_score()), false, get_victory_amount_score()/10);
-		add_evaluation_message((global.is_test_mode || _has_won), _time_remaining_string, false, get_time_remaining_score()/10);
-		add_evaluation_message((global.is_test_mode ||((_has_won && death_count > 0) || (_has_lost && death_count > 1))), "Death Penalty: "+string(death_count-1), true, death_count*-5);
-		add_evaluation_message((global.is_test_mode || (_controller.killed_by != noone && get_death_count(_controller.killed_by, global.difficulty) == 0)), "Novel Death", true, 0);
-		add_evaluation_message((global.is_test_mode || kill_count > 0), "Killed Enemies: "+string(kill_count), false, kill_count);
-		add_evaluation_message((global.is_test_mode || used_special_items > 0), "Cursed Items Used : "+string(used_special_items), true, used_special_items*-10);
-		
-		// Item Scoring messages
-		add_evaluation_message((global.is_test_mode || get_used_item_score() > 0), "Resourceful", false, get_used_item_score());
-		add_evaluation_message((global.is_test_mode || (_has_won && global.player_left_hand_item == noone && global.player_right_hand_item == noone)), "Courageous Preparation", false, 10);
-		add_evaluation_message((global.player_left_hand_item != noone && global.player_right_hand_item != noone), "Overprepared", true, -5);
-		add_evaluation_message((global.is_test_mode || (_has_won && (_controller.final_player_left_hand_item == noone || _controller.final_player_right_hand_item == noone))), "Returned Empty-Handed", true, -5);
-		if (global.is_test_mode || (_has_won && (_controller.final_player_right_hand_item != global.player_left_hand_item && _controller.final_player_right_hand_item != global.player_right_hand_item && _controller.final_player_right_hand_item != obj_heart))) {
-			add_evaluation_message((true), "Returned with a Memento", false, 5);
-		}
-		else if ((global.is_test_mode || (_has_won && (_controller.final_player_left_hand_item != global.player_left_hand_item && _controller.final_player_left_hand_item != global.player_right_hand_item && _controller.final_player_left_hand_item != obj_heart)))) {
-			add_evaluation_message((true), "Returned with a Memento", false, 5);
-		}
-		if (global.is_test_mode || (_has_won && _controller.final_player_left_hand_item != obj_heart && get_item_win_count(_controller.final_player_left_hand_item, global.difficulty) == 0)) {
-			add_evaluation_message((true), "New Item Recovered", false, 0);
-		}
-		else if (global.is_test_mode || (_has_won && _controller.final_player_right_hand_item != obj_heart && get_item_win_count(_controller.final_player_right_hand_item, global.difficulty) == 0)) {
-			add_evaluation_message((true), "New Item Recovered", false, 0);
-		}
-		
-		// Item Mastery Bonuses
-		add_evaluation_message((sword_kill_count >= 3), "Sword Master", false, 5);
-		add_evaluation_message((rosary_use_count >= 3), "Devoted Follower", false, 5);
-		add_evaluation_message(((unlocked_doors + unlocked_chests) >= 5), "Master Lockpicker", false, 5);
-		add_evaluation_message((holes_dug >= 6), "Tunnel Digger", false, 5);
-		add_evaluation_message((meat_kill_count >= 3), "Expert Poisoner", false, 5);
-		add_evaluation_message((clock_time_saved > 600), "Time Saver", false, 5);
-		add_evaluation_message((special_torches_lit > 0 || dual_wielded_lit_torches > 0), "Shone Brightly", false, 5);
-		add_evaluation_message((map_looks_with_map_item >= MAX_NUMBER_OF_ROOMS/2 && (map_looks - map_looks_with_map_item) < MAX_NUMBER_OF_ROOMS/2), "Consulter of Maps", false, 5);
-		add_evaluation_message(((map_looks - map_looks_with_map_item) >= MAX_NUMBER_OF_ROOMS/2), "Map Overreliance", true, -2);
-		
-		// Misc Bonuses
-		add_evaluation_message((chests_opened >= 5), "Treasure Hunter", false, 2);
-		add_evaluation_message((kill_count >= 10), "Monster Slayer", false, 2);
-		//add_evaluation_message((lava_kill_count > 0), "Accidental Kill", false, 2);
-		add_evaluation_message((kill_after_death_count >= 1), "Posthumous Revenge", false, 2);
-		add_evaluation_message((fireball_kill_count > 0), "Friendly Fire", false, 2);
-		add_evaluation_message((worm_kill_count > 0), "Accidental Kill", false, 2);
-		add_evaluation_message((block_kill_count >= 4), "Bulldozer", false, 2);
-		add_evaluation_message((double_block_kill_count >= 1), "Two Birds One Block", false, 5);
-		add_evaluation_message((nose_block_kill_count >= 1), "Bulldozed in Lava", false, 5);
-		add_evaluation_message((portcullises_opened >= 3), "Gate Opener", false, portcullises_opened);
-		add_evaluation_message((rooms_lit >= 4), "Light Bringer", false, 2);
-		add_evaluation_message((bombs_lit >= 3), "Demolition Expert", false, 2);
-		add_evaluation_message((blocks_pushed_into_lava >= 9), "Bridge Maker", false, 2);
-		add_evaluation_message(((trapped_chests_opened + trapped_chests_destroyed) >= 3), "Trap Dodger", false, 2);
-		add_evaluation_message(((staff_blocked_beams + staff_blocked_fireballs) >= 3), "Projectile Deflector", false, 2);
-		add_evaluation_message((illusion_walls_discovered >= 1), "Breaker of Illusions", false, illusion_walls_discovered);
-		add_evaluation_message((torches_lit_by_fireball > 0 || bombs_lit_by_fireball > 0), "Improvised Ignition", false, torches_lit_by_fireball+bombs_lit_by_fireball);
-		add_evaluation_message((_has_won && spontaneously_exploded_enemy > 1), "Survived a Combustion", false, spontaneously_exploded_enemy);
-		add_evaluation_message((_has_won && mirror_bounced_projectile > 1), "Survived Reflected Shot", false, 1);
-		add_evaluation_message((_has_won && times_infected > 0), "Survived a Parasite", false, 5);
-		add_evaluation_message((global.is_test_mode || (_has_won && _controller.same_skeleton_type != noone)), "Survived a Special Swarm", false, 10);
-		
-		// Off and On Bonus/Penalties
-		add_evaluation_message((_has_won && map_looks == 0), "Mental Mapper", false, 10);
-		add_evaluation_message((_has_won && crushed_bugs == 0), "Careful Stepper", false, 10);
-		add_evaluation_message((crushed_bugs > 10), "Bug Crusher", true, -2);
-		add_evaluation_message((_has_won && opened_doors == 0), "Entamaphobic", false, 10);
-		add_evaluation_message((opened_doors > 20), "Door Slammer", true, -2);
-		add_evaluation_message((_has_won && rustled_bushes == 0), "Allergic to Nature", false, 10);
-		add_evaluation_message((rustled_bushes >= 100), "Invasive Species", true, -2);
-		add_evaluation_message((_has_won && disturbed_bones == 0), "Respected the Fallen", false, 10);
-		add_evaluation_message((disturbed_bones >= 16), "Profaner of the Dead", true, -2);
-		add_evaluation_message((_has_won && torches_lit == 0), "Adapted to the Dark", false, 10);
-		add_evaluation_message((_has_won && kept_fire), "Kept the Fire Burning", false, 5);
-		add_evaluation_message((total_collectables_collected >= 100), "Master Collector", false, 2);
-		add_evaluation_message((dual_wielded_items > 0), "Dual Wielder", false, 1);
-		
-		// Misc Penalties
-		add_evaluation_message((times_infected > 0), "Riddled with Parasites", true, -times_infected);
-		add_evaluation_message((chests_opened_lit_bombs >= 1), "Lit Bomb Out of Chest", true, -2*chests_opened_lit_bombs);
-		add_evaluation_message((item_lava_count >= 1), "Destroyed Item in Lava", true, -2*item_lava_count);
-		add_evaluation_message((decapitated_corpses > 0), "Corpse Desecrator", true, -2*decapitated_corpses);
-		//add_evaluation_message((trapped_chests_opened > 0), "Foolish", false, -2);
-		
-		// Special Room Bonus and Penalties
-		add_evaluation_message((giant_eye_room_visited), "Beholder of True Envy", true, -2);
-		add_evaluation_message((giant_eye_room_solved), "Eye Blinder", false, 5);
-		add_evaluation_message((gudetama_room_visited), "Witnessed True Sloth", true, -2);
-		add_evaluation_message((gudetama_room_solved), "Overcame the Roadblock", false, 5);
-		add_evaluation_message((hall_of_mirrors_room_visited), "Lost in Your Own Pride", true, -2);
-		add_evaluation_message((hall_of_mirrors_room_solved), "Solved the Mirror Maze", false, 5);
-		add_evaluation_message((red_chest_room_visited), "Encountered True Greed", true, -2);
-		add_evaluation_message((red_chest_room_solved), "Sacrificed an Arm", false, 5);
-		add_evaluation_message((special_heart_victory), "Recovered a Pure Heart", false, 10);
-		add_evaluation_message((red_chest_room_solved > 1), "Armless Wonder", false, -2);
-		add_evaluation_message((inverted_cross_room_visited), "Invoked Wrath Within", true, -2);
-		add_evaluation_message((inverted_cross_room_solved), "Retraced Your Steps", false, 5);
-		// TODO: Missing Gluttony Room
-		// TODO: Missing Lust Room
-		
-		if (current_score < 0) { current_score = 0; }
-		if (current_score > 100) { current_score = 100; }
-		var _previous_best_score = get_best_score(global.difficulty);
-		add_evaluation_message((_previous_best_score <= current_score), "New High Score!", false, 0);
-		if (!global.is_test_mode) {
-			update_best_score(global.difficulty, current_score);
-			save_evaluation_variables();
-			save_evaluation_messages();
-		}
-	}
+/// @function create_run_stats()
+/// @description Every stat a run counts, each starting at 0. This and get_evaluation_messages below are the one
+///	place stats and evaluation messages are defined. Code anywhere in the game adds to a stat by name with
+///	increment_run_stat, the evaluation messages judge the run on the stats when it ends, and each save file keeps
+///	their totals over every run it holds (see scr_player_data). To add a stat, add it here and call
+///	increment_run_stat where it happens.
+/// @returns {struct} Each stat's name, set to 0
+function create_run_stats() {
+	return {
+		// Deaths
+		death_count: 0,									// Times the player died, including deaths a rosary undid, running out of time and restarting from the pause menu
+		rosary_use_count: 0,							// Times a rosary brought the player back to life
 
-	
-	/// @function								add_evaluation_message(_criteria, _msg, _use_special_text, _score_modifier);
-	/// @param		{bool} _criteria				The criteria to pass in order to display this message
-	/// @param		{string} _msg				The message to display
-	/// @param		{bool} _use_special_text		Whether to use the special color for this text
-	/// @param		{int} _score_modifier		The amount that achieving this message modifiers your current score
-	function add_evaluation_message(_criteria, _msg, _use_special_text, _score_modifier) {
-		if (global.is_test_mode || _criteria) { 
-			array_push(evaluation_messages, [_msg, _use_special_text]);
-			current_score += _score_modifier;
-		}
-	}
-	
-	/// @function								save_evaluation_variables();
-	function save_evaluation_variables() {
-		var _all_variables = variable_struct_get_names(self);
-		
-		for(var _i = 0; _i < array_length(_all_variables); _i++) {
-			var _next_variable = _all_variables[_i];
+		// Kills (see record_run_kill for which kills are recorded)
+		kill_count: 0,									// Enemies killed by anything but another enemy's projectile
+		kill_after_death_count: 0,						// Enemies killed while the player was dead
+		sword_kill_count: 0,							// Enemies the player killed with a sword
+		block_kill_count: 0,							// Enemies crushed under a block the player pushed
+		double_block_kill_count: 0,						// Pushes that crushed two or more enemies under one block
+		nose_block_kill_count: 0,						// Noses crushed under a block the player pushed
+		worm_kill_count: 0,								// Enemies crushed under the giant worm
+		lava_kill_count: 0,								// Enemies killed by lava
+		meat_kill_count: 0,								// Enemies killed by eating special meat
+		bomb_kill_count: 0,								// Enemies killed by the blast of a bomb the player set off
+		friendly_fire_kill_count: 0,					// Enemies killed by another enemy's projectile
+		spontaneously_exploded_enemy: 0,				// Noses and fire skeletons that blew themselves up
 
-			switch (_next_variable) {
-				case "evaluation_messages":
-				case "current_score":
-				case "bombs_lit_by_fireball":
-				case "torches_lit_by_fireball":
-				case "clock_time_saved":
-				case "map_looks":
-				case "map_looks_with_map_item":
-				case "spontaneously_exploded_enemy":
-				case "dual_wielded_lit_torches":
-				case "mirror_bounced_projectile":
-				case "chests_opened_lit_bombs":
-				case "trapped_chests_opened":
-				case "trapped_chests_destroyed":
-				case "giant_eye_room_visited":
-				case "giant_eye_room_solved":
-				case "gudetama_room_visited":
-				case "gudetama_room_solved":
-				case "hall_of_mirrors_room_visited":
-				case "hall_of_mirrors_room_solved":
-				case "red_chest_room_visited":
-				case "red_chest_room_solved":
-				case "special_heart_victory":
-				case "inverted_cross_room_visited":
-				case "inverted_cross_room_solved":
-				case "rustled_bushes":
-				case "disturbed_bones":
-				case "used_item_types": {
-					// Do Nothing
-					break;
-				}
-				case "dual_wielded_items": {
-					// Increase it by one
-					update_evaluation_variable(_next_variable, global.difficulty, 1);
-					break;
-				}
-				default: {
-					// Increase it by the variable amount
-					var _next_value = variable_struct_get(self, _next_variable)
-					if (is_string(_next_value) || is_real(_next_value)) { update_evaluation_variable(_next_variable, global.difficulty, _next_value); }
-					break;
-				}
-			}
-		}
-	}
-	
-	/// @function								save_evaluation_messages();
-	function save_evaluation_messages() {
-		for(var _i = 0; _i < array_length(evaluation_messages); _i++) {
-			var _next_message = evaluation_messages[_i][0];
+		// Items
+		used_item_types: 0,								// Types of item the player picked up
+		used_special_items: 0,							// Special items the player carried into another room
+		dual_wielded_items: 0,							// Times the player came to hold two items of the same type
+		dual_wielded_lit_torches: 0,					// Times the player came to hold two lit torches
+		staff_blocked_fireballs: 0,						// Fireballs a carried staff blocked
+		staff_blocked_beams: 0,							// Magic beams a carried staff blocked
+		holes_dug: 0,									// Holes dug with a shovel
+		bombs_lit: 0,									// Bombs the player lit
+		bombs_lit_by_fireball: 0,						// Bombs a fireball lit while the player was alive
+		torches_lit: 0,									// Torches lit, counting the one the player may begin with
+		torches_lit_by_fireball: 0,						// Torches a fireball lit while the player was alive
+		special_torches_lit: 0,							// Special torches lit
+		carried_torch_lost_count: 0,					// Times the player put down their last torch, dropped it by dying, or let a carried torch go out
+		rooms_lit: 0,									// Rooms where the player lit the last unlit lantern
+		clock_time_saved: 0,							// Seconds a carried clock kept from running out
+		item_lava_count: 0,								// Items destroyed by lava
+		decapitated_corpses: 0,							// Heads the player ripped off of corpses
+		total_collectables_collected: 0,				// Collectables picked up
 
-			if (string_count("Time Elapsed", _next_message) ||
-				string_count("Collected", _next_message) ||
-				string_count("Visited Rooms", _next_message) ||
-				string_count("Escaped Amount", _next_message) ||
-				string_count("Extra Time Remaining", _next_message) ||
-				string_count("Death Penalty", _next_message) ||
-				string_count("Killed Enemies", _next_message) ||
-				string_count("Cursed Items Used", _next_message)) {
-					continue;
-			}
-				
-			update_evaluation_variable(_next_message, global.difficulty, 1);
-		}
-	}
-	
-	/// @function								load_evaluation_messages(sort_mode);
-	/// @param		{boolean} _sort_by_value		Whether to sort the eval messages by their value
-	function load_evaluation_messages(_sort_by_value) {
-		var _prev_test_mode = global.is_test_mode;
-		global.is_test_mode = true;
-		calculate_evaluation_messages_and_score();
-		global.is_test_mode = _prev_test_mode;
-		
-		var _loaded_eval_messages = [];
-		for(var _i = 0; _i < array_length(evaluation_messages); _i++) {
-			var _next_message = evaluation_messages[_i];
+		// Map
+		map_looks: 0,									// Times the player opened the map
+		rooms_map_looked_at_with_map_item: 0,			// Rooms the player opened the map in while carrying a map
+		rooms_map_looked_at_without_map_item: 0,		// Rooms the player opened the map in without carrying a map
 
-			if (string_count("Time Elapsed", _next_message) ||
-				string_count("Collected", _next_message) ||
-				string_count("Visited Rooms", _next_message) ||
-				string_count("Escaped Amount", _next_message) ||
-				string_count("Extra Time Remaining", _next_message) ||
-				string_count("Death Penalty", _next_message) ||
-				string_count("Killed Enemies", _next_message) ||
-				string_count("Cursed Items Used", _next_message)) {
-					continue;
-			}
-			array_push(_next_message, get_evaluation_variable(_next_message[0], global.difficulty));
-			array_push(_loaded_eval_messages, _next_message);
-		}
-		current_score = 0;
-		evaluation_messages = _loaded_eval_messages;
-		// Sort evaluation messages to display by sort_type
-		if (_sort_by_value) {
-			array_sort(evaluation_messages, function(_elm1, _elm2) {
-				return _elm2[2] - _elm1[2];
-			});
-		}
-	}
+		// Chests
+		chests_opened: 0,								// Chests opened, other than trapped ones
+		chests_opened_lit_bombs: 0,						// Bombs a chest dropped at the player's feet while they carried a lit torch
+		trapped_chests_opened: 0,						// Trapped chests opened
+		trapped_chests_destroyed: 0,					// Trapped chests destroyed by the blast of a bomb the player set off
+		unlocked_chests: 0,								// Locked chests unlocked
+
+		// Doors and exits
+		opened_doors: 0,								// Doors opened
+		unlocked_doors: 0,								// Locked doors unlocked
+		portcullises_opened: 0,							// Portcullises opened by stepping on a plate
+		illusion_walls_discovered: 0,					// Illusion walls the player walked through
+
+		// Tiles and hazards
+		crushed_bugs: 0,								// Bugs the player stepped on
+		times_infected: 0,								// Times a parasite infected the player
+		rustled_bushes: 0,								// Times the player rustled a bush
+		disturbed_bones: 0,								// Corpses and bones the player stepped on
+		blocks_pushed_into_lava: 0,						// Blocks pushed into lava
+		mirror_bounced_projectile: 0,					// Times a projectile bounced off of a mirror
+
+		// Special rooms
+		giant_eye_room_visited: 0,						// Envy rooms found
+		giant_eye_room_solved: 0,						// Envy rooms solved, by destroying the giant eye
+		gudetama_room_visited: 0,						// Sloth rooms found
+		gudetama_room_solved: 0,						// Sloth rooms solved, by killing the gudetama
+		hall_of_mirrors_room_visited: 0,				// Pride rooms found
+		hall_of_mirrors_room_solved: 0,					// Pride rooms solved, by finding the way through the hall of mirrors
+		red_chest_room_visited: 0,						// Greed rooms found
+		red_chest_room_solved: 0,						// Arms the red chest took, with the item they held
+		inverted_cross_room_visited: 0,					// Wrath rooms found
+		inverted_cross_room_solved: 0,					// Wrath rooms solved, by going back to the cross
+		special_heart_victory: 0						// Wins carrying a purified heart
+	};
 }
 
-
-function EvaluationTraitManager() constructor {
-	evaluation_traits = [];
-	
-	/// @function									read_traits_from_file();
-	function read_traits_from_file() {
-		evaluation_traits = [];
-		var _filename = "trait_data.json";
-		var _file = file_text_open_read(_filename);
-		
-		// Read in each trait from file
-		var _evaluation_message_data = file_text_readln(_file);
-		_evaluation_message_data = file_text_readln(_file);
-		while (_evaluation_message_data != "]")
-		{
-			var _decoded_content = json_parse(_evaluation_message_data);
-			var _new_evaluation_trait = new EvaluationTrait(_decoded_content);
-			_new_evaluation_trait.set_times_earned();
-			array_push(evaluation_traits, _new_evaluation_trait);
-			_evaluation_message_data = file_text_readln(_file);
-		}
-		file_text_close(_file);
-	}
+/// @function get_evaluation_messages()
+/// @description Every message the end-of-run evaluation can show, in the order it shows them. To add a message, add
+///	a line to EvaluationMessageList below.
+/// @returns {array} The EvaluationMessage structs
+function get_evaluation_messages() {
+	static message_list = new EvaluationMessageList();
+	return message_list.messages;
 }
 
-function EvaluationTrait(_message_data) constructor {
-	title = _message_data.title
-	variable_name = string_replace_all(title, " ", "_")
-	description = _message_data.description
-	order = _message_data.order
-	negative_trait = _message_data.negative
-	times_earned = array_create(difficulties.ALL);
-	
-	/// @function									set_times_earned();
-	function set_times_earned() {
-		times_earned = array_create(difficulties.ALL);
-		
-		var _total = 0;
-		for(var _i = 0; _i < difficulties.ALL; _i++) {
-			var _times_earned_for_difficulty = get_evaluation_variable(variable_name, _i);
-			times_earned[_i] = _times_earned_for_difficulty;
-			_total += times_earned[_i];
-		}
-		times_earned[difficulties.ALL] = _total;
-	}
+/// @function EvaluationMessage(_title, _description, _is_negative, _score_value, _is_earned, [_get_text])
+/// @description One message the end-of-run evaluation can show, and what it adds to the run's score. An achievement
+///	shows its title, and the save files count how many runs earned it. A score line (one given _get_text) shows a
+///	measure of the run instead, like the share of rooms visited, and isn't counted. Both tests take the run's stats
+///	(see create_run_stats) and its RunRecord, which also holds what RunRecord.evaluate measures when the run ends.
+/// @param {string} _title The name shown, and the name the save files count it under
+/// @param {string} _description What earns it, for the title screen
+/// @param {bool} _is_negative Whether it's drawn in the game color, as a penalty or bad news
+/// @param {real|function} _score_value What it adds to the score, or a function(_stats, _run) that works that out
+/// @param {function} _is_earned A function(_stats, _run) that says whether the run earned it
+/// @param {function} [_get_text] For a score line, a function(_stats, _run) that returns the text to show
+function EvaluationMessage(_title, _description, _is_negative, _score_value, _is_earned, _get_text = undefined) constructor {
+	title = _title;
+	description = _description;
+	is_negative = _is_negative;
+	score_value = _score_value;
+	is_earned = _is_earned;
+	get_text = _get_text;
+	is_achievement = is_undefined(_get_text);
+
+	/// @function get_score_for_run(_run)
+	/// @description What the message adds to a run's score
+	/// @param {struct} _run The RunRecord of the run being judged
+	/// @returns {real}
+	static get_score_for_run = function(_run) {
+		return (is_method(score_value)) ? score_value(_run.stats_record.stats, _run) : score_value;
+	};
+
+	/// @function get_text_for_run(_run)
+	/// @description The text the message shows for a run: its title, or a score line's measure of the run
+	/// @param {struct} _run The RunRecord of the run being judged
+	/// @returns {string}
+	static get_text_for_run = function(_run) {
+		return (is_achievement) ? title : get_text(_run.stats_record.stats, _run);
+	};
+}
+
+/// @function EvaluationMessageList()
+/// @description The table of every evaluation message, built once by get_evaluation_messages. Each message is one
+///	entry: its title, its description, whether it's negative, its score and the test that earns it. The tests are
+///	written inside this constructor so they stay bound to the table for the whole game.
+function EvaluationMessageList() constructor {
+	messages = [];
+
+	/// @function add_message(_title, _description, _is_negative, _score_value, _is_earned)
+	/// @description Adds an achievement, shown by its title and counted in the save files (see EvaluationMessage)
+	/// @param {string} _title The name shown and counted
+	/// @param {string} _description What earns it, for the title screen
+	/// @param {bool} _is_negative Whether it's drawn in the game color
+	/// @param {real|function} _score_value What it adds to the score, or a function(_stats, _run) that works that out
+	/// @param {function} _is_earned A function(_stats, _run) that says whether the run earned it
+	static add_message = function(_title, _description, _is_negative, _score_value, _is_earned) {
+		array_push(messages, new EvaluationMessage(_title, _description, _is_negative, _score_value, _is_earned));
+	};
+
+	/// @function add_score_line(_title, _is_negative, _score_value, _is_earned, _get_text)
+	/// @description Adds a score line, which shows a measure of the run and isn't counted (see EvaluationMessage)
+	/// @param {string} _title A name for the line
+	/// @param {bool} _is_negative Whether it's drawn in the game color
+	/// @param {real|function} _score_value What it adds to the score, or a function(_stats, _run) that works that out
+	/// @param {function} _is_earned A function(_stats, _run) that says whether the run shows it
+	/// @param {function} _get_text A function(_stats, _run) that returns the text to show
+	static add_score_line = function(_title, _is_negative, _score_value, _is_earned, _get_text) {
+		array_push(messages, new EvaluationMessage(_title, "", _is_negative, _score_value, _is_earned, _get_text));
+	};
+
+	// The run's main measures
+	add_score_line("Time Elapsed", false, 0,
+		function() { return true; },
+		function(_stats, _run) { return "Time Elapsed: " + get_percentage_string(_run.time_elapsed_percent); });
+	add_score_line("Collected", false, function(_stats, _run) { return _run.collected_percent / 3; },
+		function() { return true; },
+		function(_stats, _run) { return "Collected: " + get_percentage_string(_run.collected_percent); });
+	add_score_line("Visited Rooms", false, function(_stats, _run) { return _run.visited_rooms_percent / 3; },
+		function() { return true; },
+		function(_stats, _run) { return "Visited Rooms: " + get_percentage_string(_run.visited_rooms_percent); });
+	add_score_line("Escaped Amount", false, function(_stats, _run) { return _run.escaped_percent / 10; },
+		function(_stats, _run) { return _run.completion_amount > 0; },
+		function(_stats, _run) { return "Escaped Amount: " + get_percentage_string(_run.escaped_percent); });
+	add_score_line("Extra Time Remaining", false, function(_stats, _run) { return _run.time_remaining_score / 10; },
+		function(_stats, _run) { return _run.has_won; },
+		function(_stats, _run) { return "Extra Time Remaining: " + get_percentage_string(_run.time_remaining_percent); });
+	add_score_line("Death Penalty", true, function(_stats) { return _stats.rosary_use_count * -5; },
+		function(_stats) { return _stats.rosary_use_count > 0; },
+		function(_stats) { return "Death Penalty: " + string(_stats.rosary_use_count); });
+	add_message("Novel Death", "Died to something that had never killed you before.", true, 0,
+		function(_stats, _run) { return _run.has_novel_death(); });
+	add_score_line("Killed Enemies", false, function(_stats) { return _stats.kill_count; },
+		function(_stats) { return _stats.kill_count > 0; },
+		function(_stats) { return "Killed Enemies: " + string(_stats.kill_count); });
+	add_score_line("Cursed Items Used", true, function(_stats) { return _stats.used_special_items * -10; },
+		function(_stats) { return _stats.used_special_items > 0; },
+		function(_stats) { return "Cursed Items Used: " + string(_stats.used_special_items); });
+
+	// Items
+	add_message("Resourceful", "Picked up 4 or more types of items, and one more for each item you began with.", false, function(_stats, _run) { return _run.used_item_score; },
+		function(_stats, _run) { return _run.used_item_score > 0; });
+	add_message("Courageous Preparation", "Won after beginning with both hands empty.", false, 10,
+		function(_stats, _run) { return _run.has_won && _run.starting_left_hand_item == noone && _run.starting_right_hand_item == noone; });
+	add_message("Overprepared", "Began with both hands full.", true, -5,
+		function(_stats, _run) { return _run.starting_left_hand_item != noone && _run.starting_right_hand_item != noone; });
+	add_message("Returned Empty-Handed", "Won with one empty hand.", true, -5,
+		function(_stats, _run) { return _run.has_won && (_run.final_left_hand_item == noone || _run.final_right_hand_item == noone); });
+	add_message("Returned with a Memento", "Won while carrying an item you didn't begin with.", false, 5,
+		function(_stats, _run) { return _run.has_won && (_run.is_found_item(_run.final_right_hand_item) || _run.is_found_item(_run.final_left_hand_item)); });
+	add_message("New Item Recovered", "Won while carrying an item you had never won with before.", false, 0,
+		function(_stats, _run) { return _run.has_won && (_run.is_first_win_with_item(_run.final_left_hand_item) || _run.is_first_win_with_item(_run.final_right_hand_item)); });
+
+	// Item mastery
+	add_message("Sword Master", "Defeated 3 or more enemies with a sword.", false, 5,
+		function(_stats) { return _stats.sword_kill_count >= 3; });
+	add_message("Devoted Follower", "Was resurrected 3 or more times.", false, 5,
+		function(_stats) { return _stats.rosary_use_count >= 3; });
+	add_message("Master Lockpicker", "Unlocked a total of 5 or more locked chests and doors.", false, 5,
+		function(_stats) { return (_stats.unlocked_doors + _stats.unlocked_chests) >= 5; });
+	add_message("Tunnel Digger", "Dug 6 or more holes with a shovel.", false, 5,
+		function(_stats) { return _stats.holes_dug >= 6; });
+	add_message("Expert Poisoner", "Used cursed bait to defeat 3 or more enemies.", false, 5,
+		function(_stats) { return _stats.meat_kill_count >= 3; });
+	add_message("Time Saver", "Saved over a minute of time while using a clock.", false, 5,
+		function(_stats) { return _stats.clock_time_saved > 60; });
+	add_message("Shone Brightly", "Carried one or more items that increase your light range beyond that of a single torch.", false, 5,
+		function(_stats) { return _stats.special_torches_lit > 0 || _stats.dual_wielded_lit_torches > 0; });
+	add_message("Consulter of Maps", "Looked at a carried map in more than half of the rooms.", false, 5,
+		function(_stats, _run) { return _stats.rooms_map_looked_at_with_map_item > _run.map_room_count / 2 && _stats.rooms_map_looked_at_without_map_item <= _run.map_room_count / 2; });
+	add_message("Map Overreliance", "Looked at your map without carrying one in more than half of the rooms.", true, -2,
+		function(_stats, _run) { return _stats.rooms_map_looked_at_without_map_item > _run.map_room_count / 2; });
+
+	// Feats
+	add_message("Treasure Hunter", "Opened 5 or more chests.", false, 2,
+		function(_stats) { return _stats.chests_opened >= 5; });
+	add_message("Monster Slayer", "Defeated 10 or more enemies.", false, 2,
+		function(_stats) { return _stats.kill_count >= 10; });
+	add_message("Posthumous Revenge", "Defeated an enemy while you were dead.", false, 2,
+		function(_stats) { return _stats.kill_after_death_count >= 1; });
+	add_message("Friendly Fire", "Defeated an enemy with another enemy's projectile.", false, 2,
+		function(_stats) { return _stats.friendly_fire_kill_count > 0; });
+	add_message("Accidental Kill", "Defeated an enemy by crushing it under another enemy.", false, 2,
+		function(_stats) { return _stats.worm_kill_count > 0; });
+	add_message("Bulldozer", "Defeated 4 or more enemies by crushing them under blocks.", false, 2,
+		function(_stats) { return _stats.block_kill_count >= 4; });
+	add_message("Two Birds One Block", "Defeated 2 or more enemies by crushing them under a single block at the same time.", false, 5,
+		function(_stats) { return _stats.double_block_kill_count >= 1; });
+	add_message("Bulldozed in Lava", "Defeated an enemy by crushing them under a block while it was in lava.", false, 5,
+		function(_stats) { return _stats.nose_block_kill_count >= 1; });
+	add_message("Gate Opener", "Stepped on plates to open 3 or more portcullises.", false, function(_stats) { return _stats.portcullises_opened; },
+		function(_stats) { return _stats.portcullises_opened >= 3; });
+	add_message("Light Bringer", "Fully lit up 4 or more rooms.", false, 2,
+		function(_stats) { return _stats.rooms_lit >= 4; });
+	add_message("Demolition Expert", "Exploded 3 or more bombs.", false, 2,
+		function(_stats) { return _stats.bombs_lit >= 3; });
+	add_message("Bridge Maker", "Pushed 9 or more blocks into lava.", false, 2,
+		function(_stats) { return _stats.blocks_pushed_into_lava >= 9; });
+	add_message("Trap Dodger", "Opened or destroyed 3 or more trapped chests.", false, 2,
+		function(_stats) { return (_stats.trapped_chests_opened + _stats.trapped_chests_destroyed) >= 3; });
+	add_message("Projectile Deflector", "Blocked 3 or more projectiles with a staff.", false, 2,
+		function(_stats) { return (_stats.staff_blocked_beams + _stats.staff_blocked_fireballs) >= 3; });
+	add_message("Breaker of Illusions", "Exited a room through an illusion wall.", false, function(_stats) { return _stats.illusion_walls_discovered; },
+		function(_stats) { return _stats.illusion_walls_discovered >= 1; });
+	add_message("Improvised Ignition", "Lit a torch or bomb via an enemy's projectile.", false, function(_stats) { return _stats.torches_lit_by_fireball + _stats.bombs_lit_by_fireball; },
+		function(_stats) { return _stats.torches_lit_by_fireball > 0 || _stats.bombs_lit_by_fireball > 0; });
+	add_message("Survived a Combustion", "Won after witnessing an enemy's spontaneous combustion.", false, function(_stats) { return _stats.spontaneously_exploded_enemy; },
+		function(_stats, _run) { return _run.has_won && _stats.spontaneously_exploded_enemy >= 1; });
+	add_message("Survived Reflected Shot", "Won after witnessing an enemy's projectile bounce off of a mirror.", false, 1,
+		function(_stats, _run) { return _run.has_won && _stats.mirror_bounced_projectile >= 1; });
+	add_message("Survived a Parasite", "Won after becoming infected by a parasite.", false, 5,
+		function(_stats, _run) { return _run.has_won && _stats.times_infected > 0; });
+	add_message("Survived a Special Swarm", "Won despite all standard enemies being replaced by the same enemy type.", false, 10,
+		function(_stats, _run) { return _run.has_won && _run.had_special_swarm; });
+
+	// Restraint, and its opposite
+	add_message("Mental Mapper", "Won without ever looking at the map.", false, 10,
+		function(_stats, _run) { return _run.has_won && _stats.map_looks == 0; });
+	add_message("Careful Stepper", "Won without stepping on any bugs.", false, 10,
+		function(_stats, _run) { return _run.has_won && _stats.crushed_bugs == 0; });
+	add_message("Bug Crusher", "Stepped on more than 10 bugs.", true, -2,
+		function(_stats) { return _stats.crushed_bugs > 10; });
+	add_message("Entamaphobic", "Won without opening any doors.", false, 10,
+		function(_stats, _run) { return _run.has_won && _stats.opened_doors == 0; });
+	add_message("Door Slammer", "Opened more than 20 doors.", true, -2,
+		function(_stats) { return _stats.opened_doors > 20; });
+	add_message("Allergic to Nature", "Won without ever touching any bushes.", false, 10,
+		function(_stats, _run) { return _run.has_won && _stats.rustled_bushes == 0; });
+	add_message("Invasive Species", "Rustled a bush 100 or more times.", true, -2,
+		function(_stats) { return _stats.rustled_bushes >= 100; });
+	add_message("Respected the Fallen", "Won without ever touching any corpses or bones.", false, 10,
+		function(_stats, _run) { return _run.has_won && _stats.disturbed_bones == 0; });
+	add_message("Profaner of the Dead", "Stepped on a total of 16 or more corpses or bones.", true, -2,
+		function(_stats) { return _stats.disturbed_bones >= 16; });
+	add_message("Adapted to the Dark", "Won without lighting any torches.", false, 10,
+		function(_stats, _run) { return _run.has_won && _stats.torches_lit == 0; });
+	add_message("Kept the Fire Burning", "Won after beginning with a lit torch and never putting it down or letting it go out.", false, 5,
+		function(_stats, _run) { return _run.has_won && _run.began_with_item(obj_torch) && _run.is_holding_item_at_end(obj_torch) && _stats.carried_torch_lost_count == 0; });
+	add_message("Master Collector", "Collected 100 or more in a single run.", false, 2,
+		function(_stats) { return _stats.total_collectables_collected >= 100; });
+	add_message("Dual Wielder", "Carried two of the same item type at once.", false, 1,
+		function(_stats) { return _stats.dual_wielded_items > 0; });
+
+	// Penalties
+	add_message("Riddled with Parasites", "Became infected by a parasite at least once.", true, function(_stats) { return -_stats.times_infected; },
+		function(_stats) { return _stats.times_infected > 0; });
+	add_message("Lit Bomb Out of Chest", "Opened a chest containing a bomb while carrying at least one lit torch and another item.", true, function(_stats) { return _stats.chests_opened_lit_bombs * -2; },
+		function(_stats) { return _stats.chests_opened_lit_bombs >= 1; });
+	add_message("Destroyed Item in Lava", "Dropped an item into lava.", true, function(_stats) { return _stats.item_lava_count * -2; },
+		function(_stats) { return _stats.item_lava_count >= 1; });
+	add_message("Corpse Desecrator", "Ripped the head off of a corpse.", true, function(_stats) { return _stats.decapitated_corpses * -2; },
+		function(_stats) { return _stats.decapitated_corpses > 0; });
+
+	// Special rooms
+	add_message("Beholder of True Envy", "Found the special envy puzzle room.", true, -2,
+		function(_stats) { return _stats.giant_eye_room_visited > 0; });
+	add_message("Eye Blinder", "Found and solved the special envy puzzle room.", false, 5,
+		function(_stats) { return _stats.giant_eye_room_solved > 0; });
+	add_message("Witnessed True Sloth", "Found the special sloth puzzle room.", true, -2,
+		function(_stats) { return _stats.gudetama_room_visited > 0; });
+	add_message("Overcame the Roadblock", "Found and solved the special sloth puzzle room.", false, 5,
+		function(_stats) { return _stats.gudetama_room_solved > 0; });
+	add_message("Lost in Your Own Pride", "Found the special pride puzzle room.", true, -2,
+		function(_stats) { return _stats.hall_of_mirrors_room_visited > 0; });
+	add_message("Solved the Mirror Maze", "Found and solved the special pride puzzle room.", false, 5,
+		function(_stats) { return _stats.hall_of_mirrors_room_solved > 0; });
+	add_message("Encountered True Greed", "Found the special greed puzzle room.", true, -2,
+		function(_stats) { return _stats.red_chest_room_visited > 0; });
+	add_message("Sacrificed an Arm", "Found and solved the special greed puzzle room.", false, 5,
+		function(_stats) { return _stats.red_chest_room_solved > 0; });
+	add_message("Recovered a Pure Heart", "Won while carrying a purified heart.", false, 10,
+		function(_stats) { return _stats.special_heart_victory > 0; });
+	add_message("Armless Wonder", "Gave both of your arms to the special greed puzzle room.", true, -2,
+		function(_stats) { return _stats.red_chest_room_solved > 1; });
+	add_message("Invoked Wrath Within", "Found the special wrath puzzle room.", true, -2,
+		function(_stats) { return _stats.inverted_cross_room_visited > 0; });
+	add_message("Retraced Your Steps", "Found and solved the special wrath puzzle room.", false, 5,
+		function(_stats) { return _stats.inverted_cross_room_solved > 0; });
+	// TODO: Add messages for the gluttony and lust rooms
+
+	// Keep this last: it compares the score every message above adds up to, clamped as RunRecord.evaluate clamps it
+	add_message("New High Score!", "Beat your best grade on this difficulty.", false, 0,
+		function(_stats, _run) { return clamp(_run.run_score, 0, 100) > _run.previous_totals.best_score; });
 }

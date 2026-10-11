@@ -5,9 +5,11 @@ var _player = global.player, _can_process = can_process_this_frame();
 if (paused) {
 	if (key_z && key_x && key_enter_released) {
 		with (global.controller) {
+			// Giving up counts as the player killing themselves, and saves the run without evaluating it
 			killed_by = obj_player;
-			update_kill_log(obj_player, global.difficulty, obj_player);
-			update_death_log(killed_by, global.difficulty, false);
+			record_run_kill(obj_player, obj_player);
+			record_run_death(killed_by);
+			run_record.save();
 		}
 		return_to_title_screen(); 
 		exit; 

@@ -3,7 +3,7 @@ var _game_manager = global.game_manager;
 var _key_space = _game_manager.key_space, _key_space_pressed = _game_manager.key_space_pressed, _key_space_released = _game_manager.key_space_released;
 
 if (_game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROCESSING == 0) {
-	var _player = global.player, _difficulty = global.difficulty;
+	var _player = global.player;
 	if (player_appear_timer > 0) {
 		player_appear_timer -= 1;
 		if (player_appear_timer == 0) { _player.visible = true; }
@@ -13,10 +13,9 @@ if (_game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROC
 		// Play map Sound Effects
 		if _key_space {
 			if _key_space_pressed {
-				evaluation_manager.increment_evaluation_variable("map_looks");
 				var _is_using_map = false;
 				with (_player) { _is_using_map = is_carrying_item(obj_map); }
-				if (_is_using_map) { evaluation_manager.increment_evaluation_variable("map_looks_with_map_item"); }
+				run_record.record_map_look(current_room, _is_using_map);
 				if (instance_number(obj_fat_skeleton) == 0) { play_sound(snd_pickup, false); }
 			}
 			with (obj_fat_skeleton) {
@@ -45,13 +44,13 @@ if (_game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROC
 			if (is_carrying_special_item(obj_clock)) { _time_to_decrement = 0; }
 			if (is_carrying_item(obj_clock)) {
 				var _time_saved = (get_one_unit_of_game_time() - _time_to_decrement);
-				other.evaluation_manager.increment_evaluation_variable("clock_time_saved", _time_saved);
+				increment_run_stat("clock_time_saved", _time_saved);
 			}
 		}
 		time_remaining -= _time_to_decrement;
 		if (is_time_up()) {
 			killed_by = (current_room.has_hall_of_mirrors) ? obj_mirror : obj_controller;
-			update_death_log(killed_by, _difficulty, false);
+			record_run_death(killed_by);
 			_player.dead = true;
 			play_sound(snd_lose, false); 
 		}
@@ -86,7 +85,7 @@ if (_game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROC
 					visible = false;
 					player_appear_timer = 2;
 				}
-				evaluation_manager.increment_evaluation_variable("rosary_use_count");
+				increment_run_stat("rosary_use_count");
 				transition = directions.respawn;
 				// Destroy or pick up rosary
 				if (!_carried_rosary.special) { instance_destroy(_carried_rosary); } 
@@ -96,8 +95,8 @@ if (_game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROC
 				
 				final_time_remaining = time_remaining;
 				time_remaining = time_provided;
-				evaluation_manager.calculate_evaluation_messages_and_score();
-				if (is_game_won()) { update_win_log(_difficulty); } // Must be done after calculating score
+				run_record.evaluate();
+				run_record.save();
 				with (_player) {
 					visible = false;
 					room_goto(rm_finish);
@@ -117,7 +116,7 @@ if (_game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROC
 	global.bg_color = _new_color;
 	
 	if (room == rm_finish) {
-		var _max_evaluation_pos = array_length(evaluation_manager.evaluation_messages)-6;
+		var _max_evaluation_pos = array_length(run_record.evaluation_messages)-6;
 	
 		if (global.game_manager.key_up_pressed && evaluation_pos > 0) { evaluation_pos -= 1; play_sound(snd_mana, false); }
 		else if (global.game_manager.key_down_pressed && evaluation_pos < _max_evaluation_pos) { evaluation_pos += 1; play_sound(snd_mana, false); }

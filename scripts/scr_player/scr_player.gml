@@ -78,8 +78,9 @@ function pick_up_or_put_down_item(_dir) {
 	else if (_dir == directions.left) { _carried_item = left_hand_item; }
 	
 	if (is_existing_instance(_carried_item)) {
+		var _is_putting_down_torch = (_carried_item.object_index == obj_torch);
 		put_down_item(_carried_item, true, true);
-		if (!is_carrying_item(obj_torch)) { global.controller.evaluation_manager.kept_fire = false; }
+		if (_is_putting_down_torch && !is_carrying_item(obj_torch)) { increment_run_stat("carried_torch_lost_count"); }
 	}
 	else {
 		// Cycle through the items you could be possibly picking up
@@ -104,7 +105,7 @@ function pick_up_or_put_down_item(_dir) {
 			if (is_existing_instance(_corpse) && is_instance_at_coordinates(x, y, _corpse) && !_corpse.headless) {
 				var _new_item = create_item_in_hand(_dir, obj_meat);
 				_corpse.headless = true;
-				global.controller.evaluation_manager.increment_evaluation_variable("decapitated_corpses");
+				increment_run_stat("decapitated_corpses");
 				play_sound(snd_crunch, true);		
 				return _new_item;
 			}
@@ -125,7 +126,7 @@ function pick_up_item(_item, _make_noise, _dir) {
 	var _used_item_types = global.controller.used_item_types;
 	if (!array_contains(_used_item_types, _item.object_index)) {
 		array_push(_used_item_types, _item.object_index);
-		global.controller.evaluation_manager.increment_evaluation_variable("used_item_types");
+		increment_run_stat("used_item_types");
 	}
 	
 	with (_item) { become_carried(other.id); }
@@ -230,22 +231,19 @@ function kill_player(_killed_by_obj) {
 		_player.depth = CORPSE_DEPTH;
 		_player.dead = true;
 		_controller.death_timer = RESPAWN_FREQUENCY;
-		_controller.evaluation_manager.increment_evaluation_variable("death_count");
 		play_sound(snd_lose, true);
 		with (obj_echo_generator) { instance_destroy(); }
 		
-		// Put down carried items other than rosary
-		var _has_rosary = false;
+		// Put down carried items other than rosary, which loses a carried torch's fire
 		with (_player) {
+			if (is_carrying_item(obj_torch)) { increment_run_stat("carried_torch_lost_count"); }
 			if (is_existing_instance(right_hand_item) && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false, true); }
-			else if (is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_rosary) { _has_rosary = true; }
 			if (is_existing_instance(left_hand_item) && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false, true); }
-			else if (is_existing_instance(left_hand_item) && left_hand_item.object_index == obj_rosary) { _has_rosary = true; }
 		}
 		
 		_controller.killed_by = (_killed_by_obj == -1) ? other.object_index : _killed_by_obj;
 		if (_player.infected_timer > 0 && _controller.time_remaining > 0) { _controller.killed_by = obj_bug; }
-		update_death_log(_controller.killed_by, global.difficulty, _has_rosary);
+		record_run_death(_controller.killed_by);
 	}
 	return true;
 }

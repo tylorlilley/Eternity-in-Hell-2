@@ -13,7 +13,7 @@ if (activated) {
 				with instance_place(x, y, obj_lava) {
 					with other {
 						kill_enemy(snd_extinguish, obj_lava);
-						global.controller.evaluation_manager.increment_evaluation_variable("lava_kill_count");
+						increment_run_stat("lava_kill_count");
 					}
 				}
 			}

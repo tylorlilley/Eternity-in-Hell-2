@@ -14,7 +14,7 @@ if closed {
 			with (global.player) { 
 				play_sound(snd_mana, true);
 				with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }
-				_controller.evaluation_manager.increment_evaluation_variable("unlocked_chests");
+				increment_run_stat("unlocked_chests");
 			}
 		}
 		else {
@@ -29,7 +29,7 @@ if closed {
 				closed = false;
 				image_index = 1;
 				if (contents_obj == obj_statue) {
-					_controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
+					increment_run_stat("trapped_chests_opened");
 					play_sound(snd_skeletonrise, true);
 					var _statue = instance_create(x, y, obj_statue);
 					_statue.dir = get_opposite_dir(_push_direction);
@@ -39,7 +39,7 @@ if closed {
 					instance_destroy();
 				}
 				else if(contents_obj == obj_fountain) {
-					_controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
+					increment_run_stat("trapped_chests_opened");
 					play_sound(snd_skeletonrise, true);
 					var _fountain = instance_create(x, y, obj_fountain);
 					_fountain.shoot_timer += 2;
@@ -47,7 +47,7 @@ if closed {
 					instance_destroy();
 				}
 				else if (contents_obj != -1) { 
-					_controller.evaluation_manager.increment_evaluation_variable("chests_opened");
+					increment_run_stat("chests_opened");
 					_controller.current_room.remove_from_instances_at_map_positions(id);
 					
 					with (_player) {
@@ -60,7 +60,7 @@ if closed {
 						_new_item = instance_create(_player.x, _player.y, contents_obj);
 						with (_new_item) { become_dropped(id); }
 						if (contents_obj == obj_bomb && _carrying_lit_torch) {
-							_controller.evaluation_manager.increment_evaluation_variable("chests_opened_lit_bombs");
+							increment_run_stat("chests_opened_lit_bombs");
 						}
 					}
 					else {

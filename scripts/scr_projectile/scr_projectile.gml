@@ -22,7 +22,7 @@ function fireball_light_bombs() {
 		with (_bomb) {
 			lit_by_player = other.shot_by_player;
 			if (!global.player.dead) {
-				global.controller.evaluation_manager.increment_evaluation_variable("bombs_lit_by_fireball");
+				increment_run_stat("bombs_lit_by_fireball");
 			}
 			light_bomb(); 
 		}
@@ -43,30 +43,35 @@ function fireball_kill_enemies(_use_magic_resistance = false) {
 			if (_enemy.object_index == obj_hands) {
 				_blocked = true;
 				with (_enemy) {
-					if (!is_carrying_item(obj_staff)) {
-						var _kill_type = (other.shot_by_player)? other.object_index : noone;
-						kill_enemy(_kill_snd, _kill_type);
-						if (_kill_type != noone) {
-							global.controller.evaluation_manager.increment_evaluation_variable("fireball_kill_count");
-						}
-					}
+					if (!is_carrying_item(obj_staff)) { kill_enemy_by_projectile(other, _kill_snd); }
 				}
 			}
 			else { 
 				_blocked = !_resistance;
 				with (_enemy) { 
-					if (!_resistance) { 
-						var _kill_type = (other.shot_by_player)? other.object_index : noone;
-						kill_enemy(_kill_snd, _kill_type);
-						if (_kill_type != noone) {
-							global.controller.evaluation_manager.increment_evaluation_variable("fireball_kill_count");
-						}
-					} 
+					if (!_resistance) { kill_enemy_by_projectile(other, _kill_snd); }
 				}
 			}
 		}
 	}
 	return _blocked;
+}
+
+/// @function kill_enemy_by_projectile(_projectile, _death_sound)
+/// @description Kills the calling enemy with a projectile. A blast from a bomb the player set off is credited to the
+///	bomb as a bomb kill. Any other projectile is an enemy's fire, which counts as friendly fire and isn't recorded as
+///	a kill (see record_run_kill).
+/// @param {Id.Instance} _projectile The projectile doing the killing, or a fire skeleton, which kills like one
+/// @param {Asset.GMSound} _death_sound The sound to play
+function kill_enemy_by_projectile(_projectile, _death_sound) {
+	if (_projectile.shot_by_player) {
+		kill_enemy(_death_sound, _projectile.creator_obj);
+		increment_run_stat("bomb_kill_count");
+	}
+	else {
+		kill_enemy(_death_sound, noone);
+		increment_run_stat("friendly_fire_kill_count");
+	}
 }
 
 /// @function								initialize_fireball_torch_variables(_lighting_range);

@@ -13,13 +13,13 @@ if (is_instance_at_coordinates(x, y, _player)) {
 			global.controller.final_player_left_hand_item = (is_existing_instance(left_hand_item)) ? left_hand_item.object_index : noone;
 			play_sound(snd_win, false); 
 			if (_heart.special) {
-				global.controller.evaluation_manager.increment_evaluation_variable("special_heart_victory");
+				increment_run_stat("special_heart_victory");
 			}
 			instance_destroy(other.id);
 		}
 		else { 
 			with (obj_echo_generator) { 
-				global.controller.evaluation_manager.increment_evaluation_variable("inverted_cross_room_solved");
+				increment_run_stat("inverted_cross_room_solved");
 				play_sound(snd_impact, false); 
 				instance_destroy(); 
 			} 

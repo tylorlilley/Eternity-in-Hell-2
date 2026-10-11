@@ -16,7 +16,7 @@ if (is_existing_instance(closed)) {
 		}
 		else {
 			// Open Door
-			global.controller.evaluation_manager.increment_evaluation_variable("opened_doors");
+			increment_run_stat("opened_doors");
 			open_door();
 			with (_player) { play_sound(snd_open, true); }
 			snap_player_to_position(_push_direction);

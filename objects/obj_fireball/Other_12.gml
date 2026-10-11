@@ -9,7 +9,7 @@ if (destructive) {
 	var _door = instance_place(x, y, obj_door);
 	with (_door) { 
 		if (is_existing_instance(closed)) {
-			if (other.shot_by_player) { update_kill_log(obj_door, global.difficulty, other.object_index); }
+			if (other.shot_by_player) { record_run_kill(obj_door, other.creator_obj); }
 			instance_destroy(); 
 			play_sound(snd_crunch, true);
 			_blocked = true;
@@ -19,11 +19,11 @@ if (destructive) {
 	// Destroy chests
 	var _chest = instance_place(x, y, obj_chest);
 	with (_chest) {
-		if (other.shot_by_player) { update_kill_log((locked) ? obj_locked_chest : obj_chest, global.difficulty, other.object_index); }
+		if (other.shot_by_player) { record_run_kill((locked) ? obj_locked_chest : obj_chest, other.creator_obj); }
 		if (contents_obj == obj_statue || contents_obj == obj_fountain) {
 			if (other.shot_by_player) {
-				global.controller.evaluation_manager.increment_evaluation_variable("trapped_chests_destroyed");
-				update_kill_log(contents_obj, global.difficulty, other.object_index);
+				increment_run_stat("trapped_chests_destroyed");
+				record_run_kill(contents_obj, other.creator_obj);
 			}
 		}
 		instance_destroy(); 
@@ -37,7 +37,7 @@ if (destructive) {
 	}
 	with (_statue) {
 		if (other.shot_by_player) { 
-			update_kill_log(object_index, global.difficulty, other.object_index);
+			record_run_kill(object_index, other.creator_obj);
 		}
 		instance_destroy(); 
 		play_sound(snd_crunch, true);
@@ -71,7 +71,7 @@ if (!_blocked && !_player.dead && place_meeting(x, y, _player) && get_distance_t
 			kill_player(other.creator_obj);
 		}
 		else {
-			global.controller.evaluation_manager.increment_evaluation_variable("staff_blocked_fireballs");
+			increment_run_stat("staff_blocked_fireballs");
 		}
 	}
 }
@@ -85,7 +85,7 @@ if (!_blocked) {
 		if (is_existing_instance(_blocking_solid) && (!is_existing_instance(creator) || creator != _blocking_solid) && _blocking_solid.object_index != obj_mirror) { _blocked = true; break; }
 		else if (is_existing_instance(_blocking_solid) && _blocking_solid.object_index == obj_mirror && (!is_existing_instance(reflected_by) || reflected_by != _blocking_solid)) {
 			reflected_by = _blocking_solid;
-			global.controller.evaluation_manager.increment_evaluation_variable("mirror_bounced_projectile");
+			increment_run_stat("mirror_bounced_projectile");
 		}
 	}
 }

@@ -35,7 +35,7 @@ if (shoot_timer <= 4) {
 
 if shoot_timer > 0 { shoot_timer -= 1; }
 else {
-	if (get_random_chance_out_of(NOSE_SELF_DESTRUCT_PROBABILITY)) { explode(true); } 
+	if (get_random_chance_out_of(NOSE_SELF_DESTRUCT_PROBABILITY)) { increment_run_stat("spontaneously_exploded_enemy"); explode(true); }
 	else {
 		// Shoot fireball in random direction
 		/*

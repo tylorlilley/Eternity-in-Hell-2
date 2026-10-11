@@ -307,21 +307,22 @@ else if (death_log_screen) { // && (death_count_string != noone || win_count_str
 	}
 }
 else if (evaluation_log_screen) {// && (death_count_string != noone || win_count_string != noone)) {	
-	// Draw Traits
-	var _trait_manager = new EvaluationTraitManager();
-	_trait_manager.read_traits_from_file();
+	// Draw Traits: each achievement the evaluation can award (see get_evaluation_messages)
+	var _evaluation_messages = get_evaluation_messages();
 	var _surface_width = room_width-(16*3);
 	var _x_pos = 24, _y_pos = 0-trait_surface_y_pos, _y_offset = (16*3.5)-4;
-	for (var _trait_pos = 0; _trait_pos < array_length(_trait_manager.evaluation_traits); _trait_pos += 1) {
-		var _trait = _trait_manager.evaluation_traits[_trait_pos];
-		var _earned_count = (global.is_test_mode) ? 9999 : _trait.times_earned[global.difficulty];
+	for (var _trait_pos = 0; _trait_pos < array_length(_evaluation_messages); _trait_pos += 1) {
+		var _trait = _evaluation_messages[_trait_pos];
+		if (!_trait.is_achievement) { continue; }
+
+		var _earned_count = (global.is_test_mode) ? 9999 : get_evaluation_message_count(_trait.title, global.difficulty);
 		
 		// Draw Title
 		draw_set_valign(fa_top);
 		draw_set_font(ft_hud);
 		draw_set_halign(fa_left);
 		draw_set_font(ft_trait_title);
-		draw_set_color((_trait.negative_trait) ? _game_color : c_white);
+		draw_set_color((_trait.is_negative) ? _game_color : c_white);
 		draw_text(_x_pos, _y_pos+_y_offset, (_earned_count > 0) ? _trait.title : "");
 		
 		// Draw Value

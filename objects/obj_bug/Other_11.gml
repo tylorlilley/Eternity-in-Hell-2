@@ -26,7 +26,7 @@ if (can_process_this_frame()) {
 		instance_destroy();
 		if (!_killed_by_lava) { play_sound(snd_thud, false); }
 		if (_crushed_by_player) {
-			global.controller.evaluation_manager.increment_evaluation_variable("crushed_bugs");
+			increment_run_stat("crushed_bugs");
 		}
 	}
 }

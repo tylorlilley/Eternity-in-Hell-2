@@ -10,6 +10,7 @@ if (is_existing_instance(closed)) {
 		
 	// Door is being pushed against
 	if (_push_direction != directions.none) {
+		// A portcullis, or a locked door when the player has no key, won't open, but the map marks its exit as visited
 		if (!unlocked_by_key || (_locked && !_carrying_key)) { 
 			play_sound(snd_locked, false);
 			with (door_for_exit) { visited = true; }
@@ -25,7 +26,7 @@ if (is_existing_instance(closed)) {
 	}
 }
 else if (!stuck_open && !place_meeting(x, y, _player) && !place_meeting(x, y, obj_enemy) && !place_meeting(x, y, obj_solid)) {
-	// Close Door
+	// Close the door once nothing stands in it, silently if the player has left the room
 	if (!is_outside_room(_player.x, _player.y)) { play_sound(close_sound, false); }
 	close_door();
 }

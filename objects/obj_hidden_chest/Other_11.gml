@@ -1,6 +1,7 @@
 /// @description Step
 
-// If room becomes fully lit, destroy self
+// Turn into a real chest once its puzzle is solved: the room is fully lit (for a chest with no puzzle), the giant eye
+// is dead, the hall of mirrors is complete, or the inverted crosses and echo generators are gone
 var _current_room = global.controller.current_room;
 if ((!eye_chest && !mirror_chest && !cross_chest && _current_room.lit) || 
 	(eye_chest && instance_number(obj_giant_eye) == 0) || 

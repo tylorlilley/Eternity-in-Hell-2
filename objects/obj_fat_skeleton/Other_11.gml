@@ -1,9 +1,10 @@
-/// @description Insert description here
-// You can write your code in this editor
+/// @description Step
 
 // Inherit the parent event
 event_inherited();
 
+// While it rages, it shows its angry frame, and it makes a loud sound when it gives up. Afterwards it goes back to its
+// first frame
 if (rage_counter > 0) { 
 	rage_counter -= 1;
 	

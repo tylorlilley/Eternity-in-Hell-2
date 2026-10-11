@@ -21,7 +21,11 @@ if (just_pushed) {
 	while (array_length(_enemies_at_position) > 0) {
 		var _enemy = array_random_pop(_enemies_at_position);
 		if (is_existing_instance(_enemy) && _enemy.activated) {
+			// Read before the enemy can be killed: whether it eats the block (mouths and fire skeletons, when they stand
+			// exactly where it landed), and whether eating it plays the extinguish sound (a fire skeleton)
 			var _should_consume_block = _enemy.consume_block && is_instance_at_coordinates(x, y, _enemy), _should_play_sound = _enemy.object_index == obj_fire_skeleton;
+			// A corporeal enemy dies once solids cover all four of its quadrants, except a hand carrying the special
+			// staff, which can pass through solids
 			if (_enemy.corporeal) {
 				with _enemy { 
 					if (is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) {
@@ -43,8 +47,7 @@ if (just_pushed) {
 	
 	// Destroy self and parts of lava if pushed onto lava
 	if (consume_lava(true)) {
-		//var dirt = instance_create(x, y, obj_dirt);
-		//if (is_existing_instance(dirt)) { dirt.depth = DIRT_OVER_LAVA_DEPTH; }
+		// Leave a path tile where the block filled the lava, drawn above it and turned and flipped like the block
 		var _tile = instance_create(x, y, obj_path);
 		if (is_existing_instance(_tile)) { 
 			_tile.depth = DIRT_OVER_LAVA_DEPTH; 

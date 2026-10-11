@@ -1,7 +1,7 @@
 /// @description End Step
 event_inherited();
 
-// Setup corner drawing
+// Where the worm turns, place and flip the corner tile half a tile toward this segment's next move
 if (is_existing_instance(head) && head.x != x && head.y != y) {
 	corner_x = x;
 	corner_y = y;
@@ -24,6 +24,7 @@ if (is_existing_instance(head) && head.x != x && head.y != y) {
 		else if (dir == directions.right) { corner_x += 8;  corner_x_scale = -1; corner_y_scale = -1; }
 	}
 	
+	// Shade the corner tile for the lighting at its own spot, by standing there for a moment
 	var _x_prev = x, _y_prev = y;
 	x = corner_x;
 	y = corner_y;
@@ -32,4 +33,5 @@ if (is_existing_instance(head) && head.x != x && head.y != y) {
 	y = _y_prev;
 }
 
+// Shade the segment for the lighting where it stands
 image_blend = get_image_blend();

@@ -1,5 +1,7 @@
-/// @function								get_distance_to_instance(_instance);
-/// @param		{index} _instance			The instance whose distance away from the calling instance is to be calculated
+/// @function get_distance_to_instance(_instance)
+/// @description The distance from the calling instance to another instance
+/// @param {Id.Instance} _instance The instance to measure the distance to
+/// @returns {real} The distance in pixels, 0 for the calling instance itself, or -1 if the instance doesn't exist
 function get_distance_to_instance(_instance) {
 	if (!is_existing_instance(_instance)) { return -1; }
 	if (id == _instance) { return 0; }
@@ -7,17 +9,22 @@ function get_distance_to_instance(_instance) {
 	return point_distance(x, y, _instance.x, _instance.y);
 }
 
-/// @function								is_instance_at_coordinates(_x_pos, _y_pos, _instance);
-/// @param		{real}  _x_pos				The x value to check against the instance's x value
-/// @param		{real}  _y_pos				The y value to check against the instance's y value
-/// @param		{index} _instance			The instance whos positional coordinates are being checked
+/// @function is_instance_at_coordinates(_x_pos, _y_pos, _instance)
+/// @description Whether an instance exists and is at exactly a given position
+/// @param {real} _x_pos The x position to compare with the instance's x
+/// @param {real} _y_pos The y position to compare with the instance's y
+/// @param {Id.Instance} _instance The instance to check
+/// @returns {bool} False if the instance doesn't exist
 function is_instance_at_coordinates(_x_pos, _y_pos, _instance) {
 	return (is_existing_instance(_instance) && (_instance.x == _x_pos && _instance.y == _y_pos))
 }
 
-/// @function								is_direction_towards(_dir, obj);
-/// @param		{direction} _dir				The direction from the calling instance to check whether the given instance
-/// @param		{instance} obj				The object to check for the direction of
+/// @function is_direction_towards(_dir, _inst)
+/// @description Whether another instance lies in a direction from the calling instance. Only that direction's axis is
+///	compared, so an instance above and to the right of the calling instance is towards both up and right.
+/// @param {real} _dir The direction to check (see directions)
+/// @param {Id.Instance} _inst The instance to look for in that direction
+/// @returns {bool} Always false for a direction other than up, right, down or left
 function is_direction_towards(_dir, _inst) {
 	return ((y > _inst.y && _dir == directions.up) ||
 	        (x < _inst.x && _dir == directions.right) ||
@@ -25,7 +32,9 @@ function is_direction_towards(_dir, _inst) {
 	        (x > _inst.x && _dir == directions.left));
 }
 
-/// @function								turn_to_face_player();
+/// @function turn_to_face_player()
+/// @description Turns the calling instance to face the most recently dropped meat if there is any, and the player
+///	otherwise. Its sprite faces left at an image_xscale of 1, so a target on its right sets it to -1.
 function turn_to_face_player() {
 	var _target = get_dropped_meat();
 	if (!is_existing_instance(_target)) { _target = global.player; }
@@ -33,7 +42,11 @@ function turn_to_face_player() {
 	else { image_xscale = 1; }
 }
 
-/// @function  							teleport_near_player();
+/// @function teleport_near_player()
+/// @description Teleports the calling instance to a random position near the most recently dropped meat if there is
+///	any, and near the player otherwise, with a flicker sound. The position is within 24 pixels of the target on each
+///	axis in steps of 8, at least 24 pixels from it and inside the room. It gives up after 101 tries and stays at the
+///	last position tried.
 function teleport_near_player() {
 	var _target = get_dropped_meat(), _attempts = 0;
 	if (!is_existing_instance(_target)) { _target = global.player; }
@@ -53,18 +66,24 @@ function teleport_near_player() {
 }
 
 
-/// @function								can_move_in_direction(_dir, _ignore_solid);
-/// @param		{direction}	_dir				The direction to check whether the calling instance can move in
-/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+/// @function can_move_in_direction(_dir, _ignore_solid, _ignore_death)
+/// @description Whether the calling instance can take one step in a direction. Unless solids are ignored, it can't move
+///	at all while it is inside a solid, and otherwise the step must be free (see is_direction_free).
+/// @param {real} _dir The direction to check (see directions)
+/// @param {bool} _ignore_solid Whether to ignore solid objects in the way, and the solid the calling instance is inside
+/// @param {bool} _ignore_death Whether to ignore objects that cause death (lava)
+/// @returns {bool}
 function can_move_in_direction(_dir, _ignore_solid, _ignore_death) {
 	if (!_ignore_solid && is_solid_at_position(x, y)) { return false; }
 	else { return (is_direction_free(_dir, _ignore_solid, _ignore_death)); }
 }
 
-/// @function								is_solid_at_position(_x_pos, _y_pos);
-/// @param		{int} _x_pos					The x coordinate of the position
-/// @param		{int} _y_pos					The y coordinate of the position
+/// @function is_solid_at_position(_x_pos, _y_pos)
+/// @description Whether the calling instance would overlap a solid other than itself at a position. The player and the
+///	hands ignore walls, solid parts, columns and mirrors while carrying a special staff.
+/// @param {real} _x_pos The x position to check
+/// @param {real} _y_pos The y position to check
+/// @returns {bool}
 function is_solid_at_position(_x_pos, _y_pos) {
 	var _solids = instance_place_all(_x_pos, _y_pos, obj_solid), _carrying_special_staff = false;
 	if (object_index == obj_hands || object_index == obj_player) { _carrying_special_staff = is_carrying_special_item(obj_staff); }
@@ -76,9 +95,12 @@ function is_solid_at_position(_x_pos, _y_pos) {
 	return false;
 }
 
-/// @function								is_lava_at_position(_x_pos, _y_pos);
-/// @param		{int} _x_pos					The x coordinate of the position
-/// @param		{int} _y_pos					The y coordinate of the position
+/// @function is_lava_at_position(_x_pos, _y_pos)
+/// @description Whether the calling instance would overlap lava at a position. Lava that the calling instance created
+///	itself doesn't count, and the player and hands carrying a staff can cross lava.
+/// @param {real} _x_pos The x position to check
+/// @param {real} _y_pos The y position to check
+/// @returns {bool}
 function is_lava_at_position(_x_pos, _y_pos) {
 	if ((object_index == obj_hands || object_index == obj_player) && is_carrying_item(obj_staff)) { return false; }
 	
@@ -90,10 +112,14 @@ function is_lava_at_position(_x_pos, _y_pos) {
 	return false;
 }
 
-/// @function								is_direction_free(_dir, _ignore_solid);
-/// @param		{direction}	_dir				The direction to check whether the calling instance can move in
-/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+/// @function is_direction_free(_dir, _ignore_solid, _ignore_death)
+/// @description Whether the calling instance can take a step of 8 pixels in a direction without being stopped. A step
+///	is stopped by the room border (for enemies that can't move on it), by the edge of the room (unless the calling
+///	instance is a player who isn't inside a solid), by lava and by solids.
+/// @param {real} _dir The direction to step in (see directions)
+/// @param {bool} _ignore_solid Whether solid objects don't stop the step
+/// @param {bool} _ignore_death Whether objects that cause death (lava) don't stop the step
+/// @returns {bool} Whether the step is free, which is always false for a direction other than up, right, down or left
 function is_direction_free(_dir, _ignore_solid, _ignore_death) {
 	var _x_pos = x, _y_pos = y;
 	switch (_dir) {
@@ -104,12 +130,12 @@ function is_direction_free(_dir, _ignore_solid, _ignore_death) {
 		default: { return false; }
 	}
 	
-	// Return as not free if blocked by room border
+	// Return as not free if blocked by the room border, which only stops enemies that can't move on it
 	var _blocked = is_on_room_border(_x_pos, _y_pos);
 	if (!object_is_ancestor(object_index, obj_enemy) || can_move_on_border) { _blocked = false; }
 	if (_blocked) { return false; }
 	
-	// Return as not free if blocked by room boundry
+	// Return as not free if blocked by the edge of the room, which the player can cross unless it is inside a solid
 	_blocked = is_outside_room(_x_pos, _y_pos);
 	if (object_index == obj_player && !place_meeting(x, y, obj_solid)) { _blocked = false; }
 	if (_blocked) { return false; }
@@ -122,25 +148,30 @@ function is_direction_free(_dir, _ignore_solid, _ignore_death) {
 	_blocked = (!_ignore_solid && is_solid_at_position(_x_pos, _y_pos));
 	if (_blocked) { return false; }
 	
-	// return as free if not blocked by anything
+	// Return as free if not blocked by anything
 	return true;
 }
 
-/// @function								is_outside_room(_x_pos, _y_pos);
-/// @param		{int}	_x_pos				The x position to check
-/// @param		{int}	_y_pos				The y position to check
+/// @function is_outside_room(_x_pos, _y_pos)
+/// @description Whether a position is on the edge of the room or beyond it
+/// @param {real} _x_pos The x position to check
+/// @param {real} _y_pos The y position to check
+/// @returns {bool}
 function is_outside_room(_x_pos, _y_pos) {
 	return (_x_pos <= 0 || _x_pos >= room_width || _y_pos <= 0 || _y_pos >= room_height);
 }
 
-/// @function								is_on_room_border(_x_pos, _y_pos);
-/// @param		{int}	_x_pos				The x position to check
-/// @param		{int}	_y_pos				The y position to check
+/// @function is_on_room_border(_x_pos, _y_pos)
+/// @description Whether a position is on a room exit spot (a spot on the room's edge where a cardinal exit can be) of a
+///	kind that the calling instance isn't already standing on, so stepping there would reach the room's border
+/// @param {real} _x_pos The x position to check
+/// @param {real} _y_pos The y position to check
+/// @returns {bool}
 function is_on_room_border(_x_pos, _y_pos) {
 	var _target_exit_spots = instance_place_all(_x_pos, _y_pos, obj_exit_spot);
 	if (array_length(_target_exit_spots) == 0) { return false; }
 	
-	// Check if target pos is on a type of exit spot this isn't already on
+	// Collect the kinds of exit spot the calling instance is on, then look for a kind at the target that isn't among them
 	var _on_exit_spots = instance_place_all(x, y, obj_exit_spot), _on_exit_types = [];
 	while (array_length(_on_exit_spots) > 0) {
 		var _next_exit_spot = array_pop(_on_exit_spots);
@@ -156,24 +187,27 @@ function is_on_room_border(_x_pos, _y_pos) {
 }
 
 
-/// @function								can_move_in_direction_and_reach(_dir, _ignore_solid);
-/// @param		{direction}	_dir				The direction to check whether the calling instance can move in
-/// @param		{index}	_target_instance		The instance we are trying to reach by moving in this direction
-/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+/// @function can_move_in_direction_and_reach(_dir, _target_instance, _ignore_solid, _ignore_death)
+/// @description Whether the calling instance can reach another instance by stepping straight in a direction, with every
+///	step free. The steps are only tried out: the calling instance ends up where it started.
+/// @param {real} _dir The direction to step in (see directions)
+/// @param {Id.Instance} _target_instance The instance to reach by stepping in that direction
+/// @param {bool} _ignore_solid Whether to ignore solid objects in the way
+/// @param {bool} _ignore_death Whether to ignore objects that cause death (lava)
+/// @returns {bool} False if the calling instance isn't activated, the target doesn't exist or a blocked step comes first
 function can_move_in_direction_and_reach(_dir, _target_instance, _ignore_solid, _ignore_death) {
 	if (!activated || !is_existing_instance(_target_instance)) { return false; }
 	
-	// Determine Move Directions
+	// Work out how far one step in this direction moves the calling instance
 	var _x_change = 0, _y_change = 0;
 	if (_dir == directions.up) { _y_change -= 8; } 
 	else if (_dir == directions.right) { _x_change += 8; }
 	else if (_dir == directions.down) { _y_change += 8; }
 	else if (_dir == directions.left) { _x_change -= 8; }
 
-	// Try Reaching Target in This Direction
+	// Try to reach the target by stepping in this direction, then put the calling instance back where it started
     var _original_x = x, _original_y = y, _reached = false;
-    var _max_steps = room_width div 8;   // can never need more than one room's width
+    var _max_steps = room_width div 8;   // Enough steps to cross the room, which is the most a straight walk can need
 
     for (var _step = 0; _step < _max_steps; _step++) {
         if (!can_move_in_direction(_dir, _ignore_solid, _ignore_death)) { break; }
@@ -188,17 +222,20 @@ function can_move_in_direction_and_reach(_dir, _target_instance, _ignore_solid, 
 }
 
 
-/// @function								move_in_direction(_dir);
-/// @param		{direction} _dir				The direction in which to move the calling instance
-/// @param		{boolean} _make_noise		Whether or not to play a movement sound
+/// @function move_in_direction(_dir, _make_noise)
+/// @description Moves the calling instance one step of 8 pixels in a direction, without checking that the way is free.
+///	It turns to face a sideways move, switches to its other animation frame, has an enemy check whether it has touched
+///	the player, plays a sound for what it lands on, and has the room's path grids rebuilt when a solid moves.
+/// @param {real} _dir The direction to move in (see directions)
+/// @param {bool} _make_noise Whether to play a movement sound, which floating enemies other than hands never do
 function move_in_direction(_dir, _make_noise) {
-	// Update position
+	// Step in the direction, turning to face a sideways move
 	if (_dir == directions.up) { y -= 8; } 
 	else if (_dir == directions.right) { x += 8; image_xscale = -1; }
 	else if (_dir == directions.down) { y += 8; }
 	else if (_dir == directions.left) { x -= 8; image_xscale = 1; }
 	
-	// Update image
+	// Switch to the other animation frame
 	image_index += 1;
 	if (image_index > 1) { image_index = 0; }
 	
@@ -207,7 +244,7 @@ function move_in_direction(_dir, _make_noise) {
 		if (floating && object_index != obj_hands) { _make_noise = false; }
 	}
 	
-	// Make movement noises
+	// Make movement noises: a thud in a solid, a splash in lava, a flicker in an illusion wall, or a step otherwise
 	if (_make_noise) {
 		var _snd = snd_walk;
 		if (instance_place(x, y, obj_solid)) { _snd = snd_thud; play_sound(_snd, false); }
@@ -220,14 +257,15 @@ function move_in_direction(_dir, _make_noise) {
 		if (_snd == snd_walk) { play_sound(_snd, false); }
 	}
 	
-	// Update mp_grids
+	// Have the room's path grids (mp_grids) rebuilt when a solid or a giant worm's body moves
 	var _is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body));
 	if (_is_solid) { mark_current_room_for_grid_update(); }
 }
 
 
-/// @function								set_instance_to_same_position(_instance);
-/// @param		{index} _instance			The instance to set to the same position as the calling instance
+/// @function set_instance_to_same_position(_instance)
+/// @description Moves another instance to the calling instance's position
+/// @param {Id.Instance} _instance The instance to move
 function set_instance_to_same_position(_instance) {
 	with _instance { 
 	    x = other.x; 
@@ -235,7 +273,11 @@ function set_instance_to_same_position(_instance) {
 	}
 }
 
-/// @function								get_direction_pushed_against();
+/// @function get_direction_pushed_against()
+/// @description The direction the player is pushing the calling instance in, which blocks, doors, chests and the like
+///	react to. That is the direction the player just pressed, if the calling instance is 16 pixels away from the player
+///	in it and nothing else has moved the player this frame.
+/// @returns {real} The direction pushed in (see directions), or directions.none if the player isn't pushing against it
 function get_direction_pushed_against() {
 	var _dir = directions.none, _player = global.player, _x_pos = _player.x, _y_pos = _player.y;
 	
@@ -260,20 +302,24 @@ function get_direction_pushed_against() {
 	return _dir;
 }
 
-/// @function								rotate_sprite_to_random_angle();
+/// @function rotate_sprite_to_random_angle()
+/// @description Rotates the calling instance's sprite to a random right angle: 0, 90, 180 or 270 degrees
 function rotate_sprite_to_random_angle() {
 	image_angle = get_random_cardinal_dir() * 90;
 }
 
-/// @function								flip_sprite_at_random(_flip_vertical);
-/// @param		{boolean} _flip_vertical		Whether or not to also randomly flip the sprite vertically
+/// @function flip_sprite_at_random(_flip_vertical)
+/// @description Randomly flips the calling instance's sprite horizontally, and vertically too if asked
+/// @param {bool} _flip_vertical Whether to also flip the sprite vertically at random
 function flip_sprite_at_random(_flip_vertical) {
 	image_xscale = get_coin_flip() ? 1 : -1;
 	if (_flip_vertical) { image_yscale = (get_coin_flip()) ? 1 : -1; }
 }
 
-/// @function								get_instance_at_each_quadrant(_obj_index);
-///	@param		{index} _obj_index			The object type to return the presence of in each quadrant
+/// @function get_instance_at_each_quadrant(_obj_index)
+/// @description Finds the instance of an object at each of the four quadrants of the calling instance's cell
+/// @param {Asset.GMObject} _obj_index The object to look for in each quadrant
+/// @returns {array} Four instances, one per quadrant (see get_quadrant_x_pos), with noone where a quadrant has none
 function get_instance_at_each_quadrant(_obj_index) {
 	var _presence_at_quadrant = [noone, noone, noone, noone];
 	
@@ -285,13 +331,14 @@ function get_instance_at_each_quadrant(_obj_index) {
 	return _presence_at_quadrant;
 }
 
-/// @function								is_covered_at_each_quadrant_by(_obj_index);
-///	@param		{index} _obj_index			The object type to check the presence of in each quadrant
+/// @function is_covered_at_each_quadrant_by(_obj_index)
+/// @description Whether an object has an instance at each of the four quadrants of the calling instance's cell. For
+///	obj_lava it looks at the lava parts instead, which show which of a lava tile's quadrants are left.
+/// @param {Asset.GMObject} _obj_index The object to look for in every quadrant
+/// @returns {bool}
 function is_covered_at_each_quadrant_by(_obj_index) {
-	// Checking for lava is a special case, because the full lava object stays and blacks out
-	// certain quadrants with individual quadrant death boxes due to the way blocks can destroy
-	// multiple different lava's quadrants at once. Thus we need to use a special method that
-	// Takes that into account.
+	// Lava is a special case. A lava tile (obj_lava) stays in place after some of its quadrants are destroyed, because a
+	// pushed block can destroy quadrants of several lava tiles at once, so check the lava parts that are left instead
 	var _presence_at_quadrant = (_obj_index == obj_lava) ? get_instance_at_each_quadrant(obj_lava_part) : get_instance_at_each_quadrant(_obj_index);
 	
 	return (
@@ -302,11 +349,14 @@ function is_covered_at_each_quadrant_by(_obj_index) {
 	);
 }
 
-/// @function								move_towards_coordinates(_target_x, _target_y, _ignore_solid, _ignore_death);
-///	@param		{int} _target_x				The x position to be moving towards
-///	@param		{int} _target_y				The y position to be moving towards
-/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+/// @function move_towards_coordinates(_target_x, _target_y, _ignore_solid, _ignore_death)
+/// @description Moves the calling instance one step toward a position, with movement sounds, in a random one of the
+///	directions that get it closer and are free to move in
+/// @param {real} _target_x The x position to move toward
+/// @param {real} _target_y The y position to move toward
+/// @param {bool} _ignore_solid Whether to ignore solid objects when checking which directions are free
+/// @param {bool} _ignore_death Whether to ignore objects that cause death (lava) when checking which directions are free
+/// @returns {real} The direction it moved in (see directions), or directions.none if it couldn't move
 function move_towards_coordinates(_target_x, _target_y, _ignore_solid, _ignore_death) {	
 	var _move_dir = get_random_possible_direction(_target_x, _target_y, _ignore_solid, _ignore_death);
 	if (_move_dir != directions.none) { move_in_direction(_move_dir, true); }
@@ -314,11 +364,14 @@ function move_towards_coordinates(_target_x, _target_y, _ignore_solid, _ignore_d
 	return _move_dir;
 }
 
-/// @function								get_random_possible_direction(obj_index);
-///	@param		{int} _target_x				The x position to be moving towards
-///	@param		{int} _target_y				The y position to be moving towards
-/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+/// @function get_random_possible_direction(_target_x, _target_y, _ignore_solid, _ignore_death)
+/// @description Picks at random one of the directions that both get the calling instance closer to a position and are
+///	free to move in
+/// @param {real} _target_x The x position to move toward
+/// @param {real} _target_y The y position to move toward
+/// @param {bool} _ignore_solid Whether to ignore solid objects when checking which directions are free
+/// @param {bool} _ignore_death Whether to ignore objects that cause death (lava) when checking which directions are free
+/// @returns {real} The direction picked (see directions), or directions.none if no direction both gets closer and is free
 function get_random_possible_direction(_target_x, _target_y, _ignore_solid, _ignore_death) {
 	// Determine which directions are free to move in
 	var _can_move_up = can_move_in_direction(directions.up, _ignore_solid, _ignore_death);
@@ -326,7 +379,7 @@ function get_random_possible_direction(_target_x, _target_y, _ignore_solid, _ign
 	var _can_move_left = can_move_in_direction(directions.left, _ignore_solid, _ignore_death);
 	var _can_move_down = can_move_in_direction(directions.down, _ignore_solid, _ignore_death);
 	
-	// Determine which directions one should move in to get closer to target
+	// Determine which of the free directions get closer to the target
 	var _possible_directions = [];
 	if (y > _target_y && _can_move_up) { array_push(_possible_directions, directions.up); }
 	if (x < _target_x && _can_move_right) { array_push(_possible_directions, directions.right); }
@@ -338,20 +391,27 @@ function get_random_possible_direction(_target_x, _target_y, _ignore_solid, _ign
 	return _move_dir;
 }
 
-/// @function								randomize_image(_max_image_index);
-///	@param		{int} _max_image_index		The max image_index value possible for this object's sprite
+/// @function randomize_image(_max_image_index)
+/// @description Gives the calling instance a random look: a random frame of its sprite, flipped horizontally and
+///	vertically at random, and rotated to a random right angle
+/// @param {real} _max_image_index The highest image_index to pick from, which is the index of the sprite's last frame
 function randomize_image(_max_image_index) {
 	image_index = irandom(_max_image_index);
 	flip_sprite_at_random(true);
 	rotate_sprite_to_random_angle();
 }
 
-/// @function								singleton_instance();
+/// @function singleton_instance()
+/// @description Keeps an object to a single instance: destroys the calling instance if its object has more than one
+///	instance, so a duplicate removes itself when it calls this, as in its Create event
 function singleton_instance() {
 	if (instance_number(object_index) > 1) { instance_destroy(); }
 }
 
-/// @function								can_press_button();
+/// @function can_press_button()
+/// @description Whether something is pressing the calling button down: a solid covering all four of its quadrants, such
+///	as a block, the player standing on it, or an enemy standing on it that isn't floating
+/// @returns {bool}
 function can_press_button() {	
 	var _pressed = is_covered_at_each_quadrant_by(obj_solid) || is_instance_at_coordinates(x, y, global.player);
 	if (!_pressed) { 
@@ -365,8 +425,12 @@ function can_press_button() {
 	return _pressed;
 }
 
-/// @function              get_sprite_shuffle_flip(_spr);
-/// @description           Deterministic per-sprite coin flip, stable across resource reordering.
+/// @function get_sprite_shuffle_flip(_spr)
+/// @description A coin flip for a sprite that comes out the same every time for the same sprite and game seed, and
+///	doesn't change if the project's resources are reordered, because it comes from a hash of the sprite's name. The
+///	result is cached for each sprite.
+/// @param {Asset.GMSprite} _spr The sprite to flip the coin for
+/// @returns {bool} The result of the coin flip
 function get_sprite_shuffle_flip(_spr) {
     static cache = ds_map_create();
     static cache_seed = noone;
@@ -388,7 +452,14 @@ function get_sprite_shuffle_flip(_spr) {
     return _result;
 }
 
-/// @function								get_sprite_to_use();
+/// @function get_sprite_to_use(_regular_sprite, [_for_menu])
+/// @description Picks the sprite to draw for the current graphics mode. Standard mode uses the regular sprite, and
+///	farmer mode uses its farmer version if it has one. Unknown mode swaps an item or enemy sprite for the one shuffled
+///	into its place, and keeps any other sprite regular or gives it its farmer version, by a coin flip that stays the
+///	same for the sprite and seed.
+/// @param {Asset.GMSprite} _regular_sprite The sprite to use in standard mode
+/// @param {bool} [_for_menu] Whether the sprite is for a menu, where unknown mode doesn't change it (false by default)
+/// @returns {Asset.GMSprite} The sprite to draw, which is the regular sprite when the mode has no other version of it
 function get_sprite_to_use(_regular_sprite, _for_menu = false) {
 	if (global.graphics_mode == graphics_modes.standard) { return _regular_sprite; }
 	if (global.graphics_mode == graphics_modes.unknown) {
@@ -417,11 +488,11 @@ function get_sprite_to_use(_regular_sprite, _for_menu = false) {
 		else if (get_sprite_shuffle_flip(_regular_sprite)) { return _regular_sprite; }
 	}
 	
-	// Get Farmer Version of Regular Sprite
+	// Get the farmer version of the regular sprite, building the lookup map the first time
 	static farmer_sprite_translation_map = -1;
 	if (farmer_sprite_translation_map == -1) {
 		farmer_sprite_translation_map = ds_map_create();
-		/// Tiles
+		// Tiles
 		ds_map_add(farmer_sprite_translation_map, spr_collectable, spr_collectable_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_bones, spr_bones_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_cross, spr_cross_farmer);
@@ -433,7 +504,7 @@ function get_sprite_to_use(_regular_sprite, _for_menu = false) {
 		ds_map_add(farmer_sprite_translation_map, spr_red_chest, spr_red_chest_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_portcullis, spr_portcullis_farmer);
 		
-		/// Enemies
+		// Enemies
 		ds_map_add(farmer_sprite_translation_map, spr_gudetama, spr_gudetama_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_skeleton, spr_skeleton_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_cockroach, spr_cockroach_farmer);
@@ -454,7 +525,7 @@ function get_sprite_to_use(_regular_sprite, _for_menu = false) {
 		ds_map_add(farmer_sprite_translation_map, spr_giant_eye, spr_giant_eye_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_giant_eye_pupil, spr_giant_eye_pupil_farmer);
 		
-		/// Items
+		// Items
 		ds_map_add(farmer_sprite_translation_map, spr_sword, spr_sword_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_meat, spr_meat_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_bomb, spr_bomb_farmer);
@@ -466,10 +537,13 @@ function get_sprite_to_use(_regular_sprite, _for_menu = false) {
 	return _regular_sprite;
 }
 
-/// @function								get_room_map_position(_inst);
-/// @param		{id} _inst					The instance id to return a room map position for
+/// @function get_room_map_position(_inst)
+/// @description Which part of the room an instance is in, as a position on a three by three grid that the map uses to
+///	draw it. The middle part is within 16 pixels of the room's center.
+/// @param {Id.Instance} _inst The instance to locate
+/// @returns {array} The column and row as [x, y], each 0 (left or top), 1 (middle) or 2 (right or bottom)
 function get_room_map_position(_inst) {
-	// Set up room map positions
+	// Each axis starts in the middle (1), and becomes 0 or 2 when the instance is more than 16 pixels from the center
 	var _x_pos = 1, _y_pos = 1;
 	if (_inst.y < room_height/2-16) { _y_pos = 0; }
 	else if (_inst.y > room_height/2+16) { _y_pos = 2; }
@@ -479,21 +553,30 @@ function get_room_map_position(_inst) {
 	return [_x_pos, _y_pos]
 }
 
-/// @function								flicker_sprite_under_instance(_inst);
-/// @param		{id} _inst					The instance id to check for a collision with
+/// @function flicker_sprite_under_instance(_inst)
+/// @description Hides the calling instance's sprite on blink frames while it overlaps another instance, so it seems to
+///	flicker. A staff uses it to make the lava under its holder flicker, and the walls too when the staff is special. A
+///	lava part or solid part is hidden through its part_visible flag, and any other instance through visible.
+/// @param {Id.Instance} _inst The instance whose overlap to check
+/// @returns {bool} Whether the sprite was hidden, which needs a blink frame and an overlap
 function flicker_sprite_under_instance(_inst) {
 	var _blink_frame = is_blink_frame();
 	if (!_blink_frame || !instance_place(x, y, _inst)) { return false; }
 	
 	if (object_index == obj_lava_part) { part_visible = false; }
 	else if (object_index == obj_solid_part) { part_visible = false; }
-	//else if (object_index == obj_illusion_part) { part_visible = false; }
 	else { visible = false; }
 	
 	return true;
 }
 
-/// @function								draw_reflection_in_mirrors();
+/// @function draw_reflection_in_mirrors()
+/// @description Draws the calling instance's reflection on the mirrors in line with it. Only the player, collectables,
+///	enemies and items are reflected, and not those that are solid or standing on a mirror. Two lines run from the
+///	instance toward each of the room's four edges, offset a quarter of the sprite's size to either side of its center,
+///	and a mirror that is the closest solid along a line has the sprite drawn on it (half of it where the instance is
+///	half in line with the mirror). A carried item is drawn the way it is carried, and the player and its echo also get
+///	their hands and hat.
 function draw_reflection_in_mirrors() {
 	var _valid_obj = (
 		object_index == obj_player || 
@@ -524,7 +607,7 @@ function draw_reflection_in_mirrors() {
 			}
 			var _closest_solids = [];
 
-			// Get closest mirrors
+			// Find the closest solids along this line, which reflect the instance only if they are mirrors
 			ds_list_clear(_potential_mirrors);
 			var _num_of_objects = collision_rectangle_list(_x_to_use+_x_pos_offset-1, _y_to_use+_y_pos_offset-1, _x_pos+_x_pos_offset+1, _y_pos+_y_pos_offset+1, obj_solid, false, true, _potential_mirrors, true);
 			var _minimum_distance_to_obj = 999;
@@ -540,7 +623,7 @@ function draw_reflection_in_mirrors() {
 				}
 			}
 			
-			// Create reflections for closest mirrors
+			// Draw a reflection in each of the closest solids, stopping at the first one that isn't a mirror
 			for (var _j = 0; _j < array_length(_closest_solids); _j++) {
 				var _closest_solid = _closest_solids[_j], _flipped_x_scale = image_xscale;
 				if (!is_existing_instance(_closest_solid) || _closest_solid.object_index != obj_mirror) { break; }
@@ -560,7 +643,7 @@ function draw_reflection_in_mirrors() {
 					else { _refl_width /= 2; _x_pos += abs(_closest_solid.sprite_width/2); }
 				}
 				
-				// Draw Reflection
+				// Draw the reflection: a carried item the way it is carried, anything else as its own sprite
 				if (_reflect_carried_item) {
 					var _carried_item_x_offset = _flipped_x_scale * 8;
 					_refl_height += _carried_y_offset;

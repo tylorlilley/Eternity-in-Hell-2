@@ -1,11 +1,15 @@
 /// @description End Step
 event_inherited();
 
+// Keep its torch with it. _blocked records whether something stops the fireball this step, and a change in reflected_by
+// shows that it hit a new mirror
 update_fireball_torch_position(0.5);
 var _blocked = false, _prev_reflected_by = reflected_by;
 
+// Fireballs from explosions are destructive. They destroy the closed doors, chests and statues they touch, and start
+// giant eyes dying. When the player shot the fireball, what it destroys goes in the kill log
 if (destructive) {
-	// Destroy doors
+	// Destroy a closed door, which stops the fireball
 	var _door = instance_place(x, y, obj_door);
 	with (_door) { 
 		if (is_existing_instance(closed)) {
@@ -16,7 +20,7 @@ if (destructive) {
 		}
 	}
 	
-	// Destroy chests
+	// Destroy a chest, which doesn't stop the fireball
 	var _chest = instance_place(x, y, obj_chest);
 	with (_chest) {
 		if (other.shot_by_player) { update_kill_log((locked) ? obj_locked_chest : obj_chest, global.difficulty, other.object_index); }
@@ -30,7 +34,7 @@ if (destructive) {
 		play_sound(snd_crunch, true);
 	}
 	
-	// Destroy statues
+	// Destroy a statue, which stops the fireball unless the statue shot it
 	var _statue = instance_place(x, y, obj_statue);
 	if (is_existing_instance(_statue) && (!is_existing_instance(creator) || creator != _statue )) { 
 		_blocked = true; 
@@ -43,7 +47,7 @@ if (destructive) {
 		play_sound(snd_crunch, true);
 	}
 	
-	// Destroy giant eyes
+	// Start a giant eye dying, which doesn't stop the fireball
 	var _giant_eye = instance_place(x, y, obj_giant_eye);
 	with (_giant_eye) {
 		if (dying == 0) { dying = 32; }
@@ -51,17 +55,15 @@ if (destructive) {
 	}
 }
 
-// Light Bombs
+// Light the bombs it touches
 fireball_light_bombs();
 
-// Kill Enemies
+// Kill the enemies that don't resist fire. Hands, and any enemy it kills, stop the fireball
 var _blocked_by_enemy = fireball_kill_enemies();
 if (_blocked_by_enemy) { _blocked = true; }
 
-// Burn Bushes
-// if (!blocked) { blocked = fireball_burn_bushes(); }
-
-// Kill Player
+// Kill the player it touches, unless they carry a staff, which blocks it. Either way it stops the fireball, and the
+// kill is credited to what shot it
 var _player = global.player;
 if (!_blocked && !_player.dead && place_meeting(x, y, _player) && get_distance_to_instance(_player) <= 8) { 
 	_blocked = true;
@@ -77,7 +79,7 @@ if (!_blocked && !_player.dead && place_meeting(x, y, _player) && get_distance_t
 }
 
 
-// Get Blocked by Solids
+// Solids stop it, except the one that shot it. A mirror it hasn't just bounced off marks it for a bounce below
 if (!_blocked) {
 	var _solids_at_position = instance_place_all(x, y, obj_solid);
 	while (array_length(_solids_at_position) > 0) {
@@ -91,13 +93,14 @@ if (!_blocked) {
 }
 
 
-// Destroy Self
+// A blocked fireball fizzles out
 if (_blocked) {
 	play_sound(snd_fuse, false);
 	instance_destroy(); 
 }
 
-// Reflect Self
+// A fireball that hit a new mirror bounces: one moving mostly up or down has its vertical direction flipped, and one
+// moving mostly sideways has its horizontal direction flipped
 else if (_prev_reflected_by != reflected_by) {
 	direction = (abs(lengthdir_y(16, direction)) > abs(lengthdir_x(16, direction))) ? -direction : 180-direction;
 	play_sound(snd_yes, false);

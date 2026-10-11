@@ -1,6 +1,7 @@
 
 var _player = global.player;
 
+// A red bug that dies on or right next to the player infects them
 if (infectious && is_existing_instance(_player) && get_distance_to_instance(_player) <= 4) {
 	global.controller.evaluation_manager.increment_evaluation_variable("times_infected");
 	with (_player) {

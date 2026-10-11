@@ -1,4 +1,6 @@
-/// @function									initialize_lava_lighting();
+/// @function initialize_lava_lighting()
+/// @description Sets the calling instance (lava, a statue or a fire skeleton) up as a dim light source that glows like
+///	lava. Its lighting range of 0 leaves it out of lighting checks that need a minimum range.
 function initialize_lava_lighting() {
 	lighting_range = 0;
 	lighting_distance = LAVA_LIGHT_RANGE;
@@ -7,7 +9,9 @@ function initialize_lava_lighting() {
 	minimum_intensity = 0;
 }
 
-/// @function									get_relative_light_intensity();
+/// @function update_lava_lighting()
+/// @description Makes the calling instance's lava light flicker each step: its intensity drifts at random between 0.125
+///	and 0.35, and its lighting distance jumps a step around LAVA_LIGHT_RANGE
 function update_lava_lighting() {
 	intensity += (get_coin_flip()) ? random(0.025) : -1 * random(0.025);
 	if (intensity < 0.125) { intensity = 0.125; }
@@ -15,7 +19,9 @@ function update_lava_lighting() {
 	lighting_distance = (LAVA_LIGHT_RANGE + floor((-24 + irandom(50))/25));
 }
 
-/// @function									fireball_light_bombs();
+/// @function fireball_light_bombs()
+/// @description Lights a bomb the calling fireball or fire skeleton touches, unless that bomb created it. The bomb counts
+///	as lit by the player when the player shot the fireball, and the evaluation counts it while the player is alive.
 function fireball_light_bombs() {
 	var _bomb = instance_place(x, y, obj_bomb);
 	if (is_existing_instance(_bomb) && (!is_existing_instance(creator) || creator != _bomb)) {
@@ -29,9 +35,13 @@ function fireball_light_bombs() {
 	}
 }
 
-/// @function									fireball_kill_enemies(ignore_fire_resistance, _use_magic_resistance);
-///	@param		{bool} ignore_fire_resistantce  If true will kill fire resistant enemies
-///	@param		{bool} _use_magic_resistance		If true will use magic resistance instead of fire
+/// @function fireball_kill_enemies([_use_magic_resistance])
+/// @description Kills every activated, corporeal enemy within 8 pixels of the calling fireball or fire skeleton that
+///	doesn't resist it. Hands always block it, and die unless they carry a staff. A kill is credited to the player, and
+///	counted for the evaluation, when the player shot the fireball.
+/// @param {bool} [_use_magic_resistance] Whether to check magic resistance instead of fire resistance (false by default)
+/// @returns {bool} Whether an enemy blocked it: hands, or an enemy that doesn't resist it (when several enemies are hit,
+///	the last one checked decides)
 function fireball_kill_enemies(_use_magic_resistance = false) {
 	var _kill_snd = _use_magic_resistance ? snd_no : snd_extinguish
 	var _blocked = false;
@@ -69,8 +79,11 @@ function fireball_kill_enemies(_use_magic_resistance = false) {
 	return _blocked;
 }
 
-/// @function								initialize_fireball_torch_variables(_lighting_range);
-///	@param		{int} _lighting_range		The lighting range to set the torch to
+/// @function initialize_fireball_torch_variables(_lighting_range)
+/// @description Gives the calling projectile (a fireball or magic beam) an invisible, lit special torch to carry, so it
+///	gives off light and lights the torches it passes over
+/// @param {real} _lighting_range The lighting range of the torch and its light source
+/// @returns {Id.Instance} The new torch
 function initialize_fireball_torch_variables(_lighting_range) {
 	var _torch = instance_create(x, y, obj_torch);
 	_torch.special = true;
@@ -87,8 +100,9 @@ function initialize_fireball_torch_variables(_lighting_range) {
 	return _torch;
 }
 
-/// @function								update_fireball_torch_position(_new_x_scale);
-///	@param		{float} _new_x_scale			The new x scale to set the torch object to
+/// @function update_fireball_torch_position([_new_x_scale])
+/// @description Keeps the calling projectile's torch (see initialize_fireball_torch_variables) at its position
+/// @param {real} [_new_x_scale] The torch's horizontal scale, which sizes its collision box (1 by default)
 function update_fireball_torch_position(_new_x_scale = 1) { 
 	if (is_existing_instance(torch)) { 
 		set_instance_to_same_position(torch);  
@@ -96,10 +110,13 @@ function update_fireball_torch_position(_new_x_scale = 1) {
 	}
 }
 
-/// @function								shoot_magic_beam(_target, _max_angle [_number_to_shoot]);
-///	@param		{inst} _target				The instantce to shoot at
-///	@param		{int} _max_angle				The maximum angle away from the target to shoot
-///	@param		{int} _number_to_shoot		OPTIONAL: Number of projectiles to shoot
+/// @function shoot_magic_beam(_target, _max_angle, [_number_to_shoot])
+/// @description Shoots magic beams from the calling instance toward a target, aimed at random up to _max_angle degrees
+///	to either side of it. Extra beams fan out from the first in 25 degree steps, alternating sides.
+/// @param {Id.Instance} _target The instance to shoot at (the player if it doesn't exist)
+/// @param {real} _max_angle The most degrees away from the target to aim
+/// @param {real} [_number_to_shoot] How many beams to shoot (1 by default)
+/// @returns {Id.Instance} The first beam shot, or noone if none were shot
 function shoot_magic_beam(_target, _max_angle, _number_to_shoot = 1) {
 	if (!is_existing_instance(_target)) { _target = global.player; }
 	var _dir = point_direction(x, y, _target.x, _target.y) - _max_angle + irandom_range(0,_max_angle*2);
@@ -114,7 +131,9 @@ function shoot_magic_beam(_target, _max_angle, _number_to_shoot = 1) {
 	return _first_shot;
 }
 
-/// @ function								fireball_burn_bushes()
+/// @function fireball_burn_bushes()
+/// @description Burns a bush the calling fireball or fire skeleton touches, leaving dirt in its place
+/// @returns {bool} Whether a bush was in the way and burned
 function fireball_burn_bushes() {
 	var _blocked = false;
 	var _bush = instance_place(x, y, obj_bush);

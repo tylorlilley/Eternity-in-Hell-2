@@ -1,6 +1,6 @@
 event_inherited();
 
-// Spawn chest_obj when destroyed
+// A chest destroyed while still closed drops its item, or leaves blood in place of dirt if it was trapped
 var _controller = global.controller;
 if (is_existing_instance(_controller)) {
 	if (closed) {

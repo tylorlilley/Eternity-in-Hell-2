@@ -1,13 +1,3 @@
-/// @description Insert description here
-// You can write your code in this editor
-
-// Inherit the parent event
-//event_inherited();
-//draw_self()
+/// @description Draw pupil
+// Its eye parts draw the eye itself (see game_room_start), so only the pupil is drawn here
 draw_sprite_ext(pupil_sprite, 0, round(pupil_x), round(pupil_y), 1, 1, 1, image_blend, 1);
-
-/*
-draw_set_color(c_green);
-draw_text(x, y, pupil.spin_counter);
-*/
-

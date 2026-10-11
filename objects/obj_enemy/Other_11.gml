@@ -1,6 +1,7 @@
 /// @description Step
 event_inherited();
 	
+// An enemy that isn't activated is hidden, and skips the checks below
 visible = activated;
 	
 if (activated) {
@@ -8,7 +9,9 @@ if (activated) {
 		var _death_by_fire_skeleton = object_index != obj_fire_skeleton && instance_place(x, y, obj_fire_skeleton);
 			
 		if (!floating) {
-			// TEST THIS ENEMY LAVA DEATH - Eval?
+			// An enemy that isn't fire resistant dies in lava: when lava covers every quadrant of its spot, or when it
+			// touches lava and a fire skeleton stands on it too. The lava gets the credit for the kill.
+			// TODO: Test these lava deaths, and check that lava_kill_count counts them correctly
 			if (!fire_resistant && (is_covered_at_each_quadrant_by(obj_lava_part) || _death_by_fire_skeleton)) { 
 				with instance_place(x, y, obj_lava) {
 					with other {
@@ -17,17 +20,9 @@ if (activated) {
 					}
 				}
 			}
-			/* REMOVE SO BLOCKS CAN KILL ENEMIES ONLY
-			else if (is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) { 
-				with instance_place(x, y, obj_solid) {
-					with other {
-						kill_enemy(snd_crunch);
-					}
-				}
-			}
-			*/
 		}
 			
+		// Floating enemies are drawn in front of the others
 		depth = (floating) ? FLOATING_ENEMY_DEPTH : start_depth;
 	}
 	else {

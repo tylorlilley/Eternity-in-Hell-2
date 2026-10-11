@@ -1,11 +1,15 @@
 /// @description Step
+// Only a bomb that nobody holds burns its fuse, lights from torches, and blows up in lava
 if (!is_existing_instance(holder)) {
 	if (fuse_timer > 0) {
+		// Burn the fuse, ticking and blinking every 4 steps
 		fuse_timer -= 1;
 		if (fuse_timer % 4 == 0) { 
 			if (fuse_timer != 0) { play_sound(snd_tick, false); visible = false; } 
 		}
 		else { visible = true; }
+		// When it runs out, a plain bomb is sometimes a dud that can be lit again. Otherwise it explodes and leaves dirt, and
+		// a special bomb isn't used up.
 		if (fuse_timer == 0) {
 			if (!special && get_random_chance_out_of(BOMB_DUD_PROBABILITY)) { play_sound(snd_move, false); }
 			else { explode(!special); instance_create(x, y, obj_dirt); }

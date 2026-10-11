@@ -1,12 +1,17 @@
-/// @function								kill_enemy(_death_sound, _killed_by);
-///	@param		{index}	_death_sound			The sound to play upon killing this enemy
-///	@param		{obj}	_killed_by			The type of object to credit for killing this enemy
+/// @function kill_enemy(_death_sound, _killed_by)
+/// @description Kills the calling enemy: plays its death sound, leaves bones (for a skeleton) or blood (for any other
+///	enemy with a body), logs the kill, and destroys it. Hands holding a rosary come back at their start position after a
+///	delay, and the rosary is used up unless it's special, in which case the new hands go for it. The evaluation counts a
+///	gudetama's death as solving its room, and also counts any kill made after the player has died.
+/// @param {Asset.GMSound} _death_sound The sound to play as it dies (loud, so it draws ears enemies), or noone for none
+/// @param {Asset.GMObject} _killed_by The object type to credit with the kill, or noone to leave the kill unlogged
 function kill_enemy(_death_sound, _killed_by) {
 	if (_death_sound != noone) { play_sound(_death_sound, true); }
 	if (corporeal) {
 		var _corpse = (object_index == obj_skeleton || object_index == obj_fast_skeleton || object_index == obj_fire_skeleton) ? obj_bones : obj_blood;
 		instance_create(x, y, _corpse);
 	}
+	// Hands holding a rosary come back to life at their start position
 	if (object_index == obj_hands) {
 		with (right_hand_item) {
 			if (object_index == obj_rosary) {
@@ -33,8 +38,11 @@ function kill_enemy(_death_sound, _killed_by) {
 	instance_destroy();
 }
 
-/// @function								kill_with_sword();
-///	@param		{instance}	_sword			The sword being used to kill this enemy
+/// @function kill_with_sword(_sword)
+/// @description Kills the calling enemy with a sword, crediting the sword's holder as the killer. A sword that isn't
+///	special is used up: it's destroyed, and a sword stuck in the ground is left where the enemy stood. A kill by the
+///	player counts as a sword kill for the evaluation.
+/// @param {Id.Instance} _sword The sword that kills the enemy
 function kill_with_sword(_sword) {
 	var _holder_exists = is_existing_instance(_sword.holder);
     var _killer = _holder_exists ? _sword.holder.object_index : noone;
@@ -51,9 +59,13 @@ function kill_with_sword(_sword) {
 	kill_enemy(snd_crunch, _killer);
 }
 
-/// @function								run_away_from_player(_ignore_solid, _ignore_death, _make_sound);
-/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+/// @function run_away_from_player(_ignore_solid, _ignore_death, _make_sound)
+/// @description Moves the calling instance one space (8 pixels) away from the player: in a random cardinal direction,
+///	reversed if it heads towards the player. It stays put one time in three, and when that direction is blocked.
+/// @param {bool} _ignore_solid Whether it can move through solid objects
+/// @param {bool} _ignore_death Whether it can move onto objects that cause death, such as lava
+/// @param {bool} _make_sound Whether the move makes a movement sound
+/// @returns {real} The direction it moved in (see directions), or directions.none if it stayed put
 function run_away_from_player(_ignore_solid, _ignore_death, _make_sound) {
 	var _dir = get_random_cardinal_dir(), _player = global.player;
 	if (is_direction_towards(_dir, _player)) { _dir = get_opposite_dir(_dir); }
@@ -63,7 +75,10 @@ function run_away_from_player(_ignore_solid, _ignore_death, _make_sound) {
 	return directions.none;
 }
 
-/// @function								teleport_to_empty_space()
+/// @function teleport_to_empty_space()
+/// @description Moves the calling enemy, such as a mouth or cultist, to a random free spot on the room's 8-pixel grid:
+///	inside the room, with no other enemy, solid, lava, hidden chest, illusion wall, stairs spot, button or player on it,
+///	and at least TRAP_RANGE pixels from the player. It gives up after 128 tries, staying at the last spot it picked.
 function teleport_to_empty_space() {
 	var _player = global.player, _blocked_by_enemy = false, _attempts = 0;
 	do {
@@ -89,16 +104,21 @@ function teleport_to_empty_space() {
 			get_distance_to_instance(_player) >= TRAP_RANGE));
 }
 
-/// @function								teleport_to_lava()
+/// @function teleport_to_lava()
+/// @description Moves the calling enemy, a nose, onto a random lava spot. It tries the lava tiles in turn from a random
+///	one, at each tile's own position and at the four positions 8 pixels from it, and takes the first spot that is all
+///	lava, inside the room, not all solid and clear of the player. If no tile has such a spot, which shouldn't happen, it
+///	logs a warning and destroys the enemy without running its Destroy event.
+/// @returns {Id.Instance} The lava tile it moved onto or next to, or noone if it found no spot and destroyed the enemy
 function teleport_to_lava() {
 	var _total_lava = instance_number(obj_lava), _count = 0, _current_pos = irandom(_total_lava -1), _player = global.player;
 	while (_count < _total_lava) {
 		var _lava = instance_find(obj_lava, _current_pos);
 
-		// Test this lava and all offsets by 8
+		// Try the tile's own position and the four positions 8 pixels from it, starting from a random one
 		var _start_dir = irandom(4);
 		for (var _dir = directions.up; _dir<= directions.stairs; _dir++) {
-			// Set up lava for this run
+			// Start from the lava tile's position
 			x = _lava.x;
 			y = _lava.y;
 			
@@ -109,7 +129,7 @@ function teleport_to_lava() {
 				case directions.left: { x -= 8; break; }
 			}
 			
-			// return early if this is a good teleported position
+			// Stop at the first spot that is all lava, inside the room, not all solid and clear of the player
 			if (is_covered_at_each_quadrant_by(obj_lava_part) &&
 				!is_outside_room(x, y) &&
 				!is_covered_at_each_quadrant_by(obj_solid) &&
@@ -118,22 +138,25 @@ function teleport_to_lava() {
 			  }
 		}
 		
-		// Setup next iteration
+		// Go on to the next lava tile, wrapping around after the last
 		_count += 1;
 		_current_pos = (_current_pos + 1 >= _total_lava) ? 0 : _current_pos + 1;
 	}
 	
-	// No suitable teleport spot; Should never need to reach this clause
+	// No lava tile has a spot for it, which should never happen
 	write_debug_message("Teleport to lava failed.", debug_message_level.warning);
 	instance_destroy(id, false);
 	return noone;
 }
 
-/// @function								shoot_projectile(_target_x, _target_y, _make_destructive)
-///	@param		{int}	_target_x			The x position of the target to move towards;
-///	@param		{int}	_target_y			The y position of the target to move towards;
-///	@param		{boolean} _make_destructive	The y position of the target to move towards;
-///	@param		{obj} _obj					The type of projectile to spawn;
+/// @function shoot_projectile(_target_x, _target_y, _make_destructive, [_obj])
+/// @description Fires a projectile from the calling instance towards a position, with a shot sound. The projectile
+///	remembers who fired it, and flies at speed 2 if it's a fireball or 0.75 if it's another type, such as a magic beam.
+/// @param {real} _target_x The x position to fire towards
+/// @param {real} _target_y The y position to fire towards
+/// @param {bool} _make_destructive Whether a fireball destroys closed doors, chests, statues and giant eyes it hits
+/// @param {Asset.GMObject} [_obj] The type of projectile to fire (obj_fireball by default)
+/// @returns {Id.Instance} The projectile
 function shoot_projectile(_target_x, _target_y, _make_destructive, _obj = obj_fireball) {
 	play_sound((_obj == obj_magic_beam ? snd_magic : snd_shoot), false);
 	var _proj = instance_create(x, y, _obj);
@@ -146,13 +169,17 @@ function shoot_projectile(_target_x, _target_y, _make_destructive, _obj = obj_fi
 	return _proj;
 }
 
-/// @function								try_to_see_player();
+/// @function try_to_see_player()
+/// @description Has the calling spider look along its row and column for something to attack: dropped meat first, then
+///	the player. A spider standing on its target just waits. One that sees a target in a new direction, with a clear
+///	straight line to it, screeches for 3 steps before it attacks, and adds its spot to its path, which it follows back
+///	afterwards. It does nothing while the spider is already screeching.
 function try_to_see_player() {
-	// Check for a target being exactly aligned with your x or y
+	// Look for a target in the same row or column, unless it is already screeching
 	if (state != SCREECHING) {
-		var _new_dir = directions.none, _on_target = false, _target = noone;// offset = (state == ATTACKING) ? 8 : 0;
+		var _new_dir = directions.none, _on_target = false, _target = noone;
 		
-		// Check all dropped meat and player
+		// Dropped meat comes first, then the player if no meat is in line
 		with (obj_meat) {
 			if (!is_existing_instance(holder) && _new_dir == directions.none) {
 				if (x == other.x && y != other.y) {
@@ -190,7 +217,7 @@ function try_to_see_player() {
 			}
 		}
 		
-		// Attack the new target
+		// Wait on the target, or screech at one in a new direction that it can reach in a straight line, then attack
 		if (_on_target) { state = WAITING; dir = directions.none; return; }
 		else if (_new_dir != directions.none && _new_dir != dir && is_existing_instance(_target) && can_move_in_direction_and_reach(_new_dir, _target, false, true)) {
 			dir = _new_dir;
@@ -202,7 +229,9 @@ function try_to_see_player() {
 	}
 }
 
-/// @function								start_waiting();
+/// @function start_waiting()
+/// @description Puts the calling spider in its waiting state: it stops moving, drops its old path, and starts a new one
+///	from its current spot, which becomes its target, so it can retrace its steps back to it after an attack
 function start_waiting() {
 	state = WAITING;
 	dir = directions.none;
@@ -213,21 +242,25 @@ function start_waiting() {
 	path_add_point(target_path, x, y, 1);
 }
 
-/// @function								move_snake(_iterations);
-///	@param		{int}	_iterations			The number of times to move in one frame
+/// @function move_snake(_iterations)
+/// @description Moves the calling snake up to _iterations spaces in its current direction, stopping when something
+///	blocks it. Once stopped, it picks a new direction at random from turning around or turning either way, taking only a
+///	direction it can move in and, if meat is on the ground, only one towards the meat. A snake on the meat just stops.
+/// @param {real} _iterations The most spaces to move in one go
+/// @returns {real} The direction it is heading in afterwards (see directions), or directions.none if it is stopped
 function move_snake(_iterations) {
 	var _dropped_meat = get_dropped_meat();
 	if (is_existing_instance(_dropped_meat) && is_instance_at_coordinates(x, y, _dropped_meat)) { dir = directions.none; return dir; }
 		
 	var _prev_dir = (dir == directions.none) ? get_random_cardinal_dir() : dir;
 	
-	// Move as far as possible in current direction
+	// Move up to _iterations spaces in the current direction, stopping when blocked
 	for (var _i = 0; _i < _iterations; _i += 1; ) {
 		if (dir != directions.none && can_move_in_direction(dir, false, false)) { move_in_direction(dir, true); }
 		else { dir = directions.none; break; }
 	}
 	
-	// Choose new direction to turn in
+	// Once stopped, turn to a free direction, towards the dropped meat if there is any
 	if (dir == directions.none) {
 		var _new_directions = [];
 		array_push(_new_directions, get_opposite_dir(_prev_dir), get_turn_right_dir(_prev_dir), get_turn_left_dir(_prev_dir));
@@ -240,14 +273,21 @@ function move_snake(_iterations) {
 	return dir;
 }
 
-/// @function								set_segment_images();
+/// @function set_segment_images()
+/// @description Sets the sprite of the calling worm segment, then of every segment behind it, so the whole worm looks
+///	like one connected body after it moves
 function set_segment_images() {
 	set_segment_image();
 	with tail { set_segment_images(); }
 }
 
-/// @function								set_segment_image();
+/// @function set_segment_image()
+/// @description Sets the calling worm segment's sprite frame, angle and flip from where the adjacent segments are. A
+///	segment's head is the segment ahead of it, and its tail is the segment behind it. The front and last segments are
+///	end caps, turned to line up with the segment next to them. A middle segment is a straight piece when the segments on
+///	either side of it are in line, and otherwise a corner piece, turned towards the two segments it joins.
 function set_segment_image() {
+	// The last segment: an end cap, turned to line up with the segment ahead of it
 	if (head && !tail) {
 		flip_sprite_at_random(false);
 		image_index = 0;
@@ -255,6 +295,8 @@ function set_segment_image() {
 		if (head.x == x) { image_angle = (head.y > y) ? 180 : 0; }
 		if (head.y == y) { image_angle = (head.x < x) ? 90 : 270; }
 	}
+	// The front segment: an end cap, facing away from the segment behind it, or the way it is heading when that segment is
+	// diagonal
 	if (!head && tail) {
 		flip_sprite_at_random(false);
 		image_index = 0;
@@ -263,6 +305,7 @@ function set_segment_image() {
 		else if (tail.x == x) { image_angle = (tail.y < y) ? 180 : 0; }
 		else if (tail.y == y) { image_angle = (tail.x > x) ? 90 : 270; }
 	}
+	// A middle segment: a straight piece when the segments on either side of it are in line, otherwise a corner piece
 	if (tail && head) {
 		if (tail.x == head.x) {	
 			flip_sprite_at_random(true);
@@ -274,12 +317,8 @@ function set_segment_image() {
 			image_index = 1;
 			image_angle = 90;
 		}
-		//else if (abs(tail.x - x) == 8 && abs(tail.y - y) == 8) {
-			//flip_sprite_at_random(true);
-			//image_angle = get_random_cardinal_dir()*90;
-		//	image_index = 3;
-		//}
 		else {
+			// A corner piece, turned towards the two segments it joins
 			image_index = 2;
 			image_xscale = 1;
 			image_yscale = 1;
@@ -303,8 +342,13 @@ function set_segment_image() {
 	}
 }
 
-/// @function								connect_segments();
+/// @function connect_segments()
+/// @description Links the calling worm segment to the segment behind it, and that one to the next, down to the end of
+///	the worm. The segment behind is the giant worm segment 16 pixels away on a cardinal side other than the segment
+///	ahead. It's told that the calling segment is ahead of it, drawn just behind it, and set to move towards it. A worm's
+///	front segment, which has nothing ahead, is set to move away from the segment behind it.
 function connect_segments() {
+	// Look 16 pixels away on each cardinal side for the segment behind this one
 	for (var _next_dir = directions.up; _next_dir < directions.stairs; _next_dir++) {
 		var _x_offset = 0, _y_offset = 0;
 		
@@ -331,27 +375,32 @@ function connect_segments() {
 		}
 	}
 	with tail { connect_segments(); }
-	//set_segment_image();
 }
 
-/// @function								move_segments();
-///	@param		{dir}	_new_dir				The direction to move the segments in
+/// @function move_segments(_new_dir)
+/// @description Moves the calling worm segment one space along its queued moves, then does the same for every segment
+///	behind it. Segments are 16 pixels apart and move 8 at a time, so each one repeats the moves of the segment ahead of
+///	it two moves later. Its queue holds the move it makes now (dir) and the one after (prev_dir), and the move the
+///	segment ahead just made joins the end.
+/// @param {real} _new_dir The direction (see directions) the segment ahead of it has just moved in
 function move_segments(_new_dir) {
 	move_in_direction(dir, false);
 	with tail { move_segments(other.dir); }
 	dir = prev_dir;
 	prev_dir = _new_dir;
-	//set_segment_image();
 }
 
-/// @function								explode(_destroy_self);
-///	@param		{bool}	  _destroy_self		Whether to destroy the calling instance or not
+/// @function explode(_destroy_self)
+/// @description Makes the calling enemy or bomb explode: it counts for the evaluation, plays the explosion sound,
+///	flashes the screen, and fires 16 destructive fireballs outwards in a ring. The fireballs count as shot by the player
+///	if the player lit the explosive (lit_by_player).
+/// @param {bool} _destroy_self Whether to destroy the calling instance too
 function explode(_destroy_self) {
 	global.controller.evaluation_manager.increment_evaluation_variable("spontaneously_exploded_enemy");
 	play_sound(snd_explosion, true);
 	screen_flash();
 	
-	// The Rest
+	// Shots between the cardinal and diagonal directions
 	var _projectiles = [];
 	array_push(_projectiles, shoot_projectile(x-8, y-4, true));
 	array_push(_projectiles, shoot_projectile(x-4, y-8, true));
@@ -362,18 +411,19 @@ function explode(_destroy_self) {
 	array_push(_projectiles, shoot_projectile(x+4, y+8, true));
 	array_push(_projectiles, shoot_projectile(x+8, y+4, true));
 		
-	// Diagonals
+	// Diagonal shots
 	array_push(_projectiles, shoot_projectile(x-8, y-8, true));
 	array_push(_projectiles, shoot_projectile(x+8, y-8, true));
 	array_push(_projectiles, shoot_projectile(x-8, y+8, true));
 	array_push(_projectiles, shoot_projectile(x+8, y+8, true));
 	
-	// Cardinal Directions
+	// Cardinal shots
 	array_push(_projectiles, shoot_projectile(x+0, y-8, true));
 	array_push(_projectiles, shoot_projectile(x+0, y+8, true));
 	array_push(_projectiles, shoot_projectile(x-8, y+0, true));
 	array_push(_projectiles, shoot_projectile(x+8, y+0, true));
 	
+	// The shots count as the player's if the player lit the explosive
 	while (array_length(_projectiles) > 0) {
 		var _proj = array_pop(_projectiles);
 		_proj.shot_by_player = lit_by_player;
@@ -382,19 +432,27 @@ function explode(_destroy_self) {
 	if (_destroy_self) { instance_destroy(); }
 }
 
-/// @function								check_for_player_collision();
+/// @function check_for_player_collision()
+/// @description Resolves the calling enemy or deadly ground touching the player. It does nothing unless the instance is
+///	activated, overlaps the player and the player is alive. A player carrying a sword kills an enemy that has a body.
+///	Otherwise the player dies, credited to the enemy or deadly ground, unless a carried staff protects them from deadly
+///	ground or a fire skeleton. Lava doesn't kill a player standing below it. It runs when the calling instance moves,
+///	and when the player ends a step on top of it.
 function check_for_player_collision() {
 	var _player = global.player;
 	if (activated && place_meeting(x, y, _player) && !_player.dead) {
 		var _carried_sword = noone, _carried_staff = noone;
 		with (_player) { _carried_sword = get_carried_item(obj_sword); _carried_staff =  get_carried_item(obj_staff); }
+		// A player carrying a sword kills an enemy that has a body
 		if (is_existing_instance(_carried_sword) && corporeal) { kill_with_sword(_carried_sword); }
 		else if (object_index == obj_death || object_index == obj_lava_part) {
+			// Lava doesn't kill a player standing below it
 			if (object_index != obj_lava_part || _player.y <= y) {
-				// Kill player from projectile
+				// A player carrying a staff is safe from deadly ground
 				with (_player) { 
 					if (!is_carrying_item(obj_staff)) { 
 						play_sound(snd_extinguish, false);
+						// Credit the ground's creator, or lava if it has none. A trap statue or fountain counts as a chest
 						var _killer = obj_lava;
 						if (is_existing_instance(other.creator)) { 
 							_killer = other.creator.object_index;
@@ -406,14 +464,16 @@ function check_for_player_collision() {
 			}
 		}
 		else {
-			// Kill player from enemy
+			// An enemy kills the player, unless it's a fire skeleton and the player carries a staff
 			if (object_index != obj_fire_skeleton || !is_existing_instance(_carried_staff)) {
 				var _killer = object_index;
+				// A skeleton still rising from bones counts as bones, and a fast-moving one as a fast skeleton
 				if (_killer == obj_skeleton) {
 					if (spawn_timer > 0) { _killer = obj_bones; }
 					else if (skeleton_speed == FAST_SKELETON_MOVE_FREQUENCY) { _killer = obj_fast_skeleton; }
 				}
 				if (corporeal) { play_sound(snd_crunch, false); }
+				// Hands holding a sword that isn't special leave it stuck in the ground where the player stood
 				if (object_index == obj_hands && is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_sword && !right_hand_item.special) {
 					var _sword_in_ground = instance_create(_player.x, _player.y, obj_sword_in_ground);
 					_sword_in_ground.image_xscale = right_hand_item.image_xscale;
@@ -427,7 +487,11 @@ function check_for_player_collision() {
 	}
 }
 
-/// @function								set_automatic_target_path();
+/// @function set_automatic_target_path()
+/// @description Plans a path from the calling instance to its target (target_x, target_y) over its path grid, and makes
+///	it the instance's target path, starting at the first point. If the target can't be reached, it clears the target
+///	path and the target instead (see end_target_path).
+/// @returns {bool} Whether a path was set: false if the instance has no path grid or the target can't be reached
 function set_automatic_target_path() {
 	if (target_path_grid == -1) { return false; }
 	
@@ -446,14 +510,19 @@ function set_automatic_target_path() {
 	return true;
 }
 
-/// @function								set_path_point_to_target_path_start();
+/// @function set_path_point_to_target_path_start()
+/// @description Starts the calling instance at the first point of its target path, and counts the path's points so it
+///	can tell when it has reached the end
 function set_path_point_to_target_path_start() {
 	// Reset variables used to track position along the target path
 	total_path_points = path_get_number(target_path);
 	current_path_point = 0;
 }
 
-/// @function								initialize_target_path();
+/// @function initialize_target_path()
+/// @description Prepares the calling instance's target path for walking: makes it straight instead of curved, and
+///	rounds each of its points down to the 8-pixel grid
+/// @returns {bool} False if the instance has no target path, otherwise true
 function initialize_target_path() {
 	if (!path_exists(target_path)) { return false; }
 	
@@ -471,7 +540,9 @@ function initialize_target_path() {
 	return true;
 }
 
-/// @function								end_target_path();
+/// @function end_target_path()
+/// @description Stops the calling instance following its target path: it clears the path, the target position and its
+///	progress along the path. The path itself isn't deleted.
 function end_target_path() {
 	target_path = noone;
 	total_path_points = 0;
@@ -598,22 +669,6 @@ function move_towards_meat_or_player(_ignore_solid, _ignore_death) {
 	target_y = _target.y;
 	return move_towards_coordinates_on_path(_ignore_solid, _ignore_death, 1);
 }
-
-/*
-function move_towards_meat_or_player(ignore_solid, ignore_death, accuracy = 3) {
-	var dir = irandom(accuracy), target = get_dropped_meat();
-	if (dir >= directions.stairs) { return directions.none; }
-	
-	if (!is_existing_instance(target)) { target = global.player; }
-	if (!is_direction_towards(dir, target)) { dir = get_opposite_dir(dir); }
-	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { 
-		move_in_direction(dir, false); 
-		return dir; 
-	}
-	
-	return directions.none;
-}
-*/
 
 /// @function								reset_nose();
 function reset_nose() {

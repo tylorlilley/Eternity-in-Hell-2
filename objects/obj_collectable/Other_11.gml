@@ -2,6 +2,7 @@
 var _player = global.player;
 visible = !is_blink_frame();
 
+// The player collects it by stepping on it
 if (is_instance_at_coordinates(x, y, _player)) {
 	if (instance_number(obj_collectable) == 1) {
 	    // You are collecting the final collectable in the room
@@ -9,6 +10,8 @@ if (is_instance_at_coordinates(x, y, _player)) {
 		with global.controller {
 			current_room.has_collectables = false;
 			array_remove_first(rooms_with_collectables, current_room);
+			// The last one on the map breaks the heart's case and counts toward completion. The screen flashes here unless the
+			// encased heart is in this room, since that flashes the screen itself as it breaks open.
 			if (are_all_collectables_collected()) {
 				if (instance_number(obj_encased_heart) == 0) { screen_flash(); }
 				play_sound(snd_shatter, false); 
@@ -21,6 +24,7 @@ if (is_instance_at_coordinates(x, y, _player)) {
 	instance_destroy();
 }
 
+// The special compass draws collectables toward the player, while a moving collectable runs away from them
 var _sucked_in = false;
 with (_player) {
 	if (is_carrying_special_item(obj_compass)) { _sucked_in = true; }

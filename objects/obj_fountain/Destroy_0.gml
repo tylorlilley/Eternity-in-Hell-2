@@ -1,3 +1,2 @@
+// Like a statue, a destroyed fountain leaves blood during a game, which the inherited event handles
 event_inherited();
-
-//if (is_existing_instance(global.controller)) { instance_create(x, y, obj_blood); }

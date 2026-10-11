@@ -1,6 +1,8 @@
-/// @function								initialize_tile();
+/// @function initialize_tile()
+/// @description Creates a part (part_obj_index) in each of the calling tile's four quadrants, so each quarter of a wall
+///	or lava tile can be destroyed on its own
 function initialize_tile() {
-	// Set up the solid for each quadrant of this wall
+	// Create the part for each quadrant of this tile
 	for (var _quadrant = 0; _quadrant < 4; _quadrant++;) {
 		var _x_pos = get_quadrant_x_pos(_quadrant), _y_pos = get_quadrant_y_pos(_quadrant);
 
@@ -9,7 +11,9 @@ function initialize_tile() {
 	}
 }
 
-/// @function								initialize_door();
+/// @function initialize_door()
+/// @description Adds a half wall on each cardinal side of the calling door that has a wall 16 pixels away but not 8, so
+///	the door meets the walls beside it
 function initialize_door() { 
 	// Create a half wall in each direction of this door that needs it
 	for (var _dir = directions.up; _dir < directions.stairs; _dir++;) {
@@ -23,7 +27,7 @@ function initialize_door() {
 		
 		if (!place_meeting(x+(2*_x_offset), y+(2*_y_offset), obj_wall) || place_meeting(x+_x_offset, y+_y_offset, obj_wall)) { continue; }
 
-		// Create a half wall in this direction
+		// Create a half wall in this direction: a wall tile without its quadrants next to the door
 		var _wall = instance_create(x+_x_offset, y+_y_offset, obj_wall_part);
 		with (_wall) {
 			initialize_tile();
@@ -41,9 +45,12 @@ function initialize_door() {
 	}
 }
 
-/// @function								destroy_lava_at_position(_x_pos, _y_pos);
-/// @param		{real} _x_pos				The x position of the quadrant to destroy
-/// @param		{real} _y_pos				The y position of the quadrant to destroy
+/// @function destroy_lava_at_position(_x_pos, _y_pos)
+/// @description Destroys the calling lava tile's part at a position (one quadrant of the tile), and has the room's path
+///	grids rebuilt
+/// @param {real} _x_pos The x position of the quadrant to destroy
+/// @param {real} _y_pos The y position of the quadrant to destroy
+/// @returns {bool} Whether the tile had a part at that position to destroy
 function destroy_lava_at_position(_x_pos, _y_pos) {
 	for (var _quadrant = 0; _quadrant < 4; _quadrant++;) {
 	    if (is_instance_at_coordinates(_x_pos, _y_pos, parts[_quadrant])) {
@@ -59,8 +66,11 @@ function destroy_lava_at_position(_x_pos, _y_pos) {
 	return false;
 }
 
-/// @ function								consume_lava(require_all);
-/// @param		{bool} _require_all			Only consume whole chunks of lava at once
+/// @function consume_lava(_require_all)
+/// @description Destroys the lava in each quadrant of the calling instance, as when a block is pushed into lava, with a
+///	splash if there was any
+/// @param {bool} _require_all Whether to consume lava only when it covers all four quadrants, in whole chunks
+/// @returns {bool} Whether any lava was consumed
 function consume_lava(_require_all) {
 	var _lava_at_quadrant = get_instance_at_each_quadrant(obj_lava_part);
 	if (!_require_all || is_covered_at_each_quadrant_by(obj_lava)) {
@@ -77,7 +87,6 @@ function consume_lava(_require_all) {
 			play_sound(snd_splash, false);
 			with (obj_lava) {
 				if (get_distance_to_instance(other) <= 32) {
-					//set_up_lava_edge_visibility(false);
 				}
 			}
 			return true;
@@ -86,8 +95,12 @@ function consume_lava(_require_all) {
 	return false;
 }
 
-/// @ function								set_up_lava_edge_visibility(require_all);
-/// @param		{bool} visibility_only		Only change the visibility status
+/// @function set_up_lava_edge_visibility(_first_time_setup)
+/// @description Works out which edges of the calling lava tile's quadrants to draw: an edge shows where its quadrant's
+///	part remains and no other lava tile's lava is next to it, and none show when the lava edge setting is none. The
+///	first setup also picks the edge sprite and each edge's frame and flip (random for fuzzy edges, by position for wavy
+///	ones so they line up), and skips the edges between the tile's own quadrants.
+/// @param {bool} _first_time_setup Whether this is the tile's first setup, which also picks how its edges look
 function set_up_lava_edge_visibility(_first_time_setup) {
 	var _edge_type = global.lava_edge_type, _is_wavy_edge_type = (_edge_type == lava_edge_types.wavy_still || _edge_type == lava_edge_types.wavy_animated)
 	if (_edge_type == lava_edge_types.none) { lava_edge_visible = [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]]; return; }
@@ -132,7 +145,10 @@ function set_up_lava_edge_visibility(_first_time_setup) {
 	mask_index = -1;
 }
 
-/// @function  							open_door();
+/// @function open_door()
+/// @description Opens the calling door or portcullis: shows it open, removes the invisible solid that blocked the way,
+///	and has the room's path grids rebuilt. Opening a locked door unlocks its exit, uses up the player's key unless it's
+///	special, and counts for the evaluation.
 function open_door() {
 	image_index = 1;
 
@@ -152,7 +168,9 @@ function open_door() {
 	}
 }
 
-/// @function							close_door();
+/// @function close_door()
+/// @description Closes the calling door or portcullis: shows it closed, puts an invisible solid in it to block the way,
+///	and has the room's path grids rebuilt
 function close_door() {
 	image_index = 0;
 	
@@ -163,15 +181,19 @@ function close_door() {
 	mark_current_room_for_grid_update();
 }
 
-/// @function							open_portcullis();
+/// @function open_portcullis()
+/// @description Opens the calling portcullis, and its exit's portcullis on both sides, for good: it stays stuck open
+///	instead of closing again
 function open_portcullis() {
 	door_for_exit.open_portcullis();
 	stuck_open = true;
 	open_door();
 }
 
-/// @function								break_heart_case();
-///	@param		{bool}	  destroy_self		Whether to flash the screen or not
+/// @function break_heart_case(_has_screen_flash)
+/// @description Breaks the calling heart case, which happens once every collectable is collected. It leaves dirt, a
+///	heart plate and the heart (recorded for the map) in its place.
+/// @param {bool} _has_screen_flash Whether to flash the screen as it breaks
 function break_heart_case(_has_screen_flash) {
 	instance_create(x, y, obj_dirt);
 	var _new_plate = instance_create(x, y, obj_heart_plate);

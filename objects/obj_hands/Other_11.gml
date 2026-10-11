@@ -2,12 +2,13 @@
 
 event_inherited();
 
+// Hands revived by a rosary wait out their death timer, then come back awake
 if (death_timer > 0) { 
 	death_timer -= 1; 
 	if (death_timer == 0) { play_sound(snd_win, true); activated = true; }
 }
 else {
-	// Make any dropped meat that can be moved towards a target
+	// Go for the newest dropped meat unless it already carries meat. A dormant hand first grabs the item it lies on
 	if (!is_existing_instance(right_hand_item) || !is_carrying_item(obj_meat)) {
 		var _dropped_meat = get_dropped_meat();
 			
@@ -26,20 +27,22 @@ else {
 		}
 	}
 		
+	// Wake up once the player comes within trap range, unless a solid now stands on it, which destroys it
 	if (get_distance_to_instance(global.player) < TRAP_RANGE && !activated) { 
 		if (is_solid_at_position(x, y)) { instance_destroy(); }
 		else { activated = true; }
 	}
 	if (activated) {
+		// A staff makes it fire resistant, and a special staff makes it float through walls, each at its own depth
 		fire_resistant = is_carrying_item(obj_staff);
 		floating = is_carrying_special_item(obj_staff);
 		if (floating) { depth = INCORPOREAL_ENEMY_DEPTH; }
 		else if (fire_resistant) { depth = HANDS_WITH_STAFF_DEPTH; }
 				
-		// Move Around
+		// Move around, twice per step
 		for (var _i = 0; _i < 2; _i++) {
 			if (!is_existing_instance(target_item)) {
-				// Run Away From Player While Carrying Target
+				// With no target, run away from the player with whatever it carries
 				can_move_on_border = false;
 				run_away_from_player(floating, fire_resistant, true);
 			}
@@ -67,6 +70,7 @@ else {
 						end_target_path();
 					}
 						
+					// Sound off when its target changed this step: a laugh for a new target, the give-up sound for none
 					if (prev_target_item != target_item) { 
 						if (target_item == noone) { play_sound(snd_give_up, true); }
 						else { play_sound(snd_laugh, true); }
@@ -78,7 +82,7 @@ else {
 				}
 			}
 			else if (target_item != noone) {
-				// Give up on carried or non-existant target
+				// Give up on a target that someone else now carries
 				play_sound(snd_give_up, false);
 				target_item = noone; 
 				end_target_path(); 
@@ -98,6 +102,7 @@ else {
 			}
 		}
 			
+		// Keep its item with it, facing the same way
 		set_instance_to_same_position(right_hand_item);
 		with (right_hand_item) { image_xscale = other.image_xscale; }
 	}

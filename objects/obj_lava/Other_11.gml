@@ -1,10 +1,11 @@
 /// @description Step
 event_inherited();
 
-// Update lighting information
+// Make its glow flicker
 update_lava_lighting();
 
-// Update edge image information
+// Animated edges change each step: wavy ones step through their eight frames in order, and fuzzy ones pick a random
+// frame and flip
 var _edge_type = global.lava_edge_type;
 if (_edge_type == lava_edge_types.fuzzy_animated || _edge_type == lava_edge_types.wavy_animated) {
 	for (var _quadrant = 0; _quadrant < 4; _quadrant++) {
@@ -21,6 +22,6 @@ if (_edge_type == lava_edge_types.fuzzy_animated || _edge_type == lava_edge_type
 	}
 }
 	
-// Randomize visual
+// Pick a new random rotation and flip for the lava sprite every step, which animates it
 rotate_sprite_to_random_angle();
 flip_sprite_at_random(true);

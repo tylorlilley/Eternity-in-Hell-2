@@ -1,4 +1,8 @@
-/// @function								set_up_inputs_for_next_frame();
+/// @function set_up_inputs_for_next_frame()
+/// @description Reads the controls into the game manager's input variables at the end of its step, ready for the next
+///	step. In play it reads only the chosen input method; on the title screen it reads the arrow keys and the gamepad
+///	too, so the menus work whichever method is chosen. While a red bug infects the player and the game isn't paused,
+///	get_random_inputs() scrambles them.
 function set_up_inputs_for_next_frame() {
 	if (instance_number(obj_title) > 0) { 
 		get_keyboard_default_inputs();
@@ -16,7 +20,10 @@ function set_up_inputs_for_next_frame() {
 	if (is_existing_instance(global.player) && !global.player.dead && global.player.infected_timer > 0 && !paused) { get_random_inputs(); }
 }
 
-/// @function								get_random_inputs();
+/// @function get_random_inputs()
+/// @description Scrambles the controls while a red bug infects the player: random presses and releases replace their
+///	directions and shift, a held key tending to stay held for a while, and random Z and X presses replace theirs.
+///	Space, Enter and Escape still work.
 function get_random_inputs() {
 	key_up_pressed = get_random_chance_out_of((prev_key_up) ? 4 : 12);
 	key_down_pressed = get_random_chance_out_of((prev_key_down) ? 4 : 12);
@@ -39,7 +46,10 @@ function get_random_inputs() {
 	key_shift = !key_shift_released && (key_shift_pressed || prev_key_shift);
 }
 
-/// @function								clear_inputs_for_next_frame();
+/// @function clear_inputs_for_next_frame()
+/// @description Clears every input, which the game manager does after each frame the game processes (and every frame
+///	on the title screen). Until then the inputs read each frame add up, so a key tapped between processed frames still
+///	counts. It first remembers which directions and shift were held, for get_random_inputs().
 function clear_inputs_for_next_frame() {
 	prev_key_up = key_up;
 	prev_key_down = key_down;
@@ -79,7 +89,9 @@ function clear_inputs_for_next_frame() {
 	key_shift_released = false;
 }
 
-/// @function								get_keyboard_default_inputs();
+/// @function get_keyboard_default_inputs()
+/// @description Reads the default keyboard layout into the input variables, on top of what they already hold: the arrow
+///	keys to move, plus Z, X, space, Enter, shift and Escape
 function get_keyboard_default_inputs() {
 	key_up = key_up || keyboard_check(vk_up);
 	key_down = key_down || keyboard_check(vk_down);
@@ -113,7 +125,9 @@ function get_keyboard_default_inputs() {
 	key_shift_released = key_shift_released || keyboard_check_released(vk_shift);
 }
 
-/// @function								get_keyboard_wasd_inputs();
+/// @function get_keyboard_wasd_inputs()
+/// @description Reads the WASD keyboard layout into the input variables, on top of what they already hold: W, A, S and D
+///	to move, J and K in place of Z and X, and space, Enter, shift and Escape as in the default layout
 function get_keyboard_wasd_inputs() {
 	key_up = key_up || keyboard_check(ord("W"));
 	key_down = key_down || keyboard_check(ord("S"));
@@ -147,7 +161,11 @@ function get_keyboard_wasd_inputs() {
 	key_shift_released = key_shift_released || keyboard_check_released(vk_shift);
 }
 
-/// @function								get_gamepad_inputs();
+/// @function get_gamepad_inputs()
+/// @description Reads the gamepad in global.gamepad into the input variables, on top of what they already hold: the
+///	d-pad or left stick to move, and buttons in place of Z, X, space, shift and Enter. The keyboard's Escape key still
+///	counts, since no button stands in for it. It remembers where the stick was, so pushing it past halfway counts as a
+///	single press.
 function get_gamepad_inputs() {
 	var _gamepad = global.gamepad;
 	key_up = key_up || gamepad_button_check(_gamepad, gp_padu) || gamepad_axis_value(_gamepad, gp_axislv) < -0.5;
@@ -186,14 +204,17 @@ function get_gamepad_inputs() {
 	
 }
 
-/// @function								initialize_shader_pointers();
+/// @function initialize_shader_pointers()
+/// @description Looks up sh_eih's uniform handles once, when the game manager is created, for set_eih_shader()
 function initialize_shader_pointers() {
 	shader_color = shader_get_uniform(sh_eih, "new_color");
 	shader_bg_color = shader_get_uniform(sh_eih, "bg_color");
 	shader_color_fade = shader_get_uniform(sh_eih, "color_fade");
 }
 
-/// @function								set_eih_shader();
+/// @function set_eih_shader()
+/// @description Turns on sh_eih for each frame's drawing, passing it the game color, background color and color fade,
+///	so sprites' bright red pixels take the game color and their solid black pixels the background color
 function set_eih_shader() {
 	shader_set(sh_eih);
 	shader_set_uniform_f_array(shader_color, global.game_color);
@@ -201,19 +222,27 @@ function set_eih_shader() {
 	shader_set_uniform_f(shader_color_fade, global.game_color_fade);
 }
 
-/// @function								is_thump_frame();
+/// @function is_thump_frame()
+/// @description Whether the heart is mid-thump on this frame: it thumps for three of every FRAMES_FOR_HEART_THUMP
+///	frames the game processes, and the heart and its map icon pulse in time
+/// @returns {bool}
 function is_thump_frame() {
 	var _thump_timer = (global.game_manager.number_of_frames_since_game_began/FRAMES_TO_WAIT_BEFORE_PROCESSING) % FRAMES_FOR_HEART_THUMP;
 	return (_thump_timer > 0 && _thump_timer <= 3);
 }
 
-/// @function								is_blink_frame();
+/// @function is_blink_frame()
+/// @description Whether this frame is in the second half of the 24-frame blink cycle. Blinking things (the pause text,
+///	collectables, outlines, illusion walls and more) show or hide by it, so they switch on and off every 12 frames.
+/// @returns {bool}
 function is_blink_frame() {
 	return (global.game_manager.number_of_frames_since_game_began % 24 >= 12);
 }
 
 
-/// @function								return_to_title_screen();
+/// @function return_to_title_screen()
+/// @description Leaves the current game for the title screen, unpausing and clearing the frame count and inputs on the
+///	way. A game left unfinished (neither won nor lost) is logged as a reset.
 function return_to_title_screen() { 			
 	paused = false;
 	number_of_frames_since_game_began = 0;

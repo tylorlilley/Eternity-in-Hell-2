@@ -1,5 +1,5 @@
-//screen_save("shot_"+string(global.seed)+".png")
-//global.player_outline = !global.player_outline;
+// In test mode, start seed testing: end the current game and start a new one with the next seed. Each seed's game then
+// passes once it is running, and this object's End Step event moves on to the following seed
 if (global.is_test_mode) {
 	global.is_seed_testing_mode = true;
 	with (obj_controller) { restart_game(); }

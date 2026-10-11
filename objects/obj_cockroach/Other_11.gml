@@ -1,7 +1,8 @@
 /// @description Step
 if (spawn_timer > 0) { spawn_timer -= 1; }
 else {
-	// Determine if room is dark and if cockroach is currently in a bright light
+	// The room is dark when no light source reaches farther than the player's own light, and the cockroach is in light
+	// when any light reaches it
 	var _in_dark_room = false, _in_light = false, _current_lighting = get_greatest_lighting(PLAYER_LIGHT_RANGE);
 	var _greatest_lighting_range = PLAYER_LIGHT_RANGE;
 	with obj_light_source {
@@ -15,7 +16,7 @@ else {
 	else if (_in_light) { skeleton_speed = FAST_SKELETON_MOVE_FREQUENCY; }
 	else { skeleton_speed = SKELETON_MOVE_FREQUENCY; }
 	
-	// Determine if movement happens this frame
+	// It moves this step only when the roll is a cardinal direction (0 to 3), so a larger skeleton_speed moves less often
 	var _dir = irandom(skeleton_speed), _moved = false, _current_x_scale = image_xscale;
 	if (is_cardinal_direction(_dir)) {
 		// Hunt meat and hunt players in the dark
@@ -56,6 +57,7 @@ else {
 	else if (get_random_chance_out_of(skeleton_speed/4)) {
 		image_xscale = -_current_x_scale;
 	}
+	// Make its sound the first time it's in a dark room, and show its frame for the dark there
 	if (_in_dark_room && !made_noise) { play_sound(snd_cockroach, false); made_noise = true; }
 	image_index = (_in_dark_room) ? 0 : 1;
 }

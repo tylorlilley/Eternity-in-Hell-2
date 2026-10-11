@@ -9,6 +9,7 @@ if (!_game_manager.paused) {
 	var _key_up_pressed = _game_manager.key_up_pressed;
 	var _key_down_pressed = _game_manager.key_down_pressed;
 	
+	// Holding up or down repeats the press, first after 18 steps and then every 6 steps
 	if (_game_manager.key_up) {
 		if (held_timer == 18) { _key_up_pressed = true; held_timer = 12; }
 		else  { held_timer += 1; }
@@ -19,7 +20,8 @@ if (!_game_manager.paused) {
 	}
 	else { held_timer = 0; }
 	
-	// Set Initial Menu Position
+	// Set Initial Menu Position: the farmer mode row when extra mode is on, the seed option row when only easy is
+	// unlocked (the difficulty row is locked then), or else the difficulty row
 	if (pos == -2) {
 		update_hand_options();
 		if (get_setting_for_difficulty("extra_mode", global.difficulty, false)) { pos = -1; }
@@ -28,6 +30,7 @@ if (!_game_manager.paused) {
 	}
 	
 	// Navigate Menus
+	// Prepare screen ("Prepare Yourself"): pick the item each hand starts the game holding, or none
 	if (prepare_screen) {
 		// Toggle Selected Hand
 		if (_key_left_pressed && !left_hand_selected) { left_hand_selected = true; play_sound(snd_mana, false); }
@@ -45,20 +48,20 @@ if (!_game_manager.paused) {
 		// Update Selected Items
 		if (_changed_by != 0) {
 			play_sound(snd_mana, false);
-			// Wrap around to other end of selection
+			// Wrap around to the other end of the list, where -1 is an empty hand
 			var _options_length = array_length(hand_options);
 			if (left_hand_pos > _options_length-1) { left_hand_pos -= _options_length+1; }
 			else if (left_hand_pos < -1) { left_hand_pos += _options_length+1; }
 			if (right_hand_pos > _options_length-1) { right_hand_pos -= _options_length+1; }
 			else if (right_hand_pos < -1) { right_hand_pos += _options_length+1; }
 			
-			// Make sure you can't select the same item
+			// Skip the item the other hand holds, so both hands can't hold the same item
 			if (left_hand_pos == right_hand_pos && left_hand_pos > -1 && right_hand_pos > -1) { 
 				if (left_hand_selected) { left_hand_pos += _changed_by; }
 				else { right_hand_pos += _changed_by; }
 			}
 			
-			// Wrap around to other end of selection again
+			// Wrap around to the other end of the list again
 			var _options_length = array_length(hand_options);
 			if (left_hand_pos > _options_length-1) { left_hand_pos -= _options_length+1; }
 			else if (left_hand_pos < -1) { left_hand_pos += _options_length+1; }
@@ -66,6 +69,7 @@ if (!_game_manager.paused) {
 			else if (right_hand_pos < -1) { right_hand_pos += _options_length+1; }
 		}
 	}
+	// Options screen: move through the settings, then select one to change it
 	else if (options_screen) {
 		determine_gamepad();
 		
@@ -101,7 +105,7 @@ if (!_game_manager.paused) {
 				else if ((_key_left_pressed || _key_right_pressed)) { play_sound(snd_locked, false); }
 			}
 	
-			// Adjust Pixel Scaling Option and Window Border Option
+			// Adjust the Window Border Option in fullscreen on Windows, or else the Pixel Scaling (Window Size) Option
 			if (options_pos == 1) {
 				// Adjust Window Border Option
 				if (global.fullscreen && os_type == os_windows) {
@@ -137,7 +141,7 @@ if (!_game_manager.paused) {
 				}
 			}
 	
-			// Adjust Control Option
+			// Adjust Controls Option: WASD keys, the default keys, or a gamepad once one is connected
 			if (options_pos == 2) {
 				if (global.input > 0 && _key_left_pressed) { 
 					global.input -= 1; 
@@ -169,12 +173,12 @@ if (!_game_manager.paused) {
 	
 			// Adjust Color Option
 			if (options_pos == 5) {
-				// Move Left and Right Through String
+				// Move the cursor left and right through the color's six hex digits
 				if ((_key_left_pressed) && (color_options_pos > 0)) { color_options_pos -= 1; play_sound(snd_mana, false); }
 				else if (_key_right_pressed && (color_options_pos < 5)) { color_options_pos += 1; play_sound(snd_mana, false); }
 				else if (_key_left_pressed || _key_right_pressed) { play_sound(snd_locked, false); }
 				
-				// Modify Value
+				// Typing a hex digit (0-9 or A-F) replaces the digit under the cursor
 				var _current_hex_value = string_char_at(global.game_color_string, color_options_pos+1), _current_dec_value = hex_to_dec(_current_hex_value);
 				if (keyboard_check_pressed(ord("1"))) { _current_hex_value = "1"; }
 				else if (keyboard_check_pressed(ord("2"))) { _current_hex_value = "2"; }
@@ -192,18 +196,13 @@ if (!_game_manager.paused) {
 				else if (keyboard_check_pressed(ord("D"))) { _current_hex_value = "D"; }
 				else if (keyboard_check_pressed(ord("E"))) { _current_hex_value = "E"; }
 				else if (keyboard_check_pressed(ord("F"))) { _current_hex_value = "F"; }
-				/*
-				else if ((key_down_pressed) && (current_dec_value > 0)) { current_dec_value -= 1; play_sound(snd_mana, false); }
-				else if (key_up_pressed && (current_dec_value < 15)) { current_dec_value += 1; play_sound(snd_mana, false); }
-				else if (key_down_pressed || key_up_pressed) { play_sound(snd_locked, false); } 
-				*/
 				var _new_dec_value = hex_to_dec(_current_hex_value);
 				if (_new_dec_value != _current_dec_value) { 
 					play_sound(snd_move, false);
 					_current_dec_value = _new_dec_value;
 				}
 				
-				// Create New String Based on Hex Value
+				// Rebuild the color string with the new digit, then apply and save it
 				var _new_hex_value = string_char_at("0123456789ABCDEF", _current_dec_value+1), _new_string = "";
 				for (var _i = 0; _i < 6; _i++) {
 					_new_string += (_i == color_options_pos) ? _new_hex_value : string_char_at(global.game_color_string, _i+1);
@@ -213,7 +212,7 @@ if (!_game_manager.paused) {
 				update_setting("game_color", global.game_color_string);
 			}
 	
-			// Adjust Minimum Fade Option
+			// Adjust Minimum Fade Option (shown as "Minimum Brightness")
 			if (options_pos == 6) {
 				if (global.game_color_fade > 0 && _key_left_pressed) { global.game_color_fade -= 2; play_sound(snd_move, false); }
 				else if (global.game_color_fade < 100 && _key_right_pressed) { global.game_color_fade += 2; play_sound(snd_move, false); }
@@ -221,7 +220,7 @@ if (!_game_manager.paused) {
 				update_setting("game_color_fade", global.game_color_fade);
 			}
 		
-			// Adjust Lava Edge Type Option
+			// Adjust Lava Edge Type Option, and update the options screen's sample lava tile to show it
 			if (options_pos == 7) {
 				if (global.lava_edge_type > lava_edge_types.none && _key_left_pressed) { 
 					global.lava_edge_type -= 1; 
@@ -243,26 +242,33 @@ if (!_game_manager.paused) {
 		else if (_key_down_pressed && (options_pos < 8)) { options_pos += 1; play_sound(snd_mana, false); }
 		else if (_key_up_pressed || _key_down_pressed) { play_sound(snd_locked, false); } 
 		
-		// Move Left and Right Through Option Selections
+		// Select the highlighted option with Z, Enter or right, and deselect it with X
 		if (!option_selected && options_pos < 8 && (_key_start_pressed || _key_select_pressed || _key_right_pressed)) { play_sound(snd_pickup, false); option_selected = true; color_options_pos = 5; }
 		else if (option_selected && _key_back_pressed) { play_sound(snd_putdown, false); option_selected = false; _key_back_pressed = false; }
 		else if ((option_selected && (_key_start_pressed || _key_select_pressed)) || (!option_selected && _key_left_pressed)) { play_sound(snd_locked, false); }
 	}
 	else if (controls_screen) {
-		// do nothing; draw code handles lighting up sprites
+		// Controls screen ("View Controls"): nothing to do, as the Draw event lights up each control while it's held
 	}
+	// Death log screen ("View Death Log"): scroll the list of causes of death one row at a time
 	else if (death_log_screen) {
 		if (_key_up_pressed && death_log_pos > 0) {  death_log_pos -= 1; play_sound(snd_mana, false); }
 		else if (_key_down_pressed && (death_log_pos < array_length(deaths_to_display)-death_types_on_screen)) { death_log_pos += 1; play_sound(snd_mana, false); }
 		else if (_key_up_pressed || _key_down_pressed) { play_sound(snd_locked, false); }
 	}
+	// Evaluation log screen ("View Earned Traits"): scroll the list of earned traits 16 pixels at a time
 	else if (evaluation_log_screen) {
 		if (_key_up_pressed && trait_surface_y_pos > 0) {  trait_surface_y_pos -= 16; play_sound(snd_mana, false); }
 		else if (_key_down_pressed && (trait_surface_y_pos < trait_surface_y_max-(room_height-(16*7)))) { trait_surface_y_pos += 16; play_sound(snd_mana, false); }
 		else if (_key_up_pressed || _key_down_pressed) { play_sound(snd_locked, false); }
 	}
+	// Main menu. Its rows: farmer mode (-1), difficulty (0), seed option (1), seed (2), options (3), controls (4),
+	// death log (5) and earned traits (6).
 	else {
-		// Adjust selected setting
+		// Move up and down through the rows. The seed row is skipped unless the seed option is "specified", and the
+		// locked sound plays at a locked row: the rows above the seed option while only easy is unlocked, farmer mode
+		// without extra mode, and the two logs before the first death or win on this difficulty (test mode unlocks
+		// these last two).
 		var _completed_attempts_count = get_total_death_count(global.difficulty) + get_win_count(global.difficulty);
 		var _can_access_seed_options = global.is_test_mode;
 		if (_key_up_pressed && pos > -1) { 
@@ -280,7 +286,8 @@ if (!_game_manager.paused) {
 		}
 		else if (_key_up_pressed || _key_down_pressed) { play_sound(snd_locked, false); }
 	
-		// Adjust Farmer Mode Settings
+		// Adjust Farmer Mode Settings: switch the graphics mode between standard, farmer and unknown (once unknown mode
+		// can be played), saved for this difficulty
 		var _prev_difficulty = global.difficulty;
 		if (pos == -1) {			
 			if (_key_left_pressed && global.graphics_mode != graphics_modes.standard) {
@@ -296,7 +303,8 @@ if (!_game_manager.paused) {
 			update_setting_for_difficulty("graphics_mode", global.difficulty, global.graphics_mode);
 		}
 
-		// Adjust Seed Option Settings
+		// Adjust Seed Option Settings (test mode only): the same seed as last time (once there is one), a random seed,
+		// or a specified seed
 		else if (pos == 1 && _can_access_seed_options) {
 			if ((global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) && _key_left_pressed) { global.seed_option -= 1; play_sound(snd_mana, false); }
 			else if (global.seed_option < seed_options.specified && _key_right_pressed) { global.seed_option += 1; play_sound(snd_mana, false); }
@@ -304,7 +312,9 @@ if (!_game_manager.paused) {
 			update_setting("seed_option", global.seed_option);
 		}
 
-		// Adjust Seed Manually
+		// Adjust Seed Manually. The seed to edit starts as the last seed, or a random one if there isn't one. Backspace
+		// removes its last digit, Delete sets it to 0, left and right change it by one, and number keys add a digit to
+		// its end.
 		if (current_seed == noone) { current_seed = global.seed ? global.seed : irandom_range(0, MAX_SEED); }
 		if (pos == 2) {
 			if (keyboard_check_pressed(vk_backspace)) { 
@@ -345,7 +355,8 @@ if (!_game_manager.paused) {
 	}
 
 	if (death_log_screen || evaluation_log_screen || (!options_screen && !controls_screen && !prepare_screen)) {
-		// Adjust Difficulty Settings
+		// Adjust Difficulty Settings, on the main menu's difficulty row or on a log screen. The log screens add an ALL
+		// option after the highest unlocked difficulty.
 		var _prev_difficulty = global.difficulty;
 		if (death_log_screen || evaluation_log_screen || pos == 0) {
 			if ((death_log_screen || evaluation_log_screen) && global.difficulty == get_max_difficulty() && _key_right_pressed) { global.difficulty = difficulties.ALL; }
@@ -354,6 +365,8 @@ if (!_game_manager.paused) {
 			else if (global.difficulty < get_max_difficulty() && _key_right_pressed) { global.difficulty += 1; }
 			else if (_key_left_pressed || _key_right_pressed) { play_sound(snd_locked, false); }
 			
+			// On a change, play the new difficulty's sound, save it, and refresh what depends on it: the starting item
+			// choices, the graphics mode (the one saved for extra mode, or else standard) and the open log
 			if (_prev_difficulty != global.difficulty) {
 				var _difficulty_sound = noone;
 				switch (global.difficulty) {
@@ -375,7 +388,9 @@ if (!_game_manager.paused) {
 		}
 	}
 	
-	// Handle X Key
+	// Handle X Key: close the open screen, or first deselect the selected option on the options screen. Closing a
+	// screen also removes the options screen's sample lava tile and turns the log screens' ALL difficulty back into
+	// the highest unlocked one.
 	if (_key_back_pressed) {
 		if (controls_screen || options_screen || death_log_screen || prepare_screen || evaluation_log_screen) {
 			if (!options_screen || !option_selected) {
@@ -395,17 +410,18 @@ if (!_game_manager.paused) {
 		else { play_sound(snd_locked, false); }
 	}
 	
-	// Start Game From Prepare Screen for Z and Enter Key
+	// Start Game From Prepare Screen for Z and Enter Key, on the next step
 	else if (prepare_screen && (_key_start_pressed || _key_select_pressed)) { loading = true; }
+	// Start the game: save the seed and the starting items, then go to the room that starts the game
 	else if (loading) {
 		play_sound(snd_move, false);
 		
-		// Update Seed Settings
+		// Update Seed Settings: the specified seed, a new random one, or else the same seed as last time
 		if (global.seed_option == seed_options.specified) { global.seed = current_seed; }
 		else if (global.seed_option == seed_options.rand) { global.seed = irandom_range(0, MAX_SEED); }
 		update_setting("last_seed", global.seed);
 		
-		// Update Item Hand Settings
+		// Update Item Hand Settings: the item each hand starts holding, or noone for an empty hand
 		global.player_left_hand_item = (left_hand_pos > -1) ? hand_options[left_hand_pos] : noone;
 		global.player_right_hand_item = (right_hand_pos > -1) ? hand_options[right_hand_pos] : noone;
 		update_setting_for_difficulty("last_player_left_hand_item", global.difficulty, global.player_left_hand_item);
@@ -414,9 +430,10 @@ if (!_game_manager.paused) {
 		room_goto(rm_start);
 	}
 	
-	// Handle Z and Enter Key
+	// Handle Z and Enter Key: on the main menu, open the selected row's screen, and on a log screen, change its sort
 	else if (_key_select_pressed || _key_start_pressed) {
 		var _prev_death_log_screen = death_log_screen, _prev_evaluation_log_screen = evaluation_log_screen;
+		// On the main menu, open the selected row's screen (every row above options opens the prepare screen)
 		if (!controls_screen && !options_screen && !death_log_screen && !prepare_screen && !evaluation_log_screen) {
 			prepare_screen = (pos <= 2);
 			options_screen = (pos == 3);
@@ -428,16 +445,19 @@ if (!_game_manager.paused) {
 			if (evaluation_log_screen) { evaluation_log_sort = 1; } // TODO: Remember last sort?  
 			else if (options_screen) {
 				option_selected = false;
+				// A sample lava tile that shows the Lava Edge option
 				instance_create(216, 176+6, obj_lava); 
 				with (obj_lava) { initialize_tile(); set_up_lava_edge_visibility(true); }
 			}
 			else if (prepare_screen) { 
 				update_hand_options();
+				// Until the player has won on this difficulty, skip the prepare screen and start the game right away
 				if (get_win_count(global.difficulty) == 0) { prepare_screen = false; loading = true; }
 			}
 		}
 		
-		// Update Sort
+		// Update Sort: move the open log to its next sort order and reload it. Opening a log screen runs this too,
+		// which moves it on from the sort order set above.
 		if (death_log_screen) {
 			death_log_pos = 0;
 			death_log_sort += 1

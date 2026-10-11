@@ -1,4 +1,4 @@
-// If this frame should be processed
+// What to draw over the room depends on the game's state, and on whether the player is looking at the map
 var _game_manager = global.game_manager;
 var _key_space = _game_manager.key_space;
 
@@ -10,16 +10,19 @@ var _is_looking_at_map = _key_space && !_has_lost;
 var _collectables_collected = total_number_of_rooms_with_collectables - array_length(rooms_with_collectables);
 var _bg_color = get_game_bg_color(), _special_text_color = get_inverted_game_color(), _standard_text_color = c_white;
 
+// Cover the room during a room transition, after a win or once time is up, and while the player looks at the map
 if (transition != directions.none || _has_won || _has_timed_out || _is_looking_at_map) {
 	// Draw background over entire screen
 	draw_set_color(_bg_color);
 	draw_rectangle(0, 0, room_width-1, room_height-1, false);
 
-    // Draw map of rooms if applicable
+    // Draw the map, with a progress bar and the elapsed time, while the player looks at it, unless the game is over or
+    // the room is changing
 	var _hud_x_pos = 4, _hud_y_pos = 24;
     if (_is_looking_at_map && !_has_won && !_has_lost && transition == directions.none) {
 		if (current_room.has_hall_of_mirrors) {
-			// Draw Mirror Directions Instead of Rooms
+			// In a hall of mirrors, show blinking arrows for the exits that lead through it, in order, instead of the
+			// rooms. Only a map (or test mode) shows which way they point.
 			if (is_blink_frame()) {
 				var _display_directions = false, _x_pos = (room_width/2)-24;
 				with (global.player) {
@@ -34,7 +37,7 @@ if (transition != directions.none || _has_won || _has_timed_out || _is_looking_a
 			}
 		}
 		else {
-			// Draw each visited room
+			// Draw each room the player has visited (every room while they hold the map), centered on the current room
 			var _x_origin = (room_width/2) - (current_room.virtual_x * 16), _y_origin = (room_height/2) - (current_room.virtual_y * 16)
 			for (var _i = 0; _i < array_length(game_rooms); _i++) {
 				var _next_room = game_rooms[_i];
@@ -62,10 +65,10 @@ if (transition != directions.none || _has_won || _has_timed_out || _is_looking_a
 		draw_sprite_ext(spr_progress_bar, 2, 224, 14, 1, 1, 0, c_white, 1);
 		draw_sprite_ext(spr_progress_bar, 3, 228, 14, 1, 1, 0, c_white, 1);
 
+        // Fill the bar with the progress so far, where each collectable counts as much as five mapped rooms
         if (_collectables_collected > 0 || array_length(mapped_rooms) > 1) {
 			var _progress_percentage = ((5*_collectables_collected)+array_length(mapped_rooms)-1) / ((5*total_number_of_rooms_with_collectables)+array_length(game_rooms)-1);
 			draw_sprite_ext(spr_progress_bar, 0, 84, 14, 10*_progress_percentage, 1, 0, c_white, 1);
-			//draw_rectangle(84, 6, get_scaling_amount(84, (room_width-8), (5*collectables_collected)+array_length(mapped_rooms)-1, (5*total_number_of_rooms_with_collectables)+array_length(game_rooms)-1), 18, false); 
 		}
 		
 		// Draw elapsed time
@@ -82,6 +85,7 @@ if (transition != directions.none || _has_won || _has_timed_out || _is_looking_a
 		draw_sprite(get_sprite_to_use(spr_clock_sand), (_clock_sprite == spr_clock) ? 0 : 2, room_width-12, room_height-12);
     }
 	
+	// The finish screen after a win or a loss: the result, the evaluation messages and the final grade
 	if (room == rm_finish) {
 		// Draw Background
 		_bg_color = (_has_won) ? c_white : c_black;
@@ -120,7 +124,7 @@ if (transition != directions.none || _has_won || _has_timed_out || _is_looking_a
 		_hud_y_pos = 8+(16*5)-2;
 		draw_set_font(ft_hud_small);
 
-		// Draw Evaluation Messages
+		// Draw six evaluation messages from evaluation_pos, with arrows when there are more above or below to scroll to
 		if (evaluation_pos > 0 && !_game_manager.key_up_pressed) { draw_sprite_ext(spr_menu_arrow, 0, room_width/2, _hud_y_pos, 1, 1, 90, (_has_won ? c_black : c_white), 1); }
 		for (var _i = evaluation_pos; _i < evaluation_pos+6; _i++) {
 			_hud_y_pos += 12;
@@ -135,13 +139,12 @@ if (transition != directions.none || _has_won || _has_timed_out || _is_looking_a
 		draw_set_color(_special_text_color);
 		draw_text(_hud_x_pos, room_height-24-24-8, string_hash_to_newline("Final Grade: "+get_percentage_string( global.controller.evaluation_manager.current_score )));
 		
-		// Draw game seed information
+		// Draw the game seed in test mode, or else the key that returns from this screen
 		if (global.is_test_mode) {
 			draw_text(_hud_x_pos, room_height-24, string_hash_to_newline("Game Seed: "+get_zero_padded_string(random_get_seed(), 9)));
 		}
 		else {
 			draw_set_color(_special_text_color);
-			// 12.5 blank line
 			draw_text(room_width/2, room_height-24, get_input_enter_key_string() + ": Return");
 			draw_set_color(_standard_text_color);
 		}
@@ -152,12 +155,9 @@ if (transition != directions.none || _has_won || _has_timed_out || _is_looking_a
 
 
 
+// In test mode, show the frame rate and the room asset the current room's layout comes from
 if (global.is_test_mode && !_has_won && !_has_lost) { 
 	draw_set_halign(fa_left);
 	draw_set_color(c_lime);
-	//if (is_existing_instance(global.player)) { draw_text(4, room_height-20, string(global.player.dir) + "; " + string(global.player.dir_prev)); }
-	//draw_text(4, room_height-20, string(fps)+"; "+string(random_get_seed())+"; "+string(current_room.id)+"; "+string(current_room.visited));
-	//draw_text(4, room_height-40, string(one_exits)+"; "+string(two_exits_opp)+"; "+string(two_exits_perp)+"; "+string(three_exits)+"; "+string(four_exits)+"= "+string(avg_exits)+" / "+string(array_length(game_rooms)));
-	//draw_text(4, room_height-20, string(fps)+"; OLD: "+string(current_room.old_room_reference_difficulty_score)+"; NEW: "+string(current_room.room_reference_difficulty_score)+"; "); //+string(current_room.id));
 	draw_text(4, room_height-20, string(fps)+"; "+room_get_name(current_room.room_reference));
 }

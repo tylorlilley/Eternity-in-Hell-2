@@ -10,6 +10,7 @@ trait_surface_y_pos = 0;
 trait_surface_y_max = 0;
 loading = false;
 current_seed = noone;
+// Selected main menu row, or -2 until the first step picks the starting row
 pos = -2;
 prepare_screen = false;
 left_hand_selected = true;
@@ -28,7 +29,7 @@ evaluation_log_screen = false;
 evaluation_manager = new EvaluationMessageManager();
 held_timer = 0;
 
-// Update game graphics textures
+// Clear texture memory, then preload the texture pages holding the logo, collectable and player sprites
 draw_texture_flush();
 sprite_prefetch(spr_logo);
 sprite_prefetch(spr_collectable);

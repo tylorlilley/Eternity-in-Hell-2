@@ -1,7 +1,10 @@
-/// @function								update_death_log(_obj_index, _difficulty, _has_rosary);
-///	@param		{obj_id} _obj_index			The object_index value to update
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
-///	@param		{boolean} _has_rosary		The difficulty to update the count for
+/// @function update_death_log(_obj_index, _difficulty, _has_rosary)
+/// @description Records in player_data.ini that a death type killed the player, and logs it in the game log. Unless
+///	the rosary brings the player back, it also records this run as the last one the death type ended, and logs the
+///	run as lost.
+/// @param {Asset.GMObject} _obj_index The death type that killed the player
+/// @param {real} _difficulty The difficulty played (see difficulties)
+/// @param {bool} _has_rosary Whether the player held the rosary, which brings them back, so the run goes on
 function update_death_log(_obj_index, _difficulty, _has_rosary) {
 	var _previous_death_count = get_death_count(_obj_index, _difficulty), _current_run = get_run_number_count(_difficulty);
 	
@@ -16,10 +19,12 @@ function update_death_log(_obj_index, _difficulty, _has_rosary) {
 	if (!_has_rosary) { write_debug_message(object_get_name(_obj_index)+"_last_killed_by += 1", debug_message_level.log); }
 }
 
-/// @function								update_kill_log(_obj_index, _difficulty, _killer);
-///	@param		{obj_id} _obj_index			The object_index value to update
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
-///	@param		{obj_id} _killer				The object that did the killing
+/// @function update_kill_log(_obj_index, _difficulty, _killer)
+/// @description Records that a death type was killed: one more kill in the run's evaluation, and in player_data.ini,
+///	one more kill of the death type overall and by the killer
+/// @param {Asset.GMObject} _obj_index The death type that was killed
+/// @param {real} _difficulty The difficulty played (see difficulties)
+/// @param {Asset.GMObject} _killer The object that did the killing, such as obj_player
 function update_kill_log(_obj_index, _difficulty, _killer) {
 	global.controller.evaluation_manager.increment_evaluation_variable("kill_count");
 		
@@ -35,9 +40,11 @@ function update_kill_log(_obj_index, _difficulty, _killer) {
 	write_debug_message(object_get_name(_obj_index)+"_kills_by_"+object_get_name(_killer)+"_kills += 1", debug_message_level.log);
 }
 
-/// @function								get_death_count(_obj_index, _difficulty);
-///	@param		{obj_id} _obj_index			The object_index value to get the death count of
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_death_count(_obj_index, _difficulty)
+/// @description How many times a death type has killed the player, including deaths the rosary undid
+/// @param {Asset.GMObject} _obj_index The death type
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {real}
 function get_death_count(_obj_index, _difficulty) {
 	var _death_count = 0;
 	
@@ -55,9 +62,11 @@ function get_death_count(_obj_index, _difficulty) {
 	return _death_count;
 }
 
-/// @function								get_kill_count(_obj_index, _difficulty);
-///	@param		{obj_id} _obj_index			The object_index value to get the death count of
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_kill_count(_obj_index, _difficulty)
+/// @description How many times a death type has been killed, by anything
+/// @param {Asset.GMObject} _obj_index The death type
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {real}
 function get_kill_count(_obj_index, _difficulty) {
 	var _kill_count = 0;
 	
@@ -75,10 +84,12 @@ function get_kill_count(_obj_index, _difficulty) {
 	return _kill_count;
 }
 
-/// @function								get_kills_by_killer_count(_obj_index, _difficulty);
-///	@param		{obj_id} _obj_index			The object_index value to get the death count of
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
-///	@param		{obj_id} _killer				The object that did the killing
+/// @function get_kills_by_killer_count(_obj_index, _difficulty, _killer)
+/// @description How many times a death type has been killed by a given killer
+/// @param {Asset.GMObject} _obj_index The death type
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {Asset.GMObject} _killer The object that did the killing
+/// @returns {real}
 function get_kills_by_killer_count(_obj_index, _difficulty, _killer) {
 	var _kill_count = 0;
 	
@@ -96,9 +107,12 @@ function get_kills_by_killer_count(_obj_index, _difficulty, _killer) {
 	return _kill_count;
 }
 
-/// @function								get_last_killed(_obj_index, _difficulty);
-///	@param		{obj_id} _obj_index			The object_index value to get the last run killed 
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_last_killed(_obj_index, _difficulty)
+/// @description The number of the last run a death type ended, for the death log's "Last Run Ended" column. With
+///	difficulties.ALL it's the highest of the difficulties' run numbers.
+/// @param {Asset.GMObject} _obj_index The death type
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {real} 0 if the death type has never ended a run
 function get_last_killed(_obj_index, _difficulty) {
 	var _last_killed = 0;
 	
@@ -117,8 +131,10 @@ function get_last_killed(_obj_index, _difficulty) {
 	return _last_killed;
 }
 
-/// @function								get_total_death_count(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_total_death_count(_difficulty)
+/// @description How many times the player has died, to every death type
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {real}
 function get_total_death_count(_difficulty) {
 	var _death_count = 0;
 	
@@ -131,8 +147,10 @@ function get_total_death_count(_difficulty) {
 	return _death_count;
 }
 
-/// @function								get_death_count_string(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_death_count_string(_difficulty)
+/// @description The player's total deaths as text, such as "Deaths: 12"
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {string} An empty string before the first death
 function get_death_count_string(_difficulty) { 
 	var _deaths = get_total_death_count(_difficulty);
 	if (_deaths == 0) { return ""; }
@@ -140,8 +158,10 @@ function get_death_count_string(_difficulty) {
 	return "Deaths: " + string(_deaths);
 }
 
-/// @function								get_run_count_string(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_run_count_string(_difficulty)
+/// @description The number of runs the player has started as text, such as "Runs Attempted: 30"
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {string|real} noone before the first run (unlike the other count strings, which give an empty string)
 function get_run_count_string(_difficulty) { 
 	var _runs = get_run_number_count(_difficulty);
 	if (_runs == 0) { return noone; }
@@ -149,7 +169,10 @@ function get_run_count_string(_difficulty) {
 	return "Runs Attempted: " + string(_runs);
 }
 
-/// @function								get_difficulties();
+/// @function get_difficulties()
+/// @description A copy of the playable difficulties, easy to very hard, that the caller can pop from without changing
+///	the original
+/// @returns {array}
 function get_difficulties() {
 	var _difficulties_array = global.difficulties_array;
 	var _new_array = array_create(array_length(_difficulties_array));
@@ -157,12 +180,18 @@ function get_difficulties() {
 	return _new_array;
 }
 
-/// @function								get_death_types();
+/// @function get_death_types()
+/// @description A copy of the death types (the objects the death log counts, as what ended a run or what was killed)
+///	that the caller can pop from without changing the original
+/// @returns {array}
 function get_death_types() {
 	return array_get_duplicate(global.death_types_array);
 }
 
-/// @function								get_death_types();
+/// @function array_get_duplicate(_old_array)
+/// @description A new array holding the same values as a given one (a shallow copy)
+/// @param {array} _old_array The array to copy
+/// @returns {array}
 function array_get_duplicate(_old_array) {
 	var _new_array = array_create(array_length(_old_array));
 	array_duplicate(_new_array, _old_array);
@@ -170,8 +199,11 @@ function array_get_duplicate(_old_array) {
 }
 
 
-/// @function								update_win_log(_difficulty, new_score);
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
+/// @function update_win_log(_difficulty)
+/// @description Records a win in player_data.ini: one more win on the difficulty, on each item the player ended the
+///	run holding (which unlocks it as a starting item), and in the farmer or unknown graphics mode when played in it.
+///	Also logs the outcome and the held items in the game log. Runs on obj_controller, which holds those items.
+/// @param {real} _difficulty The difficulty won (see difficulties)
 function update_win_log(_difficulty) {
 	var _previous_win_count = get_win_count(_difficulty), _previous_unknown_mode_win_count = 0, _previous_extra_mode_win_count = 0, _right_item = noone, _left_item = noone, _right_count = 0, _left_count = 0;
 	if (final_player_right_hand_item != noone) { var _right_item = final_player_right_hand_item; _right_count = get_item_win_count(_right_item, _difficulty); }
@@ -201,8 +233,9 @@ function update_win_log(_difficulty) {
 	if (global.graphics_mode == graphics_modes.unknown) { write_debug_message("unknown_mode_wins += 1", debug_message_level.log); }
 }
 
-/// @function								update_run_number_log(_difficulty, new_score);
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
+/// @function update_run_number_log(_difficulty)
+/// @description Counts a new run on a difficulty in player_data.ini, and logs its run number in the game log
+/// @param {real} _difficulty The difficulty played (see difficulties)
 function update_run_number_log(_difficulty) {
 	var _previous_run_number = get_run_number_count(_difficulty);
 	
@@ -214,9 +247,11 @@ function update_run_number_log(_difficulty) {
 	update_log("run_number", _previous_run_number+1);
 }
 
-/// @function								update_best_score(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to update the count for
-///	@param		{real} _new_score			The new score to record
+/// @function update_best_score(_difficulty, _new_score)
+/// @description Logs a run's score in the game log, and saves it as the difficulty's best score if it's at least as
+///	high as the previous best
+/// @param {real} _difficulty The difficulty played (see difficulties)
+/// @param {real} _new_score The run's score, from 0 to 100
 function update_best_score(_difficulty, _new_score) {
 	var _previous_best = get_best_score(_difficulty);
 	
@@ -229,9 +264,12 @@ function update_best_score(_difficulty, _new_score) {
 	update_log("score", _new_score);
 }
 
-/// @function									get_win_count(_difficulty, [_graphics_mode]);
-///	@param		{difficulty} _difficulty			The difficulty to return a count for
-///	@param		{graphics_mode} _graphics_mode	The graphics mode to return a count for
+/// @function get_win_count(_difficulty, [_graphics_mode])
+/// @description How many runs the player has won. The standard graphics mode counts every win, while farmer and
+///	unknown count only the wins played in that mode.
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @param {real} [_graphics_mode] The graphics mode to count wins in (see graphics_modes; standard by default)
+/// @returns {real}
 function get_win_count(_difficulty, _graphics_mode = graphics_modes.standard) {
 	var _win_count = 0;
 	
@@ -251,9 +289,12 @@ function get_win_count(_difficulty, _graphics_mode = graphics_modes.standard) {
 	return _win_count;
 }
 
-/// @function								get_item_win_count(_item_type, _difficulty);
-///	@param		{obj} _item_type				The object index of the item to check for
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_item_win_count(_item_type, _difficulty)
+/// @description How many runs the player has won while holding an item. A win unlocks the item as a starting item on
+///	that difficulty.
+/// @param {Asset.GMObject} _item_type The item's object
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {real}
 function get_item_win_count(_item_type, _difficulty) {
 	var _win_count = 0;
 	
@@ -271,8 +312,10 @@ function get_item_win_count(_item_type, _difficulty) {
 	return _win_count;
 }
 
-/// @function								get_run_number_count(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_run_number_count(_difficulty)
+/// @description How many runs the player has started, which during a run is that run's number
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {real}
 function get_run_number_count(_difficulty) {
 	var _run_count = 0;
 	
@@ -290,8 +333,10 @@ function get_run_number_count(_difficulty) {
 	return _run_count;
 }
 
-/// @function								get_win_count_string(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_win_count_string(_difficulty)
+/// @description The player's wins as text, such as "Victories: 3"
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {string} An empty string before the first win
 function get_win_count_string(_difficulty) { 
 	var _wins = get_win_count(_difficulty);
 	if (_wins == 0) { return ""; }
@@ -299,8 +344,10 @@ function get_win_count_string(_difficulty) {
 	return "Victories: " + string(_wins);
 }
 
-/// @function								get_best_score(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a score for
+/// @function get_best_score(_difficulty)
+/// @description The player's best score, from 0 to 100
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for the best on any difficulty
+/// @returns {real} 0 before the first scored run
 function get_best_score(_difficulty) { 
 	var _max_score = 0;
 	
@@ -319,15 +366,19 @@ function get_best_score(_difficulty) {
 	return _max_score;
 }
 
-/// @function								get_best_score_string(_difficulty);
-///	@param		{difficulty} _difficulty		The difficulty to return a count for
+/// @function get_best_score_string(_difficulty)
+/// @description The player's best score as text, such as "Highest Grade: 85.00 %"
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for the best on any difficulty
+/// @returns {string}
 function get_best_score_string(_difficulty) { 
 	return "Highest Grade: " + get_percentage_string(get_best_score(_difficulty));
 }
 
-/// @function								update_setting(obj_index, _setting_name, _new_value);
-///	@param		{string} _setting_name		The setting to update the value for
-///	@param		{real} _new_value			The new value for the setting
+/// @function update_setting(_setting_name, _new_value)
+/// @description Saves a setting in the Settings section of player_data.ini: a string as a string, anything else as a
+///	number
+/// @param {string} _setting_name The setting's key
+/// @param {any} _new_value The value to save (a string, number or bool)
 function update_setting(_setting_name, _new_value) {
 	ini_open("player_data.ini");
 	if (is_string(_new_value)) { ini_write_string("Settings", _setting_name, _new_value); }
@@ -335,9 +386,12 @@ function update_setting(_setting_name, _new_value) {
 	ini_close();
 }
 
-/// @function								get_setting(_setting_name, _default_value);
-///	@param		{string} _setting_name		The setting to get the value of
-///	@param		{real} new_value			The default value for the setting
+/// @function get_setting(_setting_name, _default_value)
+/// @description Reads a setting from the Settings section of player_data.ini, as a string if the default is a string
+///	and as a number otherwise
+/// @param {string} _setting_name The setting's key
+/// @param {any} _default_value What to return when the setting isn't saved
+/// @returns {any} The saved value, or the default
 function get_setting(_setting_name, _default_value) { 
 	var _setting_value = _default_value;
 	
@@ -349,10 +403,12 @@ function get_setting(_setting_name, _default_value) {
 	return _setting_value;
 }
 
-/// @function								update_setting_for_difficulty(obj_index, _setting_name, _new_value);
-///	@param		{string} _setting_name		The setting to update the value for
-///	@param		{enum} _difficulty			The difficulty to refrence when setting the setting
-///	@param		{real} _new_value			The new value for the setting
+/// @function update_setting_for_difficulty(_setting_name, _difficulty, _new_value)
+/// @description Saves a setting for one difficulty, in that difficulty's section of player_data.ini: a string as a
+///	string, anything else as a number
+/// @param {string} _setting_name The setting's key
+/// @param {real} _difficulty The difficulty (see difficulties)
+/// @param {any} _new_value The value to save (a string, number or bool)
 function update_setting_for_difficulty(_setting_name, _difficulty, _new_value) {
 	ini_open("player_data.ini");
 	if (is_string(_new_value)) { ini_write_string(get_difficulty_string(_difficulty), _setting_name, _new_value); }
@@ -360,10 +416,13 @@ function update_setting_for_difficulty(_setting_name, _difficulty, _new_value) {
 	ini_close();
 }
 
-/// @function								get_setting_for_difficulty(_setting_name, _default_value);
-///	@param		{string} _setting_name		The setting to get the value of
-///	@param		{enum} _difficulty			The difficulty to refrence when getting the setting
-///	@param		{real} new_value			The default value for the setting
+/// @function get_setting_for_difficulty(_setting_name, _difficulty, _default_value)
+/// @description Reads a setting for one difficulty from that difficulty's section of player_data.ini, as a string if
+///	the default is a string and as a number otherwise
+/// @param {string} _setting_name The setting's key
+/// @param {real} _difficulty The difficulty (see difficulties)
+/// @param {any} _default_value What to return when the setting isn't saved
+/// @returns {any} The saved value, or the default
 function get_setting_for_difficulty(_setting_name, _difficulty, _default_value) { 
 	var _setting_value = _default_value;
 	
@@ -376,9 +435,11 @@ function get_setting_for_difficulty(_setting_name, _difficulty, _default_value) 
 }
 
 
-/// @function								update_log(_line_name, _new_value);
-///	@param		{string} _line_name			The line to update the date for
-///	@param		{real} _new_value			The new value for the setting
+/// @function update_log(_line_name, _new_value)
+/// @description Appends a line, "[date and time] - name: value", to the history of runs in game_log.txt in the working
+///	directory. The date and time are when the current run (or the game) started.
+/// @param {string} _line_name What the line records, such as "outcome"
+/// @param {any} _new_value The value, turned into a string if it isn't one
 function update_log(_line_name, _new_value) {
 	var _file_id = file_text_open_append(working_directory + "game_log.txt");
 	var _value_string = is_string(_new_value) ? _new_value : string(_new_value);
@@ -389,10 +450,12 @@ function update_log(_line_name, _new_value) {
 	file_text_close(_file_id);
 }
 
-/// @function								update_evaluation_variable(_variable_name, _difficulty, _value);
-///	@param		{string} _variable_name		The given name of the variable to update
-///	@param		{difficulty} _difficulty		The difficulty to update the value for
-///	@param		{int} _value					The amount to increase the variable by
+/// @function update_evaluation_variable(_variable_name, _difficulty, _value)
+/// @description Adds to an evaluation variable's saved total for a difficulty in player_data.ini. Spaces in the name
+///	become underscores in its key.
+/// @param {string} _variable_name The variable's name
+/// @param {real} _difficulty The difficulty played (see difficulties)
+/// @param {real} _value The amount to add
 function update_evaluation_variable(_variable_name, _difficulty, _value) {
 	var _name_string = string_replace_all(_variable_name, " ", "_");
 	var _previous_value = get_evaluation_variable(_name_string, _difficulty);
@@ -402,9 +465,11 @@ function update_evaluation_variable(_variable_name, _difficulty, _value) {
 	ini_close();
 }
 
-/// @function								get_evaluation_variable(obj_index, _difficulty);
-///	@param		{string} _variable_name		The given name of the variable to get the value for
-///	@param		{difficulty} _difficulty		The difficulty to get the value for
+/// @function get_evaluation_variable(_variable_name, _difficulty)
+/// @description An evaluation variable's saved total (spaces in the name become underscores in its key)
+/// @param {string} _variable_name The variable's name
+/// @param {real} _difficulty The difficulty (see difficulties), or difficulties.ALL for every difficulty
+/// @returns {real} 0 if it was never saved
 function get_evaluation_variable(_variable_name, _difficulty) {
 	var _name_string = string_replace_all(_variable_name, " ", "_"), _value = 0;
 	

@@ -4,9 +4,9 @@ if (shoot_timer == -1 && !is_existing_instance(projectile)) {
 }
 else if (shoot_timer == 0 && !is_existing_instance(projectile)) {
 	shoot_timer = -1;
-	var target = get_dropped_meat();
-	if (!is_existing_instance(target)) { target = global.player; }
-	projectile = shoot_magic_beam(target, 45);
+	var _target = get_dropped_meat();
+	if (!is_existing_instance(_target)) { _target = global.player; }
+	projectile = shoot_magic_beam(_target, 45);
 }
 else if (shoot_timer > 0) { shoot_timer -= 1; }
 if (is_blink_frame()) { image_angle += 90; }

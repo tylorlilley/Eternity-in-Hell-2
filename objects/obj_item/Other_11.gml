@@ -12,10 +12,10 @@ if (sprite_index == get_sprite_to_use(spr_clock) ||
 	sprite_index == get_sprite_to_use(spr_clock_farmer) ||
 	sprite_index == get_sprite_to_use(spr_compass)) {
 	// Update drawn sand and hands for clock and compass sprites
-	var prev_time_image_index = time_image_index;
+	var _prev_time_image_index = time_image_index;
 	if (sprite_index == get_sprite_to_use(spr_compass)) {
-		var new_image_index = get_compass_image_index();
-		time_image_index = (new_image_index == -1) ? time_image_index : new_image_index;
+		var _new_image_index = get_compass_image_index();
+		time_image_index = (_new_image_index == -1) ? time_image_index : _new_image_index;
 		time_sprite_index = get_sprite_to_use(spr_compass_hands);
 	}
 	else {
@@ -23,7 +23,7 @@ if (sprite_index == get_sprite_to_use(spr_clock) ||
 		time_sprite_index = get_sprite_to_use(spr_clock_sand);
 	}
 	
-	if (time_image_index != prev_time_image_index) {
+	if (time_image_index != _prev_time_image_index) {
 		play_sound(snd_clock_tick, false);
 	}
 }

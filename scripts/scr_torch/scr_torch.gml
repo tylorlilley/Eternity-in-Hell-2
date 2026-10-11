@@ -1,12 +1,12 @@
-/// @function  								light_torch(lighting_torch, make_noise);
-///	@param		{index}	lighting_torch		The instance that is doing the lighting
-///	@param		{boolean}	make_noise		Whether or not lighting this torch should play a sound
-function light_torch(lighting_torch, make_noise) {
+/// @function  								light_torch(_lighting_torch, _make_noise);
+///	@param		{index}	_lighting_torch		The instance that is doing the lighting
+///	@param		{boolean}	_make_noise		Whether or not lighting this torch should play a sound
+function light_torch(_lighting_torch, _make_noise) {
 	// Set remaining torch time for the calling instance to new lit amount
-	var controller = global.controller, new_lit_amount = MAX_TORCH_TIME_TO_REMAIN_LIT;
-	if (is_existing_instance(lighting_torch) && lighting_torch.time_to_remain_lit > 0) { new_lit_amount = lighting_torch.time_to_remain_lit; }
-	if (time_to_remain_lit < new_lit_amount && time_to_remain_lit >= 0) {
-		time_to_remain_lit = new_lit_amount;
+	var _controller = global.controller, _new_lit_amount = MAX_TORCH_TIME_TO_REMAIN_LIT;
+	if (is_existing_instance(_lighting_torch) && _lighting_torch.time_to_remain_lit > 0) { _new_lit_amount = _lighting_torch.time_to_remain_lit; }
+	if (time_to_remain_lit < _new_lit_amount && time_to_remain_lit >= 0) {
+		time_to_remain_lit = _new_lit_amount;
 		play_sound(snd_torchlight, true);
 	}
 	
@@ -23,20 +23,20 @@ function light_torch(lighting_torch, make_noise) {
 		
 		// Mark room as lit if this was the last lantern in the room
 		if (object_index == obj_lantern) {
-			var last_lantern = true;
-		    with obj_lantern { if (!light_source) { last_lantern = false; } }
-		    controller.current_room.lit = last_lantern;
-			if (last_lantern && is_existing_instance(lighting_torch) && lighting_torch.holder == global.player) { 
-				controller.evaluation_manager.increment_evaluation_variable("rooms_lit");
+			var _last_lantern = true;
+		    with obj_lantern { if (!light_source) { _last_lantern = false; } }
+		    _controller.current_room.lit = _last_lantern;
+			if (_last_lantern && is_existing_instance(_lighting_torch) && _lighting_torch.holder == global.player) { 
+				_controller.evaluation_manager.increment_evaluation_variable("rooms_lit");
 			}
 		}
 		else if (object_index == obj_torch) {
-			controller.evaluation_manager.increment_evaluation_variable("torches_lit");
-			if (special) { controller.evaluation_manager.increment_evaluation_variable("special_torches_lit"); }
+			_controller.evaluation_manager.increment_evaluation_variable("torches_lit");
+			if (special) { _controller.evaluation_manager.increment_evaluation_variable("special_torches_lit"); }
 		}
 	}
 	// Light the lighting torch in response if necessary
-	with (lighting_torch) { if (other.time_to_remain_lit > time_to_remain_lit) { light_torch(noone, false); } }
+	with (_lighting_torch) { if (other.time_to_remain_lit > time_to_remain_lit) { light_torch(noone, false); } }
 }
 
 /// @function							extinguish_torch();
@@ -57,7 +57,7 @@ function extinguish_torch() {
 
 /// @function							interact_with_other_torches();
 function interact_with_other_torches() {
-	var actively_lit = false, torches = instance_place_all(x, y, obj_torch);
+	var _actively_lit = false, _torches = instance_place_all(x, y, obj_torch);
 	
 	// Light torches from lava
 	/*
@@ -68,23 +68,23 @@ function interact_with_other_torches() {
 	*/
 	
 	// Cycle through and interact with each carried torch on this object
-	while (array_length(torches) > 0) {
-		var other_torch = array_random_pop(torches);
+	while (array_length(_torches) > 0) {
+		var _other_torch = array_random_pop(_torches);
 		
-		if (((is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, other_torch)) && id != other_torch.id) {
-			var not_carried = (!is_existing_instance(holder)), other_not_carried = (!is_existing_instance(other_torch) || !is_existing_instance(other_torch.holder));
-			if (is_existing_instance(other_torch.light_source) && not_carried != other_not_carried) {
-				if (!global.player.dead && is_existing_instance(other_torch) && is_existing_instance(other_torch.holder) && other_torch.holder.object_index == obj_fireball && !is_existing_instance(light_source)) { 
+		if (((is_existing_instance(_other_torch) && is_existing_instance(_other_torch.holder) && _other_torch.holder.object_index == obj_fireball) || is_instance_at_coordinates(x, y, _other_torch)) && id != _other_torch.id) {
+			var _not_carried = (!is_existing_instance(holder)), _other_not_carried = (!is_existing_instance(_other_torch) || !is_existing_instance(_other_torch.holder));
+			if (is_existing_instance(_other_torch.light_source) && _not_carried != _other_not_carried) {
+				if (!global.player.dead && is_existing_instance(_other_torch) && is_existing_instance(_other_torch.holder) && _other_torch.holder.object_index == obj_fireball && !is_existing_instance(light_source)) { 
 					global.controller.evaluation_manager.increment_evaluation_variable("torches_lit_by_fireball");
 				}
-				light_torch(other_torch, true);		
-				actively_lit = true;
+				light_torch(_other_torch, true);		
+				_actively_lit = true;
 			}
 		}
 	}
 	
 	// Decrement time remaining if not actively_lit
-	if (!actively_lit && !special && time_to_remain_lit > 0) {
+	if (!_actively_lit && !special && time_to_remain_lit > 0) {
 		time_to_remain_lit -= get_one_unit_of_game_time();
 		if (is_existing_instance(light_source)) { light_source.lighting_range = ceil(get_scaling_amount(PLAYER_LIGHT_RANGE+1, lighting_range, time_to_remain_lit, MAX_TORCH_TIME_TO_REMAIN_LIT)); }
 		if (!time_to_remain_lit && torch_light_image_timer >= 0) { extinguish_torch(); }

@@ -1,116 +1,116 @@
-/// @function								get_difficulty_string(difficulty);
-///	@param		{difficulty} difficulty		The difficulty to return a string for
-function get_difficulty_string(difficulty) {
-	var result = "";
-	switch (difficulty) {
-		case difficulties.easy: { result = "Encounter"; break; }
-		case difficulties.medium: { result = "Expedition"; break; }
-		case difficulties.hard: { result = "Eons"; break; }
-		case difficulties.very_hard: { result = "Eternity"; break; }
-		case difficulties.ALL: { result = "Everything"; break; }
+/// @function								get_difficulty_string(_difficulty);
+///	@param		{difficulty} _difficulty		The difficulty to return a string for
+function get_difficulty_string(_difficulty) {
+	var _result = "";
+	switch (_difficulty) {
+		case difficulties.easy: { _result = "Encounter"; break; }
+		case difficulties.medium: { _result = "Expedition"; break; }
+		case difficulties.hard: { _result = "Eons"; break; }
+		case difficulties.very_hard: { _result = "Eternity"; break; }
+		case difficulties.ALL: { _result = "Everything"; break; }
 	}
-	result += " in Hell";
-	return result;
+	_result += " in Hell";
+	return _result;
 }
 
-/// @function								get_graphics_mode_string(graphics_mode);
-///	@param		{graphics_mode} graphics_mode	The graphics mode to return a string for
-function get_graphics_mode_string(graphics_mode) {
-	var result = "";
-	switch (graphics_mode) {
-		case graphics_modes.standard: { result = "EIH"; break; }
-		case graphics_modes.farmer: { result = "EIEIH"; break; }
-		case graphics_modes.unknown: { result = "???"; break; }
+/// @function								get_graphics_mode_string(_graphics_mode);
+///	@param		{graphics_mode} _graphics_mode	The graphics mode to return a string for
+function get_graphics_mode_string(_graphics_mode) {
+	var _result = "";
+	switch (_graphics_mode) {
+		case graphics_modes.standard: { _result = "EIH"; break; }
+		case graphics_modes.farmer: { _result = "EIEIH"; break; }
+		case graphics_modes.unknown: { _result = "???"; break; }
 	}
-	return result;
+	return _result;
 }
 
 /// @function								get_seed_option_string();
 function get_seed_option_string() {
-	var result = "";
+	var _result = "";
 	switch (global.seed_option) {
-		case seed_options.rand: { result = "Begin"; break; }
-		case seed_options.same: { result = "Repeat"; break; }
-		case seed_options.specified: { result = "Specify:"; break; }
+		case seed_options.rand: { _result = "Begin"; break; }
+		case seed_options.same: { _result = "Repeat"; break; }
+		case seed_options.specified: { _result = "Specify:"; break; }
 	}
-	return result;
+	return _result;
 }
 
 /// @function								get_max_difficulty();
 function get_max_difficulty() { 
-	var max_difficulty = difficulties.DO_NOT_USE;
+	var _max_difficulty = difficulties.DO_NOT_USE;
 	
 	if (global.is_test_mode) { return difficulties.very_hard; }
 	
-	var all_difficulties = get_difficulties();
-	while (array_length(all_difficulties) > 0) {
-		var next_difficulty = array_pop(all_difficulties);
-		var next_wins = get_win_count(next_difficulty);
-		if (next_wins > 0 && next_difficulty > max_difficulty) {
-			max_difficulty = next_difficulty;
+	var _all_difficulties = get_difficulties();
+	while (array_length(_all_difficulties) > 0) {
+		var _next_difficulty = array_pop(_all_difficulties);
+		var _next_wins = get_win_count(_next_difficulty);
+		if (_next_wins > 0 && _next_difficulty > _max_difficulty) {
+			_max_difficulty = _next_difficulty;
 		}
 	}
 	
-	if (max_difficulty < difficulties.very_hard) { max_difficulty += 1; }
+	if (_max_difficulty < difficulties.very_hard) { _max_difficulty += 1; }
 	
-	return max_difficulty;
+	return _max_difficulty;
 }
 
-/// @function								draw_death_type_sprite(x_pos, y_pos, obj_index);
-///	@param		{real} x_pos				The x_pos to draw the sprite at
-///	@param		{real} y_pos				The y_pos to draw the sprite at
+/// @function								draw_death_type_sprite(_x_pos, _y_pos, _obj_index);
+///	@param		{real} _x_pos				The x_pos to draw the sprite at
+///	@param		{real} _y_pos				The y_pos to draw the sprite at
 ///	@param		{object_index} difficulty	The object_index to draw the sprite for
-function draw_death_type_sprite(x_pos, y_pos, obj_index) {
-	var death_sprite = get_sprite_to_use(object_get_sprite(obj_index), true);
+function draw_death_type_sprite(_x_pos, _y_pos, _obj_index) {
+	var _death_sprite = get_sprite_to_use(object_get_sprite(_obj_index), true);
 	
 	// Draw Sprite
-	if (obj_index == obj_controller) { 
-		draw_sprite_ext(get_sprite_to_use(spr_clock), 0, x_pos, y_pos, 1, 1, 0, c_white, 1);
-		draw_sprite_ext(get_sprite_to_use(spr_clock_sand), 7, x_pos, y_pos, 1, 1, 0, c_white, 1);
+	if (_obj_index == obj_controller) { 
+		draw_sprite_ext(get_sprite_to_use(spr_clock), 0, _x_pos, _y_pos, 1, 1, 0, c_white, 1);
+		draw_sprite_ext(get_sprite_to_use(spr_clock_sand), 7, _x_pos, _y_pos, 1, 1, 0, c_white, 1);
 	}
-	else if (obj_index == obj_player) { draw_sprite(spr_player, 1, x_pos, y_pos); }
-	else if (obj_index == obj_locked_chest) { draw_sprite(spr_chest, 2, x_pos, y_pos); }
-	else if (obj_index == obj_block) { draw_sprite(spr_block, 0, x_pos, y_pos); }
-	else if (obj_index == obj_spider) { draw_sprite(spr_spider, 0, x_pos, y_pos); }
-	else if (obj_index == obj_statue) { draw_sprite_ext(death_sprite, 0, x_pos, y_pos, 1, 1, 180, c_white, 1); }
-	else if (obj_index == obj_giant_worm_body) { 
-		draw_sprite_ext(death_sprite, 0, x_pos-8, y_pos, 1, 1, 270, c_white, 1);
-		draw_sprite_ext(death_sprite, 0, x_pos+8, y_pos, 1, 1, 90, c_white, 1);
+	else if (_obj_index == obj_player) { draw_sprite(spr_player, 1, _x_pos, _y_pos); }
+	else if (_obj_index == obj_locked_chest) { draw_sprite(spr_chest, 2, _x_pos, _y_pos); }
+	else if (_obj_index == obj_block) { draw_sprite(spr_block, 0, _x_pos, _y_pos); }
+	else if (_obj_index == obj_spider) { draw_sprite(spr_spider, 0, _x_pos, _y_pos); }
+	else if (_obj_index == obj_statue) { draw_sprite_ext(_death_sprite, 0, _x_pos, _y_pos, 1, 1, 180, c_white, 1); }
+	else if (_obj_index == obj_giant_worm_body) { 
+		draw_sprite_ext(_death_sprite, 0, _x_pos-8, _y_pos, 1, 1, 270, c_white, 1);
+		draw_sprite_ext(_death_sprite, 0, _x_pos+8, _y_pos, 1, 1, 90, c_white, 1);
 	}
-	else if (obj_index == obj_bug) { draw_sprite(spr_bug_red, 0, x_pos, y_pos); }
-	else if (obj_index == obj_echo) {
-		draw_sprite_ext(spr_player, 1, x_pos, y_pos, 1, 1, 0, c_white, INVERTED_COLORS_ALPHA);
-		if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, x_pos, y_pos, 1, 1, 0, c_white, INVERTED_COLORS_ALPHA); }
+	else if (_obj_index == obj_bug) { draw_sprite(spr_bug_red, 0, _x_pos, _y_pos); }
+	else if (_obj_index == obj_echo) {
+		draw_sprite_ext(spr_player, 1, _x_pos, _y_pos, 1, 1, 0, c_white, INVERTED_COLORS_ALPHA);
+		if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, _x_pos, _y_pos, 1, 1, 0, c_white, INVERTED_COLORS_ALPHA); }
 	}
-	else if (obj_index == obj_lava) {
-		if (global.lava_edge_type > lava_edge_types.none && global.lava_edge_type < lava_edge_types.wavy_still) { death_sprite = spr_lava_death_edge2; }
-		if (global.lava_edge_type >= lava_edge_types.wavy_still) { death_sprite = spr_lava_death_edge3; }
-		draw_sprite(death_sprite, 0, x_pos, y_pos);
+	else if (_obj_index == obj_lava) {
+		if (global.lava_edge_type > lava_edge_types.none && global.lava_edge_type < lava_edge_types.wavy_still) { _death_sprite = spr_lava_death_edge2; }
+		if (global.lava_edge_type >= lava_edge_types.wavy_still) { _death_sprite = spr_lava_death_edge3; }
+		draw_sprite(_death_sprite, 0, _x_pos, _y_pos);
 	}
-	else if (obj_index == obj_giant_eye) { draw_sprite(spr_giant_eye_death_sprite, 1, x_pos, y_pos); }
-	else if (obj_index == obj_living_block) { draw_sprite(spr_living_block, 2, x_pos, y_pos); }
-	else { draw_sprite(death_sprite, 0, x_pos, y_pos); }
+	else if (_obj_index == obj_giant_eye) { draw_sprite(spr_giant_eye_death_sprite, 1, _x_pos, _y_pos); }
+	else if (_obj_index == obj_living_block) { draw_sprite(spr_living_block, 2, _x_pos, _y_pos); }
+	else { draw_sprite(_death_sprite, 0, _x_pos, _y_pos); }
 }
 
 /// @function								set_max_window_size();
 function set_max_window_size() {
-	var monitor_width = display_get_width(), monitor_height = display_get_height();
+	var _monitor_width = display_get_width(), _monitor_height = display_get_height();
 	global.max_window_scaling = 1;
-	for (var i = 2; i <= 8; i++) {
-		if (monitor_width >= (room_width*i) && monitor_height >= (room_height*i)) {
-			global.max_window_scaling = i;
+	for (var _i = 2; _i <= 8; _i++) {
+		if (_monitor_width >= (room_width*_i) && _monitor_height >= (room_height*_i)) {
+			global.max_window_scaling = _i;
 		}
 	}
 	global.fullscreen_window_scaling = global.max_window_scaling;
 	
 	if (os_type != os_windows) {
 		global.max_window_scaling = 1;
-		for (var i = 2; i <= 8; i++) {
-			var surface_width = (room_width*i), surface_height = (room_height*i);
-			if (monitor_width >= surface_width && monitor_height >= surface_width) {
-				window_set_size(surface_width, surface_height);
-				if (window_get_width() >= surface_width && window_get_height() >= surface_height) {
-					global.max_window_scaling = i;
+		for (var _i = 2; _i <= 8; _i++) {
+			var _surface_width = (room_width*_i), _surface_height = (room_height*_i);
+			if (_monitor_width >= _surface_width && _monitor_height >= _surface_width) {
+				window_set_size(_surface_width, _surface_height);
+				if (window_get_width() >= _surface_width && window_get_height() >= _surface_height) {
+					global.max_window_scaling = _i;
 				}
 			}
 		}
@@ -164,15 +164,6 @@ function get_input_x_key_string() {
 	}
 }
 
-/// @function								get_input_space_key_string();
-function get_input_space_key_string() {
-	switch (global.input) {
-		case inputs.keyboard_default: { return "Space"; }
-		case inputs.keyboard_wasd: { return "Space"; }
-		case inputs.gamepad: { return "X / Y / R2 / L2"; }
-	}
-}
-
 /// @function								get_input_enter_key_string();
 function get_input_enter_key_string() {
 	switch (global.input) {
@@ -184,10 +175,10 @@ function get_input_enter_key_string() {
 
 /// @function								determine_gamepad();
 function determine_gamepad() {
-	var gp_num = gamepad_get_device_count();
+	var _gp_num = gamepad_get_device_count();
 	global.gamepad = noone;
-	for (var i = 0; i < gp_num; i++;) {
-	    if (gamepad_is_connected(i)) { global.gamepad = i; break; }
+	for (var _i = 0; _i < _gp_num; _i++;) {
+	    if (gamepad_is_connected(_i)) { global.gamepad = _i; break; }
 	}
 	if (global.gamepad == noone && global.input == inputs.gamepad) { global.input = inputs.keyboard_default; }
 	return global.gamepad;
@@ -199,7 +190,7 @@ function reset_settings_to_defaults() {
 	global.window_scaling = WINDOW_SCALING_DEFAULT;
 	global.window_border = WINDOW_BORDER_DEFAULT;
 	global.input = INPUT_DEFAULT;
-	global.can_screen_flash = CAN_SCREEN_FLASH_DEFUALT;
+	global.can_screen_flash = CAN_SCREEN_FLASH_DEFAULT;
 	global.lava_edge_type = LAVA_EDGE_TYPE_DEFAULT;
 	global.game_color_fade = GAME_COLOR_FADE_DEFAULT;
 	global.game_color_string = GAME_COLOR_STRING_DEFAULT;
@@ -209,7 +200,7 @@ function reset_settings_to_defaults() {
 	update_setting("window_size", WINDOW_SCALING_DEFAULT);
 	update_setting("window_border", WINDOW_BORDER_DEFAULT);
 	update_setting("input", INPUT_DEFAULT);
-	update_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFUALT);
+	update_setting("can_screen_flash", CAN_SCREEN_FLASH_DEFAULT);
 	update_setting("lava_edge_type", LAVA_EDGE_TYPE_DEFAULT);
 	update_setting("game_color_fade", GAME_COLOR_FADE_DEFAULT);
 	update_setting("game_color", GAME_COLOR_STRING_DEFAULT);
@@ -235,53 +226,53 @@ function update_hand_options() {
 	right_hand_pos = -1;
 	global.player_left_hand_item = get_setting_for_difficulty("last_player_left_hand_item", global.difficulty, obj_torch);
 	global.player_right_hand_item = get_setting_for_difficulty("last_player_right_hand_item", global.difficulty, noone);
-	var possible_options = global.available_items[global.difficulty];
-	for (var i = 0; i < array_length(possible_options); i++) {
-		var next_option = possible_options[i];
+	var _possible_options = global.available_items[global.difficulty];
+	for (var _i = 0; _i < array_length(_possible_options); _i++) {
+		var _next_option = _possible_options[_i];
 		// Ensure Torch is always available
-		if (next_option == obj_torch) { 
-			array_push(hand_options, next_option);
+		if (_next_option == obj_torch) { 
+			array_push(hand_options, _next_option);
 		}
-		else if (get_item_win_count(next_option, global.difficulty) > 0) {
-			array_push(hand_options, next_option); 
+		else if (get_item_win_count(_next_option, global.difficulty) > 0) {
+			array_push(hand_options, _next_option); 
 		}
 		// Preselect Previous Items
-		if (next_option == global.player_left_hand_item) { left_hand_pos = array_length(hand_options)-1; }
-		else if (next_option == global.player_right_hand_item) { right_hand_pos = array_length(hand_options)-1; }
+		if (_next_option == global.player_left_hand_item) { left_hand_pos = array_length(hand_options)-1; }
+		else if (_next_option == global.player_right_hand_item) { right_hand_pos = array_length(hand_options)-1; }
 	}
-	var farmer_mode_available = (array_length(hand_options) == array_length(global.available_items[global.difficulty]));
-	update_setting_for_difficulty("extra_mode", global.difficulty, farmer_mode_available);
+	var _farmer_mode_available = (array_length(hand_options) == array_length(global.available_items[global.difficulty]));
+	update_setting_for_difficulty("extra_mode", global.difficulty, _farmer_mode_available);
 }
 
 
 /// @function								update_death_types();
 function update_death_types() {
 	// Update Death Count Values
-	var death_types = get_death_types();
+	var _death_types = get_death_types();
 	deaths_to_display = [];
-	while (array_length(death_types) > 0) {
-		var death_type = array_pop(death_types);
+	while (array_length(_death_types) > 0) {
+		var _death_type = array_pop(_death_types);
 		
-		var death_count = get_death_count(death_type, global.difficulty), kill_count = get_kill_count(death_type, global.difficulty), last_killed = get_last_killed(death_type, global.difficulty);
-		if (death_count > 0 || kill_count > 0) { array_push(deaths_to_display, [death_type, death_count, kill_count, last_killed]); }
+		var _death_count = get_death_count(_death_type, global.difficulty), _kill_count = get_kill_count(_death_type, global.difficulty), _last_killed = get_last_killed(_death_type, global.difficulty);
+		if (_death_count > 0 || _kill_count > 0) { array_push(deaths_to_display, [_death_type, _death_count, _kill_count, _last_killed]); }
 	}
 				
 	// Sort deaths to display by death count
-	array_sort(deaths_to_display, function(elm1, elm2) { 
+	array_sort(deaths_to_display, function(_elm1, _elm2) { 
 		switch (death_log_sort) {
-			case 1: { return elm2[1] - elm1[1]; break; }
-			case 0: { return elm2[2] - elm1[2]; break; }
-			case 2: { return elm2[3] - elm1[3]; break; }
+			case 1: { return _elm2[1] - _elm1[1]; break; }
+			case 0: { return _elm2[2] - _elm1[2]; break; }
+			case 2: { return _elm2[3] - _elm1[3]; break; }
 		}
 	});
 }
 
 /// @function								can_play_unknown_mode();
 function can_play_unknown_mode() {
-	var can_play_easy = get_setting_for_difficulty("extra_mode", difficulties.easy, false);
-	var can_play_medium = get_setting_for_difficulty("extra_mode", difficulties.medium, false);
-	var can_play_hard = get_setting_for_difficulty("extra_mode", difficulties.hard, false);
-	var can_play_very_hard = get_setting_for_difficulty("extra_mode", difficulties.very_hard, false);
+	var _can_play_easy = get_setting_for_difficulty("extra_mode", difficulties.easy, false);
+	var _can_play_medium = get_setting_for_difficulty("extra_mode", difficulties.medium, false);
+	var _can_play_hard = get_setting_for_difficulty("extra_mode", difficulties.hard, false);
+	var _can_play_very_hard = get_setting_for_difficulty("extra_mode", difficulties.very_hard, false);
 				
-	return global.is_test_mode || (can_play_easy && can_play_medium && can_play_hard && can_play_very_hard);
+	return global.is_test_mode || (_can_play_easy && _can_play_medium && _can_play_hard && _can_play_very_hard);
 }

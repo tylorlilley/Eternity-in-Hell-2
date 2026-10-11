@@ -1,6 +1,6 @@
 /// @description Step
 dir_prev = dir;
-if (dir_prev == directions.none) { dir_prev = get_random_carindal_dir(); }
+if (dir_prev == directions.none) { dir_prev = get_random_cardinal_dir(); }
 
 // Spawn Bugs in nearby dirt and bushes
 with (obj_player_corpse) { 
@@ -18,11 +18,11 @@ with (obj_bones) {
 }
 with (obj_dirt) { 
 	if (has_bug && get_distance_to_instance(other) <= TRAP_RANGE) {
-		var bug = instance_create(x, y, obj_bug);
+		var _bug = instance_create(x, y, obj_bug);
 		has_bug = false;
-		if (is_existing_instance(bug) && no_special_bug) {
-			bug.infectious = false;
-			bug.sprite_index = spr_bug;
+		if (is_existing_instance(_bug) && no_special_bug) {
+			_bug.infectious = false;
+			_bug.sprite_index = spr_bug;
 			no_special_bug = false;
 		}
 	}
@@ -35,16 +35,16 @@ with (obj_bush) {
 }
 
 if (!dead && is_solid_at_position(x, y)) {
-	var killed_by_obj = instance_place(x, y, obj_solid).object_index;
-	killed_by_obj = (killed_by_obj == obj_giant_worm_head) ? obj_giant_worm_body : killed_by_obj;
+	var _killed_by_obj = instance_place(x, y, obj_solid).object_index;
+	_killed_by_obj = (_killed_by_obj == obj_giant_worm_head) ? obj_giant_worm_body : _killed_by_obj;
 	play_sound(snd_crunch, false);
-	kill_player(killed_by_obj);
+	kill_player(_killed_by_obj);
 }
 	
 if (!dead && !is_game_won() && !is_game_lost()) {   
 	// Get input from player
-	var game_manager = global.game_manager;
-	dir = get_direction_input(game_manager.key_shift);
+	var _game_manager = global.game_manager;
+	dir = get_direction_input(_game_manager.key_shift);
 	
 	// Deal with being infected
 	if (infected_timer > 0) {
@@ -58,14 +58,14 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 	if (pause_movement > 0) { pause_movement -= 1; }
 	else {
 		// Update crouch sprite
-		sprite_index = (game_manager.key_shift) ? get_sprite_to_use(spr_player_no_hands_crouch) : get_sprite_to_use(spr_player_no_hands);
+		sprite_index = (_game_manager.key_shift) ? get_sprite_to_use(spr_player_no_hands_crouch) : get_sprite_to_use(spr_player_no_hands);
 	
 		// Handle inventory management
-		if (game_manager.key_z_pressed) { 
+		if (_game_manager.key_z_pressed) { 
 			if (lost_left_hand || !can_drop_item(left_hand_item)) { play_sound(snd_locked, false); visible = true; }
 			else { pick_up_or_put_down_item(directions.left); visible = true; }
 		}
-		if (game_manager.key_x_pressed) { 
+		if (_game_manager.key_x_pressed) { 
 			if (lost_right_hand || !can_drop_item(right_hand_item)) { play_sound(snd_locked, false); visible = true; }
 			else { pick_up_or_put_down_item(directions.right); visible = true; }
 		}
@@ -101,21 +101,21 @@ if (!dead && !is_game_won() && !is_game_lost()) {
 	}
     
 	// Transition to new room depending on player position
-	var controller = global.controller;
+	var _controller = global.controller;
 	with (instance_place(x, y, obj_stairs)) {
-		if (active && is_instance_at_coordinates(x, y, other) && connected_exit.get_connected_room(controller.current_room) != -1) { 
-			controller.transition = directions.stairs; 
-			controller.transitioning_exit = connected_exit;
-			controller.transitioning_stairs = id;
+		if (active && is_instance_at_coordinates(x, y, other) && connected_exit.get_connected_room(_controller.current_room) != -1) { 
+			_controller.transition = directions.stairs; 
+			_controller.transitioning_exit = connected_exit;
+			_controller.transitioning_stairs = id;
 		}
 	}
-	if (controller.transition == directions.none) {
-		if x < 0 { controller.transition = directions.left; }
-		else if x > room_width { controller.transition = directions.right; }
-		else if y < 0 { controller.transition = directions.up; }
-		else if y > room_height { controller.transition = directions.down; }
-		if (controller.transition < directions.stairs) {
-			controller.transitioning_exit = controller.current_room.exits[controller.transition];
+	if (_controller.transition == directions.none) {
+		if x < 0 { _controller.transition = directions.left; }
+		else if x > room_width { _controller.transition = directions.right; }
+		else if y < 0 { _controller.transition = directions.up; }
+		else if y > room_height { _controller.transition = directions.down; }
+		if (_controller.transition < directions.stairs) {
+			_controller.transitioning_exit = _controller.current_room.exits[_controller.transition];
 		}
 	}
 }

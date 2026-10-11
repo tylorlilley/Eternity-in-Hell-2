@@ -1,15 +1,15 @@
 /// @description Step
 event_inherited();
 	
-var dir = get_direction_pushed_against();
+var _dir = get_direction_pushed_against();
 just_pushed = false;
 
-if (dir != directions.none) {
-	if (can_move_in_direction(dir, false, true)) {
+if (_dir != directions.none) {
+	if (can_move_in_direction(_dir, false, true)) {
 		play_sound(snd_thud, false);
-		snap_player_to_position(dir);
-		move_in_direction(dir, false);
-		move_player(dir);
+		snap_player_to_position(_dir);
+		move_in_direction(_dir, false);
+		move_player(_dir);
 		just_pushed = true;
 	}
 	else { play_sound(snd_locked, false); }
@@ -17,13 +17,13 @@ if (dir != directions.none) {
 	
 if (just_pushed) {
 	// Destroy self and/or enemy when pushed onto an enemy
-	var enemies_at_position = instance_place_all(x, y, obj_enemy);
-	while (array_length(enemies_at_position) > 0) {
-		var enemy = array_random_pop(enemies_at_position);
-		if (is_existing_instance(enemy) && enemy.activated) {
-			var should_consume_block = enemy.consume_block && is_instance_at_coordinates(x, y, enemy), should_play_sound = enemy.object_index == obj_fire_skeleton;
-			if (enemy.corporeal) {
-				with enemy { 
+	var _enemies_at_position = instance_place_all(x, y, obj_enemy);
+	while (array_length(_enemies_at_position) > 0) {
+		var _enemy = array_random_pop(_enemies_at_position);
+		if (is_existing_instance(_enemy) && _enemy.activated) {
+			var _should_consume_block = _enemy.consume_block && is_instance_at_coordinates(x, y, _enemy), _should_play_sound = _enemy.object_index == obj_fire_skeleton;
+			if (_enemy.corporeal) {
+				with _enemy { 
 					if (is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) {
 						if (object_index == obj_nose) {
 							global.controller.evaluation_manager.increment_evaluation_variable("nose_block_kill_count");
@@ -34,8 +34,8 @@ if (just_pushed) {
 					}
 				}
 			}
-			if (should_consume_block) {
-				if (should_play_sound) { play_sound(snd_extinguish, true); }
+			if (_should_consume_block) {
+				if (_should_play_sound) { play_sound(snd_extinguish, true); }
 				instance_destroy();
 			}
 		}
@@ -45,12 +45,12 @@ if (just_pushed) {
 	if (consume_lava(true)) {
 		//var dirt = instance_create(x, y, obj_dirt);
 		//if (is_existing_instance(dirt)) { dirt.depth = DIRT_OVER_LAVA_DEPTH; }
-		var tile = instance_create(x, y, obj_path);
-		if (is_existing_instance(tile)) { 
-			tile.depth = DIRT_OVER_LAVA_DEPTH; 
-			tile.image_angle = image_angle;
-			tile.image_xscale = image_xscale;
-			tile.image_yscale = image_yscale;
+		var _tile = instance_create(x, y, obj_path);
+		if (is_existing_instance(_tile)) { 
+			_tile.depth = DIRT_OVER_LAVA_DEPTH; 
+			_tile.image_angle = image_angle;
+			_tile.image_xscale = image_xscale;
+			_tile.image_yscale = image_yscale;
 		}
 		
 		global.controller.evaluation_manager.increment_evaluation_variable("blocks_pushed_into_lava");

@@ -1,10 +1,10 @@
 /// @description Step
 
-var fall_asleep = false;
-if (awake && !moved && target_path != noone) { fall_asleep = move_ears(); }
-else { fall_asleep = !moved; }
+var _fall_asleep = false;
+if (awake && !moved && target_path != noone) { _fall_asleep = move_ears(); }
+else { _fall_asleep = !moved; }
 	
-if (awake && fall_asleep) {
+if (awake && _fall_asleep) {
 	image_index = 0;
 	sprite_timer = 6;
 	awake = false;

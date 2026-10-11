@@ -1,12 +1,13 @@
+# Converts each room layout's GameMaker room asset (rooms/<name>/<name>.yy) into its layout file
+# (datafiles/<name>.json): one line holding every instance the room places, as {"x", "y", "name"} objects. It also checks
+# each layout against the rules generation relies on, and prints how often each object type and each complexity level
+# appears per difficulty, as a guide for designing new layouts.
+#
+# Run it from the project root: ruby room_converter.rb
 require 'json'
 
 class RoomConverter
-    @total_rooms = %{}
-    @object_rooms = %{}
-    @complexity_rooms = %{}
-
-    attr_reader :object_rooms, :total_rooms
-
+    # The exit kinds a layout's name can start with, like rm_two_opposite_exits_3
     EXIT_TYPES = %w(
         no_exits
         three_exits
@@ -16,6 +17,7 @@ class RoomConverter
         two_perpendicular_exits
     )
 
+    # Objects every layout places
     REQUIRED_OBJECT_TYPES = %w(
         obj_wall
         obj_stairs_spot
@@ -27,6 +29,7 @@ class RoomConverter
         obj_exit_spot_right
     )
 
+    # Everything else a layout may place: hazards, and the objects that set up the room's content
     THREAT_TYPES = %w(
         obj_lantern
         obj_lava
@@ -60,6 +63,8 @@ class RoomConverter
 
     OBJECT_TYPES = REQUIRED_OBJECT_TYPES + THREAT_TYPES
 
+    # An empty list of room names for each exit kind
+    # @return [Hash{String => Array<String>}]
     def default_mapping()
         {
             "no_exits" => [],
@@ -71,17 +76,9 @@ class RoomConverter
         }
     end
 
-    def default_count_mapping()
-        {
-            "no_exits" => 0,
-            "one_exit" => 0,
-            "two_perpendicular_exits" => 0,
-            "two_opposite_exits" => 0,
-            "three_exits" => 0,
-            "four_exits" => 0
-        }
-    end
-
+    # How often generation uses each exit kind, relative to the others, to weight the printed counts
+    # @param exit_type [String] An exit kind from EXIT_TYPES
+    # @return [Integer]
     def exit_probability(exit_type)
         {
             "no_exits" => 1,
@@ -93,6 +90,9 @@ class RoomConverter
         }[exit_type]
     end
 
+    # The share of layouts that should place an object type, which the printed counts are compared against
+    # @param object_type [String] An object name from OBJECT_TYPES
+    # @return [Float]
     def target_probability(object_type)
         {
             # Tiles
@@ -105,7 +105,7 @@ class RoomConverter
             "obj_mirror" => 0.01,
             "obj_door" => 0.15,
             "obj_block_spot" => 0.25,
-            # Enemies
+            # Hazards
             "obj_fountain" => 0.05,
             "obj_statue" => 0.05,
             "obj_giant_worm_body" => 0.08,
@@ -137,6 +137,10 @@ class RoomConverter
         }[object_type]
     end
 
+    # The share of a difficulty's layouts that should have each complexity, which the printed counts are compared against
+    # @param difficulty [Integer] 1 to 3
+    # @param complexity [Integer] 0 to 6 (see room_complexity)
+    # @return [Float]
     def target_complexity_probability(difficulty, complexity)
         if (difficulty == 1)
             {
@@ -171,13 +175,15 @@ class RoomConverter
         end
     end
 
-    def room_threat_level(unflitered_objects)
-        room_objects = unflitered_objects.filter { |obj| THREAT_TYPES.include? obj }
+    # A rough threat level for a layout, from the hazards it places: some count once if present, others per instance.
+    # Blood and mirrors add nothing.
+    # @param room_objects [Array<String>] The object name of every instance the layout places
+    # @return [Integer]
+    def room_threat_level(room_objects)
+        room_objects = room_objects.filter { |obj| THREAT_TYPES.include? obj }
         threat_level = 0
 
-        # blood, mirror are no threat
-
-        # Boolean Threat Levels
+        # Hazards that count once, however many the layout places
         threat_level += 1 if room_objects.include? "obj_lantern"
         threat_level += 1.5 if room_objects.include? "obj_bumper_old"
         threat_level += 2 if room_objects.include? "obj_floater"
@@ -190,7 +196,7 @@ class RoomConverter
         threat_level += 5 if room_objects.include? "obj_hall_of_mirrors"
         threat_level += 5 if room_objects.include? "obj_red_chest"
 
-        # Threats Per Instance 
+        # Hazards that count per instance
         threat_level += room_objects.count("obj_mouth")
         threat_level += (0.08 * room_objects.count("obj_block_spot")).floor
         threat_level += (0.01 * room_objects.count("obj_lava")).ceil
@@ -207,15 +213,22 @@ class RoomConverter
         return threat_level.round()
     end
 
-    def room_complexity(room_name, unflitered_objects)
+    # How many different kinds of hazard and content a layout places
+    # @param room_objects [Array<String>] The object name of every instance the layout places
+    # @return [Integer]
+    def room_complexity(room_objects)
         complexity_level = 0
 
-        unflitered_objects.uniq.each { |obj| complexity_level += 1 if THREAT_TYPES.include? obj }
+        room_objects.uniq.each { |obj| complexity_level += 1 if THREAT_TYPES.include? obj }
 
         return complexity_level
     end
 
-    def room_difficulty(room_name, room_objects)
+    # The difficulty a layout's threat level suggests, from 0 to 3. The game no longer reads it (it works out each
+    # layout's difficulty itself, in RoomLayout.determine_minimum_difficulty); it only groups the printed counts.
+    # @param room_objects [Array<String>] The object name of every instance the layout places
+    # @return [Integer]
+    def room_difficulty(room_objects)
         threat_level = room_threat_level(room_objects)
 
         difficulty = 0
@@ -224,103 +237,9 @@ class RoomConverter
         difficulty = 3 if threat_level > 4
 
         return difficulty
-        #return room_difficulty_override(room_name) || difficulty
     end
 
-=begin
-    def room_difficulty_override(room_name)
-        {
-            "rm_four_exits_11" => 2,
-            "rm_four_exits_12" => 3,
-            "rm_four_exits_7" => 2,
-            "rm_one_exit_16" => 2,
-            "rm_one_exit_17" => 1,
-            "rm_one_exit_18" => 2,
-            "rm_three_exits_5" => 1,
-        }[room_name]
-    end
- =end
-
-=begin
-    def room_difficulty_old(room_name)
-        return 1 if %w(
-            rm_no_exits_1
-            rm_one_exit_2
-            rm_one_exit_3
-            rm_one_exit_6
-            rm_one_exit_7
-            rm_one_exit_9
-            rm_one_exit_11
-            rm_one_exit_14
-            rm_one_exit_17
-            rm_two_opposite_exits_1
-            rm_two_opposite_exits_2
-            rm_two_opposite_exits_3
-            rm_two_opposite_exits_5
-            rm_two_opposite_exits_7
-            rm_two_opposite_exits_8
-            rm_two_opposite_exits_10
-            rm_two_opposite_exits_11
-            rm_two_opposite_exits_13
-            rm_two_opposite_exits_15
-            rm_two_perpendicular_exits_1
-            rm_two_perpendicular_exits_2
-            rm_two_perpendicular_exits_3
-            rm_two_perpendicular_exits_4
-            rm_two_perpendicular_exits_5
-            rm_two_perpendicular_exits_6
-            rm_two_perpendicular_exits_8		
-            rm_two_perpendicular_exits_12
-            rm_two_perpendicular_exits_14
-            rm_two_perpendicular_exits_17
-            rm_two_perpendicular_exits_21
-            rm_two_perpendicular_exits_23
-            rm_two_perpendicular_exits_24
-            rm_two_perpendicular_exits_25
-            rm_two_perpendicular_exits_31
-            rm_three_exits_1
-            rm_three_exits_2	
-            rm_three_exits_3
-            rm_three_exits_4
-            rm_three_exits_5
-            rm_three_exits_7
-            rm_three_exits_8
-            rm_three_exits_9
-            rm_three_exits_10
-            rm_three_exits_11			
-            rm_three_exits_12
-            rm_four_exits_1
-            rm_four_exits_3
-            rm_four_exits_5
-            rm_four_exits_7
-            rm_four_exits_9
-        ).include? room_name
-
-        return 3 if %w(
-            rm_one_exit_19
-            rm_one_exit_20	
-            rm_one_exit_21
-            rm_one_exit_22
-            rm_two_opposite_exits_6
-            rm_two_opposite_exits_9
-            rm_two_perpendicular_exits_7
-            rm_two_opposite_exits_18
-            rm_two_perpendicular_exits_15
-            rm_two_perpendicular_exits_18			
-            rm_two_perpendicular_exits_19
-            rm_two_perpendicular_exits_20
-            rm_two_perpendicular_exits_27
-            rm_two_perpendicular_exits_28
-            rm_two_perpendicular_exits_30
-            rm_three_exits_15
-            rm_three_exits_18
-            rm_four_exits_12
-        ).include? room_name
-
-        return 2
-    end
-=end
-
+    # Sets up the room lists the printed counts are built from, per difficulty 1 to 3
     def initialize()
         @total_rooms = {
             1 => default_mapping(),
@@ -364,6 +283,9 @@ class RoomConverter
         }
     end
 
+    # Converts one room asset into its layout file, checks the layout, and adds it to the counts. Files that aren't a
+    # room asset, or are a room that isn't a layout (like rm_title), are skipped.
+    # @param file_name [String] A file name from a room's folder, like rm_one_exit_3.yy
     def translate_file(file_name)
         room_name = file_name[0..-4]
         file_path = "./rooms/#{room_name}/#{room_name}.yy"
@@ -372,13 +294,12 @@ class RoomConverter
         exit_type = room_name.gsub(/ *\d+$/, '')[3..-2]
         return unless EXIT_TYPES.include? exit_type
 
-        # Read in data from file
+        # Read the instance list out of the room asset
         file_data = File.read(file_path)
         instance_data = file_data.split('"instances":')[1].split('],"layers"').first.gsub(",}", "}").chop!.chop!.chop!.chop!.chop!.chop!.chop!.chop! + ']'
-        #puts instance_data
         parsed_data = JSON.parse(instance_data)
 
-        # Create array of instance information
+        # Build the layout file's line, and the list of object names
         room_objects = []
         string = "["
         parsed_data.each do |instance_data|
@@ -386,7 +307,7 @@ class RoomConverter
             instance_string = "{\"x\": #{instance_data['x'].to_f().round()}, \"y\": #{instance_data['y'].to_f().round()}, \"name\": \"#{object_name}\"},"
             string << instance_string
 
-            # Determine object key
+            # Every object a layout places must be one this script knows
             object_key = (OBJECT_TYPES.include?(object_name)) ? object_name : "other"
             if (object_key == "other")
                 raise "UNEXPECTED OBJECT #{object_name} FOUND IN #{room_name}"
@@ -395,12 +316,10 @@ class RoomConverter
         end
         string.chop! << "]"
         threat_level = room_threat_level(room_objects)
-        complexity = room_complexity(room_name, room_objects)
+        complexity = room_complexity(room_objects)
 
-        # Validate Room
-        # Chest spot not on top of any collectables or exit spots, etc.
-        # Doors blank on two opposite sides
-        # At least on set of blank space to leave room for doors spawned on exit edges
+        # Check the spot rules generation relies on, and the threat and complexity limits. Not checked: that the chest
+        # spot isn't on a collectable or exit spot, and that the room leaves space for the doors spawned on exit edges
         raise "ROOM MISSING STAIRS SPOT: #{room_name}" unless room_objects.include? "obj_stairs_spot"
         raise "ROOM MISSING CHEST SPOT: #{room_name}" unless room_objects.include? "obj_chest_spot"
         raise "ROOM COLLECTABLE SPOT COUNT (#{room_objects.count("obj_collectable_spot")}) TOO LOW: #{room_name}" unless room_objects.count("obj_collectable_spot") >= 2
@@ -409,13 +328,12 @@ class RoomConverter
         raise "ROOM DOWN EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_down")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_down") >= 2
         raise "ROOM LEFT EXIT SPOT COUNT (#{room_objects.count("obj_exit_spot_left")}) TOO LOW: #{room_name}" unless room_objects.count("obj_exit_spot_left") >= 2
         raise "ROOM CONTAINS WORM HEAD BUT NOT BODY: #{room_name}" unless room_objects.include?("obj_giant_worm_head") == room_objects.include?("obj_giant_worm_body")
-        raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 10 #6
+        raise "ROOM THREAT LEVEL (#{threat_level}) TOO HIGH: #{room_name}" unless threat_level <= 10
         raise "ROOM COMPLEXITY LEVEL (#{complexity}) TOO HIGH: #{room_name}" unless complexity <= 6
         
-        # Determine difficulty level
-        difficulty = room_difficulty(room_name, room_objects)
+        # Count the layout on its difficulty and every one above
+        difficulty = room_difficulty(room_objects)
         room_objects.each do |object_key| 
-            # Add object name to counts
             (1..3).each do |possible_difficulty|
                 next if possible_difficulty < difficulty
 
@@ -434,28 +352,36 @@ class RoomConverter
         end
 
         puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - #{difficulty}; complexity - #{complexity}"
-        #old_difficulty = room_difficulty_old(room_name)
-        #if (difficulty != old_difficulty)
-        #    puts "#{room_name} - threat: #{room_threat_level(room_objects)}; difficulty - old #{old_difficulty}; new - #{difficulty}"
-        #end
 
-        # Write the room's instances to its layout file. The game works out each layout's difficulty itself (see
-        # RoomLayout.determine_minimum_difficulty), so the difficulty above only feeds the counts this script prints
+        # Write the room's instances to its layout file
         File.write("./datafiles/#{room_name}.json", string)
     end
 
+    # A whole number padded to three characters, for the printed tables
+    # @param number [Integer]
+    # @return [String]
     def pretty_string(number)
         number.to_s.rjust(3)
     end
 
+    # A number rounded to two decimals and padded to three characters, for the printed tables
+    # @param number [Float]
+    # @return [String]
     def pretty_decimal(number)
         number.round(2).to_s.rjust(3)
     end
 
+    # A share as a percentage rounded to two decimals and padded to five characters, for the printed tables
+    # @param number [Float] From 0 to 1
+    # @return [String]
     def pretty_percentage(number)
         (number * 100).round(2).to_s.rjust(5)
     end
 
+    # Prints how many of a difficulty's layouts place an object type, per exit kind and in total, raw and weighted by
+    # how often generation uses each exit kind, and how far the weighted share is from target_probability
+    # @param object_type [String] An object name from OBJECT_TYPES
+    # @param difficulty [Integer] 1 to 3
     def count_objects(object_type, difficulty)
         object_count_total = 0;
         weighted_object_count_total = 0;
@@ -475,7 +401,7 @@ class RoomConverter
             total_count_total += total_count
             weighted_total_count_total += weighted_total_count
 
-            # Generate Data Points for Exit Type
+            # This exit kind's shares
             percentage_of_total = object_count.to_f / total_count.to_f
             weighted_percentage_of_total = weighted_object_count.to_f / weighted_total_count.to_f
 
@@ -483,7 +409,7 @@ class RoomConverter
             puts "\t#{exit_type.ljust(24)} \tcount: #{pretty_string(object_count)} / #{pretty_string(total_count)} = #{pretty_percentage(percentage_of_total)} %; Weighted: #{pretty_percentage(weighted_percentage_of_total)} %"
         end
 
-        # Generate Data Points for Total
+        # The shares over every exit kind
         percentage_of_total = object_count_total.to_f / total_count_total.to_f
         weighted_percentage_of_total = weighted_object_count_total.to_f / weighted_total_count_total.to_f         
 
@@ -491,6 +417,10 @@ class RoomConverter
         puts "\t\t\t\t\t\t\t\t#{' Target Diff:'} #{pretty_percentage(weighted_percentage_of_total - target_probability(object_type))} %"
     end
 
+    # Prints the average complexity of a difficulty's layouts per exit kind and in total, raw and weighted by how often
+    # generation uses each exit kind, then how many layouts have each complexity and how far that is from
+    # target_complexity_probability
+    # @param difficulty [Integer] 1 to 3
     def count_complexity(difficulty)
         complexity_rooms_count_total = 0
         weighted_complexity_rooms_count_total = 0
@@ -545,7 +475,7 @@ class RoomConverter
                 weighted_complexity_level_rooms_count_total[complexity] += weighted_exit_type_rooms_count_total
             end
 
-            # Generate Data Points for Total
+            # Add this exit kind to the totals, and work out its averages
             complexity_rooms_count_total += exit_type_complexity_rooms_count_total
             weighted_complexity_rooms_count_total += weighted_exit_type_complexity_rooms_count_total
             complexity_value_total += exit_type_complexity_value_total
@@ -557,7 +487,7 @@ class RoomConverter
             puts "\t\t#{exit_type.ljust(24)} \tcount: #{pretty_string(exit_type_complexity_rooms_count_total)}; Avg Complexity: #{pretty_decimal(exit_type_average_complexity)}; Weighted Avg Complexity: #{pretty_decimal(exit_type_weighted_average_complexity)}"
         end
 
-        # Generate Data Points for Total
+        # The averages over every exit kind
         average_complexity = complexity_value_total.to_f / complexity_rooms_count_total.to_f
         weighted_average_complexity = weighted_complexity_value_total.to_f / weighted_complexity_rooms_count_total.to_f 
 
@@ -572,6 +502,7 @@ class RoomConverter
         end
     end
 
+    # Prints count_objects for every object type and difficulty
     def count_all_object_types
         OBJECT_TYPES.each do |object_type|
             puts "\n\n\n=== #{object_type} ==="
@@ -582,6 +513,7 @@ class RoomConverter
         end
     end
 
+    # Prints count_complexity for every difficulty
     def count_all_complexity_rooms
         puts "\n\n\n=== Count Complexity ==="
         (1..3).each do |difficulty|
@@ -591,14 +523,14 @@ class RoomConverter
     end
 end
 
+# Convert every room, then print the counts
 filenames = Dir.entries("./rooms")
-sub_file_names = nil
 converter = RoomConverter.new
 
 filenames.each do |filename|
     next if (filename == '.' or filename == '..')
     sub_file_names = Dir.entries("./rooms/#{filename}")
-    sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) } #unless ['.', '..', 'rm_start.yy', 'rm_title.yy', 'rm_finish.yy', 'rm_four_exits_13.yy', 'rm_four_exits_14.yy', 'rm_four_exits_15.yy', 'rm_four_exits_16.yy', 'rm_four_exits_17.yy'].include?(sub_file_name) }
+    sub_file_names.each { |sub_file_name| converter.translate_file(sub_file_name) }
 end
 
 converter.count_all_complexity_rooms()

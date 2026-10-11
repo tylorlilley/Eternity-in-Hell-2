@@ -14,13 +14,13 @@ if (timer >= 4) {
 		
 	// Turn in a new available direction
 	if (dir == directions.none) {
-		var new_directions = [directions.up, directions.right, directions.down, directions.left];
-		while (array_length(new_directions) > 0) {
-			var new_dir = array_random_pop(new_directions);
-			var target = get_dropped_meat();
-			if (!is_existing_instance(target)) { target = global.player; }
-			if (is_direction_free(new_dir, false, true)) { 
-				if (dir == directions.none || is_direction_towards(new_dir, target)) { dir = new_dir; }
+		var _new_directions = [directions.up, directions.right, directions.down, directions.left];
+		while (array_length(_new_directions) > 0) {
+			var _new_dir = array_random_pop(_new_directions);
+			var _target = get_dropped_meat();
+			if (!is_existing_instance(_target)) { _target = global.player; }
+			if (is_direction_free(_new_dir, false, true)) { 
+				if (dir == directions.none || is_direction_towards(_new_dir, _target)) { dir = _new_dir; }
 			}
 		}
 		if (dir != directions.none) { play_sound(snd_thud, false); }

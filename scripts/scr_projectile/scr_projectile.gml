@@ -17,9 +17,9 @@ function update_lava_lighting() {
 
 /// @function									fireball_light_bombs();
 function fireball_light_bombs() {
-	var bomb = instance_place(x, y, obj_bomb);
-	if (is_existing_instance(bomb) && (!is_existing_instance(creator) || creator != bomb)) {
-		with (bomb) {
+	var _bomb = instance_place(x, y, obj_bomb);
+	if (is_existing_instance(_bomb) && (!is_existing_instance(creator) || creator != _bomb)) {
+		with (_bomb) {
 			lit_by_player = other.shot_by_player;
 			if (!global.player.dead) {
 				global.controller.evaluation_manager.increment_evaluation_variable("bombs_lit_by_fireball");
@@ -29,36 +29,36 @@ function fireball_light_bombs() {
 	}
 }
 
-/// @function									fireball_kill_enemies(ignore_fire_resistance, use_magic_resistance);
+/// @function									fireball_kill_enemies(ignore_fire_resistance, _use_magic_resistance);
 ///	@param		{bool} ignore_fire_resistantce  If true will kill fire resistant enemies
-///	@param		{bool} use_magic_resistance		If true will use magic resistance instead of fire
-function fireball_kill_enemies(use_magic_resistance = false) {
-	var kill_snd = use_magic_resistance ? snd_no : snd_extinguish
-	var blocked = false;
-	var enemies_at_position = instance_place_all(x, y, obj_enemy);
-	while (array_length(enemies_at_position) > 0) {
-		var enemy = array_random_pop(enemies_at_position);
-		var resistance = use_magic_resistance ? enemy.magic_resistant : enemy.fire_resistant;
-		if (enemy.activated && enemy.corporeal && get_distance_to_instance(enemy) <= 8) {
-			if (enemy.object_index == obj_hands) {
-				blocked = true;
-				with (enemy) {
+///	@param		{bool} _use_magic_resistance		If true will use magic resistance instead of fire
+function fireball_kill_enemies(_use_magic_resistance = false) {
+	var _kill_snd = _use_magic_resistance ? snd_no : snd_extinguish
+	var _blocked = false;
+	var _enemies_at_position = instance_place_all(x, y, obj_enemy);
+	while (array_length(_enemies_at_position) > 0) {
+		var _enemy = array_random_pop(_enemies_at_position);
+		var _resistance = _use_magic_resistance ? _enemy.magic_resistant : _enemy.fire_resistant;
+		if (_enemy.activated && _enemy.corporeal && get_distance_to_instance(_enemy) <= 8) {
+			if (_enemy.object_index == obj_hands) {
+				_blocked = true;
+				with (_enemy) {
 					if (!is_carrying_item(obj_staff)) {
-						var kill_type = (other.shot_by_player)? other.object_index : noone;
-						kill_enemy(kill_snd, kill_type);
-						if (kill_type != noone) {
+						var _kill_type = (other.shot_by_player)? other.object_index : noone;
+						kill_enemy(_kill_snd, _kill_type);
+						if (_kill_type != noone) {
 							global.controller.evaluation_manager.increment_evaluation_variable("fireball_kill_count");
 						}
 					}
 				}
 			}
 			else { 
-				blocked = !resistance;
-				with (enemy) { 
-					if (!resistance) { 
-						var kill_type = (other.shot_by_player)? other.object_index : noone;
-						kill_enemy(kill_snd, kill_type);
-						if (kill_type != noone) {
+				_blocked = !_resistance;
+				with (_enemy) { 
+					if (!_resistance) { 
+						var _kill_type = (other.shot_by_player)? other.object_index : noone;
+						kill_enemy(_kill_snd, _kill_type);
+						if (_kill_type != noone) {
 							global.controller.evaluation_manager.increment_evaluation_variable("fireball_kill_count");
 						}
 					} 
@@ -66,63 +66,63 @@ function fireball_kill_enemies(use_magic_resistance = false) {
 			}
 		}
 	}
-	return blocked;
+	return _blocked;
 }
 
-/// @function								initialize_fireball_torch_variables(lighting_range);
-///	@param		{int} lighting_range		The lighting range to set the torch to
-function initialize_fireball_torch_variables(lighting_range) {
-	var torch = instance_create(x, y, obj_torch);
-	torch.special = true;
-	torch.holder = id;
-	torch.time_to_remain_lit = MAX_TORCH_TIME_TO_REMAIN_LIT;
-	torch.special = true;
-	torch.lighting_range = lighting_range;
-	torch.light_source = instance_create(x, y, obj_light_source);
-	torch.light_source.lighting_range = lighting_range;
-	torch.visible = false;
-	torch.sprite_index = spr_box;
-	torch.image_blend = c_lime;
+/// @function								initialize_fireball_torch_variables(_lighting_range);
+///	@param		{int} _lighting_range		The lighting range to set the torch to
+function initialize_fireball_torch_variables(_lighting_range) {
+	var _torch = instance_create(x, y, obj_torch);
+	_torch.special = true;
+	_torch.holder = id;
+	_torch.time_to_remain_lit = MAX_TORCH_TIME_TO_REMAIN_LIT;
+	_torch.special = true;
+	_torch.lighting_range = _lighting_range;
+	_torch.light_source = instance_create(x, y, obj_light_source);
+	_torch.light_source.lighting_range = _lighting_range;
+	_torch.visible = false;
+	_torch.sprite_index = spr_box;
+	_torch.image_blend = c_lime;
 	
-	return torch;
+	return _torch;
 }
 
-/// @function								update_fireball_torch_position(new_x_scale);
-///	@param		{float} new_x_scale			The new x scale to set the torch object to
-function update_fireball_torch_position(new_x_scale = 1) { 
+/// @function								update_fireball_torch_position(_new_x_scale);
+///	@param		{float} _new_x_scale			The new x scale to set the torch object to
+function update_fireball_torch_position(_new_x_scale = 1) { 
 	if (is_existing_instance(torch)) { 
 		set_instance_to_same_position(torch);  
-		torch.image_xscale =new_x_scale; 
+		torch.image_xscale =_new_x_scale; 
 	}
 }
 
-/// @function								shoot_magic_beam(target, max_angle [number_to_shoot]);
-///	@param		{inst} target				The instantce to shoot at
-///	@param		{int} max_angle				The maximum angle away from the target to shoot
-///	@param		{int} number_to_shoot		OPTIONAL: Number of projectiles to shoot
-function shoot_magic_beam(target, max_angle, number_to_shoot = 1) {
-	if (!is_existing_instance(target)) { target = global.player; }
-	var dir = point_direction(x, y, target.x, target.y) - max_angle + irandom_range(0,max_angle*2);
-	var first_shot = noone
-	for (var i = 0; i < number_to_shoot; i++) {
-		var dir_offset = 25*ceil(i/2);
-		if (i % 2 == 0) { dir_offset *= -1; }
-		var target_x = x + lengthdir_x(16, dir+dir_offset), target_y = y + lengthdir_y(16, dir+dir_offset);
-		var next_shot = shoot_projectile(target_x, target_y, false, obj_magic_beam);
-		if (i == 0) { first_shot = next_shot; }
+/// @function								shoot_magic_beam(_target, _max_angle [_number_to_shoot]);
+///	@param		{inst} _target				The instantce to shoot at
+///	@param		{int} _max_angle				The maximum angle away from the target to shoot
+///	@param		{int} _number_to_shoot		OPTIONAL: Number of projectiles to shoot
+function shoot_magic_beam(_target, _max_angle, _number_to_shoot = 1) {
+	if (!is_existing_instance(_target)) { _target = global.player; }
+	var _dir = point_direction(x, y, _target.x, _target.y) - _max_angle + irandom_range(0,_max_angle*2);
+	var _first_shot = noone
+	for (var _i = 0; _i < _number_to_shoot; _i++) {
+		var _dir_offset = 25*ceil(_i/2);
+		if (_i % 2 == 0) { _dir_offset *= -1; }
+		var _target_x = x + lengthdir_x(16, _dir+_dir_offset), _target_y = y + lengthdir_y(16, _dir+_dir_offset);
+		var _next_shot = shoot_projectile(_target_x, _target_y, false, obj_magic_beam);
+		if (_i == 0) { _first_shot = _next_shot; }
 	}
-	return first_shot;
+	return _first_shot;
 }
 
 /// @ function								fireball_burn_bushes()
 function fireball_burn_bushes() {
-	var blocked = false;
-	var bush = instance_place(x, y, obj_bush);
-	with (bush) {
-		blocked = true;
+	var _blocked = false;
+	var _bush = instance_place(x, y, obj_bush);
+	with (_bush) {
+		_blocked = true;
 		play_sound(snd_extinguish, true);
 		instance_create(x, y, obj_dirt);
 		instance_destroy();
 	}
-	return blocked;
+	return _blocked;
 }

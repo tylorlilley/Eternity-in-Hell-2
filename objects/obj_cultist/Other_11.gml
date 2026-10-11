@@ -6,9 +6,9 @@ if (shoot_timer <= 12) { image_index = 2; skeleton_speed = 0; }
 
 // Shoot beam
 if (shoot_timer == 6) {
-	var target = get_dropped_meat();
-	if (!is_existing_instance(target)) { target = global.player; }
-	shoot_magic_beam(target, 0, 3);
+	var _target = get_dropped_meat();
+	if (!is_existing_instance(_target)) { _target = global.player; }
+	shoot_magic_beam(_target, 0, 3);
 }
 
 if shoot_timer > 0 {

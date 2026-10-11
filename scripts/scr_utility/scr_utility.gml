@@ -1,81 +1,81 @@
-/// @function								get_dir_x_offset(dir);
-/// @param		{dir} dir					The direction to get the x_offset for
-function get_dir_x_offset(dir) {
-	if (dir == directions.right) { return 1; }
-	else if (dir == directions.left) { return -1; }
+/// @function								get_dir_x_offset(_dir);
+/// @param		{dir} _dir					The direction to get the x_offset for
+function get_dir_x_offset(_dir) {
+	if (_dir == directions.right) { return 1; }
+	else if (_dir == directions.left) { return -1; }
 	return 0;
 }
 
-/// @function								get_dir_y_offset(dir);
-/// @param		{dir} dir					The direction to get the y_offset for
-function get_dir_y_offset(dir) {
-	if (dir == directions.down) { return 1; }
-	else if (dir == directions.up) { return -1; }
+/// @function								get_dir_y_offset(_dir);
+/// @param		{dir} _dir					The direction to get the y_offset for
+function get_dir_y_offset(_dir) {
+	if (_dir == directions.down) { return 1; }
+	else if (_dir == directions.up) { return -1; }
 	return 0;
 }
 	
-/// @function								get_scaling_amount(minimum, maximum, numerator, denominator);
-/// @param		{real}	minimum				The minimum value the scaling amount can be
-/// @param		{real}	maximum				The maximum value the scaling amount can be
-/// @param		{real}	numerator			The numerator of the scaling amount to be added to the minimum
-/// @param		{real}	denominator			The denominator of the scaling amount to be added to the minimum
-function get_scaling_amount(minimum, maximum, numerator, denominator) {
-	var fraction = numerator/denominator;
-	var variable_portion = maximum - minimum;
+/// @function								get_scaling_amount(_minimum, _maximum, _numerator, _denominator);
+/// @param		{real}	_minimum				The minimum value the scaling amount can be
+/// @param		{real}	_maximum				The maximum value the scaling amount can be
+/// @param		{real}	_numerator			The numerator of the scaling amount to be added to the minimum
+/// @param		{real}	_denominator			The denominator of the scaling amount to be added to the minimum
+function get_scaling_amount(_minimum, _maximum, _numerator, _denominator) {
+	var _fraction = _numerator/_denominator;
+	var _variable_portion = _maximum - _minimum;
 	
-	return (minimum+(variable_portion*(fraction)));
+	return (_minimum+(_variable_portion*(_fraction)));
 }
 
-/// @function								get_zero_padded_string(value_to_pad, target_length);
-/// @param		{real} value_to_pad			The value to pad with zeros
+/// @function								get_zero_padded_string(_value_to_pad, _target_length);
+/// @param		{real} _value_to_pad			The value to pad with zeros
 /// @param		{real} target_legnth		The desired length of the padded string
-function get_zero_padded_string(value_to_pad, target_length) {
-	var padded_value = string(value_to_pad)
+function get_zero_padded_string(_value_to_pad, _target_length) {
+	var _padded_value = string(_value_to_pad)
 	
-	while (string_length(padded_value) < target_length) {
-	    padded_value = "0"+padded_value;
+	while (string_length(_padded_value) < _target_length) {
+	    _padded_value = "0"+_padded_value;
 	}
 	
-	return padded_value;
+	return _padded_value;
 }
 
 /// @function								get_percentage_string(value_to_pad, target_length);
-/// @param		{real} value				The value to transform into a percentage string
-function get_percentage_string(value) {
-	var percentage_string = "", percentage_value = floor(value), percentage_remainder = floor(frac(value) * 100);
+/// @param		{real} _value				The value to transform into a percentage string
+function get_percentage_string(_value) {
+	var _percentage_string = "", _percentage_value = floor(_value), _percentage_remainder = floor(frac(_value) * 100);
 	
 	//if (percentage_value < 10) { percentage_string = "0"; }
-	percentage_string += string(percentage_value);
-	percentage_string += ".";
-	if (percentage_remainder < 10) { percentage_string += "0"; }
-	percentage_string += string(percentage_remainder);
-	percentage_string += " %";
+	_percentage_string += string(_percentage_value);
+	_percentage_string += ".";
+	if (_percentage_remainder < 10) { _percentage_string += "0"; }
+	_percentage_string += string(_percentage_remainder);
+	_percentage_string += " %";
 	
-	return percentage_string;
+	return _percentage_string;
 }
 
-/// @function								get_opposite_dir(dir);
-/// @param		{direction}	dir				The direction to return the opposite of
-function get_opposite_dir(dir) {
-	if (dir == directions.stairs) { return directions.stairs; }
-	if (dir == directions.respawn) { return directions.respawn; }
-	if (dir == directions.none) { return directions.none; }
+/// @function								get_opposite_dir(_dir);
+/// @param		{direction}	_dir				The direction to return the opposite of
+function get_opposite_dir(_dir) {
+	if (_dir == directions.stairs) { return directions.stairs; }
+	if (_dir == directions.respawn) { return directions.respawn; }
+	if (_dir == directions.none) { return directions.none; }
 	
-	return modulo((dir+2), 4);
+	return modulo((_dir+2), 4);
 }
 
-/// @function								get_turn_right_dir(dir);
-/// @param		{direction}	dir				The direction to return the direction to the right of
-function get_turn_right_dir(dir) {
-	if (dir < directions.up || dir > directions.left) { return -1; }
-	else { return modulo((dir+1), 4); }
+/// @function								get_turn_right_dir(_dir);
+/// @param		{direction}	_dir				The direction to return the direction to the right of
+function get_turn_right_dir(_dir) {
+	if (_dir < directions.up || _dir > directions.left) { return -1; }
+	else { return modulo((_dir+1), 4); }
 }
 
-/// @function								get_turn_left_dir(dir);
-/// @param		{direction}	dir				The direction to return the direction to the left of
-function get_turn_left_dir(dir) {
-	if (dir < directions.up || dir > directions.left) { return -1; }
-	else { return modulo((dir-1), 4); }
+/// @function								get_turn_left_dir(_dir);
+/// @param		{direction}	_dir				The direction to return the direction to the left of
+function get_turn_left_dir(_dir) {
+	if (_dir < directions.up || _dir > directions.left) { return -1; }
+	else { return modulo((_dir-1), 4); }
 }
 
 /// @function get_rotated_dir(_dir, _rotation)
@@ -92,43 +92,43 @@ function get_rotated_dir(_dir, _rotation) {
 	}
 }
 
-/// @function								get_random_carindal_dir();
-function get_random_carindal_dir() {
+/// @function								get_random_cardinal_dir();
+function get_random_cardinal_dir() {
 	return irandom(3);
 }
 
 /// @function								is_cardinal_direction();
-/// @param		{direction}	dir				The direction to return the cardinality of
-function is_cardinal_direction(dir) {
-	return (dir >= directions.up && dir <= directions.left);
+/// @param		{direction}	_dir				The direction to return the cardinality of
+function is_cardinal_direction(_dir) {
+	return (_dir >= directions.up && _dir <= directions.left);
 }
 
-/// @function								get_random_instance(obj_index);
-/// @param		{index} obj_index			The type of object to get a random existing instance of
-/// @param		{boolean} exact_index		Whether or not to get the exact object index or any ancestor
-function get_random_instance(obj_index, exact_index = false) {
+/// @function								get_random_instance(_obj_index);
+/// @param		{index} _obj_index			The type of object to get a random existing instance of
+/// @param		{boolean} _exact_index		Whether or not to get the exact object index or any ancestor
+function get_random_instance(_obj_index, _exact_index = false) {
 	// Gets the total number of eligible instances
-	var total_instances = instance_number(obj_index);
-	if (total_instances == 0) { return noone; }
+	var _total_instances = instance_number(_obj_index);
+	if (_total_instances == 0) { return noone; }
 	
 	// Pick a random starting point and check all possible instances
-	var start_pos =  irandom(total_instances - 1);
-	for (var i = 0; i < total_instances; i++) {
-		var random_instance = instance_find(obj_index, ((i+start_pos) % total_instances));
-		if (exact_index && random_instance.object_index != obj_index) { continue; }
-		else { return random_instance; }
+	var _start_pos =  irandom(_total_instances - 1);
+	for (var _i = 0; _i < _total_instances; _i++) {
+		var _random_instance = instance_find(_obj_index, ((_i+_start_pos) % _total_instances));
+		if (_exact_index && _random_instance.object_index != _obj_index) { continue; }
+		else { return _random_instance; }
 	}
 	
 	// Return noone if instance is not found
 	return noone;
 }
 
-/// @function								get_random_chance_out_of(denominator);
-/// @param		{real}	denominator			The value to use as the denomimnator for the one-in-x chance
-function get_random_chance_out_of(denominator) {
-	if (denominator == 0) { return false; }
+/// @function								get_random_chance_out_of(_denominator);
+/// @param		{real}	_denominator			The value to use as the denomimnator for the one-in-x chance
+function get_random_chance_out_of(_denominator) {
+	if (_denominator == 0) { return false; }
 	
-	return (irandom(denominator-1) == 0);
+	return (irandom(_denominator-1) == 0);
 }
 
 /// @function get_chance_out_of(_denominator)
@@ -144,24 +144,24 @@ function get_coin_flip() {
 	return (irandom(1) == 0);
 }
 
-/// @function								get_quadrant_x_pos(quadrant_number);
-/// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
-function get_quadrant_x_pos(quadrant_number) {
-    if (quadrant_number mod 2 == 0) { return x-4; }
+/// @function								get_quadrant_x_pos(_quadrant_number);
+/// @param		{real}	_quadrant_number		The number of the quadrant to get the x position for
+function get_quadrant_x_pos(_quadrant_number) {
+    if (_quadrant_number mod 2 == 0) { return x-4; }
 	else { return x+4; }
 }
 
-/// @function								get_quadrant_y_pos(quadrant_number);
-/// @param		{real}	quadrant_number		The number of the quadrant to get the x position for
-function get_quadrant_y_pos(quadrant_number) {
-    if (quadrant_number < 2) { return y-4; }
+/// @function								get_quadrant_y_pos(_quadrant_number);
+/// @param		{real}	_quadrant_number		The number of the quadrant to get the x position for
+function get_quadrant_y_pos(_quadrant_number) {
+    if (_quadrant_number < 2) { return y-4; }
 	else { return y+4; }
 }
 
-/// @function								get_exit_x_pos(dir);
-/// @param		{dir}	dir					The direction of the exit to get the x pos for
-function get_exit_x_pos(dir) {
-	switch (dir) {
+/// @function								get_exit_x_pos(_dir);
+/// @param		{dir}	_dir					The direction of the exit to get the x pos for
+function get_exit_x_pos(_dir) {
+	switch (_dir) {
 		case directions.up: { return room_width/2; }
 		case directions.right: { return room_width-8; }
 		case directions.down: { return room_width/2; }
@@ -170,10 +170,10 @@ function get_exit_x_pos(dir) {
 	}
 }
 
-/// @function								get_exit_y_pos(dir);
-/// @param		{dir}	dir					The direction of the exit to get the y pos for
-function get_exit_y_pos(dir) {
-	switch (dir) {
+/// @function								get_exit_y_pos(_dir);
+/// @param		{dir}	_dir					The direction of the exit to get the y pos for
+function get_exit_y_pos(_dir) {
+	switch (_dir) {
 		case directions.up: { return 8; }
 		case directions.right: { return room_height/2; }
 		case directions.down: { return room_height-8; }
@@ -182,25 +182,25 @@ function get_exit_y_pos(dir) {
 	}
 }
 
-/// @function								instance_place_all(x_pos, y_pos, obj_type);
-/// @param		{real}	x_pos				The x_pos to check for instances
-/// @param		{real}	y_pos				The x_pos to check for instances
-/// @param		{real}	obj_type			The object type of instance to check for
-function instance_place_all(x_pos, y_pos, obj_type) {
+/// @function								instance_place_all(_x_pos, _y_pos, _obj_type);
+/// @param		{real}	_x_pos				The x_pos to check for instances
+/// @param		{real}	_y_pos				The x_pos to check for instances
+/// @param		{real}	_obj_type			The object type of instance to check for
+function instance_place_all(_x_pos, _y_pos, _obj_type) {
 	static _potential_matches = ds_list_create();
     ds_list_clear(_potential_matches);
 	
-    var _total_potential_matches = instance_place_list(x_pos, y_pos, obj_type, _potential_matches, false), _list_of_matches = array_create(_total_potential_matches);
-    for (var i = 0; i < _total_potential_matches; i++) { _list_of_matches[i] = _potential_matches[| i]; }
+    var _total_potential_matches = instance_place_list(_x_pos, _y_pos, _obj_type, _potential_matches, false), _list_of_matches = array_create(_total_potential_matches);
+    for (var _i = 0; _i < _total_potential_matches; _i++) { _list_of_matches[_i] = _potential_matches[| _i]; }
     return _list_of_matches;
 }
 
 /// @function								play_sound();
-///	@param		{Sound}	  snd				The sound to play
+///	@param		{Sound}	  _snd				The sound to play
 ///	@param		{Boolean} loud_soun			Whether the sound is heard by ears or not
-function play_sound(snd, loud_sound) {
-	array_push(global.game_manager.sounds_to_play, snd);
-	if (loud_sound) {
+function play_sound(_snd, _loud_sound) {
+	array_push(global.game_manager.sounds_to_play, _snd);
+	if (_loud_sound) {
 		with (obj_ears) {
 			if (id != other.id) {
 				if ((x != other.x || y != other.y) &&
@@ -221,92 +221,92 @@ function play_sound(snd, loud_sound) {
 	}
 }
 
-/// @function								instance_create(x_pos, y_pos, obj_index);
-///	@param		{real} x_pos				The x_pos to create the instance at
-///	@param		{real} y_pos				The y_pos to create the instance at
-///	@param		{object_index} obj_index	The object_index to create an instance of
-function instance_create(x_pos, y_pos, obj_index) {
-	return instance_create_depth(x_pos, y_pos, 0, obj_index);
+/// @function								instance_create(_x_pos, _y_pos, _obj_index);
+///	@param		{real} _x_pos				The x_pos to create the instance at
+///	@param		{real} _y_pos				The y_pos to create the instance at
+///	@param		{object_index} _obj_index	The object_index to create an instance of
+function instance_create(_x_pos, _y_pos, _obj_index) {
+	return instance_create_depth(_x_pos, _y_pos, 0, _obj_index);
 }
 
 /// @function								is_existing_instance(x_pos, y_pos, obj_index);
 ///	@param		{id} insty					The instance to check existance for
-function is_existing_instance(inst) {
-	return (inst != noone && instance_exists(inst));
+function is_existing_instance(_inst) {
+	return (_inst != noone && instance_exists(_inst));
 }
 
-/// @function								get_shader_color_from_gms_color(given_color);
-///	@param		{real} given_color			The gms color to convert to a shader color
-function get_shader_color_from_gms_color(given_color) {
-	var red = color_get_red(given_color);
-	var green = color_get_green(given_color);
-	var blue = color_get_blue(given_color);
+/// @function								get_shader_color_from_gms_color(_given_color);
+///	@param		{real} _given_color			The gms color to convert to a shader color
+function get_shader_color_from_gms_color(_given_color) {
+	var _red = color_get_red(_given_color);
+	var _green = color_get_green(_given_color);
+	var _blue = color_get_blue(_given_color);
 	
-	return [red/255.0, green/255.0, blue/255.0, 1.0];
+	return [_red/255.0, _green/255.0, _blue/255.0, 1.0];
 }
 
 /// @function								calculate_gms_game_color();
 function calculate_gms_game_color() {
-	var padded_game_color_string = global.game_color_string;
-	while (string_length(padded_game_color_string) < 6) { padded_game_color_string = "0"+padded_game_color_string; }
-	return get_gms_color_from_hex_string(padded_game_color_string);
+	var _padded_game_color_string = global.game_color_string;
+	while (string_length(_padded_game_color_string) < 6) { _padded_game_color_string = "0"+_padded_game_color_string; }
+	return get_gms_color_from_hex_string(_padded_game_color_string);
 }
 
 /// @function								get_game_bg_color();
 function get_game_bg_color() {
-	var controller = global.controller;
-	var tint_amount = is_existing_instance(controller) ? power(1-(controller.time_remaining/controller.time_provided), 8) : 1;
-	return merge_color(c_black, global.gms_game_color, tint_amount);
+	var _controller = global.controller;
+	var _tint_amount = is_existing_instance(_controller) ? power(1-(_controller.time_remaining/_controller.time_provided), 8) : 1;
+	return merge_color(c_black, global.gms_game_color, _tint_amount);
 }
 
 /// @function								get_inverted_game_color();
 function get_inverted_game_color() {
-	var controller = global.controller;
-	var tint_amount = is_existing_instance(controller) ? power(1-(controller.time_remaining/controller.time_provided), 8) : 0;
-	return merge_color(global.gms_game_color, c_black, tint_amount);
+	var _controller = global.controller;
+	var _tint_amount = is_existing_instance(_controller) ? power(1-(_controller.time_remaining/_controller.time_provided), 8) : 0;
+	return merge_color(global.gms_game_color, c_black, _tint_amount);
 }
 
-/// @function								get_gms_color_from_hex_string(hex_string);
-///	@param		{string} hex_string			The string to convert to a color
-function get_gms_color_from_hex_string(hex_string) {
-	var red = get_decimal_from_hex_string(string_copy(hex_string, 1, 2));
-	var green = get_decimal_from_hex_string(string_copy(hex_string, 3, 2));
-	var blue = get_decimal_from_hex_string(string_copy(hex_string, 5, 2));
+/// @function								get_gms_color_from_hex_string(_hex_string);
+///	@param		{string} _hex_string			The string to convert to a color
+function get_gms_color_from_hex_string(_hex_string) {
+	var _red = get_decimal_from_hex_string(string_copy(_hex_string, 1, 2));
+	var _green = get_decimal_from_hex_string(string_copy(_hex_string, 3, 2));
+	var _blue = get_decimal_from_hex_string(string_copy(_hex_string, 5, 2));
 	
-	return make_color_rgb(red, green, blue);
+	return make_color_rgb(_red, _green, _blue);
 }
 
-/// @function								get_decimal_from_hex_string(hex_string);
-///	@param		{string} hex_string			The string to convert to a decimal value
-function get_decimal_from_hex_string(hex_string) {
-	var result = 0;
-	var ZERO = ord("0");
-	var NINE = ord("9");
-	var A = ord("A");
-	var F = ord("F");
+/// @function								get_decimal_from_hex_string(_hex_string);
+///	@param		{string} _hex_string			The string to convert to a decimal value
+function get_decimal_from_hex_string(_hex_string) {
+	var _result = 0;
+	var _ZERO = ord("0");
+	var _NINE = ord("9");
+	var _A = ord("A");
+	var _F = ord("F");
  
-	for (var i = 1; i <= string_length(hex_string); i++) {
-	    var c = ord(string_char_at(string_upper(hex_string), i));
+	for (var _i = 1; _i <= string_length(_hex_string); _i++) {
+	    var _c = ord(string_char_at(string_upper(_hex_string), _i));
 	    // you could also multiply by 16 but you get more nerd points for bitshifts
-	    var result = result << 4;
+	    var _result = _result << 4;
 	    // if the character is a number or letter, add the value
 	    // it represents to the total
-	    if (c >= ZERO && c <= NINE) {
-	        result = result + (c - ZERO);
-	    } else if (c >= A && c <= F ) {
-	        result = result + (c - A + 10);
+	    if (_c >= _ZERO && _c <= _NINE) {
+	        _result = _result + (_c - _ZERO);
+	    } else if (_c >= _A && _c <= _F ) {
+	        _result = _result + (_c - _A + 10);
 	    } 
 	}
  
-	return result;
+	return _result;
 }
 
-/// @function								modulo(a, b);
-///	@param		{number} a					The number to perform the mod on
-///	@param		{number} b					The number to perform the mod with
-function modulo(a, b) {
-	var Q = (b < 0) ? ceil(a/b) : floor(a/b);
-	return a - (Q * b)
+/// @function								modulo(_a, _b);
+///	@param		{number} _a					The number to perform the mod on
+///	@param		{number} _b					The number to perform the mod with
+function modulo(_a, _b) {
+	var _Q = (_b < 0) ? ceil(_a/_b) : floor(_a/_b);
+	return _a - (_Q * _b)
 }
 
 /// @function count_bits(_bitmask)
@@ -322,50 +322,44 @@ function count_bits(_bitmask) {
 	return _count;
 }
 
-/// @function								mp_path_grid_add(grid);
-///	@param		{id} grid					The mp_grid to add to
-function mp_path_grid_add(grid) {
-	mp_grid_add_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
+/// @function								mp_path_grid_add(_grid);
+///	@param		{id} _grid					The mp_grid to add to
+function mp_path_grid_add(_grid) {
+	mp_grid_add_rectangle(_grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
 }
 
-/// @function								mp_path_grid_remove(grid);
-///	@param		{id} grid					The mp_grid to remove from
-function mp_path_grid_remove(grid) {
-	mp_grid_clear_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
-}
-
-/// @function								mp_grid_add(grid);
-///	@param		{id} grid					The mp_grid to add to
-function mp_grid_add(grid) {
-	mp_grid_add_rectangle(grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2, y + sprite_height/2 );
+/// @function								mp_path_grid_remove(_grid);
+///	@param		{id} _grid					The mp_grid to remove from
+function mp_path_grid_remove(_grid) {
+	mp_grid_clear_rectangle(_grid, x - sprite_width/2, y - sprite_height/2, x + sprite_width/2 + 1, y + sprite_height/2 + 1);
 }
 
 /// @function								destroy_instances_at_position();
 function destroy_instances_at_position() {
-	var game_objects = instance_place_all(x, y, obj_game_object);
-	while (array_length(game_objects) > 0) {
-		var game_object = array_pop(game_objects);
-		if (is_existing_instance(game_object) && game_object.id != id) { instance_destroy(game_object); }
+	var _game_objects = instance_place_all(x, y, obj_game_object);
+	while (array_length(_game_objects) > 0) {
+		var _game_object = array_pop(_game_objects);
+		if (is_existing_instance(_game_object) && _game_object.id != id) { instance_destroy(_game_object); }
 	}
-	var placeholders = instance_place_all(x, y, obj_placeholder);
-	while (array_length(placeholders) > 0) {
-		var placeholder = array_pop(placeholders);
-		if (is_existing_instance(placeholder) && placeholder.id != id) { instance_destroy(placeholder); }
+	var _placeholders = instance_place_all(x, y, obj_placeholder);
+	while (array_length(_placeholders) > 0) {
+		var _placeholder = array_pop(_placeholders);
+		if (is_existing_instance(_placeholder) && _placeholder.id != id) { instance_destroy(_placeholder); }
 	}
 }
 
 /// @hex_to_dec								hex_to_dec(hex);
-function hex_to_dec(hex) 
+function hex_to_dec(_hex) 
 {
-    var dec = 0;
+    var _dec = 0;
  
-    var dig = "0123456789ABCDEF";
-    var len = string_length(hex);
-    for (var pos = 1; pos <= len; pos += 1) {
-        dec = dec << 4 | (string_pos(string_char_at(hex, pos), dig) - 1);
+    var _dig = "0123456789ABCDEF";
+    var _len = string_length(_hex);
+    for (var _pos = 1; _pos <= _len; _pos += 1) {
+        _dec = _dec << 4 | (string_pos(string_char_at(_hex, _pos), _dig) - 1);
     }
  
-    return dec;
+    return _dec;
 }
 
 /// Debug Messaging
@@ -390,14 +384,14 @@ function get_debug_message_level_string(_debug_message_level) {
 	}
 }
 
-/// @function								write_debug_message(msg, [debug_level]);
-///	@param		{string} msg				The message to write
-///	@param		{real} [debug_level]		Optional level to file the message under
-function write_debug_message(msg, debug_level = debug_message_level.log) {
-	var _debug_message_level_string = get_debug_message_level_string(debug_level);
-	update_log(_debug_message_level_string, msg);
-	show_debug_message(_debug_message_level_string + ": " + msg);
-	if (debug_level == debug_message_level.error) { show_error(msg, true); }
+/// @function								write_debug_message(_msg, [_debug_level]);
+///	@param		{string} _msg				The message to write
+///	@param		{real} [_debug_level]		Optional level to file the message under
+function write_debug_message(_msg, _debug_level = debug_message_level.log) {
+	var _debug_message_level_string = get_debug_message_level_string(_debug_level);
+	update_log(_debug_message_level_string, _msg);
+	show_debug_message(_debug_message_level_string + ": " + _msg);
+	if (_debug_level == debug_message_level.error) { show_error(_msg, true); }
 }
 
 /*

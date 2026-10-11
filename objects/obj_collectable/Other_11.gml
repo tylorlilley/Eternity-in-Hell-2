@@ -1,8 +1,8 @@
 /// @description Step
-var player = global.player;
+var _player = global.player;
 visible = !is_blink_frame();
 
-if (is_instance_at_coordinates(x, y, player)) {
+if (is_instance_at_coordinates(x, y, _player)) {
 	if (instance_number(obj_collectable) == 1) {
 	    // You are collecting the final collectable in the room
 		play_sound(snd_mana2, true);
@@ -21,16 +21,16 @@ if (is_instance_at_coordinates(x, y, player)) {
 	instance_destroy();
 }
 
-var sucked_in = false;
-with (player) {
-	if (is_carrying_special_item(obj_compass)) { sucked_in = true; }
+var _sucked_in = false;
+with (_player) {
+	if (is_carrying_special_item(obj_compass)) { _sucked_in = true; }
 }
 
 
-if (sucked_in) {
+if (_sucked_in) {
 	if (get_random_chance_out_of(3)) {
-		target_x = player.x;
-		target_y = player.y;
+		target_x = _player.x;
+		target_y = _player.y;
 		set_automatic_target_path();
 		move_towards_coordinates_on_path(false, true, 1, false);
 		play_sound(snd_clock_tick, false);

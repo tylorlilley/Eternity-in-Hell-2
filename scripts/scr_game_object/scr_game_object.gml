@@ -1,202 +1,202 @@
-/// @function								get_distance_to_instance(instance);
-/// @param		{index} instance			The instance whose distance away from the calling instance is to be calculated
-function get_distance_to_instance(instance) {
-	if (!is_existing_instance(instance)) { return -1; }
-	if (id == instance) { return 0; }
+/// @function								get_distance_to_instance(_instance);
+/// @param		{index} _instance			The instance whose distance away from the calling instance is to be calculated
+function get_distance_to_instance(_instance) {
+	if (!is_existing_instance(_instance)) { return -1; }
+	if (id == _instance) { return 0; }
 
-	return point_distance(x, y, instance.x, instance.y);
+	return point_distance(x, y, _instance.x, _instance.y);
 }
 
-/// @function								is_instance_at_coordinates(x_pos, y_pos, instance);
-/// @param		{real}  x_pos				The x value to check against the instance's x value
-/// @param		{real}  y_pos				The y value to check against the instance's y value
-/// @param		{index} instance			The instance whos positional coordinates are being checked
-function is_instance_at_coordinates(x_pos, y_pos, instance) {
-	return (is_existing_instance(instance) && (instance.x == x_pos && instance.y == y_pos))
+/// @function								is_instance_at_coordinates(_x_pos, _y_pos, _instance);
+/// @param		{real}  _x_pos				The x value to check against the instance's x value
+/// @param		{real}  _y_pos				The y value to check against the instance's y value
+/// @param		{index} _instance			The instance whos positional coordinates are being checked
+function is_instance_at_coordinates(_x_pos, _y_pos, _instance) {
+	return (is_existing_instance(_instance) && (_instance.x == _x_pos && _instance.y == _y_pos))
 }
 
-/// @function								is_direction_towards(dir, obj);
-/// @param		{direction} dir				The direction from the calling instance to check whether the given instance
+/// @function								is_direction_towards(_dir, obj);
+/// @param		{direction} _dir				The direction from the calling instance to check whether the given instance
 /// @param		{instance} obj				The object to check for the direction of
-function is_direction_towards(dir, inst) {
-	return ((y > inst.y && dir == directions.up) ||
-	        (x < inst.x && dir == directions.right) ||
-	        (y < inst.y && dir == directions.down) ||
-	        (x > inst.x && dir == directions.left));
+function is_direction_towards(_dir, _inst) {
+	return ((y > _inst.y && _dir == directions.up) ||
+	        (x < _inst.x && _dir == directions.right) ||
+	        (y < _inst.y && _dir == directions.down) ||
+	        (x > _inst.x && _dir == directions.left));
 }
 
 /// @function								turn_to_face_player();
 function turn_to_face_player() {
-	var target = get_dropped_meat();
-	if (!is_existing_instance(target)) { target = global.player; }
-	if (is_direction_towards(1, target)) { image_xscale = -1; }
+	var _target = get_dropped_meat();
+	if (!is_existing_instance(_target)) { _target = global.player; }
+	if (is_direction_towards(1, _target)) { image_xscale = -1; }
 	else { image_xscale = 1; }
 }
 
 /// @function  							teleport_near_player();
 function teleport_near_player() {
-	var target = get_dropped_meat(), attempts = 0;
-	if (!is_existing_instance(target)) { target = global.player; }
+	var _target = get_dropped_meat(), _attempts = 0;
+	if (!is_existing_instance(_target)) { _target = global.player; }
 	
 	play_sound(snd_flicker, false);
 
 	do {
-	    var x_pos = (8*get_random_carindal_dir());
-	    var y_pos = (8*get_random_carindal_dir());
-	    if (get_coin_flip()) { x_pos *= -1; }
-	    if (get_coin_flip()) { y_pos *= -1; }
-	    x = target.x + x_pos;
-	    y = target.y + y_pos;
-		attempts += 1;
+	    var _x_pos = (8*get_random_cardinal_dir());
+	    var _y_pos = (8*get_random_cardinal_dir());
+	    if (get_coin_flip()) { _x_pos *= -1; }
+	    if (get_coin_flip()) { _y_pos *= -1; }
+	    x = _target.x + _x_pos;
+	    y = _target.y + _y_pos;
+		_attempts += 1;
 	}
-	until (attempts > 100 || (get_distance_to_instance(target) >= 24 && !is_outside_room(x,y)));
+	until (_attempts > 100 || (get_distance_to_instance(_target) >= 24 && !is_outside_room(x,y)));
 }
 
 
-/// @function								can_move_in_direction(dir, ignore_solid);
-/// @param		{direction}	dir				The direction to check whether the calling instance can move in
-/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function can_move_in_direction(dir, ignore_solid, ignore_death) {
-	if (!ignore_solid && is_solid_at_position(x, y)) { return false; }
-	else { return (is_direction_free(dir, ignore_solid, ignore_death)); }
+/// @function								can_move_in_direction(_dir, _ignore_solid);
+/// @param		{direction}	_dir				The direction to check whether the calling instance can move in
+/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+function can_move_in_direction(_dir, _ignore_solid, _ignore_death) {
+	if (!_ignore_solid && is_solid_at_position(x, y)) { return false; }
+	else { return (is_direction_free(_dir, _ignore_solid, _ignore_death)); }
 }
 
-/// @function								is_solid_at_position(x_pos, y_pos);
-/// @param		{int} x_pos					The x coordinate of the position
-/// @param		{int} y_pos					The y coordinate of the position
-function is_solid_at_position(x_pos, y_pos) {
-	var solids = instance_place_all(x_pos, y_pos, obj_solid), carrying_special_staff = false;
-	if (object_index == obj_hands || object_index == obj_player) { carrying_special_staff = is_carrying_special_item(obj_staff); }
+/// @function								is_solid_at_position(_x_pos, _y_pos);
+/// @param		{int} _x_pos					The x coordinate of the position
+/// @param		{int} _y_pos					The y coordinate of the position
+function is_solid_at_position(_x_pos, _y_pos) {
+	var _solids = instance_place_all(_x_pos, _y_pos, obj_solid), _carrying_special_staff = false;
+	if (object_index == obj_hands || object_index == obj_player) { _carrying_special_staff = is_carrying_special_item(obj_staff); }
 	
-	for (var _i = 0; _i < array_length(solids); _i++) {
-		var current_solid = solids[_i];
-		if (current_solid != id && (!carrying_special_staff || (current_solid.object_index != obj_solid_part && current_solid.object_index != obj_wall && current_solid.object_index != obj_column && current_solid.object_index != obj_mirror))) { return true; }
+	for (var _i = 0; _i < array_length(_solids); _i++) {
+		var _current_solid = _solids[_i];
+		if (_current_solid != id && (!_carrying_special_staff || (_current_solid.object_index != obj_solid_part && _current_solid.object_index != obj_wall && _current_solid.object_index != obj_column && _current_solid.object_index != obj_mirror))) { return true; }
 	}
 	return false;
 }
 
-/// @function								is_lava_at_position(x_pos, y_pos);
-/// @param		{int} x_pos					The x coordinate of the position
-/// @param		{int} y_pos					The y coordinate of the position
-function is_lava_at_position(x_pos, y_pos) {
+/// @function								is_lava_at_position(_x_pos, _y_pos);
+/// @param		{int} _x_pos					The x coordinate of the position
+/// @param		{int} _y_pos					The y coordinate of the position
+function is_lava_at_position(_x_pos, _y_pos) {
 	if ((object_index == obj_hands || object_index == obj_player) && is_carrying_item(obj_staff)) { return false; }
 	
-	var lava_parts_at_position = instance_place_all(x_pos, y_pos, obj_lava_part);
-	while (array_length(lava_parts_at_position) > 0) {
-		var lava_part_creator = array_random_pop(lava_parts_at_position).creator;
-		if (!is_existing_instance(lava_part_creator) || lava_part_creator.id != id) { return true; }
+	var _lava_parts_at_position = instance_place_all(_x_pos, _y_pos, obj_lava_part);
+	while (array_length(_lava_parts_at_position) > 0) {
+		var _lava_part_creator = array_random_pop(_lava_parts_at_position).creator;
+		if (!is_existing_instance(_lava_part_creator) || _lava_part_creator.id != id) { return true; }
 	}
 	return false;
 }
 
-/// @function								is_direction_free(dir, ignore_solid);
-/// @param		{direction}	dir				The direction to check whether the calling instance can move in
-/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function is_direction_free(dir, ignore_solid, ignore_death) {
-	var x_pos = x, y_pos = y;
-	switch (dir) {
-		case directions.up: { y_pos -= 8; break; }
-		case directions.right: { x_pos += 8; break; }
-		case directions.down: { y_pos += 8; break; }
-		case directions.left: { x_pos -= 8; break; }
+/// @function								is_direction_free(_dir, _ignore_solid);
+/// @param		{direction}	_dir				The direction to check whether the calling instance can move in
+/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+function is_direction_free(_dir, _ignore_solid, _ignore_death) {
+	var _x_pos = x, _y_pos = y;
+	switch (_dir) {
+		case directions.up: { _y_pos -= 8; break; }
+		case directions.right: { _x_pos += 8; break; }
+		case directions.down: { _y_pos += 8; break; }
+		case directions.left: { _x_pos -= 8; break; }
 		default: { return false; }
 	}
 	
 	// Return as not free if blocked by room border
-	var blocked = is_on_room_border(x_pos, y_pos);
-	if (!object_is_ancestor(object_index, obj_enemy) || can_move_on_border) { blocked = false; }
-	if (blocked) { return false; }
+	var _blocked = is_on_room_border(_x_pos, _y_pos);
+	if (!object_is_ancestor(object_index, obj_enemy) || can_move_on_border) { _blocked = false; }
+	if (_blocked) { return false; }
 	
 	// Return as not free if blocked by room boundry
-	blocked = is_outside_room(x_pos, y_pos);
-	if (object_index == obj_player && !place_meeting(x, y, obj_solid)) { blocked = false; }
-	if (blocked) { return false; }
+	_blocked = is_outside_room(_x_pos, _y_pos);
+	if (object_index == obj_player && !place_meeting(x, y, obj_solid)) { _blocked = false; }
+	if (_blocked) { return false; }
 	
 	// Return as not free if blocked by lava
-	blocked = (!ignore_death && is_lava_at_position(x_pos, y_pos));
-	if (blocked) { return false; }
+	_blocked = (!_ignore_death && is_lava_at_position(_x_pos, _y_pos));
+	if (_blocked) { return false; }
 	
 	// Return as not free if blocked by solid
-	blocked = (!ignore_solid && is_solid_at_position(x_pos, y_pos));
-	if (blocked) { return false; }
+	_blocked = (!_ignore_solid && is_solid_at_position(_x_pos, _y_pos));
+	if (_blocked) { return false; }
 	
 	// return as free if not blocked by anything
 	return true;
 }
 
-/// @function								is_outside_room(x_pos, y_pos);
-/// @param		{int}	x_pos				The x position to check
-/// @param		{int}	y_pos				The y position to check
-function is_outside_room(x_pos, y_pos) {
-	return (x_pos <= 0 || x_pos >= room_width || y_pos <= 0 || y_pos >= room_height);
+/// @function								is_outside_room(_x_pos, _y_pos);
+/// @param		{int}	_x_pos				The x position to check
+/// @param		{int}	_y_pos				The y position to check
+function is_outside_room(_x_pos, _y_pos) {
+	return (_x_pos <= 0 || _x_pos >= room_width || _y_pos <= 0 || _y_pos >= room_height);
 }
 
-/// @function								is_on_room_border(x_pos, y_pos);
-/// @param		{int}	x_pos				The x position to check
-/// @param		{int}	y_pos				The y position to check
-function is_on_room_border(x_pos, y_pos) {
-	var target_exit_spots = instance_place_all(x_pos, y_pos, obj_exit_spot);
-	if (array_length(target_exit_spots) == 0) { return false; }
+/// @function								is_on_room_border(_x_pos, _y_pos);
+/// @param		{int}	_x_pos				The x position to check
+/// @param		{int}	_y_pos				The y position to check
+function is_on_room_border(_x_pos, _y_pos) {
+	var _target_exit_spots = instance_place_all(_x_pos, _y_pos, obj_exit_spot);
+	if (array_length(_target_exit_spots) == 0) { return false; }
 	
 	// Check if target pos is on a type of exit spot this isn't already on
-	var on_exit_spots = instance_place_all(x, y, obj_exit_spot), on_exit_types = [];
-	while (array_length(on_exit_spots) > 0) {
-		var next_exit_spot = array_pop(on_exit_spots);
-		array_push(on_exit_types, next_exit_spot.object_index);
+	var _on_exit_spots = instance_place_all(x, y, obj_exit_spot), _on_exit_types = [];
+	while (array_length(_on_exit_spots) > 0) {
+		var _next_exit_spot = array_pop(_on_exit_spots);
+		array_push(_on_exit_types, _next_exit_spot.object_index);
 	}
-	var on_border = false;
-		while (array_length(target_exit_spots) > 0) {
-		var next_exit_spot = array_pop(target_exit_spots);
-		if (!array_contains(on_exit_types, next_exit_spot.object_index)) { on_border = true; break; }
+	var _on_border = false;
+		while (array_length(_target_exit_spots) > 0) {
+		var _next_exit_spot = array_pop(_target_exit_spots);
+		if (!array_contains(_on_exit_types, _next_exit_spot.object_index)) { _on_border = true; break; }
 	}
 
-	return (on_border);
+	return (_on_border);
 }
 
 
-/// @function								can_move_in_direction_and_reach(dir, ignore_solid);
-/// @param		{direction}	dir				The direction to check whether the calling instance can move in
-/// @param		{index}	target_instance		The instance we are trying to reach by moving in this direction
-/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function can_move_in_direction_and_reach(dir, target_instance, ignore_solid, ignore_death) {
-	if (!activated || !is_existing_instance(target_instance)) { return false; }
+/// @function								can_move_in_direction_and_reach(_dir, _ignore_solid);
+/// @param		{direction}	_dir				The direction to check whether the calling instance can move in
+/// @param		{index}	_target_instance		The instance we are trying to reach by moving in this direction
+/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+function can_move_in_direction_and_reach(_dir, _target_instance, _ignore_solid, _ignore_death) {
+	if (!activated || !is_existing_instance(_target_instance)) { return false; }
 	
 	// Determine Move Directions
-	var x_change = 0, y_change = 0;
-	if (dir == directions.up) { y_change -= 8; } 
-	else if (dir == directions.right) { x_change += 8; }
-	else if (dir == directions.down) { y_change += 8; }
-	else if (dir == directions.left) { x_change -= 8; }
+	var _x_change = 0, _y_change = 0;
+	if (_dir == directions.up) { _y_change -= 8; } 
+	else if (_dir == directions.right) { _x_change += 8; }
+	else if (_dir == directions.down) { _y_change += 8; }
+	else if (_dir == directions.left) { _x_change -= 8; }
 
 	// Try Reaching Target in This Direction
-    var original_x = x, original_y = y, reached = false;
-    var max_steps = room_width div 8;   // can never need more than one room's width
+    var _original_x = x, _original_y = y, _reached = false;
+    var _max_steps = room_width div 8;   // can never need more than one room's width
 
-    for (var step = 0; step < max_steps; step++) {
-        if (!can_move_in_direction(dir, ignore_solid, ignore_death)) { break; }
-        x += x_change;
-        y += y_change;
-        if (is_instance_at_coordinates(x, y, target_instance)) { reached = true; break; }
+    for (var _step = 0; _step < _max_steps; _step++) {
+        if (!can_move_in_direction(_dir, _ignore_solid, _ignore_death)) { break; }
+        x += _x_change;
+        y += _y_change;
+        if (is_instance_at_coordinates(x, y, _target_instance)) { _reached = true; break; }
     }
 
-    x = original_x;
-    y = original_y;
-    return reached;
+    x = _original_x;
+    y = _original_y;
+    return _reached;
 }
 
 
-/// @function								move_in_direction(dir);
-/// @param		{direction} dir				The direction in which to move the calling instance
-/// @param		{boolean} make_noise		Whether or not to play a movement sound
-function move_in_direction(dir, make_noise) {
+/// @function								move_in_direction(_dir);
+/// @param		{direction} _dir				The direction in which to move the calling instance
+/// @param		{boolean} _make_noise		Whether or not to play a movement sound
+function move_in_direction(_dir, _make_noise) {
 	// Update position
-	if (dir == directions.up) { y -= 8; } 
-	else if (dir == directions.right) { x += 8; image_xscale = -1; }
-	else if (dir == directions.down) { y += 8; }
-	else if (dir == directions.left) { x -= 8; image_xscale = 1; }
+	if (_dir == directions.up) { y -= 8; } 
+	else if (_dir == directions.right) { x += 8; image_xscale = -1; }
+	else if (_dir == directions.down) { y += 8; }
+	else if (_dir == directions.left) { x -= 8; image_xscale = 1; }
 	
 	// Update image
 	image_index += 1;
@@ -204,32 +204,32 @@ function move_in_direction(dir, make_noise) {
 	
 	if (object_is_ancestor(object_index, obj_enemy)) { 
 		check_for_player_collision();
-		if (floating && object_index != obj_hands) { make_noise = false; }
+		if (floating && object_index != obj_hands) { _make_noise = false; }
 	}
 	
 	// Make movement noises
-	if (make_noise) {
-		var snd = snd_walk;
-		if (instance_place(x, y, obj_solid)) { snd = snd_thud; play_sound(snd, false); }
+	if (_make_noise) {
+		var _snd = snd_walk;
+		if (instance_place(x, y, obj_solid)) { _snd = snd_thud; play_sound(_snd, false); }
 		if (instance_place(x, y, obj_lava_part)) { 
-			snd = snd_splash; 
-			if (y > instance_place(x, y, obj_lava_part).y && !instance_place(x, y+8, obj_lava_part)) { snd = snd_walk; }
-			play_sound(snd, false);
+			_snd = snd_splash; 
+			if (y > instance_place(x, y, obj_lava_part).y && !instance_place(x, y+8, obj_lava_part)) { _snd = snd_walk; }
+			play_sound(_snd, false);
 		}
-		if (instance_place(x, y, obj_illusion_wall)) { snd = snd_flicker; play_sound(snd, false); }
-		if (snd == snd_walk) { play_sound(snd, false); }
+		if (instance_place(x, y, obj_illusion_wall)) { _snd = snd_flicker; play_sound(_snd, false); }
+		if (_snd == snd_walk) { play_sound(_snd, false); }
 	}
 	
 	// Update mp_grids
-	var is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body)), current_room = global.controller.current_room;
-	if (is_solid) { mark_current_room_for_grid_update(); }
+	var _is_solid = (object_is_ancestor(object_index, obj_solid) || object_is_ancestor(object_index, obj_giant_worm_body));
+	if (_is_solid) { mark_current_room_for_grid_update(); }
 }
 
 
-/// @function								set_instance_to_same_position(instance);
-/// @param		{index} instance			The instance to set to the same position as the calling instance
-function set_instance_to_same_position(instance) {
-	with instance { 
+/// @function								set_instance_to_same_position(_instance);
+/// @param		{index} _instance			The instance to set to the same position as the calling instance
+function set_instance_to_same_position(_instance) {
+	with _instance { 
 	    x = other.x; 
 	    y = other.y;
 	}
@@ -237,111 +237,111 @@ function set_instance_to_same_position(instance) {
 
 /// @function								get_direction_pushed_against();
 function get_direction_pushed_against() {
-	var dir = directions.none, player = global.player, x_pos = player.x, y_pos = player.y;
+	var _dir = directions.none, _player = global.player, _x_pos = _player.x, _y_pos = _player.y;
 	
-	if (is_existing_instance(player.moved_by)) { 
+	if (is_existing_instance(_player.moved_by)) { 
 		return directions.none; 
 	}
 	
-	dir = get_direction_input(true);
-	if (dir == directions.none) { return dir; }
+	_dir = get_direction_input(true);
+	if (_dir == directions.none) { return _dir; }
 	
-	switch (dir) {
-		case directions.up: { y_pos -= 16; break; }
-		case directions.right: { x_pos += 16; break; }
-		case directions.down: { y_pos += 16; break; }
-		case directions.left: { x_pos -= 16; break; }
+	switch (_dir) {
+		case directions.up: { _y_pos -= 16; break; }
+		case directions.right: { _x_pos += 16; break; }
+		case directions.down: { _y_pos += 16; break; }
+		case directions.left: { _x_pos -= 16; break; }
 	}
 	
-	if (!is_instance_at_coordinates(x_pos, y_pos, id)) { 
-		dir = directions.none; 
+	if (!is_instance_at_coordinates(_x_pos, _y_pos, id)) { 
+		_dir = directions.none; 
 	}
 	
-	return dir;
+	return _dir;
 }
 
 /// @function								rotate_sprite_to_random_angle();
 function rotate_sprite_to_random_angle() {
-	image_angle = get_random_carindal_dir() * 90;
+	image_angle = get_random_cardinal_dir() * 90;
 }
 
-/// @function								flip_sprite_at_random(flip_vertical);
-/// @param		{boolean} flip_vertical		Whether or not to also randomly flip the sprite vertically
-function flip_sprite_at_random(flip_vertical) {
+/// @function								flip_sprite_at_random(_flip_vertical);
+/// @param		{boolean} _flip_vertical		Whether or not to also randomly flip the sprite vertically
+function flip_sprite_at_random(_flip_vertical) {
 	image_xscale = get_coin_flip() ? 1 : -1;
-	if (flip_vertical) { image_yscale = (get_coin_flip()) ? 1 : -1; }
+	if (_flip_vertical) { image_yscale = (get_coin_flip()) ? 1 : -1; }
 }
 
-/// @function								get_instance_at_each_quadrant(obj_index);
-///	@param		{index} obj_index			The object type to return the presence of in each quadrant
-function get_instance_at_each_quadrant(obj_index) {
-	var presence_at_quadrant = [noone, noone, noone, noone];
+/// @function								get_instance_at_each_quadrant(_obj_index);
+///	@param		{index} _obj_index			The object type to return the presence of in each quadrant
+function get_instance_at_each_quadrant(_obj_index) {
+	var _presence_at_quadrant = [noone, noone, noone, noone];
 	
-	for (var quadrant = 0; quadrant < 4; quadrant++;) {
-        var x_pos = get_quadrant_x_pos(quadrant), y_pos = get_quadrant_y_pos(quadrant);
-		presence_at_quadrant[quadrant] = instance_position(x_pos, y_pos, obj_index);
+	for (var _quadrant = 0; _quadrant < 4; _quadrant++;) {
+        var _x_pos = get_quadrant_x_pos(_quadrant), _y_pos = get_quadrant_y_pos(_quadrant);
+		_presence_at_quadrant[_quadrant] = instance_position(_x_pos, _y_pos, _obj_index);
     }
 	
-	return presence_at_quadrant;
+	return _presence_at_quadrant;
 }
 
-/// @function								is_covered_at_each_quadrant_by(obj_index);
-///	@param		{index} obj_index			The object type to check the presence of in each quadrant
-function is_covered_at_each_quadrant_by(obj_index) {
+/// @function								is_covered_at_each_quadrant_by(_obj_index);
+///	@param		{index} _obj_index			The object type to check the presence of in each quadrant
+function is_covered_at_each_quadrant_by(_obj_index) {
 	// Checking for lava is a special case, because the full lava object stays and blacks out
 	// certain quadrants with individual quadrant death boxes due to the way blocks can destroy
 	// multiple different lava's quadrants at once. Thus we need to use a special method that
 	// Takes that into account.
-	var presence_at_quadrant = (obj_index == obj_lava) ? get_instance_at_each_quadrant(obj_lava_part) : get_instance_at_each_quadrant(obj_index);
+	var _presence_at_quadrant = (_obj_index == obj_lava) ? get_instance_at_each_quadrant(obj_lava_part) : get_instance_at_each_quadrant(_obj_index);
 	
 	return (
-		is_existing_instance(presence_at_quadrant[0]) &&
-		is_existing_instance(presence_at_quadrant[1]) &&
-		is_existing_instance(presence_at_quadrant[2]) &&
-		is_existing_instance(presence_at_quadrant[3])
+		is_existing_instance(_presence_at_quadrant[0]) &&
+		is_existing_instance(_presence_at_quadrant[1]) &&
+		is_existing_instance(_presence_at_quadrant[2]) &&
+		is_existing_instance(_presence_at_quadrant[3])
 	);
 }
 
-/// @function								move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death);
-///	@param		{int} target_x				The x position to be moving towards
-///	@param		{int} target_y				The y position to be moving towards
-/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function move_towards_coordinates(target_x, target_y, ignore_solid, ignore_death) {	
-	var move_dir = get_random_possible_direction(target_x, target_y, ignore_solid, ignore_death);
-	if (move_dir != directions.none) { move_in_direction(move_dir, true); }
+/// @function								move_towards_coordinates(_target_x, _target_y, _ignore_solid, _ignore_death);
+///	@param		{int} _target_x				The x position to be moving towards
+///	@param		{int} _target_y				The y position to be moving towards
+/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+function move_towards_coordinates(_target_x, _target_y, _ignore_solid, _ignore_death) {	
+	var _move_dir = get_random_possible_direction(_target_x, _target_y, _ignore_solid, _ignore_death);
+	if (_move_dir != directions.none) { move_in_direction(_move_dir, true); }
 	
-	return move_dir;
+	return _move_dir;
 }
 
 /// @function								get_random_possible_direction(obj_index);
-///	@param		{int} target_x				The x position to be moving towards
-///	@param		{int} target_y				The y position to be moving towards
-/// @param		{boolean} ignore_solid		Whether to ignore solid objects or not when performing this check
-/// @param		{boolean} ignore_death		Whether to ignore objects that cause death or not when performing this check
-function get_random_possible_direction(target_x, target_y, ignore_solid, ignore_death) {
+///	@param		{int} _target_x				The x position to be moving towards
+///	@param		{int} _target_y				The y position to be moving towards
+/// @param		{boolean} _ignore_solid		Whether to ignore solid objects or not when performing this check
+/// @param		{boolean} _ignore_death		Whether to ignore objects that cause death or not when performing this check
+function get_random_possible_direction(_target_x, _target_y, _ignore_solid, _ignore_death) {
 	// Determine which directions are free to move in
-	var can_move_up = can_move_in_direction(directions.up, ignore_solid, ignore_death);
-	var can_move_right = can_move_in_direction(directions.right, ignore_solid, ignore_death);
-	var can_move_left = can_move_in_direction(directions.left, ignore_solid, ignore_death);
-	var can_move_down = can_move_in_direction(directions.down, ignore_solid, ignore_death);
+	var _can_move_up = can_move_in_direction(directions.up, _ignore_solid, _ignore_death);
+	var _can_move_right = can_move_in_direction(directions.right, _ignore_solid, _ignore_death);
+	var _can_move_left = can_move_in_direction(directions.left, _ignore_solid, _ignore_death);
+	var _can_move_down = can_move_in_direction(directions.down, _ignore_solid, _ignore_death);
 	
 	// Determine which directions one should move in to get closer to target
-	var possible_directions = [];
-	if (y > target_y && can_move_up) { array_push(possible_directions, directions.up); }
-	if (x < target_x && can_move_right) { array_push(possible_directions, directions.right); }
-	if (y < target_y && can_move_down) { array_push(possible_directions, directions.down); }
-	if (x > target_x && can_move_left) { array_push(possible_directions, directions.left); }
+	var _possible_directions = [];
+	if (y > _target_y && _can_move_up) { array_push(_possible_directions, directions.up); }
+	if (x < _target_x && _can_move_right) { array_push(_possible_directions, directions.right); }
+	if (y < _target_y && _can_move_down) { array_push(_possible_directions, directions.down); }
+	if (x > _target_x && _can_move_left) { array_push(_possible_directions, directions.left); }
 	
 	// Return a random direction from among those possible
-	var move_dir = array_length(possible_directions) > 0 ? array_random_get(possible_directions) : directions.none;
-	return move_dir;
+	var _move_dir = array_length(_possible_directions) > 0 ? array_random_get(_possible_directions) : directions.none;
+	return _move_dir;
 }
 
-/// @function								randomize_image(max_image_index);
-///	@param		{int} max_image_index		The max image_index value possible for this object's sprite
-function randomize_image(max_image_index) {
-	image_index = irandom(max_image_index);
+/// @function								randomize_image(_max_image_index);
+///	@param		{int} _max_image_index		The max image_index value possible for this object's sprite
+function randomize_image(_max_image_index) {
+	image_index = irandom(_max_image_index);
 	flip_sprite_at_random(true);
 	rotate_sprite_to_random_angle();
 }
@@ -353,61 +353,61 @@ function singleton_instance() {
 
 /// @function								can_press_button();
 function can_press_button() {	
-	var pressed = is_covered_at_each_quadrant_by(obj_solid) || is_instance_at_coordinates(x, y, global.player);
-	if (!pressed) { 
-		var enemies_at_position = instance_place_all(x, y, obj_enemy);
-		while (array_length(enemies_at_position) > 0) {
-			var enemy = array_random_pop(enemies_at_position);
-			if (!enemy.floating && is_instance_at_coordinates(x, y, enemy)) { pressed = true; break; }
+	var _pressed = is_covered_at_each_quadrant_by(obj_solid) || is_instance_at_coordinates(x, y, global.player);
+	if (!_pressed) { 
+		var _enemies_at_position = instance_place_all(x, y, obj_enemy);
+		while (array_length(_enemies_at_position) > 0) {
+			var _enemy = array_random_pop(_enemies_at_position);
+			if (!_enemy.floating && is_instance_at_coordinates(x, y, _enemy)) { _pressed = true; break; }
 		}
 	}
 	
-	return pressed;
+	return _pressed;
 }
 
-/// @function              get_sprite_shuffle_flip(spr);
+/// @function              get_sprite_shuffle_flip(_spr);
 /// @description           Deterministic per-sprite coin flip, stable across resource reordering.
-function get_sprite_shuffle_flip(spr) {
+function get_sprite_shuffle_flip(_spr) {
     static cache = ds_map_create();
-    if (ds_map_exists(cache, spr)) { return cache[? spr]; }
+    if (ds_map_exists(cache, _spr)) { return cache[? _spr]; }
 
-    var nm = sprite_get_name(spr), hash = 0;
-	for (var i = 1; i <= string_length(nm); i++) {
-	    hash = (hash * 31 + ord(string_char_at(nm, i))) & 0x7FFFFFFF;
+    var _nm = sprite_get_name(_spr), _hash = 0;
+	for (var _i = 1; _i <= string_length(_nm); _i++) {
+	    _hash = (_hash * 31 + ord(string_char_at(_nm, _i))) & 0x7FFFFFFF;
 	}
 
-    var result = (((global.seed + hash) % 2) == 0);
-    cache[? spr] = result;
-    return result;
+    var _result = (((global.seed + _hash) % 2) == 0);
+    cache[? _spr] = _result;
+    return _result;
 }
 
 /// @function								get_sprite_to_use();
-function get_sprite_to_use(regular_sprite, for_menu = false) {
-	if (global.graphics_mode == graphics_modes.standard) { return regular_sprite; }
+function get_sprite_to_use(_regular_sprite, _for_menu = false) {
+	if (global.graphics_mode == graphics_modes.standard) { return _regular_sprite; }
 	if (global.graphics_mode == graphics_modes.unknown) {
-		if (for_menu) { return regular_sprite; } 
-		var chosen_sprite = noone;
+		if (_for_menu) { return _regular_sprite; } 
+		var _chosen_sprite = noone;
 		
 		// Randomize Item Sprite
-		if (array_contains(global.item_sprites, regular_sprite)) {
-			var original_pos = array_get_index(global.item_sprites, regular_sprite);
-			chosen_sprite = global.shuffled_item_sprites[original_pos];
+		if (array_contains(global.item_sprites, _regular_sprite)) {
+			var _original_pos = array_get_index(global.item_sprites, _regular_sprite);
+			_chosen_sprite = global.shuffled_item_sprites[_original_pos];
 		}
 		
 		// Randomize Regular Enemy Sprite
-		else if (array_contains(global.regular_enemy_sprites, regular_sprite)) {
-			var original_pos = array_get_index(global.regular_enemy_sprites, regular_sprite);
-			chosen_sprite = global.shuffled_regular_enemy_sprites[original_pos];
+		else if (array_contains(global.regular_enemy_sprites, _regular_sprite)) {
+			var _original_pos = array_get_index(global.regular_enemy_sprites, _regular_sprite);
+			_chosen_sprite = global.shuffled_regular_enemy_sprites[_original_pos];
 		}
 		
 		// Randomize Rotational Enemy Sprites
-		else if (array_contains(global.rotational_enemy_sprites, regular_sprite)) {
-			var original_pos = array_get_index(global.rotational_enemy_sprites, regular_sprite);
-			chosen_sprite = global.shuffled_rotational_enemy_sprites[original_pos];
+		else if (array_contains(global.rotational_enemy_sprites, _regular_sprite)) {
+			var _original_pos = array_get_index(global.rotational_enemy_sprites, _regular_sprite);
+			_chosen_sprite = global.shuffled_rotational_enemy_sprites[_original_pos];
 		}
 		
-		if (chosen_sprite != noone) { return chosen_sprite; }
-		else if (get_sprite_shuffle_flip(regular_sprite)) { return regular_sprite; }
+		if (_chosen_sprite != noone) { return _chosen_sprite; }
+		else if (get_sprite_shuffle_flip(_regular_sprite)) { return _regular_sprite; }
 	}
 	
 	// Get Farmer Version of Regular Sprite
@@ -455,28 +455,28 @@ function get_sprite_to_use(regular_sprite, for_menu = false) {
 		ds_map_add(farmer_sprite_translation_map, spr_clock, spr_clock_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_clock_sand, spr_clock_sand_farmer);
 	}
-	if (ds_map_exists(farmer_sprite_translation_map, regular_sprite)) { return farmer_sprite_translation_map[? regular_sprite]; }
-	return regular_sprite;
+	if (ds_map_exists(farmer_sprite_translation_map, _regular_sprite)) { return farmer_sprite_translation_map[? _regular_sprite]; }
+	return _regular_sprite;
 }
 
-/// @function								get_room_map_position(inst);
-/// @param		{id} inst					The instance id to return a room map position for
-function get_room_map_position(inst) {
+/// @function								get_room_map_position(_inst);
+/// @param		{id} _inst					The instance id to return a room map position for
+function get_room_map_position(_inst) {
 	// Set up room map positions
-	var x_pos = 1, y_pos = 1;
-	if (inst.y < room_height/2-16) { y_pos = 0; }
-	else if (inst.y > room_height/2+16) { y_pos = 2; }
-	if (inst.x < room_width/2-16) { x_pos = 0; }
-	else if (inst.x > room_width/2+16) { x_pos = 2; }
+	var _x_pos = 1, _y_pos = 1;
+	if (_inst.y < room_height/2-16) { _y_pos = 0; }
+	else if (_inst.y > room_height/2+16) { _y_pos = 2; }
+	if (_inst.x < room_width/2-16) { _x_pos = 0; }
+	else if (_inst.x > room_width/2+16) { _x_pos = 2; }
 	
-	return [x_pos, y_pos]
+	return [_x_pos, _y_pos]
 }
 
-/// @function								flicker_sprite_under_instance(inst);
-/// @param		{id} inst					The instance id to check for a collision with
-function flicker_sprite_under_instance(inst) {
-	var blink_frame = is_blink_frame();
-	if (!blink_frame || !instance_place(x, y, inst)) { return false; }
+/// @function								flicker_sprite_under_instance(_inst);
+/// @param		{id} _inst					The instance id to check for a collision with
+function flicker_sprite_under_instance(_inst) {
+	var _blink_frame = is_blink_frame();
+	if (!_blink_frame || !instance_place(x, y, _inst)) { return false; }
 	
 	if (object_index == obj_lava_part) { part_visible = false; }
 	else if (object_index == obj_solid_part) { part_visible = false; }
@@ -488,105 +488,105 @@ function flicker_sprite_under_instance(inst) {
 
 /// @function								draw_reflection_in_mirrors();
 function draw_reflection_in_mirrors() {
-	var valid_obj = (
+	var _valid_obj = (
 		object_index == obj_player || 
 		object_index == obj_collectable ||
 		object_is_ancestor(object_index, obj_enemy) || 
 		object_is_ancestor(object_index, obj_item)
 	);
 		
-	if (valid_obj && !object_is_ancestor(object_index, obj_solid) && instance_number(obj_mirror) > 0 && !instance_place(x, y, obj_mirror)) {
-		var potential_mirrors = ds_list_create();
-		for (var i = directions.up; i < 8; i++) {
-			var reflect_carried_item = false;
+	if (_valid_obj && !object_is_ancestor(object_index, obj_solid) && instance_number(obj_mirror) > 0 && !instance_place(x, y, obj_mirror)) {
+		var _potential_mirrors = ds_list_create();
+		for (var _i = directions.up; _i < 8; _i++) {
+			var _reflect_carried_item = false;
 			if (object_is_ancestor(object_index, obj_item) && is_existing_instance(holder) && (holder.object_index != obj_hands || holder.activated)) {
-				reflect_carried_item = true;
+				_reflect_carried_item = true;
 			}
-			var carried_x_offset = (image_xscale * -8), carried_y_offset = (reflect_carried_item) ? draw_y_offset : 0,
-			var x_to_use = (reflect_carried_item) ? x+carried_x_offset : x, y_to_use = y;
-			var x_pos = x_to_use, y_pos = y_to_use, x_pos_offset = 0, y_pos_offset = 0;
-			switch (i) {
-				case 0: { x_pos = 0; y_pos_offset -= abs(sprite_height/4); break; }
-				case 1: { x_pos = 0; y_pos_offset += abs(sprite_height/4); break; }
-				case 2: { y_pos = 0; x_pos_offset -= abs(sprite_width/4); break; }
-				case 3: { y_pos = 0; x_pos_offset += abs(sprite_width/4); break; }
-				case 4: { x_pos = room_width; y_pos_offset -= abs(sprite_height/4); break; }
-				case 5: { x_pos = room_width; y_pos_offset += abs(sprite_height/4); break; }
-				case 6: { y_pos = room_height; x_pos_offset -= abs(sprite_width/4); break; }
-				case 7: { y_pos = room_height; x_pos_offset += abs(sprite_width/4); break; }
+			var _carried_x_offset = (image_xscale * -8), _carried_y_offset = (_reflect_carried_item) ? draw_y_offset : 0;
+			var _x_to_use = (_reflect_carried_item) ? x+_carried_x_offset : x, _y_to_use = y;
+			var _x_pos = _x_to_use, _y_pos = _y_to_use, _x_pos_offset = 0, _y_pos_offset = 0;
+			switch (_i) {
+				case 0: { _x_pos = 0; _y_pos_offset -= abs(sprite_height/4); break; }
+				case 1: { _x_pos = 0; _y_pos_offset += abs(sprite_height/4); break; }
+				case 2: { _y_pos = 0; _x_pos_offset -= abs(sprite_width/4); break; }
+				case 3: { _y_pos = 0; _x_pos_offset += abs(sprite_width/4); break; }
+				case 4: { _x_pos = room_width; _y_pos_offset -= abs(sprite_height/4); break; }
+				case 5: { _x_pos = room_width; _y_pos_offset += abs(sprite_height/4); break; }
+				case 6: { _y_pos = room_height; _x_pos_offset -= abs(sprite_width/4); break; }
+				case 7: { _y_pos = room_height; _x_pos_offset += abs(sprite_width/4); break; }
 			}
-			var closest_solids = [];
+			var _closest_solids = [];
 
 			// Get closest mirrors
-			ds_list_clear(potential_mirrors);
-			var num_of_objects = collision_rectangle_list(x_to_use+x_pos_offset-1, y_to_use+y_pos_offset-1, x_pos+x_pos_offset+1, y_pos+y_pos_offset+1, obj_solid, false, true, potential_mirrors, true);
-			var minimum_distance_to_obj = 999;
-			for (var j = 0; j < num_of_objects; j++) {
-				var current_object = ds_list_find_value(potential_mirrors, j);
-				if (!is_existing_instance(current_object)) { continue; }
+			ds_list_clear(_potential_mirrors);
+			var _num_of_objects = collision_rectangle_list(_x_to_use+_x_pos_offset-1, _y_to_use+_y_pos_offset-1, _x_pos+_x_pos_offset+1, _y_pos+_y_pos_offset+1, obj_solid, false, true, _potential_mirrors, true);
+			var _minimum_distance_to_obj = 999;
+			for (var _j = 0; _j < _num_of_objects; _j++) {
+				var _current_object = ds_list_find_value(_potential_mirrors, _j);
+				if (!is_existing_instance(_current_object)) { continue; }
 				
-				var distance_to_obj = point_distance(x_to_use, y_to_use, current_object.x, current_object.y)
-				if (distance_to_obj < minimum_distance_to_obj) { closest_solids = []; }
-				if (distance_to_obj <= minimum_distance_to_obj) { 
-					minimum_distance_to_obj = distance_to_obj;
-					array_push(closest_solids, current_object);
+				var _distance_to_obj = point_distance(_x_to_use, _y_to_use, _current_object.x, _current_object.y)
+				if (_distance_to_obj < _minimum_distance_to_obj) { _closest_solids = []; }
+				if (_distance_to_obj <= _minimum_distance_to_obj) { 
+					_minimum_distance_to_obj = _distance_to_obj;
+					array_push(_closest_solids, _current_object);
 				}
 			}
 			
 			// Create reflections for closest mirrors
-			for (var j = 0; j < array_length(closest_solids); j++) {
-				var closest_solid = closest_solids[j], flipped_x_scale = image_xscale;
-				if (!is_existing_instance(closest_solid) || closest_solid.object_index != obj_mirror) { break; }
+			for (var _j = 0; _j < array_length(_closest_solids); _j++) {
+				var _closest_solid = _closest_solids[_j], _flipped_x_scale = image_xscale;
+				if (!is_existing_instance(_closest_solid) || _closest_solid.object_index != obj_mirror) { break; }
 
-				var x_offset = 0, y_offset = 0, refl_width = abs(sprite_width), refl_height = abs(sprite_height);
-				var x_pos = closest_solid.x-(flipped_x_scale*abs(sprite_width))/2, y_pos = closest_solid.y-(image_yscale*abs(sprite_height))/2, x_dif = closest_solid.x-x_to_use, y_dif = closest_solid.y-y;
-				var refl_blend = (colour_get_value(closest_solid.image_blend) < colour_get_value(image_blend)) ? closest_solid.image_blend : image_blend;
+				var _x_offset = 0, _y_offset = 0, _refl_width = abs(sprite_width), _refl_height = abs(sprite_height);
+				var _x_pos = _closest_solid.x-(_flipped_x_scale*abs(sprite_width))/2, _y_pos = _closest_solid.y-(image_yscale*abs(sprite_height))/2, _x_dif = _closest_solid.x-_x_to_use, _y_dif = _closest_solid.y-y;
+				var _refl_blend = (colour_get_value(_closest_solid.image_blend) < colour_get_value(image_blend)) ? _closest_solid.image_blend : image_blend;
 
-				if (abs(y_dif) < abs(closest_solid.sprite_height) && y_to_use < closest_solid.y) { refl_height /= 2; y_offset += refl_height; y_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
-				else if (abs(y_dif) < abs(closest_solid.sprite_height) && y_to_use > closest_solid.y) { refl_height /= 2; y_pos += abs(closest_solid.sprite_height/2); }
-				else if (abs(x_dif) < abs(closest_solid.sprite_width) && x_to_use < closest_solid.x) { 
-					if (flipped_x_scale == 1) { refl_width /= 2; x_offset += refl_width; x_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
-					else { refl_width /= 2; x_pos -= abs(closest_solid.sprite_width/2); }
+				if (abs(_y_dif) < abs(_closest_solid.sprite_height) && _y_to_use < _closest_solid.y) { _refl_height /= 2; _y_offset += _refl_height; _y_pos += (abs(sprite_width)-abs(_closest_solid.sprite_width))/2; }
+				else if (abs(_y_dif) < abs(_closest_solid.sprite_height) && _y_to_use > _closest_solid.y) { _refl_height /= 2; _y_pos += abs(_closest_solid.sprite_height/2); }
+				else if (abs(_x_dif) < abs(_closest_solid.sprite_width) && _x_to_use < _closest_solid.x) { 
+					if (_flipped_x_scale == 1) { _refl_width /= 2; _x_offset += _refl_width; _x_pos += (abs(sprite_width)-abs(_closest_solid.sprite_width))/2; }
+					else { _refl_width /= 2; _x_pos -= abs(_closest_solid.sprite_width/2); }
 				}
-				else if (abs(x_dif) < abs(closest_solid.sprite_width) && x_to_use > closest_solid.x) {
-					if (flipped_x_scale == -1) { refl_width /= 2; x_offset += refl_width; x_pos += (abs(sprite_width)-abs(closest_solid.sprite_width))/2; }
-					else { refl_width /= 2; x_pos += abs(closest_solid.sprite_width/2); }
+				else if (abs(_x_dif) < abs(_closest_solid.sprite_width) && _x_to_use > _closest_solid.x) {
+					if (_flipped_x_scale == -1) { _refl_width /= 2; _x_offset += _refl_width; _x_pos += (abs(sprite_width)-abs(_closest_solid.sprite_width))/2; }
+					else { _refl_width /= 2; _x_pos += abs(_closest_solid.sprite_width/2); }
 				}
 				
 				// Draw Reflection
-				if (reflect_carried_item) {
-					var carried_item_x_offset = flipped_x_scale * 8;
-					refl_height += carried_y_offset;
-					y_offset -= carried_y_offset
-					y_pos -= carried_y_offset;
-					if (abs(y_dif) >= abs(closest_solid.sprite_height)) {
-						x_pos += carried_item_x_offset
+				if (_reflect_carried_item) {
+					var _carried_item_x_offset = _flipped_x_scale * 8;
+					_refl_height += _carried_y_offset;
+					_y_offset -= _carried_y_offset
+					_y_pos -= _carried_y_offset;
+					if (abs(_y_dif) >= abs(_closest_solid.sprite_height)) {
+						_x_pos += _carried_item_x_offset
 					}
 					else {
-						refl_width = abs(sprite_width/2)
-						x_offset = refl_width;
-						x_pos = closest_solid.x;
-						if (y != closest_solid.y) {
-							refl_height = abs((y-abs(sprite_height/2)-carried_y_offset) - (closest_solid.y-abs(closest_solid.sprite_height/2)));
-							y_offset = 0;
-							y_pos = (y > closest_solid.y) ? closest_solid.y-carried_y_offset+abs(closest_solid.sprite_height/2)-refl_height : closest_solid.y-carried_y_offset-abs(closest_solid.sprite_height/2);
+						_refl_width = abs(sprite_width/2)
+						_x_offset = _refl_width;
+						_x_pos = _closest_solid.x;
+						if (y != _closest_solid.y) {
+							_refl_height = abs((y-abs(sprite_height/2)-_carried_y_offset) - (_closest_solid.y-abs(_closest_solid.sprite_height/2)));
+							_y_offset = 0;
+							_y_pos = (y > _closest_solid.y) ? _closest_solid.y-_carried_y_offset+abs(_closest_solid.sprite_height/2)-_refl_height : _closest_solid.y-_carried_y_offset-abs(_closest_solid.sprite_height/2);
 						}
 						else {
 						}
 					}
 					
-					draw_while_carried(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend, false);
+					draw_while_carried(_x_pos, _y_pos, _x_offset, _y_offset, _refl_width, _refl_height, _flipped_x_scale, _refl_blend, false);
 				}
 				else {
-					draw_sprite_part_ext(sprite_index, image_index, x_offset, y_offset, refl_width, refl_height, x_pos, y_pos, flipped_x_scale, image_yscale, refl_blend, image_alpha);
+					draw_sprite_part_ext(sprite_index, image_index, _x_offset, _y_offset, _refl_width, _refl_height, _x_pos, _y_pos, _flipped_x_scale, image_yscale, _refl_blend, image_alpha);
 					if (object_index == obj_player || object_index == obj_echo) {
-						draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
-						draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
-						draw_player_hat(x_pos, y_pos, x_offset, y_offset, refl_width, refl_height, flipped_x_scale, refl_blend);
+						draw_player_left_hand(_x_pos, _y_pos, _x_offset, _y_offset, _refl_width, _refl_height, _flipped_x_scale, _refl_blend);
+						draw_player_right_hand(_x_pos, _y_pos, _x_offset, _y_offset, _refl_width, _refl_height, _flipped_x_scale, _refl_blend);
+						draw_player_hat(_x_pos, _y_pos, _x_offset, _y_offset, _refl_width, _refl_height, _flipped_x_scale, _refl_blend);
 					}
 				}
 			}
 		}
-		ds_list_destroy(potential_mirrors);
+		ds_list_destroy(_potential_mirrors);
 	}
 }

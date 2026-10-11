@@ -1,14 +1,14 @@
-/// @function								move_player(dir);
-/// @param		{direction} dir				The direction to move the player instance
-function move_player(dir) {
-	var player = global.player, game_manager = global.game_manager;
-	if (dir == directions.none) { return; }
+/// @function								move_player(_dir);
+/// @param		{direction} _dir				The direction to move the player instance
+function move_player(_dir) {
+	var _player = global.player, _game_manager = global.game_manager;
+	if (_dir == directions.none) { return; }
 	
-	with (player) {
+	with (_player) {
 		// Move player
-		if (dir != directions.stairs) {
-			move_in_direction(dir, (sprite_index != spr_player_no_hands_crouch));
-			with (obj_echo_generator) { array_push(moves, dir); }
+		if (_dir != directions.stairs) {
+			move_in_direction(_dir, (sprite_index != spr_player_no_hands_crouch));
+			with (obj_echo_generator) { array_push(moves, _dir); }
 		}
 		// Move light source
 		set_instance_to_same_position(light);
@@ -27,33 +27,33 @@ function move_player(dir) {
 		if (is_existing_instance(outline)) { set_instance_to_same_position(outline); }
 	}
 	
-	var direction_pressed = (game_manager.key_up_pressed || 
-							game_manager.key_down_pressed || 
-							game_manager.key_right_pressed || 
-							game_manager.key_left_pressed);
+	var _direction_pressed = (_game_manager.key_up_pressed || 
+							_game_manager.key_down_pressed || 
+							_game_manager.key_right_pressed || 
+							_game_manager.key_left_pressed);
 	
 	// Update the spiders state
 	with (obj_spider) { try_to_see_player(); }
 	
 	// Update the eyes postition
 	with (obj_eyes) {
-		var target = get_dropped_meat();
-		if (!is_existing_instance(target)) {
-			target = player;
+		var _target = get_dropped_meat();
+		if (!is_existing_instance(_target)) {
+			_target = _player;
 			
 			if (activated) {
-				if (direction_pressed ||
-					game_manager.key_up || 
-					game_manager.key_down || 
-					game_manager.key_left || 
-					game_manager.key_right) {
+				if (_direction_pressed ||
+					_game_manager.key_up || 
+					_game_manager.key_down || 
+					_game_manager.key_left || 
+					_game_manager.key_right) {
 						blink_amount = irandom_range(12, 32);
-						target_x = target.x;
-						target_y = target.y;
+						target_x = _target.x;
+						target_y = _target.y;
 						set_automatic_target_path();
 						move_towards_coordinates_on_path(false, false, 2);
 						if (target_path != noone) { play_sound(snd_thud, false); }
-						if (image_index != 2 && direction_pressed) { play_sound(snd_eyes, true); }
+						if (image_index != 2 && _direction_pressed) { play_sound(snd_eyes, true); }
 						image_index = 2;
 				}
 			}
@@ -62,7 +62,7 @@ function move_player(dir) {
 	}
 				
 	// Update the bumper position
-	if (direction_pressed) {
+	if (_direction_pressed) {
 		with (obj_bumper_old) {
 			teleport_near_player();
 			turn_to_face_player();
@@ -70,192 +70,192 @@ function move_player(dir) {
 	}
 }
 
-/// @function								pick_up_or_put_down_item(dir);
-/// @param		{direction} dir				The directional slot to pick up or drop an item into or from
-function pick_up_or_put_down_item(dir) {
-	var carried_item = noone
-	if (dir == directions.right) { carried_item = right_hand_item; }
-	else if (dir == directions.left) { carried_item = left_hand_item; }
+/// @function								pick_up_or_put_down_item(_dir);
+/// @param		{direction} _dir				The directional slot to pick up or drop an item into or from
+function pick_up_or_put_down_item(_dir) {
+	var _carried_item = noone
+	if (_dir == directions.right) { _carried_item = right_hand_item; }
+	else if (_dir == directions.left) { _carried_item = left_hand_item; }
 	
-	if (is_existing_instance(carried_item)) {
-		put_down_item(carried_item, true, true);
+	if (is_existing_instance(_carried_item)) {
+		put_down_item(_carried_item, true, true);
 		if (!is_carrying_item(obj_torch)) { global.controller.evaluation_manager.kept_fire = false; }
 	}
 	else {
 		// Cycle through the items you could be possibly picking up
-		var dropped_items = instance_place_all(x, y, obj_item);
+		var _dropped_items = instance_place_all(x, y, obj_item);
 		
-		array_sort(dropped_items, function(elem1, elem2)
+		array_sort(_dropped_items, function(_elem1, _elem2)
 		{
-			return -date_compare_datetime(elem1.last_held, elem2.last_held);
+			return -date_compare_datetime(_elem1.last_held, _elem2.last_held);
 		});
 		
-		while (array_length(dropped_items) > 0) {
-			var dropped_item = array_pop(dropped_items);
-			if (is_existing_instance(dropped_item) && !is_existing_instance(dropped_item.holder) && dropped_item.can_pick_up && is_instance_at_coordinates(x, y, dropped_item)) {
-				pick_up_item(dropped_item, true, dir);
-				return dropped_item;
+		while (array_length(_dropped_items) > 0) {
+			var _dropped_item = array_pop(_dropped_items);
+			if (is_existing_instance(_dropped_item) && !is_existing_instance(_dropped_item.holder) && _dropped_item.can_pick_up && is_instance_at_coordinates(x, y, _dropped_item)) {
+				pick_up_item(_dropped_item, true, _dir);
+				return _dropped_item;
 			}
 		}
 		
-		var corpses = instance_place_all(x, y, obj_player_corpse);
-		while (array_length(corpses) > 0) {
-			var corpse = array_random_pop(corpses);
-			if (is_existing_instance(corpse) && is_instance_at_coordinates(x, y, corpse) && !corpse.headless) {
-				var new_item = create_item_in_hand(dir, obj_meat);
-				corpse.headless = true;
+		var _corpses = instance_place_all(x, y, obj_player_corpse);
+		while (array_length(_corpses) > 0) {
+			var _corpse = array_random_pop(_corpses);
+			if (is_existing_instance(_corpse) && is_instance_at_coordinates(x, y, _corpse) && !_corpse.headless) {
+				var _new_item = create_item_in_hand(_dir, obj_meat);
+				_corpse.headless = true;
 				global.controller.evaluation_manager.increment_evaluation_variable("decapitated_corpses");
 				play_sound(snd_crunch, true);		
-				return new_item;
+				return _new_item;
 			}
 		}
 	}
 }
 
-/// @function								pick_up_item(item, make_noise, dir);
-/// @param		{instance} item				The item to pick up
-/// @param		{boolean} make_noise		Whether or not to make a noise as part of picking up the item.
-/// @param		{direction} dir				The hand this item is being picked up with
-function pick_up_item(item, make_noise, dir) {
-	if (make_noise) { play_sound(snd_pickup, true); }
+/// @function								pick_up_item(_item, _make_noise, _dir);
+/// @param		{instance} _item				The item to pick up
+/// @param		{boolean} _make_noise		Whether or not to make a noise as part of picking up the item.
+/// @param		{direction} _dir				The hand this item is being picked up with
+function pick_up_item(_item, _make_noise, _dir) {
+	if (_make_noise) { play_sound(snd_pickup, true); }
 	
-	if (dir == directions.right) { right_hand_item = item; item.image_xscale = -1; }
-	else if (dir == directions.left) { left_hand_item = item; item.image_xscale = 1; }
+	if (_dir == directions.right) { right_hand_item = _item; _item.image_xscale = -1; }
+	else if (_dir == directions.left) { left_hand_item = _item; _item.image_xscale = 1; }
 	
-	var used_item_types = global.controller.used_item_types;
-	if (!array_contains(used_item_types, item.object_index)) {
-		array_push(used_item_types, item.object_index);
+	var _used_item_types = global.controller.used_item_types;
+	if (!array_contains(_used_item_types, _item.object_index)) {
+		array_push(_used_item_types, _item.object_index);
 		global.controller.evaluation_manager.increment_evaluation_variable("used_item_types");
 	}
 	
-	with (item) { become_carried(other.id); }
+	with (_item) { become_carried(other.id); }
 }
 
-/// @function								put_down_item(item, make_noise, dropped);
-/// @param		{instance} item				The item to pick up
-/// @param		{boolean} make_noise		Whether or not to make a noise as part of putting down the item.
-/// @param		{boolean} dropped			Whether or not this item is being dropped and not destroyed
-function put_down_item(item, make_noise, dropped) {
-	if (make_noise) { play_sound(snd_putdown, true); }
+/// @function								put_down_item(_item, _make_noise, _dropped);
+/// @param		{instance} _item				The item to pick up
+/// @param		{boolean} _make_noise		Whether or not to make a noise as part of putting down the item.
+/// @param		{boolean} _dropped			Whether or not this item is being dropped and not destroyed
+function put_down_item(_item, _make_noise, _dropped) {
+	if (_make_noise) { play_sound(snd_putdown, true); }
 	
-	if (right_hand_item == item) { right_hand_item = noone; }
-	else if (left_hand_item == item) { left_hand_item = noone; }
+	if (right_hand_item == _item) { right_hand_item = noone; }
+	else if (left_hand_item == _item) { left_hand_item = noone; }
 	
-	if (dropped) { with item { become_dropped(other.id); } }
+	if (_dropped) { with _item { become_dropped(other.id); } }
 }
 
 /// @function								get_carried_item(dir);
-/// @param		{index} obj_index			The object type to check the carried items for
-function get_carried_item(obj_index) {
-	var carried_item = noone;
-	if (is_carrying_item_in_right_hand(obj_index)) { carried_item = right_hand_item; }
-	if (is_carrying_item_in_left_hand(obj_index) && (!is_existing_instance(carried_item) || left_hand_item.special)) { carried_item = left_hand_item; }
-	return carried_item;
+/// @param		{index} _obj_index			The object type to check the carried items for
+function get_carried_item(_obj_index) {
+	var _carried_item = noone;
+	if (is_carrying_item_in_right_hand(_obj_index)) { _carried_item = right_hand_item; }
+	if (is_carrying_item_in_left_hand(_obj_index) && (!is_existing_instance(_carried_item) || left_hand_item.special)) { _carried_item = left_hand_item; }
+	return _carried_item;
 }
 
 
 /// @function								get_carried_lit_torch();
 function get_carried_lit_torch() {
-	var lit_torch = noone;
+	var _lit_torch = noone;
 	
-	if (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source)) { lit_torch = right_hand_item; }
+	if (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source)) { _lit_torch = right_hand_item; }
 	if (is_carrying_item_in_left_hand(obj_torch) && is_existing_instance(left_hand_item.light_source)) {
-		if (lit_torch == noone) { lit_torch = left_hand_item; }
-		else if (left_hand_item.special || lit_torch.time_to_remain_lit < left_hand_item.time_to_remain_lit) { lit_torch = left_hand_item; }
+		if (_lit_torch == noone) { _lit_torch = left_hand_item; }
+		else if (left_hand_item.special || _lit_torch.time_to_remain_lit < left_hand_item.time_to_remain_lit) { _lit_torch = left_hand_item; }
 	}
 	
-	return lit_torch;
+	return _lit_torch;
 }
 
-/// @function								is_carrying_item(obj_index);
-/// @param		{index} obj_index			The object type to check the carried items for
-function is_carrying_item(obj_index) {
-	return (is_carrying_item_in_right_hand(obj_index) || is_carrying_item_in_left_hand(obj_index));
+/// @function								is_carrying_item(_obj_index);
+/// @param		{index} _obj_index			The object type to check the carried items for
+function is_carrying_item(_obj_index) {
+	return (is_carrying_item_in_right_hand(_obj_index) || is_carrying_item_in_left_hand(_obj_index));
 }
 
-/// @function								is_carrying_item_in_right_hand(obj_index);
-/// @param		{index} obj_index			The object type to check the carried items for
-function is_carrying_item_in_right_hand(obj_index) {
-	return (is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_index);
+/// @function								is_carrying_item_in_right_hand(_obj_index);
+/// @param		{index} _obj_index			The object type to check the carried items for
+function is_carrying_item_in_right_hand(_obj_index) {
+	return (is_existing_instance(right_hand_item) && right_hand_item.object_index == _obj_index);
 }
 
-/// @function								is_carrying_item_in_left_hand(obj_index);
-/// @param		{index} obj_index			The object type to check the carried items for
-function is_carrying_item_in_left_hand(obj_index) {
-	return (is_existing_instance(left_hand_item) && left_hand_item.object_index == obj_index);
+/// @function								is_carrying_item_in_left_hand(_obj_index);
+/// @param		{index} _obj_index			The object type to check the carried items for
+function is_carrying_item_in_left_hand(_obj_index) {
+	return (is_existing_instance(left_hand_item) && left_hand_item.object_index == _obj_index);
 }
 
 /// @function								is_carrying_special_item(dir);
-/// @param		{index} obj_index			The object type to check the carried items for
-function is_carrying_special_item(obj_index) {
-	var item = get_carried_item(obj_index)
-	return (is_existing_instance(item) && item.special);
+/// @param		{index} _obj_index			The object type to check the carried items for
+function is_carrying_special_item(_obj_index) {
+	var _item = get_carried_item(_obj_index)
+	return (is_existing_instance(_item) && _item.special);
 }
 
-/// @function								is_carrying_lit_torch(require_both);
-/// @param		{bool} require_both			Whether to require a lit torch in both hands or not
-function is_carrying_lit_torch(require_both) {
-	var right_hand_lit_torch = false, left_hand_lit_torch = false;
+/// @function								is_carrying_lit_torch(_require_both);
+/// @param		{bool} _require_both			Whether to require a lit torch in both hands or not
+function is_carrying_lit_torch(_require_both) {
+	var _right_hand_lit_torch = false, _left_hand_lit_torch = false;
 	
-	right_hand_lit_torch = (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source));
-	left_hand_lit_torch = (is_carrying_item_in_left_hand(obj_torch) && is_existing_instance(left_hand_item.light_source));
+	_right_hand_lit_torch = (is_carrying_item_in_right_hand(obj_torch) && is_existing_instance(right_hand_item.light_source));
+	_left_hand_lit_torch = (is_carrying_item_in_left_hand(obj_torch) && is_existing_instance(left_hand_item.light_source));
 	
-	if (require_both) { return (right_hand_lit_torch && left_hand_lit_torch); }
-	else { return (right_hand_lit_torch || left_hand_lit_torch); }
+	if (_require_both) { return (_right_hand_lit_torch && _left_hand_lit_torch); }
+	else { return (_right_hand_lit_torch || _left_hand_lit_torch); }
 }
 
-/// @function								create_item_in_hand(dir, obj_index);
-/// @param		{direction} dir				The directional slot to pick up or drop an item into or from
-/// @param		{index} obj_index			The type of item to create in hand
-function create_item_in_hand(dir, obj_index) {
+/// @function								create_item_in_hand(_dir, _obj_index);
+/// @param		{direction} _dir				The directional slot to pick up or drop an item into or from
+/// @param		{index} _obj_index			The type of item to create in hand
+function create_item_in_hand(_dir, _obj_index) {
 	with (global.player) {
-		var new_item = instance_create(x, y, obj_index)
+		var _new_item = instance_create(x, y, _obj_index)
 		
-		if (dir == directions.right) { right_hand_item = new_item; new_item.image_xscale = -1; }
-		else if (dir == directions.left) { left_hand_item = new_item; new_item.image_xscale =1; }
+		if (_dir == directions.right) { right_hand_item = _new_item; _new_item.image_xscale = -1; }
+		else if (_dir == directions.left) { left_hand_item = _new_item; _new_item.image_xscale =1; }
 		
-		with (new_item) { become_carried(other.id); }
-		return new_item;
+		with (_new_item) { become_carried(other.id); }
+		return _new_item;
 	}
 }
 
-/// @function								kill_player(killed_by_obj);
-/// @param		{obj} killed_by_obj				The object_index of the thing killing the player
-function kill_player(killed_by_obj) {
-	var player = global.player, controller = global.controller;
+/// @function								kill_player(_killed_by_obj);
+/// @param		{obj} _killed_by_obj				The object_index of the thing killing the player
+function kill_player(_killed_by_obj) {
+	var _player = global.player, _controller = global.controller;
 	if (global.controller.blackout || global.controller.transition != directions.none) { return false; }
 	
-	if (!player.dead) {
+	if (!_player.dead) {
 		// Set variables to mark death
-		player.depth = CORPSE_DEPTH;
-		player.dead = true;
-		controller.death_timer = RESPAWN_FREQUENCY;
-		controller.evaluation_manager.increment_evaluation_variable("death_count");
+		_player.depth = CORPSE_DEPTH;
+		_player.dead = true;
+		_controller.death_timer = RESPAWN_FREQUENCY;
+		_controller.evaluation_manager.increment_evaluation_variable("death_count");
 		play_sound(snd_lose, true);
 		with (obj_echo_generator) { instance_destroy(); }
 		
 		// Put down carried items other than rosary
-		var has_rosary = false;
-		with (player) {
+		var _has_rosary = false;
+		with (_player) {
 			if (is_existing_instance(right_hand_item) && right_hand_item.object_index != obj_rosary) { put_down_item(right_hand_item, false, true); }
-			else if (is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_rosary) { has_rosary = true; }
+			else if (is_existing_instance(right_hand_item) && right_hand_item.object_index == obj_rosary) { _has_rosary = true; }
 			if (is_existing_instance(left_hand_item) && left_hand_item.object_index != obj_rosary) { put_down_item(left_hand_item, false, true); }
-			else if (is_existing_instance(left_hand_item) && left_hand_item.object_index == obj_rosary) { has_rosary = true; }
+			else if (is_existing_instance(left_hand_item) && left_hand_item.object_index == obj_rosary) { _has_rosary = true; }
 		}
 		
-		controller.killed_by = (killed_by_obj == -1) ? other.object_index : killed_by_obj;
-		if (player.infected_timer > 0 && controller.time_remaining > 0) { controller.killed_by = obj_bug; }
-		update_death_log(controller.killed_by, global.difficulty, has_rosary);
+		_controller.killed_by = (_killed_by_obj == -1) ? other.object_index : _killed_by_obj;
+		if (_player.infected_timer > 0 && _controller.time_remaining > 0) { _controller.killed_by = obj_bug; }
+		update_death_log(_controller.killed_by, global.difficulty, _has_rosary);
 	}
 	return true;
 }
 
-/// @function					can_drop_item(item)
-/// @param		{inst} item		The item you are trying to drop
-function can_drop_item(item) {
-	if (!is_existing_instance(item)) { return true; }
+/// @function					can_drop_item(_item)
+/// @param		{inst} _item		The item you are trying to drop
+function can_drop_item(_item) {
+	if (!is_existing_instance(_item)) { return true; }
 	if (is_outside_room(x, y)) { return false; }
-	if (item.object_index == obj_shovel) { return can_dig_hole(); }
+	if (_item.object_index == obj_shovel) { return can_dig_hole(); }
 	else { return (!place_meeting(x, y, obj_solid)); }
 }
 
@@ -265,50 +265,50 @@ function draw_staff_box() {
 }
 
 /// @function				draw_player_hat();
-function draw_player_hat(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
+function draw_player_hat(_x_pos, _y_pos, _x_offset, _y_offset, _spr_width, _spr_height, _x_scale, _blend) {
 	if (global.graphics_mode == graphics_modes.farmer) {
-		var spr = (sprite_index == spr_player_no_hands_crouch) ? spr_player_farmer_crouch : spr_player_farmer;
-		draw_sprite_part_ext(spr, image_index, x_offset, y_offset, spr_width, spr_height, x_pos, y_pos, x_scale, image_yscale, blend, image_alpha);
+		var _spr = (sprite_index == spr_player_no_hands_crouch) ? spr_player_farmer_crouch : spr_player_farmer;
+		draw_sprite_part_ext(_spr, image_index, _x_offset, _y_offset, _spr_width, _spr_height, _x_pos, _y_pos, _x_scale, image_yscale, _blend, image_alpha);
 	}
 }
 
 /// @function				draw_player_worm();
-function draw_player_worm(x_pos, y_pos, x_scale, blend) {
-	if (infected_timer > 0 && !dead) { draw_sprite_ext(spr_bug_red, bug_image_index, x_pos, y_pos-10+image_index, x_scale, 1, 0, blend, 1); }
+function draw_player_worm(_x_pos, _y_pos, _x_scale, _blend) {
+	if (infected_timer > 0 && !dead) { draw_sprite_ext(spr_bug_red, bug_image_index, _x_pos, _y_pos-10+image_index, _x_scale, 1, 0, _blend, 1); }
 }
 
 /// @function				draw_player_left_hand();
-function draw_player_left_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
-	if (x_scale == 0) { return; }
-	else if (x_scale > 0) {
-		var left_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
-		var hide_left_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
+function draw_player_left_hand(_x_pos, _y_pos, _x_offset, _y_offset, _spr_width, _spr_height, _x_scale, _blend) {
+	if (_x_scale == 0) { return; }
+	else if (_x_scale > 0) {
+		var _left_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
+		var _hide_left_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
 	}
 	else {
-		var left_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
-		var hide_left_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
+		var _left_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
+		var _hide_left_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
 	}
-	if (!hide_left_hand) { draw_sprite_part_ext(left_hand_sprite, image_index, x_offset, y_offset, spr_width, spr_height,  x_pos, y_pos, x_scale, image_yscale, blend, image_alpha); }
+	if (!_hide_left_hand) { draw_sprite_part_ext(_left_hand_sprite, image_index, _x_offset, _y_offset, _spr_width, _spr_height,  _x_pos, _y_pos, _x_scale, image_yscale, _blend, image_alpha); }
 }
 
 /// @function				draw_player_right_hand();
-function draw_player_right_hand(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, x_scale, blend) {
-	if (x_scale == 0) { return; }
-	else if (x_scale > 0) {
-		var right_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
-		var hide_right_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
+function draw_player_right_hand(_x_pos, _y_pos, _x_offset, _y_offset, _spr_width, _spr_height, _x_scale, _blend) {
+	if (_x_scale == 0) { return; }
+	else if (_x_scale > 0) {
+		var _right_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
+		var _hide_right_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
 	}
-	else if (x_scale < 0) {
-		var right_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
-		var hide_right_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
+	else if (_x_scale < 0) {
+		var _right_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
+		var _hide_right_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
 	}
-	if (!hide_right_hand) { draw_sprite_part_ext(right_hand_sprite, image_index, x_offset, y_offset, spr_width, spr_height, x_pos, y_pos, x_scale, image_yscale, blend, image_alpha); }
+	if (!_hide_right_hand) { draw_sprite_part_ext(_right_hand_sprite, image_index, _x_offset, _y_offset, _spr_width, _spr_height, _x_pos, _y_pos, _x_scale, image_yscale, _blend, image_alpha); }
 }
 
 
 /// @function						draw_player();
 function draw_player() {
-	var crouch_offset = (sprite_index == spr_player_no_hands_crouch) ? 1 : 0
+	var _crouch_offset = (sprite_index == spr_player_no_hands_crouch) ? 1 : 0
 	// Draw box over lava or staff solids
 	draw_staff_box();
 
@@ -316,28 +316,28 @@ function draw_player() {
 	event_inherited();
 
 	// Draw Hands
-	var x_pos = x-(8*image_xscale), y_pos = y-(8*image_yscale)+crouch_offset;
-	draw_player_right_hand(x_pos, y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
-	draw_player_left_hand(x_pos, y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
+	var _x_pos = x-(8*image_xscale), _y_pos = y-(8*image_yscale)+_crouch_offset;
+	draw_player_right_hand(_x_pos, _y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
+	draw_player_left_hand(_x_pos, _y_pos, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
 
 	// Draw hat in farm mode
-	draw_player_hat(x_pos, y_pos-crouch_offset, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
+	draw_player_hat(_x_pos, _y_pos-_crouch_offset, 0, 0, abs(sprite_width), abs(sprite_height), image_xscale, image_blend);
 
 	// Draw worm if infected
-	draw_player_worm(x, y+crouch_offset, image_xscale, image_blend);
+	draw_player_worm(x, y+_crouch_offset, image_xscale, image_blend);
 }
 
-/// @function				snap_player_to_position(dir);
-/// @param		{dir} dir	The direction to snap the player opposite to
-function snap_player_to_position(dir) {
-	var player = global.player;
-	player.moved_by = id;
-	player.x = x;
-	player.y = y;
-	switch (dir) {
-		case directions.up: { player.y += 16; break; }
-		case directions.down: { player.y -= 16; break; }
-		case directions.left: { player.x += 16; break; }
-		case directions.right: { player.x -= 16; break; }
+/// @function				snap_player_to_position(_dir);
+/// @param		{dir} _dir	The direction to snap the player opposite to
+function snap_player_to_position(_dir) {
+	var _player = global.player;
+	_player.moved_by = id;
+	_player.x = x;
+	_player.y = y;
+	switch (_dir) {
+		case directions.up: { _player.y += 16; break; }
+		case directions.down: { _player.y -= 16; break; }
+		case directions.left: { _player.x += 16; break; }
+		case directions.right: { _player.x -= 16; break; }
 	}
 }

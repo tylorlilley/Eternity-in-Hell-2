@@ -2,72 +2,72 @@
 event_inherited();
 	
 if closed {
-	var controller = global.controller, player = global.player;
-	var push_direction = get_direction_pushed_against(), carrying_key = false, carrying_lit_torch = false;
-	with (player) { carrying_key = is_carrying_item(obj_key); carrying_lit_torch = is_carrying_lit_torch(false); }
+	var _controller = global.controller, _player = global.player;
+	var _push_direction = get_direction_pushed_against(), _carrying_key = false, _carrying_lit_torch = false;
+	with (_player) { _carrying_key = is_carrying_item(obj_key); _carrying_lit_torch = is_carrying_lit_torch(false); }
 	if (locked) { image_index = 2; }
-	if (push_direction != directions.none) {
-		if (locked && !carrying_key) { play_sound(snd_locked, false); }
+	if (_push_direction != directions.none) {
+		if (locked && !_carrying_key) { play_sound(snd_locked, false); }
 		else if (locked) {
 			locked = false;
 			image_index = 0;
 			with (global.player) { 
 				play_sound(snd_mana, true);
 				with (get_carried_item(obj_key)) { if (!special) { instance_destroy(); } }
-				controller.evaluation_manager.increment_evaluation_variable("unlocked_chests");
+				_controller.evaluation_manager.increment_evaluation_variable("unlocked_chests");
 			}
 		}
 		else {
 			// Set up which inventory slots are available
-			var free_hands = [];
-			if (!is_existing_instance(player.right_hand_item) && !player.lost_right_hand) { array_push(free_hands, directions.right); } 
-			if (!is_existing_instance(player.left_hand_item) && !player.lost_left_hand) { array_push(free_hands, directions.left); } 
+			var _free_hands = [];
+			if (!is_existing_instance(_player.right_hand_item) && !_player.lost_right_hand) { array_push(_free_hands, directions.right); } 
+			if (!is_existing_instance(_player.left_hand_item) && !_player.lost_left_hand) { array_push(_free_hands, directions.left); } 
 			
 			// Try to open the chest
-			if (array_length(free_hands) == 0 && place_meeting(player.x, player.y, obj_solid)) { play_sound(snd_locked, false); }
+			if (array_length(_free_hands) == 0 && place_meeting(_player.x, _player.y, obj_solid)) { play_sound(snd_locked, false); }
 			else {
 				closed = false;
 				image_index = 1;
 				if (contents_obj == obj_statue) {
-					controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
+					_controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
 					play_sound(snd_skeletonrise, true);
-					var statue = instance_create(x, y, obj_statue);
-					statue.dir = get_opposite_dir(push_direction);
-					statue.image_angle = statue.dir * -90;
-					statue.shoot_timer += 2;
-					statue.trap = true;
+					var _statue = instance_create(x, y, obj_statue);
+					_statue.dir = get_opposite_dir(_push_direction);
+					_statue.image_angle = _statue.dir * -90;
+					_statue.shoot_timer += 2;
+					_statue.trap = true;
 					instance_destroy();
 				}
 				else if(contents_obj == obj_fountain) {
-					controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
+					_controller.evaluation_manager.increment_evaluation_variable("trapped_chests_opened");
 					play_sound(snd_skeletonrise, true);
-					var fountain = instance_create(x, y, obj_fountain);
-					fountain.shoot_timer += 2;
-					fountain.trap = true;
+					var _fountain = instance_create(x, y, obj_fountain);
+					_fountain.shoot_timer += 2;
+					_fountain.trap = true;
 					instance_destroy();
 				}
 				else if (contents_obj != -1) { 
-					controller.evaluation_manager.increment_evaluation_variable("chests_opened");
-					controller.current_room.remove_from_instances_at_map_positions(id);
+					_controller.evaluation_manager.increment_evaluation_variable("chests_opened");
+					_controller.current_room.remove_from_instances_at_map_positions(id);
 					
-					with (player) {
+					with (_player) {
 						play_sound(snd_open, true);
 						play_sound(snd_pickup, false);
 					}
 					
-					var new_item = noone;
-					if (array_length(free_hands) == 0) { 
-						new_item = instance_create(player.x, player.y, contents_obj);
-						with (new_item) { become_dropped(id); }
-						if (contents_obj == obj_bomb && carrying_lit_torch) {
-							controller.evaluation_manager.increment_evaluation_variable("chests_opened_lit_bombs");
+					var _new_item = noone;
+					if (array_length(_free_hands) == 0) { 
+						_new_item = instance_create(_player.x, _player.y, contents_obj);
+						with (_new_item) { become_dropped(id); }
+						if (contents_obj == obj_bomb && _carrying_lit_torch) {
+							_controller.evaluation_manager.increment_evaluation_variable("chests_opened_lit_bombs");
 						}
 					}
 					else {
-						new_item = create_item_in_hand(array_random_pop(free_hands), contents_obj);
+						_new_item = create_item_in_hand(array_random_pop(_free_hands), contents_obj);
 					}
 					
-					if (contents_is_special) { with new_item { make_item_special(); } }
+					if (contents_is_special) { with _new_item { make_item_special(); } }
 				}
 			}
 		}

@@ -1,15 +1,15 @@
 /// @description Step
 if (can_process_this_frame()) {
-	var target = get_dropped_meat();
-	if (!is_existing_instance(target)) { target = global.player; }
-	var dir = point_direction(x, y, target.x, target.y);
+	var _target = get_dropped_meat();
+	if (!is_existing_instance(_target)) { _target = global.player; }
+	var _dir = point_direction(x, y, _target.x, _target.y);
 
 	if (dying == 0) {
 		// Update Pupil Position
-		var prev_x = pupil_x, prev_y = pupil_y;
-		pupil_x = x + lengthdir_x(16, dir);
-		pupil_y = y + lengthdir_y(16, dir);
-		if (prev_x != pupil_x || prev_y != pupil_y) { spin_counter += point_distance(pupil_x, pupil_y, prev_x, prev_y); }
+		var _prev_x = pupil_x, _prev_y = pupil_y;
+		pupil_x = x + lengthdir_x(16, _dir);
+		pupil_y = y + lengthdir_y(16, _dir);
+		if (_prev_x != pupil_x || _prev_y != pupil_y) { spin_counter += point_distance(pupil_x, pupil_y, _prev_x, _prev_y); }
 		else { spin_counter = 0; }
 		
 		// Kill Self
@@ -18,31 +18,31 @@ if (can_process_this_frame()) {
 			// Shoot Beam
 			if (shoot_timer > 0) { shoot_timer -= 1; }
 			else {
-				var beam = shoot_magic_beam(target, 12);
-				beam.x = pupil_x;
-				beam.y = pupil_y;
+				var _beam = shoot_magic_beam(_target, 12);
+				_beam.x = pupil_x;
+				_beam.y = pupil_y;
 				shoot_timer = irandom_range(12,32);
 			}
 		}
 	}
 	else {
 		// Shoot Randomly 
-		var dir = irandom_range(1,360), x_pos = x + lengthdir_x(8, dir), y_pos = y + lengthdir_y(8, dir);
-		var beam = shoot_projectile(x_pos, y_pos, false, obj_magic_beam);
+		var _dir = irandom_range(1,360), _x_pos = x + lengthdir_x(8, _dir), _y_pos = y + lengthdir_y(8, _dir);
+		var _beam = shoot_projectile(_x_pos, _y_pos, false, obj_magic_beam);
 		
 		// Animate Death
 		dying -= 1;
 		if (get_random_chance_out_of(4)) { 
 			play_sound(snd_eyeball_explosion, true); image_index = 1;
-			for (var i = 0; i < GIANT_EYE_PARTS_COUNT; i++) {
-				var eye_part = eye_parts[i];
-				eye_part.image_index = i+9;
+			for (var _i = 0; _i < GIANT_EYE_PARTS_COUNT; _i++) {
+				var _eye_part = eye_parts[_i];
+				_eye_part.image_index = _i+9;
 			}
 		}
 		else {
-			for (var i = 0; i < GIANT_EYE_PARTS_COUNT; i++) {
-				var eye_part = eye_parts[i];
-				eye_part.image_index = i;
+			for (var _i = 0; _i < GIANT_EYE_PARTS_COUNT; _i++) {
+				var _eye_part = eye_parts[_i];
+				_eye_part.image_index = _i;
 			}
 		}
 		
@@ -51,9 +51,9 @@ if (can_process_this_frame()) {
 		if dying == 0 { 
 			play_sound(snd_explosion, true); 
 			screen_flash();
-			for (var i = 0; i < 3; i ++) {
-				var x_pos = x + (8 * (-2 + irandom(4))), y_pos = y + (8 * (-2 + irandom(4)));
-				instance_create(x_pos, y_pos, obj_blood);
+			for (var _i = 0; _i < 3; _i ++) {
+				var _x_pos = x + (8 * (-2 + irandom(4))), _y_pos = y + (8 * (-2 + irandom(4)));
+				instance_create(_x_pos, _y_pos, obj_blood);
 			}
 			instance_destroy();
 			update_kill_log(object_index, global.difficulty, object_index);

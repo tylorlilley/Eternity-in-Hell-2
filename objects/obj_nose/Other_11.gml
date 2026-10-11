@@ -19,9 +19,9 @@ else {
 	else if (shoot_timer == 0) {
 		if (get_random_chance_out_of(NOSE_SELF_DESTRUCT_PROBABILITY)) { explode(true); } 
 		else {
-			var target = get_dropped_meat();
-			if (!is_existing_instance(target)) { target = global.player; }
-			shoot_projectile(target.x, target.y, false);
+			var _target = get_dropped_meat();
+			if (!is_existing_instance(_target)) { _target = global.player; }
+			shoot_projectile(_target.x, _target.y, false);
 			reset_nose();
 		}
 	}

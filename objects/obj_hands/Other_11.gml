@@ -9,9 +9,9 @@ if (death_timer > 0) {
 else {
 	// Make any dropped meat that can be moved towards a target
 	if (!is_existing_instance(right_hand_item) || !is_carrying_item(obj_meat)) {
-		var dropped_meat = get_dropped_meat();
+		var _dropped_meat = get_dropped_meat();
 			
-		if (is_existing_instance(dropped_meat) && target_item != dropped_meat) { 
+		if (is_existing_instance(_dropped_meat) && target_item != _dropped_meat) { 
 			if (!activated) { 
 				play_sound(snd_laugh, true);
 				pick_up_item(target_item, false, directions.right);
@@ -19,7 +19,7 @@ else {
 				xstart = x;
 				ystart = y;
 			}
-			target_item = dropped_meat;
+			target_item = _dropped_meat;
 			target_x = target_item.x;
 			target_y = target_item.y;
 			activated = true;
@@ -37,7 +37,7 @@ else {
 		else if (fire_resistant) { depth = HANDS_WITH_STAFF_DEPTH; }
 				
 		// Move Around
-		for (var i = 0; i < 2; i++) {
+		for (var _i = 0; _i < 2; _i++) {
 			if (!is_existing_instance(target_item)) {
 				// Run Away From Player While Carrying Target
 				can_move_on_border = false;
@@ -59,10 +59,10 @@ else {
 					target_x = target_item.x;
 					target_y = target_item.y;
 					can_move_on_border = true;
-					var prev_path = target_path, move_dir = move_towards_coordinates_on_path(floating, fire_resistant, 1);
-					if (move_dir == directions.none) {
+					var _prev_path = target_path, _move_dir = move_towards_coordinates_on_path(floating, fire_resistant, 1);
+					if (_move_dir == directions.none) {
 						// Give up on unreachable target
-						if (prev_path != noone) { play_sound(snd_give_up, false); }
+						if (_prev_path != noone) { play_sound(snd_give_up, false); }
 						target_item = noone;
 						end_target_path();
 					}
@@ -86,12 +86,12 @@ else {
 				
 			// Kill other enemies with carried sword
 			if (is_carrying_item(obj_sword)) {
-				var enemies_at_position = instance_place_all(x, y, obj_enemy);
-				while (array_length(enemies_at_position) > 0) {
-					var enemy = array_random_pop(enemies_at_position);
-					if (enemy == id || !enemy.corporeal) { continue; }
+				var _enemies_at_position = instance_place_all(x, y, obj_enemy);
+				while (array_length(_enemies_at_position) > 0) {
+					var _enemy = array_random_pop(_enemies_at_position);
+					if (_enemy == id || !_enemy.corporeal) { continue; }
 				
-					with (enemy) { kill_with_sword(other.right_hand_item); }
+					with (_enemy) { kill_with_sword(other.right_hand_item); }
 					if (is_existing_instance(right_hand_item)) { continue; }
 					else { break; }
 				}

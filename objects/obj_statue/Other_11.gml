@@ -11,28 +11,28 @@ if (object_index == obj_statue) {
 	}
 	
 	// Setup direction spot
-	var x_pos = x, y_pos = y;
+	var _x_pos = x, _y_pos = y;
 	switch (dir) {
-		case directions.up: { y_pos -= 8; break; }
-		case directions.right: { x_pos += 8; break; }
-		case directions.down: { y_pos += 8; break; }
-		case directions.left: { x_pos -= 8; break; }
+		case directions.up: { _y_pos -= 8; break; }
+		case directions.right: { _x_pos += 8; break; }
+		case directions.down: { _y_pos += 8; break; }
+		case directions.left: { _x_pos -= 8; break; }
 	}
 	
 	// Determine whether statue is covered
-	var prev_covered = covered;
-	covered = place_meeting(x_pos, y_pos, obj_solid);
+	var _prev_covered = covered;
+	covered = place_meeting(_x_pos, _y_pos, obj_solid);
 	
 	if (!covered) {
 		image_index = 0
 		image_angle = dir * -90;
-		shoot_timer = (prev_covered) ? irandom_range(8, 24) : shoot_timer-1;
+		shoot_timer = (_prev_covered) ? irandom_range(8, 24) : shoot_timer-1;
 		if (shoot_timer <= 0) {
 			shoot_timer = irandom_range(8, 24);
-			shoot_projectile(x_pos, y_pos, false);
+			shoot_projectile(_x_pos, _y_pos, false);
 		}
 	}
-	else if (!prev_covered) {
+	else if (!_prev_covered) {
 		image_index = 1;
 		play_sound(snd_give_up, false);
 	}

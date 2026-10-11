@@ -16,45 +16,45 @@ if (paused) {
 	draw_set_halign(fa_center);
 	draw_set_valign(fa_middle);
 	
-	var y_pos = (room_height/2)-16, x_pos = room_width/2;
-	if (instance_number(obj_controller) == 0) { y_pos += 16; }
+	var _y_pos = (room_height/2)-16, _x_pos = room_width/2;
+	if (instance_number(obj_controller) == 0) { _y_pos += 16; }
 	draw_set_font(ft_hud_large);
-	if (!is_blink_frame()) { draw_text(room_width/2, y_pos-16-2, "GAME PAUSED"); }
+	if (!is_blink_frame()) { draw_text(room_width/2, _y_pos-16-2, "GAME PAUSED"); }
 	draw_set_font(ft_hud);
-	draw_text(x_pos, y_pos+16, get_input_enter_key_string() + ": UNPAUSE");
+	draw_text(_x_pos, _y_pos+16, get_input_enter_key_string() + ": UNPAUSE");
 	if (is_existing_instance(global.controller)) {	
 		if (global.input != inputs.gamepad) {
-			draw_text(x_pos, y_pos+(16*2), get_input_z_key_string() + "+" + get_input_x_key_string() + "+" + get_input_enter_key_string() + ": QUIT RUN");
+			draw_text(_x_pos, _y_pos+(16*2), get_input_z_key_string() + "+" + get_input_x_key_string() + "+" + get_input_enter_key_string() + ": QUIT RUN");
 		}
 		else {
-			draw_text(x_pos, y_pos+(16*2), "("+get_input_z_key_string() + ") + (" + get_input_x_key_string() + ") +");
-			draw_text(x_pos, y_pos+(16*3), "("+get_input_enter_key_string() + "): ");
-			draw_text(x_pos, y_pos+(16*4), "QUIT RUN");
+			draw_text(_x_pos, _y_pos+(16*2), "("+get_input_z_key_string() + ") + (" + get_input_x_key_string() + ") +");
+			draw_text(_x_pos, _y_pos+(16*3), "("+get_input_enter_key_string() + "): ");
+			draw_text(_x_pos, _y_pos+(16*4), "QUIT RUN");
 		}
 	}
 	draw_set_color(get_inverted_game_color());
-	y_pos = room_height-32;
-	draw_text(x_pos, y_pos, "ESC: QUIT PROGRAM");
+	_y_pos = room_height-32;
+	draw_text(_x_pos, _y_pos, "ESC: QUIT PROGRAM");
 	draw_set_color(c_white);
 }
 
 shader_reset();
 
 if (global.is_test_mode && instance_exists(global.controller)) {
-	var show_solid_path_grid = keyboard_check(ord("Q")), show_lava_path_grid = keyboard_check(ord("W"));
-	if (show_solid_path_grid || show_lava_path_grid) {
+	var _show_solid_path_grid = keyboard_check(ord("Q")), _show_lava_path_grid = keyboard_check(ord("W"));
+	if (_show_solid_path_grid || _show_lava_path_grid) {
 		draw_set_alpha(0.1);
 		draw_set_colour(c_white);
-		if (show_solid_path_grid) { 
+		if (_show_solid_path_grid) { 
 			mp_grid_draw(global.controller.current_room.solid_path_grid);
 		}
-		if (show_lava_path_grid) { mp_grid_draw(global.controller.current_room.lava_path_grid); }
+		if (_show_lava_path_grid) { mp_grid_draw(global.controller.current_room.lava_path_grid); }
 		
-		for (var i = 0; i < room_width; i += GRID_SIZE;) {
-			draw_line_width(i, 0, i, room_height, 1);
+		for (var _i = 0; _i < room_width; _i += GRID_SIZE;) {
+			draw_line_width(_i, 0, _i, room_height, 1);
 		}
-		for (var j = 0; j < room_width; j += GRID_SIZE;) {
-			draw_line_width(0, j, room_width, j, 1);
+		for (var _j = 0; _j < room_width; _j += GRID_SIZE;) {
+			draw_line_width(0, _j, room_width, _j, 1);
 		}
 		draw_set_alpha(1);
 		with (obj_enemy) {

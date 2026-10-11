@@ -1,32 +1,32 @@
 /// @description Step
-var controller = global.controller;
+var _controller = global.controller;
 if (x < 0 && y < 0 && !activated) { 
 	teleport_to_player();
-	if (!controller.current_room.lit && controller.entered_from_dir != directions.respawn) {
+	if (!_controller.current_room.lit && _controller.entered_from_dir != directions.respawn) {
 		// Check distance to each unlit lantern
-		var lantern_count = 0, total_distance_to_lanterns = 0;
-		for (var i = 0; i < instance_number(obj_lantern); i++) {
-			var lantern = instance_find(obj_lantern, i);
+		var _lantern_count = 0, _total_distance_to_lanterns = 0;
+		for (var _i = 0; _i < instance_number(obj_lantern); _i++) {
+			var _lantern = instance_find(obj_lantern, _i);
 		
-			if (is_existing_instance(lantern) && is_existing_instance(lantern.light_source)) { continue; }
+			if (is_existing_instance(_lantern) && is_existing_instance(_lantern.light_source)) { continue; }
 		
-			lantern_count += 1;
-			total_distance_to_lanterns += get_distance_to_instance(lantern) / 8.0;
+			_lantern_count += 1;
+			_total_distance_to_lanterns += get_distance_to_instance(_lantern) / 8.0;
 		}
 	
-		if (lantern_count == 0) { instance_destroy(); }
+		if (_lantern_count == 0) { instance_destroy(); }
 		else {
 			// Set spawn timer based on distance to each lantern
-			spawn_timer = ceil(total_distance_to_lanterns) - (global.difficulty*lantern_count)
+			spawn_timer = ceil(_total_distance_to_lanterns) - (global.difficulty*_lantern_count)
 			if (spawn_timer > 32) { spawn_timer = 32; } 
 			if (spawn_timer < 12) { spawn_timer = 12; }
-			if (controller.entered_from_dir == directions.stairs) { spawn_timer += 12; }
+			if (_controller.entered_from_dir == directions.stairs) { spawn_timer += 12; }
 		}
 	}
 }
 
 if (!start_timer) {
-	if (spawn_timer > 0 && (global.player.x != get_exit_x_pos(controller.entered_from_dir) || global.player.y != get_exit_y_pos(controller.entered_from_dir))) { 
+	if (spawn_timer > 0 && (global.player.x != get_exit_x_pos(_controller.entered_from_dir) || global.player.y != get_exit_y_pos(_controller.entered_from_dir))) { 
 		start_timer = true; 
 		play_sound(snd_dread, false); 
 	}
@@ -47,7 +47,7 @@ else {
 }
 
 // If room becomes fully lit, destroy self
-if (controller.current_room.lit) { 
+if (_controller.current_room.lit) { 
 	if (spawn_timer >= 0) {
 		audio_stop_sound(snd_dread);
 		play_sound(snd_impact, false); 

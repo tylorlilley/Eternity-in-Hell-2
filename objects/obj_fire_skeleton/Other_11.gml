@@ -42,9 +42,9 @@ else {
 		var dir = irandom_range(1,360), x_pos = x + lengthdir_x(8, dir), y_pos = y + lengthdir_y(8, dir);
 		shoot_projectile(x_pos, y_pos, false);
 		*/
-		var target = get_dropped_meat();
-		if (!is_existing_instance(target)) { target = global.player; }
-		shoot_projectile(target.x, target.y, false);
+		var _target = get_dropped_meat();
+		if (!is_existing_instance(_target)) { _target = global.player; }
+		shoot_projectile(_target.x, _target.y, false);
 		shoot_timer = irandom_range(8, 64);
 	}
 }

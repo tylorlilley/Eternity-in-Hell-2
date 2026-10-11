@@ -740,7 +740,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		// A hall of mirrors' sequence of exits to take
 		mirror_directions = [];
 		if (layout.has_hall_of_mirrors) {
-			for (var _mirror = 0; _mirror < 4; _mirror++) { array_push(mirror_directions, get_random_carindal_dir()); }
+			for (var _mirror = 0; _mirror < 4; _mirror++) { array_push(mirror_directions, get_random_cardinal_dir()); }
 		}
 	};
 
@@ -1017,7 +1017,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Only draw the room if the given position is on screen
 		if (_x_pos < 0 || _x_pos > room_width || _y_pos < 0 || _y_pos > room_height) { return false; }
 		
-		// Only draw the room if the room has been visited at least once, or game is in test mode
+		// Draw the room once the player has visited it, or while they hold the map (always in test mode)
 		var _show_detailed_map = false, _show_collectables = false, _controller = global.controller, _is_test_mode_on = global.is_test_mode;
 		with (global.player) {
 			_show_detailed_map = (_is_test_mode_on || is_carrying_item(obj_map));
@@ -1026,11 +1026,10 @@ function GameRoom(_given_x, _given_y) constructor {
 		
 		if (_show_detailed_map || visited) {
 			// Set up colors to draw this room with
-			var _fade_amount = 0; //distance_to_current_room / controller.MAX_MAP_DRAW_DISTANCE;
-			var _blink_frame = is_blink_frame();//modulo(global.game_manager.number_of_frames_since_game_began, 12) <= 5;
+			var _blink_frame = is_blink_frame();
 			var _bg_color = global.bg_color;
-			var _white_color = merge_color(c_white, _bg_color, _fade_amount);
-			var _red_color = merge_color(global.gms_game_color, _bg_color, _fade_amount);
+			var _white_color = c_white;
+			var _red_color = global.gms_game_color;
 		
 			// Darken the colors of unvisited rooms on the map
 			if (!visited) {
@@ -1117,7 +1116,7 @@ function GameRoom(_given_x, _given_y) constructor {
 				}
 			}
 		
-			// Draw collectables if the map is special
+			// Draw the room's collectables while the player holds the special map
 		    if (_show_collectables && has_collectables && !_blink_frame) {
 				draw_sprite_ext(spr_collectable, 0, _x_pos, _y_pos, 1, 1, 0, _white_color, 1); 
 			}

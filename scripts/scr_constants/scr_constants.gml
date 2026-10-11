@@ -134,7 +134,7 @@
 #macro WINDOW_BORDER_DEFAULT false
 #macro WINDOW_SCALING_DEFAULT 2
 #macro INPUT_DEFAULT inputs.keyboard_default
-#macro CAN_SCREEN_FLASH_DEFUALT true
+#macro CAN_SCREEN_FLASH_DEFAULT true
 #macro GAME_COLOR_FADE_DEFAULT 10
 #macro GAME_COLOR_STRING_DEFAULT "FF0000"
 #macro LAVA_EDGE_TYPE_DEFAULT  lava_edge_types.wavy_animated

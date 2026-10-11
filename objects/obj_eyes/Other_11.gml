@@ -10,10 +10,10 @@ else if (blink_amount == 0 && !instance_place(x, y, obj_solid)) {
 	activated = !activated;
 }
 	
-var game_manager = global.game_manager;
-if (!(game_manager.key_up || 
-	game_manager.key_down || 
-	game_manager.key_left || 
-	game_manager.key_right)) { image_index = 0; }
+var _game_manager = global.game_manager;
+if (!(_game_manager.key_up || 
+	_game_manager.key_down || 
+	_game_manager.key_left || 
+	_game_manager.key_right)) { image_index = 0; }
 	
 event_inherited();

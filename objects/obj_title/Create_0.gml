@@ -6,7 +6,6 @@ room_speed = 60;
 global.controller = noone;
 global.bg_color = make_color_rgb(0, 0, 0);
 
-trait_surface = noone;
 trait_surface_y_pos = 0;
 trait_surface_y_max = 0;
 loading = false;
@@ -26,7 +25,6 @@ death_log_sort = 0;
 death_types_on_screen = 6;
 deaths_to_display = [];
 evaluation_log_screen = false;
-evaluation_log_position = 0;
 evaluation_manager = new EvaluationMessageManager();
 held_timer = 0;
 

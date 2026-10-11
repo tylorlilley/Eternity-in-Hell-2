@@ -14,12 +14,12 @@ if (!is_existing_instance(holder)) {
 	else { 
 		visible = true; 
 		// Light bomb fuses with torches
-		var torches_at_position = instance_place_all(x, y, obj_torch);
-		while (array_length(torches_at_position) > 0) {
-			var torch = array_random_pop(torches_at_position);
+		var _torches_at_position = instance_place_all(x, y, obj_torch);
+		while (array_length(_torches_at_position) > 0) {
+			var _torch = array_random_pop(_torches_at_position);
 				
-			if (is_existing_instance(torch) && is_existing_instance(torch.light_source) && is_instance_at_coordinates(x, y, torch)) {
-				if (global.player.right_hand_item == torch || global.player.left_hand_item == torch) { 
+			if (is_existing_instance(_torch) && is_existing_instance(_torch.light_source) && is_instance_at_coordinates(x, y, _torch)) {
+				if (global.player.right_hand_item == _torch || global.player.left_hand_item == _torch) { 
 					lit_by_player = true;
 				}
 				light_bomb();

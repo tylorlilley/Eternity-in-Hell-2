@@ -1,50 +1,50 @@
 /// @function								draw_while_carried();
-function draw_while_carried(x_pos, y_pos, x_offset, y_offset, spr_width, spr_height, xscale, blend, is_mirrored, spr = sprite_index) {
+function draw_while_carried(_x_pos, _y_pos, _x_offset, _y_offset, _spr_width, _spr_height, _xscale, _blend, _is_mirrored, _spr = sprite_index) {
 	if (!is_existing_instance(holder)) { return; }
 	
-	var draw_x_offset = image_xscale * -8;
-	if (is_mirrored) { draw_x_offset *= -1; }
-	y_pos += (holder.sprite_index == spr_player_no_hands_crouch) ? 1 : 0;
+	var _draw_x_offset = image_xscale * -8;
+	if (_is_mirrored) { _draw_x_offset *= -1; }
+	_y_pos += (holder.sprite_index == spr_player_no_hands_crouch) ? 1 : 0;
 
 	// Draw Main Item Sprite
-	draw_sprite_part_ext(spr, image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
+	draw_sprite_part_ext(_spr, image_index, _x_offset, _y_offset, _spr_width, _spr_height, _x_pos+_draw_x_offset, _y_pos+draw_y_offset, _xscale, image_yscale, _blend, image_alpha);
 	
 	// Draw Clock Time & Compass Hands
 	if (time_sprite_index != noone) {			
-		draw_sprite_part_ext(time_sprite_index, time_image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha);
+		draw_sprite_part_ext(time_sprite_index, time_image_index, _x_offset, _y_offset, _spr_width, _spr_height, _x_pos+_draw_x_offset, _y_pos+draw_y_offset, _xscale, image_yscale, _blend, image_alpha);
 	}
 	
 	// Draw Torch Lights
-	if (torch_light_image_timer >= 0) { draw_sprite_part_ext(torch_light_sprite_index, torch_light_image_index, x_offset, y_offset, spr_width, spr_height, x_pos+draw_x_offset, y_pos+draw_y_offset, xscale, image_yscale, blend, image_alpha); }
+	if (torch_light_image_timer >= 0) { draw_sprite_part_ext(torch_light_sprite_index, torch_light_image_index, _x_offset, _y_offset, _spr_width, _spr_height, _x_pos+_draw_x_offset, _y_pos+draw_y_offset, _xscale, image_yscale, _blend, image_alpha); }
 }
 
-/// @function								become_carried(new_holder);
-/// @param		{boolean} new_holder		The instance to begin holding the item.
-function become_carried(new_holder) {
-	var controller = global.controller;
+/// @function								become_carried(_new_holder);
+/// @param		{boolean} _new_holder		The instance to begin holding the item.
+function become_carried(_new_holder) {
+	var _controller = global.controller;
 	
 	// Become carried
-	holder = new_holder;
-	persistent = new_holder.persistent;
+	holder = _new_holder;
+	persistent = _new_holder.persistent;
 	depth = CARRIED_ITEM_DEPTH;
 	image_index = 1;
 	
 	// Update player map
-	controller.current_room.remove_from_instances_at_map_positions(id); 
+	_controller.current_room.remove_from_instances_at_map_positions(id); 
 	
 	// Perform individual item pick-up actions
 	switch (object_index) {
 		case obj_bomb: { defuse_bomb(); break; }
 		case obj_shovel: { dig_hole(); break; }
 		case obj_heart: { mark_heart_carried(); break; }
-		case obj_meat: { array_remove_first(controller.dropped_meat, id); break; }
+		case obj_meat: { array_remove_first(_controller.dropped_meat, id); break; }
 		case obj_torch: {
 			if (!is_existing_instance(light_source)) {
-				var other_lit_torch = noone;
-				if (is_existing_instance(new_holder)) { 
-					with (new_holder) { other_lit_torch = get_carried_lit_torch(); }
+				var _other_lit_torch = noone;
+				if (is_existing_instance(_new_holder)) { 
+					with (_new_holder) { _other_lit_torch = get_carried_lit_torch(); }
 				}
-				if (is_existing_instance(other_lit_torch) && is_existing_instance(other_lit_torch.light_source)) { light_torch(other_lit_torch, true); }
+				if (is_existing_instance(_other_lit_torch) && is_existing_instance(_other_lit_torch.light_source)) { light_torch(_other_lit_torch, true); }
 			}
 			break;
 		}
@@ -55,10 +55,10 @@ function become_carried(new_holder) {
 	sprite_index == get_sprite_to_use(spr_clock_farmer) ||
 	sprite_index == get_sprite_to_use(spr_compass)) {
 		// Update drawn sand and hands for clock and compass sprites
-		var prev_time_image_index = time_image_index;
+		var _prev_time_image_index = time_image_index;
 		if (sprite_index == get_sprite_to_use(spr_compass)) {
-			var new_image_index = get_compass_image_index();
-			time_image_index = (new_image_index == -1) ? time_image_index : new_image_index;
+			var _new_image_index = get_compass_image_index();
+			time_image_index = (_new_image_index == -1) ? time_image_index : _new_image_index;
 			time_sprite_index = get_sprite_to_use(spr_compass_hands);
 		}
 		else {
@@ -66,14 +66,14 @@ function become_carried(new_holder) {
 			time_sprite_index = get_sprite_to_use(spr_clock_sand);
 		}
 	
-		if (time_image_index != prev_time_image_index) {
+		if (time_image_index != _prev_time_image_index) {
 			play_sound(snd_clock_tick, false);
 		}
 	}
 
 	// Add evaluation messages
-	if (new_holder == global.player) {
-		with (new_holder) {
+	if (_new_holder == global.player) {
+		with (_new_holder) {
 			if (is_existing_instance(right_hand_item) && is_existing_instance(left_hand_item) && right_hand_item.object_index == left_hand_item.object_index) {
 				global.controller.evaluation_manager.increment_evaluation_variable("dual_wielded_items");
 				if (right_hand_item.object_index == obj_torch && left_hand_item.object_index == obj_torch && is_existing_instance(right_hand_item.light_source) && is_existing_instance(left_hand_item.light_source)) {
@@ -84,28 +84,28 @@ function become_carried(new_holder) {
 	}
 }
 
-/// @function								become_dropped(dropper);
-/// @param		{inst} dropper				The instance dropping this item
-function become_dropped(dropper) {
-	var player = global.player, controller = global.controller;
+/// @function								become_dropped(_dropper);
+/// @param		{inst} _dropper				The instance dropping this item
+function become_dropped(_dropper) {
+	var _player = global.player, _controller = global.controller;
 	
 	// Update player map
-	controller.current_room.add_to_instances_at_map_positions(id); 
+	_controller.current_room.add_to_instances_at_map_positions(id); 
 	
 	// Perform individual item drop actions
 	switch (object_index) {
 		case obj_meat: {
-			if (!array_contains(controller.dropped_meat, id)) { array_push(controller.dropped_meat, id); }
+			if (!array_contains(_controller.dropped_meat, id)) { array_push(_controller.dropped_meat, id); }
 			break;
 		}
-		case obj_shovel: { dropped_by_digger = (dropper.object_index == obj_player || dropper.object_index == obj_hands); break; }
+		case obj_shovel: { dropped_by_digger = (_dropper.object_index == obj_player || _dropper.object_index == obj_hands); break; }
 		case obj_bomb: {
-			if (is_existing_instance(dropper) && dropper.object_index == obj_player) {
-				var light_bomb = false;
-				with (dropper) { 
-					if (is_carrying_lit_torch(false)) { light_bomb = true; }
+			if (is_existing_instance(_dropper) && _dropper.object_index == obj_player) {
+				var _light_bomb = false;
+				with (_dropper) { 
+					if (is_carrying_lit_torch(false)) { _light_bomb = true; }
 				}
-				if (light_bomb) { light_bomb(); }
+				if (_light_bomb) { _light_bomb(); }
 			}
 			break;
 		}
@@ -116,8 +116,8 @@ function become_dropped(dropper) {
 	holder = noone;
 	persistent = false;
 	depth = DROPPED_ITEM_DEPTH;
-	x = dropper.x;
-	y = dropper.y;
+	x = _dropper.x;
+	y = _dropper.y;
 	image_index = 0;
 	
 	// Perform individual actions based on dropper
@@ -126,7 +126,7 @@ function become_dropped(dropper) {
 	
 	// Alert interested obj_hands to come grab it
 	with (obj_hands) { 
-		if (dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || dropper == player || object_is_ancestor(dropper.object_index, obj_item))) {
+		if (_dropper != id && activated && !is_carrying_item(obj_meat) && (!is_existing_instance(right_hand_item) || _dropper == _player || object_is_ancestor(_dropper.object_index, obj_item))) {
 			target_item = other.id;
 			target_x = target_item.x;
 			target_y = target_item.y;
@@ -192,24 +192,24 @@ function thump() {
 
 /// @function								mark_heart_carried();
 function mark_heart_carried() {
-	var controller = global.controller;
-	if (!controller.carried_heart && holder == global.player) { 
-		controller.completion_amount += 1;
-		controller.carried_heart = true;
+	var _controller = global.controller;
+	if (!_controller.carried_heart && holder == global.player) { 
+		_controller.completion_amount += 1;
+		_controller.carried_heart = true;
 	}
 }
 
 /// @function								get_dropped_meat();
 function get_dropped_meat() {
-	var dropped_meats = global.controller.dropped_meat;
-	if (array_length(dropped_meats) == 0) { return noone; }
-	else { return dropped_meats[array_length(dropped_meats)-1]; }
+	var _dropped_meats = global.controller.dropped_meat;
+	if (array_length(_dropped_meats) == 0) { return noone; }
+	else { return _dropped_meats[array_length(_dropped_meats)-1]; }
 }
 
-/// @function								get_random_item_obj(special_item, include_key);
-/// @param		{bool} special_item			Whether to check against the spawned special items or not
-/// @param		{bool} include_key			Whether to include the key in what can be returned or not
-function get_random_item_obj(special_item, include_key) {
+/// @function								get_random_item_obj(_special_item, _include_key);
+/// @param		{bool} _special_item			Whether to check against the spawned special items or not
+/// @param		{bool} _include_key			Whether to include the key in what can be returned or not
+function get_random_item_obj(_special_item, _include_key) {
 	/*
 	var controller = global.controller, difficulty = global.difficulty;
 	var available_item_objs = (difficulty == difficulties.easy) ? 2 : 5;
@@ -218,40 +218,40 @@ function get_random_item_obj(special_item, include_key) {
 	var chosen_item_obj = -1;
 	*/
 	
-	var controller = global.controller, available_items = global.available_items[global.difficulty], num_of_items = array_length(available_items);
-	var random_pos = include_key ? irandom(num_of_items-1) : (1 + irandom(num_of_items-2));
-	var total_spawned_special_items = array_length(controller.spawned_special_items);
-	if (!include_key) { total_spawned_special_items += 1; }
-	var chosen_item_obj = noone;
+	var _controller = global.controller, _available_items = global.available_items[global.difficulty], _num_of_items = array_length(_available_items);
+	var _random_pos = _include_key ? irandom(_num_of_items-1) : (1 + irandom(_num_of_items-2));
+	var _total_spawned_special_items = array_length(_controller.spawned_special_items);
+	if (!_include_key) { _total_spawned_special_items += 1; }
+	var _chosen_item_obj = noone;
 	
-	if (special_item && total_spawned_special_items >= num_of_items) {
+	if (_special_item && _total_spawned_special_items >= _num_of_items) {
 		write_debug_message("Tried to spawn a special item and failed.", debug_message_level.warning);
 		return obj_torch;
 	}
 	
 	// Decide which item to spawn based on previous item spawns
-	while (chosen_item_obj == noone) {
-		var chosen_item_obj = available_items[random_pos];
-		var spawned_item_count = array_count_occurances(controller.spawned_items, chosen_item_obj);
-		var special_item_count = array_count_occurances(controller.spawned_special_items, chosen_item_obj)
+	while (_chosen_item_obj == noone) {
+		var _chosen_item_obj = _available_items[_random_pos];
+		var _spawned_item_count = array_count_occurrences(_controller.spawned_items, _chosen_item_obj);
+		var _special_item_count = array_count_occurrences(_controller.spawned_special_items, _chosen_item_obj)
 		
-		if (global.player_left_hand_item == chosen_item_obj) { spawned_item_count += 1; }
-		if (global.player_right_hand_item == chosen_item_obj) { spawned_item_count += 1; }
+		if (global.player_left_hand_item == _chosen_item_obj) { _spawned_item_count += 1; }
+		if (global.player_right_hand_item == _chosen_item_obj) { _spawned_item_count += 1; }
 			
 		// Choose a different item if too many have already spawned
-		if (special_item && special_item_count > 0) ||
-			!special_item && (
-				(chosen_item_obj == obj_map && spawned_item_count > 0) ||
-				(chosen_item_obj == obj_compass && spawned_item_count > 0) ||
-				(chosen_item_obj == obj_staff && spawned_item_count > 0) ||
-				(chosen_item_obj == obj_clock && spawned_item_count > 0) ||
-				(chosen_item_obj == obj_shovel && spawned_item_count > 1) ||
-				(chosen_item_obj == obj_torch && spawned_item_count > 1)
+		if (_special_item && _special_item_count > 0) ||
+			!_special_item && (
+				(_chosen_item_obj == obj_map && _spawned_item_count > 0) ||
+				(_chosen_item_obj == obj_compass && _spawned_item_count > 0) ||
+				(_chosen_item_obj == obj_staff && _spawned_item_count > 0) ||
+				(_chosen_item_obj == obj_clock && _spawned_item_count > 0) ||
+				(_chosen_item_obj == obj_shovel && _spawned_item_count > 1) ||
+				(_chosen_item_obj == obj_torch && _spawned_item_count > 1)
 			) { 
-				random_pos += 1;
-				if (random_pos >= num_of_items) { random_pos = 0; }
-				if (random_pos == 0 && !include_key) { random_pos += 1; }
-				chosen_item_obj = noone;
+				_random_pos += 1;
+				if (_random_pos >= _num_of_items) { _random_pos = 0; }
+				if (_random_pos == 0 && !_include_key) { _random_pos += 1; }
+				_chosen_item_obj = noone;
 		}
 		
 		/*
@@ -271,11 +271,11 @@ function get_random_item_obj(special_item, include_key) {
 			case 9: { chosen_item_obj = obj_clock; break; }
 		}
 		
-		var special_item_count = array_count_occurances(controller.spawned_special_items, chosen_item_obj)
+		var special_item_count = array_count_occurrences(controller.spawned_special_items, chosen_item_obj)
 			
 		if (special_item_count >= 1) { chosen_item_obj = -1; }
 		else if (!special_item) {
-			var spawned_item_count = array_count_occurances(controller.spawned_items, chosen_item_obj);
+			var spawned_item_count = array_count_occurrences(controller.spawned_items, chosen_item_obj);
 			if (chosen_item_obj == obj_map && spawned_item_count >= 1) { chosen_item_obj = -1; }
 			else if (chosen_item_obj == obj_staff && spawned_item_count >= 1) { chosen_item_obj = -1; }
 			else if (chosen_item_obj == obj_clock && spawned_item_count >= 2) { chosen_item_obj = -1; }
@@ -285,102 +285,102 @@ function get_random_item_obj(special_item, include_key) {
 		*/
 	}
 	
-	return chosen_item_obj;
+	return _chosen_item_obj;
 }
 
 
 /// @function								get_clock_image_index();
 function get_clock_image_index() {
-	var controller = global.controller;
-	var time_elapsed = controller.time_provided - controller.time_remaining;
-	var time_per_grain = (time_elapsed / controller.time_provided)
-	var sand_image_index = floor(abs((time_per_grain*8) - (time_per_grain*3/4)));
+	var _controller = global.controller;
+	var _time_elapsed = _controller.time_provided - _controller.time_remaining;
+	var _time_per_grain = (_time_elapsed / _controller.time_provided)
+	var _sand_image_index = floor(abs((_time_per_grain*8) - (_time_per_grain*3/4)));
 
-	return sand_image_index;
+	return _sand_image_index;
 }
 
 /// @function								get_compass_image_index();
 function get_compass_image_index() {
-	var controller = global.controller, player = global.player, hands_dir = 90;
+	var _controller = global.controller, _player = global.player, _hands_dir = 90;
 	
-	if (controller.current_room.has_hall_of_mirrors) {
+	if (_controller.current_room.has_hall_of_mirrors) {
 		// Point towards Next Hall of Mirrors Exit
-		var next_dir = controller.current_room.mirror_directions[controller.current_room.mirror_count];
-		var x_pos = x, y_pos = y;
-		switch (next_dir) {
-			case directions.up: { y_pos -= 2; break; }
-			case directions.right: { x_pos += 2; break; }
-			case directions.down: { y_pos += 2; break; }
-			case directions.left: { x_pos -= 2; break; }
+		var _next_dir = _controller.current_room.mirror_directions[_controller.current_room.mirror_count];
+		var _x_pos = x, _y_pos = y;
+		switch (_next_dir) {
+			case directions.up: { _y_pos -= 2; break; }
+			case directions.right: { _x_pos += 2; break; }
+			case directions.down: { _y_pos += 2; break; }
+			case directions.left: { _x_pos -= 2; break; }
 		}
-		hands_dir = point_direction(x, y, x_pos, y_pos);
+		_hands_dir = point_direction(x, y, _x_pos, _y_pos);
 	}
 	else if (instance_number(obj_collectable) > 0) {
 		// Point towards Nearest Collectable in Room
-		var nearest_collectable = instance_nearest(x, y, obj_collectable);
-		hands_dir = point_direction(x, y, nearest_collectable.x, nearest_collectable.y);
-		if (is_instance_at_coordinates(player.x, player.y, nearest_collectable)) { return -1; }
+		var _nearest_collectable = instance_nearest(x, y, obj_collectable);
+		_hands_dir = point_direction(x, y, _nearest_collectable.x, _nearest_collectable.y);
+		if (is_instance_at_coordinates(_player.x, _player.y, _nearest_collectable)) { return -1; }
 	}
 	else {
-		var current_room_x = controller.current_room.virtual_x, current_room_y = controller.current_room.virtual_y;
-		var target_room_x = current_room_x, target_room_y = current_room_y-1; // Default to pointing up
+		var _current_room_x = _controller.current_room.virtual_x, _current_room_y = _controller.current_room.virtual_y;
+		var _target_room_x = _current_room_x, _target_room_y = _current_room_y-1; // Default to pointing up
 		
 		// Point towards start room if heart is collected
-		if (controller.completion_amount+1 >= TOTAL_COMPLETION_AMOUNT) {
+		if (_controller.completion_amount+1 >= TOTAL_COMPLETION_AMOUNT) {
 			 if (instance_number(obj_cross) > 0) {
-				var nearest_cross = instance_nearest(x, y, obj_cross);
-				hands_dir = point_direction(x, y, nearest_cross.x, nearest_cross.y);
-				if (is_instance_at_coordinates(player.x, player.y, nearest_cross)) { return -1; }
+				var _nearest_cross = instance_nearest(x, y, obj_cross);
+				_hands_dir = point_direction(x, y, _nearest_cross.x, _nearest_cross.y);
+				if (is_instance_at_coordinates(_player.x, _player.y, _nearest_cross)) { return -1; }
 			}
 			else {
-				 target_room_x = controller.start_room.virtual_x;
-				 target_room_y = controller.start_room.virtual_y;
-				 hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
+				 _target_room_x = _controller.start_room.virtual_x;
+				 _target_room_y = _controller.start_room.virtual_y;
+				 _hands_dir = point_direction(_current_room_x, _current_room_y, _target_room_x, _target_room_y);
 			}
 		}
 		// Point towards heart room if all collectables are collected
 		else if (are_all_collectables_collected()) {
 			if (instance_number(obj_encased_heart) > 0) {
-				var nearest_heart = instance_nearest(x, y, obj_encased_heart);
-				hands_dir = point_direction(x, y, nearest_heart.x, nearest_heart.y);
-				if (is_instance_at_coordinates(player.x, player.y, nearest_heart)) { return -1; }
+				var _nearest_heart = instance_nearest(x, y, obj_encased_heart);
+				_hands_dir = point_direction(x, y, _nearest_heart.x, _nearest_heart.y);
+				if (is_instance_at_coordinates(_player.x, _player.y, _nearest_heart)) { return -1; }
 			}
 			else if (instance_number(obj_heart) > 0) {
-				var nearest_heart = instance_nearest(x, y, obj_heart);
-				hands_dir = point_direction(x, y, nearest_heart.x, nearest_heart.y);
-				if (is_instance_at_coordinates(player.x, player.y, nearest_heart)) { return -1; }
+				var _nearest_heart = instance_nearest(x, y, obj_heart);
+				_hands_dir = point_direction(x, y, _nearest_heart.x, _nearest_heart.y);
+				if (is_instance_at_coordinates(_player.x, _player.y, _nearest_heart)) { return -1; }
 			}
 			else {
-				target_room_x = controller.heart_room.virtual_x;
-				target_room_y = controller.heart_room.virtual_y;
-				hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
+				_target_room_x = _controller.heart_room.virtual_x;
+				_target_room_y = _controller.heart_room.virtual_y;
+				_hands_dir = point_direction(_current_room_x, _current_room_y, _target_room_x, _target_room_y);
 			}
 		}
 		// Point towards nearest room with collectables
 		else {
-			var smallest_dist = 999, target_room = self;
-			for (var i = 0; i < array_length(controller.rooms_with_collectables); i++) {
-				var collectables_room = controller.rooms_with_collectables[i];
-				var current_dist = abs(point_distance(current_room_x, current_room_y, collectables_room.virtual_x, collectables_room.virtual_y));			
-				if (current_dist < smallest_dist) {
-					smallest_dist = current_dist;
-					target_room = collectables_room;
+			var _smallest_dist = 999, _target_room = self;
+			for (var _i = 0; _i < array_length(_controller.rooms_with_collectables); _i++) {
+				var _collectables_room = _controller.rooms_with_collectables[_i];
+				var _current_dist = abs(point_distance(_current_room_x, _current_room_y, _collectables_room.virtual_x, _collectables_room.virtual_y));			
+				if (_current_dist < _smallest_dist) {
+					_smallest_dist = _current_dist;
+					_target_room = _collectables_room;
 				}
 			}
-			target_room_x = target_room.virtual_x;
-			target_room_y = target_room.virtual_y;
-			hands_dir = point_direction(current_room_x, current_room_y, target_room_x, target_room_y);
+			_target_room_x = _target_room.virtual_x;
+			_target_room_y = _target_room.virtual_y;
+			_hands_dir = point_direction(_current_room_x, _current_room_y, _target_room_x, _target_room_y);
 		}
 	}
 	
 	// Translate from GML dir to image_index value
-	hands_dir = 360 - hands_dir;
-	hands_dir += 90;
-	if (hands_dir >= 360) { hands_dir -= 360; }
-	var hands_image_index = round(hands_dir / 45);
-	if (image_xscale == -1) { hands_image_index += (4-hands_image_index)*2; }
-	if (hands_image_index >= 8) { hands_image_index -= 8; }
-	return hands_image_index;
+	_hands_dir = 360 - _hands_dir;
+	_hands_dir += 90;
+	if (_hands_dir >= 360) { _hands_dir -= 360; }
+	var _hands_image_index = round(_hands_dir / 45);
+	if (image_xscale == -1) { _hands_image_index += (4-_hands_image_index)*2; }
+	if (_hands_image_index >= 8) { _hands_image_index -= 8; }
+	return _hands_image_index;
 }
 
 /// @function								light_bomb();
@@ -396,28 +396,28 @@ function light_bomb() {
 
 
 /// @function								get_carried_item_draw_y_offset(special_item, include_key);
-/// @param		{spr} spr_index				The sprite index to get the carried y offset for
-function get_carried_item_draw_y_offset(spr_index) {
-	var y_offset = -2;
+/// @param		{spr} _spr_index				The sprite index to get the carried y offset for
+function get_carried_item_draw_y_offset(_spr_index) {
+	var _y_offset = -2;
 	
-	switch (spr_index) {
+	switch (_spr_index) {
 		case spr_rosary:
-			{ y_offset = 2; break; }
+			{ _y_offset = 2; break; }
 		case spr_staff: 
-			{ y_offset = 0; break; }
+			{ _y_offset = 0; break; }
 		case spr_meat:
 		case spr_meat_farmer:
-			{ y_offset = 0; break; }
+			{ _y_offset = 0; break; }
 		case spr_compass: 
-			{ y_offset = -3; break; }
+			{ _y_offset = -3; break; }
 		case spr_shovel:
-			{ y_offset = -3; break; }
+			{ _y_offset = -3; break; }
 		case spr_torch: 
-			{ y_offset = -4; break; }
+			{ _y_offset = -4; break; }
 		case spr_sword: 
 		case spr_sword_farmer:
-			{ y_offset = -6; break; }
+			{ _y_offset = -6; break; }
 	}
 	
-	return y_offset;
+	return _y_offset;
 }

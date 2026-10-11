@@ -149,40 +149,40 @@ function get_keyboard_wasd_inputs() {
 
 /// @function								get_gamepad_inputs();
 function get_gamepad_inputs() {
-	var gamepad = global.gamepad;
-	key_up = key_up || gamepad_button_check(gamepad, gp_padu) || gamepad_axis_value(gamepad, gp_axislv) < -0.5;
-	key_down = key_down || gamepad_button_check(gamepad, gp_padd) || gamepad_axis_value(gamepad, gp_axislv) > 0.5;
-	key_left = key_left || gamepad_button_check(gamepad, gp_padl) || gamepad_axis_value(gamepad, gp_axislh) < -0.5;
-	key_right = key_right || gamepad_button_check(gamepad, gp_padr) || gamepad_axis_value(gamepad, gp_axislh) > 0.5;
-	key_space = key_space || gamepad_button_check(gamepad, gp_shoulderlb) || gamepad_button_check(gamepad, gp_shoulderrb) || gamepad_button_check(gamepad, gp_face4);
-	key_enter = key_enter || gamepad_button_check(gamepad, gp_start) || gamepad_button_check(gamepad, gp_select);
-	key_z = key_z || gamepad_button_check(gamepad, gp_face3) || gamepad_button_check(gamepad, gp_shoulderl);
-	key_x = key_x || gamepad_button_check(gamepad, gp_face1)  || gamepad_button_check(gamepad, gp_shoulderr);
-	key_shift = key_shift ||  gamepad_button_check(gamepad, gp_face2);
+	var _gamepad = global.gamepad;
+	key_up = key_up || gamepad_button_check(_gamepad, gp_padu) || gamepad_axis_value(_gamepad, gp_axislv) < -0.5;
+	key_down = key_down || gamepad_button_check(_gamepad, gp_padd) || gamepad_axis_value(_gamepad, gp_axislv) > 0.5;
+	key_left = key_left || gamepad_button_check(_gamepad, gp_padl) || gamepad_axis_value(_gamepad, gp_axislh) < -0.5;
+	key_right = key_right || gamepad_button_check(_gamepad, gp_padr) || gamepad_axis_value(_gamepad, gp_axislh) > 0.5;
+	key_space = key_space || gamepad_button_check(_gamepad, gp_shoulderlb) || gamepad_button_check(_gamepad, gp_shoulderrb) || gamepad_button_check(_gamepad, gp_face4);
+	key_enter = key_enter || gamepad_button_check(_gamepad, gp_start) || gamepad_button_check(_gamepad, gp_select);
+	key_z = key_z || gamepad_button_check(_gamepad, gp_face3) || gamepad_button_check(_gamepad, gp_shoulderl);
+	key_x = key_x || gamepad_button_check(_gamepad, gp_face1)  || gamepad_button_check(_gamepad, gp_shoulderr);
+	key_shift = key_shift ||  gamepad_button_check(_gamepad, gp_face2);
 	
-	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(gamepad, gp_padu) || (prev_axislv_value >= -0.5 && gamepad_axis_value(gamepad, gp_axislv) < -0.5);
-	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(gamepad, gp_padd) || (prev_axislv_value <= 0.5 && gamepad_axis_value(gamepad, gp_axislv) > 0.5);
-	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(gamepad, gp_padl) || (prev_axislh_value >= -0.5 && gamepad_axis_value(gamepad, gp_axislh) < -0.5);
-	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(gamepad, gp_padr) || (prev_axislh_value <= 0.5 && gamepad_axis_value(gamepad, gp_axislh) > 0.5);
-	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(gamepad, gp_shoulderlb) || gamepad_button_check_pressed(gamepad, gp_shoulderrb) || gamepad_button_check_pressed(gamepad, gp_face4);
-	key_enter_pressed = key_enter_pressed || gamepad_button_check_pressed(gamepad, gp_start) || gamepad_button_check_pressed(gamepad, gp_select)
-	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(gamepad, gp_face3) || gamepad_button_check_pressed(gamepad, gp_shoulderl);
-	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_shoulderr);
-	key_shift_pressed = key_shift_pressed ||  gamepad_button_check_pressed(gamepad, gp_face2);
+	key_up_pressed = key_up_pressed || gamepad_button_check_pressed(_gamepad, gp_padu) || (prev_axislv_value >= -0.5 && gamepad_axis_value(_gamepad, gp_axislv) < -0.5);
+	key_down_pressed = key_down_pressed || gamepad_button_check_pressed(_gamepad, gp_padd) || (prev_axislv_value <= 0.5 && gamepad_axis_value(_gamepad, gp_axislv) > 0.5);
+	key_left_pressed = key_left_pressed || gamepad_button_check_pressed(_gamepad, gp_padl) || (prev_axislh_value >= -0.5 && gamepad_axis_value(_gamepad, gp_axislh) < -0.5);
+	key_right_pressed = key_right_pressed || gamepad_button_check_pressed(_gamepad, gp_padr) || (prev_axislh_value <= 0.5 && gamepad_axis_value(_gamepad, gp_axislh) > 0.5);
+	key_space_pressed = key_space_pressed || gamepad_button_check_pressed(_gamepad, gp_shoulderlb) || gamepad_button_check_pressed(_gamepad, gp_shoulderrb) || gamepad_button_check_pressed(_gamepad, gp_face4);
+	key_enter_pressed = key_enter_pressed || gamepad_button_check_pressed(_gamepad, gp_start) || gamepad_button_check_pressed(_gamepad, gp_select)
+	key_z_pressed  = key_z_pressed || gamepad_button_check_pressed(_gamepad, gp_face3) || gamepad_button_check_pressed(_gamepad, gp_shoulderl);
+	key_x_pressed  = key_x_pressed || gamepad_button_check_pressed(_gamepad, gp_face1) || gamepad_button_check_pressed(_gamepad, gp_shoulderr);
+	key_shift_pressed = key_shift_pressed ||  gamepad_button_check_pressed(_gamepad, gp_face2);
 	
-	key_up_released = key_up_released || gamepad_button_check_released(gamepad, gp_padu);
-	key_down_released = key_down_released || gamepad_button_check_released(gamepad, gp_padd);
-	key_left_released = key_left_released || gamepad_button_check_released(gamepad, gp_padl);
-	key_right_released = key_right_released || gamepad_button_check_released(gamepad, gp_padr);	
-	key_space_released = key_space_released ||  gamepad_button_check_released(gamepad, gp_shoulderlb) || gamepad_button_check_released(gamepad, gp_shoulderrb) || gamepad_button_check_released(gamepad, gp_face4);
-	key_enter_released = key_enter_released || gamepad_button_check_released(gamepad, gp_start) || gamepad_button_check_released(gamepad, gp_select);
-	key_z_released = key_z_released || gamepad_button_check_released(gamepad, gp_face3) || gamepad_button_check_released(gamepad, gp_shoulderl);
-	key_x_released = key_x_released || gamepad_button_check_released(gamepad, gp_face1) || gamepad_button_check_released(gamepad, gp_shoulderr);
+	key_up_released = key_up_released || gamepad_button_check_released(_gamepad, gp_padu);
+	key_down_released = key_down_released || gamepad_button_check_released(_gamepad, gp_padd);
+	key_left_released = key_left_released || gamepad_button_check_released(_gamepad, gp_padl);
+	key_right_released = key_right_released || gamepad_button_check_released(_gamepad, gp_padr);	
+	key_space_released = key_space_released ||  gamepad_button_check_released(_gamepad, gp_shoulderlb) || gamepad_button_check_released(_gamepad, gp_shoulderrb) || gamepad_button_check_released(_gamepad, gp_face4);
+	key_enter_released = key_enter_released || gamepad_button_check_released(_gamepad, gp_start) || gamepad_button_check_released(_gamepad, gp_select);
+	key_z_released = key_z_released || gamepad_button_check_released(_gamepad, gp_face3) || gamepad_button_check_released(_gamepad, gp_shoulderl);
+	key_x_released = key_x_released || gamepad_button_check_released(_gamepad, gp_face1) || gamepad_button_check_released(_gamepad, gp_shoulderr);
 	key_esc_released = key_esc_released || keyboard_check_released(vk_escape);
-	key_shift_released  = key_shift_released  ||  gamepad_button_check_released(gamepad, gp_face2);
+	key_shift_released  = key_shift_released  ||  gamepad_button_check_released(_gamepad, gp_face2);
 	
-	prev_axislv_value = gamepad_axis_value(gamepad, gp_axislv);
-	prev_axislh_value = gamepad_axis_value(gamepad, gp_axislh);
+	prev_axislv_value = gamepad_axis_value(_gamepad, gp_axislv);
+	prev_axislh_value = gamepad_axis_value(_gamepad, gp_axislh);
 	
 }
 
@@ -203,8 +203,8 @@ function set_eih_shader() {
 
 /// @function								is_thump_frame();
 function is_thump_frame() {
-	var thump_timer = (global.game_manager.number_of_frames_since_game_began/FRAMES_TO_WAIT_BEFORE_PROCESSING) % FRAMES_FOR_HEART_THUMP;
-	return (thump_timer > 0 && thump_timer <= 3);
+	var _thump_timer = (global.game_manager.number_of_frames_since_game_began/FRAMES_TO_WAIT_BEFORE_PROCESSING) % FRAMES_FOR_HEART_THUMP;
+	return (_thump_timer > 0 && _thump_timer <= 3);
 }
 
 /// @function								is_blink_frame();

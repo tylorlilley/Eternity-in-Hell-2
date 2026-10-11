@@ -1,6 +1,6 @@
 // Update game graphics textures
-var trait_manager = new EvaluationTraitManager();
-with (trait_manager) {
+var _trait_manager = new EvaluationTraitManager();
+with (_trait_manager) {
 	read_traits_from_file();
 	show_debug_message(evaluation_traits);
 }
@@ -42,9 +42,9 @@ time_provided = _map.time_provided;
 
 // Create player object and initialize all game rooms
 time_remaining = time_provided;
-for (var i = 0; i < array_length(game_rooms); i++) {
-	var next_room = game_rooms[i];
-	transition_to_room(next_room, false);
+for (var _i = 0; _i < array_length(game_rooms); _i++) {
+	var _next_room = game_rooms[_i];
+	transition_to_room(_next_room, false);
 	initialize_room_transition_values();
 }
 

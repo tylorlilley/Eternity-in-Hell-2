@@ -1,8 +1,8 @@
-/// @function								array_random_get(list);
-/// @param		{index} list				The array to retrieve a random element from
-function array_random_get(list) {
-	if (array_length(list) == 0) { return noone; }
-	else { return list[irandom(array_length(list)-1)]; }
+/// @function								array_random_get(_list);
+/// @param		{index} _list				The array to retrieve a random element from
+function array_random_get(_list) {
+	if (array_length(_list) == 0) { return noone; }
+	else { return _list[irandom(array_length(_list)-1)]; }
 }
 
 /// @function								array_random_pop(list);
@@ -16,13 +16,13 @@ function array_random_pop(_list) {
 	return _return_value;
 }
 
-/// @function								array_duplicate(list, source_id);
-/// @param		{index}	list				Array to add the values to
-/// @param		{index}	source_list			Array to take the values being added from
-function array_duplicate(list, source_list) {
+/// @function								array_duplicate(_list, source_id);
+/// @param		{index}	_list				Array to add the values to
+/// @param		{index}	_source_list			Array to take the values being added from
+function array_duplicate(_list, _source_list) {
 	// This replaces the first array with a copy of the second array.
-	array_resize(list, 0)
-	array_copy(list, 0, source_list, 0, array_length(source_list));
+	array_resize(_list, 0)
+	array_copy(_list, 0, _source_list, 0, array_length(_source_list));
 }
 
 /// @function									array_shift(list);
@@ -36,22 +36,22 @@ function array_shift(_list)
     return _first;
 }
 
-/// @function									array_remove_first(list, value_to_find);
-/// @param		{index}		list				List to remove the value from
-/// @param		{value}		value_to_remove		Value to remove from the array
-function array_remove_first(list, value_to_remove) {
-	var list_pos = array_get_index(list, value_to_remove);
-	if (list_pos != -1) { array_delete(list, list_pos, 1); }
+/// @function									array_remove_first(_list, value_to_find);
+/// @param		{index}		_list				List to remove the value from
+/// @param		{value}		_value_to_remove		Value to remove from the array
+function array_remove_first(_list, _value_to_remove) {
+	var _list_pos = array_get_index(_list, _value_to_remove);
+	if (_list_pos != -1) { array_delete(_list, _list_pos, 1); }
 }
 
-/// @function									array_count_occurances(list, value_to_count);
-/// @param		{index}		list				List to check for the value in
-/// @param		{value}		value_to_count		Value to count ocurrances of in the array
-function array_count_occurances(list, value_to_count) {
-	var count = 0;
-	for (var i = 0; i < array_length(list); i++) {
-	    if (list[i] == value_to_count) {count += 1; }
+/// @function									array_count_occurrences(_list, _value_to_count);
+/// @param		{index}		_list				List to check for the value in
+/// @param		{value}		_value_to_count		Value to count ocurrances of in the array
+function array_count_occurrences(_list, _value_to_count) {
+	var _count = 0;
+	for (var _i = 0; _i < array_length(_list); _i++) {
+	    if (_list[_i] == _value_to_count) {_count += 1; }
 	}
 	
-	 return count;
+	 return _count;
 }

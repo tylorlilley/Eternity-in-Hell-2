@@ -1,5 +1,5 @@
 // Run step events of game objects
-var player = global.player, can_process = can_process_this_frame();
+var _player = global.player, _can_process = can_process_this_frame();
 
 // Restart Game While Paused
 if (paused) {
@@ -15,19 +15,19 @@ if (paused) {
 }
 else {
 	// Do Step Events
-	for (var i = 0; i < 3; i ++;) {
-		if (can_process) { with (player) { event_user(i); } }
+	for (var _i = 0; _i < 3; _i ++;) {
+		if (_can_process) { with (_player) { event_user(_i); } }
 		with (obj_game_object) { 
-			if ((!is_existing_instance(player) || id != player.id) &&
-				(can_process || object_is_ancestor(object_index, obj_projectile))) { event_user(i); } 
+			if ((!is_existing_instance(_player) || id != _player.id) &&
+				(_can_process || object_is_ancestor(object_index, obj_projectile))) { event_user(_i); } 
 		}
-		with (obj_light_source) { event_user(i); }
-		with (obj_controller) { event_user(i); }
+		with (obj_light_source) { event_user(_i); }
+		with (obj_controller) { event_user(_i); }
 	}
 	// Make clock sound
-	var has_clock = false;
-	with (player) { has_clock = is_carrying_item(obj_clock); }
-	if (has_clock && (number_of_frames_since_game_began % (100*FRAMES_TO_WAIT_BEFORE_PROCESSING) == 0)) {
+	var _has_clock = false;
+	with (_player) { _has_clock = is_carrying_item(obj_clock); }
+	if (_has_clock && (number_of_frames_since_game_began % (100*FRAMES_TO_WAIT_BEFORE_PROCESSING) == 0)) {
 		play_sound(snd_clock_tick, false);
 	}
 }
@@ -41,21 +41,21 @@ else if (!paused) {
 		play_sound(snd_pickup, false); 
 		with (obj_projectile) { prev_speed = speed; speed = 0; }
 	}
-	else if (key_enter_released && instance_number(obj_title) == 0 && can_process && number_of_frames_since_game_began > 6) {
-		var carried_rosary = noone;
-		with (player) { carried_rosary = get_carried_item(obj_rosary); }
+	else if (key_enter_released && instance_number(obj_title) == 0 && _can_process && number_of_frames_since_game_began > 6) {
+		var _carried_rosary = noone;
+		with (_player) { _carried_rosary = get_carried_item(obj_rosary); }
 		if (room == rm_finish) {
 			return_to_title_screen(); 
 			exit; 
 		}
-		else if (!player.dead || carried_rosary) { 
+		else if (!_player.dead || _carried_rosary) { 
 			paused = true; 
 			play_sound(snd_pickup, false); 
 			with (obj_projectile) { prev_speed = speed; speed = 0; }
 		}
 	}
 }
-else if (paused && key_enter_released && (instance_number(obj_title) > 0 || can_process)) {
+else if (paused && key_enter_released && (instance_number(obj_title) > 0 || _can_process)) {
 	paused = false;
 	play_sound(snd_putdown, false); 
 	with (obj_projectile) { speed = prev_speed; }
@@ -72,12 +72,12 @@ number_of_frames_since_game_began += 1;
 
 if (resize_timer > 0) { 
 	resize_timer -= 1;
-	var display_width = display_get_width(), display_height = display_get_height(); 
-	var window_scaling = (global.fullscreen) ? global.fullscreen_window_scaling : global.window_scaling;
-	var window_width = (global.fullscreen) ? display_width : (room_width * window_scaling);
-	var window_height = (global.fullscreen) ? display_height : (room_height * window_scaling);
+	var _display_width = display_get_width(), _display_height = display_get_height(); 
+	var _window_scaling = (global.fullscreen) ? global.fullscreen_window_scaling : global.window_scaling;
+	var _window_width = (global.fullscreen) ? _display_width : (room_width * _window_scaling);
+	var _window_height = (global.fullscreen) ? _display_height : (room_height * _window_scaling);
 	
-	window_set_size(window_width + gameframe_offset, window_height + gameframe_caption_height_normal + gameframe_offset);
+	window_set_size(_window_width + gameframe_offset, _window_height + gameframe_caption_height_normal + gameframe_offset);
 	window_center();
 }
 if (os_type == os_windows) { gameframe_update(); }

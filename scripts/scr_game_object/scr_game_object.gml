@@ -214,7 +214,7 @@ function move_in_direction(_dir, _make_noise) {
 		if (instance_place(x, y, obj_lava_part)) { 
 			_snd = snd_splash; 
 			if (y > instance_place(x, y, obj_lava_part).y && !instance_place(x, y+8, obj_lava_part)) { _snd = snd_walk; }
-			play_sound(_snd, false);
+			if (_snd == snd_splash) { play_sound(_snd, false); } // A step on the lava's lower edge is a footstep, which plays below
 		}
 		if (instance_place(x, y, obj_illusion_wall)) { _snd = snd_flicker; play_sound(_snd, false); }
 		if (_snd == snd_walk) { play_sound(_snd, false); }
@@ -369,6 +369,13 @@ function can_press_button() {
 /// @description           Deterministic per-sprite coin flip, stable across resource reordering.
 function get_sprite_shuffle_flip(_spr) {
     static cache = ds_map_create();
+    static cache_seed = noone;
+
+    // The flips depend on the seed, so a game with a new seed starts a new cache
+    if (cache_seed != global.seed) {
+        ds_map_clear(cache);
+        cache_seed = global.seed;
+    }
     if (ds_map_exists(cache, _spr)) { return cache[? _spr]; }
 
     var _nm = sprite_get_name(_spr), _hash = 0;
@@ -570,8 +577,6 @@ function draw_reflection_in_mirrors() {
 							_refl_height = abs((y-abs(sprite_height/2)-_carried_y_offset) - (_closest_solid.y-abs(_closest_solid.sprite_height/2)));
 							_y_offset = 0;
 							_y_pos = (y > _closest_solid.y) ? _closest_solid.y-_carried_y_offset+abs(_closest_solid.sprite_height/2)-_refl_height : _closest_solid.y-_carried_y_offset-abs(_closest_solid.sprite_height/2);
-						}
-						else {
 						}
 					}
 					

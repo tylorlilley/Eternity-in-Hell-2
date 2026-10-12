@@ -10,7 +10,7 @@ function GameMap() constructor {
 	// Set up the layout cache every map shares, the first time a map is made
 	static layout_cache = undefined;
 	if (is_undefined(layout_cache)) {
-		var _layouts = [], _special_room_types = [
+		var _cached_layouts = [], _special_room_types = [
 			new SpecialRoomType("pride", [rm_four_exits_23, rm_four_exits_24]),						// Hall of mirrors
 			new SpecialRoomType("envy", [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30]),		// Giant eye
 			new SpecialRoomType("wrath", [rm_one_exit_22]),											// Inverted cross
@@ -18,13 +18,16 @@ function GameMap() constructor {
 			new SpecialRoomType("sloth", [rm_one_exit_23])											// Gudetama
 		];
 
-		// Read each room asset as a layout, and keep the usable ones (see RoomLayout)
+		// Read each room asset as a layout, and keep the usable ones
 		for (var _room_asset = room_first; _room_asset != -1; _room_asset = room_next(_room_asset)) {
+			// Skip unusable layouts
 			var _layout = new RoomLayout(_room_asset);
 			if (!_layout.is_usable) { continue; }
-			_layout.index = array_length(_layouts);
-
-			// Mark the layout as a special room if a special room type uses it, swapping it in for the type's room asset
+			
+			// Add layout to the list of layouts to cache
+			_layout.layout_cache_index = array_length(_cached_layouts);
+	
+			// Handle setup for layouts that a special room types uses
 			for (var _i = 0; _i < array_length(_special_room_types); _i++) {
 				var _special_room_type = _special_room_types[_i];
 
@@ -42,9 +45,9 @@ function GameMap() constructor {
 
 			// Work out the lowest difficulty it appears on, now that it knows whether it's a special room
 			_layout.determine_minimum_difficulty();
-			array_push(_layouts, _layout);
+			array_push(_cached_layouts, _layout);
 		}
-		layout_cache = { layouts: _layouts, special_room_types: _special_room_types };
+		layout_cache = { layouts: _cached_layouts, special_room_types: _special_room_types };
 	}
 
 	// Layouts this difficulty allows for regular (not special) rooms by exit kind, and how many rooms use each

@@ -65,25 +65,27 @@ function RoomLayout(_room_reference) constructor {
 	/// @function validate_layout()
 	/// @description Logs any way the layout breaks the expected spot rules generation relies on. A layout needs one chest spot, one stairs spot,
 	///	at least two collectable spots that building never clears, and an exit spot on every side.
-	/// @returns {boolean} Whether the layout passes the check or not
+	/// @returns {bool} Whether the layout passes the check or not
 	static validate_layout = function() {
 		// TODO: Does this cover all the validation of all the things currently validated by the ruby script, or are we missing anything there? 
 		var _problems = "";
 		if (get_object_count("obj_chest_spot") != 1) { _problems += " needs exactly one chest spot;"; }
 		if (get_object_count("obj_stairs_spot") != 1) { _problems += " needs exactly one stairs spot;"; }
-		if (get_object_count("obj_exit_spot_up") == 0) { _problems += " needs at least one up exit spot;"; }
-		if (get_object_count("obj_exit_spot_down") == 0) { _problems += " needs at least one down exit spot;"; }
-		if (get_object_count("obj_exit_spot_right") == 0) { _problems += " needs at least one right exit spot;"; }
-		if (get_object_count("obj_exit_spot_left") == 0) { _problems += " needs at least one left exit spot;"; }
+		if (get_object_count("obj_exit_spot_up") < 2) { _problems += " needs at least one up exit spot;"; }
+		if (get_object_count("obj_exit_spot_down") < 2) { _problems += " needs at least one down exit spot;"; }
+		if (get_object_count("obj_exit_spot_right") < 2) { _problems += " needs at least one right exit spot;"; }
+		if (get_object_count("obj_exit_spot_left") < 2) { _problems += " needs at least one left exit spot;"; }
+		if (get_object_count("obj_worm_head") < get_object_count("obj_worm_body")) { _problems += " every worm head needs at least one body;"; }
+		if (get_object_count("obj_worm_body") > 0 && get_object_count("obj_worm_head") == 0) { _problems += " every worm body needs at least one head;"; }
 		if (array_length(key_spots) < 2) { _problems += " needs at least two collectable spots off the exit and chest spots;"; }
-		if (array_length(button_spots) < 1) { _problems += " needs at least one collectable or stairs spots where a button can be spawned;"; }
+		if (array_length(button_spots) == 0 && !stairs_spot_is_clear) { _problems += " needs at least one collectable or stairs spots where a button can be spawned;"; }
 		if (count_hazards_with_tags(hazard_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) > 0) {
 			_problems += " places a hazard that stops the player alongside one that chases or shoots at them;";
 		}
 		// TODO: Check that the expected border walls are present? Are there any other assumptions all layout files share that we are missing from this validation check?
 		
 		// Passes or fails validation checks
-		if (_problems != "") { write_debug_message("Layout " + name + _problems, debug_message_level.warning); return false; }
+		if (_problems != "") { write_debug_message("Layout " + room_name + _problems, debug_message_level.warning); return false; }
 		return true;
 	};
 	
@@ -409,7 +411,6 @@ function RoomLayout(_room_reference) constructor {
 	
 	/// @function get_instances_from_layout_file()
 	/// @description Reads the instances this room spawns from the layout file that matches the room name
-	/// @returns {array} Array of instances found in the layout file
 	static get_instances_from_layout_file = function() {
 		// TODO: Can we generate these json files once on game run, based on the actual Game Maker rooms in the project, so we don't need the ruby script?
 		// Or if it is easier, can we pull this list of instances from the Game Maker room reference itself, rather than an external ruby list of json files?
@@ -429,24 +430,23 @@ function RoomLayout(_room_reference) constructor {
 	};
 	
 	/// @function setup_instance_object_and_tile_counts()
-	/// @description Reads the instances this room spawns from the layout file that matches the room name
-	/// @returns {array} Array of instances found in the layout file
+	/// @description Sets up the counts by object type and by tile position for each instance in the file
+	/// @returns {array} Array of spot instances that could destroy other spots in the file
 	static setup_instance_object_and_tile_counts = function() {
-		var _object_counts = {}, _instances_on_tile = {}, _destroying_spots = [];
+		var _destroying_spots = [];
 		for (var _i = 0; _i < array_length(instances); _i++) {
 			// Add 1 to the object count for this instance's object type
-			var _instance = instances[_i], _tile = get_tile_key(_instance.x, _instance.y);
+			var _instance = instances[_i];
 			instance_object_counts[$ _instance.name] = get_object_count(_instance.name) + 1;
 			
 			// Add 1 to the number of objects overlapping this tile spot
-			var _tile_count = _instances_on_tile[$ _tile];
-			instance_tile_counts[$ _tile] = is_undefined(_tile_count) ? 1 : _tile_count + 1;
+			var _tile_key = get_tile_key(_instance.x, _instance.y);
+			instance_tile_counts[$ _tile_key] = get_tile_instance_count(_tile_key) + 1;
 			
 			// If this instance is one that can delete the instances that share a spot with it on room generation, add it to the clearing spots array
 			if (string_starts_with(_instance.name, "obj_exit_spot") || _instance.name == "obj_chest_spot") { array_push(_destroying_spots, _instance); }
 		}
 		
-		instance_object_counts = _object_counts;
 		return _destroying_spots;
 	}
 	
@@ -456,6 +456,15 @@ function RoomLayout(_room_reference) constructor {
 	/// @returns {real} The count, or 0 if the layout places none
 	static get_object_count = function(_object_name) {
 		var _count = instance_object_counts[$ _object_name];
+		return is_undefined(_count) ? 0 : _count;
+	};
+	
+	/// @function get_tile_instance_count(_tile_key)
+	/// @description How many instances are at a given x and y position in the layout
+	/// @param {string} _object_name The string tile key for the x and y position to check
+	/// @returns {real} The count, or 0 if the layout places none
+	static get_tile_instance_count = function(_tile_key) {
+		var _count = instance_tile_counts[$ _tile_key];
 		return is_undefined(_count) ? 0 : _count;
 	};
 
@@ -475,14 +484,14 @@ function RoomLayout(_room_reference) constructor {
 			switch (_possible_spot_instance.name) {
 				case "obj_stairs_spot": { stairs_spot_is_clear = _instance_is_alone; break; }
 				case "obj_collectable_spot": {
-					// Always count the spot
-					_collectable_spot_number += 1;
-				
 					// Add the spot to key and button spot lists
 					if (!is_collectable_spot_destroyed(_possible_spot_instance, _destroying_spots)) {
 						array_push(key_spots, _collectable_spot_number);
 						if (_instance_is_alone) { array_push(button_spots, _collectable_spot_number); }
 					}
+					
+					// Always count the spot, even if it can't be used, so we can later pull just the useable spots out of an array of all spots
+					_collectable_spot_number += 1;
 					
 					break;
 				}
@@ -510,25 +519,26 @@ function RoomLayout(_room_reference) constructor {
 	// Instance Variables
 	// ========================
 
-	// The room
-	room_reference = _room_reference;
-	room_name = room_get_name(_room_reference);
-	exit_type = get_exit_type_from_name(room_name);									// The layout exit type (number of exits and their orientation
-	layout_cache_index = -1;														// Its position in the layout cache, set when GameMap builds the cache
-	is_usable = (exit_type != -1) && !string_starts_with(room_name, "rm_unused");	// Only include usable rooms that match an exit type
-
-	// The layout file, built during GameMap room generation
+	// Defaults, set when GameMap room generation runs for the first time and builds the layout cache
 	is_special_room = false;							// Set when GameMap builds the layout cache, from its table of special room types
 	minimum_difficulty = difficulties.very_hard;		// The lowest difficulty it appears on, set when GameMap builds the layout cache
 	
-	instances = []										// The list of instances that will be created when this room gets built
-	instance_object_counts = {};						// A map containing both of each object type present in the room layout
+	// Set now, when the RoomLayout is initialized
+	room_reference = _room_reference;
+	room_name = room_get_name(_room_reference);
+	exit_type = get_exit_type_from_name(room_name);									// The layout exit type (number of exits and their orientation)
+	layout_cache_index = -1;														// Its position in the layout cache, set when GameMap builds the cache
+	is_usable = (exit_type != -1) && !string_starts_with(room_name, "rm_unused");	// Only include usable rooms that match an exit type
+	
+	instances = [];										// The list of instances that will be created when this room gets built
+	instance_object_counts = {};						// A map containing a count of each object type present in the room layout
 	instance_tile_counts = {};							// A map containing a count of each instance present at a given tile in the layout
 	
 	key_spots = [];										// list of collectable spot numbers a floor key can take
 	button_spots = [];									// list of collectable spot numbers a button can take
 	stairs_spot_is_clear = false;						// Whether a button can take the stairs spot
 
+	// Read the layout file into the above variables
 	get_instances_from_layout_file();
 	var _destroying_spots = setup_instance_object_and_tile_counts();
 	setup_stairs_and_collectable_spots(_destroying_spots);

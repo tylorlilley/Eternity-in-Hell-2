@@ -13,7 +13,7 @@ function SpecialRoomType(_name, _room_references) constructor {
 	/// @returns {bool}
 	static has_layout_of_exit_type = function(_exit_type) {
 		for (var _i = 0; _i < array_length(layouts); _i++) {
-			if (layouts[_i].exit_type == _exit_type) { return true; }
+			if (layouts[_i] != -1 && layouts[_i].exit_type == _exit_type) { return true; }
 		}
 		return false;
 	};
@@ -25,7 +25,7 @@ function SpecialRoomType(_name, _room_references) constructor {
 	static get_layouts_of_exit_type = function(_exit_type) {
 		var _matching_exit_types = [];
 		for (var _i = 0; _i < array_length(layouts); _i++) {
-			if (layouts[_i].exit_type == _exit_type) { array_push(_matching_exit_types, layouts[_i]); }
+			if (layouts[_i] != -1 && layouts[_i].exit_type == _exit_type) { array_push(_matching_exit_types, layouts[_i]); }
 		}
 		return _matching_exit_types;
 	};
@@ -36,6 +36,7 @@ function SpecialRoomType(_name, _room_references) constructor {
 	static get_exit_types = function() {
 		var _exit_types = [];
 		for (var _i = 0; _i < array_length(layouts); _i++) {
+			if (layouts[_i] == -1) { continue; }
 			if (!array_contains(_exit_types, layouts[_i].exit_type)) { array_push(_exit_types, layouts[_i].exit_type); }
 		}
 		return _exit_types;
@@ -46,5 +47,5 @@ function SpecialRoomType(_name, _room_references) constructor {
 	// ========================
 	name = _name;
 	room_references = _room_references;
-	layouts = array_create(array_length(room_references)); // Assigned from the cache at runtime in the GameMap constructor
+	layouts = array_create(array_length(room_references), -1); // Assigned from the cache at runtime in the GameMap constructor
 }

@@ -40,7 +40,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 	/// @function add_portcullis_for_room(_room)
 	/// @description Adds a closed portcullis exit for the given trapped room
 	/// @param {GameRoom} _room The room whose side to set
-	/// @param {bool} _given_value Whether that side's portcullis is closed
+	/// @param {bool} _room Whether that side's portcullis is closed
 	/// @returns {bool} False if the room is not associated with this exit or it has no special exit type yet
 	static add_portcullis_for_room = function(_room) {
 		if (exit_type != exit_types.none) { return false; }
@@ -115,13 +115,13 @@ function RoomExit(_current_room, _linked_room) constructor {
 		else if (_room == room_2 && room_2_stairs == noone) { room_2_stairs = _stairs; }
 	};
 
-	/// @function get_connected_stairs(_given_stairs)
+	/// @function get_connected_stairs(_stairs)
 	/// @description The stairs instance on the other side of the exit from a given one
-	/// @param {Id.Instance} _given_stairs The stairs instance on one side
+	/// @param {Id.Instance} _stairs The stairs instance on one side
 	/// @returns {Id.Instance} The stairs on the other side, or noone if the given stairs aren't this exit's
-	static get_connected_stairs = function(_given_stairs) {
-		if (_given_stairs == room_1_stairs) { return room_2_stairs; }
-		else if (_given_stairs == room_2_stairs) { return room_1_stairs; }
+	static get_connected_stairs = function(_stairs) {
+		if (_stairs == room_1_stairs) { return room_2_stairs; }
+		else if (_stairs == room_2_stairs) { return room_1_stairs; }
 
 		return noone;
 	};

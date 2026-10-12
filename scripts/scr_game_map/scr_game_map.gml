@@ -684,7 +684,7 @@ function GameMap() constructor {
 	/// @returns {RoomLayout} The new layout
 	static assign_layout_to_room = function(_room, _needs_lanterns = false) {
 		// Free the old layout, so it no longer counts as in use
-		if (!is_undefined(_room.layout)) { layout_use_counts[_room.layout.index] -= 1; }
+		if (!is_undefined(_room.layout)) { layout_use_counts[_room.layout.layout_cache_index] -= 1; }
 
 		// Assign a new minimally used layout for the room
 		var _real_exit_type = _room.get_exit_type(), _possible_layouts, _layout;
@@ -701,7 +701,7 @@ function GameMap() constructor {
 		}
 
 		// Increase the layout use count
-		layout_use_counts[_layout.index] += 1;
+		layout_use_counts[_layout.layout_cache_index] += 1;
 		
 		return _layout;
 	};
@@ -719,7 +719,7 @@ function GameMap() constructor {
 				var _possible_layout = _possible_layouts[_i];
 				if (_must_have_lanterns && !_possible_layout.has_lanterns) { continue; }
 				
-				if (layout_use_counts[_possible_layout.index] == _minimum_use_count) { array_push(_minimally_used_layouts, _possible_layout); }
+				if (layout_use_counts[_possible_layout.layout_cache_index] == _minimum_use_count) { array_push(_minimally_used_layouts, _possible_layout); }
 			}
 			_minimum_use_count += 1;
 		}

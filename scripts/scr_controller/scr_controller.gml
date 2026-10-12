@@ -543,7 +543,7 @@ function game_room_initialize() {
 	// Break tiles into parts
 	with (obj_tile) { initialize_tile(); }
 	
-	// Find room's stairs and chest spots. Every layout should have one of each (see RoomLayout.check_rules)
+	// Find room's stairs and chest spots. Every layout should have one of each, as validated by the RoomLayout initializer
 	var _stairs_spot = instance_find(obj_stairs_spot, 0);
 	if (_stairs_spot == noone) {
 		// This should never happen if every room has a stairs spot

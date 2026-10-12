@@ -748,7 +748,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		// shoots at them, but flag it if they ever do
 		var _rolled_counts = get_hazard_counts(false);
 		if (count_hazards_with_tags(_rolled_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(_rolled_counts, TARGETS_PLAYER_TAGS) > 0) {
-			write_debug_message("Generation rolled a hazard that stops the player into a room with one that chases or shoots at them: " + layout.name, debug_message_level.warning);
+			write_debug_message("Generation rolled a hazard that stops the player into a room with one that chases or shoots at them: " + layout.room_name, debug_message_level.warning);
 		}
 
 		// A hall of mirrors' sequence of exits to take

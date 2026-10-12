@@ -1,4 +1,19 @@
-cockroach sometims steps towards light
+always spawn at least 1 torch when starting hands are missing torch (otherwise random item is fine)
+for the gudetama check - are we checking that the item is spawned, or that it is spawned AND reachable before getting the gudetama item? Search area probably should take that into account
+
+let you move between rooms with the red staff even while you are inside of a wall
+- check what breaks if the player enters the room from a non-standard position (like echoes, etc)
+- add red staff to the list of special items that complete the lock generation for lock search areas
+
+add a special room type - a specific key (crown?) spawns in one room, and you must take it to another room (throne?) in order to unlock it
+check out escape board game for other special room ideas
+
+add two more special rooms
+do a pass of all eval messages/achievements and their requirements. Prefer percentages to hard counts. Prefer looking at the map that was actually created. Add new ones
+final boss that spawns in very hard if you've solved all seven special rooms before
+
+
+cockroach sometims steps towards light - I think this got fixed?
 room with mirror + fireball spitter
 
 eval for crouch?
@@ -29,11 +44,8 @@ Maybe you can "save" a red item by completing a run with it to take into future 
 red compass collectables, eyes, etc - make noise but not move at all when the target is completely behind a door? Maybe true of hands too?
 - does red compass freak out if you are behind a blocked door and collectables can't move towards you?
 - should eyes not react if they end up unable to move (like if you are closed off in a room and they are outside of it)?
-are lava skeletons not spawning anymore?
-
 
 Is hall of mirrors special room working correctly?
-increase special rooms?
 
 hands rush for meat even when deactivated?
 wiggle gets stuck (just like cockroach) when moving towards meat if between two blocks like: ___| W |___

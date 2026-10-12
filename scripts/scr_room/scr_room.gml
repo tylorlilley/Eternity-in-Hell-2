@@ -45,9 +45,9 @@ function GameRoom(_given_x, _given_y) constructor {
 	button_spot = -1;						// Which collectable spot, in layout file order, the portcullis button takes
 	key_spot = -1;							// Which collectable spot, in layout file order, the floor key takes
 	has_extra_key = false;					// Its floor key is the extra key the first bomb standing in for a key brings, which the lock search doesn't count (see GameMap.add_extra_key_to_area)
-	mapgen_index = -1;						// Its place in its map's rooms, which the lock search's room bitmasks use (set by GameMap)
+	map_rooms_index = -1;						// Its place in its map's rooms, which the lock search's room bitmasks use (set by GameMap)
 	special_room_type = undefined;			// The special room type it's reserved for, if it's a special room
-	unlocked_chests_bitmask_index = -1;		// Its locked chest's bit in the lock search's chest bitmasks, or -1 if the chest doesn't matter to it
+	relevant_locked_chests_index = -1;		// Its locked chest's bit in the lock search's chest bitmasks, or -1 if the chest doesn't matter to it
 	mapgen_needs_layout = true;				// Its cardinal exits changed since its last layout pick
 	
 	// How likely the player is to arrive holding each counter, and to have light here, which its difficulty score is
@@ -281,14 +281,14 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @function get_reachable_rooms_bitmask()
 	/// @description Every room the player can reach from this one without opening a lock, through cardinal exits and
 	///	stairs
-	/// @returns {real} Bitmask of those rooms, this one included, by mapgen_index
+	/// @returns {real} Bitmask of those rooms, this one included, by map_rooms_index
 	static get_reachable_rooms_bitmask = function() {
 		// For each room in the queue, add to the queue all new rooms reachable from that room
 		var _queue = [self], _reached_rooms_bitmask = 0;
 		while (array_length(_queue) > 0) {
 			// Get the next room in the queue and mark it as reached in the bitmask
 			var _room = array_shift(_queue);
-			_reached_rooms_bitmask |= (1 << _room.mapgen_index);
+			_reached_rooms_bitmask |= (1 << _room.map_rooms_index);
 			
 			// For each exit out of this room, including stairs, add new connecting rooms to the queue
 			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
@@ -298,7 +298,7 @@ function GameRoom(_given_x, _given_y) constructor {
 				
 				// Skip if the room connected by this exit is already in the bitmask
 				var _other_room = _exit.get_connected_room(_room);
-				if (_reached_rooms_bitmask.is_room_reached(_other_room)) { continue; }
+				if ((_reached_rooms_bitmask & (1 << _other_room.map_rooms_index)) != 0) { continue; }
 				
 				// Otherwise, add the connecting room to the queue
 				array_push(_queue, _other_room);

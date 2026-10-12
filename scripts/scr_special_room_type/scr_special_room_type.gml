@@ -4,7 +4,7 @@
 /// @param {array} _room_references				Room assets for the special room layouts
 function SpecialRoomType(_name, _room_references) constructor {
 	name = _name;
-	room_references = _room_references
+	room_references = _room_references;
 	layouts = array_create(array_length(room_references)); // Assigned from the cache at runtime in the GameMap constructor
 
 	/// @function has_layout_of_exit_type(_exit_type)

@@ -26,79 +26,79 @@ function RoomExit(_current_room, _linked_room) constructor {
 	///	room until they press its button
 	/// @param {GameRoom} _given_room The room whose side to set
 	/// @param {bool} _given_value Whether that side's portcullis is closed
-	function set_portcullis_to_trigger_for_room(_given_room, _given_value) {
+	static set_portcullis_to_trigger_for_room = function(_given_room, _given_value) {
 		if (_given_room == room_1) { room_1_has_closed_portcullis = _given_value; }
 		else if (_given_room == room_2) { room_2_has_closed_portcullis = _given_value; }
-	}
+	};
 
 	/// @function has_closed_portcullis_for_room(_given_room)
 	/// @description Whether the portcullis on one room's side of the exit is closed
 	/// @param {GameRoom} _given_room The room whose side to check
 	/// @returns {bool} False for a room the exit doesn't link
-	function has_closed_portcullis_for_room(_given_room) {
+	static has_closed_portcullis_for_room = function(_given_room) {
 		if (_given_room == room_1) { return room_1_has_closed_portcullis; }
 		else if (_given_room == room_2) { return room_2_has_closed_portcullis; }
 
 		return false;
-	}
+	};
 
 	/// @function open_portcullis()
 	/// @description Opens the portcullis on both sides of the exit, once the player presses the trap room's button
-	function open_portcullis() {
+	static open_portcullis = function() {
 		has_portcullis = true;
 		room_1_has_closed_portcullis = false;
 		room_2_has_closed_portcullis = false;
-	}
+	};
 
 	/// @function close_portcullis()
 	/// @description Closes the portcullis on both sides of the exit
-	function close_portcullis() {
+	static close_portcullis = function() {
 		has_portcullis = true;
 		room_1_has_closed_portcullis = true;
 		room_2_has_closed_portcullis = true;
-	}
+	};
 
 	/// @function add_stairs_for_room(_given_room, _stairs)
 	/// @description Remembers the stairs instance on one room's side of the exit, the first time that room is built
 	/// @param {GameRoom} _given_room The room the stairs are in
 	/// @param {Id.Instance} _stairs The stairs instance
-	function add_stairs_for_room(_given_room, _stairs) {
+	static add_stairs_for_room = function(_given_room, _stairs) {
 		if (_given_room == room_1 && room_1_stairs == noone) { room_1_stairs = _stairs; }
 		else if (_given_room == room_2 && room_2_stairs == noone) { room_2_stairs = _stairs; }
-	}
+	};
 
 	/// @function get_connected_stairs(_given_stairs)
 	/// @description The stairs instance on the other side of the exit from a given one
 	/// @param {Id.Instance} _given_stairs The stairs instance on one side
 	/// @returns {Id.Instance} The stairs on the other side, or noone if the given stairs aren't this exit's
-	function get_connected_stairs(_given_stairs) {
+	static get_connected_stairs = function(_given_stairs) {
 		if (_given_stairs == room_1_stairs) { return room_2_stairs; }
 		else if (_given_stairs == room_2_stairs) { return room_1_stairs; }
 
 		return noone;
-	}
+	};
 
 	/// @function get_connected_room(_given_room)
 	/// @description The room on the other side of the exit from a given room
 	/// @param {GameRoom} _given_room The room on one side
 	/// @returns {GameRoom|real} The room on the other side, or -1 if the exit doesn't link the given room
-	function get_connected_room(_given_room) {
+	static get_connected_room = function(_given_room) {
 		if (_given_room == room_1) { return room_2; }
 		else if (_given_room == room_2) { return room_1; }
 
 		return -1;
-	}
+	};
 
 	/// @function destroy()
 	/// @description Marks the exit's door as destroyed during play, which takes its lock with it
-	function destroy() {
+	static destroy = function() {
 		destroyed = true;
 		has_lock = false;
-	}
+	};
 
 	/// @function unlock()
 	/// @description Removes the exit's lock during play, once the player opens it with a key
-	function unlock() { has_lock = false; }
+	static unlock = function() { has_lock = false; };
 
 	// Map generation (see GameMap)
 
@@ -106,10 +106,10 @@ function RoomExit(_current_room, _linked_room) constructor {
 	/// @description Locks or unlocks the exit while the map is generated. A locked exit has a door, and plain doors are
 	///	added after the locks, so unlocking removes the door too, unlike unlock().
 	/// @param {bool} _is_locked Whether to lock it
-	function set_lock(_is_locked) {
+	static set_lock = function(_is_locked) {
 		has_lock = _is_locked;
 		has_door = _is_locked;
-	}
+	};
 
 	/// @function can_be_locked()
 	/// @description Whether generation can lock this exit: it isn't locked yet, and neither room it links is the start
@@ -124,12 +124,12 @@ function RoomExit(_current_room, _linked_room) constructor {
 	/// @function reset_decorations()
 	/// @description Clears the exit's lock, door, illusion walls and portcullis, so each generation pass can decorate it
 	///	again
-	function reset_decorations() {
+	static reset_decorations = function() {
 		has_lock = false;
 		has_door = false;
 		has_illusion_walls = 0;
 		has_portcullis = false;
 		room_1_has_closed_portcullis = false;
 		room_2_has_closed_portcullis = false;
-	}
+	};
 }

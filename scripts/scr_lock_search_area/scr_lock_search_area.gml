@@ -18,7 +18,7 @@ function LockSearchArea(_reached_rooms, _unlocked_chests, _rooms) constructor {
 	/// @description Counts what the player finds in the area's rooms: keys and bombs, a lit room, locked chests that don't
 	///	matter, and a torch or special key in a chest they can open
 	/// @param {array} _rooms Every room of the map
-	function initialize_area(_rooms) {
+	static initialize_area = function(_rooms) {
 		// Check every room to see what can be found within the area
 		for (var _i = 0; _i < array_length(_rooms); _i++) {
 			// Skip room if it is not in the reached area
@@ -39,41 +39,41 @@ function LockSearchArea(_reached_rooms, _unlocked_chests, _rooms) constructor {
 				else if (_room.chest_obj == obj_key && _room.has_special_item) { reached_special_key = true; }
 			}
 		}
-	}
+	};
 
 	/// @function is_chest_unlocked(_room)
 	/// @description Whether a room's locked chest is one of the chests that matter, and the area has unlocked it
 	/// @param {GameRoom} _room The room with the chest
 	/// @returns {bool}
-	function is_chest_unlocked(_room) {
+	static is_chest_unlocked = function(_room) {
 		if (_room.unlocked_chests_bitmask_index == -1) { return false; }
 		return ((unlocked_chests & (1 << _room.unlocked_chests_bitmask_index)) != 0);
-	}
+	};
 
 	/// @function is_exit_unlocked(_exit)
 	/// @description Whether the area has opened a locked exit: both rooms it links are reached
 	/// @param {RoomExit} _exit The locked exit
 	/// @returns {bool}
-	function is_exit_unlocked(_exit) {
+	static is_exit_unlocked = function(_exit) {
 		return (_exit.room_1.is_in_bitmask(reached_rooms) && _exit.room_2.is_in_bitmask(reached_rooms));
-	}
+	};
 
 	/// @function can_use_bombs_as_keys()
 	/// @description Whether bombs can stand in for keys in the area: it has a torch, and a lit room to light it in
 	/// @returns {bool}
-	function can_use_bombs_as_keys() {
+	static can_use_bombs_as_keys = function() {
 		return (reached_lit_room && reached_torch);
-	}
+	};
 
 	/// @function count_usable_keys()
 	/// @description The keys the area gives the player to spend: the keys reached, and the bombs too once they can be lit,
 	///	less the keys spent unlocking the chests that matter. The keys its locked exits took aren't taken off here.
 	/// @returns {real}
-	function count_usable_keys() {
+	static count_usable_keys = function() {
 		var _usable_keys = (can_use_bombs_as_keys() ? (keys_reached + bombs_reached) : keys_reached);
 		var _keys_used = count_bits(unlocked_chests);
 		return _usable_keys - _keys_used;
-	}
+	};
 
 	initialize_area(_rooms);
 }

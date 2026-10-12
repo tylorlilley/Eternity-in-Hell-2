@@ -15,6 +15,7 @@ function RunRecord() constructor {
 
 	// What the run has done, shaped like a save file so that saving only adds it in (see create_stats_record)
 	stats_record = create_stats_record();
+	stats = stats_record.stats;						// The run's stats, which the evaluation messages read as stats.name
 	killers = [];									// What killed the player each time they died, in order
 	rooms_looked_at_with_map_item = [];				// Rooms the player opened the map in while carrying a map
 	rooms_looked_at_without_map_item = [];			// Rooms the player opened the map in without carrying a map
@@ -45,13 +46,12 @@ function RunRecord() constructor {
 	/// @param {string} _stat_name The stat to add to
 	/// @param {real} [_amount] How much to add (1 by default)
 	static increment_stat = function(_stat_name, _amount = 1) {
-		var _stats = stats_record.stats;
-		if (!variable_struct_exists(_stats, _stat_name)) {
+		if (!variable_struct_exists(stats, _stat_name)) {
 			write_debug_message("No run stat is named " + _stat_name + " (see create_run_stats)", debug_message_level.warning);
 			return;
 		}
 
-		add_to_struct_number(_stats, _stat_name, _amount);
+		add_to_struct_number(stats, _stat_name, _amount);
 		show_debug_message(get_debug_message_level_string(debug_message_level.eval) + ": " + _stat_name + " += " + string(_amount));
 	};
 
@@ -137,7 +137,8 @@ function RunRecord() constructor {
 
 	/// @function evaluate()
 	/// @description Judges the run once it's won or lost: measures it, then goes through every evaluation message in
-	///	order, keeping the ones it earned (every one, in test mode) and adding up their scores, clamped to 0-100
+	///	order, keeping the ones it earned (every one, in test mode) and adding up their scores, clamped to 0-100. Each
+	///	message's test runs as a method of this run, so it reads the run directly (see EvaluationMessage).
 	static evaluate = function() {
 		var _controller = global.controller, _time_provided = _controller.time_provided, _time_remaining = _controller.final_time_remaining;
 
@@ -157,19 +158,41 @@ function RunRecord() constructor {
 		previous_totals = get_stats_record_total(difficulty);
 
 		// Judge it
-		var _messages = get_evaluation_messages(), _stats = stats_record.stats;
+		var _messages = get_evaluation_messages();
 		evaluation_messages = [];
 		run_score = 0;
 		for (var _i = 0; _i < array_length(_messages); _i++) {
-			var _message = _messages[_i];
-			if (!global.is_test_mode && !_message.is_earned(_stats, self)) { continue; }
+			var _message = _messages[_i], _is_earned = method(self, _message.is_earned);
+			if (!global.is_test_mode && !_is_earned()) { continue; }
 
-			run_score += _message.get_score_for_run(self);
-			array_push(evaluation_messages, [_message.get_text_for_run(self), _message.is_negative]);
+			run_score += get_message_score(_message);
+			array_push(evaluation_messages, [get_message_text(_message), _message.is_negative]);
 			if (_message.is_achievement) { stats_record.evaluation_messages[$ _message.title] = 1; }
 		}
 		run_score = clamp(run_score, 0, 100);
 		is_evaluated = true;
+	};
+
+	/// @function get_message_score(_message)
+	/// @description What an evaluation message adds to this run's score
+	/// @param {struct} _message The EvaluationMessage
+	/// @returns {real}
+	static get_message_score = function(_message) {
+		if (!is_method(_message.score_value)) { return _message.score_value; }
+
+		var _get_score = method(self, _message.score_value);
+		return _get_score();
+	};
+
+	/// @function get_message_text(_message)
+	/// @description The text an evaluation message shows for this run: its title, or a score line's measure of the run
+	/// @param {struct} _message The EvaluationMessage
+	/// @returns {string}
+	static get_message_text = function(_message) {
+		if (_message.is_achievement) { return _message.title; }
+
+		var _get_text = method(self, _message.get_text);
+		return _get_text();
 	};
 
 	/// @function save()

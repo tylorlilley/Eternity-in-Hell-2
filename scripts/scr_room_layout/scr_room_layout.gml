@@ -200,6 +200,40 @@ function RoomLayout(_room_asset) constructor {
 		return _spawns;
 	};
  
+	/// @function get_mid_game_spawns(_counts, _floor_item_count)
+	/// @description What can spawn into a room with this layout each time the player enters it, and how many of each on average, from what the
+	///	room holds (see game_room_start and game_room_start_spawn_instances, which roll these again on every visit):
+	///	- each bone can be a trap that rises as a skeleton when the player comes near
+	///	- each bone and bush can hide a bug, and a corpse always hides two unless it crumbles first. Only red bugs can harm the
+	///		player, so only they count
+	///	- lava brings up a nose, or failing that a fire skeleton if the room has none. One roll for the room, however much
+	///		lava it has
+	///	- hands come for each item lying on the floor, as long as the player holds something to trade, which they nearly
+	///		always do
+	/// @param {struct} _counts Hazard names and how many of each, for the room
+	/// @param {real} _floor_item_count How many items lie on the room's floor, like a key
+	/// @returns {array} Each spawn (see ExpectedSpawn)
+	static get_mid_game_spawns = function(_counts, _floor_item_count) {
+		// Skeletons rising from trapped bones
+		var _bone_count = get_object_count("obj_bones"), _bush_count = get_object_count("obj_bush"), _corpse_count = get_object_count("obj_player_corpse");
+		var _spawns = [new ExpectedSpawn("obj_skeleton", _bone_count * get_chance_out_of(TRAP_BONES_PROBABILITY))];
+
+		// Red bugs from bones, bushes and corpses
+		var _bug_count = ((_bone_count + _bush_count) * get_chance_out_of(BUG_PROBABILITY)) + (_corpse_count * (1 - get_chance_out_of(CORPSE_DISINTEGRATE_PROBABILITY)) * 2);
+		array_push(_spawns, new ExpectedSpawn("obj_bug", _bug_count * get_chance_out_of(RED_BUG_PROBABILITY)));
+
+		// A nose or a fire skeleton from the lava
+		if ((_counts[$ "obj_lava"] ?? 0) > 0) {
+			var _nose_chance = get_chance_out_of(NOSE_PROBABILITY * 4);
+			array_push(_spawns, new ExpectedSpawn("obj_nose", _nose_chance));
+			if ((_counts[$ "obj_fire_skeleton"] ?? 0) <= 0) { array_push(_spawns, new ExpectedSpawn("obj_fire_skeleton", (1 - _nose_chance) * get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY))); }
+		}
+
+		// Hands for the items on the floor
+		array_push(_spawns, new ExpectedSpawn("obj_hands", _floor_item_count * get_chance_out_of(HANDS_PROBABILITY)));
+		return _spawns;
+	};
+
 	/// @function get_expected_spawns(_counts)
 	/// @description Everything that might spawn into a room with this layout on top of what the layout spawns for sure, at
 	///	the current difficulty: what generation rolls into it (see get_expected_map_generation_spawns) and what spawns into
@@ -207,7 +241,7 @@ function RoomLayout(_room_asset) constructor {
 	/// @param {struct} _counts What the layout spawns for sure (see get_base_hazard_counts)
 	/// @returns {array} Each spawn (see ExpectedSpawn)
 	static get_expected_spawns = function(_counts) {
-		var _spawns = get_expected_map_generation_spawns(_counts), _mid_game_spawns = get_mid_game_spawns(_counts, self, 0);
+		var _spawns = get_expected_map_generation_spawns(_counts), _mid_game_spawns = get_mid_game_spawns(_counts, 0);
 		array_copy(_spawns, array_length(_spawns), _mid_game_spawns, 0, array_length(_mid_game_spawns));
 		return _spawns;
 	};
@@ -221,8 +255,8 @@ function RoomLayout(_room_asset) constructor {
 	static get_layout_difficulty_score = function() {
 		var _counts = get_base_hazard_counts();
 		var _chance_starts_lit = (has_lanterns && !is_special_room) ? get_chance_out_of(PRE_LIT_PROBABILITY) : 0;
-		var _room = { chance_holding_staff: 0, chance_holding_sword: 0, chance_holding_special_sword: 0, chance_of_light: _chance_starts_lit };
-		return get_difficulty_score_with_spawns(_counts, get_expected_spawns(_counts), _room);
+		var _player_chances = new PlayerChances(0, 0, 0, _chance_starts_lit);
+		return _player_chances.get_difficulty_score_with_spawns(_counts, get_expected_spawns(_counts));
 	};
  
 	/// @function get_layout_time_score()

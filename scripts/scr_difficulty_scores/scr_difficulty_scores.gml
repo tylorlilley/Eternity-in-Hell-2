@@ -72,7 +72,7 @@ enum hazard_tags {
 ///	tags: what the combination rules and counters need to know about it (see hazard_tags).
 ///
 ///	Bones, bushes and corpses aren't in the table: they aren't dangerous themselves, only what spawns from them during
-///	play (see get_mid_game_spawns).
+///	play (see RoomLayout.get_mid_game_spawns).
 /// @returns {struct}
 function get_difficulty_score_table() {
 	static _table = {
@@ -124,7 +124,7 @@ function get_difficulty_score_table() {
 		// For moving collectables only:
 		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.medium,	tags: hazard_tags.none },
  
-		// Spawns during play (see get_mid_game_spawns)
+		// Spawns during play (see RoomLayout.get_mid_game_spawns)
 		// A red bug: once it reaches the player, their moves are left to chance for a while. Bugs of other colors run away and can't harm them
 		obj_bug:					{ danger: 0.05,		many: 1,	time: 0.20,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.moves_towards_player | hazard_tags.stopped_by_block },
 		// Comes for an item lying on the floor and runs off with it, laughing. It's deadly to touch, and the item has to be won back
@@ -292,30 +292,13 @@ function get_hazard_combination_multiplier(_counts, _hazard_name) {
 	return 1 + ((_worst_case_multiplier - 1) * (1 - _chance_on_own_terms));
 }
  
-/// @function get_hazard_points_in_room(_hazard_name, _count, _multiplier, _room)
-/// @description A hazard's danger points in a room: its count's points times its combination multiplier. For one that's
-///	worse in the dark, the chance of surviving it is mixed over whether the player has light there.
-/// @param {string} _hazard_name The hazard's name in the table
-/// @param {real} _count How many of it
-/// @param {real} _multiplier Its combination multiplier (see get_hazard_combination_multiplier)
-/// @param {struct} _room The room, or a struct with the same chances, for its chance_of_light
-/// @returns {real}
-function get_hazard_points_in_room(_hazard_name, _count, _multiplier, _room) {
-	var _points = get_hazard_difficulty_score(_hazard_name, _count) * _multiplier;
-	if (!hazard_has_tag(_hazard_name, hazard_tags.dangerous_in_dark)) { return _points; }
-	
-	var _survival_chance_with_light = get_survival_chance_for_difficulty_score(_points);
-	var _survival_chance_in_dark = get_survival_chance_for_difficulty_score(_points * DARK_DANGER_MULTIPLIER);
-	return get_difficulty_score_for_survival_chance((_room.chance_of_light * _survival_chance_with_light) + ((1 - _room.chance_of_light) * _survival_chance_in_dark));
-}
- 
 /// @function apply_block_counters(_hazards, _block_count)
 /// @description Lowers the points of the hazards a room's blocks can stop, to BLOCK_COUNTER_MULTIPLIER of them. A block
 ///	that isn't used up can be pushed on from one hazard to the next, so a single block lowers all of those, the way a special
 ///	sword kills them all. One that's used up only stops one copy of a hazard, the way a plain sword kills once, so the blocks
 ///	go to the deadliest copies first. A copy is an even share of its hazard's points, and a hazard that counts once whatever
 ///	its count, like lava, is one copy.
-/// @param {array} _hazards Each hazard's points, sword kill points, tags and copies (see get_difficulty_score_for_hazard_counts)
+/// @param {array} _hazards Each hazard's points, sword kill points, tags and copies (see PlayerChances.get_difficulty_score_for_hazard_counts)
 /// @param {real} _block_count How many blocks the room has, living ones included
 function apply_block_counters(_hazards, _block_count) {
 	if (_block_count <= 0) { return; }
@@ -343,66 +326,113 @@ function apply_block_counters(_hazards, _block_count) {
 	}
 }
  
-/// @function get_difficulty_score_for_hazard_counts(_counts, [_room], [_has_light])
-/// @description The difficulty points for a room's hazards. Each hazard's points grow for the hazards it shares the room
-///	with and shrink for the blocks that can stop it (see apply_block_counters). Then the chance of surviving them all is
-///	averaged over which counters the player might hold: a staff stops anything that shoots and lava, a special sword kills
-///	anything a sword can, and a plain sword kills the deadliest of those, once. The average has to be taken over the chances
-///	of surviving, so it's turned back into points at the end.
-/// @param {struct} _counts Hazard names and how many of each
-/// @param {struct} [_room] The room, or a struct with the same chances, for how likely the player is to hold each counter and to have light there. Without one, the player holds no counters
-/// @param {bool} [_has_light] Without a room, whether the player has light
-/// @returns {real}
-function get_difficulty_score_for_hazard_counts(_counts, _room = undefined, _has_light = false) {
-	// Without a room, score it for a player holding no counters, with light only if _has_light says so
-	_room ??= { chance_holding_staff: 0, chance_holding_sword: 0, chance_holding_special_sword: 0, chance_of_light: _has_light ? 1 : 0 };
+/// @function PlayerChances([_chance_holding_staff], [_chance_holding_sword], [_chance_holding_special_sword], [_chance_of_light])
+/// @description How likely the player is to arrive in a room holding each counter to its hazards, and to have light
+///	there, which a room's difficulty points are averaged over. Each GameRoom keeps one as player_chances, which GameMap
+///	fills in once it knows what the map holds (see GameMap.calculate_item_chances). Scoring a room before that, or a
+///	layout, uses one made for that case, like a player holding nothing.
+/// @param {real} [_chance_holding_staff] The chance of holding a staff (0 by default)
+/// @param {real} [_chance_holding_sword] The chance of holding a plain sword (0 by default)
+/// @param {real} [_chance_holding_special_sword] The chance of holding a special sword (0 by default)
+/// @param {real} [_chance_of_light] The chance of having light (0 by default)
+function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _chance_holding_special_sword = 0, _chance_of_light = 0) constructor {
+	chance_holding_staff = _chance_holding_staff;
+	chance_holding_sword = _chance_holding_sword;
+	chance_holding_special_sword = _chance_holding_special_sword;
+	chance_of_light = _chance_of_light;
+	
+	/// @function get_hazard_points_in_room(_hazard_name, _count, _multiplier)
+	/// @description A hazard's danger points in a room: its count's points times its combination multiplier. For one that's
+	///	worse in the dark, the chance of surviving it is mixed over whether the player has light there.
+	/// @param {string} _hazard_name The hazard's name in the table
+	/// @param {real} _count How many of it
+	/// @param {real} _multiplier Its combination multiplier (see get_hazard_combination_multiplier)
+	/// @returns {real}
+	static get_hazard_points_in_room = function(_hazard_name, _count, _multiplier) {
+		var _points = get_hazard_difficulty_score(_hazard_name, _count) * _multiplier;
+		if (!hazard_has_tag(_hazard_name, hazard_tags.dangerous_in_dark)) { return _points; }
+		
+		var _survival_chance_with_light = get_survival_chance_for_difficulty_score(_points);
+		var _survival_chance_in_dark = get_survival_chance_for_difficulty_score(_points * DARK_DANGER_MULTIPLIER);
+		return get_difficulty_score_for_survival_chance((chance_of_light * _survival_chance_with_light) + ((1 - chance_of_light) * _survival_chance_in_dark));
+	};
 
-	// Work out each hazard's points in this room, and how much one sword kill would save
-	var _table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(_counts), _hazards = [];
-	for (var _i = 0; _i < array_length(_hazard_names); _i++) {
-		// Skip hazards that aren't in the room or the table
-		var _hazard_name = _hazard_names[_i], _hazard_count = _counts[$ _hazard_name], _entry = _table[$ _hazard_name];
-		if (is_undefined(_entry) || _hazard_count <= 0) { continue; }
-		
-		// Grow its points for the hazards around it. Generation never puts something that stops the player in a room with
-		// something that chases or shoots at them, but what spawns during play can, and the multiplier scores that too
-		var _multiplier = get_hazard_combination_multiplier(_counts, _hazard_name);
-		var _points = get_hazard_points_in_room(_hazard_name, _hazard_count, _multiplier, _room);
-		
-		// How much a plain sword saves by killing one of them
-		var _sword_kill_points = 0;
-		if ((_entry.tags & hazard_tags.killed_by_sword) != 0) { _sword_kill_points = _points - get_hazard_points_in_room(_hazard_name, _hazard_count - 1, _multiplier, _room); }
-		array_push(_hazards, { points: _points, sword_kill_points: _sword_kill_points, tags: _entry.tags, copies: (_entry.many == 0) ? 1 : _hazard_count });
-	}
-	
-	// The room's blocks, living ones included, lower the danger of the hazards they can stop
-	apply_block_counters(_hazards, _counts[$ "obj_block_spot"] ?? 0);
-	
-	// Average the chance of surviving over every mix of counters the player might hold: a staff, a special sword and a plain sword
-	var _survival_chance = 0;
-	for (var _held_counters = 0; _held_counters < 8; _held_counters++) {
-		// Skip mixes that can't happen on this map
-		var _holds_staff = (_held_counters & 1) != 0, _holds_special_sword = (_held_counters & 2) != 0, _holds_sword = (_held_counters & 4) != 0;
-		var _mix_chance = (_holds_staff ? _room.chance_holding_staff : 1 - _room.chance_holding_staff) *
-			(_holds_special_sword ? _room.chance_holding_special_sword : 1 - _room.chance_holding_special_sword) *
-			(_holds_sword ? _room.chance_holding_sword : 1 - _room.chance_holding_sword);
-		if (_mix_chance <= 0) { continue; }
-		
-		// Total the points of every hazard these counters don't stop, less what a plain sword's one kill saves
-		var _mix_points = 0, _best_sword_kill_points = 0;
-		for (var _j = 0; _j < array_length(_hazards); _j++) {
-			var _hazard = _hazards[_j];
-			if (_holds_staff && ((_hazard.tags & STOPPED_BY_STAFF_TAGS) != 0)) { continue; }
+	/// @function get_difficulty_score_for_hazard_counts(_counts)
+	/// @description The difficulty points for a room's hazards. Each hazard's points grow for the hazards it shares the room
+	///	with and shrink for the blocks that can stop it (see apply_block_counters). Then the chance of surviving them all is
+	///	averaged over which counters the player might hold: a staff stops anything that shoots and lava, a special sword kills
+	///	anything a sword can, and a plain sword kills the deadliest of those, once. The average has to be taken over the chances
+	///	of surviving, so it's turned back into points at the end.
+	/// @param {struct} _counts Hazard names and how many of each
+	/// @returns {real}
+	static get_difficulty_score_for_hazard_counts = function(_counts) {
+		// Work out each hazard's points in this room, and how much one sword kill would save
+		var _table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(_counts), _hazards = [];
+		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
+			// Skip hazards that aren't in the room or the table
+			var _hazard_name = _hazard_names[_i], _hazard_count = _counts[$ _hazard_name], _entry = _table[$ _hazard_name];
+			if (is_undefined(_entry) || _hazard_count <= 0) { continue; }
 			
-			if (_holds_special_sword && ((_hazard.tags & hazard_tags.killed_by_sword) != 0)) { continue; }
+			// Grow its points for the hazards around it. Generation never puts something that stops the player in a room with
+			// something that chases or shoots at them, but what spawns during play can, and the multiplier scores that too
+			var _multiplier = get_hazard_combination_multiplier(_counts, _hazard_name);
+			var _points = get_hazard_points_in_room(_hazard_name, _hazard_count, _multiplier);
 			
-			_mix_points += _hazard.points;
-			if (_holds_sword) { _best_sword_kill_points = max(_best_sword_kill_points, _hazard.sword_kill_points); }
+			// How much a plain sword saves by killing one of them
+			var _sword_kill_points = 0;
+			if ((_entry.tags & hazard_tags.killed_by_sword) != 0) { _sword_kill_points = _points - get_hazard_points_in_room(_hazard_name, _hazard_count - 1, _multiplier); }
+			array_push(_hazards, { points: _points, sword_kill_points: _sword_kill_points, tags: _entry.tags, copies: (_entry.many == 0) ? 1 : _hazard_count });
 		}
-		_survival_chance += _mix_chance * get_survival_chance_for_difficulty_score(_mix_points - _best_sword_kill_points);
-	}
+
+		// The room's blocks, living ones included, lower the danger of the hazards they can stop
+		apply_block_counters(_hazards, _counts[$ "obj_block_spot"] ?? 0);
+
+		// Average the chance of surviving over every mix of counters the player might hold: a staff, a special sword and a plain sword
+		var _survival_chance = 0;
+		for (var _held_counters = 0; _held_counters < 8; _held_counters++) {
+			// Skip mixes that can't happen on this map
+			var _holds_staff = (_held_counters & 1) != 0, _holds_special_sword = (_held_counters & 2) != 0, _holds_sword = (_held_counters & 4) != 0;
+			var _mix_chance = (_holds_staff ? chance_holding_staff : 1 - chance_holding_staff) *
+				(_holds_special_sword ? chance_holding_special_sword : 1 - chance_holding_special_sword) *
+				(_holds_sword ? chance_holding_sword : 1 - chance_holding_sword);
+			if (_mix_chance <= 0) { continue; }
+
+			// Total the points of every hazard these counters don't stop, less what a plain sword's one kill saves
+			var _mix_points = 0, _best_sword_kill_points = 0;
+			for (var _j = 0; _j < array_length(_hazards); _j++) {
+				var _hazard = _hazards[_j];
+				if (_holds_staff && ((_hazard.tags & STOPPED_BY_STAFF_TAGS) != 0)) { continue; }
+
+				if (_holds_special_sword && ((_hazard.tags & hazard_tags.killed_by_sword) != 0)) { continue; }
+
+				_mix_points += _hazard.points;
+				if (_holds_sword) { _best_sword_kill_points = max(_best_sword_kill_points, _hazard.sword_kill_points); }
+			}
+			_survival_chance += _mix_chance * get_survival_chance_for_difficulty_score(_mix_points - _best_sword_kill_points);
+		}
+
+		return get_difficulty_score_for_survival_chance(_survival_chance);
+	};
 	
-	return get_difficulty_score_for_survival_chance(_survival_chance);
+	/// @function get_difficulty_score_with_spawns(_counts, _spawns)
+	/// @description The difficulty points for a room's hazards (see get_difficulty_score_for_hazard_counts), with what might
+	///	spawn into it added on average: for each, how many spawn on average times the points one more of it adds to the room.
+	///	Each is scored against the room as it is, not alongside the others.
+	/// @param {struct} _counts Hazard names and how many of each, for the room
+	/// @param {array} _spawns What might spawn (see ExpectedSpawn)
+	/// @returns {real}
+	static get_difficulty_score_with_spawns = function(_counts, _spawns) {
+		var _difficulty_score = get_difficulty_score_for_hazard_counts(_counts), _expected_difficulty_score = 0;
+		for (var _i = 0; _i < array_length(_spawns); _i++) {
+			var _spawn = _spawns[_i];
+			if (_spawn.expected_count <= 0) { continue; }
+
+			var _spawned_difficulty_score = get_difficulty_score_for_hazard_counts(get_hazard_counts_with_spawn(_counts, _spawn));
+			_expected_difficulty_score += _spawn.expected_count * (_spawned_difficulty_score - _difficulty_score);
+		}
+
+		return _difficulty_score + _expected_difficulty_score;
+	};
 }
  
 /// @function get_time_score_for_hazard_counts(_counts)
@@ -438,31 +468,9 @@ function get_hazard_counts_with_spawn(_counts, _spawn) {
 	return _spawned_counts;
 }
  
-/// @function get_difficulty_score_with_spawns(_counts, _spawns, [_room], [_has_light])
-/// @description The difficulty points for a room's hazards (see get_difficulty_score_for_hazard_counts), with what might
-///	spawn into it added on average: for each, how many spawn on average times the points one more of it adds to the room.
-///	Each is scored against the room as it is, not alongside the others.
-/// @param {struct} _counts Hazard names and how many of each, for the room
-/// @param {array} _spawns What might spawn (see ExpectedSpawn)
-/// @param {struct} [_room] The room, or a struct with the same chances, as for get_difficulty_score_for_hazard_counts
-/// @param {bool} [_has_light] Without a room, whether the player has light
-/// @returns {real}
-function get_difficulty_score_with_spawns(_counts, _spawns, _room = undefined, _has_light = false) {
-	var _difficulty_score = get_difficulty_score_for_hazard_counts(_counts, _room, _has_light), _expected_difficulty_score = 0;
-	for (var _i = 0; _i < array_length(_spawns); _i++) {
-		var _spawn = _spawns[_i];
-		if (_spawn.expected_count <= 0) { continue; }
-		
-		var _spawned_difficulty_score = get_difficulty_score_for_hazard_counts(get_hazard_counts_with_spawn(_counts, _spawn), _room, _has_light);
-		_expected_difficulty_score += _spawn.expected_count * (_spawned_difficulty_score - _difficulty_score);
-	}
-	
-	return _difficulty_score + _expected_difficulty_score;
-}
- 
 /// @function get_time_score_with_spawns(_counts, _spawns)
 /// @description The time score for a room's hazards (see get_time_score_for_hazard_counts), with what might spawn into it
-///	added on average, the same way get_difficulty_score_with_spawns adds their difficulty points
+///	added on average, the same way PlayerChances.get_difficulty_score_with_spawns adds their difficulty points
 /// @param {struct} _counts Hazard names and how many of each, for the room
 /// @param {array} _spawns What might spawn (see ExpectedSpawn)
 /// @returns {real}
@@ -476,39 +484,4 @@ function get_time_score_with_spawns(_counts, _spawns) {
 	}
 	
 	return _time_score + _expected_time_score;
-}
- 
-/// @function get_mid_game_spawns(_counts, _layout, _floor_item_count)
-/// @description What can spawn into a room each time the player enters it, and how many of each on average, from what the
-///	room holds (see game_room_start and game_room_start_spawn_instances, which roll these again on every visit):
-///	- each bone can be a trap that rises as a skeleton when the player comes near
-///	- each bone and bush can hide a bug, and a corpse always hides two unless it crumbles first. Only red bugs can harm the
-///		player, so only they count
-///	- lava brings up a nose, or failing that a fire skeleton if the room has none. One roll for the room, however much
-///		lava it has
-///	- hands come for each item lying on the floor, as long as the player holds something to trade, which they nearly
-///		always do
-/// @param {struct} _counts Hazard names and how many of each, for the room
-/// @param {struct} _layout The room's layout (see RoomLayout), for its bones, bushes and corpses
-/// @param {real} _floor_item_count How many items lie on the room's floor, like a key
-/// @returns {array} Each spawn (see ExpectedSpawn)
-function get_mid_game_spawns(_counts, _layout, _floor_item_count) {
-	// Skeletons rising from trapped bones
-	var _bone_count = _layout.get_object_count("obj_bones"), _bush_count = _layout.get_object_count("obj_bush"), _corpse_count = _layout.get_object_count("obj_player_corpse");
-	var _spawns = [new ExpectedSpawn("obj_skeleton", _bone_count * get_chance_out_of(TRAP_BONES_PROBABILITY))];
-	
-	// Red bugs from bones, bushes and corpses
-	var _bug_count = ((_bone_count + _bush_count) * get_chance_out_of(BUG_PROBABILITY)) + (_corpse_count * (1 - get_chance_out_of(CORPSE_DISINTEGRATE_PROBABILITY)) * 2);
-	array_push(_spawns, new ExpectedSpawn("obj_bug", _bug_count * get_chance_out_of(RED_BUG_PROBABILITY)));
-	
-	// A nose or a fire skeleton from the lava
-	if ((_counts[$ "obj_lava"] ?? 0) > 0) {
-		var _nose_chance = get_chance_out_of(NOSE_PROBABILITY * 4);
-		array_push(_spawns, new ExpectedSpawn("obj_nose", _nose_chance));
-		if ((_counts[$ "obj_fire_skeleton"] ?? 0) <= 0) { array_push(_spawns, new ExpectedSpawn("obj_fire_skeleton", (1 - _nose_chance) * get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY))); }
-	}
-	
-	// Hands for the items on the floor
-	array_push(_spawns, new ExpectedSpawn("obj_hands", _floor_item_count * get_chance_out_of(HANDS_PROBABILITY)));
-	return _spawns;
 }

@@ -1435,14 +1435,15 @@ function GameMap() constructor {
 			var _room = rooms[_j];
 			
 			// Set item holding chances
-			_room.chance_holding_staff = _staff_chance;
-			_room.chance_holding_sword = _sword_chance;
-			_room.chance_holding_special_sword = _special_sword_chance;
+			var _player_chances = _room.player_chances;
+			_player_chances.chance_holding_staff = _staff_chance;
+			_player_chances.chance_holding_sword = _sword_chance;
+			_player_chances.chance_holding_special_sword = _special_sword_chance;
 			
 			// Set its lit room chances
-			if (_room.is_lit()) { _room.chance_of_light = 1; }
-			else if (_room.can_light_torch()) { _room.chance_of_light = _torch_chance; }
-			else { _room.chance_of_light = _lit_torch_chance; }
+			if (_room.is_lit()) { _player_chances.chance_of_light = 1; }
+			else if (_room.can_light_torch()) { _player_chances.chance_of_light = _torch_chance; }
+			else { _player_chances.chance_of_light = _lit_torch_chance; }
 		}
 	};
 

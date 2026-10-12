@@ -50,11 +50,9 @@ function GameRoom(_given_x, _given_y) constructor {
 	unlocked_chests_bitmask_index = -1;		// Its locked chest's bit in the lock search's chest bitmasks, or -1 if the chest doesn't matter to it
 	mapgen_needs_layout = true;				// Its cardinal exits changed since its last layout pick
 	
-	// How likely the player is to arrive holding each counter, and to have light here
-	chance_holding_staff = 0;
-	chance_holding_sword = 0;
-	chance_holding_special_sword = 0;
-	chance_of_light = 0;
+	// How likely the player is to arrive holding each counter, and to have light here, which its difficulty score is
+	// averaged over (set by GameMap.calculate_item_chances)
+	player_chances = new PlayerChances();
 	
 	// Its layout's orientation, so the layout's openings face its cardinal exits
 	flip_horizontal = false;
@@ -425,12 +423,12 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @function get_potential_difficulty_score(_counts)
 	/// @description The room's difficulty score for some hazard counts, without time. The counts hold what the layout spawns
 	///	for sure and what generation actually rolled into the room, scored together since hazards make each other worse,
-	///	and what spawns into it during play is added on average (see get_mid_game_spawns). Then the rest of the room counts:
+	///	and what spawns into it during play is added on average (see RoomLayout.get_mid_game_spawns). Then the rest of the room counts:
 	///	its collectables, its trap and its chest's item.
 	/// @param {struct} _counts The hazard counts to use for this difficulty score
 	/// @returns {real}
 	static get_potential_difficulty_score = function(_counts) {
-		var _difficulty_score = get_difficulty_score_with_spawns(_counts, get_mid_game_spawns(_counts, layout, get_floor_item_count()), self);
+		var _difficulty_score = player_chances.get_difficulty_score_with_spawns(_counts, layout.get_mid_game_spawns(_counts, get_floor_item_count()));
  
 		// Collecting everything crosses the whole room, not just the way to one objective
 		if (has_collectables) { _difficulty_score *= COLLECTABLES_EXPOSURE; }
@@ -473,7 +471,8 @@ function GameRoom(_given_x, _given_y) constructor {
 		hazard_count_add(_counts, _hazard_name, 1);
 		if (!is_undefined(_replaced_hazard_name)) { hazard_count_add(_counts, _replaced_hazard_name, -1); }
 		
-		return get_difficulty_score_with_spawns(_counts, get_mid_game_spawns(_counts, layout, 0), undefined, lit) > ROOM_DIFFICULTY_SCORE_MAX;
+		var _empty_handed_chances = new PlayerChances(0, 0, 0, lit ? 1 : 0);
+		return _empty_handed_chances.get_difficulty_score_with_spawns(_counts, layout.get_mid_game_spawns(_counts, 0)) > ROOM_DIFFICULTY_SCORE_MAX;
 	};
  
 	/// @function get_time_score()
@@ -482,7 +481,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {real}
 	static get_time_score = function() {
 		var _counts = get_hazard_counts();
-		var _time = get_time_score_with_spawns(_counts, get_mid_game_spawns(_counts, layout, get_floor_item_count()));
+		var _time = get_time_score_with_spawns(_counts, layout.get_mid_game_spawns(_counts, get_floor_item_count()));
 		if (spawns_phantom()) { _time += PHANTOM_TIME_PER_LANTERN * layout.get_object_count("obj_lantern"); } // Lanterns aren't in the difficulty score table
 		return _time;
 	};
@@ -581,7 +580,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {real}
 	static get_caution_factor = function() {
 		var _counts = get_hazard_counts();
-		return 1 + CAUTION_PER_DANGER_POINT * max(0, get_difficulty_score_with_spawns(_counts, get_mid_game_spawns(_counts, layout, get_floor_item_count()), self));
+		return 1 + CAUTION_PER_DANGER_POINT * max(0, player_chances.get_difficulty_score_with_spawns(_counts, layout.get_mid_game_spawns(_counts, get_floor_item_count())));
 	};
  
 	/// @function get_crossing_time()

@@ -2,9 +2,13 @@
 /// @description An area to be searched for the lock and key generation in GameMap
 /// @param {GameMap} _map					The map this area is searching within
 /// @param {real} _reached_rooms			Bitmask of the rooms the area reaches, by map_rooms_index
-/// @param {real} relevant_locked_chests	Bitmask of the locked chests that affect rooms reached, by relevant_locked_chests_index
+/// @param {real} _relevant_locked_chests	Bitmask of the locked chests that affect rooms reached, by relevant_locked_chests_index
 function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) constructor {
-	/// @function initialize_area(_rooms)
+	// ========================
+	// Static Functions
+	// ========================
+	
+	/// @function initialize_area()
 	/// @description Sets up variables based on what a player finds within the search area
 	static initialize_search_area = function() {
 		// Check every room to see what can be found within the area
@@ -24,16 +28,15 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 				switch (_room.chest_obj) {
 					case obj_torch: {
 						reached_torch = true;
-						add_to_relevant_locked_chest_rooms(_room);
 						break;
 					}
 					case obj_bomb: {
-						if (_room.has_special_item) { reached_special_bomb = true; add_to_relevant_locked_chest_rooms(_room); }
+						if (_room.has_special_item) { reached_special_bomb = true; }
 						if (_room.key_in_chest) { bombs_reached += 1; }
 						break;
 					}
 					case obj_key: {
-						if (_room.has_special_item) { reached_special_key = true; add_to_relevant_locked_chest_rooms(_room); }
+						if (_room.has_special_item) { reached_special_key = true; }
 						if (_room.key_in_chest) { keys_reached += 1; }
 						break;
 					}
@@ -42,7 +45,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 		}
 	};
 
-	/// @function is_chest_unlocked(_room)
+	/// @function is_room_chest_unlocked(_room)
 	/// @description Whether a given chest, by it's bitmask index, has been unlocked in this search area or not
 	/// @param {GameRoom} _room The room to check for whether its chest is unlocked or not
 	/// @returns {bool}
@@ -81,9 +84,9 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	/// @returns {real}
 	static get_keys_spent_on_chests = function() {
 		return irrelevant_locked_chests_reached + count_bits(relevant_locked_chests);
-	}
+	};
 
-	/// @function get_keys_spent_on_chests()
+	/// @function get_keys_spent_on_exits()
 	/// @description Gets the count of keys spent on locked exits in this search area
 	/// @returns {real}
 	static get_keys_spent_on_exits = function() {
@@ -91,12 +94,12 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 		// This is not tracked separately since there are thousands of LockedSearchAreas created and only one Map
 		var _unlocked_exits = 0;
 		for (var _i = 0; _i < array_length(map.locked_exits); _i++) {
-			// Add the exit to the locked array and count it if it has been unlocked in this area
+			// Count the exit if it has been unlocked
 			var _possible_exit = map.locked_exits[_i];
 			if (is_exit_unlocked(_possible_exit)) { _unlocked_exits += 1; }
 		}
 		return _unlocked_exits;
-	}
+	};
 
 	/// @function get_keys_remaining()
 	/// @description The keys the area gives the player to spend: the keys reached, and the bombs too once they can be lit,
@@ -114,13 +117,17 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 		return (reached_special_key || (reached_special_bomb && can_use_bombs_as_keys()));
 	};
 	
+	// ========================
+	// Instance Variables
+	// ========================
+	
 	map = _map;											// The map this search area is searching for
 	reached_rooms = _reached_rooms;						// Bitmask of reached rooms in this search area
 	relevant_locked_chests = _relevant_locked_chests;	// Bitmask of relevant chests unlocked in this search area
 
-	irrelevant_locked_chests_reached = 0;				// Locked chests that aren't relevant to expanding the search area, but that the player spends a key on in the worst case
 	keys_reached = 0;
 	bombs_reached = 0;									// These are bombs standing in for keys. They can open locks once they can be lit
+	irrelevant_locked_chests_reached = 0;				// Locked chests that aren't relevant to expanding the search area, but that the player spends a key on in the worst case
 	reached_lit_room = false;
 	reached_torch = false;
 	reached_special_key = false;						// A special key is never used up, so it opens every lock

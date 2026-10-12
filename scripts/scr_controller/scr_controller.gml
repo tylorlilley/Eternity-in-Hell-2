@@ -141,8 +141,9 @@ function transition_to_room(_new_room, _visited_by_player) {
 		}
 	}
 	else {
-		if (_new_room.exits[entered_from_dir].has_illusion_walls == 1) {
-			_new_room.exits[entered_from_dir].has_illusion_walls += 1;
+		var _used_exit = _new_room.exits[entered_from_dir];
+		if (_used_exit.exit_type == exit_types.illusion_walls && !_used_exit.has_discovered_illusion_walls) {
+			_used_exit.has_discovered_illusion_walls = true;
 			increment_run_stat("illusion_walls_discovered");
 		}
 		play_sound(snd_move, false); 
@@ -523,7 +524,7 @@ function game_room_initialize() {
 	with (obj_exit_spot) {
 		var _existing_exit = other.current_room.exits[exit_dir];
 		var _clear_path = (_existing_exit != -1);
-		var _illusion_path = _clear_path && _existing_exit.has_illusion_walls > 0
+		var _illusion_path = _clear_path && _existing_exit.exit_type == exit_types.illusion_walls;
 		var _blocker_at_pos = (instance_place(x, y, obj_wall) ||instance_place(x, y, obj_solid) || instance_place(x, y, obj_lava));
 		
 		// Destroy things at this spot
@@ -768,21 +769,25 @@ function game_room_initialize() {
 	// Check each exit for a door or portcullis to create
 	var _portcullis_exit_count = 0, _exit_count = 0;
 	for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
-		var _current_exit = current_room.exits[_dir], _current_exit_has_portcullis = (_current_exit != -1 && _current_exit.has_closed_portcullis_for_room(current_room));
-		if (_current_exit != -1) { _exit_count += 1; }
-		if (_current_exit != -1 && (_current_exit.has_door || _current_exit_has_portcullis)) {
-			// Set up exit door type
-			var _x_pos = get_exit_x_pos(_dir), _y_pos = get_exit_y_pos(_dir), _door_type = obj_door;
-			if (_current_exit_has_portcullis) {
-				_door_type = obj_portcullis;
-				_portcullis_exit_count += 1;
-			}
-				
+		// Skip directions that have no exit in the current room
+		var _current_exit = current_room.exits[_dir];
+		if (_current_exit == -1) { continue; }
+		
+		// Setup exit object and exit counts
+		var _current_exit_door_type = _current_exit.get_door_type_for_room(current_room);
+		if (_current_exit_door_type != noone) {			
 			// Create door for exit
-			var _door = instance_create(_x_pos, _y_pos, _door_type);
+			var _x_pos = get_exit_x_pos(_dir), _y_pos = get_exit_y_pos(_dir);
+			var _door = instance_create(_x_pos, _y_pos, _current_exit_door_type);
 			_door.door_for_exit = _current_exit;
+			
+			// Count the portcullis exit
+			if (_current_exit_door_type == obj_portcullis) { _portcullis_exit_count += 1; }
 		}
-		if (_current_exit != -1 && _dir == directions.stairs) { _portcullis_exit_count += 1; }
+		
+		// Always count the exit, and count the stairs exits in portcullis rooms, since they can't be locked by the portcullis
+		 _exit_count += 1;
+		if (_dir == directions.stairs) { _portcullis_exit_count += 1; }
 	}
 	if (current_room.has_portcullis_trap && _portcullis_exit_count != _exit_count) {
 		write_debug_message("Portcullis button room has exits without a portcullis: " + room_get_name(current_room.room_reference), debug_message_level.warning);

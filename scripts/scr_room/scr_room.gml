@@ -198,8 +198,8 @@ function GameRoom(_given_x, _given_y) constructor {
 			var _exit = exits[_dir];
 			if (_exit == -1) { continue; }
 			
-			// Return false if any exit already has a door or illusion walls, or leads to another portcullis trap room
-			if (_exit.has_door || _exit.has_illusion_walls > 0 || _exit.get_connected_room(self).has_portcullis_trap) { return false; }
+			// Return false if this exit is already in use some other way
+			if (_exit.exit_type != exit_types.none) { return false; }
 		}
 		
 		// Return whether there is at least one spot for the button
@@ -292,9 +292,9 @@ function GameRoom(_given_x, _given_y) constructor {
 			
 			// For each exit out of this room, including stairs, add new connecting rooms to the queue
 			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
-				// Skip no or locked exits
+				// Skip rooms with no exit or a locked exit
 				var _exit = _room.exits[_dir];
-				if (_exit == -1 || _exit.has_lock) { continue; }
+				if (_exit == -1 || _exit.exit_type == exit_types.locked_doors) { continue; }
 				
 				// Skip if the room connected by this exit is already in the bitmask
 				var _other_room = _exit.get_connected_room(_room);
@@ -1066,9 +1066,9 @@ function GameRoom(_given_x, _given_y) constructor {
 				
 				var _exit_color = _bg_color;
 				if (!_blink_frame) {
-					if (exits[_dir].has_lock) { _exit_color = _red_color; }
+					if (exits[_dir].exit_type == exit_types.locked_doors) { _exit_color = _red_color; }
 					else if (exits[_dir].has_closed_portcullis_for_room(_controller.current_room)) { _exit_color = (_is_test_mode_on) ? c_fuchsia : _red_color; }
-					else if (exits[_dir].has_illusion_walls > 0) { _exit_color = (_is_test_mode_on) ? c_teal : _bg_color; }
+					else if (exits[_dir].exit_type == exit_types.illusion_walls) { _exit_color = (_is_test_mode_on) ? c_teal : _bg_color; }
 				}
 
 				var _x_offset = 0, _y_offset = 0, _x_size = 0.25, _y_size = 0.25;

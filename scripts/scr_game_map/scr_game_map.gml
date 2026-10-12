@@ -63,14 +63,16 @@ function GameMap() constructor {
 	// The rooms, and the exits between them
 	rooms = [];
 	room_at_cell = {};						// Each room by its grid cell ("x,y"), so finding an adjacent room needs no search
-	cardinal_exits = [];						// Every exit joining two adjacent rooms, which is every exit but the stairs
+	cardinal_exits = [];					// Every exit joining two adjacent rooms, which is every exit but the stairs
+	locked_exits = [];						// Each locked cardinal exit, reset during lock and key search
+	relevant_locked_chest_rooms = []		// Each room with a locked chest that effects the lock and key search, reset during the search
 
 	// Decorations, cleared and placed again each time try_generate adds a room (see reset_decorations)
 	start_room = undefined;
 	heart_room = undefined;
 	guaranteed_chest_room = undefined;
-	special_item_types = [];						// Each item type placed as a special item so far
-	extra_key_placed = false;					// Whether the first bomb standing in for a key has brought its extra key yet (see add_extra_key_to_area)
+	special_item_types = [];				// Each item type placed as a special item so far
+	extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet (see add_extra_key_to_area)
 	difficulty_score = 0;
 
 	// What is passed to the controller on a successful map generation
@@ -746,7 +748,7 @@ function GameMap() constructor {
 		special_item_types = [];
 		extra_key_placed = false;
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_decorations(); }
-		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_decorations(); }
+		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_exit_type(); }
 	};
 
 	/// @function determine_start_and_heart_rooms()
@@ -1056,7 +1058,7 @@ function GameMap() constructor {
 		// First, lock every exit of the heart room and add its keys
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _heart_exit = heart_room.exits[_dir];
-			if (_heart_exit != -1) { _heart_exit.set_lock(true); }
+			if (_heart_exit != -1) { _heart_exit.exit_type = exit_types.locked_doors; }
 		}
 		if (!create_keys_for_locks()) { return false; }
 
@@ -1066,7 +1068,7 @@ function GameMap() constructor {
 			var _exit = _exits[_i];
 			if (!_exit.can_be_locked() || !get_random_chance_out_of(LOCKED_DOOR_PROBABILITY / 2)) { continue; }
 
-			_exit.set_lock(true);
+			_exit.exit_type = exit_types.locked_doors;
 			if (!create_keys_for_locks(_exit)) { return false; }
 		}
 		
@@ -1098,7 +1100,7 @@ function GameMap() constructor {
 			}
 			
 			// Otherwise, unlock this exit and pick a different exit to try locking
-			_newest_lock.set_lock(false);
+			_newest_lock.exit_type = exit_types.none;
 			_newest_lock = get_untried_lockable_exit(_tried_exits);
 			
 			// Continue with map generation without locking an exit, if no lockable exit could be found
@@ -1109,7 +1111,7 @@ function GameMap() constructor {
 			}
 			
 			// Otherwise, lock the new exit and try again.
-			_newest_lock.set_lock(true);
+			_newest_lock.exit_type = exit_types.locked_doors;
 			array_push(_tried_exits, _newest_lock);
 		}
 		
@@ -1234,13 +1236,13 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(cardinal_exits); _i++) {
 			// Skip exits that aren't locked
 			var _possible_exit = cardinal_exits[_i];
-			if (!_possible_exit.has_lock) { continue; }
+			if (_possible_exit.exit_type != exit_types.locked_doors) { continue; }
 			
 			// Add the exit to the locked array and count it if it has been unlocked in this area
 			array_push(_locked_exits, _possible_exit);
 		}
 		return _locked_exits;
-	}
+	};
 	
 	/// @function get_relevant_locked_chest_rooms()
 	/// @description Gets a list of all rooms with a relevant locked chest in the map
@@ -1258,15 +1260,15 @@ function GameMap() constructor {
 			var _holds_special_bomb = (_room.chest_obj == obj_bomb && _room.has_special_item);
 			var _holds_needed_torch = (_room.chest_obj == obj_torch);
 			
-			// Add the chest if it is relevant, and give it a -1 index if it is not
+			// Reset the chest index, then add the chest if it is relevant and assign it's new index
+			_room.relevant_locked_chests_index = -1;
 			if (_holds_special_key || _holds_needed_torch || _holds_special_bomb) {
 				_room.relevant_locked_chests_index = array_length(_relevant_locked_chest_rooms);
 				array_push(_relevant_locked_chest_rooms, _room);
 			}
-			else { _room.relevant_locked_chests_index = -1; }
 		}
-		return _relevant_locked_chest_rooms
-	}
+		return _relevant_locked_chest_rooms;
+	};
 
 	/// @function get_failing_lock_and_key_search_area()
 	/// @description Checks every order the player could spend keys in, on locked doors and chests, for one that leaves
@@ -1368,15 +1370,15 @@ function GameMap() constructor {
 
 			// Otherwise, loop through cardinal exits to decorate them individually
 			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-				// Skip exits that don't exist, or already have a door, illusion walls, or a closed portcullis on either side
+				// Skip exits that don't exist, or already have a special type assigned
 				var _exit = _possible_room.exits[_dir];
-				if (_exit == -1 || _exit.has_door || _exit.room_1_has_closed_portcullis || _exit.room_2_has_closed_portcullis || _exit.has_illusion_walls) { continue; }
+				if (_exit == -1 ||_exit.exit_type != exit_types.none) { continue; }
 
 				// Sometimes give the exit illusion walls, unless it leads to the start room
-				if (!_exit.get_connected_room(_possible_room).is_start_room && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.has_illusion_walls = 1; continue; }
+				if (!_exit.get_connected_room(_possible_room).is_start_room && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.exit_type = exit_types.illusion_walls; continue; }
 				
 				// Otherwise, sometimes give the exit plain doors
-				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY * 2)) { _exit.has_door = true; continue; }
+				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY * 2)) { _exit.exit_type = exit_types.opened_doors; continue; }
 			}
 		}
 	};
@@ -1561,7 +1563,7 @@ function GameMap() constructor {
  
 		for (var _j = 0; _j < array_length(cardinal_exits); _j++) {
 			var _exit = cardinal_exits[_j];
-			if (!_exit.has_lock && _exit.has_illusion_walls <= 0) { continue; }
+			if (_exit.exit_type != exit_types.locked_doors && _exit.exit_type != exit_types.illusion_walls) { continue; }
  
 			// The player reaches the side nearer the start first
 			var _near = (_from_start[_exit.room_2.map_rooms_index] < _from_start[_exit.room_1.map_rooms_index]) ? _exit.room_2 : _exit.room_1;
@@ -1579,7 +1581,7 @@ function GameMap() constructor {
  
 			// An illusion wall taken for a dead end: the trip back to it once everything else on its side is done
 			// (on average the mean trip from those rooms), and the search
-			if (_exit.has_illusion_walls > 0) {
+			if (_exit.exit_type == exit_types.illusion_walls) {
 				var _sum = 0, _rooms_on_side = 0;
 				for (var _m = 0; _m < array_length(rooms); _m++) {
 					var _back = _times[rooms[_m].map_rooms_index];

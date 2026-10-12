@@ -1,12 +1,12 @@
-/// @function SpecialRoomType(_name, _layouts)
+/// @function SpecialRoomType(_name, _room_references)
 /// @description One type of special room a map can include, with its name and dedicated layouts
 /// @param {string} _name						A name for the room type
 /// @param {array} _room_references				Room assets for the special room layouts
 function SpecialRoomType(_name, _room_references) constructor {
-	name = _name;
-	room_references = _room_references;
-	layouts = array_create(array_length(room_references)); // Assigned from the cache at runtime in the GameMap constructor
-
+	// ========================
+	// Static Functions
+	// ========================
+	
 	/// @function has_layout_of_exit_type(_exit_type)
 	/// @description Whether any of the special room type layouts have the given exit type
 	/// @param {real} _exit_type A layout_exit_types enum value
@@ -40,4 +40,11 @@ function SpecialRoomType(_name, _room_references) constructor {
 		}
 		return _exit_types;
 	};
+	
+	// ========================
+	// Instance Variables
+	// ========================
+	name = _name;
+	room_references = _room_references;
+	layouts = array_create(array_length(room_references)); // Assigned from the cache at runtime in the GameMap constructor
 }

@@ -142,7 +142,7 @@ function open_door() {
 	
 	mark_current_room_for_grid_update();
 	
-	if (door_for_exit != -1 && door_for_exit.has_lock) {
+	if (door_for_exit != -1 && door_for_exit.exit_type == exit_types.locked_doors) {
 		door_for_exit.unlock();
 		with (global.player) { 
 			play_sound(snd_mana, true);

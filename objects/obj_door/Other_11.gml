@@ -4,7 +4,7 @@ var _player = global.player;
 	
 if (is_existing_instance(closed)) {
 	// Set up door interaction variables
-	var _locked = (door_for_exit != -1 && door_for_exit.has_lock), _carrying_key = false, _push_direction = get_direction_pushed_against();
+	var _locked = (door_for_exit != -1 && door_for_exit.exit_type == exit_types.locked_doors), _carrying_key = false, _push_direction = get_direction_pushed_against();
 	if (_locked) { image_index = 2; }
 	with (_player) { _carrying_key = is_carrying_item(obj_key); }
 		

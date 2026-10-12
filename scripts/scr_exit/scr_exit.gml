@@ -37,11 +37,11 @@ function RoomExit(_current_room, _linked_room) constructor {
 			&& !room_1.has_hall_of_mirrors && !room_2.has_hall_of_mirrors;
 	};
 	
-	/// @function add_portcullis_for_room(_room, _given_value)
-	/// @description Sets whether the portcullis to close upon entering the given room
+	/// @function add_portcullis_for_room(_room)
+	/// @description Adds a closed portcullis exit for the given trapped room
 	/// @param {GameRoom} _room The room whose side to set
 	/// @param {bool} _given_value Whether that side's portcullis is closed
-	/// @returns {bool} False if the room is not associated with this exit or it has no speical exit type yet
+	/// @returns {bool} False if the room is not associated with this exit or it has no special exit type yet
 	static add_portcullis_for_room = function(_room) {
 		if (exit_type != exit_types.none) { return false; }
 			
@@ -88,6 +88,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 		if (exit_type != exit_types.closed_portcullis) { return false; }
 		
 		exit_type = exit_types.opened_portcullis;
+		is_portcullis_triggered = true;
 		room_1_has_closed_portcullis = false;
 		room_2_has_closed_portcullis = false;
 		return true;
@@ -137,7 +138,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 	};
 
 	/// @function destroy_doors()
-	/// @description Marks the exit's door as destroyed during play, which removes the exit type entirey
+	/// @description Marks the exit's door as destroyed during play, which removes the exit type entirely
 	static destroy_doors = function() {
 		destroyed = true;
 		exit_type = exit_types.none;
@@ -160,7 +161,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 
 	// How the exit has been interacted with, during play
 	has_discovered_illusion_walls = false;			// Whether the player has moved through the illusion walls or not
-	is_portcullis_triggered = false;				// Whether the exit has spawned a closed portcullis during play
+	is_portcullis_triggered = false;				// Whether the exit has spawned a portcullis during play
 	destroyed = false;								// Whether its door was destroyed during play
 	visited = false;								// Whether the player has gone through this exit, for the map
 	room_1_stairs = noone;							// The stairs instance linked to this exit in room_1

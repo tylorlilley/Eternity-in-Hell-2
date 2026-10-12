@@ -1570,7 +1570,7 @@ function GameMap() constructor {
 			var _times = measure_travel_times(_near, _exit, _crossing);
  
 			// A lock met before its key: the trip from it to the nearest key on its near side, and back
-			if (_exit.exit_type == exit_types.locked_exits) {
+			if (_exit.exit_type == exit_types.locked_doors) {
 				var _nearest = infinity;
 				for (var _k = 0; _k < array_length(rooms); _k++) {
 					var _to_key = _times[rooms[_k].map_rooms_index];

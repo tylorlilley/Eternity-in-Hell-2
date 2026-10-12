@@ -16,19 +16,7 @@ enum layout_exit_types {
 ///	usable layout gets is_usable = false, and GameMap leaves it out of the cache.
 /// @param {Asset.GMRoom} _room_reference The Game Maker room this layout corresponds to
 function RoomLayout(_room_reference) constructor {
-	/// @function get_exit_type_from_name(_name)
-	/// @description Reads a layout's exit kind from its room name, like rm_three_exits_12.
-	/// @param {string} _name The room name
-	/// @returns {real} A layout_exit_types kind, or -1 if the room is not a layout
-	static get_exit_type_from_name = function(_name) {
-		if (string_pos("no_exits", _name) != 0) { return layout_exit_types.none; }
-		if (string_pos("one_exit", _name) != 0) { return layout_exit_types.one; }
-		if (string_pos("two_opposite_exits", _name) != 0) { return layout_exit_types.two_opposite; }
-		if (string_pos("two_perpendicular_exits", _name) != 0) { return layout_exit_types.two_perpendicular; }
-		if (string_pos("three_exits", _name) != 0) { return layout_exit_types.three; }
-		if (string_pos("four_exits", _name) != 0) { return layout_exit_types.four; }
-		return -1;
-	};
+
 	
 	/// @function get_open_cardinal_exits()
 	/// @description The cardinal exits the raw json room file starts with open, before it is flipped or rotated
@@ -53,102 +41,7 @@ function RoomLayout(_room_reference) constructor {
 		return is_undefined(_count) ? 0 : _count;
 	};
 
-	/// @function get_tile_key(_x, _y)
-	/// @description The key a tile has in a struct of tiles, from the position of an instance on it.
-	/// @param {real} _x The instance's x position
-	/// @param {real} _y The instance's y position
-	/// @returns {string}
-	static get_tile_key = function(_x, _y) {
-		return string(_x) + "," + string(_y);
-	};
 
-	/// @function validate_layout()
-	/// @description Logs any way the layout breaks the expected spot rules generation relies on. A layout needs one chest spot, one stairs spot,
-	///	at least two collectable spots that building never clears, and an exit spot on every side.
-	/// @returns {bool} Whether the layout passes the check or not
-	static validate_layout = function() {
-		// Validate the various minimum expected spot locations
-		var _problems = "";
-		if (get_object_count("obj_chest_spot") != 1) { _problems += " needs exactly one chest spot;"; }
-		if (get_object_count("obj_stairs_spot") != 1) { _problems += " needs exactly one stairs spot;"; }
-		if (array_length(key_spots) < 2) { _problems += " needs at least two collectable spots off the exit and chest spots;"; }
-		if (array_length(button_spots) == 0 && !stairs_spot_is_clear) { _problems += " needs at least one collectable or stairs spots where a button can be spawned;"; }
-		if (count_hazards_with_tags(hazard_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) > 0) {
-			_problems += " places a hazard that stops the player alongside one that chases or shoots at them;";
-		}
-		
-		// Check every position that holds instances, including the ones placed half a tile off the grid
-		var _tile_keys = variable_struct_get_names(instances_per_tile);
-		for (var _i = 0; _i < array_length(_tile_keys); _i++) {
-			var _tile_key = _tile_keys[_i], _tile_instances = get_instances_at_tile(_tile_key), _tile_object_names = [];
-			for (var _j = 0; _j < array_length(_tile_instances); _j++) {
-				var _instance = _tile_instances[_j];
-
-				// Only one of each object type per tile, except spider spots, which can share one
-				if (_instance.name != "obj_spider_spot") {
-					if (array_contains(_tile_object_names, _instance.name)) { _problems += " has more than one " + _instance.name + " at " + _tile_key + ";"; }
-					array_push(_tile_object_names, _instance.name);
-				}
-
-				// Skip remaining validations unless instance is part of a giant worm
-				var _is_worm_head = (_instance.name == "obj_giant_worm_head");
-				if (!_is_worm_head && _instance.name != "obj_giant_worm_body") { continue; }
-				
-				// Vaslidate worms are connected
-				var _is_connected = false;
-				for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-					var _neighbor_key = get_tile_key(_instance.x + get_dir_x_offset(_dir) * 16, _instance.y + get_dir_y_offset(_dir) * 16);
-					if (tile_has_object(_neighbor_key, "obj_giant_worm_body") || (!_is_worm_head && tile_has_object(_neighbor_key, "obj_giant_worm_head"))) { _is_connected = true; break; }
-				}
-				if (!_is_connected) { _problems += " has a detached " + _instance.name + " at " + _tile_key + ";"; }
-			}
-		}
-
-		// Check every tile on the room's edge: the two doorway tiles in the middle of each side need that side's exit spot,
-		// and every other edge tile needs a wall, or a mirror instead in a hall of mirrors room
-		var _edge_low = 8, _edge_high = LAYOUT_SIZE - 8, _doorway_low = LAYOUT_SIZE / 2 - 8, _doorway_high = LAYOUT_SIZE / 2 + 8;
-		for (var _x = _edge_low; _x <= _edge_high; _x += 16) {
-			for (var _y = _edge_low; _y <= _edge_high; _y += 16) {
-				// Skip tiles that aren't on the edge
-				var _on_left = (_x == _edge_low), _on_right = (_x == _edge_high), _on_top = (_y == _edge_low), _on_bottom = (_y == _edge_high);
-				if (!_on_left && !_on_right && !_on_top && !_on_bottom) { continue; }
-
-				// A doorway tile needs its side's exit spot
-				var _tile_key = get_tile_key(_x, _y);
-				var _is_doorway_x = (_x == _doorway_low || _x == _doorway_high), _is_doorway_y = (_y == _doorway_low || _y == _doorway_high);
-				var _exit_spot_name = "";
-				if (_on_top && _is_doorway_x) { _exit_spot_name = "obj_exit_spot_up"; }
-				else if (_on_bottom && _is_doorway_x) { _exit_spot_name = "obj_exit_spot_down"; }
-				else if (_on_left && _is_doorway_y) { _exit_spot_name = "obj_exit_spot_left"; }
-				else if (_on_right && _is_doorway_y) { _exit_spot_name = "obj_exit_spot_right"; }
-				if (_exit_spot_name != "") {
-					if (!tile_has_object(_tile_key, _exit_spot_name)) { _problems += " needs an " + _exit_spot_name + " at " + _tile_key + ";"; }
-					continue;
-				}
-
-				// Any other edge tile needs a wall or a mirror
-				var _wall_object = (has_hall_of_mirrors) ? "obj_mirror" : "obj_wall";
-				if (!tile_has_object(_tile_key, _wall_object)) { _problems += " needs an edge wall or mirror at " + _tile_key + ";"; }
-			}
-		}
-		
-		// Passes or fails validation checks
-		if (_problems != "") { write_debug_message("Layout " + room_name + _problems, debug_message_level.warning); return false; }
-		return true;
-	};
-	
-	/// @function tile_has_object(_tile_key, _object_name)
-	/// @description Whether the layout places a given object at a given tile
-	/// @param {string} _tile_key The tile's key (see get_tile_key)
-	/// @param {string} _object_name The object's name, like "obj_wall"
-	/// @returns {bool}
-	static tile_has_object = function(_tile_key, _object_name) {
-		var _tile_instances = get_instances_at_tile(_tile_key);
-		for (var _i = 0; _i < array_length(_tile_instances); _i++) {
-			if (_tile_instances[_i].name == _object_name) { return true; }
-		}
-		return false;
-	};
 	
 	/// @function get_hazard_counts_from_file()
 	/// @description How many of each hazard in the hazard table the layout places.
@@ -470,6 +363,24 @@ function RoomLayout(_room_reference) constructor {
 	};
 	
 	
+	// ========================
+	// Initializer Setup Functions
+	// ========================
+	
+	/// @function get_exit_type_from_name(_name)
+	/// @description Reads a layout's exit kind from its room name, like rm_three_exits_12.
+	/// @param {string} _name The room name
+	/// @returns {real} A layout_exit_types kind, or -1 if the room is not a layout
+	static get_exit_type_from_name = function(_name) {
+		if (string_pos("no_exits", _name) != 0) { return layout_exit_types.none; }
+		if (string_pos("one_exit", _name) != 0) { return layout_exit_types.one; }
+		if (string_pos("two_opposite_exits", _name) != 0) { return layout_exit_types.two_opposite; }
+		if (string_pos("two_perpendicular_exits", _name) != 0) { return layout_exit_types.two_perpendicular; }
+		if (string_pos("three_exits", _name) != 0) { return layout_exit_types.three; }
+		if (string_pos("four_exits", _name) != 0) { return layout_exit_types.four; }
+		return -1;
+	};
+	
 	/// @function get_instances_from_layout_file()
 	/// @description Reads the instances this room spawns from the layout file that matches the room name
 	static get_instances_from_layout_file = function() {
@@ -510,24 +421,6 @@ function RoomLayout(_room_reference) constructor {
 		return _destroying_spots;
 	};
 	
-	
-	/// @function get_instances_at_tile(_tile_key)
-	/// @description Returns  a list of instances present at that tile position, if any
-	/// @param {string} _tile_key The string key of a tile position to check
-	/// @returns {array} The instances present at that tile position, if any
-	static get_instances_at_tile = function(_tile_key) {
-		return (instances_per_tile[$ _tile_key] ?? []);
-	};
-	
-	/// @function add_instance_to_tile(_tile_key)
-	/// @description Adds an instance to those listed at it's tile location
-	/// @param {instance} _instance The instance to add to the map
-	static add_instance_to_tile = function(_instance) {
-		var _tile_key = get_tile_key(_instance.x, _instance.y);
-		instances_per_tile[$ _tile_key] ??= [];
-		array_push(instances_per_tile[$ _tile_key], _instance);
-	};
-	
 	/// @function get_object_count(_object_name)
 	/// @description How many of an object the layout places.
 	/// @param {string} _object_name The string name of the Game Maker object type
@@ -536,8 +429,8 @@ function RoomLayout(_room_reference) constructor {
 		var _count = instance_object_counts[$ _object_name];
 		return is_undefined(_count) ? 0 : _count;
 	};
-
-	/// @function setup_stairs_and_collectable_spots(_destroying_spots)
+	
+		/// @function setup_stairs_and_collectable_spots(_destroying_spots)
 	/// @description Calculates which stairs and collectable spots are free.
 	/// @param {array} _destroying_spots The list of spots that could potentially destroy the collectables or stairs spot
 	static setup_stairs_and_collectable_spots = function(_destroying_spots) {
@@ -547,7 +440,7 @@ function RoomLayout(_room_reference) constructor {
 			// Get the tile position and instance count at that position for each possible instance
 			var _possible_spot_instance = instances[_i];
 			var _spot_tile = get_tile_key(_possible_spot_instance.x, _possible_spot_instance.y);
-			var _instance_is_alone = (instance_tile_counts[$ _spot_tile] == 1);
+			var _instance_is_alone = (get_instances_at_tile(_spot_tile) == 1);
 			
 			// Check instance names to see what to count this instance as
 			switch (_possible_spot_instance.name) {
@@ -584,6 +477,124 @@ function RoomLayout(_room_reference) constructor {
 		return false;
 	};
 
+	/// @function validate_layout()
+	/// @description Logs any way the layout breaks the expected spot rules generation relies on. A layout needs one chest spot, one stairs spot,
+	///	at least two collectable spots that building never clears, and an exit spot on every side.
+	/// @returns {bool} Whether the layout passes the check or not
+	static validate_layout = function() {
+		// Validate the various minimum expected spot locations
+		var _problems = "";
+		if (get_object_count("obj_chest_spot") != 1) { _problems += " needs exactly one chest spot;"; }
+		if (get_object_count("obj_stairs_spot") != 1) { _problems += " needs exactly one stairs spot;"; }
+		if (array_length(key_spots) < 2) { _problems += " needs at least two collectable spots off the exit and chest spots;"; }
+		if (array_length(button_spots) == 0 && !stairs_spot_is_clear) { _problems += " needs at least one collectable or stairs spots where a button can be spawned;"; }
+		if (count_hazards_with_tags(hazard_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) > 0) {
+			_problems += " places a hazard that stops the player alongside one that chases or shoots at them;";
+		}
+		
+		// Check every position that holds instances, including the ones placed half a tile off the grid
+		var _tile_keys = variable_struct_get_names(instances_per_tile);
+		for (var _i = 0; _i < array_length(_tile_keys); _i++) {
+			var _tile_key = _tile_keys[_i], _tile_instances = get_instances_at_tile(_tile_key), _tile_object_names = [];
+			for (var _j = 0; _j < array_length(_tile_instances); _j++) {
+				var _instance = _tile_instances[_j];
+
+				// Only one of each object type per tile, except spider spots, which can share one
+				if (_instance.name != "obj_spider_spot") {
+					if (array_contains(_tile_object_names, _instance.name)) { _problems += " has more than one " + _instance.name + " at " + _tile_key + ";"; }
+					array_push(_tile_object_names, _instance.name);
+				}
+
+				// Skip remaining validations unless instance is part of a giant worm
+				var _is_worm_head = (_instance.name == "obj_giant_worm_head");
+				if (!_is_worm_head && _instance.name != "obj_giant_worm_body") { continue; }
+				
+				// Vaslidate worms are connected
+				var _is_connected = false;
+				for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
+					var _neighbor_key = get_tile_key(_instance.x + get_dir_x_offset(_dir) * 16, _instance.y + get_dir_y_offset(_dir) * 16);
+					if (tile_has_object(_neighbor_key, "obj_giant_worm_body") || (!_is_worm_head && tile_has_object(_neighbor_key, "obj_giant_worm_head"))) { _is_connected = true; break; }
+				}
+				if (!_is_connected) { _problems += " has a detached " + _instance.name + " at " + _tile_key + ";"; }
+			}
+		}
+
+		// Check every tile on the room's edge: the two doorway tiles in the middle of each side need that side's exit spot,
+		// and every other edge tile needs a wall, or a mirror instead in a hall of mirrors room
+		var _edge_low = 8, _edge_high = LAYOUT_SIZE - 8, _doorway_low = LAYOUT_SIZE / 2 - 8, _doorway_high = LAYOUT_SIZE / 2 + 8;
+		for (var _x = _edge_low; _x <= _edge_high; _x += 16) {
+			for (var _y = _edge_low; _y <= _edge_high; _y += 16) {
+				// Skip tiles that aren't on the edge
+				var _on_left = (_x == _edge_low), _on_right = (_x == _edge_high), _on_top = (_y == _edge_low), _on_bottom = (_y == _edge_high);
+				if (!_on_left && !_on_right && !_on_top && !_on_bottom) { continue; }
+
+				// A doorway tile needs its side's exit spot
+				var _tile_key = get_tile_key(_x, _y);
+				var _is_doorway_x = (_x == _doorway_low || _x == _doorway_high), _is_doorway_y = (_y == _doorway_low || _y == _doorway_high);
+				var _exit_spot_name = "";
+				if (_on_top && _is_doorway_x) { _exit_spot_name = "obj_exit_spot_up"; }
+				else if (_on_bottom && _is_doorway_x) { _exit_spot_name = "obj_exit_spot_down"; }
+				else if (_on_left && _is_doorway_y) { _exit_spot_name = "obj_exit_spot_left"; }
+				else if (_on_right && _is_doorway_y) { _exit_spot_name = "obj_exit_spot_right"; }
+				if (_exit_spot_name != "") {
+					if (!tile_has_object(_tile_key, _exit_spot_name)) { _problems += " needs an " + _exit_spot_name + " at " + _tile_key + ";"; }
+					continue;
+				}
+
+				// Any other edge tile needs a wall or a mirror
+				var _wall_object = (has_hall_of_mirrors) ? "obj_mirror" : "obj_wall";
+				if (!tile_has_object(_tile_key, _wall_object)) { _problems += " needs an edge wall or mirror at " + _tile_key + ";"; }
+			}
+		}
+		
+		// Passes or fails validation checks
+		if (_problems != "") { write_debug_message("Layout " + room_name + _problems, debug_message_level.warning); return false; }
+		return true;
+	};
+	
+	// ========================
+	// Initializer Tile Functions
+	// ========================
+	
+	/// @function get_tile_key(_x, _y)
+	/// @description The key a tile has in a struct of tiles, from the position of an instance on it.
+	/// @param {real} _x The instance's x position
+	/// @param {real} _y The instance's y position
+	/// @returns {string}
+	static get_tile_key = function(_x, _y) {
+		return string(_x) + "," + string(_y);
+	};
+	
+	/// @function add_instance_to_tile(_tile_key)
+	/// @description Adds an instance to those listed at it's tile location
+	/// @param {instance} _instance The instance to add to the map
+	static add_instance_to_tile = function(_instance) {
+		var _tile_key = get_tile_key(_instance.x, _instance.y);
+		instances_per_tile[$ _tile_key] ??= [];
+		array_push(instances_per_tile[$ _tile_key], _instance);
+	};
+	
+	/// @function get_instances_at_tile(_tile_key)
+	/// @description Returns  a list of instances present at that tile position, if any
+	/// @param {string} _tile_key The string key of a tile position to check
+	/// @returns {array} The instances present at that tile position, if any
+	static get_instances_at_tile = function(_tile_key) {
+		return (instances_per_tile[$ _tile_key] ?? []);
+	};
+	
+	/// @function tile_has_object(_tile_key, _object_name)
+	/// @description Whether the layout places a given object at a given tile
+	/// @param {string} _tile_key The tile's key (see get_tile_key)
+	/// @param {string} _object_name The object's name, like "obj_wall"
+	/// @returns {bool}
+	static tile_has_object = function(_tile_key, _object_name) {
+		var _tile_instances = get_instances_at_tile(_tile_key);
+		for (var _i = 0; _i < array_length(_tile_instances); _i++) {
+			if (_tile_instances[_i].name == _object_name) { return true; }
+		}
+		return false;
+	};
+	
 	// ========================
 	// Instance Variables
 	// ========================

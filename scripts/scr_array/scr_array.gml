@@ -42,6 +42,7 @@ function array_shift(_list)
 function array_remove_first(_list, _value_to_remove) {
 	var _list_pos = array_get_index(_list, _value_to_remove);
 	if (_list_pos != -1) { array_delete(_list, _list_pos, 1); }
+	return _list_pos
 }
 
 /// @function									array_count_occurrences(_list, _value_to_count);

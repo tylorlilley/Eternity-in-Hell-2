@@ -298,7 +298,7 @@ function GameRoom(_given_x, _given_y) constructor {
 				
 				// Skip if the room connected by this exit is already in the bitmask
 				var _other_room = _exit.get_connected_room(_room);
-				if (_other_room.is_in_bitmask(_reached_rooms_bitmask)) { continue; }
+				if (_reached_rooms_bitmask.is_room_reached(_other_room)) { continue; }
 				
 				// Otherwise, add the connecting room to the queue
 				array_push(_queue, _other_room);
@@ -306,14 +306,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		}
 
 		return _reached_rooms_bitmask;
-	};
-
-	/// @function is_in_bitmask(_bitmask)
-	/// @description Whether the room is in a bitmask of rooms
-	/// @param {real} _bitmask Bitmask of rooms, by mapgen_index
-	/// @returns {bool}
-	static is_in_bitmask = function(_bitmask) {
-		return (_bitmask & (1 << mapgen_index)) != 0;
 	};
 
 	/// @function is_lit()

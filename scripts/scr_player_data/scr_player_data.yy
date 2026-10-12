@@ -5,7 +5,7 @@
   "isCompatibility": false,
   "isDnD": false,
   "parent": {
-    "name": "Utility Scripts",
-    "path": "folders/Scripts/Utility Scripts.yy",
+    "name": "Save Data Scripts",
+    "path": "folders/Scripts/Save Data Scripts.yy",
   },
 }

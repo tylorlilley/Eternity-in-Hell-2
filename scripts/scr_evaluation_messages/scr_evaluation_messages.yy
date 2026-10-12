@@ -5,7 +5,7 @@
   "isCompatibility": false,
   "isDnD": false,
   "parent": {
-    "name": "Game Flow Scripts",
-    "path": "folders/Scripts/Game Flow Scripts.yy",
+    "name": "Save Data Scripts",
+    "path": "folders/Scripts/Save Data Scripts.yy",
   },
 }

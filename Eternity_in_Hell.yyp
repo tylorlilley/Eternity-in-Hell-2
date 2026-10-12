@@ -51,6 +51,8 @@
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"rotational","folderPath":"folders/Sprites/enemies/rotational.yy","order":0,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Unused","folderPath":"folders/Sprites/items/Unused.yy","order":0,},
     {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Parts","folderPath":"folders/Sprites/items/Parts.yy","order":0,},
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Map Generation Scripts","folderPath":"folders/Scripts/Map Generation Scripts.yy","order":0,},
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Save Data Scripts","folderPath":"folders/Scripts/Save Data Scripts.yy","order":0,},
   ],
   "IncludedFiles": [
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"rm_four_exits_1.json","CopyToMask":-1,"filePath":"datafiles",},

@@ -5,7 +5,7 @@
   "isCompatibility": false,
   "isDnD": false,
   "parent": {
-    "name": "Game Flow Scripts",
-    "path": "folders/Scripts/Game Flow Scripts.yy",
+    "name": "Map Generation Scripts",
+    "path": "folders/Scripts/Map Generation Scripts.yy",
   },
 }

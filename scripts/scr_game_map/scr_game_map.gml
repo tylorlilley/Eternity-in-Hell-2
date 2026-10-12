@@ -28,10 +28,11 @@ function GameMap() constructor {
 			for (var _i = 0; _i < array_length(_special_room_types); _i++) {
 				var _special_room_type = _special_room_types[_i];
 
-				for (var _j = 0; _j < array_length(_special_room_type.layouts); _j++) {
-					var _special_room_layout = _special_room_type.layouts[_j];
+				for (var _j = 0; _j < array_length(_special_room_type.room_references); _j++) {
+					var _special_room_reference = _special_room_type.room_references[_j];
 
-					if (_special_room_layout == _layout.room_reference) {
+					// Mark the room layout as a special room layout, and add it to the SpecialRoomType's layouts
+					if (_special_room_reference == _layout.room_reference) {
 						_layout.is_special_room = true;
 						_special_room_type.layouts[_j] = _layout;
 						break;
@@ -498,7 +499,7 @@ function GameMap() constructor {
 			if (!_room.can_become_special_room()) { continue; }
 			
 			// Add room to list of possibilities if one of the type's layouts matches the room's exit kind
-			if (_special_room_type.has_layout_of_type(_room.get_exit_type())) { array_push(_possible_rooms, _room); }
+			if (_special_room_type.has_layout_of_exit_type(_room.get_exit_type())) { array_push(_possible_rooms, _room); }
 		}
 		
 		// Return a random matching room, or undefined
@@ -684,7 +685,7 @@ function GameMap() constructor {
 		var _real_exit_type = _room.get_exit_type(), _possible_layouts, _layout;
 		if (_room.is_special_room) {
 			// Special rooms can't have misleading exits, can't be the guaranteed lantern room, and must use one of their type's layouts
-			_possible_layouts = _room.special_room_type.get_layouts_of_type(_real_exit_type);
+			_possible_layouts = _room.special_room_type.get_layouts_of_exit_type(_real_exit_type);
 			_layout = choose_minimally_used_layout(_possible_layouts);
 		}
 		else {
@@ -1125,7 +1126,7 @@ function GameMap() constructor {
 		var _possible_rooms = [];
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _possible_room = rooms[_i];
-			if (!_possible_room.is_in_bitmask(_stuck_area.reached_rooms)) { continue; }
+			if (!_stuck_area.is_room_reached(_possible_room)) { continue; }
 
 			if (!_possible_room.is_heart_room && !_possible_room.has_key && !_possible_room.has_extra_key && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
 		}
@@ -1160,7 +1161,7 @@ function GameMap() constructor {
 		var _possible_rooms = [];
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _possible_room = rooms[_i];
-			if (!_possible_room.is_in_bitmask(_stuck_area.reached_rooms)) { continue; }
+			if (!_stuck_area.is_room_reached(_possible_room)) { continue; }
 
 			if (!_possible_room.is_heart_room && _possible_room.key_spot == -1 && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
 		}
@@ -1242,14 +1243,8 @@ function GameMap() constructor {
 			if (rooms[_i].has_key && rooms[_i].key_in_chest && rooms[_i].chest_obj == obj_bomb) { _bombs_stand_in = true; }
 		}
 		
-		// Gather each locked exit in the map
-		var _locked_exits = [], _chests_that_matter = [];
-		for (var _j = 0; _j < array_length(cardinal_exits); _j++) {
-			if (cardinal_exits[_j].has_lock) { array_push(_locked_exits, cardinal_exits[_j]); }
-		}
-		
-		// Gather the locked chests that matter: those holding the special key, which opens every lock, and those holding a
-		// torch when bombs stand in for keys
+		// Gather the locked chests that matter (those that can effect which rooms we can reach)
+		var _rooms_with_chests_that_matter = [];
 		for (var _k = 0; _k < array_length(rooms); _k++) {
 			var _room = rooms[_k];
 			var _holds_special_key = (_room.chest_obj == obj_key && _room.has_special_item);
@@ -1257,14 +1252,14 @@ function GameMap() constructor {
 			_room.unlocked_chests_bitmask_index = -1;
 			// Add the chest to those that matter
 			if (_room.has_locked_chest && (_holds_special_key || _holds_needed_torch)) {
-				_room.unlocked_chests_bitmask_index = array_length(_chests_that_matter);
-				array_push(_chests_that_matter, _room);
+				_room.unlocked_chests_bitmask_index = array_length(_rooms_with_chests_that_matter);
+				array_push(_rooms_with_chests_that_matter, _room);
 			}
 		}
 
 		// Set up the initial queue of areas to check, map of area check queue keys, and initial area
 		var _all_rooms_reached_bitmask = (1 << array_length(rooms)) - 1, _reached_rooms_bitmask = start_room.get_reachable_rooms_bitmask(), _unlocked_chests_bitmask = 0;
-		var _initial_search_area = new LockSearchArea(_reached_rooms_bitmask, _unlocked_chests_bitmask, rooms), _search_area_check_queue = [_initial_search_area];
+		var _initial_search_area = new LockSearchArea(self, _reached_rooms_bitmask, _unlocked_chests_bitmask), _search_area_check_queue = [_initial_search_area];
 		var _search_areas_in_queue_map = {};
 		_search_areas_in_queue_map[$ get_search_area_key(_reached_rooms_bitmask, _unlocked_chests_bitmask)] = true;
 		
@@ -1273,29 +1268,21 @@ function GameMap() constructor {
 			// Get the next area to search, along with what the player finds in it
 			var _search_area = array_shift(_search_area_check_queue);
 			
-			// Skip checking area if it reached all rooms or the special key
-			if (_search_area.reached_rooms == _all_rooms_reached_bitmask || _search_area.reached_special_key) { continue; }
+			// Skip checking area if it reached all rooms or can use a special item to unlock all future exits
+			if (_search_area.reached_rooms == _all_rooms_reached_bitmask || _search_area.can_use_special_item()) { continue; }
 			
-			// Otherwise, count the locks inside the area: its locked chests that don't matter, and each locked door with both
-			// sides reached
-			var _locks_inside_area = _search_area.other_locked_chests_reached;
-			for (var _i = 0; _i < array_length(_locked_exits); _i++) {
-				if (_search_area.is_exit_unlocked(_locked_exits[_i])) { _locks_inside_area += 1; }
-			}
-			
-			// The player is stuck here if the worst order leaves them no key
-			var _keys_remaining = _search_area.count_usable_keys() - _locks_inside_area;
-			if (_keys_remaining <= 0) { return _search_area; }
+			// Otherwise, the player is stuck here if the worst order leaves them no key
+			if (_search_area.get_keys_remaining() <= 0) { return _search_area; }
 
 			// Otherwise, spend a key to open a locked door at the edge of the area, reaching the rooms behind it...
-			for (var _i = 0; _i < array_length(_locked_exits); _i++) {
-				// Skip unlocking the exit if both sides or neither side of it have been reached yet
-				var _locked_exit = _locked_exits[_i];
-				var _room_1_reached = _locked_exit.room_1.is_in_bitmask(_search_area.reached_rooms);
-				var _room_2_reached = _locked_exit.room_2.is_in_bitmask(_search_area.reached_rooms);
+			for (var _i = 0; _i < array_length(_search_area.locked_exits); _i++) {
+				// Skip unlocking the exit if already unlocked (both sides reached) OR exit is unreachable (neither side reached yet)
+				var _locked_exit = _search_area.locked_exits[_i];
+				var _room_1_reached =_search_area.is_room_reached(_locked_exit.room_1);
+				var _room_2_reached =_search_area.is_room_reached(_locked_exit.room_2);
 				if (_room_1_reached == _room_2_reached) { continue; }
 				
-				// Add a new area to the queue of areas to check, which is the same area plus the new unlock of this exit
+				// Add a new area to the queue of areas to check, which is the same as the old area, plus this new room
 				var _new_room = (_room_1_reached) ? _locked_exit.room_2 :  _locked_exit.room_1;
 				
 				var _new_reached_rooms = _search_area.reached_rooms | _new_room.get_reachable_rooms_bitmask();
@@ -1303,13 +1290,14 @@ function GameMap() constructor {
 			}
 			
 			// ...or a locked chest that matters, in the area
-			for (var _chest = 0; _chest < array_length(_chests_that_matter); _chest++) {
+			for (var _chest = 0; _chest < array_length(_rooms_with_chests_that_matter); _chest++) {
 				// Skip unlocking chests that are already unlocked in this area
 				var _new_unlocked_chests = _search_area.unlocked_chests | (1 << _chest);
 				if (_new_unlocked_chests == _search_area.unlocked_chests) { continue; }
 				
 				// Skip unlocking chests in rooms that haven't been reached yet
-				if (!_chests_that_matter[_chest].is_in_bitmask(_search_area.reached_rooms)) { continue; }
+				var _room_with_chest = _rooms_with_chests_that_matter[_chest];
+				if (!_search_area.is_room_reached(_room_with_chest)) { continue; }
 				
 				// Otherwise, add a new area to the queue of areas to check, which is this same area with the new chest unlocked
 				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _search_area.reached_rooms, _new_unlocked_chests);
@@ -1331,7 +1319,7 @@ function GameMap() constructor {
 		if (!is_undefined(_search_areas_in_queue_map[$ _area_key])) { return; }
 		
 		// Mark the area as queued, and add it to the queue
-		var _search_area = new LockSearchArea(_new_reached_rooms, _new_unlocked_chests, rooms);
+		var _search_area = new LockSearchArea(self, _new_reached_rooms, _new_unlocked_chests);
 		_search_areas_in_queue_map[$ _area_key] = true;
 		array_push(_search_area_check_queue, _search_area);
 	};

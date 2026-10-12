@@ -264,7 +264,7 @@ function game_room_start_other() {
 	var _entered_through_portcullis = false;
 	for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
 		var _current_exit = current_room.exits[_dir]
-		if (_current_exit != -1 && _current_exit.has_portcullis) {
+		if (_current_exit != -1 && _current_exit.is_portcullis_triggered) {
 			// Create exit doorway
 			var _x_pos = get_exit_x_pos(_dir), _y_pos = get_exit_y_pos(_dir);
 			if (!place_meeting(_x_pos, _y_pos, obj_portcullis)) {
@@ -272,11 +272,11 @@ function game_room_start_other() {
 				_door.door_for_exit = _current_exit;
 				with (_door) { 
 					initialize_door(); 
-					if (_current_exit.destroyed) { _current_exit.has_portcullis = false; instance_destroy(); }
+					if (_current_exit.destroyed) { _current_exit.is_portcullis_triggered = false; instance_destroy(); }
 				}
 			}
 		}
-		if (_current_exit != -1  && _dir == get_opposite_dir(transition) && (_current_exit.has_portcullis || _current_exit.has_closed_portcullis_for_room(current_room))) { _entered_through_portcullis = true; }
+		if (_current_exit != -1  && _dir == get_opposite_dir(transition) && (_current_exit.is_portcullis_triggered || _current_exit.has_closed_portcullis_for_room(current_room))) { _entered_through_portcullis = true; }
 	}
 	if (!current_room.visited && !_entered_through_portcullis && instance_number(obj_portcullis) > 0) { 
 		play_sound(snd_shovel, false); 
@@ -786,7 +786,7 @@ function game_room_initialize() {
 		}
 		
 		// Always count the exit, and count the stairs exits in portcullis rooms, since they can't be locked by the portcullis
-		 _exit_count += 1;
+		_exit_count += 1;
 		if (_dir == directions.stairs) { _portcullis_exit_count += 1; }
 	}
 	if (current_room.has_portcullis_trap && _portcullis_exit_count != _exit_count) {

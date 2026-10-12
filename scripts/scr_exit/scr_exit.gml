@@ -12,7 +12,7 @@ enum exit_types {
 /// @function RoomExit(_current_room, _linked_room)
 /// @description A link between two rooms of the map, through a side or by stairs, and whatever type of exit it is:
 ///	a door, illusion wall, or a one-sided portcullis. Map generation sets its values, and they are modified during gameplay.
-/// Additional exits created by the shovel during gameplay
+/// Additional exits are also created by the shovel during gameplay.
 /// @param {GameRoom} _current_room One of the rooms it links
 /// @param {GameRoom} _linked_room The other room it links
 function RoomExit(_current_room, _linked_room) constructor {
@@ -37,16 +37,17 @@ function RoomExit(_current_room, _linked_room) constructor {
 			&& !room_1.has_hall_of_mirrors && !room_2.has_hall_of_mirrors;
 	};
 	
-	/// @function set_portcullis_to_trigger_for_room(_given_room, _given_value)
+	/// @function add_portcullis_for_room(_room, _given_value)
 	/// @description Sets whether the portcullis to close upon entering the given room
-	/// @param {GameRoom} _given_room The room whose side to set
+	/// @param {GameRoom} _room The room whose side to set
 	/// @param {bool} _given_value Whether that side's portcullis is closed
-	/// @returns {bool} False if the room is not associated with this exit or it has no exit type yet
-	static set_portcullis_to_trigger_for_room = function(_given_room, _given_value) {
+	/// @returns {bool} False if the room is not associated with this exit or it has no speical exit type yet
+	static add_portcullis_for_room = function(_room) {
 		if (exit_type != exit_types.none) { return false; }
 			
-		if (_given_room == room_1) { room_1_has_closed_portcullis = _given_value; return true; }
-		else if (_given_room == room_2) { room_2_has_closed_portcullis = _given_value;  return true; }
+		var _portcullis_set = false;
+		if (_room == room_1) { room_1_has_closed_portcullis = true; _portcullis_set = true; }
+		else if (_room == room_2) { room_2_has_closed_portcullis = true;  _portcullis_set = true; }
 		if (_portcullis_set) { exit_type = exit_types.closed_portcullis; }
 		
 		return _portcullis_set;
@@ -56,26 +57,26 @@ function RoomExit(_current_room, _linked_room) constructor {
 	// Gameplay Functions
 	// ========================
 	
-	/// @function get_door_type_for_room(_given_room)
+	/// @function get_door_type_for_room(_room)
 	/// @description Returns what door object type, if any, this exit has in this room
 	/// @param {GameRoom} _room The given room to check
-	/// @returns {Id.Instance} The door object type, or noone
+	/// @returns {Asset.GMObject} The door object type, or noone
 	static get_door_type_for_room = function(_room) {
 		if (has_closed_portcullis_for_room(_room)) { return obj_portcullis; }
 		else if (exit_type == exit_types.unlocked_doors || exit_type == exit_types.locked_doors) { return obj_door; }
 		
 		else return noone;
-	}
+	};
 
-	/// @function has_closed_portcullis_for_room(_given_room)
+	/// @function has_closed_portcullis_for_room(_room)
 	/// @description Whether the portcullis on the given room's side of the exit will close
-	/// @param {GameRoom} _given_room The room whose side to check
+	/// @param {GameRoom} _room The room whose side to check
 	/// @returns {bool} False for a room the exit doesn't link
-	static has_closed_portcullis_for_room = function(_given_room) {
+	static has_closed_portcullis_for_room = function(_room) {
 		if (exit_type != exit_types.closed_portcullis) { return false; }
 
-		if (_given_room == room_1) { return room_1_has_closed_portcullis; }
-		else if (_given_room == room_2) { return room_2_has_closed_portcullis; }
+		if (_room == room_1) { return room_1_has_closed_portcullis; }
+		else if (_room == room_2) { return room_2_has_closed_portcullis; }
 
 		return false;
 	};
@@ -94,19 +95,23 @@ function RoomExit(_current_room, _linked_room) constructor {
 
 	/// @function close_portcullis()
 	/// @description Closes the portcullis on both sides of the exit
+	/// @returns {bool} False if the exit is not a closed portcullis
 	static close_portcullis = function() {
-		has_portcullis = true;
+		if (exit_type != exit_types.closed_portcullis) { return false; }
+
+		is_portcullis_triggered = true;
 		room_1_has_closed_portcullis = true;
 		room_2_has_closed_portcullis = true;
+		return true;
 	};
 
-	/// @function add_stairs_for_room(_given_room, _stairs)
+	/// @function add_stairs_for_room(_room, _stairs)
 	/// @description Links the given stairs instance to the given room for this exit
-	/// @param {GameRoom} _given_room The room the stairs are in
+	/// @param {GameRoom} _room The room the stairs are in
 	/// @param {Id.Instance} _stairs The stairs instance
-	static add_stairs_for_room = function(_given_room, _stairs) {
-		if (_given_room == room_1 && room_1_stairs == noone) { room_1_stairs = _stairs; }
-		else if (_given_room == room_2 && room_2_stairs == noone) { room_2_stairs = _stairs; }
+	static add_stairs_for_room = function(_room, _stairs) {
+		if (_room == room_1 && room_1_stairs == noone) { room_1_stairs = _stairs; }
+		else if (_room == room_2 && room_2_stairs == noone) { room_2_stairs = _stairs; }
 	};
 
 	/// @function get_connected_stairs(_given_stairs)
@@ -120,13 +125,13 @@ function RoomExit(_current_room, _linked_room) constructor {
 		return noone;
 	};
 
-	/// @function get_connected_room(_given_room)
+	/// @function get_connected_room(_room)
 	/// @description The room on the other side of the exit for a given room
-	/// @param {GameRoom} _given_room The room on one side
+	/// @param {GameRoom} _room The room on one side
 	/// @returns {GameRoom|real} The room on the other side, or -1 if the exit doesn't link the given room
-	static get_connected_room = function(_given_room) {
-		if (_given_room == room_1) { return room_2; }
-		else if (_given_room == room_2) { return room_1; }
+	static get_connected_room = function(_room) {
+		if (_room == room_1) { return room_2; }
+		else if (_room == room_2) { return room_1; }
 
 		return -1;
 	};
@@ -155,7 +160,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 
 	// How the exit has been interacted with, during play
 	has_discovered_illusion_walls = false;			// Whether the player has moved through the illusion walls or not
-	has_portcullis = false;							// Whether the exit spawned a portcullis during play
+	is_portcullis_triggered = false;				// Whether the exit has spawned a closed portcullis during play
 	destroyed = false;								// Whether its door was destroyed during play
 	visited = false;								// Whether the player has gone through this exit, for the map
 	room_1_stairs = noone;							// The stairs instance linked to this exit in room_1

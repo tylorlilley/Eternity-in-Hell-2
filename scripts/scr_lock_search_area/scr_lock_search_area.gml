@@ -8,7 +8,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	// Static Functions
 	// ========================
 	
-	/// @function initialize_area()
+	/// @function initialize_search_area()
 	/// @description Sets up variables based on what a player finds within the search area
 	static initialize_search_area = function() {
 		// Check every room to see what can be found within the area
@@ -46,7 +46,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	};
 
 	/// @function is_room_chest_unlocked(_room)
-	/// @description Whether a given chest, by it's bitmask index, has been unlocked in this search area or not
+	/// @description Whether a given chest, by its bitmask index, has been unlocked in this search area or not
 	/// @param {GameRoom} _room The room to check for whether its chest is unlocked or not
 	/// @returns {bool}
 	static is_room_chest_unlocked = function(_room) {

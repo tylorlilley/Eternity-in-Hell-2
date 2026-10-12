@@ -813,7 +813,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Close the portcullis on the room's side of each cardinal exit
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _exit = exits[_dir];
-			if (_exit != -1) { _exit.set_portcullis_to_trigger_for_room(self, true); }
+			if (_exit != -1) { _exit.add_portcullis_for_room(self); }
 		}
 
 		// Pick a spot to spawn the portcullis button

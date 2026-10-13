@@ -278,27 +278,32 @@ function draw_player_worm(_x_pos, _y_pos, _x_scale, _blend) {
 /// @function				draw_player_left_hand();
 function draw_player_left_hand(_x_pos, _y_pos, _x_offset, _y_offset, _spr_width, _spr_height, _x_scale, _blend) {
 	if (_x_scale == 0) { return; }
-	else if (_x_scale > 0) {
-		var _left_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
-		var _hide_left_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
+	
+	var _hide_left_hand = false, _left_hand_sprite = noone;
+	if (_x_scale > 0) {
+		_left_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
+		_hide_left_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
 	}
 	else {
-		var _left_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
-		var _hide_left_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
+		_left_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
+		_hide_left_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
 	}
-	if (!_hide_left_hand) { draw_sprite_part_ext(_left_hand_sprite, image_index, _x_offset, _y_offset, _spr_width, _spr_height,  _x_pos, _y_pos, _x_scale, image_yscale, _blend, image_alpha); }
+	if (_hide_left_hand) { draw_sprite_part_ext(_left_hand_sprite, image_index, _x_offset, _y_offset, _spr_width, _spr_height,  _x_pos, _y_pos, _x_scale, image_yscale, _blend, image_alpha); }
 }
 
 /// @function				draw_player_right_hand();
 function draw_player_right_hand(_x_pos, _y_pos, _x_offset, _y_offset, _spr_width, _spr_height, _x_scale, _blend) {
 	if (_x_scale == 0) { return; }
-	else if (_x_scale > 0) {
-		var _right_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
-		var _hide_right_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
+	
+	
+	var _hide_right_hand = false, _right_hand_sprite = noone;
+	if (_x_scale > 0) {
+		_right_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
+		_hide_right_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
 	}
 	else if (_x_scale < 0) {
-		var _right_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
-		var _hide_right_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
+		_right_hand_sprite = (lost_left_hand) ? get_sprite_to_use(spr_player_bloody_right_hand) : spr_player_right_hand;
+		_hide_right_hand = (image_index == 0 && !lost_left_hand && !is_existing_instance(left_hand_item));
 	}
 	if (!_hide_right_hand) { draw_sprite_part_ext(_right_hand_sprite, image_index, _x_offset, _y_offset, _spr_width, _spr_height, _x_pos, _y_pos, _x_scale, image_yscale, _blend, image_alpha); }
 }

@@ -59,7 +59,7 @@ if (!_game_manager.paused) {
 			}
 			
 			// Wrap around to other end of selection again
-			var _options_length = array_length(hand_options);
+			_options_length = array_length(hand_options);
 			if (left_hand_pos > _options_length-1) { left_hand_pos -= _options_length+1; }
 			else if (left_hand_pos < -1) { left_hand_pos += _options_length+1; }
 			if (right_hand_pos > _options_length-1) { right_hand_pos -= _options_length+1; }

@@ -1,11 +1,13 @@
 {
-  "resourceType": "GMScript",
-  "resourceVersion": "1.0",
-  "name": "scr_constants",
-  "isCompatibility": false,
-  "isDnD": false,
-  "parent": {
-    "name": "Utility Scripts",
-    "path": "folders/Scripts/Utility Scripts.yy",
+  "$GMScript":"v1",
+  "%Name":"scr_constants",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_constants",
+  "parent":{
+    "name":"Utility Scripts",
+    "path":"folders/Scripts/Utility Scripts.yy",
   },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
 }

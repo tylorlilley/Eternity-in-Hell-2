@@ -264,9 +264,9 @@ function update_death_types() {
 	// Sort deaths to display by death count
 	array_sort(deaths_to_display, function(_elm1, _elm2) { 
 		switch (death_log_sort) {
-			case 1: { return _elm2[1] - _elm1[1]; break; }
-			case 0: { return _elm2[2] - _elm1[2]; break; }
-			case 2: { return _elm2[3] - _elm1[3]; break; }
+			case 1: { return _elm2[1] - _elm1[1]; }
+			case 0: { return _elm2[2] - _elm1[2]; }
+			case 2: { return _elm2[3] - _elm1[3]; }
 		}
 	});
 }

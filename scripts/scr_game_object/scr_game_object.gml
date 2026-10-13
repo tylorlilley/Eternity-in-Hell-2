@@ -546,8 +546,10 @@ function draw_reflection_in_mirrors() {
 				if (!is_existing_instance(_closest_solid) || _closest_solid.object_index != obj_mirror) { break; }
 
 				var _x_offset = 0, _y_offset = 0, _refl_width = abs(sprite_width), _refl_height = abs(sprite_height);
-				var _x_pos = _closest_solid.x-(_flipped_x_scale*abs(sprite_width))/2, _y_pos = _closest_solid.y-(image_yscale*abs(sprite_height))/2, _x_dif = _closest_solid.x-_x_to_use, _y_dif = _closest_solid.y-y;
+				var _x_dif = _closest_solid.x-_x_to_use, _y_dif = _closest_solid.y-y;
 				var _refl_blend = (colour_get_value(_closest_solid.image_blend) < colour_get_value(image_blend)) ? _closest_solid.image_blend : image_blend;
+				_x_pos = _closest_solid.x-(_flipped_x_scale*abs(sprite_width))/2;
+				_y_pos = _closest_solid.y-(image_yscale*abs(sprite_height))/2;
 
 				if (abs(_y_dif) < abs(_closest_solid.sprite_height) && _y_to_use < _closest_solid.y) { _refl_height /= 2; _y_offset += _refl_height; _y_pos += (abs(sprite_width)-abs(_closest_solid.sprite_width))/2; }
 				else if (abs(_y_dif) < abs(_closest_solid.sprite_height) && _y_to_use > _closest_solid.y) { _refl_height /= 2; _y_pos += abs(_closest_solid.sprite_height/2); }

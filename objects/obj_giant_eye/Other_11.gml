@@ -27,7 +27,8 @@ if (can_process_this_frame()) {
 	}
 	else {
 		// Shoot Randomly 
-		var _dir = irandom_range(1,360), _x_pos = x + lengthdir_x(8, _dir), _y_pos = y + lengthdir_y(8, _dir);
+		_dir = irandom_range(1,360);
+		var _x_pos = x + lengthdir_x(8, _dir), _y_pos = y + lengthdir_y(8, _dir);
 		var _beam = shoot_projectile(_x_pos, _y_pos, false, obj_magic_beam);
 		
 		// Animate Death
@@ -52,8 +53,8 @@ if (can_process_this_frame()) {
 			play_sound(snd_explosion, true); 
 			screen_flash();
 			for (var _i = 0; _i < 3; _i ++) {
-				var _x_pos = x + (8 * (-2 + irandom(4))), _y_pos = y + (8 * (-2 + irandom(4)));
-				instance_create(_x_pos, _y_pos, obj_blood);
+				var _blood_x_pos = x + (8 * (-2 + irandom(4))), _blood_y_pos = y + (8 * (-2 + irandom(4)));
+				instance_create(_blood_x_pos, _blood_y_pos, obj_blood);
 			}
 			instance_destroy();
 			if (killed_by != noone) { record_run_kill(object_index, killed_by); }

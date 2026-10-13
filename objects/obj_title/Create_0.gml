@@ -1,7 +1,7 @@
 randomize();
 
 depth = -9999;
-room_speed = 60;
+game_set_speed(60, gamespeed_fps);
 
 global.controller = noone;
 global.bg_color = make_color_rgb(0, 0, 0);

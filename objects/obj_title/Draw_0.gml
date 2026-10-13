@@ -201,9 +201,9 @@ else if (options_screen) {
 else if (controls_screen) {
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_left);
-	var _title_y_pos = room_height*2;
 	var _x_pos = room_width/3+16, _y_pos = 80-16, _y_offset = 32, _x_offset = (global.input != inputs.gamepad) ? -8 : -8;
-	
+	 _title_y_pos = room_height*2;
+
 	// Draw Controls
 	draw_set_font(ft_hud_small);
 	draw_set_halign(fa_left);
@@ -349,7 +349,9 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 		
 	// Draw Header
 	draw_set_color(c_white);
-	var _y_initial = 16+8, _x_initial = (room_width/4)-16, _y_pos = _y_initial, _x_pos = _x_initial-20;
+	var _y_initial = 16+8, _x_initial = (room_width/4)-16;
+	_y_pos = _y_initial;
+	_x_pos = _x_initial-20;
 	var _best_score_string = get_best_score_string(global.difficulty, global.graphics_mode);
 	draw_text(room_width/2, 15, get_difficulty_string(global.difficulty));
 	
@@ -373,7 +375,7 @@ else {
 	// Draw Main Menu
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_left);
-	var _title_y_pos = room_height/4-16;
+	_title_y_pos = room_height/4-16;
 	
 	// Draw Game Version
 	draw_set_font(ft_hud_small);

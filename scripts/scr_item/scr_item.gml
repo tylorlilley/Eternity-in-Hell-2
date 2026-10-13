@@ -105,7 +105,7 @@ function become_dropped(_dropper) {
 				with (_dropper) { 
 					if (is_carrying_lit_torch(false)) { _light_bomb = true; }
 				}
-				if (_light_bomb) { _light_bomb(); }
+				if (_light_bomb) { light_bomb(); }
 			}
 			break;
 		}
@@ -231,7 +231,7 @@ function get_random_item_obj(_special_item, _include_key) {
 	
 	// Decide which item to spawn based on previous item spawns
 	while (_chosen_item_obj == noone) {
-		var _chosen_item_obj = _available_items[_random_pos];
+		_chosen_item_obj = _available_items[_random_pos];
 		var _spawned_item_count = array_count_occurrences(_controller.spawned_items, _chosen_item_obj);
 		var _special_item_count = array_count_occurrences(_controller.spawned_special_items, _chosen_item_obj)
 		

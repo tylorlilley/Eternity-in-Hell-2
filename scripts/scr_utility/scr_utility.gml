@@ -333,7 +333,7 @@ function get_decimal_from_hex_string(_hex_string) {
 	for (var _i = 1; _i <= string_length(_hex_string); _i++) {
 	    var _c = ord(string_char_at(string_upper(_hex_string), _i));
 	    // you could also multiply by 16 but you get more nerd points for bitshifts
-	    var _result = _result << 4;
+	    _result = _result << 4;
 	    // if the character is a number or letter, add the value
 	    // it represents to the total
 	    if (_c >= _ZERO && _c <= _NINE) {

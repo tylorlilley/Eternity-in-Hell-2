@@ -344,6 +344,7 @@
     {"id":{"name":"scr_item","path":"scripts/scr_item/scr_item.yy",},},
     {"id":{"name":"scr_lighting","path":"scripts/scr_lighting/scr_lighting.yy",},},
     {"id":{"name":"scr_lock_search_area","path":"scripts/scr_lock_search_area/scr_lock_search_area.yy",},},
+    {"id":{"name":"scr_player_chances","path":"scripts/scr_player_chances/scr_player_chances.yy",},},
     {"id":{"name":"scr_player_data","path":"scripts/scr_player_data/scr_player_data.yy",},},
     {"id":{"name":"scr_player","path":"scripts/scr_player/scr_player.yy",},},
     {"id":{"name":"scr_projectile","path":"scripts/scr_projectile/scr_projectile.yy",},},

@@ -44,7 +44,7 @@ function GameMap() constructor {
 			}
 
 			// Work out the lowest difficulty it appears on, now that it knows whether it's a special room
-			_layout.determine_minimum_difficulty();
+			_layout.setup_minimum_difficulty();
 			array_push(_cached_layouts, _layout);
 		}
 		layout_cache = { layouts: _cached_layouts, special_room_types: _special_room_types };

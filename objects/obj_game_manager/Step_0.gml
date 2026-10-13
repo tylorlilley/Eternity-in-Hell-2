@@ -76,6 +76,7 @@ number_of_frames_since_game_began += 1;
 if (resize_timer > 0) {
 	resize_timer -= 1;
 	if (!global.fullscreen) {
+		// Resize and recenter the game window according to the selected window scaling size
 		window_set_size(room_width * global.window_scaling, room_height * global.window_scaling);
 		window_center();
 	}

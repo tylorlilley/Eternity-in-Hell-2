@@ -30,7 +30,7 @@ function get_scaling_amount(_minimum, _maximum, _numerator, _denominator) {
 /// @param		{real} _value_to_pad			The value to pad with zeros
 /// @param		{real} target_legnth		The desired length of the padded string
 function get_zero_padded_string(_value_to_pad, _target_length) {
-	var _padded_value = string(_value_to_pad)
+	var _padded_value = string(_value_to_pad);
 	
 	while (string_length(_padded_value) < _target_length) {
 	    _padded_value = "0"+_padded_value;
@@ -351,7 +351,7 @@ function get_decimal_from_hex_string(_hex_string) {
 ///	@param		{number} _b					The number to perform the mod with
 function modulo(_a, _b) {
 	var _Q = (_b < 0) ? ceil(_a/_b) : floor(_a/_b);
-	return _a - (_Q * _b)
+	return _a - (_Q * _b);
 }
 
 /// @function count_bits(_bitmask)
@@ -439,14 +439,57 @@ function write_debug_message(_msg, _debug_level = debug_message_level.log) {
 	if (_debug_level == debug_message_level.error) { show_error(_msg, true); }
 }
 
-/*
-function are_coordinates_within_instance(x_pos, y_pos, inst) {
-	var nearest_inst = instance_nearest(x_pos, y_pos, inst);
-	if (!is_existing_instance(nearest_inst)) { return noone; }
+// ============================
+// Count Struct Functions
+// ============================
+
+/// @function get_count_from_struct(_count_struct, _key)
+/// @description Returnsthe count in a struct of object counts.
+/// @param {struct} _count_struct 	The struct of counts to check
+/// @param {string} _key			The key to return the count for
+/// @returns {real} The count for the key within this struct
+function get_count_from_struct(_count_struct, _key) {
+	var _count = _count_struct[$ _key];
+	return is_undefined(_count) ? 0 : _count;
+};
+
+/// @function add_to_count(_count_struct, _key, _value = 1)
+/// @description Adds to one the count in a struct of object counts.
+/// @param {struct} _count_struct 	The struct of counts to add to
+/// @param {string} _key			The key to add to
+/// @param {real} _value			Amount to increase the count by
+function add_to_count_struct(_count_struct, _key, _value = 1) {
+	if (_value == 0) { return; }
 	
-	return (x_pos > nearest_inst.x - nearest_inst.sprite_width / 2 && 
-			x_pos < nearest_inst.x + nearest_inst.sprite_width / 2 &&
-			y_pos > nearest_inst.y - nearest_inst.sprite_height / 2 && 
-			y_pos < nearest_inst.y + nearest_inst.sprite_height / 2) ? nearest_inst : noone;
+	_count_struct[$ _key] = get_count_from_struct(_count_struct, _key) + _value;
+};
+
+/// @function duplicate_count_struct()
+/// @description Makes a copy of the count struct and returns it
+/// @param {struct} _count_struct The struct of counts to copy
+/// @returns {struct} A copy of the passed in count struct
+function duplicate_count_struct(_count_struct) {
+	var _count_struct_copy = {}, _keys = variable_struct_get_names(_count_struct);
+	for (var _i = 0; _i < array_length(_keys); _i++) { _count_struct_copy[$ _keys[_i]] = _count_struct[$ _keys[_i]]; }
+	return _count_struct_copy;
+};
+
+/// @function Combine_count_structs(_first_count_struct, _second_count_struct)
+/// @description Returns a new count struct that is a combination of the given two structs
+/// @param {struct} _first_count_struct The first struct of counts to copy
+/// @param {struct} _second_count_struct The second struct of counts to copy
+/// @returns {struct} A combined copy of the passed in count structs
+function combine_count_structs(_first_count_struct, _second_count_struct) {
+	// Get the unique keys present in either of the provided structs
+	var _combined_count_struct = {}, _ = variable_struct_get_names(_first_count_struct), _second_keys = variable_struct_get_names(_first_count_struct);
+	var _unqiue_keys = array_unique(array_concat(_first_keys, _second_keys));
+	
+	// For each unique key, get it's counts from both structs, sum them, and add them to the combined struct
+	for (var _i = 0; _i < array_length(_unqiue_keys); _i++) {
+		var _key = _keys[_i];
+		_combined_count_struct[$ _keys[_i]] = get_count_from_struct(_first_count_struct, _key) + get_count_from_struct(_second_count_struct, _key);
+	}
+	
+	// Return the new combined count struct
+	return _combined_count_struct;
 }
-*/

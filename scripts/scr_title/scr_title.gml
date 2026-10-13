@@ -124,7 +124,7 @@ function set_window_size() {
 	// Leave fullscreen when going windowed, or when switching between borderless and exclusive fullscreen, which only
 	// takes effect on entering fullscreen. The game manager then sizes the window or enters fullscreen again
 	if (window_get_fullscreen() && (!global.fullscreen || window_get_borderless_fullscreen() == global.window_border)) { window_set_fullscreen(false); }
-	with (obj_game_manager) { resize_timer = 4; }
+	with (obj_game_manager) { resize_timer = 12; }
 }
 
 /// @function								get_input_string();

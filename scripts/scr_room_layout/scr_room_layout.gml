@@ -381,7 +381,7 @@ function RoomLayout(_room_reference) constructor {
 
 	/// @function get_instances_from_room_asset()
 	/// @description Reads the instances this room spawns straight from its GameMaker room, in place of the layout file.
-	///	Each is listed the way the layout file lists it, as { x, y, name }, with its position rounded to whole pixels.
+	///	Each is listed the way the layout file lists it, as { x, y, object_name }, with its position rounded to whole pixels.
 	static get_instances_from_room_asset = function() {
 		var _instances_in_room = [];
 		if (is_usable) {
@@ -390,7 +390,7 @@ function RoomLayout(_room_reference) constructor {
 			if (is_array(_room_instances)) {
 				for (var _i = 0; _i < array_length(_room_instances); _i++) {
 					var _room_instance = _room_instances[_i];
-					array_push(_instances_in_room, { x: round(_room_instance.x), y: round(_room_instance.y), name: _room_instance.object_index });
+					array_push(_instances_in_room, { x: round(_room_instance.x), y: round(_room_instance.y), object_name: _room_instance.object_index });
 				}
 			}
 		}
@@ -496,7 +496,7 @@ function RoomLayout(_room_reference) constructor {
 
 				// Only one of each object type per tile, except spider spots, which can share one
 				if (_instance.object_name != "obj_spider_spot") {
-					if (array_contains(_tile_object_names, _instance.object_name)) { _problems += " has more than one " + _instance.naobject_nameme + " at " + _tile_key + ";"; }
+					if (array_contains(_tile_object_names, _instance.object_name)) { _problems += " has more than one " + _instance.object_name + " at " + _tile_key + ";"; }
 					array_push(_tile_object_names, _instance.object_name);
 				}
 

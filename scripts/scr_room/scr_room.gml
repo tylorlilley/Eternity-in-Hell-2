@@ -923,13 +923,13 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @description Creates the instances of the room's layout, the first time the room is built, and lists its
 	///	collectable spots
 	static initialize_from_room_reference = function() {
-		var _reference_instances = layout.instances;
+		var _reference_instances = layout.instances_to_create;
 		collectable_spot_instances = [];
 		
 		for(var _i = 0; _i < array_length(_reference_instances); _i++) {
 			var _ref = _reference_instances[_i];
-			var _new_instance = instance_create(_ref.x, _ref.y, asset_get_index(_ref.name));
-			if (_ref.name == "obj_collectable_spot") { array_push(collectable_spot_instances, _new_instance); }
+			var _new_instance = instance_create(_ref.x, _ref.y, asset_get_index(_ref.object_name));
+			if (_ref.object_name == "obj_collectable_spot") { array_push(collectable_spot_instances, _new_instance); }
 		}
 	};
 	

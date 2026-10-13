@@ -288,7 +288,7 @@ function draw_player_left_hand(_x_pos, _y_pos, _x_offset, _y_offset, _spr_width,
 		_left_hand_sprite = (lost_right_hand) ? get_sprite_to_use(spr_player_bloody_left_hand) : spr_player_left_hand;
 		_hide_left_hand = (image_index == 0 && !lost_right_hand && !is_existing_instance(right_hand_item));
 	}
-	if (_hide_left_hand) { draw_sprite_part_ext(_left_hand_sprite, image_index, _x_offset, _y_offset, _spr_width, _spr_height,  _x_pos, _y_pos, _x_scale, image_yscale, _blend, image_alpha); }
+	if (!_hide_left_hand) { draw_sprite_part_ext(_left_hand_sprite, image_index, _x_offset, _y_offset, _spr_width, _spr_height,  _x_pos, _y_pos, _x_scale, image_yscale, _blend, image_alpha); }
 }
 
 /// @function				draw_player_right_hand();

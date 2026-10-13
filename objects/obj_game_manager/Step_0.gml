@@ -72,16 +72,18 @@ if (instance_number(obj_title) > 0 || number_of_frames_since_game_began % FRAMES
 // Update frame count
 number_of_frames_since_game_began += 1;
 
-if (resize_timer > 0) { 
+// Apply the window settings for a few frames after they change, since leaving fullscreen takes a moment (see set_window_size)
+if (resize_timer > 0) {
 	resize_timer -= 1;
-	var _display_width = display_get_width(), _display_height = display_get_height(); 
-	var _window_scaling = (global.fullscreen) ? global.fullscreen_window_scaling : global.window_scaling;
-	var _window_width = (global.fullscreen) ? _display_width : (room_width * _window_scaling);
-	var _window_height = (global.fullscreen) ? _display_height : (room_height * _window_scaling);
-	
-	window_set_size(_window_width + gameframe_offset, _window_height + gameframe_caption_height_normal + gameframe_offset);
-	window_center();
+	if (!global.fullscreen) {
+		window_set_size(room_width * global.window_scaling, room_height * global.window_scaling);
+		window_center();
+	}
+	else if (!window_get_fullscreen()) {
+		// Fullscreen covers the screen with a borderless window, unless the window border setting asks for exclusive fullscreen
+		window_enable_borderless_fullscreen(!global.window_border);
+		window_set_fullscreen(true);
+	}
 }
-if (os_type == os_windows) { gameframe_update(); }
 set_up_inputs_for_next_frame();
 	

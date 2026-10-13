@@ -1,7 +1,6 @@
 singleton_instance();
 initialize_shader_pointers();
 audio_group_load(audiogroup_default);
-gameframe_init();
 
 global.datetime = string(current_day) + "-" + string(current_month) + "-" + string(current_year) + ":" + string(current_hour) + ":" + string(current_minute);
 depth = 10000;

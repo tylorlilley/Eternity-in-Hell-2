@@ -1,7 +1,6 @@
 {
   "FolderOrderSettings":[
     {"name":"Extensions","order":14,"path":"folders/Extensions.yy",},
-    {"name":"Gameframe","order":1,"path":"folders/Extensions/Gameframe.yy",},
     {"name":"Fonts","order":8,"path":"folders/Fonts.yy",},
     {"name":"Notes","order":13,"path":"folders/Notes.yy",},
     {"name":"Objects","order":11,"path":"folders/Objects.yy",},
@@ -31,7 +30,6 @@
     {"name":"Sprites","order":1,"path":"folders/Sprites.yy",},
     {"name":"enemies","order":90,"path":"folders/Sprites/enemies.yy",},
     {"name":"rotational","order":13,"path":"folders/Sprites/enemies/rotational.yy",},
-    {"name":"gameframe","order":64,"path":"folders/Sprites/gameframe.yy",},
     {"name":"items","order":91,"path":"folders/Sprites/items.yy",},
     {"name":"Parts","order":43,"path":"folders/Sprites/items/Parts.yy",},
     {"name":"Unused","order":42,"path":"folders/Sprites/items/Unused.yy",},
@@ -40,7 +38,6 @@
     {"name":"Timelines","order":9,"path":"folders/Timelines.yy",},
   ],
   "ResourceOrderSettings":[
-    {"name":"gameframe_native","order":2,"path":"extensions/gameframe_native/gameframe_native.yy",},
     {"name":"ft_hud_giant","order":4,"path":"fonts/ft_hud_giant/ft_hud_giant.yy",},
     {"name":"ft_hud_large","order":5,"path":"fonts/ft_hud_large/ft_hud_large.yy",},
     {"name":"ft_hud_small","order":2,"path":"fonts/ft_hud_small/ft_hud_small.yy",},
@@ -299,7 +296,6 @@
     {"name":"rm_unused_6","order":8,"path":"rooms/rm_unused_6/rm_unused_6.yy",},
     {"name":"rm_unused_7","order":13,"path":"rooms/rm_unused_7/rm_unused_7.yy",},
     {"name":"rm_unused_9","order":16,"path":"rooms/rm_unused_9/rm_unused_9.yy",},
-    {"name":"gameframe_macros","order":1,"path":"scripts/gameframe_macros/gameframe_macros.yy",},
     {"name":"scr_array","order":3,"path":"scripts/scr_array/scr_array.yy",},
     {"name":"scr_constants","order":5,"path":"scripts/scr_constants/scr_constants.yy",},
     {"name":"scr_enemy","order":4,"path":"scripts/scr_enemy/scr_enemy.yy",},
@@ -437,9 +433,6 @@
     {"name":"spr_fountain_farmer","order":7,"path":"sprites/spr_fountain_farmer/spr_fountain_farmer.yy",},
     {"name":"spr_fountain_old","order":92,"path":"sprites/spr_fountain_old/spr_fountain_old.yy",},
     {"name":"spr_fountain","order":2,"path":"sprites/spr_fountain/spr_fountain.yy",},
-    {"name":"spr_gameframe_buttons","order":1,"path":"sprites/spr_gameframe_buttons/spr_gameframe_buttons.yy",},
-    {"name":"spr_gameframe_caption","order":2,"path":"sprites/spr_gameframe_caption/spr_gameframe_caption.yy",},
-    {"name":"spr_gameframe_pixel","order":3,"path":"sprites/spr_gameframe_pixel/spr_gameframe_pixel.yy",},
     {"name":"spr_giant_eye_death_sprite_old","order":70,"path":"sprites/spr_giant_eye_death_sprite_old/spr_giant_eye_death_sprite_old.yy",},
     {"name":"spr_giant_eye_death_sprite","order":68,"path":"sprites/spr_giant_eye_death_sprite/spr_giant_eye_death_sprite.yy",},
     {"name":"spr_giant_eye_farmer","order":73,"path":"sprites/spr_giant_eye_farmer/spr_giant_eye_farmer.yy",},

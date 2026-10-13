@@ -25,17 +25,6 @@ function array_duplicate(_list, _source_list) {
 	array_copy(_list, 0, _source_list, 0, array_length(_source_list));
 }
 
-/// @function									array_shift(list);
-/// @param		{index}		list				List to remove and return the first value from
-function array_shift(_list)
-{
-    if (array_length(_list) <= 0) return undefined;
-
-    var _first = _list[0];
-    array_delete(_list, 0, 1);
-    return _first;
-}
-
 /// @function									array_remove_first(_list, value_to_find);
 /// @param		{index}		_list				List to remove the value from
 /// @param		{value}		_value_to_remove		Value to remove from the array

@@ -16,10 +16,8 @@ enum layout_exit_types {
 ///	usable layout gets is_usable = false, and GameMap leaves it out of the cache.
 /// @param {Asset.GMRoom} _room_reference The Game Maker room this layout corresponds to
 function RoomLayout(_room_reference) constructor {
-
-	
 	/// @function get_open_cardinal_exits()
-	/// @description The cardinal exits the raw json room file starts with open, before it is flipped or rotated
+	/// @description The cardinal exits the room reference will start with open, before it is flipped or rotated
 	/// @returns {array} Directions, in a new array each call so the caller can change it
 	static get_open_cardinal_exits = function() {
 		switch (exit_type) {
@@ -282,9 +280,9 @@ function RoomLayout(_room_reference) constructor {
 		walk_points = [];
 		for (var _s = 0; _s < array_length(_open); _s++) {
 			var _side = _open[_s], _sum_x = 0, _sum_y = 0, _count = 0;
-			for (var _i = 0; _i < array_length(instances); _i++) {
-				var _inst = instances[_i];
-				if (_inst.name != _sides[_side]) { continue; }
+			for (var _i = 0; _i < array_length(instances_to_create); _i++) {
+				var _inst = instances_to_create[_i];
+				if (_inst.object_name != _sides[_side]) { continue; }
 				var _across = (_side == directions.left || _side == directions.right) ? _inst.x : _inst.y;
 				if (_across > 16 && _across < LAYOUT_SIZE - 16) { continue; }
 				_sum_x += _inst.x;
@@ -295,11 +293,11 @@ function RoomLayout(_room_reference) constructor {
 		}
 		walk_entrance_count = array_length(walk_points);
 		walk_collectable_points = [];
-		for (var _j = 0; _j < array_length(instances); _j++) {
-			var _spot = instances[_j];
-			if (_spot.name == "obj_stairs_spot") { walk_stairs_point = array_length(walk_points); }
-			else if (_spot.name == "obj_chest_spot") { walk_chest_point = array_length(walk_points); }
-			else if (_spot.name == "obj_collectable_spot") { array_push(walk_collectable_points, array_length(walk_points)); }
+		for (var _j = 0; _j < array_length(instances_to_create); _j++) {
+			var _spot = instances_to_create[_j];
+			if (_spot.object_name == "obj_stairs_spot") { walk_stairs_point = array_length(walk_points); }
+			else if (_spot.object_name == "obj_chest_spot") { walk_chest_point = array_length(walk_points); }
+			else if (_spot.object_name == "obj_collectable_spot") { array_push(walk_collectable_points, array_length(walk_points)); }
 			else { continue; }
 			array_push(walk_points, { x: _spot.x, y: _spot.y });
 		}
@@ -317,21 +315,21 @@ function RoomLayout(_room_reference) constructor {
 			mp_grid_add_cell(_with_lava, _cells - 1, _edge);	mp_grid_add_cell(_without_lava, _cells - 1, _edge);
 		}
 		var _cleared = {};
-		for (var _k = 0; _k < array_length(instances); _k++) {
-			var _marker = instances[_k], _marker_side = -1;
-			for (var _q = 0; _q < 4; _q++) { if (_marker.name == _sides[_q]) { _marker_side = _q; } }
+		for (var _k = 0; _k < array_length(instances_to_create); _k++) {
+			var _marker = instances_to_create[_k], _marker_side = -1;
+			for (var _q = 0; _q < 4; _q++) { if (_marker.object_name == _sides[_q]) { _marker_side = _q; } }
 			var _is_open = (_marker_side != -1) && array_contains(_open, _marker_side);
-			if (_is_open || _marker.name == "obj_chest_spot" || _marker.name == "obj_stairs_spot") { _cleared[$ get_tile_key(_marker.x, _marker.y)] = true; }
+			if (_is_open || _marker.object_name == "obj_chest_spot" || _marker.object_name == "obj_stairs_spot") { _cleared[$ get_tile_key(_marker.x, _marker.y)] = true; }
 			else if (_marker_side != -1) {
 				block_walking_area(_with_lava, _marker.x, _marker.y, 8);
 				block_walking_area(_without_lava, _marker.x, _marker.y, 8);
 			}
 		}
-		for (var _m = 0; _m < array_length(instances); _m++) {
-			var _obstacle = instances[_m];
+		for (var _m = 0; _m < array_length(instances_to_create); _m++) {
+			var _obstacle = instances_to_create[_m];
 			if (!is_undefined(_cleared[$ get_tile_key(_obstacle.x, _obstacle.y)])) { continue; }
 			var _half = 0;
-			switch (_obstacle.name) {
+			switch (_obstacle.object_name) {
 				case "obj_wall": case "obj_column": case "obj_mirror": case "obj_statue": case "obj_fountain": case "obj_red_chest": _half = 8; break;
 				case "obj_giant_eye": _half = 24; break;
 			}
@@ -339,7 +337,7 @@ function RoomLayout(_room_reference) constructor {
 				block_walking_area(_with_lava, _obstacle.x, _obstacle.y, _half);
 				block_walking_area(_without_lava, _obstacle.x, _obstacle.y, _half);
 			}
-			else if (_obstacle.name == "obj_lava") { block_walking_area(_with_lava, _obstacle.x, _obstacle.y, 8); }
+			else if (_obstacle.object_name == "obj_lava") { block_walking_area(_with_lava, _obstacle.x, _obstacle.y, 8); }
 		}
  
 		// Steps between every pair of walk points
@@ -380,29 +378,10 @@ function RoomLayout(_room_reference) constructor {
 		if (string_pos("four_exits", _name) != 0) { return layout_exit_types.four; }
 		return -1;
 	};
-	
-	/// @function get_instances_from_layout_file()
-	/// @description Reads the instances this room spawns from the layout file that matches the room name
-	static get_instances_from_layout_file = function() {
-		var _instances_in_file = [];
-		if (is_usable) {
-			var _file = file_text_open_read(room_name + ".json");
-			if (_file == -1) {
-				write_debug_message("Missing layout file, so the layout is never used: " + room_name + ".json", debug_message_level.warning);
-				is_usable = false;
-			}
-			else {
-				_instances_in_file = json_parse(file_text_read_string(_file));
-				file_text_close(_file);
-			}
-		}
-		instances = _instances_in_file;
-	};
 
 	/// @function get_instances_from_room_asset()
 	/// @description Reads the instances this room spawns straight from its GameMaker room, in place of the layout file.
-	///	Each is listed the way the layout file lists it, as { x, y, name }, with its position rounded to whole pixels
-	///	as room_converter.rb rounded it.
+	///	Each is listed the way the layout file lists it, as { x, y, name }, with its position rounded to whole pixels.
 	static get_instances_from_room_asset = function() {
 		var _instances_in_room = [];
 		if (is_usable) {
@@ -415,7 +394,7 @@ function RoomLayout(_room_reference) constructor {
 				}
 			}
 		}
-		instances = _instances_in_room;
+		instances_to_create = _instances_in_room;
 	};
 	
 	/// @function setup_instance_object_and_tile_counts()
@@ -423,16 +402,16 @@ function RoomLayout(_room_reference) constructor {
 	/// @returns {array} Array of spot instances that could destroy other spots in the file
 	static setup_instance_object_and_tile_counts = function() {
 		var _destroying_spots = [];
-		for (var _i = 0; _i < array_length(instances); _i++) {
+		for (var _i = 0; _i < array_length(instances_to_create); _i++) {
 			// Add 1 to the object count for this instance's object type
-			var _instance = instances[_i];
-			instance_object_counts[$ _instance.name] = get_object_count(_instance.name) + 1;
+			var _instance = instances_to_create[_i];
+			instance_object_counts[$ _instance.object_name] = get_object_count(_instance.object_name) + 1;
 			
 			// Add 1 to the number of objects overlapping this tile spot
 			add_instance_to_tile(_instance);
 			
 			// If this instance is one that can delete the instances that share a spot with it on room generation, add it to the clearing spots array
-			if (string_starts_with(_instance.name, "obj_exit_spot") || _instance.name == "obj_chest_spot") { array_push(_destroying_spots, _instance); }
+			if (string_starts_with(_instance.object_name, "obj_exit_spot") || _instance.object_name == "obj_chest_spot") { array_push(_destroying_spots, _instance); }
 		}
 		
 		return _destroying_spots;
@@ -453,14 +432,14 @@ function RoomLayout(_room_reference) constructor {
 	static setup_stairs_and_collectable_spots = function(_destroying_spots) {
 		var _collectable_spot_number = 0;
 		// Check each instances to find the available spots
-		for (var _i = 0; _i < array_length(instances); _i++) {
+		for (var _i = 0; _i < array_length(instances_to_create); _i++) {
 			// Get the tile position and instance count at that position for each possible instance
-			var _possible_spot_instance = instances[_i];
+			var _possible_spot_instance = instances_to_create[_i];
 			var _spot_tile = get_tile_key(_possible_spot_instance.x, _possible_spot_instance.y);
 			var _instance_is_alone = (array_length(get_instances_at_tile(_spot_tile)) == 1);
 			
 			// Check instance names to see what to count this instance as
-			switch (_possible_spot_instance.name) {
+			switch (_possible_spot_instance.object_name) {
 				case "obj_stairs_spot": { stairs_spot_is_clear = _instance_is_alone; break; }
 				case "obj_collectable_spot": {
 					// Add the spot to key and button spot lists
@@ -516,14 +495,14 @@ function RoomLayout(_room_reference) constructor {
 				var _instance = _tile_instances[_j];
 
 				// Only one of each object type per tile, except spider spots, which can share one
-				if (_instance.name != "obj_spider_spot") {
-					if (array_contains(_tile_object_names, _instance.name)) { _problems += " has more than one " + _instance.name + " at " + _tile_key + ";"; }
-					array_push(_tile_object_names, _instance.name);
+				if (_instance.object_name != "obj_spider_spot") {
+					if (array_contains(_tile_object_names, _instance.object_name)) { _problems += " has more than one " + _instance.naobject_nameme + " at " + _tile_key + ";"; }
+					array_push(_tile_object_names, _instance.object_name);
 				}
 
 				// Skip remaining validations unless instance is part of a giant worm
-				var _is_worm_head = (_instance.name == "obj_giant_worm_head");
-				if (!_is_worm_head && _instance.name != "obj_giant_worm_body") { continue; }
+				var _is_worm_head = (_instance.object_name == "obj_giant_worm_head");
+				if (!_is_worm_head && _instance.object_name != "obj_giant_worm_body") { continue; }
 				
 				// Vaslidate worms are connected
 				var _is_connected = false;
@@ -531,7 +510,7 @@ function RoomLayout(_room_reference) constructor {
 					var _neighbor_key = get_tile_key(_instance.x + get_dir_x_offset(_dir) * 16, _instance.y + get_dir_y_offset(_dir) * 16);
 					if (tile_has_object(_neighbor_key, "obj_giant_worm_body") || (!_is_worm_head && tile_has_object(_neighbor_key, "obj_giant_worm_head"))) { _is_connected = true; break; }
 				}
-				if (!_is_connected) { _problems += " has a detached " + _instance.name + " at " + _tile_key + ";"; }
+				if (!_is_connected) { _problems += " has a detached " + _instance.object_name + " at " + _tile_key + ";"; }
 			}
 		}
 
@@ -606,7 +585,7 @@ function RoomLayout(_room_reference) constructor {
 	static tile_has_object = function(_tile_key, _object_name) {
 		var _tile_instances = get_instances_at_tile(_tile_key);
 		for (var _i = 0; _i < array_length(_tile_instances); _i++) {
-			if (_tile_instances[_i].name == _object_name) { return true; }
+			if (_tile_instances[_i].object_name == _object_name) { return true; }
 		}
 		return false;
 	};
@@ -626,16 +605,16 @@ function RoomLayout(_room_reference) constructor {
 	layout_cache_index = -1;														// Its position in the layout cache, set when GameMap builds the cache
 	is_usable = (exit_type != -1) && !string_starts_with(room_name, "rm_unused");	// Only include usable rooms that match an exit type
 	
-	instances = [];										// The list of instances that will be created when this room gets built
+	instances_to_create = [];							// The list of x, y, and object_type structs that will be created when this room gets built
 	instance_object_counts = {};						// A map of each object type in the layout to the number of instances with that type in the layout
-	instances_per_tile = {};							// A map of tile in the layout to the instances present there
+	instances_per_tile = {};							// A map of tiles in the layout to the instances present there, used when first setting up the layout
 	
 	key_spots = [];										// list of collectable spot numbers a floor key can take
 	button_spots = [];									// list of collectable spot numbers a button can take
 	stairs_spot_is_clear = false;						// Whether a button can take the stairs spot
 
 	// Read the layout file into the above variables
-	get_instances_from_layout_file();
+	get_instances_from_room_asset();
 	var _destroying_spots = setup_instance_object_and_tile_counts();
 	setup_stairs_and_collectable_spots(_destroying_spots);
 

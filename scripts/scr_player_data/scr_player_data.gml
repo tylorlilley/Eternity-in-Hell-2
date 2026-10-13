@@ -65,7 +65,7 @@ function get_saved_stats_record(_difficulty, _graphics_mode) {
 /// @param {struct} _stats_record The stats record to add to
 function read_stats_record_file(_file_name, _stats_record) {
 	var _buffer = buffer_load(_file_name);
-	if (_buffer == -1) {
+	if (!buffer_exists(_buffer)) {
 		write_debug_message("Couldn't open " + _file_name, debug_message_level.warning);
 		return;
 	}

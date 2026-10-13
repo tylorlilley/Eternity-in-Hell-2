@@ -430,7 +430,7 @@ function RoomLayout(_room_reference) constructor {
 		return is_undefined(_count) ? 0 : _count;
 	};
 	
-		/// @function setup_stairs_and_collectable_spots(_destroying_spots)
+	/// @function setup_stairs_and_collectable_spots(_destroying_spots)
 	/// @description Calculates which stairs and collectable spots are free.
 	/// @param {array} _destroying_spots The list of spots that could potentially destroy the collectables or stairs spot
 	static setup_stairs_and_collectable_spots = function(_destroying_spots) {
@@ -440,7 +440,7 @@ function RoomLayout(_room_reference) constructor {
 			// Get the tile position and instance count at that position for each possible instance
 			var _possible_spot_instance = instances[_i];
 			var _spot_tile = get_tile_key(_possible_spot_instance.x, _possible_spot_instance.y);
-			var _instance_is_alone = (get_instances_at_tile(_spot_tile) == 1);
+			var _instance_is_alone = (array_length(get_instances_at_tile(_spot_tile)) == 1);
 			
 			// Check instance names to see what to count this instance as
 			switch (_possible_spot_instance.name) {
@@ -478,8 +478,7 @@ function RoomLayout(_room_reference) constructor {
 	};
 
 	/// @function validate_layout()
-	/// @description Logs any way the layout breaks the expected spot rules generation relies on. A layout needs one chest spot, one stairs spot,
-	///	at least two collectable spots that building never clears, and an exit spot on every side.
+	/// @description Logs any way the layout breaks the expected spot rules generation relies on.
 	/// @returns {bool} Whether the layout passes the check or not
 	static validate_layout = function() {
 		// Validate the various minimum expected spot locations
@@ -565,9 +564,9 @@ function RoomLayout(_room_reference) constructor {
 		return string(_x) + "," + string(_y);
 	};
 	
-	/// @function add_instance_to_tile(_tile_key)
-	/// @description Adds an instance to those listed at it's tile location
-	/// @param {instance} _instance The instance to add to the map
+	/// @function add_instance_to_tile(_instance)
+	/// @description Adds an instance to those listed at itget_instances_at_tiles tile location
+	/// @param {struct} _instance The a struct with the instance and its x and y positions, to add to the map
 	static add_instance_to_tile = function(_instance) {
 		var _tile_key = get_tile_key(_instance.x, _instance.y);
 		instances_per_tile[$ _tile_key] ??= [];
@@ -575,7 +574,7 @@ function RoomLayout(_room_reference) constructor {
 	};
 	
 	/// @function get_instances_at_tile(_tile_key)
-	/// @description Returns  a list of instances present at that tile position, if any
+	/// @description Returns a list of instances present at that tile position, if any
 	/// @param {string} _tile_key The string key of a tile position to check
 	/// @returns {array} The instances present at that tile position, if any
 	static get_instances_at_tile = function(_tile_key) {
@@ -611,8 +610,8 @@ function RoomLayout(_room_reference) constructor {
 	is_usable = (exit_type != -1) && !string_starts_with(room_name, "rm_unused");	// Only include usable rooms that match an exit type
 	
 	instances = [];										// The list of instances that will be created when this room gets built
-	instance_object_counts = {};						// A map containing a count of each object type present in the room layout
-	instances_per_tile = {};							// A map containing  of each tile in the layout to the instances present there
+	instance_object_counts = {};						// A map of each object type in the layout to the number of instances with that type in the layout
+	instances_per_tile = {};							// A map of tile in the layout to the instances present there
 	
 	key_spots = [];										// list of collectable spot numbers a floor key can take
 	button_spots = [];									// list of collectable spot numbers a button can take

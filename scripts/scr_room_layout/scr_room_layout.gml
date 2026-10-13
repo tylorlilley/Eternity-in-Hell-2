@@ -384,8 +384,6 @@ function RoomLayout(_room_reference) constructor {
 	/// @function get_instances_from_layout_file()
 	/// @description Reads the instances this room spawns from the layout file that matches the room name
 	static get_instances_from_layout_file = function() {
-		// TODO: Can we generate these json files once on game run, based on the actual Game Maker rooms in the project, so we don't need the ruby script?
-		// Or if it is easier, can we pull this list of instances from the Game Maker room reference itself, rather than an external ruby list of json files?
 		var _instances_in_file = [];
 		if (is_usable) {
 			var _file = file_text_open_read(room_name + ".json");
@@ -399,6 +397,25 @@ function RoomLayout(_room_reference) constructor {
 			}
 		}
 		instances = _instances_in_file;
+	};
+
+	/// @function get_instances_from_room_asset()
+	/// @description Reads the instances this room spawns straight from its GameMaker room, in place of the layout file.
+	///	Each is listed the way the layout file lists it, as { x, y, name }, with its position rounded to whole pixels
+	///	as room_converter.rb rounded it.
+	static get_instances_from_room_asset = function() {
+		var _instances_in_room = [];
+		if (is_usable) {
+			// Read only the instances placed in the room. room_get_info gives 0 instead of an array for a room with none
+			var _room_instances = room_get_info(room_reference, false, true, false, false, false).instances;
+			if (is_array(_room_instances)) {
+				for (var _i = 0; _i < array_length(_room_instances); _i++) {
+					var _room_instance = _room_instances[_i];
+					array_push(_instances_in_room, { x: round(_room_instance.x), y: round(_room_instance.y), name: _room_instance.object_index });
+				}
+			}
+		}
+		instances = _instances_in_room;
 	};
 	
 	/// @function setup_instance_object_and_tile_counts()
@@ -565,8 +582,8 @@ function RoomLayout(_room_reference) constructor {
 	};
 	
 	/// @function add_instance_to_tile(_instance)
-	/// @description Adds an instance to those listed at itget_instances_at_tiles tile location
-	/// @param {struct} _instance The a struct with the instance and its x and y positions, to add to the map
+	/// @description Adds an instance to those listed at its tile location
+	/// @param {struct} _instance A struct with the instance's name and its x and y positions, to add to the map
 	static add_instance_to_tile = function(_instance) {
 		var _tile_key = get_tile_key(_instance.x, _instance.y);
 		instances_per_tile[$ _tile_key] ??= [];

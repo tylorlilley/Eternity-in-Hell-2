@@ -481,13 +481,13 @@ function duplicate_count_struct(_count_struct) {
 /// @returns {struct} A combined copy of the passed in count structs
 function combine_count_structs(_first_count_struct, _second_count_struct) {
 	// Get the unique keys present in either of the provided structs
-	var _combined_count_struct = {}, _ = variable_struct_get_names(_first_count_struct), _second_keys = variable_struct_get_names(_first_count_struct);
+	var _combined_count_struct = {}, _first_keys = variable_struct_get_names(_first_count_struct), _second_keys = variable_struct_get_names(_second_count_struct);
 	var _unqiue_keys = array_unique(array_concat(_first_keys, _second_keys));
 	
 	// For each unique key, get it's counts from both structs, sum them, and add them to the combined struct
 	for (var _i = 0; _i < array_length(_unqiue_keys); _i++) {
-		var _key = _keys[_i];
-		_combined_count_struct[$ _keys[_i]] = get_count_from_struct(_first_count_struct, _key) + get_count_from_struct(_second_count_struct, _key);
+		var _key = _unqiue_keys[_i];
+		_combined_count_struct[$ _key] = get_count_from_struct(_first_count_struct, _key) + get_count_from_struct(_second_count_struct, _key);
 	}
 	
 	// Return the new combined count struct

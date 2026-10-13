@@ -370,24 +370,24 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Fill in what spawns on the skeleton spots
 		var _skeleton_types = _with_role ? get_spawned_skeleton_types() : skeleton_types;
 		for (var _i = 0; _i < array_length(_skeleton_types); _i++) {
-			add_to_count_struct(_counts, object_get_name(_skeleton_types[_i]), 1);
+			add_to_count_struct(_actual_spawns, object_get_name(_skeleton_types[_i]), 1);
 		}
 		
 		// Adjust counts based on what has been spawned. A fountain takes its statue's place, but a block that comes alive still
 		// counts on its spot, since it can still be pushed. The extra mouths higher difficulties add to each placed one aren't counted
 		if (!_with_role || !is_start_room) {
-			add_to_count_struct(_counts, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
-			add_to_count_struct(_counts, "obj_statue", -replaced_statue_fountain_count);
-			add_to_count_struct(_counts, "obj_living_block", living_block_count);
-			add_to_count_struct(_counts, "obj_nose", initial_nose_count);
-			add_to_count_struct(_counts, "obj_fire_skeleton", initial_fire_skeleton_count); // These are additional ones spawned in lava
+			add_to_count_struct(_actual_spawns, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
+			add_to_count_struct(_actual_spawns, "obj_statue", -replaced_statue_fountain_count);
+			add_to_count_struct(_actual_spawns, "obj_living_block", living_block_count);
+			add_to_count_struct(_actual_spawns, "obj_nose", initial_nose_count);
+			add_to_count_struct(_actual_spawns, "obj_fire_skeleton", initial_fire_skeleton_count); // These are additional ones spawned in lava
 		}
-		add_to_count_struct(_counts, "obj_phantom", (((_with_role) ? spawns_phantom() : has_phantom) ? 1 : 0));
-		add_to_count_struct(_counts, "obj_floater", (((_with_role) ? spawns_floater() : has_floater) ? 1 : 0));
+		add_to_count_struct(_actual_spawns, "obj_phantom", (((_with_role) ? spawns_phantom() : has_phantom) ? 1 : 0));
+		add_to_count_struct(_actual_spawns, "obj_floater", (((_with_role) ? spawns_floater() : has_floater) ? 1 : 0));
 
 		if (_with_role) {
-			add_to_count_struct(_counts, "obj_chest", ((has_trap_chest()) ? 1 : 0));
-			add_to_count_struct(_counts, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
+			add_to_count_struct(_actual_spawns, "obj_chest", ((has_trap_chest()) ? 1 : 0));
+			add_to_count_struct(_actual_spawns, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
 		}
 		
 		// Return the modified counts
@@ -465,7 +465,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {bool}
 	static would_exceed_max_difficulty = function(_hazard_name, _replaced_hazard_name = undefined) {
 		// Get the actual hazard counts, modified by the given hazard name and replaced hazard
-		var _potential_hazard_counts = get_actual_hazard_counts(false);
+		var _potential_hazard_counts = get_spawn_counts(get_actual_hazard_counts(false));
 		add_to_count_struct(_potential_hazard_counts, _hazard_name, 1);
 		if (!is_undefined(_replaced_hazard_name)) { add_to_count_struct(_potential_hazard_counts, _replaced_hazard_name, -1); }
 		

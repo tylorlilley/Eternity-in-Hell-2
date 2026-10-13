@@ -78,7 +78,6 @@ function RoomLayout(_room_reference) constructor {
 		// Estimate Replace Blocks with Living Blocks
 		var _living_block_count = get_hazard_count("obj_block_spot") * get_chance_out_of(LIVING_BLOCK_PROBABILITY);
 		add_to_count_struct(_mapgen_counts, "obj_living_block", _living_block_count);
-		add_to_count_struct(_mapgen_counts, "obj_block_spot", -_living_block_count);
 		
 		// Estimate Lava Spawns
 		if (get_hazard_count("obj_lava") > 0) {
@@ -113,7 +112,8 @@ function RoomLayout(_room_reference) constructor {
 				// Add this type to the count
 				var _same_type_chance_for_type = _same_type_chance * (_type_chance / _total_type_chance);
 				var _non_same_type_chance_for_type = (1 - _same_type_chance) * (_type_chance / SKELETON_TYPE_CHANCE_MAX);
-				add_to_count_struct(_mapgen_counts, _type_name, _same_type_chance_for_type + _non_same_type_chance_for_type);
+				var _skeleton_type_count = (_same_type_chance_for_type + _non_same_type_chance_for_type) * _skeleton_spot_count;
+				add_to_count_struct(_mapgen_counts, _type_name, _skeleton_type_count);
 			}
 		}
 		
@@ -131,10 +131,10 @@ function RoomLayout(_room_reference) constructor {
 		}
 		
 		// Eyes on a skeleton spot, only in a room where nothing chases or shoots at the player
-		if (get_hazard_count("obj_eyes") == 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) == 0 && count_hazards_with_tags(_mapgen_counts, TARGETS_PLAYER_TAGS) == 0) {
+		if (_skeleton_spot_count > 0 && get_hazard_count("obj_eyes") == 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) == 0 && count_hazards_with_tags(_mapgen_counts, TARGETS_PLAYER_TAGS) == 0) {
 			var _eyes_count = get_chance_out_of(EYES_PROBABILITY);
 			add_to_count_struct(_mapgen_counts, "obj_eyes", _eyes_count);
-			add_to_count_struct(_mapgen_counts, "obj_skeleton", -1); // TODO: Why replace a regular skeleton? Shouldn't this instead reduce all skeleton types by the chances calculated above for one skeleton spot?
+			add_to_count_struct(_mapgen_counts, "obj_skeleton", _eyes_count); // TODO: Why replace a regular skeleton? Shouldn't this instead reduce all skeleton types by the chances calculated above for one skeleton spot?
 		}
 		return _mapgen_counts;
 	};
@@ -147,7 +147,7 @@ function RoomLayout(_room_reference) constructor {
 		// TODO: Make sure get object count correctly accounts for whether the object was destroyed by a destroyed_spot
 		
 		// Setup object counts for potential spawn points
-		var _bone_count = get_object_count("obj_bones"), _bush_count = get_object_count("obj_bush"), _corpse_count = get_object_count("obj_corpse");
+		var _bone_count = get_object_count("obj_bones"), _bush_count = get_object_count("obj_bush"), _corpse_count = get_object_count("obj_player_corpse");
 		var _midgame_spawn_counts = {};
 		
 		// Skeletons rising from trapped bones
@@ -159,7 +159,7 @@ function RoomLayout(_room_reference) constructor {
 		// Corpses have a chance to destroy themselves on room entry, and if not, they spawn two bugs
 		var _corpse_bug_count = (_corpse_count * (1 - get_chance_out_of(CORPSE_DISINTEGRATE_PROBABILITY)) * 2);
 		var _red_bug_count = (_bug_count + _corpse_bug_count) * get_chance_out_of(RED_BUG_PROBABILITY) * AVERAGE_ROOM_VISITS;
-		add_to_count_struct(_midgame_spawn_counts, "obj_red_bug", _red_bug_count);
+		add_to_count_struct(_midgame_spawn_counts, "obj_bug", _red_bug_count);
 
 		// A new nose or a fire skeleton from the lava
 		if (get_hazard_count("obj_lava") > 0) {

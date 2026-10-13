@@ -203,7 +203,7 @@ function count_hazards_with_tags(_hazard_counts, _tags_to_count, _ignored_hazard
 		if ((!is_undefined(_ignored_hazard_name) && _hazard_name == _ignored_hazard_name) || is_undefined(_hazard_table_entry) || _hazard_count <= 0) { continue; }
 		
 		// Count it if it has one of the tags
-		if ((_tags_to_count == hazard_tags.none) || ((_hazard_table_entry.tags & _tags) != 0)) { _tag_count += 1; }
+		if ((_tags_to_count == hazard_tags.none) || ((_hazard_table_entry.tags & _tags_to_count) != 0)) { _tag_count += 1; }
 	}
 	
 	return _tag_count;
@@ -217,17 +217,6 @@ function get_time_score_for_hazard_counts(_counts) {
 	var _names = variable_struct_get_names(_counts), _time = 0;
 	for (var _i = 0; _i < array_length(_names); _i++) { _time += get_hazard_time_score(_names[_i], _counts[$ _names[_i]]); }
 	return _time;
-}
- 
-/// @function ExpectedSpawn(_hazard_name, _expected_count, [_replaced_hazard_name])
-/// @description Something that might spawn into a room, with how many of it spawn there on average
-/// @param {string} _hazard_name The hazard's name in the table
-/// @param {real} _expected_count How many spawn on average, which for one roll is its chance
-/// @param {string} [_replaced_hazard_name] A hazard it takes the place of, like a skeleton spot's basic skeleton
-function ExpectedSpawn(_hazard_name, _expected_count, _replaced_hazard_name = undefined) constructor {
-	hazard_name = _hazard_name;
-	expected_count = _expected_count;
-	replaced_hazard_name = _replaced_hazard_name;
 }
  
 /// @function get_hazard_counts_with_spawn(_counts, _spawn)
@@ -313,7 +302,7 @@ function get_hazard_combination_multiplier(_hazard_counts, _hazard_name) {
 	// Scale the hazard score factor by the appropriate worst case multiplier and the inverse of the hazard score factor
 	var _worst_case_multiplier = hazard_has_tag(_hazard_name, hazard_tags.stops_player_movement) ? STOPPED_WORST_CASE_MULTIPLIER : WORST_CASE_MULTIPLIER;
 	var _hazard_combination_multiplier = _worst_case_multiplier * (1 - _hazard_score_factor);
-	return min(1, _hazard_combination_multiplier);
+	return 1 + (_hazard_combination_multiplier);
 }
 
 /// @function get_chance_kept_moving(_hazard_counts, _hazard_name)
@@ -335,11 +324,11 @@ function get_chance_to_make_player_move(_hazard_counts, _hazard_name) {
 		
 		// Things that target the player apply their full danger, things that incedentally can kill the player apply only half
 		var _danger_ratio = 0, _other_hazard_tages = _other_hazard_table_entry.tags;
-		if ((_other_hazard_tages & TARGETS_PLAYER_TAGS) != 0) { _share = 1; }
-		else if ((_other_hazard_tages & (hazard_tags.stationary | hazard_tags.slows_player_movement)) == 0) { _share = INCEDENTAL_HAZARD_MAKES_PLAYER_MOVE_CHANCE; }
+		if ((_other_hazard_tages & TARGETS_PLAYER_TAGS) != 0) { _danger_ratio = 1; }
+		else if ((_other_hazard_tages & (hazard_tags.stationary | hazard_tags.slows_player_movement)) == 0) { _danger_ratio = INCEDENTAL_HAZARD_MAKES_PLAYER_MOVE_CHANCE; }
 		
 		// Use this danger ratio to determine the chance this hazard makes the player move
-		var _other_hazard_danger = get_danger_from_table(_other_hazard_name, _other_hazard_count);
+		var _other_hazard_danger = get_hazard_danger_from_table(_other_hazard_name, _other_hazard_count);
 		var _player_moving_chance = min(1, _danger_ratio * _other_hazard_danger);
 		_chance_to_not_make_player_move *= 1 - _player_moving_chance;
 	}

@@ -33,13 +33,13 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 			
 			// Calculate the hazard score for the room
 			var _total_danger_score_for_hazard = calculate_hazard_danger_score_for_room(_hazard_name, _hazard_count, _hazard_counts);
+			_total_danger_score += _total_danger_score_for_hazard;
 			
 			if ((_hazard_table_entry.tags & hazard_tags.killed_by_sword) != 0) {
 				// Calculate the hazard score for the sword case
 				var _sword_total_hazard_score = calculate_hazard_danger_score_for_room(_hazard_name, _hazard_count - 1, _hazard_counts);
 				var _sword_kill_difference = abs(_total_danger_score_for_hazard - _sword_total_hazard_score);
 				_max_sword_kill_difference = max(_max_sword_kill_difference, _sword_kill_difference);
-				_total_danger_score += _total_danger_score_for_hazard;
 				
 				// Set the special sword hazard counts
 				_special_sword_hazard_counts[$ _hazard_name] = 0;
@@ -117,7 +117,7 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 		// Skip applying if blocks aren't present or hazard is not killed by blocks
 		var _table = get_difficulty_score_table(), _hazard_table_entry = _table[$ _hazard_name];
 		var _block_count = get_count_from_struct(_hazard_counts, "obj_block_spot") + get_count_from_struct(_hazard_counts, "obj_living_block");
-		if (_block_count <= 0 || is_undefined(_hazard_table_entry) || (_hazard_table_entry.tags & hazard_tags.stopped_by_block) != 0) { return _hazard_danger_score; }
+		if (_block_count <= 0 || is_undefined(_hazard_table_entry) || (_hazard_table_entry.tags & hazard_tags.stopped_by_block) == 0) { return _hazard_danger_score; }
 		
 		// TODO: Apply block count differnetly for things that use up the block entirely
 		return (_hazard_danger_score * BLOCK_COUNTER_MULTIPLIER);

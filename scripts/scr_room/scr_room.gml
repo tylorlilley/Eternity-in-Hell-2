@@ -364,7 +364,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		var _actual_spawns = {}
 		
 		// Add the actual exit counts
-		var _exit_count = 0, _stairs_count = 0
+		var _exit_count = 0;
 		for (var _dir = directions.up; _dir <= directions.stairs; _dir++) { if (exits[_dir] != -1) { _exit_count += 1; } }
 		add_to_count_struct(_actual_spawns, "obj_exit_spot", _exit_count);
 		
@@ -577,13 +577,13 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
  
 	/// @function get_caution_factor()
-	/// @description How much the room's hazards slow walking: 1, plus CAUTION_PER_DANGER_POINT for each
+	/// @description How much the room's hazards slow walking: 1, plus CAUTION_PER_DIFFICULTY_POINT for each
 	///	point of their danger, what spawns during play included. Only the hazards count: the room's other scoring, like the
 	///	reward for its chest's item, doesn't change how carefully it's walked.
 	/// @returns {real}
 	static get_caution_factor = function() {
 		var _counts = get_actual_hazard_counts();
-		return 1 + CAUTION_PER_DANGER_POINT * max(0, player_chances.get_total_difficulty_score_for_hazard_counts(_counts));
+		return 1 + CAUTION_PER_DIFFICULTY_POINT * max(0, player_chances.get_total_difficulty_score_for_hazard_counts(_counts));
 	};
  
 	/// @function get_crossing_time()

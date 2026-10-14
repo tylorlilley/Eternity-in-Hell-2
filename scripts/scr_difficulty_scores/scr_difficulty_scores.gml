@@ -24,7 +24,7 @@
 // The time a careful novice needs, and how many times that the run gives
 #macro PLAYER_STEPS_PER_SECOND 10			// One 8-pixel step a tick, 10 ticks a second
 #macro ROOM_ENTRY_TIME 2					// Seconds each visit costs before any walking: the transition and a look around
-#macro CAUTION_PER_DANGER_POINT 0.2			// Walking slows by this share for each point of the room's hazard danger
+#macro CAUTION_PER_DIFFICULTY_POINT 0.2			// Walking slows by this share for each point of the room's hazard danger
 #macro TIME_ALLOWANCE get_probability_for_difficulty([0, 2.5, 2, 1.75, 1.5])	// Time given as a multiple of time needed; these keep the average run as long as now
 #macro LOCK_BACKTRACK_SHARE 0.5				// How often a lock comes before its key, sending the player back for one
 #macro ILLUSION_WALL_MISS_CHANCE 0.5		// How often an illusion wall passes for a dead end until everything else is explored
@@ -308,12 +308,12 @@ function get_chance_to_make_player_move(_hazard_counts, _hazard_name) {
 }
 
 /// @function get_difficulty_points_from_danger_score(_danger_score)
-// @description A danger is a chance of dying, and chances can't simply be added: two hazards that each kill half the time don't kill
-// every time together, only three times out of four, since surviving means surviving both. What combines simply is
-// surviving: the chances of surviving each hazard multiply. Taking -ln of the chance of surviving, 1 - danger, turns
-// that multiplying into adding, so the result (danger points) can be added up across hazards and rooms. Small dangers
-// stay about the same (0.05 is 0.051 points), but the points grow faster as a danger nears certain death (0.5 is 0.69,
-// 0.9 is 2.3), and capping the danger at 0.99 stops certain death from being worth infinite points.
+/// @description A danger is a chance of dying, and chances can't simply be added: two hazards that each kill half the time don't kill
+/// every time together, only three times out of four, since surviving means surviving both. What combines simply is
+/// surviving: the chances of surviving each hazard multiply. Taking -ln of the chance of surviving, 1 - danger, turns
+/// that multiplying into adding, so the result (difficulty points) can be added up across hazards and rooms. Small dangers
+/// stay about the same (0.05 is 0.051 points), but the points grow faster as a danger nears certain death (0.5 is 0.69,
+/// 0.9 is 2.3), and capping the danger at 0.99 stops certain death from being worth infinite points.
 /// @param {struct} _danger_score		The danger score to translate into difficulty points
 /// @returns {real}
 function get_difficulty_points_from_danger_score(_danger_score) {

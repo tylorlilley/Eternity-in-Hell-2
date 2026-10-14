@@ -314,7 +314,7 @@ function get_chance_to_make_player_move(_hazard_counts, _hazard_name) {
 /// that multiplying into adding, so the result (difficulty points) can be added up across hazards and rooms. Small dangers
 /// stay about the same (0.05 is 0.051 points), but the points grow faster as a danger nears certain death (0.5 is 0.69,
 /// 0.9 is 2.3), and capping the danger at 0.99 stops certain death from being worth infinite points.
-/// @param {struct} _danger_score		The danger score to translate into difficulty points
+/// @param {real} _danger_score		The danger score to translate into difficulty points
 /// @returns {real}
 function get_difficulty_points_from_danger_score(_danger_score) {
 	return -ln(1 - min(_danger_score, 0.99)) * DANGER_POINT_SCALE;

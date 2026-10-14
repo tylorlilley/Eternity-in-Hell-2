@@ -7,8 +7,8 @@
 function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _chance_holding_special_sword = 0, _chance_of_light = 0) constructor {	
 	/// @function get_total_difficulty_score_for_hazard_counts(_hazard_counts)
 	/// @description The difficulty points for a room's hazards. Each hazard's points grow for the hazards it shares the room
-	///	with and shrink for the blocks that can stop it. Then the chance of surviving them all is subtracted by the chance the player
-	/// holds an item that counters the hazard
+	///	with and shrink for the blocks that can stop it. Then each item the player might hold takes away the points it would save,
+	/// weighted by the chance of holding it.
 	/// @param {struct} _hazard_counts Hazard names and how many of each
 	/// @returns {real}
 	static get_total_difficulty_score_for_hazard_counts = function(_hazard_counts) {
@@ -75,7 +75,7 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 	/// The difficulty grows for other hazards it shares a room with, the lit chance, and shrinks for blocks that can stop it, and then
 	///	gets averaged over which counters the player might hold: a staff stops anything that shoots and lava, a special sword kills
 	///	anything a sword can, and a plain sword kills the deadliest of those, once.
-	/// @param {struct} _hazard_name		Name of the hazard to calculate the difficulty score for
+	/// @param {string} _hazard_name		Name of the hazard to calculate the difficulty score for
 	/// @param {real} _hazard_count			Count of the given hazard name
 	/// @param {struct} _hazard_counts		Hazard names and how many of each
 	/// @returns {real}
@@ -91,29 +91,29 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 	/// @function apply_lit_chance_to_difficulty_points(_hazard_name, _hazard_danger_score)
 	/// @description Applies the effect of lit chances to the current danger score and returns it
 	/// @param {string} _hazard_name					The hazard's name in the table
-	/// @param {real} _hazard_difficulty_score				The current hazard danger score
+	/// @param {real} _hazard_difficulty_score			The current hazard difficulty score
 	/// @returns {real}
 	static apply_lit_chance_to_difficulty_points = function(_hazard_name, _hazard_difficulty_score) {
-		if (!hazard_has_tag(_hazard_name, hazard_tags.dangerous_in_dark)) { return _hazard_danger_score; }
+		if (!hazard_has_tag(_hazard_name, hazard_tags.dangerous_in_dark)) { return _hazard_difficulty_score; }
 		
 		var _chance_of_dark = (1 - chance_of_light);
-		return (_hazard_danger_score * chance_of_light) + (_hazard_danger_score * DARK_DANGER_MULTIPLIER * _chance_of_dark);
+		return (_hazard_difficulty_score * chance_of_light) + (_hazard_difficulty_score * DARK_DANGER_MULTIPLIER * _chance_of_dark);
 	};
 	
 	/// @function apply_block_chance_to_difficulty_points(_hazard_name, _hazard_difficulty_score, _hazard_counts)
 	/// @description Applies the effect of blocks in the room to the current danger score and returns it
 	/// @param {string} _hazard_name					The hazard's name in the table
-	/// @param {real} _hazard_difficulty_score			The current hazard danger score
+	/// @param {real} _hazard_difficulty_score			The current hazard difficulty score
 	/// @param {struct} _hazard_counts					The count struct of all hazards in the room
 	/// @returns {real}
 	static apply_block_chance_to_difficulty_points = function(_hazard_name, _hazard_difficulty_score, _hazard_counts) {
 		// Skip applying if blocks aren't present or hazard is not killed by blocks
 		var _table = get_difficulty_score_table(), _hazard_table_entry = _table[$ _hazard_name];
 		var _block_count = get_count_from_struct(_hazard_counts, "obj_block_spot") + get_count_from_struct(_hazard_counts, "obj_living_block");
-		if (_block_count <= 0 || is_undefined(_hazard_table_entry) || (_hazard_table_entry.tags & hazard_tags.stopped_by_block) == 0) { return _hazard_danger_score; }
+		if (_block_count <= 0 || is_undefined(_hazard_table_entry) || (_hazard_table_entry.tags & hazard_tags.stopped_by_block) == 0) { return _hazard_difficulty_score; }
 		
 		// TODO: Apply block count differnetly for things that use up the block entirely
-		return (_hazard_danger_score * BLOCK_COUNTER_MULTIPLIER);
+		return (_hazard_difficulty_score * BLOCK_COUNTER_MULTIPLIER);
 	};
 	
 	// ============================

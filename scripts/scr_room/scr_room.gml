@@ -363,16 +363,9 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_actual_hazard_counts = function(_with_role = true) {
 		var _actual_spawns = {}
 		
-		// Add the actual stairs and exit counts
+		// Add the actual exit counts
 		var _exit_count = 0, _stairs_count = 0
-		for (var _dir = directions.up; _dir <= array_length(directions.stairs); _dir++) {
-			var _exit = exits[_dir];
-			if (_exit != -1) {
-				_exit_count += 1;
-				if (_dir == directions.stairs) { _stairs_count += 1; }
-			}
-		}
-		add_to_count_struct(_actual_spawns, "obj_stairs", _stairs_count);
+		for (var _dir = directions.up; _dir <= directions.stairs; _dir++) { if (exits[_dir] != -1) { _exit_count += 1; } }
 		add_to_count_struct(_actual_spawns, "obj_exit_spot", _exit_count);
 		
 		// Add any floor items that have been spawned
@@ -437,13 +430,13 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @param {struct} _counts The hazard counts to use for this difficulty score
 	/// @returns {real}
 	static get_potential_difficulty_score = function(_mapgen_spawns) {
-		var _difficulty_score = player_chances.get_difficulty_score_for_hazard_count(layout.get_spawn_counts(_mapgen_spawns));
+		var _difficulty_score = player_chances.get_total_difficulty_score_for_hazard_counts(layout.get_spawn_counts(_mapgen_spawns));
  
 		// Collecting everything crosses the whole room, not just the way to one objective
 		if (has_collectables) { _difficulty_score *= COLLECTABLES_EXPOSURE; }
  
 		// Shut in until the button is pressed. One button opens every exit, so it counts once
-		if (has_portcullis_trap) { _difficulty_score += PORTCULLIS_TRAP_DANGER * DANGER_POINT_SCALE; }
+		if (has_portcullis_trap) { _difficulty_score += get_difficulty_points_from_danger_score(PORTCULLIS_TRAP_DANGER); }
  
 		// Items make the rest of the run easier
 		if (has_special_item) { _difficulty_score += SPECIAL_ITEM_REWARD_POINTS; }
@@ -482,7 +475,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (!is_undefined(_replaced_hazard_name)) { add_to_count_struct(_potential_hazard_counts, _replaced_hazard_name, -1); }
 		
 		var _empty_handed_chances = new PlayerChances(0, 0, 0, lit ? 1 : 0);
-		return _empty_handed_chances.get_difficulty_score_for_hazard_count(_potential_hazard_counts) > ROOM_DIFFICULTY_SCORE_MAX;
+		return _empty_handed_chances.get_total_difficulty_score_for_hazard_counts(_potential_hazard_counts) > ROOM_DIFFICULTY_SCORE_MAX;
 	};
  
 	/// @function get_time_score()
@@ -590,7 +583,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {real}
 	static get_caution_factor = function() {
 		var _counts = get_actual_hazard_counts();
-		return 1 + CAUTION_PER_DANGER_POINT * max(0, player_chances.get_difficulty_score_for_hazard_count(_counts));
+		return 1 + CAUTION_PER_DANGER_POINT * max(0, player_chances.get_total_difficulty_score_for_hazard_counts(_counts));
 	};
  
 	/// @function get_crossing_time()

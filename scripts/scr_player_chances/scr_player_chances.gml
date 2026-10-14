@@ -4,41 +4,33 @@
 /// @param {real} [_chance_holding_sword] The chance of holding a plain sword (0 by default)
 /// @param {real} [_chance_holding_special_sword] The chance of holding a special sword (0 by default)
 /// @param {real} [_chance_of_light] The chance of having light (0 by default)
-function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _chance_holding_special_sword = 0, _chance_of_light = 0) constructor {
-	/// @function get_difficulty_score_for_hazard_count(_hazard_counts)
-	/// @description Returns the danger score for the given hazard counts and player chances, converted into danger points
-	/// @param {struct} _hazard_counts A count struct of all spawned hazards, including guaranteed and estimated counts
-	/// @returns {real} The total danger score of all hazards, converted into difficulty score
-	static get_difficulty_score_for_hazard_count = function(_hazard_counts) {
-		return get_total_danger_score_for_hazard_counts(_hazard_counts) * DANGER_POINT_SCALE;
-	};
-	
-	/// @function get_total_danger_score_for_hazard_counts(_hazard_counts)
+function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _chance_holding_special_sword = 0, _chance_of_light = 0) constructor {	
+	/// @function get_total_difficulty_score_for_hazard_counts(_hazard_counts)
 	/// @description The difficulty points for a room's hazards. Each hazard's points grow for the hazards it shares the room
 	///	with and shrink for the blocks that can stop it (see apply_block_counters). Then the chance of surviving them all is
 	///	averaged over which counters the player might hold: a staff stops anything that shoots and lava, a special sword kills
 	///	anything a sword can, and a plain sword kills the deadliest of those, once.
 	/// @param {struct} _hazard_counts Hazard names and how many of each
 	/// @returns {real}
-	static get_total_danger_score_for_hazard_counts = function(_hazard_counts) {
+	static get_total_difficulty_score_for_hazard_counts = function(_hazard_counts) {
 		// Work out each hazard's points in this room, and how much one sword kill would save
 		var _table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(_hazard_counts);
 		
 		// Loop through each hazard present in the room, to determine its total danger score and find the best sword use
-		var _total_danger_score = 0, _staff_hazard_counts = duplicate_count_struct(_hazard_counts), _special_sword_hazard_counts = duplicate_count_struct(_hazard_counts), _max_sword_kill_difference = 0;
+		var _total_difficulty_score = 0, _staff_hazard_counts = duplicate_count_struct(_hazard_counts), _special_sword_hazard_counts = duplicate_count_struct(_hazard_counts), _max_sword_kill_difference = 0;
 		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
 			// Skip hazards that aren't in the room or the table
 			var _hazard_name = _hazard_names[_i], _hazard_count = get_count_from_struct(_hazard_counts, _hazard_name), _hazard_table_entry = _table[$ _hazard_name];
 			if (is_undefined(_hazard_table_entry) || _hazard_count <= 0) { continue; }
 			
 			// Calculate the hazard score for the room
-			var _total_danger_score_for_hazard = calculate_hazard_danger_score_for_room(_hazard_name, _hazard_count, _hazard_counts);
-			_total_danger_score += _total_danger_score_for_hazard;
+			var _total_difficulty_score_for_hazard = calculate_difficulty_score_for_room(_hazard_name, _hazard_count, _hazard_counts);
+			_total_difficulty_score += _total_difficulty_score_for_hazard;
 			
 			if ((_hazard_table_entry.tags & hazard_tags.killed_by_sword) != 0) {
 				// Calculate the hazard score for the sword case
-				var _sword_total_hazard_score = calculate_hazard_danger_score_for_room(_hazard_name, _hazard_count - 1, _hazard_counts);
-				var _sword_kill_difference = abs(_total_danger_score_for_hazard - _sword_total_hazard_score);
+				var _sword_difficulty_score_for_hazard = calculate_difficulty_score_for_room(_hazard_name, _hazard_count - 1, _hazard_counts);
+				var _sword_kill_difference = abs(_total_difficulty_score_for_hazard - _sword_difficulty_score_for_hazard);
 				_max_sword_kill_difference = max(_max_sword_kill_difference, _sword_kill_difference);
 				
 				// Set the special sword hazard counts
@@ -50,36 +42,36 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 				_staff_hazard_counts[$ _hazard_name] = 0;
 			}
 		}
-		var _total_sword_danger_score = _total_danger_score - _max_sword_kill_difference;
+		var _total_sword_difficulty_score = _total_difficulty_score - _max_sword_kill_difference;
 		
 		// Loop through the special sword hazard counts to determine its total danger score
-		var _total_special_sword_danger_score = 0;
+		var _total_special_sword_difficulty_score = 0;
 		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
 			// Skip hazards that aren't in the room or the table
 			var _hazard_name = _hazard_names[_i], _hazard_count = get_count_from_struct(_special_sword_hazard_counts, _hazard_name), _hazard_table_entry = _table[$ _hazard_name];
 			if (is_undefined(_hazard_table_entry) || _hazard_count <= 0) { continue; }
 			
 			// Calculate the hazard score for the room
-			_total_special_sword_danger_score += calculate_hazard_danger_score_for_room(_hazard_name, _hazard_count, _special_sword_hazard_counts);
+			_total_special_sword_difficulty_score += calculate_difficulty_score_for_room(_hazard_name, _hazard_count, _special_sword_hazard_counts);
 		}
 		
 		// Loop through the staff hazard counts to determine its total danger score
-		var _total_staff_danger_score = 0;
+		var _total_staff_difficulty_score = 0;
 		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
 			// Skip hazards that aren't in the room or the table
 			var _hazard_name = _hazard_names[_i], _hazard_count = get_count_from_struct(_staff_hazard_counts, _hazard_name), _hazard_table_entry = _table[$ _hazard_name];
 			if (is_undefined(_hazard_table_entry) || _hazard_count <= 0) { continue; }
 			
 			// Calculate the hazard score for the room
-			_total_staff_danger_score += calculate_hazard_danger_score_for_room(_hazard_name, _hazard_count, _staff_hazard_counts);
+			_total_staff_difficulty_score += calculate_difficulty_score_for_room(_hazard_name, _hazard_count, _staff_hazard_counts);
 		}
 
 		// Calulate total danger score based on player chances
-		var _total_danger_score_chance = (1 - chance_holding_staff - chance_holding_sword - chance_holding_special_sword);
-		return max(0, ((_total_danger_score_chance * _total_danger_score) + (chance_holding_staff * _total_staff_danger_score) + (chance_holding_sword * _total_sword_danger_score) + (chance_holding_special_sword * _total_special_sword_danger_score));
+		var _total_difficulty_score_chance = (1 - chance_holding_staff - chance_holding_sword - chance_holding_special_sword);
+		return max(0, ((_total_difficulty_score_chance * _total_difficulty_score) + (chance_holding_staff * _total_staff_difficulty_score) + (chance_holding_sword * _total_sword_difficulty_score) + (chance_holding_special_sword * _total_special_sword_difficulty_score)));
 	};
 	
-	/// @function calculate_hazard_danger_score_for_room(_hazard_name, _hazard_count, _hazard_counts)
+	/// @function calculate_difficulty_score_for_room(_hazard_name, _hazard_count, _hazard_counts)
 	/// @description The difficulty points for a given hazard type for a given room's hazard counts.
 	/// The danger grows for other hazards it shares a room with, the lit chance, and shrinks for blocks that can stop it, and then
 	///	gets averaged over which counters the player might hold: a staff stops anything that shoots and lava, a special sword kills
@@ -88,13 +80,14 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 	/// @param {real} _hazard_count			Count of the given hazard name
 	/// @param {struct} _hazard_counts		Hazard names and how many of each
 	/// @returns {real}
-	static calculate_hazard_danger_score_for_room = function(_hazard_name, _hazard_count, _hazard_counts) {
-		var _base_hazard_danger_score = -ln(1 - min(get_hazard_danger_from_table(_hazard_name, _hazard_count), 0.99));
-		var _danger_score_with_light_chance = apply_lit_chance_to_danger_score(_hazard_name, _base_hazard_danger_score);
-		var _danger_score_with_block_chance = apply_block_chance_to_danger_score(_hazard_name, _danger_score_with_light_chance, _hazard_counts);
+	static calculate_difficulty_score_for_room = function(_hazard_name, _hazard_count, _hazard_counts) {
+		var _base_hazard_danger_score = get_hazard_danger_from_table(_hazard_name, _hazard_count);
+		var _base_hazard_difficulty_points = get_difficulty_points_from_danger_score(_base_hazard_danger_score);
+		var _difficulty_score_with_light_chance = apply_lit_chance_to_danger_score(_hazard_name, _base_hazard_difficulty_points);
+		var _difficulty_score_with_block_chance = apply_block_chance_to_danger_score(_hazard_name, _difficulty_score_with_block_chance, _hazard_counts);
 		var _hazard_score_multiplier = get_hazard_combination_multiplier(_hazard_counts, _hazard_name);
-		return _danger_score_with_block_chance * _hazard_score_multiplier;
-	};
+		return _difficulty_score_with_block_chance * _hazard_score_multiplier;
+	};	
 	
 	/// @function apply_lit_chance_to_danger_score(_hazard_name, _hazard_danger_score)
 	/// @description Applies the effect of lit chances to the current danger score and returns it

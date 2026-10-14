@@ -62,13 +62,12 @@ function RoomLayout(_room_reference) constructor {
 		// TODO: Add the estimated counts for anything covered by a destroyed_spot
 		var _mapgen_counts = {};
 		
-		// Estimate Stairs Spawn
-		var _stairs_count = get_chance_out_of(STAIRS_PROBABILITY) // TODO: Is this right?
-		add_to_count_struct(_mapgen_counts, "obj_stairs", _stairs_count);
-		
-		// Estimate Exit Count
-		// TODO: How to include misleading exits in this estimate?
-		add_to_count_struct(_mapgen_counts, "obj_exit_spot", get_open_cardinal_exits() + _stairs_count);
+		// Estimate Room Exits
+		// A no-exits layout is always reached by stairs. Otherwise each room added to the map joins by stairs at STAIRS_PROBABILITY,
+		// and each stairs link gives two rooms a stairs exit, so a room has about twice that chance. Misleading exits shift up or down
+		// the amount of exits by a coin flip, which averages out to be the same number of exits, so we don't need to consider those
+		var _stairs_count = (exit_type == layout_exit_types.none) ? 1 : 2 * get_chance_out_of(STAIRS_PROBABILITY);
+		add_to_count_struct(_mapgen_counts, "obj_exit_spot", array_length(get_open_cardinal_exits()) + _stairs_count);
 		
 		// Estimate Replaced Columns and Statues with Fountains
 		if (can_have_hazard_with_eyes("obj_fountain")) {
@@ -111,7 +110,7 @@ function RoomLayout(_room_reference) constructor {
 			// For each skeleton type, add it's count to the struct
 			for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) {
 				// Skip types that can't coexist with eyes
-				// We skip eyes here because in the actual generation, we replace anything that can't coexist with eyes with another type instead.
+				// We skip eyes here because in the actual generation, we replace anything that can't coexist with eyes with a basic skeleton instead
 				var _skeleton_chance_type = _skeleton_type_chances[_i];
 				var _skeleton_type = _skeleton_chance_type.type, _type_chance = _skeleton_chance_type.chance;
 				var _type_name = object_get_name(_skeleton_type);
@@ -143,13 +142,13 @@ function RoomLayout(_room_reference) constructor {
 		}
 		
 		// Eyes on a skeleton spot, only in a room where nothing chases or shoots at the player
-		if (_skeleton_spot_count > 0 && get_hazard_count("obj_eyes") == 0) {
+		if (_skeleton_spot_count > 0 && get_hazard_count("obj_eyes") == 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) == 0) {
 			// Determine the chance for rolling targeting things that prevent the eyes from spawning
 			var _expected_targeting_counts = 0, _hazard_names = variable_struct_get_names(_mapgen_counts);
-			for (var _i = 0; _i < array_length(_hazard_names); _i++) { if (hazard_has_tag(_hazard_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += max(0, _mapgen_counts[$ _names[_i]]); } }
+			for (var _i = 0; _i < array_length(_hazard_names); _i++) { if (hazard_has_tag(_hazard_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += max(0, _mapgen_counts[$ _hazard_names[_i]]); } }
 			// Add skeleton types to the expected targeting counts
 			_hazard_names = variable_struct_get_names(_skeleton_type_counts);
-			for (var _i = 0; _i < array_length(_hazard_names); _i++) { if (hazard_has_tag(_hazard_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += _skeleton_type_counts[$ _names[_i]] * _skeleton_spot_count; } }
+			for (var _i = 0; _i < array_length(_hazard_names); _i++) { if (hazard_has_tag(_hazard_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += _skeleton_type_counts[$ _hazard_names[_i]] * _skeleton_spot_count; } }
 			var _eyes_count = exp(-_expected_targeting_counts) * get_chance_out_of(EYES_PROBABILITY); // exp(−n) is the chance of none rolling when n are expected on average
 			add_to_count_struct(_mapgen_counts, "obj_eyes", _eyes_count);
 			_skeleton_spot_count -= _eyes_count; // Eyes take up a skeleton spot
@@ -172,34 +171,36 @@ function RoomLayout(_room_reference) constructor {
 		
 		// Setup object counts for potential spawn points
 		var _bone_count = get_object_count("obj_bones"), _bush_count = get_object_count("obj_bush"), _corpse_count = get_object_count("obj_player_corpse");
-		var _midgame_spawn_counts = {}, _average_room_visits = get_count_from_struct(_mapgen_spawns, "obj_exits");
+		var _midgame_spawn_counts = {}, _average_room_visits = max(1, get_count_from_struct(_mapgen_spawns, "obj_exit_spot"));
+		// Each room’s score is otherwise one visit’s danger. Spawns build up instead: by visit k, about k rolls’ worth have spawned
+		var _average_visit_multiplier = (_average_room_visits + 1) / 2; 
 		
 		// Skeletons rising from trapped bones
-		var _skeleton_count = _bone_count * get_chance_out_of(TRAP_BONES_PROBABILITY) * AVERAGE_ROOM_VISITS;
+		var _skeleton_count = _bone_count * get_chance_out_of(TRAP_BONES_PROBABILITY) * _average_visit_multiplier;
 		add_to_count_struct(_midgame_spawn_counts, "obj_skeleton", _skeleton_count);
 		
 		// Red bugs from bones, bushes and corpses
 		var _bug_count = ((_bone_count + _bush_count) * get_chance_out_of(BUG_PROBABILITY));
 		// Corpses have a chance to destroy themselves on room entry, and if not, they spawn two bugs
 		var _corpse_bug_count = (_corpse_count * (1 - get_chance_out_of(CORPSE_DISINTEGRATE_PROBABILITY)) * 2);
-		var _red_bug_count = (_bug_count + _corpse_bug_count) * get_chance_out_of(RED_BUG_PROBABILITY) * AVERAGE_ROOM_VISITS;
+		var _red_bug_count = (_bug_count + _corpse_bug_count) * get_chance_out_of(RED_BUG_PROBABILITY) * _average_visit_multiplier;
 		add_to_count_struct(_midgame_spawn_counts, "obj_bug", _red_bug_count);
 
 		// A new nose or a fire skeleton from the lava
 		if (get_hazard_count("obj_lava") > 0) {
 			var _nose_chance = get_chance_out_of(MID_GAME_NOSE_PROBABILITY);
-			add_to_count_struct(_midgame_spawn_counts, "obj_nose", _nose_chance * AVERAGE_ROOM_VISITS);
+			add_to_count_struct(_midgame_spawn_counts, "obj_nose", _nose_chance * _average_visit_multiplier);
 			
 			if (get_count_from_struct(_mapgen_spawns, "obj_fire_skeleton") == 0) {
 				var _no_fire_skeleton_chance = 1 - min(1, get_count_from_struct(_mapgen_spawns, "obj_fire_skeleton")); // They only spawn midgame if the room has no fire skeleton at all
-				var _fire_skeleton_count = _no_fire_skeleton_chance * (1 - _nose_chance) * get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) * AVERAGE_ROOM_VISITS;
+				var _fire_skeleton_count = _no_fire_skeleton_chance * (1 - _nose_chance) * get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) * _average_visit_multiplier;
 				add_to_count_struct(_midgame_spawn_counts, "obj_fire_skeleton", _fire_skeleton_count);
 			}
 		}
 
 		// Hands for the items on the floor
 		var _floor_item_count = get_count_from_struct(_mapgen_spawns, "obj_item");
-		var _hands_count = _floor_item_count * get_chance_out_of(HANDS_PROBABILITY) * AVERAGE_ROOM_VISITS;
+		var _hands_count = _floor_item_count * get_chance_out_of(HANDS_PROBABILITY) * _average_visit_multiplier;
 		add_to_count_struct(_midgame_spawn_counts, "obj_hands", _hands_count);
 
 		return _midgame_spawn_counts;
@@ -256,7 +257,7 @@ function RoomLayout(_room_reference) constructor {
 	static get_layout_difficulty_score = function() {
 		var _chance_starts_lit = (has_lanterns && !is_special_room) ? get_chance_out_of(PRE_LIT_PROBABILITY) : 0;
 		var _player_chances = new PlayerChances(0, 0, 0, _chance_starts_lit);
-		return _player_chances.get_difficulty_score_for_hazard_count(get_spawn_counts());
+		return _player_chances.get_total_difficulty_score_for_hazard_counts(get_spawn_counts());
 	};
 	
 	// TODO: Everything relating to time score

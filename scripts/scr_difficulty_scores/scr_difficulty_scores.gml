@@ -6,7 +6,7 @@
 // more likely the room is to take that away, the closer it gets to its worst case (see get_hazard_combination_multiplier)
 #macro WORST_CASE_MULTIPLIER 3				// A hazard the player slows down for, rushed past instead, or ears drawn to the player by noise: like facing it three times, so a spider goes from 0.15 to about 0.39 danger
 #macro STOPPED_WORST_CASE_MULTIPLIER 9		// A hazard that stops the player, while they're made to keep moving: eyes go from 0.12 to about 0.68 danger
-#macro KEEPS_PLAYER_MOVING_DANGER 5		// A chaser or shooter this deadly, like a phantom, keeps the player moving all the time, and a less deadly one that share of the time
+#macro KEEPS_PLAYER_MOVING_MULTIPLIER 5		// 1 / 0.20: a chaser or shooter as deadly as a phantom (0.20) keeps the player moving all the time, and a less deadly one that share of the time
 #macro INCEDENTAL_HAZARD_MAKES_PLAYER_MOVE_CHANCE 0.5	// A wanderer only gets in the way by chance, so it keeps the player moving half as much for its danger
 #macro LURE_CHANCE_PER_LOUD_KIND 0.33		// How often each kind of hazard that makes loud noises on its own draws ears to the player
 #macro DARK_DANGER_MULTIPLIER 5				// A hazard that's worse in the dark, when the player has no light: a cockroach goes from 0.02 to about 0.10 danger
@@ -272,7 +272,7 @@ function get_hazard_combination_multiplier(_hazard_counts, _hazard_name) {
 	
 	// Scale the hazard score factor by the appropriate worst case multiplier and the inverse of the hazard score factor
 	var _worst_case_multiplier = hazard_has_tag(_hazard_name, hazard_tags.stops_player_movement) ? STOPPED_WORST_CASE_MULTIPLIER : WORST_CASE_MULTIPLIER;
-	var _hazard_combination_multiplier = _worst_case_multiplier * (1 - _hazard_score_factor);
+	var _hazard_combination_multiplier = (_worst_case_multiplier - 1) * (1 - _hazard_score_factor);
 	return 1 + (_hazard_combination_multiplier);
 }
 
@@ -299,10 +299,23 @@ function get_chance_to_make_player_move(_hazard_counts, _hazard_name) {
 		else if ((_other_hazard_tages & (hazard_tags.stationary | hazard_tags.slows_player_movement)) == 0) { _danger_ratio = INCEDENTAL_HAZARD_MAKES_PLAYER_MOVE_CHANCE; }
 		
 		// Use this danger ratio to determine the chance this hazard makes the player move
-		var _other_hazard_danger = get_hazard_danger_from_table(_other_hazard_name, _other_hazard_count) * KEEPS_PLAYER_MOVING_DANGER;
+		var _other_hazard_danger = get_hazard_danger_from_table(_other_hazard_name, _other_hazard_count) * KEEPS_PLAYER_MOVING_MULTIPLIER;
 		var _player_moving_chance = min(1, _danger_ratio * _other_hazard_danger);
 		_chance_to_not_make_player_move *= 1 - _player_moving_chance;
 	}
 	
 	return 1 - _chance_to_not_make_player_move;
+}
+
+/// @function get_difficulty_points_from_danger_score(_danger_score)
+// @description A danger is a chance of dying, and chances can't simply be added: two hazards that each kill half the time don't kill
+// every time together, only three times out of four, since surviving means surviving both. What combines simply is
+// surviving: the chances of surviving each hazard multiply. Taking -ln of the chance of surviving, 1 - danger, turns
+// that multiplying into adding, so the result (danger points) can be added up across hazards and rooms. Small dangers
+// stay about the same (0.05 is 0.051 points), but the points grow faster as a danger nears certain death (0.5 is 0.69,
+// 0.9 is 2.3), and capping the danger at 0.99 stops certain death from being worth infinite points.
+/// @param {struct} _danger_score		The danger score to translate into difficulty points
+/// @returns {real}
+function get_difficulty_points_from_danger_score(_danger_score) {
+	return -ln(1 - min(_danger_score, 0.99)) * DANGER_POINT_SCALE;
 }

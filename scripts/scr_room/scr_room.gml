@@ -363,6 +363,13 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_actual_hazard_counts = function(_with_role = true) {
 		var _actual_spawns = {}
 		
+		// Add what the layout places, less what building the room clears (see clears_layout_spot). Bones, bushes and corpses
+		// aren't hazards, but things spawn from them during play (see RoomLayout.get_estimated_midgame_spawns)
+		var _layout_object_names = array_concat(variable_struct_get_names(layout.hazard_counts), ["obj_bones", "obj_bush", "obj_player_corpse"]);
+		for (var _i = 0; _i < array_length(_layout_object_names); _i++) {
+			add_to_count_struct(_actual_spawns, _layout_object_names[_i], get_object_count_from_layout(_layout_object_names[_i], _with_role));
+		}
+		
 		// Add the actual exit counts
 		var _exit_count = 0;
 		for (var _dir = directions.up; _dir <= directions.stairs; _dir++) { if (exits[_dir] != -1) { _exit_count += 1; } }
@@ -372,10 +379,11 @@ function GameRoom(_given_x, _given_y) constructor {
 		var _floor_item_count = get_floor_item_count();
 		add_to_count_struct(_actual_spawns, "obj_item", _floor_item_count);
 		
-		// Fill in what spawns on the skeleton spots
-		var _skeleton_types = _with_role ? get_spawned_skeleton_types() : skeleton_types;
+		// Fill in what spawns on the skeleton spots. Their types were rolled for the spots the exits leave, the room's chest and
+		// illusion walls can clear more of those, and the types land on the spots at random, so each only counts for the share left
+		var _skeleton_types = _with_role ? get_spawned_skeleton_types() : skeleton_types, _skeleton_share = get_share_left_by_role("obj_skeleton_spot", _with_role);
 		for (var _i = 0; _i < array_length(_skeleton_types); _i++) {
-			add_to_count_struct(_actual_spawns, object_get_name(_skeleton_types[_i]), 1);
+			add_to_count_struct(_actual_spawns, object_get_name(_skeleton_types[_i]), _skeleton_share);
 		}
 		
 		// Adjust counts based on what has been spawned. A fountain takes its statue's place, but a block that comes alive still
@@ -383,7 +391,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (!_with_role || !is_start_room) {
 			add_to_count_struct(_actual_spawns, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
 			add_to_count_struct(_actual_spawns, "obj_statue", -replaced_statue_fountain_count);
-			add_to_count_struct(_actual_spawns, "obj_living_block", living_block_count);
+			add_to_count_struct(_actual_spawns, "obj_living_block", living_block_count * get_share_left_by_role("obj_block_spot", _with_role)); // They come alive on random block spots too
 			add_to_count_struct(_actual_spawns, "obj_nose", initial_nose_count);
 			add_to_count_struct(_actual_spawns, "obj_fire_skeleton", initial_fire_skeleton_count); // These are additional ones spawned in lava
 		}
@@ -396,7 +404,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		}
 		
 		// Return the modified counts
-		return combine_count_structs(layout.get_guaranteed_mapgen_spawns(), _actual_spawns);
+		return _actual_spawns;
 	};
 	
 	/// @function can_have_hazard_with_eyes(_hazard_name)
@@ -687,8 +695,9 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	layout spawns for sure and everything rolled before it
 	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
 	static determine_random_room_content = function(_same_skeleton_type) {
-		// Start from what the layout spawns for sure. Every skeleton spot holds a basic skeleton until its roll replaces it
-		var _skeleton_spot_count = get_object_count_from_layout("obj_skeleton_spot"); // Skeleton spots aren't in the difficulty score table
+		// Start from what the layout spawns for sure, less what the exits clear: the chest and illusion walls are rolled after this, and
+		// again every pass (see clears_layout_spot). Every skeleton spot holds a basic skeleton until its roll replaces it
+		var _skeleton_spot_count = get_object_count_from_layout("obj_skeleton_spot", false); // Skeleton spots aren't in the difficulty score table
 		skeleton_types = array_create(_skeleton_spot_count, obj_skeleton);
 		replaced_column_fountain_count = 0;
 		replaced_statue_fountain_count = 0;
@@ -702,27 +711,27 @@ function GameRoom(_given_x, _given_y) constructor {
 		lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
 
 		// Eyes the layout places stop the player in place, so nothing rolled below may chase or shoot at them
-		has_eyes = (get_hazard_count_from_layout("obj_eyes") > 0);
+		has_eyes = (get_object_count_from_layout("obj_eyes", false) > 0);
 		
 		// Determine how many columns and how many statues to replace with fountains: each column rolls, then each statue,
 		// until the room has MAX_REPLACED_FOUNTAINS between them
 		if (can_have_hazard_with_eyes("obj_fountain")) {
 			var _max_replaced_fountains = MAX_REPLACED_FOUNTAINS;
-			for (var _column = 0; _column < get_object_count_from_layout("obj_column") && replaced_column_fountain_count < _max_replaced_fountains; _column++) { // Columns aren't in the difficulty score table
+			for (var _column = 0; _column < get_object_count_from_layout("obj_column", false) && replaced_column_fountain_count < _max_replaced_fountains; _column++) { // Columns aren't in the difficulty score table
 				if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain")) { replaced_column_fountain_count += 1; }
 			}
-			for (var _statue = 0; _statue < get_hazard_count_from_layout("obj_statue") && replaced_column_fountain_count + replaced_statue_fountain_count < _max_replaced_fountains; _statue++) {
+			for (var _statue = 0; _statue < get_object_count_from_layout("obj_statue", false) && replaced_column_fountain_count + replaced_statue_fountain_count < _max_replaced_fountains; _statue++) {
 				if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain", "obj_statue")) { replaced_statue_fountain_count += 1; }
 			}
 		}
 
 		// Determine how many of the blocks on block spots come alive
-		for (var _block_spot = 0; _block_spot < get_hazard_count_from_layout("obj_block_spot"); _block_spot++) {
+		for (var _block_spot = 0; _block_spot < get_object_count_from_layout("obj_block_spot", false); _block_spot++) {
 			if (get_random_chance_out_of(LIVING_BLOCK_PROBABILITY) && !would_exceed_max_difficulty("obj_living_block")) { living_block_count += 1; }
 		}
 
 		// Determine lava enemy spawns
-		if (get_hazard_count_from_layout("obj_lava") > 0) {
+		if (get_object_count_from_layout("obj_lava", false) > 0) {
 			if (can_have_hazard_with_eyes("obj_fire_skeleton") && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) && !would_exceed_max_difficulty("obj_fire_skeleton")) { initial_fire_skeleton_count = 1; }
 			
 			if (can_have_hazard_with_eyes("obj_nose")) {
@@ -744,7 +753,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		has_phantom = layout.has_lanterns && !lit && !is_special_room && can_have_hazard_with_eyes("obj_phantom") && get_random_chance_out_of(PHANTOM_PROBABILITY) && !would_exceed_max_difficulty("obj_phantom");
 		has_floater = !has_phantom && !is_special_room && can_have_hazard_with_eyes("obj_floater") && get_random_chance_out_of(FLOATER_PROBABILITY) && !would_exceed_max_difficulty("obj_floater");
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
-		initial_mouth_count = get_hazard_count_from_layout("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
+		initial_mouth_count = get_object_count_from_layout("obj_mouth", false) * (MOUTHS_PER_MOUTH - 1);
 		
 		// Eyes rolled onto a skeleton spot come last, so they only join a room where nothing chases or shoots at the player
 		if (!has_eyes && _skeleton_spot_count > 0 && count_hazards_with_tags(get_actual_hazard_counts(false), TARGETS_PLAYER_TAGS) == 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
@@ -804,6 +813,11 @@ function GameRoom(_given_x, _given_y) constructor {
 		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
 	};
 	
+	/// @function get_object_count_from_layout(_object_name, [_with_role])
+	/// @description How many of an object the room's layout places that building the room keeps (see clears_layout_spot)
+	/// @param {string} _object_name The string name of the Game Maker object type
+	/// @param {bool} [_with_role] False to leave out what the room's chest and illusion walls clear (true by default)
+	/// @returns {real}
 	static get_object_count_from_layout = function(_object_name, _with_role = true) {
 		var _count = layout.get_object_count(_object_name);
 		for (var _i = 0; _i < array_length(layout.covered_instances); _i++) {
@@ -815,43 +829,40 @@ function GameRoom(_given_x, _given_y) constructor {
 		}
 		return _count;
 	};
+	
+	/// @function get_share_left_by_role(_object_name, _with_role)
+	/// @description The share of a layout object's copies the room's chest and illusion walls leave, of those its exits leave.
+	///	Content rolled for each copy the exits leave only spawns on that share of them
+	/// @param {string} _object_name The string name of the Game Maker object type
+	/// @param {bool} _with_role False to count the rolled content just as it was rolled, which keeps it all
+	/// @returns {real} From 0 to 1
+	static get_share_left_by_role = function(_object_name, _with_role) {
+		var _count_left_by_exits = get_object_count_from_layout(_object_name, false);
+		return (_with_role && _count_left_by_exits > 0) ? get_object_count_from_layout(_object_name) / _count_left_by_exits : 1;
+	};
 
-	// An open exit clears its blocked spots, a closed one its free spots, and illusion walls all of them. Without its role, only
-	// the exits count, since the chest and illusion walls are rolled after the room's content, and again every pass
+	/// @function clears_layout_spot(_spot, [_with_role])
+	/// @description Whether building the room clears what's under one of its layout's exit or chest spots (see game_room_initialize).
+	///	An open exit clears its blocked spots, a closed one its free spots, and illusion walls all of them. Without its role, only
+	///	the exits count, since the chest and illusion walls are rolled after the room's content, and again every pass
+	/// @param {struct} _spot One of the layout's destroying_spots
+	/// @param {bool} [_with_role] False to leave out the room's chest and illusion walls (true by default)
+	/// @returns {bool}
 	static clears_layout_spot = function(_spot, _with_role = true) {
 		if (_spot.side == -1) { return _with_role && clears_chest_spot(); }
 		var _exit = exits[get_room_dir_for_layout_side(_spot.side)], _is_open = (_exit != -1);
 		return (_is_open == _spot.blocked) || (_with_role && _is_open && _exit.exit_type == exit_types.illusion_walls);
 	};
 
+	/// @function get_room_dir_for_layout_side(_side)
+	/// @description The room direction a side of the layout faces once the layout is flipped and rotated (see determine_layout_orientation)
+	/// @param {real} _side A cardinal direction of the layout, before it's flipped or rotated
+	/// @returns {real}
 	static get_room_dir_for_layout_side = function(_side) {
 		if (flip_horizontal && (_side == directions.left || _side == directions.right)) { _side = get_opposite_dir(_side); }
 		if (flip_vertical && (_side == directions.up || _side == directions.down)) { _side = get_opposite_dir(_side); }
 		return get_rotated_dir(_side, rotate);
 	};
-	
-	/// @function get_destroying_object_types(_object)
-	/// @description Returns the list of object types that will destroy objects in the room layout
-	/// @returns {array} _object Array of object type names
-	static get_destroying_object_types = function() {
-		var _destroyed_types = (clears_chest_spot() ? ["obj_chest_spot"] : []);
-		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-			// Skip if the spaces under this exit won't get cleared; if the exit exists and is not an illusion wall
-			var _exit = exits[_dir];
-			if (_exit != -1 && _exit.exit_type != exit_types.illusion_walls) { continue; }
-			
-			// Otherwise, add the appropriate exit type to the destroying object types
-			var _destroying_exit_object_type = "obj_exit_spot";
-			switch (_dir) {
-				case directions.up: { _destroying_exit_object_type += "_up"; break; }
-				case directions.down: { _destroying_exit_object_type += "_down"; break; }
-				case directions.left: { _destroying_exit_object_type += "_left"; break; }
-				case directions.right: { _destroying_exit_object_type += "_right"; break; }
-			}
-			array_push(_destroyed_types, _destroying_exit_object_type);
-		}
-		return _destroyed_types;
-	}
 
 	/// @function clears_chest_spot()
 	/// @description Whether building the room clears what's under its chest spot: its stairs spot object spawns there in a room

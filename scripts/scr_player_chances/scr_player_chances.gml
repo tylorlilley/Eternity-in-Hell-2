@@ -33,9 +33,10 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 				_special_sword_hazard_counts[$ _hazard_name] = 0;
 			}
 		
-			// A staff helps against anything that shoots, and lava
-			if ((_hazard_table_entry.tags & hazard_tags.immune_with_staff) != 0) { _staff_hazard_counts[$ _hazard_name] = 0; }
-			else if ((_hazard_table_entry.tags & PROJECTILE_STOPPED_BY_STAFF_TAGS) != 0) { _staff_hazard_counts[$ _hazard_name] *= STAFF_PROJECTILE_COUNTER_MULTIPLIER; }
+			// A staff helps partially against anything that moves and shoots, and fully against lava and anything that is only dangerous by shooting
+			var _tags = _hazard_table_entry.tags;
+			if ((_tags & hazard_tags.immune_with_staff) != 0 || ((_tags & PROJECTILE_STOPPED_BY_STAFF_TAGS) != 0 && (_tags & hazard_tags.stationary) != 0)) { _staff_hazard_counts[$ _hazard_name] = 0; }
+			else if ((_tags & PROJECTILE_STOPPED_BY_STAFF_TAGS) != 0) { _staff_hazard_counts[$ _hazard_name] *= STAFF_PROJECTILE_COUNTER_MULTIPLIER; }
 		}
 	
 		var _chance_holding_nothing = (1 - chance_holding_staff - chance_holding_sword - chance_holding_special_sword);

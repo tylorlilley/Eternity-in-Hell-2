@@ -13,9 +13,9 @@
 #macro PHANTOM_TIME_PER_LANTERN 0.03		// Banishing a phantom means lighting every lantern, which takes longer the more there are
 #macro TARGETS_PLAYER_TAGS (hazard_tags.moves_towards_player | hazard_tags.fires_at_player)						// What keeps the player on the move by coming for them
 #macro PROJECTILE_STOPPED_BY_STAFF_TAGS (hazard_tags.fires_at_player | hazard_tags.fires_in_place)	// What can't hurt a player holding a staff
-#macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3		// How likely the player is to have something, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
+#macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3	// How likely the player is to have something, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
 #macro BLOCK_COUNTER_MULTIPLIER 0.6			// A hazard a block can stop keeps this share of its danger: the layout lets a block be lined up with it about half the time, and setting the block up carries about a fifth of the hazard's own risk
-#macro STAFF_PROJECTILE_COUNTER_MULTIPLIER 0.2
+#macro STAFF_PROJECTILE_COUNTER_MULTIPLIER 0.3 // A shooter that walks still kills on touch once a staff stops its shots: a cultist keeps a fat skeleton's 0.04 of its 0.16 danger, which is 0.3 of its count with its many of 1.2
  
 // The room's other content
 #macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its hazard danger counts 1.4 times
@@ -117,7 +117,7 @@ function get_difficulty_score_table() {
 		// Spawns during map creation
 		obj_phantom:				{ danger: 0.20,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.moves_towards_player },
 		obj_floater:				{ danger: 0.08,		many: 0,	time: 0.15,		time_many: 0,		min_difficulty: difficulties.medium,	tags: hazard_tags.moves_towards_player },
-		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.fires_at_player | hazard_tags.lights_torches },	// Aimed where the player is, so walking along a bridge dodges it too
+		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.stationary | hazard_tags.fires_at_player | hazard_tags.lights_torches },	// Aimed where the player is, so walking along a bridge dodges it too
 		// Its spot still counts its block, for the push time and what it can stop
 		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.slows_player_movement },
 		// For trapped chests only:

@@ -804,31 +804,41 @@ function GameRoom(_given_x, _given_y) constructor {
 		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
 	};
 	
-	/// @function get_destroying_object_types(_object)
-	/// @description Returns the count of objects created by the room layout, after removing destroyed ones
-	/// @param {string} _object The object name to fetch a count for
-	/// @returns {real} _object The count of objects after removing destroyed ones
-	static get_object_count_from_layout = function(_object_name) {
-		return layout.get_object_count(_object_name, get_destroying_object_types());
-	}
-	
-	/// @function get_destroying_object_types(_object)
-	/// @description Returns the count of hazards created by the room layout, after removing destroyed ones
-	/// @param {string} _object The object name to fetch a count for
-	/// @returns {real} _object The count of hazards after removing destroyed ones
-	static get_hazard_count_from_layout = function(_object_name) {
-		return layout.get_hazard_count(_object_name, get_destroying_object_types());
-	}
+	static get_object_count_from_layout = function(_object_name, _with_role = true) {
+		var _count = layout.get_object_count(_object_name);
+		for (var _i = 0; _i < array_length(layout.covered_instances); _i++) {
+			var _covered = layout.covered_instances[_i];
+			if (_covered.object_name != _object_name) { continue; }
+			for (var _j = 0; _j < array_length(_covered.spots); _j++) {
+				if (clears_layout_spot(layout.destroying_spots[_covered.spots[_j]], _with_role)) { _count -= 1; break; }
+			}
+		}
+		return _count;
+	};
+
+	// An open exit clears its blocked spots, a closed one its free spots, and illusion walls all of them. Without its role, only
+	// the exits count, since the chest and illusion walls are rolled after the room's content, and again every pass
+	static clears_layout_spot = function(_spot, _with_role = true) {
+		if (_spot.side == -1) { return _with_role && clears_chest_spot(); }
+		var _exit = exits[get_room_dir_for_layout_side(_spot.side)], _is_open = (_exit != -1);
+		return (_is_open == _spot.blocked) || (_with_role && _is_open && _exit.exit_type == exit_types.illusion_walls);
+	};
+
+	static get_room_dir_for_layout_side = function(_side) {
+		if (flip_horizontal && (_side == directions.left || _side == directions.right)) { _side = get_opposite_dir(_side); }
+		if (flip_vertical && (_side == directions.up || _side == directions.down)) { _side = get_opposite_dir(_side); }
+		return get_rotated_dir(_side, rotate);
+	};
 	
 	/// @function get_destroying_object_types(_object)
 	/// @description Returns the list of object types that will destroy objects in the room layout
 	/// @returns {array} _object Array of object type names
 	static get_destroying_object_types = function() {
-		var _destroyed_types = (clears_chest_spot() ? ["obj_chest"] : []);
+		var _destroyed_types = (clears_chest_spot() ? ["obj_chest_spot"] : []);
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			// Skip if the spaces under this exit won't get cleared; if the exit exists and is not an illusion wall
 			var _exit = exits[_dir];
-			if (_exit != -1 && !_exit.exit_types == exit_types.illusion_walls) { continue; }
+			if (_exit != -1 && _exit.exit_type != exit_types.illusion_walls) { continue; }
 			
 			// Otherwise, add the appropriate exit type to the destroying object types
 			var _destroying_exit_object_type = "obj_exit_spot";

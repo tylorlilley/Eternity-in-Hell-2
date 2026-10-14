@@ -12,9 +12,10 @@
 #macro DARK_DANGER_MULTIPLIER 5				// A hazard that's worse in the dark, when the player has no light: a cockroach goes from 0.02 to about 0.10 danger
 #macro PHANTOM_TIME_PER_LANTERN 0.03		// Banishing a phantom means lighting every lantern, which takes longer the more there are
 #macro TARGETS_PLAYER_TAGS (hazard_tags.moves_towards_player | hazard_tags.fires_at_player)						// What keeps the player on the move by coming for them
-#macro STOPPED_BY_STAFF_TAGS (hazard_tags.fires_at_player | hazard_tags.fires_in_place | hazard_tags.immune_with_staff)	// What can't hurt a player holding a staff
+#macro PROJECTILE_STOPPED_BY_STAFF_TAGS (hazard_tags.fires_at_player | hazard_tags.fires_in_place)	// What can't hurt a player holding a staff
 #macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3		// How likely the player is to have something, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
 #macro BLOCK_COUNTER_MULTIPLIER 0.6			// A hazard a block can stop keeps this share of its danger: the layout lets a block be lined up with it about half the time, and setting the block up carries about a fifth of the hazard's own risk
+#macro STAFF_PROJECTILE_COUNTER_MULTIPLIER 0.2
  
 // The room's other content
 #macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its hazard danger counts 1.4 times

@@ -431,7 +431,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (has_collectables) { _difficulty_score *= COLLECTABLES_EXPOSURE; }
  
 		// Shut in until the button is pressed. One button opens every exit, so it counts once
-		if (has_portcullis_trap) { _difficulty_score += get_difficulty_score_for_danger_level(PORTCULLIS_TRAP_DANGER); }
+		if (has_portcullis_trap) { _difficulty_score += PORTCULLIS_TRAP_DANGER * DANGER_POINT_SCALE; }
  
 		// Items make the rest of the run easier
 		if (has_special_item) { _difficulty_score += SPECIAL_ITEM_REWARD_POINTS; }
@@ -465,7 +465,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {bool}
 	static would_exceed_max_difficulty = function(_hazard_name, _replaced_hazard_name = undefined) {
 		// Get the actual hazard counts, modified by the given hazard name and replaced hazard
-		var _potential_hazard_counts = get_spawn_counts(get_actual_hazard_counts(false));
+		var _potential_hazard_counts = layout.get_spawn_counts(get_actual_hazard_counts(false));
 		add_to_count_struct(_potential_hazard_counts, _hazard_name, 1);
 		if (!is_undefined(_replaced_hazard_name)) { add_to_count_struct(_potential_hazard_counts, _replaced_hazard_name, -1); }
 		

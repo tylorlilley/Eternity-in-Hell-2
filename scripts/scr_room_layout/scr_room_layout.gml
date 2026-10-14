@@ -94,7 +94,7 @@ function RoomLayout(_room_reference) constructor {
 		}
 		
 		// Estimate Skeleton Spots
-		var _skeleton_spot_count = get_object_count("obj_skeleton_spot");
+		var _skeleton_spot_count = get_object_count("obj_skeleton_spot"), _skeleton_type_counts = {};
 		if (_skeleton_spot_count > 0) {
 			var _skeleton_type_chances = get_skeleton_type_chances(), _total_type_chance = 0, _same_type_chance = get_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY);
 			// Add up the chances of all available skeleton types, to use if not including basic skeleton
@@ -103,7 +103,7 @@ function RoomLayout(_room_reference) constructor {
 			// For each skeleton type, add it's count to the struct
 			for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) {
 				// Skip types that can't coexist with eyes
-				// TODO: Why do we skip eyes here, but in the actual get_skeleton_type in scr_room, we don't do that? Won't that lead to innacurate estimates?
+				// We skip eyes here because in the actual generation, we replace anything that can't coexist with eyes with another type instead.
 				var _skeleton_chance_type = _skeleton_type_chances[_i];
 				var _skeleton_type = _skeleton_chance_type.type, _type_chance = _skeleton_chance_type.chance;
 				var _type_name = object_get_name(_skeleton_type);
@@ -112,9 +112,14 @@ function RoomLayout(_room_reference) constructor {
 				// Add this type to the count
 				var _same_type_chance_for_type = _same_type_chance * (_type_chance / _total_type_chance);
 				var _non_same_type_chance_for_type = (1 - _same_type_chance) * (_type_chance / SKELETON_TYPE_CHANCE_MAX);
-				var _skeleton_type_count = (_same_type_chance_for_type + _non_same_type_chance_for_type) * _skeleton_spot_count;
-				add_to_count_struct(_mapgen_counts, _type_name, _skeleton_type_count);
+				var _skeleton_type_count = (_same_type_chance_for_type + _non_same_type_chance_for_type);
+				add_to_count_struct(_skeleton_type_counts, _type_name, _skeleton_type_count);
 			}
+			
+			// Add any remaining chance type to the basic skeleton count
+			var _remaining_chance_for_type = (SKELETON_TYPE_CHANCE_MAX - _total_type_chance) / SKELETON_TYPE_CHANCE_MAX;
+			var _basic_skeleton_count = _remaining_chance_for_type * _skeleton_spot_count;
+			add_to_count_struct(_skeleton_type_counts, "obj_skeleton", _basic_skeleton_count);
 		}
 		
 		// Estimate Phantoms and Floaters
@@ -134,9 +139,15 @@ function RoomLayout(_room_reference) constructor {
 		if (_skeleton_spot_count > 0 && get_hazard_count("obj_eyes") == 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) == 0 && count_hazards_with_tags(_mapgen_counts, TARGETS_PLAYER_TAGS) == 0) {
 			var _eyes_count = get_chance_out_of(EYES_PROBABILITY);
 			add_to_count_struct(_mapgen_counts, "obj_eyes", _eyes_count);
-			add_to_count_struct(_mapgen_counts, "obj_skeleton", _eyes_count); // TODO: Why replace a regular skeleton? Shouldn't this instead reduce all skeleton types by the chances calculated above for one skeleton spot?
+			_skeleton_spot_count -= 1; // Eyes take up a skeleton spot
 		}
-		return _mapgen_counts;
+		
+		// Add each skeleton type count to the final map, proportional to the remaining unoccupied skeleton spots
+		var _skeleton_type_count_keys = variable_struct_get_names(_skeleton_type_counts);
+		for (var _i = 0; _i < array_length(_skeleton_type_count_keys); _i++) {
+			_skeleton_type_counts[$ _skeleton_type_count_keys[_i]] *= _skeleton_spot_count;
+		}
+		return combine_count_structs(_mapgen_counts, _skeleton_type_counts);
 	};
 	
 	/// @function get_estimated_midgame_spawns()
@@ -167,13 +178,13 @@ function RoomLayout(_room_reference) constructor {
 			add_to_count_struct(_midgame_spawn_counts, "obj_nose", _nose_chance * AVERAGE_ROOM_VISITS);
 			
 			if (get_count_from_struct(_mapgen_spawns, "obj_fire_skeleton") == 0) {
-				var _fire_skeleton_count = (1 - _nose_chance) * get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) * AVERAGE_ROOM_VISITS;
+				var _no_fire_skeleton_chance = 1 - min(1, get_count_from_struct(_mapgen_spawns, "obj_fire_skeleton")); // They only spawn midgame if the room has no fire skeleton at all
+				var _fire_skeleton_count = _no_fire_skeleton_chance * (1 - _nose_chance) * get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) * AVERAGE_ROOM_VISITS;
 				add_to_count_struct(_midgame_spawn_counts, "obj_fire_skeleton", _fire_skeleton_count);
 			}
 		}
 
 		// Hands for the items on the floor
-		// TODO: Make sure floor items are added to the actual spawns
 		var _floor_item_count = get_count_from_struct(_mapgen_spawns, "obj_item");
 		var _hands_count = _floor_item_count * get_chance_out_of(HANDS_PROBABILITY) * AVERAGE_ROOM_VISITS;
 		add_to_count_struct(_midgame_spawn_counts, "obj_hands", _hands_count);
@@ -204,7 +215,7 @@ function RoomLayout(_room_reference) constructor {
 		minimum_difficulty = get_minimum_difficulty_from_hazards();
 		
 		// For each difficulty beyond the hazard minimum, check if it is gated by the layout difficulty and/or time score limits
-		for (var _difficulty = minimum_difficulty+1; _difficulty < difficulties.very_hard; _difficulty++) {
+		for (var _difficulty = minimum_difficulty; _difficulty < difficulties.very_hard; _difficulty++) {
 			global.difficulty = _difficulty;
 			if (get_layout_difficulty_score() <= LAYOUT_DIFFICULTY_SCORE_LIMIT && get_layout_time_score() <= LAYOUT_TIME_SCORE_LIMIT) {
 				minimum_difficulty = _difficulty;

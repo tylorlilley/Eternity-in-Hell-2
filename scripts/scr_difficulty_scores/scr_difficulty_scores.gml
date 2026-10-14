@@ -133,35 +133,6 @@ function get_difficulty_score_table() {
 	return _table;
 }
  
-/// @function get_difficulty_score_for_danger_level(_danger)
-/// @description Turns a danger, the chance of dying, into difficulty points. Chances of dying don't add up: two hazards that
-///	each kill half the time kill three times out of four together, not always. -ln(1 - danger) does add up, the way the
-///	chances of surviving each hazard multiply, so points can be summed across hazards and rooms. Anything that mixes chances,
-///	like whether the player holds a counter, has to mix the chances of surviving instead of the points. DANGER_POINT_SCALE only sets the size of a point.
-/// @param {real} _danger From 0 to 1
-/// @returns {real}
-function get_difficulty_score_for_danger_level(_danger) {
-	return (_danger <= 0) ? 0 : -ln(1 - min(_danger, 0.99)) * DANGER_POINT_SCALE;
-}
- 
-/// @function get_survival_chance_for_difficulty_score(_difficulty_score)
-/// @description The chance of surviving hazards worth some difficulty points, the other way around from get_difficulty_score_for_danger_level
-/// @param {real} _difficulty_score The points
-/// @returns {real} From 0 to 1
-function get_survival_chance_for_difficulty_score(_difficulty_score) {
-	return exp(-_difficulty_score / DANGER_POINT_SCALE);
-}
- 
-/// @function get_difficulty_score_for_survival_chance(_survival_chance)
-/// @description The difficulty points for a chance of surviving, so a mix of chances can be turned back into points
-/// @param {real} _survival_chance From 0 to 1
-/// @returns {real}
-function get_difficulty_score_for_survival_chance(_survival_chance) {
-	return -ln(max(_survival_chance, 0.000001)) * DANGER_POINT_SCALE;
-}
-
-
- 
 /// @function get_hazard_time_score(_name, _count)
 /// @description The time score for _count of a hazard in one room, following its time_many rule, at most 1.
 /// @param {string} _name The hazard's name in the table
@@ -328,7 +299,7 @@ function get_chance_to_make_player_move(_hazard_counts, _hazard_name) {
 		else if ((_other_hazard_tages & (hazard_tags.stationary | hazard_tags.slows_player_movement)) == 0) { _danger_ratio = INCEDENTAL_HAZARD_MAKES_PLAYER_MOVE_CHANCE; }
 		
 		// Use this danger ratio to determine the chance this hazard makes the player move
-		var _other_hazard_danger = get_hazard_danger_from_table(_other_hazard_name, _other_hazard_count);
+		var _other_hazard_danger = get_hazard_danger_from_table(_other_hazard_name, _other_hazard_count) / KEEPS_PLAYER_MOVING_DANGER;
 		var _player_moving_chance = min(1, _danger_ratio * _other_hazard_danger);
 		_chance_to_not_make_player_move *= 1 - _player_moving_chance;
 	}

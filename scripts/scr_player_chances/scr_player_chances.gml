@@ -101,19 +101,25 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 	};
 	
 	/// @function apply_block_chance_to_difficulty_points(_hazard_name, _hazard_difficulty_score, _hazard_counts)
-	/// @description Applies the effect of blocks in the room to the current danger score and returns it
+	/// @description Applies the effect of blocks in the room to the current difficulty score and returns it
 	/// @param {string} _hazard_name					The hazard's name in the table
 	/// @param {real} _hazard_difficulty_score			The current hazard difficulty score
 	/// @param {struct} _hazard_counts					The count struct of all hazards in the room
 	/// @returns {real}
 	static apply_block_chance_to_difficulty_points = function(_hazard_name, _hazard_difficulty_score, _hazard_counts) {
-		// Skip applying if blocks aren't present or hazard is not killed by blocks
+		// Skip applying if blocks aren't present or hazard can't be stopped by blocks
 		var _table = get_difficulty_score_table(), _hazard_table_entry = _table[$ _hazard_name];
 		var _block_count = get_count_from_struct(_hazard_counts, "obj_block_spot") + get_count_from_struct(_hazard_counts, "obj_living_block");
-		if (_block_count <= 0 || is_undefined(_hazard_table_entry) || (_hazard_table_entry.tags & hazard_tags.stopped_by_block) == 0) { return _hazard_difficulty_score; }
+		if (_block_count <= 0 || is_undefined(_hazard_table_entry) || (_hazard_table_entry.tags & (hazard_tags.stopped_by_block | hazard_tags.uses_up_block)) == 0) { return _hazard_difficulty_score; }
 		
-		// TODO: Apply block count differnetly for things that use up the block entirely
-		return (_hazard_difficulty_score * BLOCK_COUNTER_MULTIPLIER);
+		// A block that isn't used up can be pushed on from one copy to the next, so it counters them all. One that is used up only
+		// counters one copy, so only the share of copies the room has blocks for is countered. One that counts once, like lava, is one copy
+		var _countered_share = 1;
+		if ((_hazard_table_entry.tags & hazard_tags.uses_up_block) != 0) {
+			var _copies = (_hazard_table_entry.many == 0) ? 1 : get_count_from_struct(_hazard_counts, _hazard_name);
+			_countered_share = min(1, _block_count / max(1, _copies));
+		}
+		return _hazard_difficulty_score * (1 - ((1 - BLOCK_COUNTER_MULTIPLIER) * _countered_share));
 	};
 	
 	// ============================

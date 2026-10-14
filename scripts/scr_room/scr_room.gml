@@ -393,6 +393,9 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (_with_role) {
 			add_to_count_struct(_actual_spawns, "obj_chest", ((has_trap_chest()) ? 1 : 0));
 			add_to_count_struct(_actual_spawns, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
+			
+			// Something spawning on the chest spot clears the hazards under it
+			if (clears_chest_spot()) { add_counts_to_count_struct(_actual_spawns, layout.chest_spot_hazard_counts, -1); }
 		}
 		
 		// Return the modified counts
@@ -804,6 +807,14 @@ function GameRoom(_given_x, _given_y) constructor {
 		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
 	};
 
+	/// @function clears_chest_spot()
+	/// @description Whether building the room clears what's under its chest spot: its stairs spot object spawns there in a room
+	///	with stairs, or when it wasn't placed on the stairs spot, and anything but a hidden chest clears it (see game_room_initialize)
+	/// @returns {bool}
+	static clears_chest_spot = function() {
+		return stairs_spot_obj != -1 && stairs_spot_obj != obj_hidden_chest && (has_exit(directions.stairs) || !chest_on_stairs_spot);
+	};
+	
 	/// @function add_chest([_must_be_hidden])
 	/// @description Puts a chest with no item yet in the room. Unless it must be hidden, a hidden chest can only appear in
 	///	an unlit lantern room with no phantom.

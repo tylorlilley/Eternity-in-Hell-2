@@ -470,6 +470,16 @@ function add_to_count_struct(_count_struct, _key, _value = 1) {
 	_count_struct[$ _key] = get_count_from_struct(_count_struct, _key) + _value;
 };
 
+/// @function add_counts_to_count_struct(_count_struct, _added_counts, [_multiplier])
+/// @description Adds every count in one count struct to another, each times a multiplier
+/// @param {struct} _count_struct 	The struct of counts to add to
+/// @param {struct} _added_counts	The struct of counts to add
+/// @param {real} [_multiplier]		What to multiply each added count by (1 by default, -1 to take them away)
+function add_counts_to_count_struct(_count_struct, _added_counts, _multiplier = 1) {
+	var _keys = variable_struct_get_names(_added_counts);
+	for (var _i = 0; _i < array_length(_keys); _i++) { add_to_count_struct(_count_struct, _keys[_i], _added_counts[$ _keys[_i]] * _multiplier); }
+};
+
 /// @function duplicate_count_struct()
 /// @description Makes a copy of the count struct and returns it
 /// @param {struct} _count_struct The struct of counts to copy

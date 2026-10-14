@@ -393,9 +393,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (_with_role) {
 			add_to_count_struct(_actual_spawns, "obj_chest", ((has_trap_chest()) ? 1 : 0));
 			add_to_count_struct(_actual_spawns, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
-			
-			// Something spawning on the chest spot clears the hazards under it
-			if (clears_chest_spot()) { add_counts_to_count_struct(_actual_spawns, layout.chest_spot_hazard_counts, -1); }
 		}
 		
 		// Return the modified counts
@@ -488,7 +485,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_time_score = function() {
 		var _counts = get_actual_hazard_counts();
 		var _time = get_time_score_with_spawns(_counts, layout.get_mid_game_spawns(_counts, get_floor_item_count()));
-		if (spawns_phantom()) { _time += PHANTOM_TIME_PER_LANTERN * layout.get_object_count("obj_lantern"); } // Lanterns aren't in the difficulty score table
+		if (spawns_phantom()) { _time += PHANTOM_TIME_PER_LANTERN * get_object_count_from_layout("obj_lantern"); } // Lanterns aren't in the difficulty score table
 		return _time;
 	};
  
@@ -691,7 +688,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
 	static determine_random_room_content = function(_same_skeleton_type) {
 		// Start from what the layout spawns for sure. Every skeleton spot holds a basic skeleton until its roll replaces it
-		var _skeleton_spot_count = layout.get_object_count("obj_skeleton_spot"); // Skeleton spots aren't in the difficulty score table
+		var _skeleton_spot_count = get_object_count_from_layout("obj_skeleton_spot"); // Skeleton spots aren't in the difficulty score table
 		skeleton_types = array_create(_skeleton_spot_count, obj_skeleton);
 		replaced_column_fountain_count = 0;
 		replaced_statue_fountain_count = 0;
@@ -705,27 +702,27 @@ function GameRoom(_given_x, _given_y) constructor {
 		lit = layout.has_lanterns && !is_special_room && get_random_chance_out_of(PRE_LIT_PROBABILITY);
 
 		// Eyes the layout places stop the player in place, so nothing rolled below may chase or shoot at them
-		has_eyes = (layout.get_hazard_count("obj_eyes") > 0);
+		has_eyes = (get_hazard_count_from_layout("obj_eyes") > 0);
 		
 		// Determine how many columns and how many statues to replace with fountains: each column rolls, then each statue,
 		// until the room has MAX_REPLACED_FOUNTAINS between them
 		if (can_have_hazard_with_eyes("obj_fountain")) {
 			var _max_replaced_fountains = MAX_REPLACED_FOUNTAINS;
-			for (var _column = 0; _column < layout.get_object_count("obj_column") && replaced_column_fountain_count < _max_replaced_fountains; _column++) { // Columns aren't in the difficulty score table
+			for (var _column = 0; _column < get_object_count_from_layout("obj_column") && replaced_column_fountain_count < _max_replaced_fountains; _column++) { // Columns aren't in the difficulty score table
 				if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain")) { replaced_column_fountain_count += 1; }
 			}
-			for (var _statue = 0; _statue < layout.get_hazard_count("obj_statue") && replaced_column_fountain_count + replaced_statue_fountain_count < _max_replaced_fountains; _statue++) {
+			for (var _statue = 0; _statue < get_hazard_count_from_layout("obj_statue") && replaced_column_fountain_count + replaced_statue_fountain_count < _max_replaced_fountains; _statue++) {
 				if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain", "obj_statue")) { replaced_statue_fountain_count += 1; }
 			}
 		}
 
 		// Determine how many of the blocks on block spots come alive
-		for (var _block_spot = 0; _block_spot < layout.get_hazard_count("obj_block_spot"); _block_spot++) {
+		for (var _block_spot = 0; _block_spot < get_hazard_count_from_layout("obj_block_spot"); _block_spot++) {
 			if (get_random_chance_out_of(LIVING_BLOCK_PROBABILITY) && !would_exceed_max_difficulty("obj_living_block")) { living_block_count += 1; }
 		}
 
 		// Determine lava enemy spawns
-		if (layout.get_hazard_count("obj_lava") > 0) {
+		if (get_hazard_count_from_layout("obj_lava") > 0) {
 			if (can_have_hazard_with_eyes("obj_fire_skeleton") && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) && !would_exceed_max_difficulty("obj_fire_skeleton")) { initial_fire_skeleton_count = 1; }
 			
 			if (can_have_hazard_with_eyes("obj_nose")) {
@@ -747,7 +744,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		has_phantom = layout.has_lanterns && !lit && !is_special_room && can_have_hazard_with_eyes("obj_phantom") && get_random_chance_out_of(PHANTOM_PROBABILITY) && !would_exceed_max_difficulty("obj_phantom");
 		has_floater = !has_phantom && !is_special_room && can_have_hazard_with_eyes("obj_floater") && get_random_chance_out_of(FLOATER_PROBABILITY) && !would_exceed_max_difficulty("obj_floater");
 		has_moving_collectable = get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
-		initial_mouth_count = layout.get_hazard_count("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
+		initial_mouth_count = get_hazard_count_from_layout("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
 		
 		// Eyes rolled onto a skeleton spot come last, so they only join a room where nothing chases or shoots at the player
 		if (!has_eyes && _skeleton_spot_count > 0 && count_hazards_with_tags(get_actual_hazard_counts(false), TARGETS_PLAYER_TAGS) == 0 && get_random_chance_out_of(EYES_PROBABILITY)) {
@@ -806,6 +803,45 @@ function GameRoom(_given_x, _given_y) constructor {
 		stairs_spot_obj = _object;
 		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
 	};
+	
+	/// @function get_destroying_object_types(_object)
+	/// @description Returns the count of objects created by the room layout, after removing destroyed ones
+	/// @param {string} _object The object name to fetch a count for
+	/// @returns {real} _object The count of objects after removing destroyed ones
+	static get_object_count_from_layout = function(_object_name) {
+		return layout.get_object_count(_object_name, get_destroying_object_types());
+	}
+	
+	/// @function get_destroying_object_types(_object)
+	/// @description Returns the count of hazards created by the room layout, after removing destroyed ones
+	/// @param {string} _object The object name to fetch a count for
+	/// @returns {real} _object The count of hazards after removing destroyed ones
+	static get_hazard_count_from_layout = function(_object_name) {
+		return layout.get_hazard_count(_object_name, get_destroying_object_types());
+	}
+	
+	/// @function get_destroying_object_types(_object)
+	/// @description Returns the list of object types that will destroy objects in the room layout
+	/// @returns {array} _object Array of object type names
+	static get_destroying_object_types = function() {
+		var _destroyed_types = (clears_chest_spot() ? ["obj_chest"] : []);
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
+			// Skip if the spaces under this exit won't get cleared; if the exit exists and is not an illusion wall
+			var _exit = exits[_dir];
+			if (_exit != -1 && !_exit.exit_types == exit_types.illusion_walls) { continue; }
+			
+			// Otherwise, add the appropriate exit type to the destroying object types
+			var _destroying_exit_object_type = "obj_exit_spot";
+			switch (_dir) {
+				case directions.up: { _destroying_exit_object_type += "_up"; break; }
+				case directions.down: { _destroying_exit_object_type += "_down"; break; }
+				case directions.left: { _destroying_exit_object_type += "_left"; break; }
+				case directions.right: { _destroying_exit_object_type += "_right"; break; }
+			}
+			array_push(_destroyed_types, _destroying_exit_object_type);
+		}
+		return _destroyed_types;
+	}
 
 	/// @function clears_chest_spot()
 	/// @description Whether building the room clears what's under its chest spot: its stairs spot object spawns there in a room

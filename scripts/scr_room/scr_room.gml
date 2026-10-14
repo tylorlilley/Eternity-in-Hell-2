@@ -363,6 +363,18 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_actual_hazard_counts = function(_with_role = true) {
 		var _actual_spawns = {}
 		
+		// Add the actual stairs and exit counts
+		var _exit_count = 0, _stairs_count = 0
+		for (var _dir = directions.up; _dir <= array_length(directions.stairs); _dir++) {
+			var _exit = exits[_dir];
+			if (_exit != -1) {
+				_exit_count += 1;
+				if (_dir == directions.stairs) { _stairs_count += 1; }
+			}
+		}
+		add_to_count_struct(_actual_spawns, "obj_stairs", _stairs_count);
+		add_to_count_struct(_actual_spawns, "obj_exit_spot", _exit_count);
+		
 		// Add any floor items that have been spawned
 		var _floor_item_count = get_floor_item_count();
 		add_to_count_struct(_actual_spawns, "obj_item", _floor_item_count);

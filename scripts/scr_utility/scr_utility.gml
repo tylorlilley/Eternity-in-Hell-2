@@ -179,6 +179,12 @@ function get_capped_successes_chance(_tries, _chance, _cap, _successes) {
 /// @param {real} _cap The number of successes it stops at
 /// @returns {real}
 function get_expected_capped_successes(_tries, _chance, _cap) {
+	// A fractional cap, like the one left after an expected number of earlier successes, blends the two whole caps around it
+	if (_cap != floor(_cap)) {
+		var _lower_cap = floor(_cap);
+		return lerp(get_expected_capped_successes(_tries, _chance, _lower_cap), get_expected_capped_successes(_tries, _chance, _lower_cap + 1), _cap - _lower_cap);
+	}
+
 	var _expected = 0;
 	for (var _k = 1; _k <= _cap; _k++) { _expected += _k * get_capped_successes_chance(_tries, _chance, _cap, _k); }
 	return _expected;

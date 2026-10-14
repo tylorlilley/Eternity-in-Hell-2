@@ -62,6 +62,14 @@ function RoomLayout(_room_reference) constructor {
 		// TODO: Add the estimated counts for anything covered by a destroyed_spot
 		var _mapgen_counts = {};
 		
+		// Estimate Stairs Spawn
+		var _stairs_count = get_chance_out_of(STAIRS_PROBABILITY) // TODO: Is this right?
+		add_to_count_struct(_mapgen_counts, "obj_stairs", _stairs_count);
+		
+		// Estimate Exit Count
+		// TODO: How to include misleading exits in this estimate?
+		add_to_count_struct(_mapgen_counts, "obj_exit_spot", get_open_cardinal_exits() + _stairs_count);
+		
 		// Estimate Replaced Columns and Statues with Fountains
 		if (can_have_hazard_with_eyes("obj_fountain")) {
 			var _column_count = get_object_count("obj_column"), _statue_count = get_hazard_count("obj_statue");
@@ -96,7 +104,7 @@ function RoomLayout(_room_reference) constructor {
 		// Estimate Skeleton Spots
 		var _skeleton_spot_count = get_object_count("obj_skeleton_spot"), _skeleton_type_counts = {};
 		if (_skeleton_spot_count > 0) {
-			var _skeleton_type_chances = get_skeleton_type_chances(), _total_type_chance = 0, _same_type_chance = get_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY);
+			var _skeleton_type_chances = get_skeleton_type_chances(), _total_type_chance = 0, _same_type_chance = get_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY), _basic_skeleton_count = 1;
 			// Add up the chances of all available skeleton types, to use if not including basic skeleton
 			for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) { _total_type_chance += _skeleton_type_chances[_i].chance; }
 			
@@ -114,11 +122,10 @@ function RoomLayout(_room_reference) constructor {
 				var _non_same_type_chance_for_type = (1 - _same_type_chance) * (_type_chance / SKELETON_TYPE_CHANCE_MAX);
 				var _skeleton_type_count = (_same_type_chance_for_type + _non_same_type_chance_for_type);
 				add_to_count_struct(_skeleton_type_counts, _type_name, _skeleton_type_count);
+				_basic_skeleton_count -= _skeleton_type_count;
 			}
 			
 			// Add any remaining chance type to the basic skeleton count
-			var _remaining_chance_for_type = (SKELETON_TYPE_CHANCE_MAX - _total_type_chance) / SKELETON_TYPE_CHANCE_MAX;
-			var _basic_skeleton_count = _remaining_chance_for_type * _skeleton_spot_count;
 			add_to_count_struct(_skeleton_type_counts, "obj_skeleton", _basic_skeleton_count);
 		}
 		
@@ -136,10 +143,16 @@ function RoomLayout(_room_reference) constructor {
 		}
 		
 		// Eyes on a skeleton spot, only in a room where nothing chases or shoots at the player
-		if (_skeleton_spot_count > 0 && get_hazard_count("obj_eyes") == 0 && count_hazards_with_tags(hazard_counts, TARGETS_PLAYER_TAGS) == 0 && count_hazards_with_tags(_mapgen_counts, TARGETS_PLAYER_TAGS) == 0) {
-			var _eyes_count = get_chance_out_of(EYES_PROBABILITY);
+		if (_skeleton_spot_count > 0 && get_hazard_count("obj_eyes") == 0) {
+			// Determine the chance for rolling targeting things that prevent the eyes from spawning
+			var _expected_targeting_counts = 0, _hazard_names = variable_struct_get_names(_mapgen_counts);
+			for (var _i = 0; _i < array_length(_hazard_names); _i++) { if (hazard_has_tag(_hazard_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += max(0, _mapgen_counts[$ _names[_i]]); } }
+			// Add skeleton types to the expected targeting counts
+			_hazard_names = variable_struct_get_names(_skeleton_type_counts);
+			for (var _i = 0; _i < array_length(_hazard_names); _i++) { if (hazard_has_tag(_hazard_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += _skeleton_type_counts[$ _names[_i]] * _skeleton_spot_count; } }
+			var _eyes_count = exp(-_expected_targeting_counts) * get_chance_out_of(EYES_PROBABILITY); // exp(−n) is the chance of none rolling when n are expected on average
 			add_to_count_struct(_mapgen_counts, "obj_eyes", _eyes_count);
-			_skeleton_spot_count -= 1; // Eyes take up a skeleton spot
+			_skeleton_spot_count -= _eyes_count; // Eyes take up a skeleton spot
 		}
 		
 		// Add each skeleton type count to the final map, proportional to the remaining unoccupied skeleton spots
@@ -159,7 +172,7 @@ function RoomLayout(_room_reference) constructor {
 		
 		// Setup object counts for potential spawn points
 		var _bone_count = get_object_count("obj_bones"), _bush_count = get_object_count("obj_bush"), _corpse_count = get_object_count("obj_player_corpse");
-		var _midgame_spawn_counts = {};
+		var _midgame_spawn_counts = {}, _average_room_visits = get_count_from_struct(_mapgen_spawns, "obj_exits");
 		
 		// Skeletons rising from trapped bones
 		var _skeleton_count = _bone_count * get_chance_out_of(TRAP_BONES_PROBABILITY) * AVERAGE_ROOM_VISITS;

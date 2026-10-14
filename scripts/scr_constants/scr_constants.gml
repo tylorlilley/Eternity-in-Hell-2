@@ -28,7 +28,6 @@
 //#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 #macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 8, 6])
 #macro SPECIAL_MAP_SHAPE_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 0])
-#macro AVERAGE_ROOM_VISITS 1 // TODO: What is the actual number of expected visits per room, for a given map, for each difficulty?
 #macro SKELETON_TYPE_CHANCE_MAX 100
 
 // Initilize room start probability constants

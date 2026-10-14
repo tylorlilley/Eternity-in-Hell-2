@@ -76,7 +76,7 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 
 		// Calulate total danger score based on player chances
 		var _total_danger_score_chance = (1 - chance_holding_staff - chance_holding_sword - chance_holding_special_sword);
-		return (_total_danger_score_chance * _total_danger_score) + (chance_holding_staff * _total_staff_danger_score) + (chance_holding_sword * _total_sword_danger_score) + (chance_holding_special_sword * _total_special_sword_danger_score);
+		return max(0, ((_total_danger_score_chance * _total_danger_score) + (chance_holding_staff * _total_staff_danger_score) + (chance_holding_sword * _total_sword_danger_score) + (chance_holding_special_sword * _total_special_sword_danger_score));
 	};
 	
 	/// @function calculate_hazard_danger_score_for_room(_hazard_name, _hazard_count, _hazard_counts)
@@ -89,7 +89,7 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 	/// @param {struct} _hazard_counts		Hazard names and how many of each
 	/// @returns {real}
 	static calculate_hazard_danger_score_for_room = function(_hazard_name, _hazard_count, _hazard_counts) {
-		var _base_hazard_danger_score = get_hazard_danger_from_table(_hazard_name, _hazard_count);
+		var _base_hazard_danger_score = -ln(1 - min(get_hazard_danger_from_table(_hazard_name, _hazard_count), 0.99));
 		var _danger_score_with_light_chance = apply_lit_chance_to_danger_score(_hazard_name, _base_hazard_danger_score);
 		var _danger_score_with_block_chance = apply_block_chance_to_danger_score(_hazard_name, _danger_score_with_light_chance, _hazard_counts);
 		var _hazard_score_multiplier = get_hazard_combination_multiplier(_hazard_counts, _hazard_name);

@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"scr_player_chances",
+  "%Name":"scr_hazards",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"scr_player_chances",
+  "name":"scr_hazards",
   "parent":{
     "name":"Map Generation Scripts",
     "path":"folders/Scripts/Map Generation Scripts.yy",

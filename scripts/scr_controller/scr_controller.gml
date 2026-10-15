@@ -387,7 +387,7 @@ function game_room_start_spawn_instances() {
 	
 	/// If room has lava, consider spawning enemies in lava
 	if (instance_number(obj_lava) > 0) {
-		if (instance_number(obj_nose) < global.difficulty && get_random_chance_out_of(MID_GAME_NOSE_PROBABILITY)) { instance_create(-16, -16, obj_nose); }
+		if (instance_number(obj_nose) < global.difficulty && get_random_chance_out_of(MIDGAME_NOSE_PROBABILITY)) { instance_create(-16, -16, obj_nose); }
 		else if (instance_number(obj_fire_skeleton) == 0 && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY)) { 
 			var _fire_skeleton = instance_create(-16, -16, obj_fire_skeleton);
 			with (_fire_skeleton) {  

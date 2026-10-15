@@ -1,8 +1,14 @@
 // Shader constants
 #macro INVERTED_COLORS_ALPHA 0.5
 
+// The room's other content
+#macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its hazard danger counts 1.4 times
+#macro PORTCULLIS_TRAP_DANGER 0.03			// Shut in until the button is pressed, once per trap room
+#macro SPECIAL_ITEM_REWARD_POINTS -2		// A special item makes the rest of the run easier, so the map can take more
+
 // Initialize room probability constants
 #macro MAX_SEED 99999999
+#macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3	// How likely the player is to have something, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
 
 #macro AVERAGE_NUMBER_OF_ROOM_EXITS (20/9)
 #macro STAIRS_PROBABILITY 5 
@@ -38,7 +44,7 @@
 #macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) // multiplied by 4 for check at every room enter
-#macro MID_GAME_NOSE_PROBABILITY NOSE_PROBABILITY * 4 // multiplied by 4 for check at every room enter
+#macro MIDGAME_NOSE_PROBABILITY NOSE_PROBABILITY * 4 // multiplied by 4 for check at every room enter
 #macro FIRE_SKELETON_IN_LAVA_PROBABILITY get_probability_for_difficulty([0, 0, 0, 48, 32])
 #macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 4, 3, 3, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
 #macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 0, 32, 24, 16])

@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"scr_difficulty_scores",
+  "%Name":"scr_hazard_mitigation",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"scr_difficulty_scores",
+  "name":"scr_hazard_mitigation",
   "parent":{
     "name":"Map Generation Scripts",
     "path":"folders/Scripts/Map Generation Scripts.yy",

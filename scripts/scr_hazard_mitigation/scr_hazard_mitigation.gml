@@ -1,20 +1,39 @@
-/// @function PlayerChances([_chance_holding_staff], [_chance_holding_sword], [_chance_holding_special_sword], [_chance_of_light])
+#macro BLOCK_MITIGATION_MULTIPLIER 0.6					// The amount a block will decrease the danger for a hazard killable by blocks
+#macro STAFF_PROJECTILE_MITIGATION_MULTIPLIER 0.3		// The amount a staff will decrease the danger for a hazard where the staff only protects against the hazard projectiles
+
+/// @function HazardMitigation([_chance_holding_staff], [_chance_holding_sword], [_chance_holding_special_sword], [_chance_of_light])
 /// @description Descibes how likely a player is to have things that will mitigate a given layout's hazards.
 /// @param {real} [_chance_holding_staff] The chance of holding a staff (0 by default)
 /// @param {real} [_chance_holding_sword] The chance of holding a plain sword (0 by default)
 /// @param {real} [_chance_holding_special_sword] The chance of holding a special sword (0 by default)
 /// @param {real} [_chance_of_light] The chance of having light (0 by default)
-function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _chance_holding_special_sword = 0, _chance_of_light = 0) constructor {	
-	/// @function get_total_difficulty_score_for_hazard_counts(_hazard_counts)
+function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, _chance_holding_special_sword = 0, _chance_of_light = 0) constructor {
+	// ============================
+	// Public Functions
+	// ============================
+	
+	/// @function get_total_difficulty_score_for_spawn_counts(_hazard_counts)
 	/// @description The difficulty points for a room's hazards. Each hazard's points grow for the hazards it shares the room
 	///	with and shrink for the blocks that can stop it. Then each item the player might hold takes away the points it would save,
 	/// weighted by the chance of holding it.
 	/// @param {struct} _hazard_counts Hazard names and how many of each
 	/// @returns {real}
-	static get_total_difficulty_score_for_hazard_counts = function(_hazard_counts) {
-		var _table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(_hazard_counts);
-		var _staff_hazard_counts = duplicate_count_struct(_hazard_counts), _special_sword_hazard_counts = duplicate_count_struct(_hazard_counts);
-		var _total_difficulty_score = get_difficulty_score_with_blocks(_hazard_counts), _total_sword_difficulty_score = _total_difficulty_score;
+	static get_total_difficulty_score_for_spawn_counts = function(_hazard_counts) {
+		return apply_item_chances_to_difficulty_points(_hazard_counts);
+	};
+	
+	// ============================
+	// Private Functions
+	// ============================
+	
+	/// @function apply_item_chances_to_difficulty_points(_hazard_counts)
+	/// @description Calculates the difficulty points for the given hazard counts, applying the item chances to them
+	/// @param {struct} _hazard_counts A count struct of hazard names to counts of each
+	/// @returns {real}
+	static apply_item_chances_to_difficulty_points = function(_hazard_counts) {
+		var _total_difficulty_score = get_difficulty_score_with_blocks(_hazard_counts);
+		var _table = get_hazards_table(), _hazard_names = variable_struct_get_names(_hazard_counts);
+		var _staff_hazard_counts = duplicate_count_struct(_hazard_counts), _special_sword_hazard_counts = duplicate_count_struct(_hazard_counts), _total_sword_difficulty_score = _total_difficulty_score;
 		
 		// Loop through each hazard in the counts
 		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
@@ -36,22 +55,22 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 			// A staff helps partially against anything that moves and shoots, and fully against lava and anything that is only dangerous by shooting
 			var _tags = _hazard_table_entry.tags;
 			if ((_tags & hazard_tags.immune_with_staff) != 0 || ((_tags & PROJECTILE_STOPPED_BY_STAFF_TAGS) != 0 && (_tags & hazard_tags.stationary) != 0)) { _staff_hazard_counts[$ _hazard_name] = 0; }
-			else if ((_tags & PROJECTILE_STOPPED_BY_STAFF_TAGS) != 0) { _staff_hazard_counts[$ _hazard_name] *= STAFF_PROJECTILE_COUNTER_MULTIPLIER; }
+			else if ((_tags & PROJECTILE_STOPPED_BY_STAFF_TAGS) != 0) { _staff_hazard_counts[$ _hazard_name] *= STAFF_PROJECTILE_MITIGATION_MULTIPLIER; }
 		}
 	
 		var _chance_holding_nothing = (1 - chance_holding_staff - chance_holding_sword - chance_holding_special_sword);
 		var _total_staff_difficulty_score = get_difficulty_score_with_blocks(_staff_hazard_counts), _total_special_sword_difficulty_score = get_difficulty_score_with_blocks(_special_sword_hazard_counts);
 		return max(0, (_chance_holding_nothing * _total_difficulty_score) + (chance_holding_staff * _total_staff_difficulty_score) + (chance_holding_sword * _total_sword_difficulty_score) + (chance_holding_special_sword * _total_special_sword_difficulty_score));
-	};
+	}
 
 	/// @function get_difficulty_score_with_blocks(_hazard_counts)
 	/// @description The sum of each hazard's points in a room, less what its blocks save. A block that isn't used up is pushed on
-	///	from one copy to the next, so it counters them all. One that's used up counters a single copy (lava counts as one), and
+	///	from one copy to the next, so it applies to them all. One that's used up applies to only a single copy (lava counts as one), and
 	///	saves the same share of that copy's points whichever copy it is, so the blocks go to the copies worth the most first
 	/// @param {struct} _hazard_counts Hazard names and how many of each
 	/// @returns {real}
 	static get_difficulty_score_with_blocks = function(_hazard_counts) {
-		var _table = get_difficulty_score_table(), _hazard_names = variable_struct_get_names(_hazard_counts);
+		var _table = get_hazards_table(), _hazard_names = variable_struct_get_names(_hazard_counts);
 		var _blocks_left = get_count_from_struct(_hazard_counts, "obj_block_spot"), _total_difficulty_score = 0, _block_uses = [];
 		
 		// Loop through each hazard name in the provided count struct
@@ -65,9 +84,9 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 			if ((_hazard_table_entry.tags & hazard_tags.uses_up_block) != 0) {
 				var _copies = (_hazard_table_entry.many == 0) ? 1 : _hazard_count;
 				// A used-up block saves the same score × (1 − MULT) / copies on any copy of a given hazard.
-				array_push(_block_uses, { copies: _copies, savings_per_copy: _hazard_difficulty_score * (1 - BLOCK_COUNTER_MULTIPLIER) / _copies });
+				array_push(_block_uses, { copies: _copies, savings_per_copy: _hazard_difficulty_score * (1 - BLOCK_MITIGATION_MULTIPLIER) / _copies });
 			}
-			else if (_blocks_left > 0 && (_hazard_table_entry.tags & hazard_tags.destroyed_by_block) != 0) { _hazard_difficulty_score *= BLOCK_COUNTER_MULTIPLIER; }
+			else if (_blocks_left > 0 && (_hazard_table_entry.tags & hazard_tags.destroyed_by_block) != 0) { _hazard_difficulty_score *= BLOCK_MITIGATION_MULTIPLIER; }
 			_total_difficulty_score += _hazard_difficulty_score;
 		}
 	
@@ -91,15 +110,15 @@ function PlayerChances(_chance_holding_staff = 0, _chance_holding_sword = 0, _ch
 	/// @param {struct} _hazard_counts		Hazard names and how many of each
 	/// @returns {real}
 	static calculate_hazard_difficulty_score_for_room = function(_hazard_name, _hazard_count, _hazard_counts) {
-		var _base_hazard_danger_score = get_hazard_danger_from_table(_hazard_name, _hazard_count);
-		var _base_hazard_difficulty_points = get_difficulty_points_from_danger_score(_base_hazard_danger_score);
+		var _base_hazard_danger = get_danger_for_hazard(_hazard_name, _hazard_count);
+		var _base_hazard_difficulty_points = get_difficulty_points_from_danger(_base_hazard_danger);
 		var _difficulty_score_with_light_chance = apply_lit_chance_to_difficulty_points(_hazard_name, _base_hazard_difficulty_points);
 		var _hazard_score_multiplier = get_hazard_combination_multiplier(_hazard_counts, _hazard_name);
 		return _difficulty_score_with_light_chance * _hazard_score_multiplier;
 	};	
 	
-	/// @function apply_lit_chance_to_difficulty_points(_hazard_name, _hazard_danger_score)
-	/// @description Applies the effect of lit chances to the current danger score and returns it
+	/// @function apply_lit_chance_to_difficulty_points(_hazard_name, _hazard_difficulty_score)
+	/// @description Applies the effect of lit chances to the current danger value and returns it
 	/// @param {string} _hazard_name					The hazard's name in the table
 	/// @param {real} _hazard_difficulty_score			The current hazard difficulty score
 	/// @returns {real}

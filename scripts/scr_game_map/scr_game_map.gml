@@ -4,121 +4,6 @@
 ///	ends. Rooms and exits are only added through its methods, so its lookups always match its rooms. The first map of
 ///	a session also reads every room asset's layout file into the layout cache that every map shares.
 function GameMap() constructor {
-	// The four directions a cardinal exit can face
-	static cardinal_exit_directions = [directions.up, directions.right, directions.down, directions.left];
-
-	// Set up the layout cache every map shares, the first time a map is made
-	static layout_cache = undefined;
-	if (is_undefined(layout_cache)) {
-		var _cached_layouts = [], _special_room_types = [
-			new SpecialRoomType("pride", [rm_four_exits_23, rm_four_exits_24]),						// Hall of mirrors
-			new SpecialRoomType("envy", [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30]),		// Giant eye
-			new SpecialRoomType("wrath", [rm_one_exit_22]),											// Inverted cross
-			new SpecialRoomType("greed", [rm_one_exit_30]),											// Red chest
-			new SpecialRoomType("sloth", [rm_one_exit_23])											// Gudetama
-		];
-
-		// Read each room asset as a layout, and keep the usable ones
-		for (var _room_asset = room_first; _room_asset != -1; _room_asset = room_next(_room_asset)) {
-			// Skip unusable layouts
-			var _layout = new RoomLayout(_room_asset);
-			if (!_layout.is_usable) { continue; }
-			
-			// Add layout to the list of layouts to cache
-			_layout.layout_cache_index = array_length(_cached_layouts);
-	
-			// Handle setup for layouts that a special room types uses
-			for (var _i = 0; _i < array_length(_special_room_types); _i++) {
-				var _special_room_type = _special_room_types[_i];
-
-				for (var _j = 0; _j < array_length(_special_room_type.room_references); _j++) {
-					var _special_room_reference = _special_room_type.room_references[_j];
-
-					// Mark the room layout as a special room layout, and add it to the SpecialRoomType's layouts
-					if (_special_room_reference == _layout.room_reference) {
-						_layout.is_special_room = true;
-						_special_room_type.layouts[_j] = _layout;
-						break;
-					}
-				}
-			}
-
-			// Work out the lowest difficulty it appears on, now that it knows whether it's a special room
-			_layout.setup_minimum_difficulty();
-			array_push(_cached_layouts, _layout);
-		}
-		layout_cache = { layouts: _cached_layouts, special_room_types: _special_room_types };
-	}
-
-	// Layouts this difficulty allows for regular (not special) rooms by exit kind, and how many rooms use each
-	layouts_by_exit_type = [];
-	layout_use_counts = array_create(array_length(layout_cache.layouts), 0);
-
-	// Special room types with a layout this difficulty allows, each with only those layouts
-	available_special_room_types = [];
-
-	// Map-wide events (see roll_map_events)
-	long_and_straight_map = false;
-	same_skeleton_type = noone;
-	special_item_count = 0;
-	included_special_room_types = [];
-
-	// The rooms, and the exits between them
-	rooms = [];
-	room_at_cell = {};						// Each room by its grid cell ("x,y"), so finding an adjacent room needs no search
-	cardinal_exits = [];					// Every exit joining two adjacent rooms, which is every exit but the stairs
-	locked_exits = [];						// Each locked cardinal exit, reset during lock and key search
-	relevant_locked_chest_rooms = [];		// Each room with a locked chest that affects the lock and key search, reset during the search
-
-	// Decorations, cleared and placed again each time try_generate adds a room (see reset_decorations)
-	start_room = undefined;
-	heart_room = undefined;
-	guaranteed_chest_room = undefined;
-	special_item_types = [];				// Each item type placed as a special item so far
-	extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet (see add_extra_key_to_area)
-	difficulty_score = 0;
-
-	// What is passed to the controller on a successful map generation
-	rooms_with_collectables = [];
-	spawned_items = [];
-	spawned_special_items = [];
-	time_provided = 0;
-
-	// Initialize list of layouts by exit type
-	for (var _type = 0; _type < layout_exit_types.count; _type++) { array_push(layouts_by_exit_type, []); }
-
-	// Assign the cached layouts to their exit type's array, if the difficulty allows
-	for (var _i = 0; _i < array_length(layout_cache.layouts); _i++) {
-		var _layout = layout_cache.layouts[_i];
-		if (_layout.minimum_difficulty <= global.difficulty && !_layout.is_special_room) {
-			array_push(layouts_by_exit_type[_layout.exit_type], _layout);
-		}
-	}
-
-	// For each special room type, keep the layouts the difficulty allows, and the type itself if any are left
-	for (var _j = 0; _j < array_length(layout_cache.special_room_types); _j++) {
-		var _special_room_type = layout_cache.special_room_types[_j], _allowed_layouts = [];
-
-		for (var _k = 0; _k < array_length(_special_room_type.layouts); _k++) {
-			if (is_struct(_special_room_type.layouts[_k]) && _special_room_type.layouts[_k].minimum_difficulty <= global.difficulty) { array_push(_allowed_layouts, _special_room_type.layouts[_k]); }
-		}
-		if (array_length(_allowed_layouts) > 0) { array_push(available_special_room_types, new SpecialRoomType(_special_room_type.name, _allowed_layouts)); }
-	}
-
-	// Check that every exit type has at least one layout, and at least one layout with a lantern. This should always be true, but good to check.
-	for (var _type_checked = 0; _type_checked < layout_exit_types.count; _type_checked++) {
-		var _layouts_of_type = layouts_by_exit_type[_type_checked];
-		if (array_length(_layouts_of_type) == 0) {
-			var _error_message = "No layout of exit kind " + string(_type_checked) + " at this difficulty: " + string(global.difficulty);
-			write_debug_message(_error_message, debug_message_level.error);
-		}
-
-		if (array_length(get_only_lantern_layouts(_layouts_of_type)) == 0) {
-			var _error_message = "No lantern layout of exit kind " + string(_type_checked) + " at this difficulty."
-			write_debug_message(_error_message, debug_message_level.error);
-		}
-	}
-
 	// =========
 	// FUNCTIONS
 	// =========
@@ -169,9 +54,6 @@ function GameMap() constructor {
 			determine_collectables_rooms();
 			find_or_set_one_lit_room();
 			create_chests();
-			assign_or_create_special_item_chests();
-			assign_chest_contents();
-			guarantee_gudetama_counter();
 			if (!create_locked_exits_and_keys()) { return fail_generation("the locks and keys could not be placed"); }
 			determine_special_exit_types();
 			
@@ -747,7 +629,7 @@ function GameMap() constructor {
 	static reset_decorations = function() {
 		start_room = undefined;
 		heart_room = undefined;
-		guaranteed_chest_room = undefined;
+		guaranteed_items = [];
 		special_item_types = [];
 		extra_key_placed = false;
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_decorations(); }
@@ -870,98 +752,71 @@ function GameMap() constructor {
 		var _lit_room = array_random_get(_lantern_rooms);
 		_lit_room.is_guaranteed_lit_room = true;
 	};
-
-	/// @function create_chests()
-	/// @description Places the chests: a hidden chest with a special item in each special room, the guaranteed chest,
-	///	which holds a map or compass, in a random regular room, and a regular chest in other rooms by chance. The other
-	///	chests get their items later (see assign_chest_contents).
-	static create_chests = function() {
-		// Loop through all rooms in a random order and add chests to them
-		var _possible_rooms = array_shuffle(rooms);
-		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
-			var _possible_room = _possible_rooms[_i];
-			// Skip rooms that can't have a chest spawn in them
-			if (!_possible_room.can_have_chest()) { continue; }
-			
-			if (_possible_room.is_special_room) {
-				// Special rooms always have a special item in a hidden chest
-				_possible_room.add_chest(true);
-				_possible_room.has_special_item = true;
-			}
-			else if (is_undefined(guaranteed_chest_room)) {
-				// Spawn the guaranteed chest, which holds a map on Easy, and a map or compass from Medium up. It may be hidden
-				// or locked, but never holds a special item, so it's never in a special room
-				_possible_room.add_chest();
-				_possible_room.chest_obj = (global.difficulty == difficulties.easy || get_coin_flip()) ? obj_map : obj_compass;
-				guaranteed_chest_room = _possible_room;
-			}
-			else if (get_random_chance_out_of(CHEST_PROBABILITY)) {
-				// For all other rooms, place a regular chest
-				_possible_room.add_chest();
-			}
-		}
-	};
 	
-	/// @function assign_chest_contents()
-	/// @description Locks every visible chest with a special item and some other visible chests, turns some basic chests
-	///	into traps, and picks an item for each chest still empty
-	static assign_chest_contents = function() {
+	/// @function create_chests()
+	/// @description Creates and assigns all the chests and their contents, including special chests, guaranteed items, and traps
+	static create_chests = function() {
+		// Create and Assign Special Chest Content
 		var _possible_rooms = array_shuffle(rooms);
 		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
-			var _chest_room = _possible_rooms[_i];
-			if (!_chest_room.has_chest()) { continue; }
-
-			// Lock special item chests and some other chests
-			if (_chest_room.stairs_spot_obj == obj_chest) {
-				_chest_room.has_locked_chest = _chest_room.has_special_item || get_random_chance_out_of(LOCKED_CHEST_PROBABILITY);
-			}
-
-			// Add traps in some chests, unless the trap would take the room past its max difficulty
-			if (_chest_room != guaranteed_chest_room && _chest_room.has_basic_chest() && get_random_chance_out_of(TRAP_CHEST_PROBABILITY) && !_chest_room.would_exceed_max_difficulty("obj_chest")) {
-				// A fountain shoots at the player, so a room with eyes only gets the statue trap
-				_chest_room.chest_obj = (!_chest_room.has_eyes && get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) ? obj_fountain : obj_statue;
-			}
+			// Skip rooms that have no special item
+			var _special_item_room = _possible_rooms[_i];
+			if (!_special_item_room.has_special_item) { continue; }
 			
-			// Add items to remaining chests
-			if (_chest_room.chest_obj == -1) {
-				_chest_room.chest_obj = pick_item_type(_chest_room.has_special_item);
+			// Assign chest content to be a random special item type
+			_special_item_room.add_chest(true);
+			_special_item_room.has_special_item = true;
+			_special_item_room.has_locked_chest = true;
+			_special_item_room.chest_obj = pick_item_type(true);
+		}
+		
+		// Determine number of Guaranteed Item Chests; This depends on results from the special chests for the gudetama item
+		var _map_item = (global.difficulty == difficulties.easy || get_coin_flip()) ? obj_map : obj_compass;
+		var _gudetama_item = get_coin_flip() ? obj_sword : obj_bomb;
+		guaranteed_items = [];
+		array_push(guaranteed_items, obj_torch); // Guarantee at least one torch; replaced later if torch is in hand
+		array_push(guaranteed_items, _map_item); // Guarantee at least one map item; replaced later if it is in hand
+		if (map_needs_gudetama_item()) { array_push(guaranteed_items, _gudetama_item); } // Guarantee at least one item that can defeat the gudetama
+		
+		// Create and Assign Regular Chests, including GUaranteed Items
+		_possible_rooms = array_shuffle(rooms);
+		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
+			// Skip rooms that can't have a chest
+			var _regular_chest_room = _possible_rooms[_i];
+			if (!_regular_chest_room.can_have_chest()) { continue; }
+			
+			// Create Guaranteed Item Chests first, then random chests after that
+			var _guaranteed_chest = (array_length(guaranteed_items) > 0), _create_chest = (_guaranteed_chest || get_random_chance_out_of(CHEST_PROBABILITY));
+			if (_create_chest) {
+				_regular_chest_room.add_chest();
+				
+				if (_guaranteed_chest) {
+					_regular_chest_room.chest_obj = array_random_pop(guaranteed_items);
+					_regular_chest_room.has_guaranteed_item = true;
+				}
+				else {
+					// Lock random chests
+					_regular_chest_room.has_locked_chest = get_random_chance_out_of(LOCKED_CHEST_PROBABILITY);
+					
+					// Trap random unlocked chests
+					var _chest_content = undefined;
+					if (_regular_chest_room.has_basic_chest() && get_random_chance_out_of(TRAP_CHEST_PROBABILITY) && !_regular_chest_room.would_exceed_max_difficulty("obj_chest")) { 
+						_chest_content = (!_chest_room.has_eyes && get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) ? obj_fountain : obj_statue;
+					}
+					
+					// Assign random item to chest
+					_regular_chest_room.chest_obj = _chest_content ?? pick_item_type(false);
+
+				}
 			}
 		}
-	};
-
-	/// @function assign_or_create_special_item_chests()
-	/// @description Puts the special items rolled for outside special rooms into random chests already placed, other
-	///	than the guaranteed one, then adds new chests for any left over
-	static assign_or_create_special_item_chests = function() {
-		var _possible_rooms = array_shuffle(rooms), _special_items_to_assign = special_item_count;
-
-		// Assign to already placed chests
-		for (var _i = 0; _i < array_length(_possible_rooms) && _special_items_to_assign > 0; _i++) {
-			// Skip rooms with no chest, the guaranteed chest, and rooms that can't have a special item
-			var _chest_room = _possible_rooms[_i];
-			if (!_chest_room.has_chest() || _chest_room == guaranteed_chest_room || !_chest_room.can_have_special_item()) { continue; }
-
-			// Make the room's chest hold a special item
-			_chest_room.has_special_item = true;
-			_special_items_to_assign -= 1;
-		}
-
-		// Create new chests as needed
-		for (var _j = 0; _j < array_length(_possible_rooms) && _special_items_to_assign > 0; _j++) {
-			var _empty_room = _possible_rooms[_j];
-			if (!_empty_room.can_have_chest() || !_empty_room.can_have_special_item()) { continue; }
-
-			// Create a new chest to hold the special item in this room
-			_empty_room.add_chest();
-			_empty_room.has_special_item = true;
-			_special_items_to_assign -= 1;
-		}
-
-		if (_special_items_to_assign > 0) {
+		
+		// Check that all guaranteed chests were spawned
+		for (var _i = 0; _i < array_length(guaranteed_items); _i++) {
 			// This should NEVER happen
-			write_debug_message("No room left for " + string(_special_items_to_assign) + " special item(s).", debug_message_level.warning);
+			write_debug_message("No room left for " + string(get_object_name(guaranteed_items[_i])) + " guaranteed item.", debug_message_level.warning);
 		}
-	};
+	}
 
 	/// @function pick_item_type(_is_special_item, [_items_in_hands])
 	/// @description Picks an item type at random among the types still allowed. A special item can be any type the
@@ -971,12 +826,6 @@ function GameMap() constructor {
 	/// @param {array} [_items_in_hands] The starting hand items to count ([] by default, to ignore the hands)
 	/// @returns {Asset.GMObject}
 	static pick_item_type = function(_is_special_item, _items_in_hands = []) {
-		// Get the count of extra torches being brought in
-		var _torches_in_hand = 0;
-		for (var _i = 0; _i < array_length(_items_in_hands); _i++) {
-			if (_items_in_hands[_i] == obj_torch) { _torches_in_hand += 1; }
-		}
-		
 		// Loop through all possible item types to see which are still possible to spawn
 		var _available_item_types = global.available_items[global.difficulty], _possible_item_types = [];
 		for (var _i = 0; _i < array_length(_available_item_types); _i++) {
@@ -985,7 +834,7 @@ function GameMap() constructor {
 				// Add any type that isn't a special item yet to the list of possibilities
 				if (!array_contains(special_item_types, _item_type)) { array_push(_possible_item_types, _item_type); }
 			}
-			else if (_item_type != obj_key && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type, _torches_in_hand)) {
+			else if (_item_type != obj_key && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type)) {
 				// Add any type other than the key that isn't at its cap yet to the list of possibilities
 				array_push(_possible_item_types, _item_type);
 			}
@@ -1015,11 +864,8 @@ function GameMap() constructor {
 		// Loop through all rooms and count the regular items of this type
 		var _count = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
-			// Skip the guaranteed chest room if it contains a fallback torch
-			var _room = rooms[_i];
-			if (_room == guaranteed_chest_room && _room.chest_obj == obj_torch) { continue; }
-			
 			// Count it if the chest holds the type, and it's neither a special item nor a key or bomb placed for the locks
+			var _room = rooms[_i];
 			if (_room.chest_obj == _item_type && !_room.has_special_item && !_room.key_in_chest) { _count += 1; }
 		}
 		
@@ -1032,12 +878,11 @@ function GameMap() constructor {
 		return _count;
 	};
 
-	/// @function get_item_cap(_item, [_torches_in_hands])
+	/// @function get_item_cap(_item)
 	/// @description How many regular copies of an item the chests and starting hands may hold together
 	/// @param {Asset.GMObject} _item The item
-	/// @param {real} [_torches_in_hands] How many torches the player starts with, each of which raises the torch cap by one
 	/// @returns {real}
-	static get_item_cap = function(_item, _torches_in_hands = 0) {
+	static get_item_cap = function(_item) {
 		switch (_item) {
 			case obj_map:
 			case obj_compass:
@@ -1047,7 +892,7 @@ function GameMap() constructor {
 			case obj_shovel:
 				return 2;
 			case obj_torch:
-				return 2 + _torches_in_hands;
+				return 3;
 			default:
 				return infinity;
 		}
@@ -1183,38 +1028,27 @@ function GameMap() constructor {
 		extra_key_placed = true;
 	};
 
-	/// @function guarantee_gudetama_counter()
-	/// @description Makes sure a map with a gudetama, which blocks the sloth room's chest, has an item in another room that
-	///	can defeat it or get the player past it: a sword, a bomb or a special staff (see GameRoom.holds_gudetama_counter).
-	///	If no chest holds one yet, a sword or a bomb goes in a new visible chest in a random other room. It runs before
-	///	the locks and keys, so the new chest is never locked.
-	static guarantee_gudetama_counter = function() {
-		// Find the room with the gudetama, if the map has one
+	/// @function map_needs_gudetama_item()
+	/// @description Returns whether we need to spawn an item that can kill a gudetama or not
+	/// @returns {bool} True if an item is needed, false otherwise
+	static map_needs_gudetama_item = function() {
+		// Find the room with the gudetama, if the map has one. Return false if it doesn't
 		var _gudetama_room = undefined;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			if (rooms[_i].layout.get_object_count("obj_gudetama") > 0) { _gudetama_room = rooms[_i]; break; }
 		}
-		if (is_undefined(_gudetama_room)) { return; }
+		if (is_undefined(_gudetama_room)) { return false; }
 
-		// Return if a chest in another room already holds a counter, and list the other rooms that could take a chest
+		// Find a chest in another that already holds a counter, and return false if one is found
 		var _possible_rooms = [];
 		for (var _j = 0; _j < array_length(rooms); _j++) {
 			var _room = rooms[_j];
 			if (_room == _gudetama_room) { continue; }
-			if (_room.holds_gudetama_counter()) { return; }
-
-			if (_room.can_have_chest()) { array_push(_possible_rooms, _room); }
-		}
-		if (array_length(_possible_rooms) == 0) {
-			// This should NEVER happen
-			write_debug_message("No room could take a chest for an item that gets past the gudetama.", debug_message_level.warning);
-			return;
+			if (_room.holds_gudetama_counter()) { return true; }
 		}
 
-		// Otherwise, put a sword or a bomb in a new visible chest
-		var _counter_room = array_random_get(_possible_rooms);
-		_counter_room.set_stairs_spot_object(obj_chest);
-		_counter_room.chest_obj = get_coin_flip() ? obj_sword : obj_bomb;
+		// Otherwise, return true to ensure an item is spawned
+		return true;
 	};
 
 	/// @function get_untried_lockable_exit(_tried_exits)
@@ -1392,42 +1226,36 @@ function GameMap() constructor {
 	static adjust_items_for_hands = function() {
 		// Setup variables based on the items the player chose to start with
 		var _hand_items = [global.player_left_hand_item, global.player_right_hand_item];
-		var _map_in_hand = array_contains(_hand_items, obj_map), _compass_in_hand = array_contains(_hand_items, obj_compass);
+		var _map_in_hand = array_contains(_hand_items, obj_map), _compass_in_hand = array_contains(_hand_items, obj_compass), _torch_in_hand = array_contains(_hand_items, obj_torch)
+		var _sword_in_hand = array_contains(_hand_items, obj_sword), _bomb_in_hand = array_contains(_hand_items, obj_bomb);
 		
-		// Get the count of extra torches being brought in
-		var _torches_in_hand = 0;
-		for (var _i = 0; _i < array_length(_hand_items); _i++) {
-			if (_hand_items[_i] == obj_torch) { _torches_in_hand += 1; }
-		}
-
-		// Swap out items in the guaranteed chest room
-		if (!is_undefined(guaranteed_chest_room)) {
-			if (_map_in_hand && _compass_in_hand) { guaranteed_chest_room.chest_obj = obj_torch; }
-			else if (_compass_in_hand) { guaranteed_chest_room.chest_obj = obj_map; }
-			else if (_map_in_hand) { guaranteed_chest_room.chest_obj = (global.difficulty == difficulties.easy) ? obj_torch : obj_compass; }
-		}
-
-		// Swap out items in other rooms
-		var _existing_rooms = array_shuffle(rooms);
-		for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
-			// Skip rooms without a regular item and skip the guaranteed room
-			var _room = _existing_rooms[_i];
-			if (_room == guaranteed_chest_room || !_room.has_regular_item_chest()) { continue; }
-			
-			// Replace the item if it is over the item cap
-			if (count_regular_items(_room.chest_obj, _hand_items) > get_item_cap(_room.chest_obj, _torches_in_hand)) {
-				// Empty the chest before picking, so the pick doesn't count the item it's replacing
-				var _item = _room.chest_obj;
-				_room.chest_obj = -1;
-				_room.chest_obj = pick_item_type(false, _hand_items);
-
-				// The item stays, over its cap, if the map needs it to stay winnable
-				if (!is_undefined(get_failing_lock_and_key_search_area())) {
-					// This should NEVER happen
-					write_debug_message("Item type was over cap but allowed to stay: " + object_get_name(_item), debug_message_level.warning);
-					_room.chest_obj = _item;
+		// Loop through each room to determine if it has a guaranteed item  that needs replaced
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			// Skip rooms without guaranteed items
+			_guaranteed_item_room = rooms[_i];
+			if (!_guaranteed_item_room.has_guaranteed_item) { continue; }
+				
+			// Swap out the guaranted item if it matches an item in the player's hands
+			var _map_replacement_item = _guaranteed_item_room.chest_obj;
+			switch (_guaranteed_item_room.chest_obj) {
+				case obj_map:
+				case obj_compass: {
+					if (_map_in_hand && _compass_in_hand) { _map_replacement_item = pick_item_type(false, _hand_items); }
+					else if (_map_in_hand && _guaranteed_item_room.chest_obj == obj_map) { _map_replacement_item = obj_compass; }
+					else if (_map_in_hand && _guaranteed_item_room.chest_obj == obj_compass) { _map_replacement_item = obj_map; }
+					break;
+				}
+				case obj_torch: {
+					if (_torch_in_hand) { _map_replacement_item = pick_item_type(false, _hand_items); }
+					break;
+				}
+				case obj_bomb:
+				case obj_sword: {
+					if (_sword_in_hand || _bomb_in_hand) { _map_replacement_item = pick_item_type(false, _hand_items); }
+					break;
 				}
 			}
+			_guaranteed_item_room.chest_obj = _map_replacement_item;
 		}
 	};
 
@@ -1629,13 +1457,137 @@ function GameMap() constructor {
 		}
 	};
 
+	// TODO: Is this unused? Can we remove it?
 	/// @function destroy()
 	/// @description Frees every room's path grids. Only for a map that will never be played, like a failed
 	///	attempt; the controller frees a played map's rooms with destroy_all_game_rooms.
 	static destroy = function() {
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].destroy(); }
 	};
+	
+	// ============================
+	// Instance Variables
+	// ============================
+	
+	// The four directions a cardinal exit can face
+	static cardinal_exit_directions = [directions.up, directions.right, directions.down, directions.left];
+
+	// Set up the layout cache every map shares, the first time a map is made
+	static layout_cache = undefined;
+	if (is_undefined(layout_cache)) {
+		var _cached_layouts = [], _special_room_types = [
+			new SpecialRoomType("pride", [rm_four_exits_23, rm_four_exits_24]),						// Hall of mirrors
+			new SpecialRoomType("envy", [rm_four_exits_22, rm_one_exit_27, rm_three_exits_30]),		// Giant eye
+			new SpecialRoomType("wrath", [rm_one_exit_22]),											// Inverted cross
+			new SpecialRoomType("greed", [rm_one_exit_30]),											// Red chest
+			new SpecialRoomType("sloth", [rm_one_exit_23])											// Gudetama
+		];
+
+		// Read each room asset as a layout, and keep the usable ones
+		for (var _room_asset = room_first; _room_asset != -1; _room_asset = room_next(_room_asset)) {
+			// Skip unusable layouts
+			var _layout = new RoomLayout(_room_asset);
+			if (!_layout.is_usable) { continue; }
+			
+			// Add layout to the list of layouts to cache
+			_layout.layout_cache_index = array_length(_cached_layouts);
+	
+			// Handle setup for layouts that a special room types uses
+			for (var _i = 0; _i < array_length(_special_room_types); _i++) {
+				var _special_room_type = _special_room_types[_i];
+
+				for (var _j = 0; _j < array_length(_special_room_type.room_references); _j++) {
+					var _special_room_reference = _special_room_type.room_references[_j];
+
+					// Mark the room layout as a special room layout, and add it to the SpecialRoomType's layouts
+					if (_special_room_reference == _layout.room_reference) {
+						_layout.is_special_room = true;
+						_special_room_type.layouts[_j] = _layout;
+						break;
+					}
+				}
+			}
+
+			// Work out the lowest difficulty it appears on, now that it knows whether it's a special room
+			_layout.setup_minimum_difficulty();
+			array_push(_cached_layouts, _layout);
+		}
+		layout_cache = { layouts: _cached_layouts, special_room_types: _special_room_types };
+	}
+
+	// Layouts this difficulty allows for regular (not special) rooms by exit kind, and how many rooms use each
+	layouts_by_exit_type = [];
+	layout_use_counts = array_create(array_length(layout_cache.layouts), 0);
+
+	// Special room types with a layout this difficulty allows, each with only those layouts
+	available_special_room_types = [];
+
+	// Map-wide events (see roll_map_events)
+	long_and_straight_map = false;
+	same_skeleton_type = noone;
+	special_item_count = 0;
+	included_special_room_types = [];
+
+	// The rooms, and the exits between them
+	rooms = [];
+	room_at_cell = {};						// Each room by its grid cell ("x,y"), so finding an adjacent room needs no search
+	cardinal_exits = [];					// Every exit joining two adjacent rooms, which is every exit but the stairs
+	locked_exits = [];						// Each locked cardinal exit, reset during lock and key search
+	relevant_locked_chest_rooms = [];		// Each room with a locked chest that affects the lock and key search, reset during the search
+
+	// Decorations, cleared and placed again each time try_generate adds a room (see reset_decorations)
+	start_room = undefined;
+	heart_room = undefined;
+	guaranteed_items = [];
+	special_item_types = [];				// Each item type placed as a special item so far
+	extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet (see add_extra_key_to_area)
+	difficulty_score = 0;
+
+	// What is passed to the controller on a successful map generation
+	rooms_with_collectables = [];
+	spawned_items = [];
+	spawned_special_items = [];
+	time_provided = 0;
+
+	// Initialize list of layouts by exit type
+	for (var _type = 0; _type < layout_exit_types.count; _type++) { array_push(layouts_by_exit_type, []); }
+
+	// Assign the cached layouts to their exit type's array, if the difficulty allows
+	for (var _i = 0; _i < array_length(layout_cache.layouts); _i++) {
+		var _layout = layout_cache.layouts[_i];
+		if (_layout.minimum_difficulty <= global.difficulty && !_layout.is_special_room) {
+			array_push(layouts_by_exit_type[_layout.exit_type], _layout);
+		}
+	}
+
+	// For each special room type, keep the layouts the difficulty allows, and the type itself if any are left
+	for (var _j = 0; _j < array_length(layout_cache.special_room_types); _j++) {
+		var _special_room_type = layout_cache.special_room_types[_j], _allowed_layouts = [];
+
+		for (var _k = 0; _k < array_length(_special_room_type.layouts); _k++) {
+			if (is_struct(_special_room_type.layouts[_k]) && _special_room_type.layouts[_k].minimum_difficulty <= global.difficulty) { array_push(_allowed_layouts, _special_room_type.layouts[_k]); }
+		}
+		if (array_length(_allowed_layouts) > 0) { array_push(available_special_room_types, new SpecialRoomType(_special_room_type.name, _allowed_layouts)); }
+	}
+
+	// Check that every exit type has at least one layout, and at least one layout with a lantern. This should always be true, but good to check.
+	for (var _type_checked = 0; _type_checked < layout_exit_types.count; _type_checked++) {
+		var _layouts_of_type = layouts_by_exit_type[_type_checked];
+		if (array_length(_layouts_of_type) == 0) {
+			var _error_message = "No layout of exit kind " + string(_type_checked) + " at this difficulty: " + string(global.difficulty);
+			write_debug_message(_error_message, debug_message_level.error);
+		}
+
+		if (array_length(get_only_lantern_layouts(_layouts_of_type)) == 0) {
+			var _error_message = "No lantern layout of exit kind " + string(_type_checked) + " at this difficulty."
+			write_debug_message(_error_message, debug_message_level.error);
+		}
+	}
 }
+
+// ============================
+// Global Map Generation Functions
+// ============================
 
 /// @function generate_map()
 /// @description Creates a valid map for global.difficulty
@@ -1672,4 +1624,17 @@ function generate_map() {
 	_map.calculate_collectables_and_items_lists();
 
 	return _map;
+}
+
+/// @function get_skeleton_type_chances()
+/// @description What a skeleton spot can hold at the current difficulty, aside from a basic skeleton, with it's chance out of SKELETON_TYPE_CHANCE_MAX
+/// @returns {array} The ordered array of each type as { type, chance }
+function get_skeleton_type_chances() {
+	switch (global.difficulty) {
+		case difficulties.easy: return [{ type: obj_cockroach, chance: 3 }];
+		case difficulties.medium: return [{ type: obj_cockroach, chance: 6 }, { type: obj_fast_skeleton, chance: 6 }, { type: obj_fat_skeleton, chance: 4 }, { type: obj_invisible_skeleton, chance: 2 }];
+		case difficulties.hard: return [{ type: obj_cockroach, chance: 10 }, { type: obj_invisible_skeleton, chance: 8 }, { type: obj_fat_skeleton, chance: 8 }, { type: obj_fast_skeleton, chance: 8 }, { type: obj_cultist, chance: 4 }, { type: obj_fire_skeleton, chance: 4 }];
+		case difficulties.very_hard: return [{ type: obj_fat_skeleton, chance: 15 }, { type: obj_fast_skeleton, chance: 15 }, { type: obj_cockroach, chance: 12 }, { type: obj_invisible_skeleton, chance: 12 }, { type: obj_fire_skeleton, chance: 10 }, { type: obj_cultist, chance: 10 }, { type: obj_snake, chance: 4 }];
+		default: return [];
+	}
 }

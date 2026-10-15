@@ -136,6 +136,10 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	initialize_search_area();
 }
 
+// ========================
+// Global Search Area Functions
+// ========================
+
 /// @function get_search_area_key(_reached_rooms, _relevant_locked_chests)
 /// @description A key that two search areas share only when they reach the same rooms and have unlocked the same
 ///	chests. This will make the search areas functionally identical, so we should only check them once

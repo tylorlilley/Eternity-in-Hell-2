@@ -221,10 +221,10 @@ function get_time_score_with_spawns(_counts, _spawns) {
 	return _time_score + _expected_time_score;
 }
 
-/// @function get_skeleton_type_chances([_types_to_exclude])
+/// @function get_skeleton_type_chances()
 /// @description What a skeleton spot can hold at the current difficulty, aside from a basic skeleton, with it's chance out of SKELETON_TYPE_CHANCE_MAX
 /// @returns {array} The ordered array of each type as { type, chance }
-function get_skeleton_type_chances(_types_to_exclude = []) {
+function get_skeleton_type_chances() {
 	switch (global.difficulty) {
 		case difficulties.easy: return [{ type: obj_cockroach, chance: 3 }];
 		case difficulties.medium: return [{ type: obj_cockroach, chance: 6 }, { type: obj_fast_skeleton, chance: 6 }, { type: obj_fat_skeleton, chance: 4 }, { type: obj_invisible_skeleton, chance: 2 }];

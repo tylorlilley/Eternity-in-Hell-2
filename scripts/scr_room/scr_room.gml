@@ -744,7 +744,8 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Determine skeleton spot enemies. A spot keeps its basic skeleton when its roll is skipped, or in a room with eyes,
 		// when the rolled type would chase or shoot at the player
 		for (var _spot = 0; _spot < _skeleton_spot_count; _spot++) {
-			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type((lit) ? [obj_invisible_skeleton] : []) : _same_skeleton_type;
+			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type() : _same_skeleton_type;
+			if (lit && _skeleton_type == obj_invisible_skeleton) { _skeleton_type = obj_skeleton; }
 			var _skeleton_name = object_get_name(_skeleton_type);
 			if (_skeleton_type != obj_skeleton && can_have_hazard_with_eyes(_skeleton_name) && !would_exceed_max_difficulty(_skeleton_name, "obj_skeleton")) { skeleton_types[_spot] = _skeleton_type; }
 		}
@@ -1243,17 +1244,16 @@ function mark_current_room_for_grid_update() {
 	global.controller.grid_update_timer = 1;
 }
 
-/// @function get_skeleton_type([_types_to_exclude])
+/// @function get_skeleton_type([_include_basic_skeleton])
 /// @description Determines what a skeleton spot holds at the current difficulty
-/// @param {bool} [_include_basic_skeleton] False to roll only types other than the basic skeleton type
+/// @param {bool} [_include_basic_skeleton] Whether the function should be able to return a basic skeleton
 /// @returns {Asset.GMObject}
-function get_skeleton_type(_types_to_exclude = []) {
+function get_skeleton_type(_include_basic_skeleton = true) {
 	// Add up the chances of all available skeleton types, to use if not including basic skeleton
-	var _skeleton_type_chances = get_skeleton_type_chances(_types_to_exclude), _total_type_chance = 0;
+	var _skeleton_type_chances = get_skeleton_type_chances(), _total_type_chance = 0;
 	for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) { _total_type_chance += _skeleton_type_chances[_i].chance; }
 	
 	// Roll out of 100, then go through the skeleton types in order, stopping to return the type landed on
-	var _include_basic_skeleton = !array_contains(_types_to_exclude, obj_skeleton);
 	var _roll = irandom_range(1, _include_basic_skeleton ? SKELETON_TYPE_CHANCE_MAX : _total_type_chance), _current_type_chance_max = 0;
 	for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) {
 		var _skeleton_type_chance = _skeleton_type_chances[_i];

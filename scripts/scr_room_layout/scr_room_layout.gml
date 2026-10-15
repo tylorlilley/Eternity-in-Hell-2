@@ -165,6 +165,13 @@ function RoomLayout(_room_reference) constructor {
 				var _type_name = object_get_name(_skeleton_type);
 				if (!can_have_hazard_with_eyes(_type_name)) { continue; }
 				
+				// Adjust for types that only spawn in unlit rooms
+				if (_type_name == "obj_invisible_skeleton") {
+					// Adjust for regular replacements in lit rooms
+					_basic_skeleton_count += _type_chance *  get_chance_out_of(PRE_LIT_PROBABILITY);
+					_type_chance *= (1 - get_chance_out_of(PRE_LIT_PROBABILITY));
+				}
+				
 				// Add this type to the count
 				var _same_type_chance_for_type = _same_type_chance * (_type_chance / _total_type_chance);
 				var _non_same_type_chance_for_type = (1 - _same_type_chance) * (_type_chance / SKELETON_TYPE_CHANCE_MAX);

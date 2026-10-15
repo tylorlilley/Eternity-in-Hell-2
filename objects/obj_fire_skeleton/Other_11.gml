@@ -7,7 +7,9 @@ if (torch_light_image_timer == 0) {
 	torch_light_image_index += 1;
 	if (torch_light_image_index > 3) { torch_light_image_index = 0; }
 }
+torch_light_sprite_index = noone;
 
+/* TODO - Remove this? And torch animation?
 if (is_covered_at_each_quadrant_by(obj_lava_part)) {
 	sprite_index = get_sprite_to_use(spr_skeleton);
 	torch_light_sprite_index = noone;
@@ -16,7 +18,7 @@ else {
 	sprite_index = get_sprite_to_use(spr_fire_skeleton);
 	torch_light_sprite_index = spr_torch_light;
 }
-	
+*/
 
 // Update lighting information
 update_lava_lighting();

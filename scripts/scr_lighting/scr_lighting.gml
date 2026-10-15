@@ -43,10 +43,12 @@ function get_greatest_lighting_for_object(_obj, _intensity_to_beat, _minimum_ran
 
 /// @function									get_image_blend();
 function get_image_blend() {
+	// Return full lighting image blend on the title screen
 	if (instance_number(obj_title) > 0) { return c_white; }
 
-	// Invert color if object is causing a screen flash
+	// Create image blend color based on the greatest available lighting source
 	var _col = merge_color(global.bg_color, c_white, get_greatest_lighting()), _controller = global.controller;
+	// Invert color if object is causing a screen flash
 	if (_controller.flash_obj == id) { 
 		_col = merge_color(_col, get_game_bg_color(), power(global.controller.flash_time, 2)/power(SCREEN_FLASH_DURATION, 2)); 
 	}

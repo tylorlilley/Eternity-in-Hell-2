@@ -192,7 +192,7 @@ function GameMap() constructor {
 	static roll_map_events = function() {
 		// Set the Map Shape and Same Skeleton Type Events
 		long_and_straight_map = get_random_chance_out_of(SPECIAL_MAP_SHAPE_PROBABILITY); // TODO: Implement this and other shapes. Add eval messages
-		same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY) ? get_skeleton_type(false) : noone; // TODO: Add eval messages
+		same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY) ? get_skeleton_type([obj_skeleton]) : noone; // TODO: Add eval messages
 
 		// Roll how many special rooms to include, at most one for each special room type the difficulty allows
 		var _special_room_types_left = array_get_duplicate(available_special_room_types), _special_room_limit = SPECIAL_ROOM_LIMIT, _special_room_count = 0;

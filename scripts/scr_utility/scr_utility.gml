@@ -445,6 +445,16 @@ function write_debug_message(_msg, _debug_level = debug_message_level.log) {
 	if (_debug_level == debug_message_level.error) { show_error(_msg, true); }
 }
 
+/// @function								value_if_missing_from_array(_msg, [_debug_level]);
+///	@param		{array} _array				The array to check for containing a value
+///	@param		{real} _value_to_check		The value to check the array for
+///	@param		{real} _value_to_return		The value to return
+/// @returns	{real} The given value or 0 if it is in the array
+function value_if_missing_from_array(_array, _value_to_check, _value_to_return) {
+	if (array_length(_array) == 0) { return _value_to_return; }
+	return (array_contains(_array, _value_to_check) ? 0 : _value_to_return);
+}
+
 // ============================
 // Count Struct Functions
 // ============================

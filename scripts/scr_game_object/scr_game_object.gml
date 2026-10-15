@@ -438,6 +438,7 @@ function get_sprite_to_use(_regular_sprite, _for_menu = false) {
 		ds_map_add(farmer_sprite_translation_map, spr_skeleton, spr_skeleton_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_cockroach, spr_cockroach_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_fire_skeleton, spr_fire_skeleton_farmer);
+		ds_map_add(farmer_sprite_translation_map, spr_invisible_skeleton, spr_invisible_skeleton_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_fast_skeleton, spr_fast_skeleton_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_fat_skeleton, spr_fat_skeleton_farmer);
 		ds_map_add(farmer_sprite_translation_map, spr_living_block, spr_living_block_farmer);

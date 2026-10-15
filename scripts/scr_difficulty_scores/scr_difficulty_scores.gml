@@ -221,15 +221,15 @@ function get_time_score_with_spawns(_counts, _spawns) {
 	return _time_score + _expected_time_score;
 }
 
-/// @function get_skeleton_type_chances()
+/// @function get_skeleton_type_chances([_types_to_exclude])
 /// @description What a skeleton spot can hold at the current difficulty, aside from a basic skeleton, with it's chance out of SKELETON_TYPE_CHANCE_MAX
 /// @returns {array} The ordered array of each type as { type, chance }
-function get_skeleton_type_chances() {
+function get_skeleton_type_chances(_types_to_exclude = []) {
 	switch (global.difficulty) {
 		case difficulties.easy: return [{ type: obj_cockroach, chance: 3 }];
-		case difficulties.medium: return [{ type: obj_cockroach, chance: 6 }, { type: obj_fast_skeleton, chance: 6 }, { type: obj_fat_skeleton, chance: 4 }];
-		case difficulties.hard: return [{ type: obj_cockroach, chance: 12 }, { type: obj_fat_skeleton, chance: 8 }, { type: obj_fast_skeleton, chance: 8 }, { type: obj_cultist, chance: 6 }, { type: obj_fire_skeleton, chance: 6 }];
-		case difficulties.very_hard: return [{ type: obj_cockroach, chance: 15 }, { type: obj_fat_skeleton, chance: 20 }, { type: obj_fast_skeleton, chance: 15 }, { type: obj_cultist, chance: 12 }, { type: obj_fire_skeleton, chance: 13 }, { type: obj_snake, chance: 5 }];
+		case difficulties.medium: return [{ type: obj_cockroach, chance: 6 }, { type: obj_fast_skeleton, chance: 6 }, { type: obj_fat_skeleton, chance: 4 }, { type: obj_invisible_skeleton, chance: 2 }];
+		case difficulties.hard: return [{ type: obj_cockroach, chance: 10 }, { type: obj_invisible_skeleton, chance: 8 }, { type: obj_fat_skeleton, chance: 8 }, { type: obj_fast_skeleton, chance: 8 }, { type: obj_cultist, chance: 4 }, { type: obj_fire_skeleton, chance: 4 }];
+		case difficulties.very_hard: return [{ type: obj_fat_skeleton, chance: 15 }, { type: obj_fast_skeleton, chance: 15 }, { type: obj_cockroach, chance: 12 }, { type: obj_invisible_skeleton, chance: 12 }, { type: obj_fire_skeleton, chance: 10 }, { type: obj_cultist, chance: 10 }, { type: obj_snake, chance: 4 }];
 		default: return [];
 	}
 }

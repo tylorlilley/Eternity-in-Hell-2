@@ -1,6 +1,8 @@
 always spawn at least 1 torch when starting hands are missing torch (otherwise random item is fine)
 for the gudetama check - are we checking that the item is spawned, or that it is spawned AND reachable before getting the gudetama item? Search area probably should take that into account
 
+map jumpscares = 1/1024 times you look at the map, display an image instead? Once per run?
+
 let you move between rooms with the red staff even while you are inside of a wall
 - check what breaks if the player enters the room from a non-standard position (like echoes, etc)
 - add red staff to the list of special items that complete the lock generation for lock search areas

@@ -102,6 +102,20 @@ function RoomLayout(_room_reference) constructor {
 		return 1 - (_open_chance * (1 - _illusion_chance));
 	};
 	
+	/// @function get_open_cardinal_exits()
+	/// @description The cardinal exits the room reference will start with open, before it is flipped or rotated
+	/// @returns {array} Directions, in a new array each call so the caller can change it
+	static get_open_cardinal_exits = function() {
+		switch (exit_type) {
+			case layout_exit_types.one: return [directions.up];
+			case layout_exit_types.two_opposite: return [directions.up, directions.down];
+			case layout_exit_types.two_perpendicular: return [directions.up, directions.right];
+			case layout_exit_types.three: return [directions.up, directions.right, directions.down];
+			case layout_exit_types.four: return [directions.up, directions.right, directions.down, directions.left];
+			default: return [];
+		}
+	};
+	
 	/// @function get_guaranteed_mapgen_spawns()
 	/// @description Everything that is guaranteed to spawn in this layout, aside from what spawns for sure
 	/// @returns {struct} The count struct of guaranteed spawn counts
@@ -309,7 +323,14 @@ function RoomLayout(_room_reference) constructor {
 	/// @returns {real} A difficulties value
 	static get_minimum_difficulty_from_hazards = function() {
 		var _table = get_hazards_table(), _hazard_names = variable_struct_get_names(instance_object_counts), _minimum_difficulty = difficulties.easy;
-		for (var _i = 0; _i < array_length(_hazard_names); _i++) { _minimum_difficulty = max(_minimum_difficulty, _table[$ _hazard_names[_i]].min_difficulty); }
+		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
+			// Skip object type if it is not in the hazards table
+			var _hazard_table_entry = _table[$ _hazard_names[_i]];
+			if (is_undefined(_hazard_table_entry)) { continue; }
+			
+			// Get the maximum of all present hazard difficulty levels
+			_minimum_difficulty = max(_minimum_difficulty, _hazard_table_entry.min_difficulty);
+		}
 		return _minimum_difficulty;
 	};
 	
@@ -462,20 +483,6 @@ function RoomLayout(_room_reference) constructor {
 		if (!mp_grid_path(_grid, _path, _x1, _y1, _x2, _y2, false)) { return -1; }
 		return round(path_get_length(_path) / 8);
 	};
- 
-	/// @function get_open_cardinal_exits()
-	/// @description The cardinal exits the room reference will start with open, before it is flipped or rotated
-	/// @returns {array} Directions, in a new array each call so the caller can change it
-	static get_open_cardinal_exits = function() {
-		switch (exit_type) {
-			case layout_exit_types.one: return [directions.up];
-			case layout_exit_types.two_opposite: return [directions.up, directions.down];
-			case layout_exit_types.two_perpendicular: return [directions.up, directions.right];
-			case layout_exit_types.three: return [directions.up, directions.right, directions.down];
-			case layout_exit_types.four: return [directions.up, directions.right, directions.down, directions.left];
-			default: return [];
-		}
-	};
 	*/
 	
 	// ============================
@@ -558,10 +565,10 @@ function RoomLayout(_room_reference) constructor {
 			for (var _j = 0; _j < array_length(destroying_spots); _j++) {
 				// Skip spots that don't overlap this instance
 				var _destroying_spot = destroying_spots[_j];
-				if (abs(_instance.x - _spot.x) >= _overlap_radius || abs(_instance.y - _spot.y) >= _overlap_radius) { continue; }
+				if (abs(_instance.x - _destroying_spot.x) >= _overlap_radius || abs(_instance.y - _destroying_spot.y) >= _overlap_radius) { continue; }
 				
 				array_push(_destroying_spots, _j);
-				if (_is_blocker) { _spot.blocked = true; }
+				if (_is_blocker) { _destroying_spot.blocked = true; }
 			}
 			if (array_length(_destroying_spots) > 0) { array_push(covered_instances, { instance: _instance, object_name: _instance.object_name, destroying_spots: _destroying_spots }); }
 		}

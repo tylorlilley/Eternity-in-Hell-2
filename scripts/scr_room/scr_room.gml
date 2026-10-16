@@ -622,7 +622,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @param {struct} _counts The hazard counts to use for this difficulty score
 	/// @returns {real}
 	static get_potential_difficulty_score = function(_mapgen_spawns) {
-		var _difficulty_score = player_chances.get_total_difficulty_score_for_spawn_counts(layout.get_spawn_counts(_mapgen_spawns));
+		var _difficulty_score = player_chances.get_total_difficulty_score_for_spawn_counts(layout.get_spawned_hazard_counts(_mapgen_spawns));
  
 		// Collecting everything crosses the whole room, not just the way to one objective
 		if (has_collectables) { _difficulty_score *= COLLECTABLES_EXPOSURE; }
@@ -655,7 +655,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {bool}
 	static would_exceed_max_difficulty = function(_hazard_name, _replaced_hazard_name = undefined) {
 		// Get the actual hazard counts, modified by the given hazard name and replaced hazard
-		var _potential_hazard_counts = layout.get_spawn_counts(get_actual_mapgen_spawns(false));
+		var _potential_hazard_counts = layout.get_spawned_hazard_counts(get_actual_mapgen_spawns(false));
 		add_to_count_struct(_potential_hazard_counts, _hazard_name, 1);
 		if (!is_undefined(_replaced_hazard_name)) { add_to_count_struct(_potential_hazard_counts, _replaced_hazard_name, -1); }
 		
@@ -818,7 +818,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		var _actual_spawns = {}
 		
 		// Start with what is in the room layout, and remove anytyhing that a destroying exit or treasure spot will destroy.
-		var _layout_object_names = array_concat(variable_struct_get_names(layout.instance_object_counts));
+		var _layout_object_names = variable_struct_get_names(layout.instance_object_counts);
 		for (var _i = 0; _i < array_length(_layout_object_names); _i++) {
 			var _layout_object_name = _layout_object_names[_i];
 			add_to_count_struct(_actual_spawns, _layout_object_name, get_object_count_from_layout(_layout_object_name, _with_role));

@@ -17,14 +17,21 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 			// Skip room if it is not in the reached area
 			var _room = _rooms[_i];
 			if (!is_room_reached(_room)) {continue; }
+			
+			// The gudetama chest can only be opened if a gudetama item has been reached, and must be checked last
+			var _gudetama_room = (_room.is_special_room && _room.special_room_type == "sloth");
+			if (_gudetama_room && _i != array_length(_rooms) -1) { array_push(_rooms, _gudetama_room); continue; }
 
 			// Count the room's non-chest content: An available key or bomb, its light, its torch, and any locked chest
 			if (_room.has_key && !_room.key_in_chest) { keys_reached += 1; }
 			if (_room.is_lit()) { reached_lit_room = true; }
 			if (_room.has_locked_chest && _room.relevant_locked_chests_index == -1) { irrelevant_locked_chests_reached += 1; }
 
+			// Determine if you can use the gudetama room item
+			var _can_use_item = (_gudetama_room) ? reached_gudetama_item : true;
+
 			// Count the room's chest content if the chest is not locked or is unlocked
-			if ((_room.stairs_spot_obj == obj_chest) && (!_room.has_locked_chest || is_room_chest_unlocked(_room))) {
+			if (_can_use_item && (_room.stairs_spot_obj == obj_chest) && (!_room.has_locked_chest || is_room_chest_unlocked(_room))) {
 				switch (_room.chest_obj) {
 					case obj_torch: {
 						reached_torch = true;
@@ -33,11 +40,20 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 					case obj_bomb: {
 						if (_room.has_special_item) { reached_special_bomb = true; }
 						if (_room.key_in_chest) { bombs_reached += 1; }
+						else { reached_gudetama_item = true; }
 						break;
 					}
 					case obj_key: {
 						if (_room.has_special_item) { reached_special_key = true; }
 						if (_room.key_in_chest) { keys_reached += 1; }
+						break;
+					}
+					case obj_sword: {
+						reached_gudetama_item = true;
+						break;
+					}
+					case obj_staff: {
+						if (_room.has_special_item) { reached_gudetama_item = true; }
 						break;
 					}
 				}
@@ -78,7 +94,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	static can_use_bombs_as_keys = function() {
 		return (reached_lit_room && reached_torch);
 	};
-	
+
 	/// @function get_keys_spent_on_chests()
 	/// @description Gets the count of keys spent on chests in this search area
 	/// @returns {real}
@@ -132,6 +148,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	reached_torch = false;
 	reached_special_key = false;						// A special key is never used up, so it opens every lock
 	reached_special_bomb = false;						// A special bomb is never used up, so it opens every lock once it can be lit
+	reached_gudetama_item = false;						// A speacial staff, sword, or (non-key) bomb
 	
 	initialize_search_area();
 }

@@ -64,9 +64,9 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 	}
 
 	/// @function get_difficulty_score_with_blocks(_hazard_counts)
-	/// @description The sum of each hazard's points in a room, less what its blocks save. A block that isn't used up is pushed on
-	///	from one copy to the next, so it applies to them all. One that's used up applies to only a single copy (lava counts as one), and
-	///	saves the same share of that copy's points whichever copy it is, so the blocks go to the copies worth the most first
+	/// @description The sum of each hazard's points in a room, minus what its blocks save. A block that isn't used up is pushed on
+	///	from one copy to the next, so it applies to them all. One that's used up applies to only a single copy (lava counts as one),
+	/// so the blocks go to the copies worth the most first
 	/// @param {struct} _hazard_counts Hazard names and how many of each
 	/// @returns {real}
 	static get_difficulty_score_with_blocks = function(_hazard_counts) {
@@ -74,6 +74,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		var _blocks_left = get_count_from_struct(_hazard_counts, "obj_block_spot"), _total_difficulty_score = 0, _block_uses = [];
 		
 		// Loop through each hazard name in the provided count struct
+		var _difficulty_score_saved_per_block_spent_arrays = [];
 		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
 			// Skip this hazard if it is not in the difficulty table or has a count of 0
 			var _hazard_name = _hazard_names[_i], _hazard_count = get_count_from_struct(_hazard_counts, _hazard_name), _hazard_table_entry = _table[$ _hazard_name];
@@ -82,22 +83,46 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 			// Get the difficulty score, and modify it based on the blocks present in the room
 			var _hazard_difficulty_score = calculate_hazard_difficulty_score_for_room(_hazard_name, _hazard_count, _hazard_counts);
 			if ((_hazard_table_entry.tags & hazard_tags.uses_up_block) != 0) {
-				var _copies = (_hazard_table_entry.many == 0) ? 1 : _hazard_count;
-				// A used-up block saves the same score × (1 − MULT) / copies on any copy of a given hazard.
-				array_push(_block_uses, { copies: _copies, savings_per_copy: _hazard_difficulty_score * (1 - BLOCK_MITIGATION_MULTIPLIER) / _copies });
+				// Spend a block on each copy of this hazard, one at a time, to compute the danger savings
+				var _hazard_copies = (_hazard_table_entry.many == 0) ? 1 : ceil(_hazard_count), _difficulty_score_saved_per_block_spent = [];
+				for (var _blocks_spent = 1; _blocks_spent <= _hazard_copies; _blocks_spent += 1) {
+					var _hazard_copies_left = (_hazard_table_entry.many == 0) ? 0 : max(0, _hazard_count - _blocks_spent);
+					var _difficulty_score_saved = _hazard_difficulty_score - calculate_hazard_difficulty_score_for_room(_hazard_name, _hazard_copies_left, _hazard_counts);
+					array_push(_difficulty_score_saved_per_block_spent, _difficulty_score_saved * (1 - BLOCK_MITIGATION_MULTIPLIER));
+				}
+				array_push(_difficulty_score_saved_per_block_spent_arrays, _difficulty_score_saved_per_block_spent);
 			}
 			else if (_blocks_left > 0 && (_hazard_table_entry.tags & hazard_tags.destroyed_by_block) != 0) { _hazard_difficulty_score *= BLOCK_MITIGATION_MULTIPLIER; }
 			_total_difficulty_score += _hazard_difficulty_score;
 		}
 	
-		// Spend the limited block uses on the copies they save the most on
-		array_sort(_block_uses, function(_a, _b) { return sign(_b.savings_per_copy - _a.savings_per_copy); });
-		for (var _i = 0; _i < array_length(_block_uses) && _blocks_left > 0; _i++) {
-			var _blocks_used = min(_blocks_left, _block_uses[_i].copies);
-			_total_difficulty_score -= _blocks_used * _block_uses[_i].savings_per_copy;
-			_blocks_left -= _blocks_used;
-		}
+		// Spend the limited block uses on the copies they save the most on. Estimated block counts can be fractional, so lerp between the whole counts around it
+		var _best_savings_for_floor = get_best_block_savings(_difficulty_score_saved_per_block_spent_arrays, 0, floor(_blocks_left));
+		var _best_savings_for_ceiling = get_best_block_savings(_difficulty_score_saved_per_block_spent_arrays, 0, ceil(_blocks_left));
+		_total_difficulty_score -= lerp(_best_savings_for_floor, _best_savings_for_ceiling, frac(_blocks_left));
 		return _total_difficulty_score;
+	};
+	
+	/// @function get_best_block_savings(_difficulty_score_saved_arrays, _index, _blocks_left)
+	/// @description The most points the blocks left can save on the used-up-block hazards from _index on, trying every split of the blocks between them
+	/// @param {struct} _difficulty_score_saved_arrays	An array of arrays, each array is a series of difficulty scores per block spend
+	/// @param {struct} _index							Which point in the array of arrays to start counting from
+	/// @param {struct} _blocks_left					The number of blocks left to spend
+	/// @returns {real}
+	static get_best_block_savings = function(_difficulty_score_saved_arrays, _index, _blocks_left) {
+		// Return 0 when the end of the array is reached
+		if (_index >= array_length(_difficulty_score_saved_arrays)) { return 0; }
+	
+		// Get the savings for this point in the array
+		var _difficulty_score_saved_array = _difficulty_score_saved_arrays[_index], _best_savings = 0;
+		for (var _blocks_spent = 0; _blocks_spent < array_length(_difficulty_score_saved_array) && _blocks_spent <= _blocks_left; _blocks_spent += 1) {
+			// Get the savings for this amount of blocks, and recursively check the remaining block spend configurations in the array
+			var _current_savings = _difficulty_score_saved_array[_blocks_spent];
+			var _remaining_savings = get_best_block_savings(_difficulty_score_saved_arrays, _index + 1, _blocks_left - _blocks_spent);
+			var _new_savings = _current_savings + _remaining_savings;
+			_best_savings = max(_best_savings, _new_savings);
+		}
+		return _best_savings;
 	};
 
 	/// @function calculate_hazard_difficulty_score_for_room(_hazard_name, _hazard_count, _hazard_counts)

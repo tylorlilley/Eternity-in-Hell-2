@@ -36,7 +36,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 	// ========================
 	
 	/// @function reset_exit_type()
-	/// @description Clears the exit's type and related variables
+	/// @description Resets the exit's type and related variables
 	static reset_exit_type = function() {
 		exit_type = exit_types.none;
 		room_1_has_closed_portcullis = false;

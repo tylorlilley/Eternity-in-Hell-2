@@ -102,7 +102,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	
 	/// @function can_have_hazard_with_eyes(_hazard_name)
 	/// @description Whether a hazard may be rolled for the room when it already has eyes
-	/// @param {string} _hazard_name The hazard's name in the difficulty score table
+	/// @param {string} _hazard_name The hazard's name in the hazards table
 	/// @returns {bool}
 	static can_have_hazard_with_eyes = function(_hazard_name) {
 		return !has_eyes || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
@@ -146,12 +146,12 @@ function GameRoom(_given_x, _given_y) constructor {
 		return lit || is_guaranteed_lit_room;
 	};
 	
-	/// @function holds_gudetama_counter()
+	/// @function holds_gudetama_item()
 	/// @description Whether the room's chest holds an item that can defeat a gudetama or get the player past it: a sword, a
 	///	bomb or a special staff. It must be unlocked, so the player can always open it, and the keys and bombs placed for
 	///	the locks don't count, since the locks need them.
 	/// @returns {bool}
-	static holds_gudetama_counter = function() {
+	static holds_gudetama_item = function() {
 		if (!has_chest() || has_locked_chest || key_in_chest) { return false; }
 
 		return chest_obj == obj_sword || chest_obj == obj_bomb || (chest_obj == obj_staff && has_special_item);
@@ -271,7 +271,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_portcullis_button_spots = function() {
 		// Add the stairs spot to the potential button spots
 		var _possible_spots = [];
-		if (is_stairs_spot_free() && layout.stairs_spot_is_clear) { array_push(_possible_spots, -1); }
+		if (is_stairs_spot_free() && layout.stairs_spot_is_alone) { array_push(_possible_spots, -1); }
 
 		// Add any unused key spots to the potential button spots
 		var _spawned_keys = (key_spot != -1) ? 1 : 0;
@@ -303,7 +303,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 	
 	/// @function get_spawned_skeleton_types()
-	/// @description What spawns on the room's skeleton spots. The start room doesn't spawn its rolled dangers, so each
+	/// @description What spawns on the room's skeleton spots. The start room doesn't spawn the hazards rolled for it, so each
 	///	dangerous type rolled for one of its spots, rolled eyes included, spawns as a basic skeleton instead.
 	/// @returns {array} One object per skeleton spot; a new array for the start room, so the rolled types stay as rolled
 	static get_spawned_skeleton_types = function() {
@@ -425,8 +425,8 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	ROOM_DIFFICULTY_SCORE_MAX is skipped, so each one is checked against what the layout spawns for sure and everything rolled before it
 	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
 	static determine_random_room_content = function(_same_skeleton_type) {
-		// Start with what is in the room layout, and remove anytyhing that a destroying exit or treasure spot will destroy.
-		// Every skeleton spot holds a basic skeleton as the minimu, until it's skeleton type roll replaces it.
+		// Start with what the room's layout places, less what its exit spots destroy. Every skeleton spot holds a basic skeleton
+		// until its skeleton type roll replaces it
 		var _skeleton_spot_count = get_object_count_from_layout("obj_skeleton_spot", false);
 		skeleton_types = array_create(_skeleton_spot_count, obj_skeleton);
 		replaced_column_fountain_count = 0;
@@ -447,7 +447,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		// until the room has MAX_REPLACED_FOUNTAINS between them
 		if (can_have_hazard_with_eyes("obj_fountain")) {
 			var _max_replaced_fountains = MAX_REPLACED_FOUNTAINS;
-			for (var _column = 0; _column < get_object_count_from_layout("obj_column", false) && replaced_column_fountain_count < _max_replaced_fountains; _column++) { // Columns aren't in the difficulty score table
+			for (var _column = 0; _column < get_object_count_from_layout("obj_column", false) && replaced_column_fountain_count < _max_replaced_fountains; _column++) { // Columns aren't in the hazards table
 				if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain")) { replaced_column_fountain_count += 1; }
 			}
 			for (var _statue = 0; _statue < get_object_count_from_layout("obj_statue", false) && replaced_column_fountain_count + replaced_statue_fountain_count < _max_replaced_fountains; _statue++) {
@@ -510,7 +510,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 	
 	/// @function reset_decorations()
-	/// @description Clears the room's decorations and roles, so a new decoration pass can place them again. Its rolled
+	/// @description Resets the room's decorations and roles, so a new decoration pass can place them again. Its rolled
 	///	content stays as it is, since decorations never change it.
 	static reset_decorations = function() {
 		is_start_room = false;
@@ -595,21 +595,21 @@ function GameRoom(_given_x, _given_y) constructor {
 	// ============================
 	
 	/// @function would_exceed_max_difficulty(_hazard_name, [_replaced_hazard_name])
-	/// @description Whether one more of a hazard would take the threats rolled into the room past ROOM_DIFFICULTY_SCORE_MAX,
+	/// @description Whether one more of a hazard would take the hazards rolled into the room past ROOM_DIFFICULTY_SCORE_MAX,
 	///	so generation can skip that roll. What spawns into the room during play counts too, on average. The room is scored
 	///	as a player holding nothing meets it, with light only if it rolled lit, and with no key on its floor: chests, keys
 	///	and torches move between generation passes, but what's rolled into a room stays.
-	/// @param {string} _hazard_name The hazard's name in the table
+	/// @param {string} _hazard_name The hazard's name in the hazards table
 	/// @param {string} [_replaced_hazard_name] A hazard the new one takes the place of, like a skeleton spot's basic skeleton
 	/// @returns {bool}
 	static would_exceed_max_difficulty = function(_hazard_name, _replaced_hazard_name = undefined) {
-		// Get the actual hazard counts, modified by the given hazard name and replaced hazard
-		var _potential_hazard_counts = layout.get_spawned_hazard_counts(get_actual_mapgen_spawns(false));
-		add_to_count_struct(_potential_hazard_counts, _hazard_name, 1);
-		if (!is_undefined(_replaced_hazard_name)) { add_to_count_struct(_potential_hazard_counts, _replaced_hazard_name, -1); }
+		// Get the spawn counts as rolled so far, with one more of the given hazard in place of the one it replaces
+		var _potential_spawn_counts = layout.get_spawned_object_counts(get_actual_mapgen_spawns(false));
+		add_to_count_struct(_potential_spawn_counts, _hazard_name, 1);
+		if (!is_undefined(_replaced_hazard_name)) { add_to_count_struct(_potential_spawn_counts, _replaced_hazard_name, -1); }
 		
-		var _empty_handed_chances = new HazardMitigation(0, 0, 0, lit ? 1 : 0);
-		return _empty_handed_chances.get_total_difficulty_score_for_spawn_counts(_potential_hazard_counts) > ROOM_DIFFICULTY_SCORE_MAX;
+		var _empty_handed_mitigation = new HazardMitigation(0, 0, 0, lit ? 1 : 0);
+		return _empty_handed_mitigation.get_total_difficulty_score_for_spawn_counts(_potential_spawn_counts) > ROOM_DIFFICULTY_SCORE_MAX;
 	};
 	
 	/// @function get_current_difficulty_score()
@@ -619,29 +619,30 @@ function GameRoom(_given_x, _given_y) constructor {
 		return get_potential_difficulty_score(get_actual_mapgen_spawns());
 	};
 	
-	/// @function get_potential_difficulty_score(_counts)
-	/// @description The room's difficulty score for some hazard counts, without time. The counts hold what the layout spawns
-	///	for sure and what generation actually rolled into the room, scored together since hazards make each other worse,
-	///	and what spawns into it during play is added on average. Then the rest of the room counts: its collectables, its trap and its chest's item.
-	/// @param {struct} _counts The hazard counts to use for this difficulty score
+	/// @function get_potential_difficulty_score(_mapgen_spawns)
+	/// @description The room's difficulty score for some map generation spawn counts, without time. The counts hold what the
+	///	layout spawns for sure and what generation actually rolled into the room, scored together since hazards make each other
+	///	worse, and what spawns into it during play is added on average. Then the rest of the room counts: its collectables, its
+	///	trap and its chest's item.
+	/// @param {struct} _mapgen_spawns Object names and how many of each spawn in the room during map generation
 	/// @returns {real}
 	static get_potential_difficulty_score = function(_mapgen_spawns) {
-		var _difficulty_score = player_chances.get_total_difficulty_score_for_spawn_counts(layout.get_spawned_hazard_counts(_mapgen_spawns));
+		var _difficulty_score = hazard_mitigation.get_total_difficulty_score_for_spawn_counts(layout.get_spawned_object_counts(_mapgen_spawns));
  
 		// Collecting everything crosses the whole room, not just the way to one objective
 		if (has_collectables) { _difficulty_score *= COLLECTABLES_EXPOSURE; }
  
 		// Shut in until the button is pressed. One button opens every exit, so it counts once
-		if (has_portcullis_trap) { _difficulty_score += get_difficulty_points_from_danger(PORTCULLIS_TRAP_DANGER); }
+		if (has_portcullis_trap) { _difficulty_score += get_difficulty_score_from_danger(PORTCULLIS_TRAP_DANGER); }
  
 		// Items make the rest of the run easier
-		if (has_special_item) { _difficulty_score += SPECIAL_ITEM_REWARD_POINTS; }
+		if (has_special_item) { _difficulty_score += SPECIAL_ITEM_DIFFICULTY_SCORE; }
 		else {
 			switch (chest_obj) {
 				case obj_rosary: { _difficulty_score += -1.5; break; }			// One extra life
 				case obj_sword: { _difficulty_score += -1; break; }				// Kills most enemy types
 				case obj_staff: { _difficulty_score += -1; break; }				// Lava, fireballs and beams can't kill you while you hold it
-				case obj_meat: { _difficulty_score += -0.75; break; }			// The strongest counter, but you have to use it proactively
+				case obj_meat: { _difficulty_score += -0.75; break; }			// Mitigates the most danger, but you have to use it proactively
 				case obj_bomb: { _difficulty_score += -0.5; break; }			// Can kill multiple enemies, but can also kill self
 			}
 		}
@@ -760,7 +761,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {real}
 	static get_caution_factor = function() {
 		var _counts = get_actual_mapgen_spawns();
-		return 1 + CAUTION_PER_DIFFICULTY_POINT * max(0, player_chances.get_total_difficulty_score_for_spawn_counts(_counts));
+		return 1 + CAUTION_PER_DIFFICULTY_POINT * max(0, hazard_mitigation.get_total_difficulty_score_for_spawn_counts(_counts));
 	};
  
 	/// @function get_crossing_time()
@@ -794,7 +795,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	// ============================
 	
 	/// @function get_object_count_from_layout(_object_name, [_with_role])
-	/// @description How many of an object the room's layout places that building, after adjusting for which covered instances are destroyed by exit and chest spots
+	/// @description How many instances of an object type the room's layout places, less those its exit and chest spots destroy when the room is built
 	/// @param {string} _object_name The string name of the Game Maker object type
 	/// @param {bool} [_with_role] False to leave out what the room's chest and illusion walls destroy (true by default)
 	/// @returns {real}
@@ -816,7 +817,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 	
 	/// @function get_spot_destroyed(_destroying_spot, [_with_role])
-	/// @description Whether building the room destroys instances under this exit or chest spot An open exit destroys its blocked spots,
+	/// @description Whether building the room destroys instances under this exit or chest spot. An open exit destroys its blocked spots,
 	/// a closed one its free spots, and illusion walls all of them. Without its role, only the exits count, since the chest and illusion
 	/// walls are rolled after the room's content, and again every pass
 	/// @param {struct} _destroying_spot One of the layout's destroying_spots
@@ -833,7 +834,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	
 	/// @function get_room_dir_for_layout_exit_direction(_exit_direction)
 	/// @description The room direction a side of the layout faces once the layout is flipped and rotated
-	/// @param {real} _side A cardinal direction of the layout, before it's flipped or rotated
+	/// @param {real} _exit_direction A cardinal direction of the layout, before it's flipped or rotated
 	/// @returns {real}
 	static get_room_dir_for_layout_exit_direction = function(_exit_direction) {
 		if (flip_horizontal && (_exit_direction == directions.left || _exit_direction == directions.right)) { _exit_direction = get_opposite_dir(_exit_direction); }
@@ -842,15 +843,16 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 	
 	/// @function get_actual_mapgen_spawns([_with_role])
-	/// @description How many of each hazard the room holds, from the layout and from spawned hazards. With its role, it also
-	///	counts what the room's role and decorations change: the start room spawns none of its rolled dangers, lit and trap
-	///	rooms no phantom, and chests and collectables add their own.
+	/// @description How many instances of each object type spawn in the room during map generation: what its layout places,
+	///	less what its exit and chest spots destroy, and what generation rolled into it. With its role, it also counts what the
+	///	room's role and decorations change: the start room spawns none of its rolled hazards, lit and trap rooms no phantom,
+	///	and chests and collectables add their own.
 	/// @param {bool} [_with_role] False to count the rolled content just as it was rolled, while generation is still rolling it
 	/// @returns {struct}
 	static get_actual_mapgen_spawns = function(_with_role = true) {
 		var _actual_spawns = {}
 		
-		// Start with what is in the room layout, and remove anytyhing that a destroying exit or treasure spot will destroy.
+		// Start with what the room's layout places, less what its exit and chest spots destroy
 		var _layout_object_names = variable_struct_get_names(layout.instance_object_counts);
 		for (var _i = 0; _i < array_length(_layout_object_names); _i++) {
 			var _layout_object_name = _layout_object_names[_i];
@@ -946,8 +948,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 	
 	/// @function remove_from_instances_at_map_positions(_inst)
-	/// @description Removes an instance's object from the part of the room it's in, which add_to_instances_at_map_positions
-	///	recorded for the map
+	/// @description Removes an instance's object type from the part of the room the map draws it in
 	/// @param {Id.Instance} _inst The instance
 	static remove_from_instances_at_map_positions = function(_inst) {
 		var _room_map_pos = get_room_map_position(_inst);
@@ -955,7 +956,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 	
 	/// @function activate_room_instances()
-	/// @description Creates instances from the room during map generation, or activates during gameplay
+	/// @description Creates the room's instances the first time the room is built, or activates the ones it saved after that
 	static activate_room_instances = function() {
 		if (array_length(instances) == 0) { initialize_from_room_reference(); }
 		else {
@@ -1247,9 +1248,9 @@ function GameRoom(_given_x, _given_y) constructor {
 	mapgen_needs_layout = true;				// Its cardinal exits changed since its last layout pick
 	has_guaranteed_item = false;			// Whether this room holds one of the guaranteed items or not
 	
-	// How likely the player is to arrive holding each counter, and to have light here, which its difficulty score is
-	// averaged over (set by GameMap.calculate_item_chances)
-	player_chances = new HazardMitigation();
+	// How likely the player is to arrive holding each item that mitigates its hazards, and to have light here, which its
+	// difficulty score is averaged over
+	hazard_mitigation = new HazardMitigation();
 	
 	// Its layout's orientation, so the layout's openings face its cardinal exits
 	flip_horizontal = false;
@@ -1257,7 +1258,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	rotate = noone;
 	
 	// The content rolled for its layout, along with lit above. Generation never edits it after rolling it; the room's
-	// role decides which of it spawns, and apply_roles_to_content writes that into these fields once the map is finished
+	// role decides which of it spawns, and the finished map writes that into these fields
 	// NOTE: This is the same, statistically, as if we only roll for them after deciding if the room is eligible
 	has_eyes = false;
 	has_phantom = false;

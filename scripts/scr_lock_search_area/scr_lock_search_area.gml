@@ -108,7 +108,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	/// @returns {real}
 	static get_keys_spent_on_exits = function() {
 		// Loop through each of the maps locked exits and count the ones this search area has already unlocked;
-		// This is not tracked separately since there are thousands of LockedSearchAreas created and only one Map
+		// This is not tracked separately since there are thousands of LockSearchAreas created and only one Map
 		var _unlocked_exits = 0;
 		for (var _i = 0; _i < array_length(map.locked_exits); _i++) {
 			// Count the exit if it has been unlocked
@@ -148,7 +148,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	reached_torch = false;
 	reached_special_key = false;						// A special key is never used up, so it opens every lock
 	reached_special_bomb = false;						// A special bomb is never used up, so it opens every lock once it can be lit
-	reached_gudetama_item = false;						// A speacial staff, sword, or (non-key) bomb
+	reached_gudetama_item = false;						// A special staff, sword, or (non-key) bomb
 	
 	initialize_search_area();
 }

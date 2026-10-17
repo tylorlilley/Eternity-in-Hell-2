@@ -2,9 +2,9 @@
 #macro INVERTED_COLORS_ALPHA 0.5
 
 // The room's other content
-#macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its hazard danger counts 1.4 times
+#macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its difficulty score counts 1.4 times
 #macro PORTCULLIS_TRAP_DANGER 0.03			// Shut in until the button is pressed, once per trap room
-#macro SPECIAL_ITEM_REWARD_POINTS -2		// A special item makes the rest of the run easier, so the map can take more
+#macro SPECIAL_ITEM_DIFFICULTY_SCORE -2		// A special item makes the rest of the run easier, so the map can take more
 
 // Initialize room probability constants
 #macro MAX_SEED 99999999

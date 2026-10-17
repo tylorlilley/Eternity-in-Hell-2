@@ -2,7 +2,7 @@
 /// @description The plan for one map, and the methods that generate it: the layouts its difficulty allows, its rooms
 ///	and the exits between them, its map-wide events and decorations, and what the controller keeps once generation
 ///	ends. Rooms and exits are only added through its methods, so its lookups always match its rooms. The first map of
-///	a session also reads every room asset's layout file into the layout cache that every map shares.
+///	a session also reads every room asset into the layout cache that every map shares.
 function GameMap() constructor {
 	// =========
 	// FUNCTIONS
@@ -48,7 +48,7 @@ function GameMap() constructor {
 			// Assign a layout to each room whose cardinal exits changed, with its random orientation and content
 			assign_room_layouts();
 			
-			// Clear the last pass's decorations, and place them again
+			// Reset the last pass's decorations, and place them again
 			reset_decorations();
 			if (!determine_start_and_heart_rooms()) { return fail_generation("the start and heart could not be placed"); }
 			determine_collectables_rooms();
@@ -57,7 +57,7 @@ function GameMap() constructor {
 			if (!create_locked_exits_and_keys()) { return fail_generation("the locks and keys could not be placed"); }
 			determine_special_exit_types();
 			
-			// Score the map, from how likely the player is to arrive at each room holding the items that counter its hazards
+			// Score the map, from how likely the player is to arrive at each room holding the items that mitigate its hazards
 			calculate_item_chances();
 			calculate_map_difficulty_score();
 		}
@@ -196,7 +196,7 @@ function GameMap() constructor {
 	/// @function fail_generation(_reason)
 	/// @description Logs a failed attempt and destroys this map
 	/// @param {string} _reason What failed
-	/// @returns {bool} Always false, so try_generate can return it
+	/// @returns {bool} Always false, so the failed attempt can return it
 	static fail_generation = function(_reason) {
 		write_debug_message("Map generation attempt failed, retrying on the same random stream: " + _reason, debug_message_level.warning);
 		destroy();
@@ -338,7 +338,7 @@ function GameMap() constructor {
 
 	/// @function find_or_create_special_rooms()
 	/// @description Reserves a room for each included special room type: one whose cardinal exits already fit one of
-	///	the type's layouts, or else one found or built to fit (see add_room_for_special_room_type)
+	///	the type's layouts, or else one found or built to fit
 	/// @returns {bool} False if a special room type got no room
 	static find_or_create_special_rooms = function() {
 		// Loop through each included special room type
@@ -395,8 +395,7 @@ function GameMap() constructor {
 
 	/// @function add_room_for_special_room_type(_special_room_type)
 	/// @description Makes a room for a special room type that no room fits yet: tries each exit kind the type's layouts
-	///	have, in random order, until a room with those cardinal exits is found or built (see
-	///	find_or_create_room_for_exit_count)
+	///	have, in random order, until a room with those cardinal exits is found or built
 	/// @param {SpecialRoomType} _special_room_type The special room type
 	/// @returns {GameRoom|undefined} The room, or undefined if none could be made
 	static add_room_for_special_room_type = function(_special_room_type) {
@@ -623,7 +622,7 @@ function GameMap() constructor {
 	};
 
 	/// @function reset_decorations()
-	/// @description Clears every decoration the last pass placed: the start and heart, collectables, the guaranteed lit
+	/// @description Resets every decoration the last pass placed: the start and heart, collectables, the guaranteed lit
 	///	room, chests and their contents, special items, keys and locks, and special exit types. Each pass then decorates
 	///	the current rooms starting from their rolled content, which decorations never change.
 	static reset_decorations = function() {
@@ -725,7 +724,7 @@ function GameMap() constructor {
 
 	/// @function find_or_set_one_lit_room()
 	/// @description Ensures at least one lantern room starts lit; if none rolled lit, makes a random regular lantern room
-	///	the guaranteed lit room. Being lit keeps that room's phantom from spawning (see GameRoom.spawns_phantom).
+	///	the guaranteed lit room. Being lit keeps that room's phantom from spawning.
 	static find_or_set_one_lit_room = function() {
 		// Check every room for a lantern room that is already lit, and list the ones that could be lit
 		var _lantern_rooms = [];
@@ -821,7 +820,7 @@ function GameMap() constructor {
 	/// @function pick_item_type(_is_special_item, [_items_in_hands])
 	/// @description Picks an item type at random among the types still allowed. A special item can be any type the
 	///	difficulty allows, keys included, but each type is a special item once at most. A regular item is never a key,
-	///	or a type at its cap (see get_item_cap), counting the chests and the given starting hand items.
+	///	or a type at its cap, counting the chests and the given starting hand items.
 	/// @param {bool} _is_special_item Whether the item is a special item
 	/// @param {array} [_items_in_hands] The starting hand items to count ([] by default, to ignore the hands)
 	/// @returns {Asset.GMObject}
@@ -900,7 +899,7 @@ function GameMap() constructor {
 
 	/// @function create_locked_exits_and_keys()
 	/// @description Locks every cardinal exit of the heart room, then rolls a lock for each other cardinal exit that can
-	///	be locked, and backs each lock with keys before the next one is added (see create_keys_for_locks)
+	///	be locked, and backs each lock with keys before the next one is added
 	/// @returns {bool} False if the heart locks could not be backed (a last resort, never expected)
 	static create_locked_exits_and_keys = function() {
 		// First, lock every exit of the heart room and add its keys
@@ -926,7 +925,7 @@ function GameMap() constructor {
 
 	/// @function create_keys_for_locks([_newest_lock])
 	/// @description Checks every order the player could spend keys on locks in, and adds a key to the area where an
-	///	order gets them stuck, until no order does (see get_failing_lock_and_key_search_area). If no room there can take
+	///	order gets them stuck, until no order does. If no room there can take
 	///	a key, the newest lock moves to an exit it hasn't tried yet, and is only dropped as a last resort.
 	/// @param {RoomExit|undefined} [_newest_lock] The random lock just added, or undefined for the heart locks
 	/// @returns {bool} False if a lock no key can back cannot move either
@@ -1039,12 +1038,12 @@ function GameMap() constructor {
 		}
 		if (is_undefined(_gudetama_room)) { return false; }
 
-		// Find a chest in another that already holds a counter, and return false if one is found
+		// Find a chest in another room that already holds a gudetama item, and return false if one is found
 		var _possible_rooms = [];
 		for (var _j = 0; _j < array_length(rooms); _j++) {
 			var _room = rooms[_j];
 			if (_room == _gudetama_room) { continue; }
-			if (_room.holds_gudetama_counter()) { return true; }
+			if (_room.holds_gudetama_item()) { return true; }
 		}
 
 		// Otherwise, return true to ensure an item is spawned
@@ -1177,7 +1176,7 @@ function GameMap() constructor {
 	/// @function add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _reached_rooms, _relevant_locked_chests)
 	/// @description Adds an area to the lock search's queue, unless the same area was already queued
 	/// @param {array} _search_area_check_queue		The queue of areas to check, in order
-	/// @param {struct} _search_areas_in_queue_map	Every area queued so far, by get_search_area_key
+	/// @param {struct} _search_areas_in_queue_map	Every area queued so far, by its search area key
 	/// @param {real} _reached_rooms				Bitmask of the rooms the new area reaches
 	/// @param {real} _relevant_locked_chests		Bitmask of the chests that matter the new area has unlocked
 	static add_search_area_to_queue_if_unique = function(_search_area_check_queue, _search_areas_in_queue_map, _reached_rooms, _relevant_locked_chests) {
@@ -1261,8 +1260,7 @@ function GameMap() constructor {
 
 	// =================================================================================================
 	// CALCULATIONS TO PASS OFF TO CONTROLLER
-	// Each room's score and time are GameRoom methods (get_current_difficulty_score, get_time_provided),
-	// which the calculations below add up
+	// Each room works out its own difficulty score and time, which the calculations below add up
 	// =================================================================================================
 
 
@@ -1284,15 +1282,15 @@ function GameMap() constructor {
 			var _room = rooms[_j];
 			
 			// Set item holding chances
-			var _player_chances = _room.player_chances;
-			_player_chances.chance_holding_staff = _staff_chance;
-			_player_chances.chance_holding_sword = _sword_chance;
-			_player_chances.chance_holding_special_sword = _special_sword_chance;
+			var _hazard_mitigation = _room.hazard_mitigation;
+			_hazard_mitigation.chance_holding_staff = _staff_chance;
+			_hazard_mitigation.chance_holding_sword = _sword_chance;
+			_hazard_mitigation.chance_holding_special_sword = _special_sword_chance;
 			
 			// Set its lit room chances
-			if (_room.is_lit()) { _player_chances.chance_of_light = 1; }
-			else if (_room.can_light_torch()) { _player_chances.chance_of_light = _torch_chance; }
-			else { _player_chances.chance_of_light = _lit_torch_chance; }
+			if (_room.is_lit()) { _hazard_mitigation.chance_of_light = 1; }
+			else if (_room.can_light_torch()) { _hazard_mitigation.chance_of_light = _torch_chance; }
+			else { _hazard_mitigation.chance_of_light = _lit_torch_chance; }
 		}
 	};
 
@@ -1460,7 +1458,7 @@ function GameMap() constructor {
 	// TODO: Is this unused? Can we remove it?
 	/// @function destroy()
 	/// @description Frees every room's path grids. Only for a map that will never be played, like a failed
-	///	attempt; the controller frees a played map's rooms with destroy_all_game_rooms.
+	///	attempt; the controller frees a played map's rooms itself.
 	static destroy = function() {
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].destroy(); }
 	};
@@ -1522,7 +1520,7 @@ function GameMap() constructor {
 	// Special room types with a layout this difficulty allows, each with only those layouts
 	available_special_room_types = [];
 
-	// Map-wide events (see roll_map_events)
+	// Map-wide events, rolled once per map
 	long_and_straight_map = false;
 	same_skeleton_type = noone;
 	special_item_count = 0;
@@ -1535,12 +1533,12 @@ function GameMap() constructor {
 	locked_exits = [];						// Each locked cardinal exit, reset during lock and key search
 	relevant_locked_chest_rooms = [];		// Each room with a locked chest that affects the lock and key search, reset during the search
 
-	// Decorations, cleared and placed again each time try_generate adds a room (see reset_decorations)
+	// Decorations, reset and placed again each time map generation adds a room
 	start_room = undefined;
 	heart_room = undefined;
 	guaranteed_items = [];
 	special_item_types = [];				// Each item type placed as a special item so far
-	extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet (see add_extra_key_to_area)
+	extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet
 	difficulty_score = 0;
 
 	// What is passed to the controller on a successful map generation

@@ -12,7 +12,7 @@ enum layout_exit_types {
 }
 
 /// @function RoomLayout(_room_reference)
-/// @description One room layout, read from its room and its layout file when GameMap builds the layout cache: its exit
+/// @description One room layout, read from its GameMaker room when GameMap builds the layout cache: its exit
 ///	kind and the lowest difficulty it appears on, the instances building creates, which spots a floor key or a
 ///	portcullis button can take, how many of each object it places, and its walking distances. A room that isn't a
 ///	usable layout gets is_usable = false, and GameMap leaves it out of the cache.
@@ -23,7 +23,7 @@ function RoomLayout(_room_reference) constructor {
 	// ============================
 	
 	/// @function get_object_count(_object_name)
-	/// @description How many of an object are included in the base layout, before modifying based on the destroying spots
+	/// @description How many instances of an object type the layout places, before any destroying spot destroys them
 	/// @param {string} _object_name The string name of the Game Maker object type
 	/// @returns {real} The count, or 0 if the layout places none
 	static get_object_count = function(_object_name) {
@@ -44,12 +44,12 @@ function RoomLayout(_room_reference) constructor {
 		}
 	};
 	
-	/// @function get_spawned_hazard_counts([_mapgen_spawns])
-	/// @description Get the count struct for all the hazards that spawn based on this layout. Estimated values for the mapgen
-	/// spawns if not actual values are given, and then it adds the estimated midgame spawns on top of that.
-	/// @param {struct} _mapgen_spawns The actual spawns from map generation; will use estimates by default
-	/// @returns {struct} The count struct of actual spawn counts
-	static get_spawned_hazard_counts = function(_mapgen_spawns = undefined) {
+	/// @function get_spawned_object_counts([_mapgen_spawns])
+	/// @description How many instances of each object type spawn in a room with this layout: the given map generation spawn
+	///	counts, or estimates of them when none are given, plus the estimated midgame spawns
+	/// @param {struct} _mapgen_spawns The actual spawn counts from map generation; estimates are used by default
+	/// @returns {struct} The count struct of spawn counts
+	static get_spawned_object_counts = function(_mapgen_spawns = undefined) {
 		// Use estimated mapgen spawn counts if no actual counts are given
 		_mapgen_spawns ??= combine_count_structs(get_guaranteed_mapgen_spawns(), get_estimated_mapgen_spawns());
 		return combine_count_structs(_mapgen_spawns, get_estimated_midgame_spawns(_mapgen_spawns));
@@ -60,7 +60,7 @@ function RoomLayout(_room_reference) constructor {
 	// ============================
 	
 	/// @function get_estimated_object_count(_object_name)
-	/// @description How many of an object the layout places, adjusted for those removed by exit and chest spots during map generation
+	/// @description How many instances of an object type the layout places, less the chance an exit or chest spot destroys each one when the room is built
 	/// @param {string} _object_name The string name of the Game Maker object type
 	/// @returns {real}
 	static get_estimated_object_count = function(_object_name) {
@@ -82,8 +82,8 @@ function RoomLayout(_room_reference) constructor {
 	};
 	
 	/// @function get_spot_destroyed_chance(_destroying_spot)
-	/// @description Returns how likely a room with this layout is to destroy what's under one of its exit or chest spots during map generation.
-	/// The current difficulty effects this. The layout's openings are the room's exits unless its exits are
+	/// @description Returns how likely a room with this layout is to destroy what's under one of its exit or chest spots when the room is built.
+	/// The current difficulty affects this. The layout's openings are the room's exits unless its exits are
 	///	misleading or exits are illusion walls, rolled from the rooms on both sides of an exit that isn't locked. The
 	///	chest spot destroys if a chest spawns there instead of on the stairs spot, which never happens in a special room
 	/// @param {struct} _destroying_spot One of the layout's destroying_spots
@@ -106,12 +106,12 @@ function RoomLayout(_room_reference) constructor {
 	};
 	
 	/// @function get_guaranteed_mapgen_spawns()
-	/// @description Everything that is guaranteed to spawn in this layout, aside from what spawns for sure
+	/// @description How many instances of each object type a room with this layout always spawns: what the layout places, less every instance a destroying spot could destroy
 	/// @returns {struct} The count struct of guaranteed spawn counts
 	static get_guaranteed_mapgen_spawns = function() {
 		var _mapgen_counts = duplicate_count_struct(instance_object_counts);
 		
-		// Remove instances that could get destroyed during room generation
+		// Remove the instances a destroying spot could destroy when the room is built
 		for (var _i = 0; _i < array_length(covered_instances); _i++) {
 			var _covered_instance = covered_instances[_i];
 			_mapgen_counts[$ _covered_instance.object_name] -= 1;
@@ -127,11 +127,11 @@ function RoomLayout(_room_reference) constructor {
 	static get_estimated_mapgen_spawns = function() {
 		var _mapgen_counts = {};
 		
-		// Add estimates for instances that could get destroyed during room generation
-		var _layout_hazard_names = variable_struct_get_names(instance_object_counts);
-		for (var _i = 0; _i < array_length(_layout_hazard_names); _i++) {
-			var _hazard_name = _layout_hazard_names[_i];
-			add_to_count_struct(_mapgen_counts, _hazard_name, get_estimated_object_count(_hazard_name));
+		// Add estimates for the instances a destroying spot could destroy when the room is built
+		var _layout_object_names = variable_struct_get_names(instance_object_counts);
+		for (var _i = 0; _i < array_length(_layout_object_names); _i++) {
+			var _object_name = _layout_object_names[_i];
+			add_to_count_struct(_mapgen_counts, _object_name, get_estimated_object_count(_object_name));
 		}
 		
 		// Estimate Room Exits
@@ -223,11 +223,11 @@ function RoomLayout(_room_reference) constructor {
 		// Eyes on a skeleton spot, only in a room where nothing chases or shoots at the player
 		if (_skeleton_spot_count > 0 && get_object_count("obj_eyes") == 0 && count_hazards_with_tags(instance_object_counts, TARGETS_PLAYER_TAGS) == 0) {
 			// Determine the chance for rolling targeting things that prevent the eyes from spawning
-			var _expected_targeting_counts = 0, _hazard_names = variable_struct_get_names(_mapgen_counts);
-			for (var _i = 0; _i < array_length(_hazard_names); _i++) { if (hazard_has_tag(_hazard_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += max(0, _mapgen_counts[$ _hazard_names[_i]]); } }
+			var _expected_targeting_counts = 0, _object_names = variable_struct_get_names(_mapgen_counts);
+			for (var _i = 0; _i < array_length(_object_names); _i++) { if (hazard_has_tag(_object_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += max(0, _mapgen_counts[$ _object_names[_i]]); } }
 			// Add skeleton types to the expected targeting counts
-			_hazard_names = variable_struct_get_names(_skeleton_type_counts);
-			for (var _i = 0; _i < array_length(_hazard_names); _i++) { if (hazard_has_tag(_hazard_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += _skeleton_type_counts[$ _hazard_names[_i]] * _skeleton_spot_count; } }
+			_object_names = variable_struct_get_names(_skeleton_type_counts);
+			for (var _i = 0; _i < array_length(_object_names); _i++) { if (hazard_has_tag(_object_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += _skeleton_type_counts[$ _object_names[_i]] * _skeleton_spot_count; } }
 			var _eyes_count = exp(-_expected_targeting_counts) * get_chance_out_of(EYES_PROBABILITY); // exp(−n) is the chance of none rolling when n are expected on average
 			add_to_count_struct(_mapgen_counts, "obj_eyes", _eyes_count);
 			_skeleton_spot_count -= _eyes_count; // Eyes take up a skeleton spot
@@ -244,7 +244,7 @@ function RoomLayout(_room_reference) constructor {
 	/// @function can_have_hazard_with_eyes(_hazard_name)
 	/// @description Whether generation can roll a hazard into a room with this layout: never one that chases or shoots at the
 	///	player when the layout places eyes
-	/// @param {string} _hazard_name The hazard's name in the difficulty score table
+	/// @param {string} _hazard_name The hazard's name in the hazards table
 	/// @returns {bool}
 	static can_have_hazard_with_eyes = function(_hazard_name) {
 		// TODO: Remove this function and figure out eyes based on the real or estimated hazard count
@@ -259,7 +259,7 @@ function RoomLayout(_room_reference) constructor {
 		// Setup object counts for potential spawn points, the ones building the room left
 		var _bone_count = get_count_from_struct(_mapgen_spawns, "obj_bones"), _bush_count = get_count_from_struct(_mapgen_spawns, "obj_bush"), _corpse_count = get_count_from_struct(_mapgen_spawns, "obj_player_corpse");
 		var _midgame_spawn_counts = {}, _average_room_visits = max(1, get_count_from_struct(_mapgen_spawns, "obj_exit_spot"));
-		// Each room’s score is otherwise one visit’s danger. Spawns build up instead: by visit k, about k rolls’ worth have spawned
+		// Each room's difficulty score is otherwise one visit's worth. Spawns build up instead: by visit k, about k rolls' worth have spawned
 		var _average_visit_multiplier = (_average_room_visits + 1) / 2; 
 		
 		// Skeletons rising from trapped bones
@@ -296,7 +296,7 @@ function RoomLayout(_room_reference) constructor {
 	// ============================
 	
 	/// @function setup_minimum_difficulty()
-	/// @description Sets the lowest difficulty the layout appears on, based on it's hazard types, and the layout score and time limits.
+	/// @description Sets the lowest difficulty the layout appears on, based on its hazard types, and the layout score and time limits.
 	/// Called during map generation when GameMap calls it while building the layout cache, once the layout knows whether it's a special room.
 	static setup_minimum_difficulty = function() {
 		// The chance functions all read the global.difficulty, so we need to change that as we evaluate
@@ -321,10 +321,10 @@ function RoomLayout(_room_reference) constructor {
 	/// @description The highest min_difficulty of the hazards the layout places, used to setup the layout's minimum difficulty
 	/// @returns {real} A difficulties value
 	static get_minimum_difficulty_from_hazards = function() {
-		var _table = get_hazards_table(), _hazard_names = variable_struct_get_names(instance_object_counts), _minimum_difficulty = difficulties.easy;
-		for (var _i = 0; _i < array_length(_hazard_names); _i++) {
+		var _table = get_hazards_table(), _object_names = variable_struct_get_names(instance_object_counts), _minimum_difficulty = difficulties.easy;
+		for (var _i = 0; _i < array_length(_object_names); _i++) {
 			// Skip object type if it is not in the hazards table
-			var _hazard_table_entry = _table[$ _hazard_names[_i]];
+			var _hazard_table_entry = _table[$ _object_names[_i]];
 			if (is_undefined(_hazard_table_entry)) { continue; }
 			
 			// Get the maximum of all present hazard difficulty levels
@@ -339,8 +339,8 @@ function RoomLayout(_room_reference) constructor {
 	/// @returns {real}
 	static get_layout_difficulty_score = function() {
 		var _chance_starts_lit = (has_lanterns && !is_special_room) ? get_chance_out_of(PRE_LIT_PROBABILITY) : 0;
-		var _player_chances = new HazardMitigation(0, 0, 0, _chance_starts_lit);
-		return _player_chances.get_total_difficulty_score_for_spawn_counts(get_spawned_hazard_counts());
+		var _hazard_mitigation = new HazardMitigation(0, 0, 0, _chance_starts_lit);
+		return _hazard_mitigation.get_total_difficulty_score_for_spawn_counts(get_spawned_object_counts());
 	};
 	
 	// TODO: Everything relating to time score
@@ -349,7 +349,7 @@ function RoomLayout(_room_reference) constructor {
 	/// @description How much time a room with this layout costs at the current difficulty, on top of walking
 	/// @returns {real}
 	static get_layout_time_score = function() {
-		var _counts = duplicate_count_struct(instance_object_counts), _spawns = get_spawned_hazard_counts(_counts);
+		var _counts = duplicate_count_struct(instance_object_counts), _spawns = get_spawned_object_counts(_counts);
 		var _time_score = get_time_score_with_spawns(_counts, _spawns);
 		
 		// Banishing a phantom means lighting every lantern
@@ -586,7 +586,7 @@ function RoomLayout(_room_reference) constructor {
 			
 			// Check instance names to see what to count this instance as
 			switch (_possible_spot_instance.object_name) {
-				case "obj_stairs_spot": { stairs_spot_is_clear = _instance_is_alone; break; }
+				case "obj_stairs_spot": { stairs_spot_is_alone = _instance_is_alone; break; }
 				case "obj_collectable_spot": {
 					// Add the spot to key and button spot lists
 					if (!is_instance_covered_by_destroying_spot(_possible_spot_instance)) {
@@ -624,7 +624,7 @@ function RoomLayout(_room_reference) constructor {
 		if (get_object_count("obj_chest_spot") != 1) { _problems += " needs exactly one chest spot;"; }
 		if (get_object_count("obj_stairs_spot") != 1) { _problems += " needs exactly one stairs spot;"; }
 		if (array_length(key_spots) < 2) { _problems += " needs at least two collectable spots off the exit and chest spots;"; }
-		if (array_length(button_spots) == 0 && !stairs_spot_is_clear) { _problems += " needs at least one collectable or stairs spots where a button can be spawned;"; }
+		if (array_length(button_spots) == 0 && !stairs_spot_is_alone) { _problems += " needs at least one collectable or stairs spots where a button can be spawned;"; }
 		if (count_hazards_with_tags(instance_object_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(instance_object_counts, TARGETS_PLAYER_TAGS) > 0) {
 			_problems += " places a hazard that stops the player alongside one that chases or shoots at them;";
 		}
@@ -747,15 +747,15 @@ function RoomLayout(_room_reference) constructor {
 	layout_cache_index = -1;														// Its position in the layout cache, set when GameMap builds the cache
 	is_usable = (exit_type != -1) && !string_starts_with(room_name, "rm_unused");	// Only include usable rooms that match an exit type
 	
-	instances_to_create = [];							// The list of x, y, and object_type structs that will be created when this room gets built
+	instances_to_create = [];							// The { x, y, object_name } of each instance the room creates when it's built
 	instance_object_counts = {};						// A map of each object type in the layout to the number of instances with that type in the layout
 	instances_at_tile = {};								// A map of tiles in the layout to the instances present there, used when first setting up the layout
 	destroying_spots = [];								// The exit and chest spots, as { x, y, exit_direction, blocked }: the direction an exit spot faces (-1 for the chest spot), and whether something under it blocks it
-	covered_instances = [];								// Every other instance under any of them, as { instance, object_name, spots }: the indexes of the destroying spots over it
+	covered_instances = [];								// Every other instance under any of them, as { instance, object_name, destroying_spots }: the indexes of the destroying spots over it
 	
 	key_spots = [];										// list of collectable spot numbers a floor key can take
 	button_spots = [];									// list of collectable spot numbers a button can take
-	stairs_spot_is_clear = false;						// Whether a button can take the stairs spot
+	stairs_spot_is_alone = false;						// Whether nothing else shares the stairs spot's tile, so a button can take it
 
 	// Read the room reference into the above variables
 	get_instances_from_room_asset();

@@ -1,4 +1,6 @@
 #macro LAYOUT_SIZE 256						// Every layout room is this many pixels square
+#macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.5, 2.5, 3.5, infinity]) // A layout appears from the lowest difficulty whose limits its difficulty and time scores fit in. These keep about as many layouts on each difficulty as the ruby script's difficulties did
+#macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.1, 0.5, infinity, infinity])
 
 // The six kinds of layout file, named after the cardinal exits they open
 enum layout_exit_types {

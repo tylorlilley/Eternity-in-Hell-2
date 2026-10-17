@@ -1,39 +1,16 @@
 // Shader constants
 #macro INVERTED_COLORS_ALPHA 0.5
 
-// The room's other content
-#macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its difficulty score counts 1.4 times
-#macro PORTCULLIS_TRAP_DANGER 0.03			// Shut in until the button is pressed, once per trap room
-#macro SPECIAL_ITEM_DIFFICULTY_SCORE -2		// A special item makes the rest of the run easier, so the map can take more
-
 // Initialize room probability constants
 #macro MAX_SEED 99999999
-#macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3	// How likely the player is to have something, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
 
-#macro AVERAGE_NUMBER_OF_ROOM_EXITS (20/9)
 #macro STAIRS_PROBABILITY 5 
-#macro NO_CARDINAL_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 12, 8, 6, 4]) // This happens only after the stairs probability succeeds, so its combined with 1/5
-#macro LOCKED_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 12, 10, 6])
 #macro CHEST_PROBABILITY get_probability_for_difficulty([6, 5, 4, 3, 2]) // This happens only after the stairs probability fails, so its combined with 4/5
-//#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 9, 8, 7, 6]) // This is only called after a room has a chest, so this is combined with that probability. It's also affected by the special item limit
-#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 7, 3, 3, 2])
-#macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])
-#macro TRAP_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 0, 8, 4])  // This happens only after the chest probability succeeds, so its combined with that probability.
-#macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
-#macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
-#macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 6]) 
 #macro MISLEADING_EXITS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 6, 4])
 #macro ILLUSION_WALL_PROBABILITY get_probability_for_difficulty([0, 0, 0, 32, 16])
 #macro LOCKED_DOOR_PROBABILITY get_probability_for_difficulty([0, 16, 12, 10, 8]) // Because each exit is checked by the room on either side, this actually happens twice as often
-#macro OPEN_DOOR_PROBABILITY get_probability_for_difficulty([0, 32, 24, 12, 8])
 #macro PRE_LIT_PROBABILITY get_probability_for_difficulty([1, 4, 6, 8, 12]) 
-#macro KEY_IN_CHEST_PROBABILITY 3
-#macro BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 8, 2, 1])
 #macro CHEST_ON_STAIRS_SPOT_PROBABILITY get_probability_for_difficulty([0, 16, 8, 4, 3])
-#macro SPECIAL_ROOM_LIMIT get_probability_for_difficulty([0, 0, 0, 1, 2])
-//#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
-#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 8, 6])
-#macro SPECIAL_MAP_SHAPE_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 0])
 #macro SKELETON_TYPE_CHANCE_MAX 100
 
 // Initilize room start probability constants
@@ -42,7 +19,6 @@
 #macro MAX_REPLACED_FOUNTAINS get_probability_for_difficulty([0, 0, 1, 1, 2]) // The most columns and statues, between them, that one room turns into fountains
 #macro BUG_PROBABILITY get_probability_for_difficulty([512, 256, 112, 48, 24])
 #macro RED_BUG_PROBABILITY get_probability_for_difficulty([0, 0, 0, 12, 8])
-#macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) // multiplied by 4 for check at every room enter
 #macro MIDGAME_NOSE_PROBABILITY NOSE_PROBABILITY * 4 // multiplied by 4 for check at every room enter
 #macro FIRE_SKELETON_IN_LAVA_PROBABILITY get_probability_for_difficulty([0, 0, 0, 48, 32])
@@ -52,22 +28,12 @@
 #macro SAME_SKELETON_TYPE_PROBABILITY get_probability_for_difficulty([0, 0, 0, 32, 24])
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 40]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 28, 24, 18]) //get_probability_for_difficulty([0, 32, 24, 22, 18]) 
-#macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 18, 16]) 
-#macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0// UNUSED get_probability_for_difficulty([0, 0, 12, 8, 6])
-#macro MOUTHS_PER_MOUTH (1+global.difficulty)
 
 // Initialize map drawing constants
 #macro GRID_SIZE 8
-#macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
-#macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 18, 22, 24]) //[12, 16, 24, 28, 32])
-#macro MAP_DIFFICULTY_SCORE_TARGET get_probability_for_difficulty([0, 2, 10, 22, 36]) // Rooms are added until the map's difficulty score reaches this, up to MAX_NUMBER_OF_ROOMS. It's about what a map of MINIMUM_NUMBER_OF_ROOMS scores on average, so about half of maps stop at the minimum and a map of easier rooms grows toward the maximum
-#macro ROOM_DIFFICULTY_SCORE_MAX 8 // Generation skips any roll that would take the threats rolled into a room past this (see GameRoom.would_exceed_max_difficulty)
-#macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.5, 2.5, 3.5, infinity]) // A layout appears from the lowest difficulty whose limits its difficulty and time scores fit in (see RoomLayout.setup_minimum_difficulty). These keep about as many layouts on each difficulty as the ruby script's difficulties did
-#macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.1, 0.5, infinity, infinity])
 //#macro MAX_MAP_DRAW_DISTANCE 8 
 
 // Initialize lighting constants
-#macro DIMMING_RATE 8 
 #macro LANTERN_LIGHT_RANGE get_probability_for_difficulty([0, 16, 14, 13, 12])//14 
 #macro TORCH_LIGHT_RANGE get_probability_for_difficulty([0, 13, 12, 11, 10])//11 
 #macro PLAYER_LIGHT_RANGE get_probability_for_difficulty([0, 8, 7, 7, 6])//6 
@@ -78,7 +44,6 @@
 	
 // Initilaize other gameplay constants
 #macro FRAMES_TO_WAIT_BEFORE_PROCESSING 6
-#macro FRAMES_FOR_HEART_THUMP 12
 #macro JUST_THE_WIND_PROBABILITY 2056 
 #macro BUSH_RUSTLE_FREQUENCY 16
 #macro INVISIBLE_SKELETON_FLASH_FREQUENCY 128
@@ -104,7 +69,6 @@
 #macro LIVING_BLOCK_PROBABILITY get_probability_for_difficulty([0, 0, 128, 64, 32]) 
 
 // Initialize score constants and variables
-#macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
 #macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 80, 70, 65, 65])//get_probability_for_difficulty([100, 75, 65, 60, 50])  // minutes * 60 total seconds for torch to remain lit
 #macro TOTAL_COMPLETION_AMOUNT 4 
 

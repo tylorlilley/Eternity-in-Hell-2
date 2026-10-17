@@ -1,3 +1,5 @@
+#macro FRAMES_FOR_HEART_THUMP 12
+
 /// @function								set_up_inputs_for_next_frame();
 function set_up_inputs_for_next_frame() {
 	if (instance_number(obj_title) > 0) { 

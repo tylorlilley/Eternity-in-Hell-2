@@ -1,3 +1,14 @@
+// ===== ROOM CONTENT =====
+#macro MOVING_COLLECTABLE_PROBABILITY get_probability_for_difficulty([0, 0, 24, 18, 16]) 
+#macro MOUTHS_PER_MOUTH (1+global.difficulty)
+#macro HIDDEN_CHEST_PROBABILITY get_probability_for_difficulty([0, 2, 2, 1, 1])  // This happens only after the chest probability succeeds, so its combined with that probability. Also, only appears in non-lit lantern rooms, so combined with that too
+
+// ===== DIFFICULTY SCORES =====
+#macro ROOM_DIFFICULTY_SCORE_MAX 8 // Generation skips any roll that would take the difficulty score of the hazards rolled into a room past this
+#macro COLLECTABLES_EXPOSURE 1.4			// Collecting everything crosses the whole room, so its difficulty score counts 1.4 times
+#macro PORTCULLIS_TRAP_DANGER 0.03			// Shut in until the button is pressed, once per trap room
+#macro SPECIAL_ITEM_DIFFICULTY_SCORE -2		// A special item makes the rest of the run easier, so the map can take more
+
 // ===== TIME MACROS =====
 /*
 // The time a careful novice needs, and how many times that the run gives

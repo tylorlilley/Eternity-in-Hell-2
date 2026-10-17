@@ -1,3 +1,7 @@
+#macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
+#macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
+#macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0// UNUSED get_probability_for_difficulty([0, 0, 12, 8, 6])
+
 /// @function								restart_game();
 function restart_game() {
 	// Destroy all instances in this room and in every other room, then go back to the title screen

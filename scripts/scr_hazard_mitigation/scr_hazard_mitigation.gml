@@ -1,5 +1,7 @@
 #macro BLOCK_MITIGATION_MULTIPLIER 0.6					// The share of its difficulty score a hazard keeps when a block mitigates its danger
 #macro STAFF_PROJECTILE_MITIGATION_MULTIPLIER 0.3		// The share of a hazard that still counts with a staff, when the staff only mitigates the danger of its projectiles
+#macro PROJECTILE_STOPPED_BY_STAFF_TAGS (hazard_tags.fires_at_player | hazard_tags.fires_in_place)	// What shoots projectiles the staff can block
+#macro DARK_DIFFICULTY_SCORE_MULTIPLIER 5				// The amount worse a hazard that is dangerous in the dark gets, when the player has no light
 
 /// @function HazardMitigation([_chance_holding_staff], [_chance_holding_sword], [_chance_holding_special_sword], [_chance_of_light])
 /// @description Mitigates the danger of a room's hazards for what's outside them: how likely the room is to be lit, the

@@ -5,14 +5,12 @@
 
 // ===== TAG GROUPS =====
 #macro TARGETS_PLAYER_TAGS (hazard_tags.moves_towards_player | hazard_tags.fires_at_player)		// What keeps the player moving
-#macro PROJECTILE_STOPPED_BY_STAFF_TAGS (hazard_tags.fires_at_player | hazard_tags.fires_in_place)	// What shoots projectiles the staff can block
 
 // ===== DIFFICULTY SCORE MULTIPLIERS ====
 // Hazards can stack and make each other even more dangerous. Each hazard's danger assumes the player can deal with it on their own terms, and the
 // more likely the room is to take that away, the closer it gets to its worst case multiplier
 #macro WORST_CASE_COMBINATION_MULTIPLIER 3					// The worst case for a hazard combination that is possible, but difficult
 #macro STOPS_PLAYER_WORST_CASE_COMBINATION_MULTIPLIER 9		// The worst case for a combination with a hazard that stops the player, which is not always possible
-#macro DARK_DIFFICULTY_SCORE_MULTIPLIER 5					// The amount worse a hazard that is dangerous in the dark gets, when the player has no light
 
 // ===== ESTIMATED CHANCES ====
 #macro KEEPS_PLAYER_MOVING_CHANCE 0.5		// The chance that something that doesn't target the player at all times will cause the player to move

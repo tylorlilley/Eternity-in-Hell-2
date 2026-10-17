@@ -1,3 +1,5 @@
+#macro DIMMING_RATE 8 
+
 /// @function									get_relative_light_intensity(_instance_to_light);
 /// @param		{index} _instance_to_light		The instance being lit up by the calling instance
 function get_relative_light_intensity(_instance_to_light) {

@@ -62,7 +62,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		var _total_staff_difficulty_score = get_difficulty_score_with_blocks(_staff_hazard_counts), _total_special_sword_difficulty_score = get_difficulty_score_with_blocks(_special_sword_hazard_counts);
 		return max(0, (_chance_holding_nothing * _total_difficulty_score) + (chance_holding_staff * _total_staff_difficulty_score) + (chance_holding_sword * _total_sword_difficulty_score) + (chance_holding_special_sword * _total_special_sword_difficulty_score));
 	}
-
+	
 	/// @function get_difficulty_score_with_blocks(_hazard_counts)
 	/// @description The sum of each hazard's points in a room, minus what its blocks save. A block that isn't used up is pushed on
 	///	from one copy to the next, so it applies to them all. One that's used up applies to only a single copy (lava counts as one),
@@ -103,28 +103,6 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		return _total_difficulty_score;
 	};
 	
-	/// @function get_best_block_savings(_difficulty_score_saved_arrays, _index, _blocks_left)
-	/// @description The most points the blocks left can save on the used-up-block hazards from _index on, trying every split of the blocks between them
-	/// @param {struct} _difficulty_score_saved_arrays	An array of arrays, each array is a series of difficulty scores per block spend
-	/// @param {struct} _index							Which point in the array of arrays to start counting from
-	/// @param {struct} _blocks_left					The number of blocks left to spend
-	/// @returns {real}
-	static get_best_block_savings = function(_difficulty_score_saved_arrays, _index, _blocks_left) {
-		// Return 0 when the end of the array is reached
-		if (_index >= array_length(_difficulty_score_saved_arrays)) { return 0; }
-	
-		// Get the savings for this point in the array
-		var _difficulty_score_saved_array = _difficulty_score_saved_arrays[_index], _best_savings = 0;
-		for (var _blocks_spent = 0; _blocks_spent < array_length(_difficulty_score_saved_array) && _blocks_spent <= _blocks_left; _blocks_spent += 1) {
-			// Get the savings for this amount of blocks, and recursively check the remaining block spend configurations in the array
-			var _current_savings = _difficulty_score_saved_array[_blocks_spent];
-			var _remaining_savings = get_best_block_savings(_difficulty_score_saved_arrays, _index + 1, _blocks_left - _blocks_spent);
-			var _new_savings = _current_savings + _remaining_savings;
-			_best_savings = max(_best_savings, _new_savings);
-		}
-		return _best_savings;
-	};
-
 	/// @function calculate_hazard_difficulty_score_for_room(_hazard_name, _hazard_count, _hazard_counts)
 	/// @description The difficulty points for a given hazard type for a given room's hazard counts.
 	/// The difficulty grows for other hazards it shares a room with, the lit chance, and shrinks for blocks that can stop it, and then
@@ -152,6 +130,28 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		
 		var _chance_of_dark = (1 - chance_of_light);
 		return (_hazard_difficulty_score * chance_of_light) + (_hazard_difficulty_score * DARK_DANGER_MULTIPLIER * _chance_of_dark);
+	};
+	
+	/// @function get_best_block_savings(_difficulty_score_saved_arrays, _index, _blocks_left)
+	/// @description The most points the blocks left can save on the used-up-block hazards from _index on, trying every split of the blocks between them
+	/// @param {struct} _difficulty_score_saved_arrays	An array of arrays, each array is a series of difficulty scores per block spend
+	/// @param {struct} _index							Which point in the array of arrays to start counting from
+	/// @param {struct} _blocks_left					The number of blocks left to spend
+	/// @returns {real}
+	static get_best_block_savings = function(_difficulty_score_saved_arrays, _index, _blocks_left) {
+		// Return 0 when the end of the array is reached
+		if (_index >= array_length(_difficulty_score_saved_arrays)) { return 0; }
+	
+		// Get the savings for this point in the array
+		var _difficulty_score_saved_array = _difficulty_score_saved_arrays[_index], _best_savings = 0;
+		for (var _blocks_spent = 0; _blocks_spent < array_length(_difficulty_score_saved_array) && _blocks_spent <= _blocks_left; _blocks_spent += 1) {
+			// Get the savings for this amount of blocks, and recursively check the remaining block spend configurations in the array
+			var _current_savings = _difficulty_score_saved_array[_blocks_spent];
+			var _remaining_savings = get_best_block_savings(_difficulty_score_saved_arrays, _index + 1, _blocks_left - _blocks_spent);
+			var _new_savings = _current_savings + _remaining_savings;
+			_best_savings = max(_best_savings, _new_savings);
+		}
+		return _best_savings;
 	};
 	
 	// ============================

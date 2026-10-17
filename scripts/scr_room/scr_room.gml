@@ -17,7 +17,7 @@
 /// @param {real} _given_y Its grid row
 function GameRoom(_given_x, _given_y) constructor {
 	// ============================
-	// Public Getter Functions - Called outside of this file and outside of scr_game_map
+	// Public Getter Functions - Called outside of the map generation scripts
 	// ============================
 	
 	/// @function has_exit(_dir)
@@ -26,6 +26,47 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {bool}
 	static has_exit = function(_dir) {
 		return (exits[_dir] != -1);
+	};
+	
+	/// @function has_floor_key()
+	/// @description Whether a key lies on one of the room's key spots: its own key, unless that's in a chest, or the extra
+	///	key the first bomb standing in for a key brings
+	/// @returns {bool}
+	static has_floor_key = function() {
+		return (has_key && !key_in_chest) || has_extra_key;
+	};
+	
+	// ============================
+	// Map Generation Getters - Called only by the map generation scripts
+	// ============================
+	
+	/// @function can_be_start()
+	/// @description Whether the room can be the start: never a room with stairs or a special room
+	/// @returns {bool}
+	static can_be_start = function() {
+		return !has_exit(directions.stairs) && !is_special_room;
+	};
+	
+	/// @function can_gain_exits()
+	/// @description Whether the room may still gain exits. A room only reached by stairs never gets a cardinal exit,
+	///	and a special room's exits stay fixed once it's reserved, so its special room type's layouts keep fitting.
+	/// @returns {bool}
+	static can_gain_exits = function() {
+		return !has_no_cardinal_exits && !is_special_room;
+	};
+	
+	/// @function can_become_special_room()
+	/// @description Whether the room can be reserved as a special room
+	/// @returns {bool}
+	static can_become_special_room = function() {
+		return !is_special_room && !has_exit(directions.stairs);
+	};
+	
+	/// @function get_exit_type()
+	/// @description The layout exit kind matching the room's real cardinal exits
+	/// @returns {real} A layout_exit_types kind
+	static get_exit_type = function() {
+		return get_exit_type_for_count(get_cardinal_exits_count());
 	};
 	
 	/// @function get_cardinal_exits_count()
@@ -37,70 +78,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		return _exit_count;
 	};
 	
-	/// @function get_connected_room(_dir)
-	/// @description The room an exit of this room leads to
-	/// @param {real} _dir The exit's direction, stairs included
-	/// @returns {GameRoom|real} The room, or -1 if there is no exit in that direction
-	static get_connected_room = function(_dir) {
-		if (_dir > directions.stairs) { return -1; }
-		
-		return ((exits[_dir] == -1) ? -1 : exits[_dir].get_connected_room(self));
-	};
-	
-	// ============================
-	// Map Generation Getters - Called only by scr_map
-	// ============================
-	
-	/// @function can_become_special_room()
-	/// @description Whether the room can be reserved as a special room
-	/// @returns {bool}
-	static can_become_special_room = function() {
-		return !is_special_room && !has_exit(directions.stairs);
-	};
-	
-	/// @function can_be_start()
-	/// @description Whether the room can be the start: never a room with stairs or a special room
-	/// @returns {bool}
-	static can_be_start = function() {
-		return !has_exit(directions.stairs) && !is_special_room;
-	};
-
-	/// @function can_be_heart(_start)
-	/// @description Whether the room can be the heart for a given start: never the start itself or a special room, and
-	///	never linked by a cardinal exit to the start or a hall of mirrors; stairs into it are fine
-	/// @param {GameRoom} _start The start candidate
-	/// @returns {bool}
-	static can_be_heart = function(_start) {
-		if (self == _start || is_special_room) { return false; }
-		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-			var _connected_room = get_connected_room(_dir);
-			if (_connected_room != -1 && (_connected_room == _start || _connected_room.has_hall_of_mirrors)) { return false; }
-		}
-		return true;
-	};
-
-	/// @function can_gain_exits()
-	/// @description Whether the room may still gain exits. A room only reached by stairs never gets a cardinal exit,
-	///	and a special room's exits stay fixed once it's reserved, so its special room type's layouts keep fitting.
-	/// @returns {bool}
-	static can_gain_exits = function() {
-		return !has_no_cardinal_exits && !is_special_room;
-	};
-
-	/// @function has_opposite_exits()
-	/// @description Whether the room has cardinal exits on two opposite sides
-	/// @returns {bool}
-	static has_opposite_exits = function() {
-		return (has_exit(directions.up) && has_exit(directions.down)) || (has_exit(directions.left) && has_exit(directions.right));
-	};
-
-	/// @function get_exit_type()
-	/// @description The layout exit kind matching the room's real cardinal exits
-	/// @returns {real} A layout_exit_types kind
-	static get_exit_type = function() {
-		return get_exit_type_for_count(get_cardinal_exits_count());
-	};
-
 	/// @function get_exit_type_for_count(_exit_count)
 	/// @description The layout exit kind for a number of cardinal exits. For two exits, it uses whether the room's own
 	///	cardinal exits are on opposite sides.
@@ -115,91 +92,53 @@ function GameRoom(_given_x, _given_y) constructor {
 			default: return layout_exit_types.four;
 		}
 	};
-
-	/// @function can_have_chest()
-	/// @description Whether the room is allowed to have a chest added to it: not the start or heart room, with nothing on
-	///	its stairs spot yet
+	
+	/// @function has_opposite_exits()
+	/// @description Whether the room has cardinal exits on two opposite sides
 	/// @returns {bool}
-	static can_have_chest = function() {
-		return (!is_start_room && !is_heart_room && stairs_spot_obj == -1);
-	};
-
-	/// @function can_have_special_item()
-	/// @description Whether the room is allowed to have a special item added to it: it has none yet, and it is at least
-	///	two rooms from the start
-	/// @returns {bool}
-	static can_have_special_item = function() {
-		return (!has_special_item && distance_to_start >= 2);
+	static has_opposite_exits = function() {
+		return (has_exit(directions.up) && has_exit(directions.down)) || (has_exit(directions.left) && has_exit(directions.right));
 	};
 	
-	/// @function can_have_special_exit_types()
-	/// @description Whether the room can have illusion walls, portcullis traps and plain doors: it isn't only reached by
-	///	stairs, isn't the start or heart room, and isn't a hall of mirrors or linked to one
+	/// @function can_have_hazard_with_eyes(_hazard_name)
+	/// @description Whether a hazard may be rolled for the room when it already has eyes
+	/// @param {string} _hazard_name The hazard's name in the difficulty score table
 	/// @returns {bool}
-	static can_have_special_exit_types = function() {
-		return (!has_no_cardinal_exits && !is_start_room && !is_heart_room && !is_connected_to_hall_of_mirrors());
+	static can_have_hazard_with_eyes = function(_hazard_name) {
+		return !has_eyes || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
 	};
 	
-	/// @function is_connected_to_hall_of_mirrors()
-	/// @description Whether the room is a hall of mirrors, or is linked to one by a cardinal exit
-	/// @returns {bool}
-	static is_connected_to_hall_of_mirrors = function() {
-		if (has_hall_of_mirrors) { return true; }
-		
-		for (var _dir = directions.up; _dir < directions.stairs; _dir++;) {
-			var _next_exit = exits[_dir];
-			if (_next_exit == -1) { continue; }
-			
-			var _next_room = _next_exit.get_connected_room(self);
-			if (_next_room.has_hall_of_mirrors) { return true; }
-		}
-		
-		return false;
+	/// @function get_floor_item_count()
+	/// @description How many items lie on the room's floor for hands to come for: a key on one of its key spots
+	/// @returns {real}
+	static get_floor_item_count = function() {
+		return has_floor_key() ? 1 : 0;
 	};
 	
-	/// @function can_have_portcullis_trap()
-	/// @description Whether the room can become a portcullis trap room: it can have special exit types, none of its
-	///	cardinal exits has a door or illusion walls or leads to another trap room, and it has a free spot for the button
+	/// @function can_be_heart(_start)
+	/// @description Whether the room can be the heart for a given start: never the start itself or a special room, and
+	///	never linked by a cardinal exit to the start or a hall of mirrors; stairs into it are fine
+	/// @param {GameRoom} _start The start candidate
 	/// @returns {bool}
-	static can_have_portcullis_trap = function() {
-		if (!can_have_special_exit_types()) { return false; }
-		
-		// Check each of the room's cardinal exits
+	static can_be_heart = function(_start) {
+		if (self == _start || is_special_room) { return false; }
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-			// Skip if there is no exit in this direction
-			var _exit = exits[_dir];
-			if (_exit == -1) { continue; }
-			
-			// Return false if this exit is already in use some other way
-			if (_exit.exit_type != exit_types.none) { return false; }
+			var _connected_room = get_connected_room(_dir);
+			if (_connected_room != -1 && (_connected_room == _start || _connected_room.has_hall_of_mirrors)) { return false; }
 		}
-		
-		// Return whether there is at least one spot for the button
-		return array_length(get_portcullis_button_spots()) > 0;
-	};
-
-	/// @function has_chest()
-	/// @description Whether the room holds a chest, hidden or not
-	/// @returns {bool}
-	static has_chest = function() {
-		return stairs_spot_obj == obj_chest || stairs_spot_obj == obj_hidden_chest;
+		return true;
 	};
 	
-	/// @function has_regular_item_chest()
-	/// @description Whether the room has a chest with a regular item: not a special item, not a trap, and not a key or
-	///	bomb placed for the locks
-	/// @returns {bool}
-	static has_regular_item_chest = function() {
-		return (has_chest() && !has_special_item && !key_in_chest && !has_trap_chest());
+	/// @function get_connected_room(_dir)
+	/// @description The room an exit of this room leads to
+	/// @param {real} _dir The exit's direction, stairs included
+	/// @returns {GameRoom|real} The room, or -1 if there is no exit in that direction
+	static get_connected_room = function(_dir) {
+		if (_dir > directions.stairs) { return -1; }
+		
+		return ((exits[_dir] == -1) ? -1 : exits[_dir].get_connected_room(self));
 	};
-
-	/// @function has_basic_chest()
-	/// @description Whether the room holds a visible chest that is neither locked nor holding a special item
-	/// @returns {bool}
-	static has_basic_chest = function() {
-		return stairs_spot_obj == obj_chest && !has_locked_chest && !has_special_item;
-	};
-
+	
 	/// @function holds_gudetama_counter()
 	/// @description Whether the room's chest holds an item that can defeat a gudetama or get the player past it: a sword, a
 	///	bomb or a special staff. It must be unlocked, so the player can always open it, and the keys and bombs placed for
@@ -210,44 +149,41 @@ function GameRoom(_given_x, _given_y) constructor {
 
 		return chest_obj == obj_sword || chest_obj == obj_bomb || (chest_obj == obj_staff && has_special_item);
 	};
-
-	/// @function has_trap_chest()
-	/// @description Whether the room's chest holds a statue or fountain trap instead of an item
+	
+	/// @function has_chest()
+	/// @description Whether the room holds a chest, hidden or not
 	/// @returns {bool}
-	static has_trap_chest = function() {
-		return chest_obj == obj_statue || chest_obj == obj_fountain;
+	static has_chest = function() {
+		return stairs_spot_obj == obj_chest || stairs_spot_obj == obj_hidden_chest;
 	};
-
-	/// @function is_stairs_spot_free()
-	/// @description Whether nothing takes the room's stairs spot: no stairs, and no cross, heart or chest placed
+	
+	/// @function can_have_chest()
+	/// @description Whether the room is allowed to have a chest added to it: not the start or heart room, with nothing on
+	///	its stairs spot yet
 	/// @returns {bool}
-	static is_stairs_spot_free = function() {
-		if (has_exit(directions.stairs)) { return false; }
-		return stairs_spot_obj == -1 || !chest_on_stairs_spot;
+	static can_have_chest = function() {
+		return (!is_start_room && !is_heart_room && stairs_spot_obj == -1);
 	};
-
-	/// @function get_portcullis_button_spots()
-	/// @description The free spots the room's portcullis button could take; the stairs spot when
-	///	nothing uses it, and each collectable spot the floor key doesn't take, as long as one stays free for the
-	///	room's collectables. A spot only counts if nothing else shares its tile, since that could hold the
-	///	button down. The chest spot never holds a button.
-	/// @returns {array} Collectable spot numbers in layout file order, with -1 for the stairs spot
-	static get_portcullis_button_spots = function() {
-		// Add the stairs spot to the potential button spots
-		var _possible_spots = [];
-		if (is_stairs_spot_free() && layout.stairs_spot_is_clear) { array_push(_possible_spots, -1); }
-
-		// Add any unused key spots to the potential button spots
-		var _spawned_keys = (key_spot != -1) ? 1 : 0;
-		var _spots_left_by_key = array_length(layout.key_spots) - _spawned_keys;
-		if (!has_collectables || _spots_left_by_key >= 2) {
-			// Loop through all spots in the layout, and add them to the potential button spots
-			for (var _i = 0; _i < array_length(layout.button_spots); _i++) {
-				var _spot = layout.button_spots[_i];
-				if (_spot != key_spot) { array_push(_possible_spots, _spot); }
-			}
-		}
-		return _possible_spots;
+	
+	/// @function spawns_phantom()
+	/// @description Whether the room's rolled phantom spawns: never in the start room, a lit room or a portcullis trap room
+	/// @returns {bool}
+	static spawns_phantom = function() {
+		return has_phantom && !is_start_room && !is_lit() && !has_portcullis_trap;
+	};
+	
+	/// @function is_lit()
+	/// @description Whether the room starts with its lanterns lit: it rolled lit, or generation lit it so the map has a lit room
+	/// @returns {bool}
+	static is_lit = function() {
+		return lit || is_guaranteed_lit_room;
+	};
+	
+	/// @function has_basic_chest()
+	/// @description Whether the room holds a visible chest that is neither locked nor holding a special item
+	/// @returns {bool}
+	static has_basic_chest = function() {
+		return stairs_spot_obj == obj_chest && !has_locked_chest && !has_special_item;
 	};
 	
 	/// @function get_reachable_rooms_bitmask()
@@ -279,14 +215,85 @@ function GameRoom(_given_x, _given_y) constructor {
 
 		return _reached_rooms_bitmask;
 	};
-
-	/// @function is_lit()
-	/// @description Whether the room starts with its lanterns lit: it rolled lit, or generation lit it so the map has a lit room
+	
+	/// @function can_have_portcullis_trap()
+	/// @description Whether the room can become a portcullis trap room: it can have special exit types, none of its
+	///	cardinal exits has a door or illusion walls or leads to another trap room, and it has a free spot for the button
 	/// @returns {bool}
-	static is_lit = function() {
-		return lit || is_guaranteed_lit_room;
+	static can_have_portcullis_trap = function() {
+		if (!can_have_special_exit_types()) { return false; }
+		
+		// Check each of the room's cardinal exits
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
+			// Skip if there is no exit in this direction
+			var _exit = exits[_dir];
+			if (_exit == -1) { continue; }
+			
+			// Return false if this exit is already in use some other way
+			if (_exit.exit_type != exit_types.none) { return false; }
+		}
+		
+		// Return whether there is at least one spot for the button
+		return array_length(get_portcullis_button_spots()) > 0;
 	};
+	
+	/// @function can_have_special_exit_types()
+	/// @description Whether the room can have illusion walls, portcullis traps and plain doors: it isn't only reached by
+	///	stairs, isn't the start or heart room, and isn't a hall of mirrors or linked to one
+	/// @returns {bool}
+	static can_have_special_exit_types = function() {
+		return (!has_no_cardinal_exits && !is_start_room && !is_heart_room && !is_connected_to_hall_of_mirrors());
+	};
+	
+	/// @function is_connected_to_hall_of_mirrors()
+	/// @description Whether the room is a hall of mirrors, or is linked to one by a cardinal exit
+	/// @returns {bool}
+	static is_connected_to_hall_of_mirrors = function() {
+		if (has_hall_of_mirrors) { return true; }
+		
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++;) {
+			var _next_exit = exits[_dir];
+			if (_next_exit == -1) { continue; }
+			
+			var _next_room = _next_exit.get_connected_room(self);
+			if (_next_room.has_hall_of_mirrors) { return true; }
+		}
+		
+		return false;
+	};
+	
+	/// @function get_portcullis_button_spots()
+	/// @description The free spots the room's portcullis button could take; the stairs spot when
+	///	nothing uses it, and each collectable spot the floor key doesn't take, as long as one stays free for the
+	///	room's collectables. A spot only counts if nothing else shares its tile, since that could hold the
+	///	button down. The chest spot never holds a button.
+	/// @returns {array} Collectable spot numbers in layout file order, with -1 for the stairs spot
+	static get_portcullis_button_spots = function() {
+		// Add the stairs spot to the potential button spots
+		var _possible_spots = [];
+		if (is_stairs_spot_free() && layout.stairs_spot_is_clear) { array_push(_possible_spots, -1); }
 
+		// Add any unused key spots to the potential button spots
+		var _spawned_keys = (key_spot != -1) ? 1 : 0;
+		var _spots_left_by_key = array_length(layout.key_spots) - _spawned_keys;
+		if (!has_collectables || _spots_left_by_key >= 2) {
+			// Loop through all spots in the layout, and add them to the potential button spots
+			for (var _i = 0; _i < array_length(layout.button_spots); _i++) {
+				var _spot = layout.button_spots[_i];
+				if (_spot != key_spot) { array_push(_possible_spots, _spot); }
+			}
+		}
+		return _possible_spots;
+	};
+	
+	/// @function is_stairs_spot_free()
+	/// @description Whether nothing takes the room's stairs spot: no stairs, and no cross, heart or chest placed
+	/// @returns {bool}
+	static is_stairs_spot_free = function() {
+		if (has_exit(directions.stairs)) { return false; }
+		return stairs_spot_obj == -1 || !chest_on_stairs_spot;
+	};
+	
 	/// @function can_light_torch()
 	/// @description Whether a torch can be lit in the room: its lanterns start lit, or something in it shoots fireballs that
 	///	light a torch dropped in their way
@@ -294,21 +301,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	static can_light_torch = function() {
 		return is_lit() || (count_hazards_with_tags(get_actual_mapgen_spawns(), hazard_tags.lights_torches) > 0);
 	};
-
-	/// @function spawns_phantom()
-	/// @description Whether the room's rolled phantom spawns: never in the start room, a lit room or a portcullis trap room
-	/// @returns {bool}
-	static spawns_phantom = function() {
-		return has_phantom && !is_start_room && !is_lit() && !has_portcullis_trap;
-	};
-
-	/// @function spawns_floater()
-	/// @description Whether the room's rolled floater spawns: never in the start room or a portcullis trap room
-	/// @returns {bool}
-	static spawns_floater = function() {
-		return has_floater && !is_start_room && !has_portcullis_trap;
-	};
-
+	
 	/// @function get_spawned_skeleton_types()
 	/// @description What spawns on the room's skeleton spots. The start room doesn't spawn its rolled dangers, so each
 	///	dangerous type rolled for one of its spots, rolled eyes included, spawns as a basic skeleton instead.
@@ -326,44 +319,39 @@ function GameRoom(_given_x, _given_y) constructor {
 		return _spawned_types;
 	};
 	
-	/// @function can_have_hazard_with_eyes(_hazard_name)
-	/// @description Whether a hazard may be rolled for the room when it already has eyes
-	/// @param {string} _hazard_name The hazard's name in the difficulty score table
+	/// @function spawns_floater()
+	/// @description Whether the room's rolled floater spawns: never in the start room or a portcullis trap room
 	/// @returns {bool}
-	static can_have_hazard_with_eyes = function(_hazard_name) {
-		return !has_eyes || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
+	static spawns_floater = function() {
+		return has_floater && !is_start_room && !has_portcullis_trap;
 	};
- 
-	/// @function has_floor_key()
-	/// @description Whether a key lies on one of the room's key spots: its own key, unless that's in a chest, or the extra
-	///	key the first bomb standing in for a key brings
+	
+	/// @function has_trap_chest()
+	/// @description Whether the room's chest holds a statue or fountain trap instead of an item
 	/// @returns {bool}
-	static has_floor_key = function() {
-		return (has_key && !key_in_chest) || has_extra_key;
+	static has_trap_chest = function() {
+		return chest_obj == obj_statue || chest_obj == obj_fountain;
 	};
-
-	/// @function get_floor_item_count()
-	/// @description How many items lie on the room's floor for hands to come for: a key on one of its key spots
-	/// @returns {real}
-	static get_floor_item_count = function() {
-		return has_floor_key() ? 1 : 0;
+	
+	/// @function can_have_special_item()
+	/// @description Whether the room is allowed to have a special item added to it: it has none yet, and it is at least
+	///	two rooms from the start
+	/// @returns {bool}
+	static can_have_special_item = function() {
+		return (!has_special_item && distance_to_start >= 2);
+	};
+	
+	/// @function has_regular_item_chest()
+	/// @description Whether the room has a chest with a regular item: not a special item, not a trap, and not a key or
+	///	bomb placed for the locks
+	/// @returns {bool}
+	static has_regular_item_chest = function() {
+		return (has_chest() && !has_special_item && !key_in_chest && !has_trap_chest());
 	};
 	
 	// ============================
 	// Map Generation Functions
 	// ============================
-	
-	/// @function assign_layout(_layout)
-	/// @description Gives the room a layout: sets its room asset, its lanterns and its hall of mirrors from the layout,
-	///	and marks it as no longer needing a layout
-	/// @param {RoomLayout} _layout The layout
-	static assign_layout = function(_layout) {
-		layout = _layout;
-		room_reference = layout.room_reference;
-		has_lanterns = layout.has_lanterns;
-		has_hall_of_mirrors = layout.has_hall_of_mirrors;
-		mapgen_needs_layout = false;
-	};
 	
 	/// @function determine_layout_exit_type()
 	/// @description Picks the exit kind of the layouts the room can use: usually the kind of its real cardinal exits,
@@ -389,7 +377,19 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Return the exit kind for that many exits
 		return get_exit_type_for_count(_exit_count);
 	};
-
+	
+	/// @function assign_layout(_layout)
+	/// @description Gives the room a layout: sets its room asset, its lanterns and its hall of mirrors from the layout,
+	///	and marks it as no longer needing a layout
+	/// @param {RoomLayout} _layout The layout
+	static assign_layout = function(_layout) {
+		layout = _layout;
+		room_reference = layout.room_reference;
+		has_lanterns = layout.has_lanterns;
+		has_hall_of_mirrors = layout.has_hall_of_mirrors;
+		mapgen_needs_layout = false;
+	};
+	
 	/// @function determine_layout_orientation()
 	/// @description Flips the room's layout at random, then picks a random rotation among those that put the most of its
 	///	openings on the room's real cardinal exits
@@ -418,7 +418,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		}
 		rotate = array_random_get(_best_rotations);
 	};
-
+	
 	/// @function determine_random_room_content(_same_skeleton_type)
 	/// @description Rolls the random content for the room's layout, straight onto the room. It's rolled once per layout
 	///	pick and never edited afterwards; the room's role decides which of it spawns. Any roll that would take the room past
@@ -508,7 +508,7 @@ function GameRoom(_given_x, _given_y) constructor {
 			for (var _mirror = 0; _mirror < 4; _mirror++) { array_push(mirror_directions, get_random_cardinal_dir()); }
 		}
 	};
-
+	
 	/// @function reset_decorations()
 	/// @description Clears the room's decorations and roles, so a new decoration pass can place them again. Its rolled
 	///	content stays as it is, since decorations never change it.
@@ -533,7 +533,16 @@ function GameRoom(_given_x, _given_y) constructor {
 		button_spot = -1;
 		room_reference_difficulty_score = 0;
 	};
-
+	
+	/// @function add_chest([_must_be_hidden])
+	/// @description Puts a chest with no item yet in the room. Unless it must be hidden, a hidden chest can only appear in
+	///	an unlit lantern room with no phantom.
+	/// @param {bool} [_must_be_hidden] Whether the chest must be hidden (false by default)
+	static add_chest = function(_must_be_hidden = false) {
+		has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && !spawns_phantom() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
+		set_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
+	};
+	
 	/// @function set_stairs_spot_object(_object)
 	/// @description Places the room's stairs spot object (the cross, the encased heart, or a chest), and picks whether
 	///	it goes on the stairs spot or the chest spot. The cross always goes on the stairs spot, and nothing else does in a
@@ -544,15 +553,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
 	};
 	
-		/// @function add_chest([_must_be_hidden])
-	/// @description Puts a chest with no item yet in the room. Unless it must be hidden, a hidden chest can only appear in
-	///	an unlit lantern room with no phantom.
-	/// @param {bool} [_must_be_hidden] Whether the chest must be hidden (false by default)
-	static add_chest = function(_must_be_hidden = false) {
-		has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && !spawns_phantom() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
-		set_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
-	};
-
 	/// @function add_portcullis_trap()
 	/// @description Traps the room: the portcullis on its side of each cardinal exit closes until the player presses its
 	///	button. A trap room's phantom and floater don't spawn, and the button's
@@ -572,7 +572,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		button_on_stairs_spot = (_spot == -1);
 		button_spot = _spot;
 	};
-
+	
 	/// @function apply_roles_to_content()
 	/// @description Writes what the room spawns, given its role, into its content fields, which is what building the
 	///	room reads. Only for a finished map: while generation is still deciding roles, it needs the content as rolled.
@@ -590,23 +590,27 @@ function GameRoom(_given_x, _given_y) constructor {
 		}
 	};
 	
-	/// @function initialize_from_room_reference()
-	/// @description Creates the instances the room actually spawns, the first time the room is built, and lists its collectable spots
-	static initialize_from_room_reference = function() {
-		// TODO: Shouldn't we use get_actual_mapgen_spawns here? We need to create each instance the room actually spawns, which includes things added after the layout and doesn't include anything the exit or chest spots destroyed
-		var _reference_instances = layout.instances_to_create;
-		collectable_spot_instances = [];
-		
-		for(var _i = 0; _i < array_length(_reference_instances); _i++) {
-			var _ref = _reference_instances[_i];
-			var _new_instance = instance_create(_ref.x, _ref.y, asset_get_index(_ref.object_name));
-			if (_ref.object_name == "obj_collectable_spot") { array_push(collectable_spot_instances, _new_instance); }
-		}
-	};
-	
 	// ============================
 	// Difficulty Score Functions
 	// ============================
+	
+	/// @function would_exceed_max_difficulty(_hazard_name, [_replaced_hazard_name])
+	/// @description Whether one more of a hazard would take the threats rolled into the room past ROOM_DIFFICULTY_SCORE_MAX,
+	///	so generation can skip that roll. What spawns into the room during play counts too, on average. The room is scored
+	///	as a player holding nothing meets it, with light only if it rolled lit, and with no key on its floor: chests, keys
+	///	and torches move between generation passes, but what's rolled into a room stays.
+	/// @param {string} _hazard_name The hazard's name in the table
+	/// @param {string} [_replaced_hazard_name] A hazard the new one takes the place of, like a skeleton spot's basic skeleton
+	/// @returns {bool}
+	static would_exceed_max_difficulty = function(_hazard_name, _replaced_hazard_name = undefined) {
+		// Get the actual hazard counts, modified by the given hazard name and replaced hazard
+		var _potential_hazard_counts = layout.get_spawned_hazard_counts(get_actual_mapgen_spawns(false));
+		add_to_count_struct(_potential_hazard_counts, _hazard_name, 1);
+		if (!is_undefined(_replaced_hazard_name)) { add_to_count_struct(_potential_hazard_counts, _replaced_hazard_name, -1); }
+		
+		var _empty_handed_chances = new HazardMitigation(0, 0, 0, lit ? 1 : 0);
+		return _empty_handed_chances.get_total_difficulty_score_for_spawn_counts(_potential_hazard_counts) > ROOM_DIFFICULTY_SCORE_MAX;
+	};
 	
 	/// @function get_current_difficulty_score()
 	/// @description The room's difficulty score as it is now: its hazards, with its role and decorations
@@ -614,7 +618,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_current_difficulty_score = function() {
 		return get_potential_difficulty_score(get_actual_mapgen_spawns());
 	};
- 
+	
 	/// @function get_potential_difficulty_score(_counts)
 	/// @description The room's difficulty score for some hazard counts, without time. The counts hold what the layout spawns
 	///	for sure and what generation actually rolled into the room, scored together since hazards make each other worse,
@@ -644,27 +648,8 @@ function GameRoom(_given_x, _given_y) constructor {
  
 		return _difficulty_score;
 	};
- 
-	/// @function would_exceed_max_difficulty(_hazard_name, [_replaced_hazard_name])
-	/// @description Whether one more of a hazard would take the threats rolled into the room past ROOM_DIFFICULTY_SCORE_MAX,
-	///	so generation can skip that roll. What spawns into the room during play counts too, on average. The room is scored
-	///	as a player holding nothing meets it, with light only if it rolled lit, and with no key on its floor: chests, keys
-	///	and torches move between generation passes, but what's rolled into a room stays.
-	/// @param {string} _hazard_name The hazard's name in the table
-	/// @param {string} [_replaced_hazard_name] A hazard the new one takes the place of, like a skeleton spot's basic skeleton
-	/// @returns {bool}
-	static would_exceed_max_difficulty = function(_hazard_name, _replaced_hazard_name = undefined) {
-		// Get the actual hazard counts, modified by the given hazard name and replaced hazard
-		var _potential_hazard_counts = layout.get_spawned_hazard_counts(get_actual_mapgen_spawns(false));
-		add_to_count_struct(_potential_hazard_counts, _hazard_name, 1);
-		if (!is_undefined(_replaced_hazard_name)) { add_to_count_struct(_potential_hazard_counts, _replaced_hazard_name, -1); }
-		
-		var _empty_handed_chances = new HazardMitigation(0, 0, 0, lit ? 1 : 0);
-		return _empty_handed_chances.get_total_difficulty_score_for_spawn_counts(_potential_hazard_counts) > ROOM_DIFFICULTY_SCORE_MAX;
-	};
- 
- 
- 	// ============================
+	
+	// ============================
 	// Time Score Functions
 	// ============================
 	
@@ -803,7 +788,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_time_provided = function() {
 		return TIME_ALLOWANCE; // * get_time_needed();
 	};
-
+	
 	// ============================
 	// Layout Object Count Functions
 	// ============================
@@ -940,7 +925,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		mp_grid_destroy(lava_path_grid);
 		mp_grid_destroy(empty_path_grid);
 	};
-
+	
 	/// @function rebuild_room_grids()
 	/// @description Rebuilds the room's solid and lava path grids from the instances in it now: solids block both grids,
 	///	and lava blocks the lava grid
@@ -951,14 +936,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		with (obj_solid) { mp_path_grid_add(other.solid_path_grid); mp_path_grid_add(other.lava_path_grid); }
 	};
 	
-	/// @function has_visited_exit(_dir)
-	/// @description Whether the room has an exit in a direction that the player has gone through
-	/// @param {real} _dir A direction, stairs included
-	/// @returns {bool}
-	static has_visited_exit = function(_dir) {
-		return (exits[_dir] != -1 && exits[_dir].visited);
-	};
-	
 	/// @function add_to_instances_at_map_positions(_inst)
 	/// @description Records an instance's object in the part of the room it's in, one of a three by three grid, so the
 	///	map can draw it there
@@ -967,7 +944,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		var _room_map_pos = get_room_map_position(_inst);
 		array_push(instances_at_map_positions[_room_map_pos[0]][_room_map_pos[1]], _inst.object_index);
 	};
-
+	
 	/// @function remove_from_instances_at_map_positions(_inst)
 	/// @description Removes an instance's object from the part of the room it's in, which add_to_instances_at_map_positions
 	///	recorded for the map
@@ -985,6 +962,20 @@ function GameRoom(_given_x, _given_y) constructor {
 			for (var _i = 0; _i < array_length(instances); _i++) {
 				instance_activate_object(instances[_i]);
 			}
+		}
+	};
+	
+	/// @function initialize_from_room_reference()
+	/// @description Creates the instances the room actually spawns, the first time the room is built, and lists its collectable spots
+	static initialize_from_room_reference = function() {
+		// TODO: Shouldn't we use get_actual_mapgen_spawns here? We need to create each instance the room actually spawns, which includes things added after the layout and doesn't include anything the exit or chest spots destroyed
+		var _reference_instances = layout.instances_to_create;
+		collectable_spot_instances = [];
+		
+		for(var _i = 0; _i < array_length(_reference_instances); _i++) {
+			var _ref = _reference_instances[_i];
+			var _new_instance = instance_create(_ref.x, _ref.y, asset_get_index(_ref.object_name));
+			if (_ref.object_name == "obj_collectable_spot") { array_push(collectable_spot_instances, _new_instance); }
 		}
 	};
 	
@@ -1013,7 +1004,7 @@ function GameRoom(_given_x, _given_y) constructor {
 			if (exit_dir == directions.right || exit_dir == directions.left) { exit_dir = get_opposite_dir(exit_dir); }
 		}
 	};
-
+	
 	/// @function flip_room_contents_vertically()
 	/// @description Used during gameplay by the hall of mirrors to flip the room vertically, updating the exit spots to match
 	static flip_room_contents_vertically = function() {
@@ -1027,7 +1018,7 @@ function GameRoom(_given_x, _given_y) constructor {
 			if (exit_dir == directions.up || exit_dir == directions.down) { exit_dir = get_opposite_dir(exit_dir); }
 		}
 	};
-
+	
 	/// @function rotate_room_contents_around_room_center(_direction_to_face)
 	/// @description Rotates the room's instances, other than the player, around the room's center, and turns the exit
 	///	spots to match
@@ -1197,6 +1188,14 @@ function GameRoom(_given_x, _given_y) constructor {
 		return true;
 	};
 	
+	/// @function has_visited_exit(_dir)
+	/// @description Whether the room has an exit in a direction that the player has gone through
+	/// @param {real} _dir A direction, stairs included
+	/// @returns {bool}
+	static has_visited_exit = function(_dir) {
+		return (exits[_dir] != -1 && exits[_dir].visited);
+	};
+	
 	// ============================
 	// Instance Variables
 	// ============================
@@ -1286,12 +1285,6 @@ function GameRoom(_given_x, _given_y) constructor {
 // Global Room Functions
 // ============================
 	
-/// @function mark_current_room_for_grid_update()
-/// @description Has the controller rebuild the current room's path grids on its next update
-function mark_current_room_for_grid_update() {
-	global.controller.grid_update_timer = 1;
-}
-
 /// @function get_skeleton_type([_include_basic_skeleton])
 /// @description Determines what a skeleton spot holds at the current difficulty
 /// @param {bool} [_include_basic_skeleton] Whether the function should be able to return a basic skeleton
@@ -1310,4 +1303,10 @@ function get_skeleton_type(_include_basic_skeleton = true) {
 	}
 	
 	return obj_skeleton;
+}
+
+/// @function mark_current_room_for_grid_update()
+/// @description Has the controller rebuild the current room's path grids on its next update
+function mark_current_room_for_grid_update() {
+	global.controller.grid_update_timer = 1;
 }

@@ -115,34 +115,6 @@ function get_hazards_table() {
 // Public Functions
 // ============================
 
-/// @function get_difficulty_points_from_danger(_danger)
-/// @description A danger is a chance of dying, and chances can't simply be added: two hazards that each kill half the time don't kill
-/// every time together, only three times out of four, since surviving means surviving both. What combines simply is
-/// surviving: the chances of surviving each hazard multiply. Taking -ln of the chance of surviving, 1 - danger, turns
-/// that multiplying into adding, so the result (difficulty points) can be added up across hazards and rooms. Small dangers
-/// stay about the same (0.05 is 0.051 points), but the points grow faster as a danger nears certain death (0.5 is 0.69,
-/// 0.9 is 2.3), and capping the danger at 0.99 stops certain death from being worth infinite points.
-/// @param {real} _danger		The danger value to translate into difficulty points
-/// @returns {real}
-function get_difficulty_points_from_danger(_danger) {
-	return -ln(1 - min(_danger, 0.99)) * HAZARD_DANGER_SCALE;
-}
- 
-/// @function get_time_for_hazard(_name, _count)
-/// @description The time score for _count of a hazard in one room, following its time_many rule, at most 1.
-/// @param {string} _name The hazard's name in the table
-/// @param {real} _count How many; can be fractional when it's an expected count
-/// @returns {real}
-function get_time_for_hazard(_name, _count) {
-	// Return 0 for hazards not in the hazard table or final room count
-	var _table = get_hazards_table(), _entry = _table[$ _name];
-	if (is_undefined(_entry) || _count <= 0) { return 0; }
-	
-	// Modify the time score based on the number of copies of this hazard, as per the table
-	var _copies = (_entry.time_many == 0) ? min(1, _count) : power(_count, _entry.time_many);
-	return min(1, _entry.time * _copies);
-}
-
 /// @function get_danger_for_hazard(_hazard_name, _hazard_count)
 /// @description Return's a hazards danger value based on it's danger and many entries from the table
 /// @param {string} _hazard_name		The hazard's name in the table
@@ -157,6 +129,19 @@ function get_danger_for_hazard(_hazard_name, _hazard_count) {
 	var _table_danger = _table_entry.danger, _table_many = _table_entry.many;
 	var _hazard_copies = (_table_many == 0) ? min(1, _hazard_count) : power(_hazard_count, _table_many);
 	return _hazard_copies * _table_danger;
+}
+
+/// @function get_difficulty_points_from_danger(_danger)
+/// @description A danger is a chance of dying, and chances can't simply be added: two hazards that each kill half the time don't kill
+/// every time together, only three times out of four, since surviving means surviving both. What combines simply is
+/// surviving: the chances of surviving each hazard multiply. Taking -ln of the chance of surviving, 1 - danger, turns
+/// that multiplying into adding, so the result (difficulty points) can be added up across hazards and rooms. Small dangers
+/// stay about the same (0.05 is 0.051 points), but the points grow faster as a danger nears certain death (0.5 is 0.69,
+/// 0.9 is 2.3), and capping the danger at 0.99 stops certain death from being worth infinite points.
+/// @param {real} _danger		The danger value to translate into difficulty points
+/// @returns {real}
+function get_difficulty_points_from_danger(_danger) {
+	return -ln(1 - min(_danger, 0.99)) * HAZARD_DANGER_SCALE;
 }
 
 /// @function get_hazard_combination_multiplier(_counts, _hazard_name)
@@ -185,7 +170,7 @@ function get_hazard_combination_multiplier(_hazard_counts, _hazard_name) {
 	var _hazard_combination_multiplier = (_worst_case_multiplier - 1) * (1 - _hazard_score_factor);
 	return 1 + (_hazard_combination_multiplier);
 }
- 
+
 /// @function hazard_has_tag(_hazard_name, _tags)
 /// @description Whether a hazard has any of some tags
 /// @param {string} _hazard_name The hazard's name in the table
@@ -195,7 +180,7 @@ function hazard_has_tag(_hazard_name, _tags) {
 	var _table = get_hazards_table(), _entry = _table[$ _hazard_name];
 	return !is_undefined(_entry) && ((_entry.tags & _tags) != 0);
 }
- 
+
 /// @function count_hazards_with_tags(_hazard_counts, _tags_to_count, [_ignored_hazard_name])
 /// @description How many kinds of hazard in a room have any of a given taq
 /// @param {struct} _hazard_counts 					The count struct of hazards in the room
@@ -256,6 +241,21 @@ function get_chance_to_make_player_move(_hazard_counts, _hazard_name) {
 // ============================
 // Time Score Functions
 // ============================
+
+/// @function get_time_for_hazard(_name, _count)
+/// @description The time score for _count of a hazard in one room, following its time_many rule, at most 1.
+/// @param {string} _name The hazard's name in the table
+/// @param {real} _count How many; can be fractional when it's an expected count
+/// @returns {real}
+function get_time_for_hazard(_name, _count) {
+	// Return 0 for hazards not in the hazard table or final room count
+	var _table = get_hazards_table(), _entry = _table[$ _name];
+	if (is_undefined(_entry) || _count <= 0) { return 0; }
+	
+	// Modify the time score based on the number of copies of this hazard, as per the table
+	var _copies = (_entry.time_many == 0) ? min(1, _count) : power(_count, _entry.time_many);
+	return min(1, _entry.time * _copies);
+}
 
 /*
 /// @function get_time_score_for_hazard_counts(_counts)

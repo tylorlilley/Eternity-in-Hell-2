@@ -17,6 +17,21 @@ enum exit_types {
 /// @param {GameRoom} _linked_room The other room it links
 function RoomExit(_current_room, _linked_room) constructor {
 	// ========================
+	// Public Getter Functions - Called outside of the map generation scripts
+	// ========================
+	
+	/// @function get_connected_room(_room)
+	/// @description The room on the other side of the exit for a given room
+	/// @param {GameRoom} _room The room on one side
+	/// @returns {GameRoom|real} The room on the other side, or -1 if the exit doesn't link the given room
+	static get_connected_room = function(_room) {
+		if (_room == room_1) { return room_2; }
+		else if (_room == room_2) { return room_1; }
+
+		return -1;
+	};
+	
+	// ========================
 	// Map Generation Functions
 	// ========================
 	
@@ -27,7 +42,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 		room_1_has_closed_portcullis = false;
 		room_2_has_closed_portcullis = false;
 	};
-
+	
 	/// @function can_be_locked()
 	/// @description Whether generation can lock this exit: it has no exit type yet, and neither room it links is the start room or a hall of mirrors
 	/// @returns {bool}
@@ -67,7 +82,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 		
 		else return noone;
 	};
-
+	
 	/// @function has_closed_portcullis_for_room(_room)
 	/// @description Whether the portcullis on the given room's side of the exit will close
 	/// @param {GameRoom} _room The room whose side to check
@@ -80,7 +95,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 
 		return false;
 	};
-
+	
 	/// @function open_portcullis()
 	/// @description Opens the portcullis on both sides of the exit, if the portcullis is closed
 	/// @returns {bool} False if the exit is not a closed portcullis
@@ -93,7 +108,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 		room_2_has_closed_portcullis = false;
 		return true;
 	};
-
+	
 	/// @function close_portcullis()
 	/// @description Closes the portcullis on both sides of the exit
 	/// @returns {bool} False if the exit is not a closed portcullis
@@ -105,7 +120,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 		room_2_has_closed_portcullis = true;
 		return true;
 	};
-
+	
 	/// @function add_stairs_for_room(_room, _stairs)
 	/// @description Links the given stairs instance to the given room for this exit
 	/// @param {GameRoom} _room The room the stairs are in
@@ -114,7 +129,7 @@ function RoomExit(_current_room, _linked_room) constructor {
 		if (_room == room_1 && room_1_stairs == noone) { room_1_stairs = _stairs; }
 		else if (_room == room_2 && room_2_stairs == noone) { room_2_stairs = _stairs; }
 	};
-
+	
 	/// @function get_connected_stairs(_stairs)
 	/// @description The stairs instance on the other side of the exit from a given one
 	/// @param {Id.Instance} _stairs The stairs instance on one side
@@ -125,25 +140,14 @@ function RoomExit(_current_room, _linked_room) constructor {
 
 		return noone;
 	};
-
-	/// @function get_connected_room(_room)
-	/// @description The room on the other side of the exit for a given room
-	/// @param {GameRoom} _room The room on one side
-	/// @returns {GameRoom|real} The room on the other side, or -1 if the exit doesn't link the given room
-	static get_connected_room = function(_room) {
-		if (_room == room_1) { return room_2; }
-		else if (_room == room_2) { return room_1; }
-
-		return -1;
-	};
-
+	
 	/// @function destroy_doors()
 	/// @description Marks the exit's door as destroyed during play, which removes the exit type entirely
 	static destroy_doors = function() {
 		destroyed = true;
 		exit_type = exit_types.none;
 	};
-
+	
 	/// @function unlock()
 	/// @description Removes the exit's lock during play, once the player opens it with a key
 	static unlock = function() { exit_type = exit_types.unlocked_doors; };

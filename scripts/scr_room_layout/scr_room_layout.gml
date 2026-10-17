@@ -22,84 +22,12 @@ function RoomLayout(_room_reference) constructor {
 	// Public Getter Functions - Called Outside of this file
 	// ============================
 	
-	/// @function get_spawned_hazard_counts([_mapgen_spawns])
-	/// @description Get the count struct for all the hazards that spawn based on this layout. Estimated values for the mapgen
-	/// spawns if not actual values are given, and then it adds the estimated midgame spawns on top of that.
-	/// @param {struct} _mapgen_spawns The actual spawns from map generation; will use estimates by default
-	/// @returns {struct} The count struct of actual spawn counts
-	static get_spawned_hazard_counts = function(_mapgen_spawns = undefined) {
-		// Use estimated mapgen spawn counts if no actual counts are given
-		_mapgen_spawns ??= combine_count_structs(get_guaranteed_mapgen_spawns(), get_estimated_mapgen_spawns());
-		return combine_count_structs(_mapgen_spawns, get_estimated_midgame_spawns(_mapgen_spawns));
-	};
-	
-	
 	/// @function get_object_count(_object_name)
 	/// @description How many of an object are included in the base layout, before modifying based on the destroying spots
 	/// @param {string} _object_name The string name of the Game Maker object type
 	/// @returns {real} The count, or 0 if the layout places none
 	static get_object_count = function(_object_name) {
 		return get_count_from_struct(instance_object_counts, _object_name);
-	};
-	
-	/// @function can_have_hazard_with_eyes(_hazard_name)
-	/// @description Whether generation can roll a hazard into a room with this layout: never one that chases or shoots at the
-	///	player when the layout places eyes
-	/// @param {string} _hazard_name The hazard's name in the difficulty score table
-	/// @returns {bool}
-	static can_have_hazard_with_eyes = function(_hazard_name) {
-		// TODO: Remove this function and figure out eyes based on the real or estimated hazard count
-		return get_estimated_object_count("obj_eyes") == 0 || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
-	};
-	
-	// ============================
-	// Private Estimation Functions
-	// ============================
-
-	/// @function get_estimated_object_count(_object_name)
-	/// @description How many of an object the layout places, adjusted for those removed by exit and chest spots during map generation
-	/// @param {string} _object_name The string name of the Game Maker object type
-	/// @returns {real}
-	static get_estimated_object_count = function(_object_name) {
-		// Start with the base object count, and subtract any covered instances by their chance to be removed
-		var _count = get_object_count(_object_name);
-		for (var _i = 0; _i < array_length(covered_instances); _i++) {
-			// Skip any instances that aren't of the object type we are counting
-			var _covered_instance = covered_instances[_i], _destroyed_chance = 0;
-			if (_covered_instance.object_name != _object_name) { continue; }
-			
-			// Adjust the count by each spot that could destroy it
-			for (var _j = 0; _j < array_length(_covered_instance.destroying_spots); _j++) {
-				// TODO: Why is this max? Shouldn't we be combining the chance of each spot that can destroy this since having more spots increases the chances it gets destroyed?
-				_destroyed_chance = max(_destroyed_chance, get_spot_destroyed_chance(destroying_spots[_covered_instance.destroying_spots[_j]]));
-			}
-			_count -= _destroyed_chance;
-		}
-		return _count;
-	};
-	
-	/// @function get_spot_destroyed_chance(_destroying_spot)
-	/// @description Returns how likely a room with this layout is to destroy what's under one of its exit or chest spots during map generation.
-	/// The current difficulty effects this. The layout's openings are the room's exits unless its exits are
-	///	misleading or exits are illusion walls, rolled from the rooms on both sides of an exit that isn't locked. The
-	///	chest spot destroys if a chest spawns there instead of on the stairs spot, which never happens in a special room
-	/// @param {struct} _destroying_spot One of the layout's destroying_spots
-	/// @returns {real} From 0 to 1
-	static get_spot_destroyed_chance = function(_destroying_spot) {
-		// Return if the destroying spot is for a chest spot and not an exit direction
-		if (_destroying_spot.exit_direction == -1) { return is_special_room ? 0 : get_chance_out_of(CHEST_PROBABILITY) * (1 - get_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY)); }
-		
-		// How likely the spot's side is to be one of the room's exits
-		var _open_exits = get_open_cardinal_exits(), _open_exit_count = array_length(_open_exits), _open_chance = undefined;
-		var _misleading_chance = is_special_room ? 0 : get_chance_out_of(MISLEADING_EXITS_PROBABILITY) / 2;
-		// TODO: Why is two opposite and two perpendicular exit types treated specially here? Why aren't they both just the same?
-		if (array_contains(_open_exits, _destroying_spot.exit_direction)) { _open_chance = (exit_type == layout_exit_types.two_opposite) ? 1 : 1 - (_misleading_chance / _open_exit_count); }
-		else { _open_chance = (exit_type == layout_exit_types.none || exit_type == layout_exit_types.two_perpendicular) ? 0 : _misleading_chance / (4 - _open_exit_count); }
-		
-		// An open exit destroys its blocked spots, a closed one its free spots, and illusion walls all of them
-		if (_destroying_spot.blocked) { return _open_chance; }
-		var _illusion_chance = 2 * get_chance_out_of(ILLUSION_WALL_PROBABILITY) * (1 - 2 * get_chance_out_of(LOCKED_DOOR_PROBABILITY));
-		return 1 - (_open_chance * (1 - _illusion_chance));
 	};
 	
 	/// @function get_open_cardinal_exits()
@@ -115,6 +43,21 @@ function RoomLayout(_room_reference) constructor {
 			default: return [];
 		}
 	};
+	
+	/// @function get_spawned_hazard_counts([_mapgen_spawns])
+	/// @description Get the count struct for all the hazards that spawn based on this layout. Estimated values for the mapgen
+	/// spawns if not actual values are given, and then it adds the estimated midgame spawns on top of that.
+	/// @param {struct} _mapgen_spawns The actual spawns from map generation; will use estimates by default
+	/// @returns {struct} The count struct of actual spawn counts
+	static get_spawned_hazard_counts = function(_mapgen_spawns = undefined) {
+		// Use estimated mapgen spawn counts if no actual counts are given
+		_mapgen_spawns ??= combine_count_structs(get_guaranteed_mapgen_spawns(), get_estimated_mapgen_spawns());
+		return combine_count_structs(_mapgen_spawns, get_estimated_midgame_spawns(_mapgen_spawns));
+	};
+	
+	// ============================
+	// Private Estimation Functions
+	// ============================
 	
 	/// @function get_guaranteed_mapgen_spawns()
 	/// @description Everything that is guaranteed to spawn in this layout, aside from what spawns for sure
@@ -250,6 +193,62 @@ function RoomLayout(_room_reference) constructor {
 			_skeleton_type_counts[$ _skeleton_type_count_keys[_i]] *= _skeleton_spot_count;
 		}
 		return combine_count_structs(_mapgen_counts, _skeleton_type_counts);
+	};
+	
+	/// @function get_estimated_object_count(_object_name)
+	/// @description How many of an object the layout places, adjusted for those removed by exit and chest spots during map generation
+	/// @param {string} _object_name The string name of the Game Maker object type
+	/// @returns {real}
+	static get_estimated_object_count = function(_object_name) {
+		// Start with the base object count, and subtract any covered instances by their chance to be removed
+		var _count = get_object_count(_object_name);
+		for (var _i = 0; _i < array_length(covered_instances); _i++) {
+			// Skip any instances that aren't of the object type we are counting
+			var _covered_instance = covered_instances[_i], _destroyed_chance = 0;
+			if (_covered_instance.object_name != _object_name) { continue; }
+			
+			// Adjust the count by each spot that could destroy it
+			for (var _j = 0; _j < array_length(_covered_instance.destroying_spots); _j++) {
+				// TODO: Why is this max? Shouldn't we be combining the chance of each spot that can destroy this since having more spots increases the chances it gets destroyed?
+				_destroyed_chance = max(_destroyed_chance, get_spot_destroyed_chance(destroying_spots[_covered_instance.destroying_spots[_j]]));
+			}
+			_count -= _destroyed_chance;
+		}
+		return _count;
+	};
+	
+	/// @function get_spot_destroyed_chance(_destroying_spot)
+	/// @description Returns how likely a room with this layout is to destroy what's under one of its exit or chest spots during map generation.
+	/// The current difficulty effects this. The layout's openings are the room's exits unless its exits are
+	///	misleading or exits are illusion walls, rolled from the rooms on both sides of an exit that isn't locked. The
+	///	chest spot destroys if a chest spawns there instead of on the stairs spot, which never happens in a special room
+	/// @param {struct} _destroying_spot One of the layout's destroying_spots
+	/// @returns {real} From 0 to 1
+	static get_spot_destroyed_chance = function(_destroying_spot) {
+		// Return if the destroying spot is for a chest spot and not an exit direction
+		if (_destroying_spot.exit_direction == -1) { return is_special_room ? 0 : get_chance_out_of(CHEST_PROBABILITY) * (1 - get_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY)); }
+		
+		// How likely the spot's side is to be one of the room's exits
+		var _open_exits = get_open_cardinal_exits(), _open_exit_count = array_length(_open_exits), _open_chance = undefined;
+		var _misleading_chance = is_special_room ? 0 : get_chance_out_of(MISLEADING_EXITS_PROBABILITY) / 2;
+		// TODO: Why is two opposite and two perpendicular exit types treated specially here? Why aren't they both just the same?
+		if (array_contains(_open_exits, _destroying_spot.exit_direction)) { _open_chance = (exit_type == layout_exit_types.two_opposite) ? 1 : 1 - (_misleading_chance / _open_exit_count); }
+		else { _open_chance = (exit_type == layout_exit_types.none || exit_type == layout_exit_types.two_perpendicular) ? 0 : _misleading_chance / (4 - _open_exit_count); }
+		
+		// An open exit destroys its blocked spots, a closed one its free spots, and illusion walls all of them
+		if (_destroying_spot.blocked) { return _open_chance; }
+		var _illusion_chance = 2 * get_chance_out_of(ILLUSION_WALL_PROBABILITY) * (1 - 2 * get_chance_out_of(LOCKED_DOOR_PROBABILITY));
+		return 1 - (_open_chance * (1 - _illusion_chance));
+	};
+	
+	/// @function can_have_hazard_with_eyes(_hazard_name)
+	/// @description Whether generation can roll a hazard into a room with this layout: never one that chases or shoots at the
+	///	player when the layout places eyes
+	/// @param {string} _hazard_name The hazard's name in the difficulty score table
+	/// @returns {bool}
+	static can_have_hazard_with_eyes = function(_hazard_name) {
+		// TODO: Remove this function and figure out eyes based on the real or estimated hazard count
+		return get_estimated_object_count("obj_eyes") == 0 || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
 	};
 	
 	/// @function get_estimated_midgame_spawns()
@@ -502,7 +501,7 @@ function RoomLayout(_room_reference) constructor {
 		if (string_pos("four_exits", _name) != 0) { return layout_exit_types.four; }
 		return -1;
 	};
-
+	
 	/// @function get_instances_from_room_asset()
 	/// @description Reads the instances this room spawns straight from its GameMaker room, in place of the layout file.
 	///	Each is listed the way the layout file lists it, as { x, y, object_name }, with its position rounded to whole pixels.
@@ -615,7 +614,7 @@ function RoomLayout(_room_reference) constructor {
 		}
 		return false;
 	};
-
+	
 	/// @function validate_layout()
 	/// @description Logs any way the layout breaks the expected spot rules generation relies on.
 	/// @returns {bool} Whether the layout passes the check or not
@@ -694,15 +693,6 @@ function RoomLayout(_room_reference) constructor {
 	// Initializer Tile Functions
 	// ============================
 	
-	/// @function get_tile_key(_x, _y)
-	/// @description The key a tile has in a struct of tiles, from the position of an instance on it.
-	/// @param {real} _x The instance's x position
-	/// @param {real} _y The instance's y position
-	/// @returns {string}
-	static get_tile_key = function(_x, _y) {
-		return string(_x) + "," + string(_y);
-	};
-	
 	/// @function add_instance_to_tile(_instance)
 	/// @description Adds an instance to those listed at its tile location
 	/// @param {struct} _instance A struct with the instance's name and its x and y positions, to add to the map
@@ -712,12 +702,13 @@ function RoomLayout(_room_reference) constructor {
 		array_push(instances_at_tile[$ _tile_key], _instance);
 	};
 	
-	/// @function get_instances_at_tile(_tile_key)
-	/// @description Returns a list of instances present at that tile position, if any
-	/// @param {string} _tile_key The string key of a tile position to check
-	/// @returns {array} The instances present at that tile position, if any
-	static get_instances_at_tile = function(_tile_key) {
-		return (instances_at_tile[$ _tile_key] ?? []);
+	/// @function get_tile_key(_x, _y)
+	/// @description The key a tile has in a struct of tiles, from the position of an instance on it.
+	/// @param {real} _x The instance's x position
+	/// @param {real} _y The instance's y position
+	/// @returns {string}
+	static get_tile_key = function(_x, _y) {
+		return string(_x) + "," + string(_y);
 	};
 	
 	/// @function tile_has_object(_tile_key, _object_name)
@@ -731,6 +722,14 @@ function RoomLayout(_room_reference) constructor {
 			if (_tile_instances[_i].object_name == _object_name) { return true; }
 		}
 		return false;
+	};
+	
+	/// @function get_instances_at_tile(_tile_key)
+	/// @description Returns a list of instances present at that tile position, if any
+	/// @param {string} _tile_key The string key of a tile position to check
+	/// @returns {array} The instances present at that tile position, if any
+	static get_instances_at_tile = function(_tile_key) {
+		return (instances_at_tile[$ _tile_key] ?? []);
 	};
 	
 	// ============================
@@ -781,6 +780,10 @@ function RoomLayout(_room_reference) constructor {
 	if (is_usable) { is_usable = validate_layout(); }
 	instances_at_tile = undefined; // Nothing needs this anymore after validation is completed
 }
+
+// ============================
+// Global Room Layout Functions
+// ============================
 
 /// @function get_only_lantern_layouts(_layouts)
 /// @description The layouts with lanterns among some layouts

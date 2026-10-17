@@ -17,19 +17,7 @@ function SpecialRoomType(_name, _room_references) constructor {
 		}
 		return false;
 	};
-
-	/// @function get_layouts_of_exit_type(_exit_type)
-	/// @description Returns any layouts that match the given exit type
-	/// @param {real} _exit_type A layout_exit_types enum value
-	/// @returns {array} the matching RoomLayouts, in a new array
-	static get_layouts_of_exit_type = function(_exit_type) {
-		var _matching_exit_types = [];
-		for (var _i = 0; _i < array_length(layouts); _i++) {
-			if (layouts[_i] != -1 && layouts[_i].exit_type == _exit_type) { array_push(_matching_exit_types, layouts[_i]); }
-		}
-		return _matching_exit_types;
-	};
-
+	
 	/// @function get_exit_types()
 	/// @description Returns each exit type that is included among the layouts at least once
 	/// @returns {array} An array of layout_exit_types enum values
@@ -40,6 +28,18 @@ function SpecialRoomType(_name, _room_references) constructor {
 			if (!array_contains(_exit_types, layouts[_i].exit_type)) { array_push(_exit_types, layouts[_i].exit_type); }
 		}
 		return _exit_types;
+	};
+	
+	/// @function get_layouts_of_exit_type(_exit_type)
+	/// @description Returns any layouts that match the given exit type
+	/// @param {real} _exit_type A layout_exit_types enum value
+	/// @returns {array} the matching RoomLayouts, in a new array
+	static get_layouts_of_exit_type = function(_exit_type) {
+		var _matching_exit_types = [];
+		for (var _i = 0; _i < array_length(layouts); _i++) {
+			if (layouts[_i] != -1 && layouts[_i].exit_type == _exit_type) { array_push(_matching_exit_types, layouts[_i]); }
+		}
+		return _matching_exit_types;
 	};
 	
 	// ========================

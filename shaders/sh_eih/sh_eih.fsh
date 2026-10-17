@@ -3,7 +3,7 @@
 // pixel is blended with the image blend, which carries the lighting
 //
 varying vec2 v_vTexcoord; // The texture coordinate of the original sprite pixel
-varying vec4 v_vColour; // The image_blend color (rgb) and a flag (a): the white/red swap (see INVERTED_COLORS_ALPHA) or fading (see FADING_COLORS_ALPHA)
+varying vec4 v_vColour; // The image_blend color (rgb) and a flag (a): the white/red swap (see INVERTED_COLORS_ALPHA_FLAG) or fading (see FADING_COLORS_ALPHA_FLAG)
 
 uniform vec4 new_color;		// The color bright red pixels become
 uniform vec4 bg_color;		// The color solid black pixels become

@@ -14,6 +14,10 @@ add two more special rooms
 do a pass of all eval messages/achievements and their requirements. Prefer percentages to hard counts. Prefer looking at the map that was actually created. Add new ones
 final boss that spawns in very hard if you've solved all seven special rooms before
 
+eval for first time you complete the death log of types?
+eval for first time on a difficulty/visual combination you get a score of 92% or above?
+eval for first time on a difficulty/visual combination you get a score of 100% or above (TODO: Is this possible?)
+
 
 cockroach sometims steps towards light - I think this got fixed?
 room with mirror + fireball spitter

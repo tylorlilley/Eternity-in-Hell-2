@@ -9,4 +9,4 @@ walk_timer = 2;
 move_pos = 0;
 
 image_index = 1;
-image_alpha = INVERTED_COLORS_ALPHA;
+image_alpha = INVERTED_COLORS_ALPHA_FLAG;

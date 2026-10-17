@@ -79,8 +79,8 @@ function draw_death_type_sprite(_x_pos, _y_pos, _obj_index) {
 	}
 	else if (_obj_index == obj_bug) { draw_sprite(spr_bug_red, 0, _x_pos, _y_pos); }
 	else if (_obj_index == obj_echo) {
-		draw_sprite_ext(spr_player, 1, _x_pos, _y_pos, 1, 1, 0, c_white, INVERTED_COLORS_ALPHA);
-		if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, _x_pos, _y_pos, 1, 1, 0, c_white, INVERTED_COLORS_ALPHA); }
+		draw_sprite_ext(spr_player, 1, _x_pos, _y_pos, 1, 1, 0, c_white, INVERTED_COLORS_ALPHA_FLAG);
+		if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, _x_pos, _y_pos, 1, 1, 0, c_white, INVERTED_COLORS_ALPHA_FLAG); }
 	}
 	else if (_obj_index == obj_lava) {
 		if (global.lava_edge_type > lava_edge_types.none && global.lava_edge_type < lava_edge_types.wavy_still) { _death_sprite = spr_lava_death_edge2; }

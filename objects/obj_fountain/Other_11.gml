@@ -10,6 +10,6 @@ else if (shoot_timer == 0 && !is_existing_instance(projectile)) {
 }
 else if (shoot_timer > 0) { shoot_timer -= 1; }
 if (is_blink_frame()) { image_angle += 90; }
-if (image_angle >= 360) { image_angle = 0; }
+if (image_angle > 360) { image_angle = 90; }
 	
 event_inherited();

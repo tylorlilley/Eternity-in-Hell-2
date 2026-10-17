@@ -12,7 +12,7 @@ if (can_process_this_frame()) {
 	if (_just_killed_player || get_random_chance_out_of(INVISIBLE_SKELETON_FLASH_FREQUENCY)) { image_alpha = 1; }
 	else {
 		var _visibility = 1 - min(1, get_greatest_lighting() / INVISIBLE_SKELETON_VANISHING_LIGHT);
-		image_alpha = FADING_COLORS_ALPHA;
+		image_alpha = FADING_COLORS_ALPHA_FLAG;
 		image_blend = merge_color(global.bg_color, c_white, _visibility * global.game_color_fade / 100);
 	}
 }

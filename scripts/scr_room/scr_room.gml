@@ -115,6 +115,16 @@ function GameRoom(_given_x, _given_y) constructor {
 		return has_floor_key() ? 1 : 0;
 	};
 	
+	/// @function get_connected_room(_dir)
+	/// @description The room an exit of this room leads to
+	/// @param {real} _dir The exit's direction, stairs included
+	/// @returns {GameRoom|real} The room, or -1 if there is no exit in that direction
+	static get_connected_room = function(_dir) {
+		if (_dir > directions.stairs) { return -1; }
+		
+		return ((exits[_dir] == -1) ? -1 : exits[_dir].get_connected_room(self));
+	};
+	
 	/// @function can_be_heart(_start)
 	/// @description Whether the room can be the heart for a given start: never the start itself or a special room, and
 	///	never linked by a cardinal exit to the start or a hall of mirrors; stairs into it are fine
@@ -129,14 +139,11 @@ function GameRoom(_given_x, _given_y) constructor {
 		return true;
 	};
 	
-	/// @function get_connected_room(_dir)
-	/// @description The room an exit of this room leads to
-	/// @param {real} _dir The exit's direction, stairs included
-	/// @returns {GameRoom|real} The room, or -1 if there is no exit in that direction
-	static get_connected_room = function(_dir) {
-		if (_dir > directions.stairs) { return -1; }
-		
-		return ((exits[_dir] == -1) ? -1 : exits[_dir].get_connected_room(self));
+	/// @function is_lit()
+	/// @description Whether the room starts with its lanterns lit: it rolled lit, or generation lit it so the map has a lit room
+	/// @returns {bool}
+	static is_lit = function() {
+		return lit || is_guaranteed_lit_room;
 	};
 	
 	/// @function holds_gudetama_counter()
@@ -170,13 +177,6 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {bool}
 	static spawns_phantom = function() {
 		return has_phantom && !is_start_room && !is_lit() && !has_portcullis_trap;
-	};
-	
-	/// @function is_lit()
-	/// @description Whether the room starts with its lanterns lit: it rolled lit, or generation lit it so the map has a lit room
-	/// @returns {bool}
-	static is_lit = function() {
-		return lit || is_guaranteed_lit_room;
 	};
 	
 	/// @function has_basic_chest()
@@ -216,27 +216,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		return _reached_rooms_bitmask;
 	};
 	
-	/// @function can_have_portcullis_trap()
-	/// @description Whether the room can become a portcullis trap room: it can have special exit types, none of its
-	///	cardinal exits has a door or illusion walls or leads to another trap room, and it has a free spot for the button
-	/// @returns {bool}
-	static can_have_portcullis_trap = function() {
-		if (!can_have_special_exit_types()) { return false; }
-		
-		// Check each of the room's cardinal exits
-		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-			// Skip if there is no exit in this direction
-			var _exit = exits[_dir];
-			if (_exit == -1) { continue; }
-			
-			// Return false if this exit is already in use some other way
-			if (_exit.exit_type != exit_types.none) { return false; }
-		}
-		
-		// Return whether there is at least one spot for the button
-		return array_length(get_portcullis_button_spots()) > 0;
-	};
-	
 	/// @function can_have_special_exit_types()
 	/// @description Whether the room can have illusion walls, portcullis traps and plain doors: it isn't only reached by
 	///	stairs, isn't the start or heart room, and isn't a hall of mirrors or linked to one
@@ -260,6 +239,27 @@ function GameRoom(_given_x, _given_y) constructor {
 		}
 		
 		return false;
+	};
+	
+	/// @function can_have_portcullis_trap()
+	/// @description Whether the room can become a portcullis trap room: it can have special exit types, none of its
+	///	cardinal exits has a door or illusion walls or leads to another trap room, and it has a free spot for the button
+	/// @returns {bool}
+	static can_have_portcullis_trap = function() {
+		if (!can_have_special_exit_types()) { return false; }
+		
+		// Check each of the room's cardinal exits
+		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
+			// Skip if there is no exit in this direction
+			var _exit = exits[_dir];
+			if (_exit == -1) { continue; }
+			
+			// Return false if this exit is already in use some other way
+			if (_exit.exit_type != exit_types.none) { return false; }
+		}
+		
+		// Return whether there is at least one spot for the button
+		return array_length(get_portcullis_button_spots()) > 0;
 	};
 	
 	/// @function get_portcullis_button_spots()
@@ -534,15 +534,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		room_reference_difficulty_score = 0;
 	};
 	
-	/// @function add_chest([_must_be_hidden])
-	/// @description Puts a chest with no item yet in the room. Unless it must be hidden, a hidden chest can only appear in
-	///	an unlit lantern room with no phantom.
-	/// @param {bool} [_must_be_hidden] Whether the chest must be hidden (false by default)
-	static add_chest = function(_must_be_hidden = false) {
-		has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && !spawns_phantom() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
-		set_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
-	};
-	
 	/// @function set_stairs_spot_object(_object)
 	/// @description Places the room's stairs spot object (the cross, the encased heart, or a chest), and picks whether
 	///	it goes on the stairs spot or the chest spot. The cross always goes on the stairs spot, and nothing else does in a
@@ -551,6 +542,15 @@ function GameRoom(_given_x, _given_y) constructor {
 	static set_stairs_spot_object = function(_object) {
 		stairs_spot_obj = _object;
 		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
+	};
+	
+	/// @function add_chest([_must_be_hidden])
+	/// @description Puts a chest with no item yet in the room. Unless it must be hidden, a hidden chest can only appear in
+	///	an unlit lantern room with no phantom.
+	/// @param {bool} [_must_be_hidden] Whether the chest must be hidden (false by default)
+	static add_chest = function(_must_be_hidden = false) {
+		has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && !spawns_phantom() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
+		set_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
 	};
 	
 	/// @function add_portcullis_trap()
@@ -793,6 +793,54 @@ function GameRoom(_given_x, _given_y) constructor {
 	// Layout Object Count Functions
 	// ============================
 	
+	/// @function get_object_count_from_layout(_object_name, [_with_role])
+	/// @description How many of an object the room's layout places that building, after adjusting for which covered instances are destroyed by exit and chest spots
+	/// @param {string} _object_name The string name of the Game Maker object type
+	/// @param {bool} [_with_role] False to leave out what the room's chest and illusion walls destroy (true by default)
+	/// @returns {real}
+	static get_object_count_from_layout = function(_object_name, _with_role = true) {
+		// Loop through all the covered instances in the layout
+		var _count = layout.get_object_count(_object_name);
+		for (var _i = 0; _i < array_length(layout.covered_instances); _i++) {
+			// Skip instances that don't match the given object name
+			var _covered_instance = layout.covered_instances[_i];
+			if (_covered_instance.object_name != _object_name) { continue; }
+			
+			// Reduce the total count for any instances destroyed by this destroying spot
+			for (var _j = 0; _j < array_length(_covered_instance.destroying_spots); _j++) {
+				var _destroying_spot = _covered_instance.destroying_spots[_j];
+				if (get_spot_destroyed(layout.destroying_spots[_destroying_spot], _with_role)) { _count -= 1; break; }
+			}
+		}
+		return _count;
+	};
+	
+	/// @function get_spot_destroyed(_destroying_spot, [_with_role])
+	/// @description Whether building the room destroys instances under this exit or chest spot An open exit destroys its blocked spots,
+	/// a closed one its free spots, and illusion walls all of them. Without its role, only the exits count, since the chest and illusion
+	/// walls are rolled after the room's content, and again every pass
+	/// @param {struct} _destroying_spot One of the layout's destroying_spots
+	/// @param {bool} [_with_role] False to leave out the room's chest and illusion walls
+	/// @returns {bool}
+	static get_spot_destroyed = function(_destroying_spot, _with_role = true) {
+		// Return whether the chest spot destroys instances
+		if (_destroying_spot.exit_direction == -1) { return _with_role && destroys_chest_spot(); }
+		
+		// Return whether the exit spot destroys instances
+		var _exit = exits[get_room_dir_for_layout_exit_direction(_destroying_spot.exit_direction)], _is_open = (_exit != -1);
+		return (_is_open == _destroying_spot.blocked) || (_with_role && _is_open && _exit.exit_type == exit_types.illusion_walls);
+	};
+	
+	/// @function get_room_dir_for_layout_exit_direction(_exit_direction)
+	/// @description The room direction a side of the layout faces once the layout is flipped and rotated
+	/// @param {real} _side A cardinal direction of the layout, before it's flipped or rotated
+	/// @returns {real}
+	static get_room_dir_for_layout_exit_direction = function(_exit_direction) {
+		if (flip_horizontal && (_exit_direction == directions.left || _exit_direction == directions.right)) { _exit_direction = get_opposite_dir(_exit_direction); }
+		if (flip_vertical && (_exit_direction == directions.up || _exit_direction == directions.down)) { _exit_direction = get_opposite_dir(_exit_direction); }
+		return get_rotated_dir(_exit_direction, rotate);
+	};
+	
 	/// @function get_actual_mapgen_spawns([_with_role])
 	/// @description How many of each hazard the room holds, from the layout and from spawned hazards. With its role, it also
 	///	counts what the room's role and decorations change: the start room spawns none of its rolled dangers, lit and trap
@@ -845,62 +893,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		return _actual_spawns;
 	};
 	
-	/// @function get_object_count_from_layout(_object_name, [_with_role])
-	/// @description How many of an object the room's layout places that building, after adjusting for which covered instances are destroyed by exit and chest spots
-	/// @param {string} _object_name The string name of the Game Maker object type
-	/// @param {bool} [_with_role] False to leave out what the room's chest and illusion walls destroy (true by default)
-	/// @returns {real}
-	static get_object_count_from_layout = function(_object_name, _with_role = true) {
-		// Loop through all the covered instances in the layout
-		var _count = layout.get_object_count(_object_name);
-		for (var _i = 0; _i < array_length(layout.covered_instances); _i++) {
-			// Skip instances that don't match the given object name
-			var _covered_instance = layout.covered_instances[_i];
-			if (_covered_instance.object_name != _object_name) { continue; }
-			
-			// Reduce the total count for any instances destroyed by this destroying spot
-			for (var _j = 0; _j < array_length(_covered_instance.destroying_spots); _j++) {
-				var _destroying_spot = _covered_instance.destroying_spots[_j];
-				if (get_spot_destroyed(layout.destroying_spots[_destroying_spot], _with_role)) { _count -= 1; break; }
-			}
-		}
-		return _count;
-	};
-	
-	/// @function get_spot_destroyed(_destroying_spot, [_with_role])
-	/// @description Whether building the room destroys instances under this exit or chest spot An open exit destroys its blocked spots,
-	/// a closed one its free spots, and illusion walls all of them. Without its role, only the exits count, since the chest and illusion
-	/// walls are rolled after the room's content, and again every pass
-	/// @param {struct} _destroying_spot One of the layout's destroying_spots
-	/// @param {bool} [_with_role] False to leave out the room's chest and illusion walls
-	/// @returns {bool}
-	static get_spot_destroyed = function(_destroying_spot, _with_role = true) {
-		// Return whether the chest spot destroys instances
-		if (_destroying_spot.exit_direction == -1) { return _with_role && destroys_chest_spot(); }
-		
-		// Return whether the exit spot destroys instances
-		var _exit = exits[get_room_dir_for_layout_exit_direction(_destroying_spot.exit_direction)], _is_open = (_exit != -1);
-		return (_is_open == _destroying_spot.blocked) || (_with_role && _is_open && _exit.exit_type == exit_types.illusion_walls);
-	};
-	
-	/// @function destroys_chest_spot()
-	/// @description Whether building the room destroys what's under its chest spot: its stairs spot object spawns there in a room
-	///	with stairs, or when it wasn't placed on the stairs spot, and anything but a hidden chest destroys it
-	/// @returns {bool}
-	static destroys_chest_spot = function() {
-		return stairs_spot_obj != -1 && stairs_spot_obj != obj_hidden_chest && (has_exit(directions.stairs) || !chest_on_stairs_spot);
-	};
-	
-	/// @function get_room_dir_for_layout_exit_direction(_exit_direction)
-	/// @description The room direction a side of the layout faces once the layout is flipped and rotated
-	/// @param {real} _side A cardinal direction of the layout, before it's flipped or rotated
-	/// @returns {real}
-	static get_room_dir_for_layout_exit_direction = function(_exit_direction) {
-		if (flip_horizontal && (_exit_direction == directions.left || _exit_direction == directions.right)) { _exit_direction = get_opposite_dir(_exit_direction); }
-		if (flip_vertical && (_exit_direction == directions.up || _exit_direction == directions.down)) { _exit_direction = get_opposite_dir(_exit_direction); }
-		return get_rotated_dir(_exit_direction, rotate);
-	};
-	
 	// TODO: What is this?
 	/// @function get_share_left_by_role(_object_name, _with_role)
 	/// @description The share of a layout object's copies the room's chest and illusion walls leave, of those its exits leave.
@@ -911,6 +903,14 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_share_left_by_role = function(_object_name, _with_role) {
 		var _count_left_by_exits = get_object_count_from_layout(_object_name, false);
 		return (_with_role && _count_left_by_exits > 0) ? get_object_count_from_layout(_object_name) / _count_left_by_exits : 1;
+	};
+	
+	/// @function destroys_chest_spot()
+	/// @description Whether building the room destroys what's under its chest spot: its stairs spot object spawns there in a room
+	///	with stairs, or when it wasn't placed on the stairs spot, and anything but a hidden chest destroys it
+	/// @returns {bool}
+	static destroys_chest_spot = function() {
+		return stairs_spot_obj != -1 && stairs_spot_obj != obj_hidden_chest && (has_exit(directions.stairs) || !chest_on_stairs_spot);
 	};
 	
 	// ============================

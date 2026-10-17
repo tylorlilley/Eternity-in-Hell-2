@@ -115,6 +115,38 @@ function get_hazards_table() {
 // Public Functions
 // ============================
 
+/// @function count_hazards_with_tags(_hazard_counts, _tags_to_count, [_ignored_hazard_name])
+/// @description How many kinds of hazard in a room have any of a given taq
+/// @param {struct} _hazard_counts 					The count struct of hazards in the room
+/// @param {real} _tags_to_count  					The hazard tags that should be counted
+/// @param {string|undefined} _ignored_hazard_name	The hazard to leave out, or undefined to count every hazard in the room
+/// @returns {real}
+function count_hazards_with_tags(_hazard_counts, _tags_to_count, _ignored_hazard_name = undefined) {
+	var _table = get_hazards_table(), _hazard_names = variable_struct_get_names(_hazard_counts), _tag_count = 0;
+	
+	// Loop through each hazard in the given hazard counts struct
+	for (var _i = 0; _i < array_length(_hazard_names); _i++) {
+		// Skip the hazard itself, and any that isn't in the room or the table
+		var _hazard_name = _hazard_names[_i], _hazard_table_entry = _table[$ _hazard_name], _hazard_count = get_count_from_struct(_hazard_counts, _hazard_name);
+		if ((!is_undefined(_ignored_hazard_name) && _hazard_name == _ignored_hazard_name) || is_undefined(_hazard_table_entry) || _hazard_count <= 0) { continue; }
+		
+		// Count it if it has one of the tags
+		if ((_tags_to_count == hazard_tags.none) || ((_hazard_table_entry.tags & _tags_to_count) != 0)) { _tag_count += 1; }
+	}
+	
+	return _tag_count;
+}
+
+/// @function hazard_has_tag(_hazard_name, _tags)
+/// @description Whether a hazard has any of some tags
+/// @param {string} _hazard_name The hazard's name in the table
+/// @param {real} _tags One hazard_tags flag, or several combined with |
+/// @returns {bool}
+function hazard_has_tag(_hazard_name, _tags) {
+	var _table = get_hazards_table(), _entry = _table[$ _hazard_name];
+	return !is_undefined(_entry) && ((_entry.tags & _tags) != 0);
+}
+
 /// @function get_danger_for_hazard(_hazard_name, _hazard_count)
 /// @description Return's a hazards danger value based on it's danger and many entries from the table
 /// @param {string} _hazard_name		The hazard's name in the table
@@ -169,38 +201,6 @@ function get_hazard_combination_multiplier(_hazard_counts, _hazard_name) {
 	var _worst_case_multiplier = hazard_has_tag(_hazard_name, hazard_tags.stops_player_movement) ? STOPPED_WORST_CASE_MULTIPLIER : WORST_CASE_MULTIPLIER;
 	var _hazard_combination_multiplier = (_worst_case_multiplier - 1) * (1 - _hazard_score_factor);
 	return 1 + (_hazard_combination_multiplier);
-}
-
-/// @function hazard_has_tag(_hazard_name, _tags)
-/// @description Whether a hazard has any of some tags
-/// @param {string} _hazard_name The hazard's name in the table
-/// @param {real} _tags One hazard_tags flag, or several combined with |
-/// @returns {bool}
-function hazard_has_tag(_hazard_name, _tags) {
-	var _table = get_hazards_table(), _entry = _table[$ _hazard_name];
-	return !is_undefined(_entry) && ((_entry.tags & _tags) != 0);
-}
-
-/// @function count_hazards_with_tags(_hazard_counts, _tags_to_count, [_ignored_hazard_name])
-/// @description How many kinds of hazard in a room have any of a given taq
-/// @param {struct} _hazard_counts 					The count struct of hazards in the room
-/// @param {real} _tags_to_count  					The hazard tags that should be counted
-/// @param {string|undefined} _ignored_hazard_name	The hazard to leave out, or undefined to count every hazard in the room
-/// @returns {real}
-function count_hazards_with_tags(_hazard_counts, _tags_to_count, _ignored_hazard_name = undefined) {
-	var _table = get_hazards_table(), _hazard_names = variable_struct_get_names(_hazard_counts), _tag_count = 0;
-	
-	// Loop through each hazard in the given hazard counts struct
-	for (var _i = 0; _i < array_length(_hazard_names); _i++) {
-		// Skip the hazard itself, and any that isn't in the room or the table
-		var _hazard_name = _hazard_names[_i], _hazard_table_entry = _table[$ _hazard_name], _hazard_count = get_count_from_struct(_hazard_counts, _hazard_name);
-		if ((!is_undefined(_ignored_hazard_name) && _hazard_name == _ignored_hazard_name) || is_undefined(_hazard_table_entry) || _hazard_count <= 0) { continue; }
-		
-		// Count it if it has one of the tags
-		if ((_tags_to_count == hazard_tags.none) || ((_hazard_table_entry.tags & _tags_to_count) != 0)) { _tag_count += 1; }
-	}
-	
-	return _tag_count;
 }
 
 // ============================

@@ -7,18 +7,6 @@ if (torch_light_image_timer == 0) {
 	torch_light_image_index += 1;
 	if (torch_light_image_index > 3) { torch_light_image_index = 0; }
 }
-torch_light_sprite_index = noone;
-
-/* TODO - Remove this? And torch animation?
-if (is_covered_at_each_quadrant_by(obj_lava_part)) {
-	sprite_index = get_sprite_to_use(spr_skeleton);
-	torch_light_sprite_index = noone;
-}
-else {
-	sprite_index = get_sprite_to_use(spr_fire_skeleton);
-	torch_light_sprite_index = spr_torch_light;
-}
-*/
 
 // Update lighting information
 update_lava_lighting();
@@ -29,10 +17,14 @@ fireball_light_bombs();
 fireball_kill_enemies();
 fireball_burn_bushes();
 
-// flicker sprite
-if (shoot_timer <= 4) { 
-	sprite_index = get_sprite_to_use(spr_skeleton); 
+// Flicker to the white shooting frame, without the torch's fire, while it's about to shoot
+if (shoot_timer <= 4) {
+	image_index = 2;
 	torch_light_sprite_index = noone;
+}
+else {
+	if (image_index == 2) { image_index = 0; }
+	torch_light_sprite_index = spr_torch_light;
 }
 
 if shoot_timer > 0 { shoot_timer -= 1; }

@@ -1,5 +1,6 @@
 // Shader constants
 #macro INVERTED_COLORS_ALPHA 0.5
+#macro FADING_COLORS_ALPHA 0.125	// Drawn with this alpha, red pixels lose their lowest brightness, so the image blend can fade a whole sprite to the background
 
 // Initialize room probability constants
 #macro MAX_SEED 99999999
@@ -47,7 +48,7 @@
 #macro JUST_THE_WIND_PROBABILITY 2056 
 #macro BUSH_RUSTLE_FREQUENCY 16
 #macro INVISIBLE_SKELETON_FLASH_FREQUENCY 128
-#macro INVISIBLE_SKELETON_VANISHING_LIGHT 0.5	// How lit an invisible skeleton has to be, from 0 to 1, to fade out completely
+#macro INVISIBLE_SKELETON_VANISHING_LIGHT 0.28	// How lit an invisible skeleton has to be, from 0 to 1, to fade out completely: two tiles into the player's own light
 //#macro ILLUSION_WALL_FLICKER_FREQUENCY 256
 #macro SKELETON_MOVE_TOWARDS_PLAYER_FREQUENCY get_probability_for_difficulty([0, 64, 48, 32, 24])
 #macro FAT_SKELETON_MOVE_FREQUENCY 48

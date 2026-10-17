@@ -122,7 +122,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 	
 	/// @function apply_lit_chance_to_difficulty_score(_hazard_name, _hazard_difficulty_score)
 	/// @description A hazard's difficulty score averaged over the chance the room is lit: one that's dangerous in the dark is
-	///	DARK_DANGER_MULTIPLIER times as hard without light
+	///	DARK_DIFFICULTY_SCORE_MULTIPLIER times as hard without light
 	/// @param {string} _hazard_name					The hazard's name in the hazards table
 	/// @param {real} _hazard_difficulty_score			The hazard's difficulty score so far
 	/// @returns {real}
@@ -130,7 +130,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		if (!hazard_has_tag(_hazard_name, hazard_tags.dangerous_in_dark)) { return _hazard_difficulty_score; }
 		
 		var _chance_of_dark = (1 - chance_of_light);
-		return (_hazard_difficulty_score * chance_of_light) + (_hazard_difficulty_score * DARK_DANGER_MULTIPLIER * _chance_of_dark);
+		return (_hazard_difficulty_score * chance_of_light) + (_hazard_difficulty_score * DARK_DIFFICULTY_SCORE_MULTIPLIER * _chance_of_dark);
 	};
 	
 	/// @function get_best_block_savings(_difficulty_score_saved_arrays, _index, _blocks_left)

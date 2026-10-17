@@ -1,18 +1,18 @@
 // ===== HAZARD CONVERSION RATES ====
 #macro HAZARD_DANGER_SCALE 8				// Difficulty score per unit of danger
 #macro HAZARD_TIME_SCALE 30					// Seconds a time score of 1 is worth: hold-ups on top of walking
+#macro KEEPS_PLAYER_MOVING_CHANCE_PER_DANGER 5		// Chance per unit of its danger that a hazard targeting the player keeps them moving
 
 // ===== TAG GROUPS =====
 #macro TARGETS_PLAYER_TAGS (hazard_tags.moves_towards_player | hazard_tags.fires_at_player)		// What keeps the player moving
 #macro PROJECTILE_STOPPED_BY_STAFF_TAGS (hazard_tags.fires_at_player | hazard_tags.fires_in_place)	// What shoots projectiles the staff can block
 
-// ===== DANGER MULTIPLIERS ====
+// ===== DIFFICULTY SCORE MULTIPLIERS ====
 // Hazards can stack and make each other even more dangerous. Each hazard's danger assumes the player can deal with it on their own terms, and the
 // more likely the room is to take that away, the closer it gets to its worst case multiplier
-#macro WORST_CASE_MULTIPLIER 3				// The worst case for a hazard combination that is possible, but difficult
-#macro STOPPED_WORST_CASE_MULTIPLIER 9		// The worst case for a hazard combination that is not always possible
-#macro KEEPS_PLAYER_MOVING_MULTIPLIER 5		// Anything that targets the player at all times will make hazards that slow the player down trickier
-#macro DARK_DANGER_MULTIPLIER 5				// The amount worse a hazard gets in the dark, when the player has no light
+#macro WORST_CASE_COMBINATION_MULTIPLIER 3					// The worst case for a hazard combination that is possible, but difficult
+#macro STOPS_PLAYER_WORST_CASE_COMBINATION_MULTIPLIER 9		// The worst case for a combination with a hazard that stops the player, which is not always possible
+#macro DARK_DIFFICULTY_SCORE_MULTIPLIER 5					// The amount worse a hazard that is dangerous in the dark gets, when the player has no light
 
 // ===== ESTIMATED CHANCES ====
 #macro KEEPS_PLAYER_MOVING_CHANCE 0.5		// The chance that something that doesn't target the player at all times will cause the player to move
@@ -181,8 +181,8 @@ function get_difficulty_score_from_danger(_danger) {
 /// @description How many times its own difficulty score a hazard is worth, for the hazards it shares a room with. Its danger
 ///	assumes the player can deal with it on their own terms: slowing down for it, stopping when it says to, or keeping it
 ///	from hearing them. The more likely the others are to take that away, by keeping the player moving or by drawing the
-///	ears to them with their noise, the closer it gets to its worst case: WORST_CASE_MULTIPLIER, or
-///	STOPPED_WORST_CASE_MULTIPLIER for one that stops the player.
+///	ears to them with their noise, the closer it gets to its worst case: WORST_CASE_COMBINATION_MULTIPLIER, or
+///	STOPS_PLAYER_WORST_CASE_COMBINATION_MULTIPLIER for one that stops the player.
 /// @param {struct} _spawn_counts		Object names and how many of each spawn in the room
 /// @param {string} _hazard_name		The hazard's name in the hazards table
 /// @returns {real} At least 1
@@ -199,7 +199,7 @@ function get_hazard_combination_multiplier(_spawn_counts, _hazard_name) {
 	}
 	
 	// Move from 1 toward the worst case multiplier by the chance the player can't deal with it on their own terms
-	var _worst_case_multiplier = hazard_has_tag(_hazard_name, hazard_tags.stops_player_movement) ? STOPPED_WORST_CASE_MULTIPLIER : WORST_CASE_MULTIPLIER;
+	var _worst_case_multiplier = hazard_has_tag(_hazard_name, hazard_tags.stops_player_movement) ? STOPS_PLAYER_WORST_CASE_COMBINATION_MULTIPLIER : WORST_CASE_COMBINATION_MULTIPLIER;
 	var _extra_multiplier = (_worst_case_multiplier - 1) * (1 - _own_terms_chance);
 	return 1 + (_extra_multiplier);
 }
@@ -231,8 +231,8 @@ function get_chance_to_make_player_move(_spawn_counts, _hazard_name) {
 		else if ((_other_hazard_tags & (hazard_tags.stationary | hazard_tags.slows_player_movement)) == 0) { _keeps_player_moving_chance = KEEPS_PLAYER_MOVING_CHANCE; }
 		
 		// Use this danger ratio to determine the chance this hazard makes the player move
-		var _other_hazard_danger = get_danger_for_hazard(_other_object_name, _other_object_count) * KEEPS_PLAYER_MOVING_MULTIPLIER;
-		var _player_moving_chance = min(1, _keeps_player_moving_chance * _other_hazard_danger);
+		var _other_hazard_danger = get_danger_for_hazard(_other_object_name, _other_object_count);
+		var _player_moving_chance = min(1, _keeps_player_moving_chance * _other_hazard_danger * KEEPS_PLAYER_MOVING_CHANCE_PER_DANGER);
 		_chance_to_not_make_player_move *= 1 - _player_moving_chance;
 	}
 	

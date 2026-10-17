@@ -142,7 +142,7 @@ function RoomLayout(_room_reference) constructor {
 		add_to_count_struct(_mapgen_counts, "obj_exit_spot", array_length(get_open_cardinal_exits()) + _stairs_count);
 		
 		// Estimate Replaced Columns and Statues with Fountains
-		if (can_have_hazard_with_eyes("obj_fountain")) {
+		if (can_have_hazard_with_estimated_eyes("obj_fountain")) {
 			var _column_count = get_estimated_object_count("obj_column"), _statue_count = get_estimated_object_count("obj_statue");
 			var _column_chance = get_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY), _statue_chance = get_chance_out_of(STATUE_FOUNTAIN_PROBABILITY);
 			// Determine the estimate for columns and statues replaced
@@ -161,12 +161,12 @@ function RoomLayout(_room_reference) constructor {
 		// Estimate Lava Spawns
 		if (get_object_count("obj_lava") > 0) {
 			// Estimate Fire Skeletons
-			if (can_have_hazard_with_eyes("obj_fire_skeleton")) {
+			if (can_have_hazard_with_estimated_eyes("obj_fire_skeleton")) {
 				var _fire_skeleton_count = get_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY);
 				add_to_count_struct(_mapgen_counts, "obj_fire_skeleton", _fire_skeleton_count);
 			}
 			// Estimate Noses
-			if (can_have_hazard_with_eyes("obj_nose")) {
+			if (can_have_hazard_with_estimated_eyes("obj_nose")) {
 				var _nose_count = (global.difficulty - 1) * get_chance_out_of(NOSE_PROBABILITY);
 				add_to_count_struct(_mapgen_counts, "obj_nose", _nose_count);
 			}
@@ -186,7 +186,7 @@ function RoomLayout(_room_reference) constructor {
 				var _skeleton_chance_type = _skeleton_type_chances[_i];
 				var _skeleton_type = _skeleton_chance_type.type, _type_chance = _skeleton_chance_type.chance;
 				var _type_name = object_get_name(_skeleton_type);
-				if (!can_have_hazard_with_eyes(_type_name)) { continue; }
+				if (!can_have_hazard_with_estimated_eyes(_type_name)) { continue; }
 				
 				// Adjust for types that only spawn in unlit rooms
 				if (_type_name == "obj_invisible_skeleton") {
@@ -210,11 +210,11 @@ function RoomLayout(_room_reference) constructor {
 		// Estimate Phantoms and Floaters
 		var _phantom_count = 0;
 		if (!is_special_room) {
-			if (has_lanterns && can_have_hazard_with_eyes("obj_phantom")) {
+			if (has_lanterns && can_have_hazard_with_estimated_eyes("obj_phantom")) {
 				_phantom_count = (1 - get_chance_out_of(PRE_LIT_PROBABILITY)) * get_chance_out_of(PHANTOM_PROBABILITY);
 				add_to_count_struct(_mapgen_counts, "obj_phantom", _phantom_count);
 			}
-			if (can_have_hazard_with_eyes("obj_floater")) {
+			if (can_have_hazard_with_estimated_eyes("obj_floater")) {
 				var _floater_count = (1 - _phantom_count) * get_chance_out_of(FLOATER_PROBABILITY);
 				add_to_count_struct(_mapgen_counts, "obj_floater", _floater_count);
 			}
@@ -241,12 +241,12 @@ function RoomLayout(_room_reference) constructor {
 		return combine_count_structs(_mapgen_counts, _skeleton_type_counts);
 	};
 	
-	/// @function can_have_hazard_with_eyes(_hazard_name)
+	/// @function can_have_hazard_with_estimated_eyes(_hazard_name)
 	/// @description Whether generation can roll a hazard into a room with this layout: never one that chases or shoots at the
-	///	player when the layout places eyes
+	///	player when there's any chance the layout's eyes spawn
 	/// @param {string} _hazard_name The hazard's name in the hazards table
 	/// @returns {bool}
-	static can_have_hazard_with_eyes = function(_hazard_name) {
+	static can_have_hazard_with_estimated_eyes = function(_hazard_name) {
 		// TODO: Remove this function and figure out eyes based on the real or estimated hazard count
 		return get_estimated_object_count("obj_eyes") == 0 || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
 	};

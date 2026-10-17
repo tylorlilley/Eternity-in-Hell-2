@@ -91,8 +91,8 @@ function RoomLayout(_room_reference) constructor {
 		
 		// Estimate Room Exits
 		// A no-exits layout is always reached by stairs. Otherwise each room added to the map joins by stairs at STAIRS_PROBABILITY,
-		// and each stairs link gives two rooms a stairs exit, so a room has about twice that chance. Misleading exits shift up or down
-		// the amount of exits by a coin flip, which averages out to be the same number of exits, so we don't need to consider those
+		// and each stairs link gives two rooms a stairs exit, so a room has about twice that chance. Misleading exits show more or
+		// fewer openings than the room has exits about equally often, which averages out to the same number of exits, so we don't need to consider those
 		var _stairs_count = (exit_type == layout_exit_types.none) ? 1 : 2 * get_chance_out_of(STAIRS_PROBABILITY);
 		add_to_count_struct(_mapgen_counts, "obj_exit_spot", array_length(get_open_cardinal_exits()) + _stairs_count);
 		
@@ -226,13 +226,13 @@ function RoomLayout(_room_reference) constructor {
 		// Return if the destroying spot is for a chest spot and not an exit direction
 		if (_destroying_spot.exit_direction == -1) { return is_special_room ? 0 : get_chance_out_of(CHEST_PROBABILITY) * (1 - get_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY)); }
 
-		// How likely the spot's side is to be one of the room's exits. A misleading layout keeps its room's own check for
-		// opposite exits, so a two opposite layout only ever shows fewer exits than its room has, and its open sides always stay
-		// open. A two perpendicular layout only ever shows more, and a no exits layout is never misleading, so their closed sides never open
+		// How likely the spot's side is to be one of the room's exits. A misleading layout shows either more or fewer openings
+		// than its room has exits, each about half the time, so one of its openings may have no exit behind it, or one of its
+		// closed sides may hide one. A no exits layout is never misleading, since a misleading room always shows an opening
 		var _open_exits = get_open_cardinal_exits(), _open_exit_count = array_length(_open_exits), _open_chance = undefined;
 		var _misleading_chance = is_special_room ? 0 : get_chance_out_of(MISLEADING_EXITS_PROBABILITY) / 2;
-		if (array_contains(_open_exits, _destroying_spot.exit_direction)) { _open_chance = (exit_type == layout_exit_types.two_opposite) ? 1 : 1 - (_misleading_chance / _open_exit_count); }
-		else { _open_chance = (exit_type == layout_exit_types.none || exit_type == layout_exit_types.two_perpendicular) ? 0 : _misleading_chance / (4 - _open_exit_count); }
+		if (array_contains(_open_exits, _destroying_spot.exit_direction)) { _open_chance = 1 - (_misleading_chance / _open_exit_count); }
+		else { _open_chance = (exit_type == layout_exit_types.none) ? 0 : _misleading_chance / (4 - _open_exit_count); }
 
 		// An open exit destroys its blocked spots, a closed one its free spots, and illusion walls all of them
 		if (_destroying_spot.blocked) { return _open_chance; }

@@ -377,9 +377,10 @@ function GameRoom(_given_x, _given_y) constructor {
 		var _exit_count = get_cardinal_exits_count();
 		
 		if (get_random_chance_out_of(MISLEADING_EXITS_PROBABILITY)) {
-			// Pick whether the layout shows more or fewer exits than the room has
+			// Pick whether the layout shows more or fewer exits than the room has. A room with one exit or none always shows
+			// more and a room with four always shows fewer, so the count always changes
 			var _step = get_coin_flip() ? 1 : -1;
-			if (_exit_count == 0) { _step = 1; }
+			if (_exit_count <= 1) { _step = 1; }
 			if (_exit_count == 4) { _step = -1; }
 			
 			// Keep adding or removing exits, for a chance to be even more misleading
@@ -387,6 +388,9 @@ function GameRoom(_given_x, _given_y) constructor {
 				_exit_count += _step;
 				if (!get_random_chance_out_of(MISLEADING_EXITS_PROBABILITY)) { break; }
 			}
+			
+			// The room's own exits can't decide which kind of two exit layout it shows, so pick one at random
+			if (_exit_count == 2) { return get_coin_flip() ? layout_exit_types.two_opposite : layout_exit_types.two_perpendicular; }
 		}
 		
 		// Return the exit kind for that many exits

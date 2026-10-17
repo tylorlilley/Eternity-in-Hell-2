@@ -4,11 +4,11 @@
 #macro PLAYER_STEPS_PER_SECOND 10			// One 8-pixel step a tick, 10 ticks a second
 #macro ROOM_ENTRY_TIME 2					// Seconds each visit costs before any walking: the transition and a look around
 #macro CAUTION_PER_DIFFICULTY_POINT 0.2		// Walking slows by this share for each point of the room's hazard difficulty scores
-#macro TIME_ALLOWANCE get_probability_for_difficulty([0, 2.5, 2, 1.75, 1.5])	// Time given as a multiple of time needed; these keep the average run as long as now
 #macro LOCK_BACKTRACK_SHARE 0.5				// How often a lock comes before its key, sending the player back for one
 #macro ILLUSION_WALL_MISS_CHANCE 0.5		// How often an illusion wall passes for a dead end until everything else is explored
 #macro ILLUSION_WALL_SEARCH_TIME 10			// Seconds to find the wall once back at it
 */
+#macro TIME_ALLOWANCE get_probability_for_difficulty([0, 2.5, 2, 1.75, 1.5])	// Time given as a multiple of time needed; these keep the average run as long as now
 
 /// @function GameRoom(_given_x, _given_y)
 /// @description One room of the map: its cell on the map's grid and its exits, the layout it's built from and the

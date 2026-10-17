@@ -1345,7 +1345,7 @@ function GameMap() constructor {
 	static calculate_time_provided = function() {
 		time_provided = 0;
 		for (var _i = 0; _i < array_length(rooms); _i++) { time_provided += rooms[_i].get_time_provided(); }
-		time_provided += TIME_ALLOWANCE * get_backtracking_time();
+		time_provided += TIME_ALLOWANCE; // * get_backtracking_time();
 	};
  
 	/// @function measure_travel_times(_from_room, _skip_exit, _crossing)

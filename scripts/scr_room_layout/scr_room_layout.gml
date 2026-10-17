@@ -60,53 +60,7 @@ function RoomLayout(_room_reference) constructor {
 	// ============================
 	// Private Estimation Functions
 	// ============================
-	
-	/// @function get_estimated_object_count(_object_name)
-	/// @description How many instances of an object type the layout places, less the chance an exit or chest spot destroys each one when the room is built
-	/// @param {string} _object_name The string name of the Game Maker object type
-	/// @returns {real}
-	static get_estimated_object_count = function(_object_name) {
-		// Start with the base object count, and subtract any covered instances by their chance to be removed
-		var _count = get_object_count(_object_name);
-		for (var _i = 0; _i < array_length(covered_instances); _i++) {
-			// Skip any instances that aren't of the object type we are counting
-			var _covered_instance = covered_instances[_i], _destroyed_chance = 0;
-			if (_covered_instance.object_name != _object_name) { continue; }
-			
-			// Adjust the count by each spot that could destroy it
-			for (var _j = 0; _j < array_length(_covered_instance.destroying_spots); _j++) {
-				// TODO: Why is this max? Shouldn't we be combining the chance of each spot that can destroy this since having more spots increases the chances it gets destroyed?
-				_destroyed_chance = max(_destroyed_chance, get_spot_destroyed_chance(destroying_spots[_covered_instance.destroying_spots[_j]]));
-			}
-			_count -= _destroyed_chance;
-		}
-		return _count;
-	};
-	
-	/// @function get_spot_destroyed_chance(_destroying_spot)
-	/// @description Returns how likely a room with this layout is to destroy what's under one of its exit or chest spots when the room is built.
-	/// The current difficulty affects this. The layout's openings are the room's exits unless its exits are
-	///	misleading or exits are illusion walls, rolled from the rooms on both sides of an exit that isn't locked. The
-	///	chest spot destroys if a chest spawns there instead of on the stairs spot, which never happens in a special room
-	/// @param {struct} _destroying_spot One of the layout's destroying_spots
-	/// @returns {real} From 0 to 1
-	static get_spot_destroyed_chance = function(_destroying_spot) {
-		// Return if the destroying spot is for a chest spot and not an exit direction
-		if (_destroying_spot.exit_direction == -1) { return is_special_room ? 0 : get_chance_out_of(CHEST_PROBABILITY) * (1 - get_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY)); }
-		
-		// How likely the spot's side is to be one of the room's exits
-		var _open_exits = get_open_cardinal_exits(), _open_exit_count = array_length(_open_exits), _open_chance = undefined;
-		var _misleading_chance = is_special_room ? 0 : get_chance_out_of(MISLEADING_EXITS_PROBABILITY) / 2;
-		// TODO: Why is two opposite and two perpendicular exit types treated specially here? Why aren't they both just the same?
-		if (array_contains(_open_exits, _destroying_spot.exit_direction)) { _open_chance = (exit_type == layout_exit_types.two_opposite) ? 1 : 1 - (_misleading_chance / _open_exit_count); }
-		else { _open_chance = (exit_type == layout_exit_types.none || exit_type == layout_exit_types.two_perpendicular) ? 0 : _misleading_chance / (4 - _open_exit_count); }
-		
-		// An open exit destroys its blocked spots, a closed one its free spots, and illusion walls all of them
-		if (_destroying_spot.blocked) { return _open_chance; }
-		var _illusion_chance = 2 * get_chance_out_of(ILLUSION_WALL_PROBABILITY) * (1 - 2 * get_chance_out_of(LOCKED_DOOR_PROBABILITY));
-		return 1 - (_open_chance * (1 - _illusion_chance));
-	};
-	
+
 	/// @function get_guaranteed_mapgen_spawns()
 	/// @description How many instances of each object type a room with this layout always spawns: what the layout places, less every instance a destroying spot could destroy
 	/// @returns {struct} The count struct of guaranteed spawn counts
@@ -128,12 +82,11 @@ function RoomLayout(_room_reference) constructor {
 	/// @returns {struct} The count struct of estimated spawn counts
 	static get_estimated_mapgen_spawns = function() {
 		var _mapgen_counts = {};
-		
-		// Add estimates for the instances a destroying spot could destroy when the room is built
-		var _layout_object_names = variable_struct_get_names(instance_object_counts);
-		for (var _i = 0; _i < array_length(_layout_object_names); _i++) {
-			var _object_name = _layout_object_names[_i];
-			add_to_count_struct(_mapgen_counts, _object_name, get_estimated_object_count(_object_name));
+
+		// Add back each instance a destroying spot could destroy when the room is built, by its chance to be left
+		for (var _i = 0; _i < array_length(covered_instances); _i++) {
+			var _covered_instance = covered_instances[_i];
+			add_to_count_struct(_mapgen_counts, _covered_instance.object_name, 1 - get_destroyed_chance(_covered_instance));
 		}
 		
 		// Estimate Room Exits
@@ -240,7 +193,53 @@ function RoomLayout(_room_reference) constructor {
 		}
 		return combine_count_structs(_mapgen_counts, _skeleton_type_counts);
 	};
-	
+
+	/// @function get_destroyed_chance(_covered_instance)
+	/// @description How likely building a room with this layout is to destroy an instance under its exit or chest spots. Spots
+	///	facing the same side open and close together, so they destroy together, unless one is blocked and another free, since
+	///	one of those always destroys. Different sides, and the chest spot, destroy independently
+	/// @param {struct} _covered_instance One of the layout's covered_instances
+	/// @returns {real} From 0 to 1
+	static get_destroyed_chance = function(_covered_instance) {
+		// Find the chance each side, or the chest spot, destroys the instance
+		var _side_chances = {};
+		for (var _i = 0; _i < array_length(_covered_instance.destroying_spots); _i++) {
+			var _destroying_spot = destroying_spots[_covered_instance.destroying_spots[_i]], _side = string(_destroying_spot.exit_direction);
+			if (is_undefined(_side_chances[$ _side])) { _side_chances[$ _side] = { chance: get_spot_destroyed_chance(_destroying_spot), blocked: _destroying_spot.blocked }; }
+			else if (_side_chances[$ _side].blocked != _destroying_spot.blocked) { _side_chances[$ _side].chance = 1; }
+		}
+
+		// The instance is only left if no side destroys it
+		var _sides = variable_struct_get_names(_side_chances), _left_chance = 1;
+		for (var _i = 0; _i < array_length(_sides); _i++) { _left_chance *= 1 - _side_chances[$ _sides[_i]].chance; }
+		return 1 - _left_chance;
+	};
+
+	/// @function get_spot_destroyed_chance(_destroying_spot)
+	/// @description Returns how likely a room with this layout is to destroy what's under one of its exit or chest spots when the room is built.
+	/// The current difficulty affects this. The layout's openings are the room's exits unless its exits are
+	///	misleading or exits are illusion walls, rolled from the rooms on both sides of an exit that isn't locked. The
+	///	chest spot destroys if a chest spawns there instead of on the stairs spot, which never happens in a special room
+	/// @param {struct} _destroying_spot One of the layout's destroying_spots
+	/// @returns {real} From 0 to 1
+	static get_spot_destroyed_chance = function(_destroying_spot) {
+		// Return if the destroying spot is for a chest spot and not an exit direction
+		if (_destroying_spot.exit_direction == -1) { return is_special_room ? 0 : get_chance_out_of(CHEST_PROBABILITY) * (1 - get_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY)); }
+
+		// How likely the spot's side is to be one of the room's exits. A misleading layout keeps its room's own check for
+		// opposite exits, so a two opposite layout only ever shows fewer exits than its room has, and its open sides always stay
+		// open. A two perpendicular layout only ever shows more, and a no exits layout is never misleading, so their closed sides never open
+		var _open_exits = get_open_cardinal_exits(), _open_exit_count = array_length(_open_exits), _open_chance = undefined;
+		var _misleading_chance = is_special_room ? 0 : get_chance_out_of(MISLEADING_EXITS_PROBABILITY) / 2;
+		if (array_contains(_open_exits, _destroying_spot.exit_direction)) { _open_chance = (exit_type == layout_exit_types.two_opposite) ? 1 : 1 - (_misleading_chance / _open_exit_count); }
+		else { _open_chance = (exit_type == layout_exit_types.none || exit_type == layout_exit_types.two_perpendicular) ? 0 : _misleading_chance / (4 - _open_exit_count); }
+
+		// An open exit destroys its blocked spots, a closed one its free spots, and illusion walls all of them
+		if (_destroying_spot.blocked) { return _open_chance; }
+		var _illusion_chance = 2 * get_chance_out_of(ILLUSION_WALL_PROBABILITY) * (1 - 2 * get_chance_out_of(LOCKED_DOOR_PROBABILITY));
+		return 1 - (_open_chance * (1 - _illusion_chance));
+	};
+
 	/// @function can_have_hazard_with_estimated_eyes(_hazard_name)
 	/// @description Whether generation can roll a hazard into a room with this layout: never one that chases or shoots at the
 	///	player when there's any chance the layout's eyes spawn
@@ -250,7 +249,21 @@ function RoomLayout(_room_reference) constructor {
 		// TODO: Remove this function and figure out eyes based on the real or estimated hazard count
 		return get_estimated_object_count("obj_eyes") == 0 || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
 	};
-	
+
+	/// @function get_estimated_object_count(_object_name)
+	/// @description How many instances of an object type the layout places, less the chance an exit or chest spot destroys each one when the room is built
+	/// @param {string} _object_name The string name of the Game Maker object type
+	/// @returns {real}
+	static get_estimated_object_count = function(_object_name) {
+		// Start with the base object count, and subtract each covered instance of the object type by its chance to be destroyed
+		var _count = get_object_count(_object_name);
+		for (var _i = 0; _i < array_length(covered_instances); _i++) {
+			var _covered_instance = covered_instances[_i];
+			if (_covered_instance.object_name == _object_name) { _count -= get_destroyed_chance(_covered_instance); }
+		}
+		return _count;
+	};
+
 	/// @function get_estimated_midgame_spawns()
 	/// @description Everything that spawns during the game, and not just during map generation. Must be estimated based on probabilities. Uses the current global.difficulty.
 	/// @param {struct} _mapgen_spawns The actual or estimated spawn counts from map generation
@@ -552,25 +565,34 @@ function RoomLayout(_room_reference) constructor {
 			var _instance = instances_to_create[_i];
 			if (_instance.object_name == "obj_chest_spot" || string_starts_with(_instance.object_name, "obj_exit_spot")) { continue; }
 			
-			// A block spot's block is already there when the exits are set up, so it blocks like a wall, a solid or lava. A
-			// collectable spot is the only 8px instance, and overlaps a 16px spot when their centers are less than 12 pixels apart
-			// on both axes; any other instance is 16px, so it overlaps when they are less than 16 pixels apart instead
+			// A block spot's block is already there when the exits are set up, so it blocks like a wall, a solid or lava
 			var _object_type = asset_get_index(_instance.object_name);
 			var _is_blocker = (_instance.object_name == "obj_block_spot") || _object_type == obj_solid || object_is_ancestor(_object_type, obj_solid) || _object_type == obj_lava || object_is_ancestor(_object_type, obj_lava);
-			var _overlap_radius = (_instance.object_name == "obj_collectable_spot") ? 12 : 16;
-			
+
 			// For each destroying spot, check if it destroys this instance, and add it to the covered instances array if so
 			var _destroying_spots = [];
 			for (var _j = 0; _j < array_length(destroying_spots); _j++) {
 				// Skip spots that don't overlap this instance
 				var _destroying_spot = destroying_spots[_j];
-				if (abs(_instance.x - _destroying_spot.x) >= _overlap_radius || abs(_instance.y - _destroying_spot.y) >= _overlap_radius) { continue; }
-				
+				if (!is_instance_overlapping_spot(_instance, _destroying_spot)) { continue; }
+
 				array_push(_destroying_spots, _j);
 				if (_is_blocker) { _destroying_spot.blocked = true; }
 			}
 			if (array_length(_destroying_spots) > 0) { array_push(covered_instances, { instance: _instance, object_name: _instance.object_name, destroying_spots: _destroying_spots }); }
 		}
+	};
+
+	/// @function is_instance_overlapping_spot(_instance, _spot)
+	/// @description Whether an instance overlaps a 16 pixel spot, like an exit, chest or stairs spot. A collectable spot is the only
+	///	8 pixel instance, so it overlaps when their centers are less than 12 pixels apart on both axes. Any other instance is 16
+	///	pixels, so it overlaps when they are less than 16 pixels apart instead
+	/// @param {struct} _instance One of the layout's instances_to_create
+	/// @param {struct} _spot The spot, with its x and y
+	/// @returns {bool}
+	static is_instance_overlapping_spot = function(_instance, _spot) {
+		var _overlap_distance = (_instance.object_name == "obj_collectable_spot") ? 12 : 16;
+		return abs(_instance.x - _spot.x) < _overlap_distance && abs(_instance.y - _spot.y) < _overlap_distance;
 	};
 	
 	/// @function setup_stairs_and_collectable_spots()
@@ -628,7 +650,35 @@ function RoomLayout(_room_reference) constructor {
 		if (count_hazards_with_tags(instance_object_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(instance_object_counts, TARGETS_PLAYER_TAGS) > 0) {
 			_problems += " places a hazard that stops the player alongside one that chases or shoots at them;";
 		}
-		
+
+		// Every instance must sit on the 8 pixel grid, which the tiles and the destroying spots' overlaps rely on
+		for (var _i = 0; _i < array_length(instances_to_create); _i++) {
+			var _instance = instances_to_create[_i];
+			if (_instance.x % 8 != 0 || _instance.y % 8 != 0) { _problems += " has " + _instance.object_name + " off the 8 pixel grid at " + get_tile_key(_instance.x, _instance.y) + ";"; }
+		}
+
+		// A destroying spot takes everything under it, so it can't overlap another destroying spot
+		for (var _i = 0; _i < array_length(destroying_spots); _i++) {
+			for (var _j = _i + 1; _j < array_length(destroying_spots); _j++) {
+				var _destroying_spot = destroying_spots[_i], _other_destroying_spot = destroying_spots[_j];
+				if (abs(_destroying_spot.x - _other_destroying_spot.x) < 16 && abs(_destroying_spot.y - _other_destroying_spot.y) < 16) {
+					_problems += " has overlapping exit or chest spots at " + get_tile_key(_destroying_spot.x, _destroying_spot.y) + ";";
+				}
+			}
+		}
+
+		// The stairs, the stairs spot object or the button spawns on the stairs spot without destroying anything there, so
+		// nothing else can overlap the stairs spot
+		for (var _i = 0; _i < array_length(instances_to_create); _i++) {
+			var _stairs_spot = instances_to_create[_i];
+			if (_stairs_spot.object_name != "obj_stairs_spot") { continue; }
+
+			for (var _j = 0; _j < array_length(instances_to_create); _j++) {
+				var _instance = instances_to_create[_j];
+				if (_j != _i && is_instance_overlapping_spot(_instance, _stairs_spot)) { _problems += " has " + _instance.object_name + " on its stairs spot;"; }
+			}
+		}
+
 		// Check every position that holds instances, including the ones placed half a tile off the grid
 		var _tile_keys = variable_struct_get_names(instances_at_tile);
 		for (var _i = 0; _i < array_length(_tile_keys); _i++) {
@@ -763,9 +813,11 @@ function RoomLayout(_room_reference) constructor {
 	setup_destroying_spots();
 	setup_stairs_and_collectable_spots();
 
-	// Set flags for this layout based on the instance object counts
-	has_lanterns = get_estimated_object_count("obj_lantern") > 0;
-	has_hall_of_mirrors = get_estimated_object_count("obj_hall_of_mirrors") > 0;
+	// Set flags for this layout based on the instance object counts. Only instances no exit or chest spot can destroy count,
+	// so every room with the layout has them, whatever its exits and difficulty
+	var _guaranteed_counts = get_guaranteed_mapgen_spawns();
+	has_lanterns = get_count_from_struct(_guaranteed_counts, "obj_lantern") > 0;
+	has_hall_of_mirrors = get_count_from_struct(_guaranteed_counts, "obj_hall_of_mirrors") > 0;
  
 	// Variables for determining walking distances used to calculate room layout time
 	walk_measured = false;

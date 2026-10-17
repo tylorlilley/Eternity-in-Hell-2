@@ -860,7 +860,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @description How many instances of each object type spawn in the room during map generation: what its layout places,
 	///	less what its exit and chest spots destroy, and what generation rolled into it. With its role, it also counts what the
 	///	room's role and decorations change: the start room spawns none of its rolled hazards, lit and trap rooms no phantom,
-	///	and chests and collectables add their own.
+	///	and chests, collectables and a key on its floor add their own.
 	/// @param {bool} [_with_role] False to count the rolled content just as it was rolled, while generation is still rolling it
 	/// @returns {struct}
 	static get_actual_mapgen_spawns = function(_with_role = true) {
@@ -878,21 +878,19 @@ function GameRoom(_given_x, _given_y) constructor {
 		for (var _dir = directions.up; _dir <= directions.stairs; _dir++) { if (exits[_dir] != -1) { _exit_count += 1; } }
 		add_to_count_struct(_actual_spawns, "obj_exit_spot", _exit_count);
 		
-		// Add any floor items that have been spawned
-		var _floor_item_count = get_floor_item_count();
-		add_to_count_struct(_actual_spawns, "obj_item", _floor_item_count);
-		
 		// Fill in what spawns on the skeleton spots
 		var _skeleton_types = _with_role ? get_spawned_skeleton_types() : skeleton_types, _skeleton_share = get_share_left_by_role("obj_skeleton_spot", _with_role);
 		for (var _i = 0; _i < array_length(_skeleton_types); _i++) {
 			add_to_count_struct(_actual_spawns, object_get_name(_skeleton_types[_i]), _skeleton_share);
 		}
 		
-		// Adjust counts based on what has been spawned. A fountain takes its statue's place, but a block that comes alive still
-		// counts on its spot, since it can still be pushed. The extra mouths higher difficulties add to each placed one aren't counted
+		// Adjust counts based on what has been spawned. A fountain takes its column or statue's place, but a block that comes alive
+		// still counts on its spot, since it can still be pushed. Both happen on random copies, so like the skeleton types they only
+		// spawn on the share of copies the room's role leaves. The extra mouths higher difficulties add to each placed one aren't counted
 		if (!_with_role || !is_start_room) {
-			add_to_count_struct(_actual_spawns, "obj_fountain", replaced_column_fountain_count + replaced_statue_fountain_count);
-			add_to_count_struct(_actual_spawns, "obj_statue", -replaced_statue_fountain_count);
+			var _column_share = get_share_left_by_role("obj_column", _with_role), _statue_share = get_share_left_by_role("obj_statue", _with_role);
+			add_to_count_struct(_actual_spawns, "obj_fountain", (replaced_column_fountain_count * _column_share) + (replaced_statue_fountain_count * _statue_share));
+			add_to_count_struct(_actual_spawns, "obj_statue", -replaced_statue_fountain_count * _statue_share);
 			add_to_count_struct(_actual_spawns, "obj_living_block", living_block_count * get_share_left_by_role("obj_block_spot", _with_role)); // They come alive on random block spots too
 			add_to_count_struct(_actual_spawns, "obj_nose", initial_nose_count);
 			add_to_count_struct(_actual_spawns, "obj_fire_skeleton", initial_fire_skeleton_count); // These are additional ones spawned in lava
@@ -901,6 +899,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		add_to_count_struct(_actual_spawns, "obj_floater", (((_with_role) ? spawns_floater() : has_floater) ? 1 : 0));
 
 		if (_with_role) {
+			add_to_count_struct(_actual_spawns, "obj_item", get_floor_item_count());
 			add_to_count_struct(_actual_spawns, "obj_chest", ((has_trap_chest()) ? 1 : 0));
 			add_to_count_struct(_actual_spawns, "obj_collectable", (((has_moving_collectable && has_collectables)) ? 1 : 0));
 		}
@@ -909,10 +908,11 @@ function GameRoom(_given_x, _given_y) constructor {
 		return _actual_spawns;
 	};
 	
-	// TODO: What is this?
 	/// @function get_share_left_by_role(_object_name, _with_role)
-	/// @description The share of a layout object's copies the room's chest and illusion walls leave, of those its exits leave.
-	///	Content rolled for each copy the exits leave only spawns on that share of them
+	/// @description The share of a layout object's copies still there once the room's role is decided, out of the copies its
+	///	exits leave. Content is rolled onto the copies the exits leave, like a skeleton type for each skeleton spot, but the
+	///	room's chest and illusion walls can destroy some of those copies when the room is built, so on average only this
+	///	share of that content spawns. Three skeleton spots with one under the chest spot a chest spawns on leave two thirds
 	/// @param {string} _object_name The string name of the Game Maker object type
 	/// @param {bool} _with_role False to count the rolled content just as it was rolled, which keeps it all
 	/// @returns {real} From 0 to 1

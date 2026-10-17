@@ -47,6 +47,7 @@
 #macro JUST_THE_WIND_PROBABILITY 2056 
 #macro BUSH_RUSTLE_FREQUENCY 16
 #macro INVISIBLE_SKELETON_FLASH_FREQUENCY 128
+#macro INVISIBLE_SKELETON_VANISHING_LIGHT 0.5	// How lit an invisible skeleton has to be, from 0 to 1, to fade out completely
 //#macro ILLUSION_WALL_FLICKER_FREQUENCY 256
 #macro SKELETON_MOVE_TOWARDS_PLAYER_FREQUENCY get_probability_for_difficulty([0, 64, 48, 32, 24])
 #macro FAT_SKELETON_MOVE_FREQUENCY 48

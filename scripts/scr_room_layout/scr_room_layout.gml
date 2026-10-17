@@ -178,6 +178,7 @@ function RoomLayout(_room_reference) constructor {
 		var _skeleton_spot_count = get_estimated_object_count("obj_skeleton_spot"), _skeleton_type_counts = {};
 		if (_skeleton_spot_count > 0) {
 			var _skeleton_type_chances = get_skeleton_type_chances(), _total_type_chance = 0, _same_type_chance = get_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY), _basic_skeleton_count = 1;
+			var _chance_starts_lit = (has_lanterns && !is_special_room) ? get_chance_out_of(PRE_LIT_PROBABILITY) : 0;
 			// Add up the chances of all available skeleton types, to use if not including basic skeleton
 			for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) { _total_type_chance += _skeleton_type_chances[_i].chance; }
 			
@@ -190,12 +191,9 @@ function RoomLayout(_room_reference) constructor {
 				var _type_name = object_get_name(_skeleton_type);
 				if (!can_have_hazard_with_estimated_eyes(_type_name)) { continue; }
 				
-				// Adjust for types that only spawn in unlit rooms
-				if (_type_name == "obj_invisible_skeleton") {
-					// Adjust for regular replacements in lit rooms
-					_basic_skeleton_count += _type_chance *  get_chance_out_of(PRE_LIT_PROBABILITY);
-					_type_chance *= (1 - get_chance_out_of(PRE_LIT_PROBABILITY));
-				}
+				// Invisible skeletons only spawn in unlit rooms. A lit room's spot keeps its basic skeleton, which the basic
+				// skeleton count picks up below
+				if (_type_name == "obj_invisible_skeleton") { _type_chance *= (1 - _chance_starts_lit); }
 				
 				// Add this type to the count
 				var _same_type_chance_for_type = _same_type_chance * (_type_chance / _total_type_chance);

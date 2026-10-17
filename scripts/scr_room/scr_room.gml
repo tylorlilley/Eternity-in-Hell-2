@@ -315,16 +315,19 @@ function GameRoom(_given_x, _given_y) constructor {
 	
 	/// @function get_spawned_skeleton_types()
 	/// @description What spawns on the room's skeleton spots. The start room doesn't spawn the hazards rolled for it, so each
-	///	dangerous type rolled for one of its spots, rolled eyes included, spawns as a basic skeleton instead.
-	/// @returns {array} One object per skeleton spot; a new array for the start room, so the rolled types stay as rolled
+	///	dangerous type rolled for one of its spots, rolled eyes included, spawns as a basic skeleton instead. Invisible
+	///	skeletons only spawn in unlit rooms, so a room generation lights after its content is rolled spawns basic skeletons in their place.
+	/// @returns {array} One object per skeleton spot; a new array for the start room or a lit room, so the rolled types stay as rolled
 	static get_spawned_skeleton_types = function() {
-		if (!is_start_room) { return skeleton_types; }
+		var _is_lit = is_lit();
+		if (!is_start_room && !_is_lit) { return skeleton_types; }
 
 		var _spawned_types = [];
 		for (var _i = 0; _i < array_length(skeleton_types); _i++) {
 			var _skeleton_type = skeleton_types[_i];
 			var _is_dangerous = (_skeleton_type != obj_skeleton && _skeleton_type != obj_fast_skeleton && _skeleton_type != obj_cockroach && _skeleton_type != obj_fat_skeleton);
-			array_push(_spawned_types, _is_dangerous ? obj_skeleton : _skeleton_type);
+			var _is_lit_invisible_skeleton = (_is_lit && _skeleton_type == obj_invisible_skeleton);
+			array_push(_spawned_types, ((is_start_room && _is_dangerous) || _is_lit_invisible_skeleton) ? obj_skeleton : _skeleton_type);
 		}
 
 		return _spawned_types;
@@ -482,8 +485,8 @@ function GameRoom(_given_x, _given_y) constructor {
 			}
 		}
 		
-		// Determine skeleton spot enemies. A spot keeps its basic skeleton when its roll is skipped, or in a room with eyes,
-		// when the rolled type would chase or shoot at the player
+		// Determine skeleton spot enemies. A spot keeps its basic skeleton when its roll is skipped, in a room with eyes when
+		// the rolled type would chase or shoot at the player, and in a lit room when it rolls an invisible skeleton
 		for (var _spot = 0; _spot < _skeleton_spot_count; _spot++) {
 			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type() : _same_skeleton_type;
 			if (lit && _skeleton_type == obj_invisible_skeleton) { _skeleton_type = obj_skeleton; }

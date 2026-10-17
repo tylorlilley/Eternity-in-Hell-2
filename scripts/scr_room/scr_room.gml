@@ -23,7 +23,8 @@
 
 /// @function GameRoom(_given_x, _given_y)
 /// @description One room of the map: its cell on the map's grid and its exits, the layout it's built from and the
-///	random content generated for it, what generation decorates it with, and its instances and path grids during play
+///	random content generated for it, the map roles and spot objects each pass gives it, and its instances and path
+///	grids during play
 /// @param {real} _given_x Its grid column
 /// @param {real} _given_y Its grid row
 function GameRoom(_given_x, _given_y) constructor {
@@ -525,10 +526,13 @@ function GameRoom(_given_x, _given_y) constructor {
 		}
 	};
 
-	/// @function reset_decorations()
-	/// @description Resets the room's decorations and roles, so a new decoration pass can place them again. Its random
-	///	content stays as it is, since decorations never change it.
-	static reset_decorations = function() {
+	/// @function reset_map_roles_and_spot_objects()
+	/// @description Resets what the last pass gave the room, so the next pass can give it again: its map roles (the start,
+	///	heart or guaranteed lit room) and its distance from the start, its spot objects (the stairs spot object and which
+	///	spot it's on, a chest's contents and whether it's hidden or locked, a key or extra key, collectables and the
+	///	portcullis button), its portcullis trap, and its last difficulty score. Its layout, orientation and random
+	///	content stay as they are.
+	static reset_map_roles_and_spot_objects = function() {
 		is_start_room = false;
 		is_heart_room = false;
 		is_guaranteed_lit_room = false;
@@ -629,7 +633,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 
 	/// @function get_current_difficulty_score()
-	/// @description The room's difficulty score as it is now: its hazards, with its role and decorations
+	/// @description The room's difficulty score as it is now: its hazards, with its map roles, spot objects and special exit types
 	/// @returns {real}
 	static get_current_difficulty_score = function() {
 		return get_potential_difficulty_score(get_actual_mapgen_spawns());
@@ -861,8 +865,8 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @function get_actual_mapgen_spawns([_with_role])
 	/// @description How many instances of each object type spawn in the room during map generation: what its layout places,
 	///	minus what its exit and chest spots destroy, plus its random content. With its role, it also counts what the room's
-	///	role and decorations change: the start room spawns none of the hazards in its random content, lit and trap rooms no
-	///	phantom, and chests, collectables and a key on its floor add their own.
+	///	map roles, spot objects and special exit types change: the start room spawns none of the hazards in its random
+	///	content, lit and portcullis trap rooms no phantom, and chests, collectables and a key on its floor add their own.
 	/// @param {bool} [_with_role] False to count the random content unchanged, while generation is still determining it
 	/// @returns {struct}
 	static get_actual_mapgen_spawns = function(_with_role = true) {

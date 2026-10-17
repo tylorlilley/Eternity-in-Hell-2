@@ -24,7 +24,7 @@
 
 /// @function GameMap()
 /// @description The plan for one map, and the methods that generate it: the layouts its difficulty allows, its rooms
-///	and the exits between them, its map-wide events and decorations, and what the controller keeps once generation
+///	and the exits between them, its map-wide events, what each pass places, and what the controller keeps once generation
 ///	ends. Rooms and exits are only added through its methods, so its lookups always match its rooms. The first map of
 ///	a session also reads every room asset into the layout cache that every map shares.
 function GameMap() constructor {
@@ -35,8 +35,9 @@ function GameMap() constructor {
 	/// @function try_generate()
 	/// @description Makes one attempt at generating the map. It randomly determines the map-wide events and adds rooms
 	///	until the map has MINIMUM_NUMBER_OF_ROOMS, then keeps adding one room at a time. After each room from the minimum
-	///	on, it assigns layouts to the rooms that need them, then decorates and scores the whole map, until the score
-	///	reaches MAP_DIFFICULTY_SCORE_TARGET or the map has MAX_NUMBER_OF_ROOMS rooms. A failed attempt destroys the map.
+	///	on, it assigns layouts to the rooms that need them, then places the map roles, spot objects, locks and special
+	///	exit types again and scores the whole map, until the score reaches MAP_DIFFICULTY_SCORE_TARGET or the map has
+	///	MAX_NUMBER_OF_ROOMS rooms. A failed attempt destroys the map.
 	/// @returns {bool} False if the attempt failed, so a new map has to be tried
 	static try_generate = function() {
 		// Randomly determine the map-wide events, including the special room types and special items
@@ -48,7 +49,8 @@ function GameMap() constructor {
 			if (is_undefined(add_new_room())) { return fail_generation("no room could grow"); }
 		}
 
-		// Add a room, assign layouts, then decorate and score the map, until it scores enough or has as many rooms as allowed
+		// Each pass adds a room, assigns layouts, places the map roles, spot objects, locks and special exit types, and
+		// scores the map, until it scores enough or has as many rooms as allowed
 		var _first_pass = true;
 		do {
 			// Add another room. If none can be added, the first pass fails, and a later pass ends the map as the last pass left it
@@ -72,8 +74,8 @@ function GameMap() constructor {
 			// Assign a layout to each room whose cardinal exits changed, with its random orientation and content
 			assign_room_layouts();
 			
-			// Reset the last pass's decorations, and place them again
-			reset_decorations();
+			// Reset what the last pass placed, and place it again
+			reset_last_pass();
 			if (!determine_start_and_heart_rooms()) { return fail_generation("the start and heart could not be placed"); }
 			determine_collectables_rooms();
 			find_or_set_one_lit_room();
@@ -645,17 +647,17 @@ function GameMap() constructor {
 		return false;
 	};
 
-	/// @function reset_decorations()
-	/// @description Resets every decoration the last pass placed: the start and heart, collectables, the guaranteed lit
-	///	room, chests and their contents, special items, keys and locks, and special exit types. Each pass then decorates
-	///	the current rooms starting from their random content, which decorations never change.
-	static reset_decorations = function() {
+	/// @function reset_last_pass()
+	/// @description Resets what the last pass placed, so the next pass can place it again: every room's map roles and spot
+	///	objects, every exit's lock or special exit type, and the map's start and heart rooms, guaranteed items, special
+	///	item types and extra key. The rooms, their exits, layouts and random content stay as they are.
+	static reset_last_pass = function() {
 		start_room = undefined;
 		heart_room = undefined;
 		guaranteed_items = [];
 		special_item_types = [];
 		extra_key_placed = false;
-		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_decorations(); }
+		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_map_roles_and_spot_objects(); }
 		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_exit_type(); }
 	};
 
@@ -1228,7 +1230,7 @@ function GameMap() constructor {
 			// Chance to add portcullis trap
 			if (_possible_room.can_have_portcullis_trap() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _possible_room.add_portcullis_trap();  continue; }
 
-			// Otherwise, loop through cardinal exits to decorate them individually
+			// Otherwise, give each of its cardinal exits its own chance at a special exit type
 			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 				// Skip exits that don't exist, or already have a special type assigned
 				var _exit = _possible_room.exits[_dir];
@@ -1557,7 +1559,7 @@ function GameMap() constructor {
 	locked_exits = [];						// Each locked cardinal exit, reset during lock and key search
 	relevant_locked_chest_rooms = [];		// Each room with a locked chest that affects the lock and key search, reset during the search
 
-	// Decorations, reset and placed again each time map generation adds a room
+	// What each pass places and scores, placed again each time map generation adds a room
 	start_room = undefined;
 	heart_room = undefined;
 	guaranteed_items = [];

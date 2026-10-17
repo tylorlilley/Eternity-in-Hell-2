@@ -6,7 +6,7 @@ function SpecialRoomType(_name, _room_references) constructor {
 	// ========================
 	// Static Functions
 	// ========================
-	
+
 	/// @function has_layout_of_exit_type(_exit_type)
 	/// @description Whether any of the special room type layouts have the given exit type
 	/// @param {real} _exit_type A layout_exit_types enum value
@@ -17,7 +17,7 @@ function SpecialRoomType(_name, _room_references) constructor {
 		}
 		return false;
 	};
-	
+
 	/// @function get_exit_types()
 	/// @description Returns each exit type that is included among the layouts at least once
 	/// @returns {array} An array of layout_exit_types enum values
@@ -29,7 +29,7 @@ function SpecialRoomType(_name, _room_references) constructor {
 		}
 		return _exit_types;
 	};
-	
+
 	/// @function get_layouts_of_exit_type(_exit_type)
 	/// @description Returns any layouts that match the given exit type
 	/// @param {real} _exit_type A layout_exit_types enum value
@@ -41,7 +41,7 @@ function SpecialRoomType(_name, _room_references) constructor {
 		}
 		return _matching_exit_types;
 	};
-	
+
 	// ========================
 	// Instance Variables
 	// ========================

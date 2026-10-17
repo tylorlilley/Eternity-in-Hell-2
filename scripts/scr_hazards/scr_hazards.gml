@@ -15,7 +15,7 @@
 // ===== ESTIMATED CHANCES ====
 #macro KEEPS_PLAYER_MOVING_CHANCE 0.5		// The chance that something that doesn't target the player at all times will cause the player to move
 #macro LOUD_SOUND_LURE_CHANCE 0.33			// The chance that something makes a loud sound and draws the listener's attention
- 
+
 // What the combination rules and HazardMitigation need to know about each hazard. Each tag is its own bit, so a hazard's tags
 // combine with |, and checking for any of several tags takes one &
 enum hazard_tags {
@@ -35,7 +35,7 @@ enum hazard_tags {
 	destroyed_by_block = 4096,		// A pushed block crushes it, covers the spot it shoots into, or turns it around, and can then be pushed on to another
 	uses_up_block = 8192			// A pushed block stops it but is used up: lava turns it into a bridge, and mouths and fire skeletons take it with them
 }
- 
+
 /// @function get_hazards_table()
 /// @description Every hazard's danger and time values, in one place. Hazards are named for their objects, so a layout's object counts read
 ///	straight into the table, and the ones generation adds use their objects' names too.
@@ -266,7 +266,7 @@ function get_time_score_for_hazard_counts(_counts) {
 	for (var _i = 0; _i < array_length(_names); _i++) { _time += get_time_for_hazard(_names[_i], _counts[$ _names[_i]]); }
 	return _time;
 }
- 
+
 /// @function get_hazard_counts_with_spawn(_counts, _spawn)
 /// @description A copy of a room's hazard counts with one more of something that might spawn, in place of what it replaces
 /// @param {struct} _counts Hazard names and how many of each
@@ -278,7 +278,7 @@ function get_hazard_counts_with_spawn(_counts, _spawn) {
 	if (!is_undefined(_spawn.replaced_hazard_name)) { hazard_count_add(_spawned_counts, _spawn.replaced_hazard_name, -1); }
 	return _spawned_counts;
 }
- 
+
 /// @function get_time_score_with_spawns(_counts, _spawns)
 /// @description The time score for a room's hazards (see get_time_score_for_hazard_counts), with what might spawn into it
 ///	added on average, the same way PlayerChance adds their difficulty points

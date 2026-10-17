@@ -5,6 +5,7 @@ if get_random_chance_out_of(BLOCK_ITEM_PROBABILITY) {
 	instance_create(x, y, _item_obj);
 }
 
-// Spawn a plain block. Map generation rolls how many come alive, and game_room_initialize turns that many random ones into living blocks
+// Spawn a plain block. Map generation randomly determines how many of the room's blocks come alive, and building the room
+// turns that many random ones into living blocks
 spawned_block = instance_create(x, y, obj_block);
 spawned_block.creator = id;

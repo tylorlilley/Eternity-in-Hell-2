@@ -7,7 +7,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	// ========================
 	// Static Functions
 	// ========================
-	
+
 	/// @function initialize_search_area()
 	/// @description Sets up variables based on what a player finds within the search area
 	static initialize_search_area = function() {
@@ -60,7 +60,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 			}
 		}
 	};
-	
+
 	/// @function is_room_reached(_room)
 	/// @description Whether a given room, by its bitmask index, has been reached in this search area or not
 	/// @param {GameRoom} _room The room to check for whether it is reached or not
@@ -68,7 +68,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	static is_room_reached = function(_room) {
 		return ((reached_rooms & (1 << _room.map_rooms_index)) != 0);
 	};
-	
+
 	/// @function is_room_chest_unlocked(_room)
 	/// @description Whether a given chest, by its bitmask index, has been unlocked in this search area or not
 	/// @param {GameRoom} _room The room to check for whether its chest is unlocked or not
@@ -79,21 +79,21 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 
 		return ((relevant_locked_chests & (1 << _room.relevant_locked_chests_index)) != 0);
 	};
-	
+
 	/// @function can_use_special_item()
 	/// @description Whether a special key or special bomb that is usable has been reached
 	/// @returns {bool}
 	static can_use_special_item = function() {
 		return (reached_special_key || (reached_special_bomb && can_use_bombs_as_keys()));
 	};
-	
+
 	/// @function can_use_bombs_as_keys()
 	/// @description Whether bombs can stand in for keys in this search area: it has a torch, and a lit room to light it in
 	/// @returns {bool}
 	static can_use_bombs_as_keys = function() {
 		return (reached_lit_room && reached_torch);
 	};
-	
+
 	/// @function get_keys_remaining()
 	/// @description The keys the area gives the player to spend: the keys reached, and the bombs too once they can be lit,
 	///	minus the keys spent unlocking chests and exits.
@@ -102,7 +102,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 		var _bombs_as_keys = (can_use_bombs_as_keys() ? bombs_reached : 0);
 		return (keys_reached + _bombs_as_keys - get_keys_spent_on_exits() - get_keys_spent_on_chests());
 	};
-	
+
 	/// @function get_keys_spent_on_exits()
 	/// @description Gets the count of keys spent on locked exits in this search area
 	/// @returns {real}
@@ -117,7 +117,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 		}
 		return _unlocked_exits;
 	};
-	
+
 	/// @function is_exit_unlocked(_exit)
 	/// @description Whether the exit is unlocked. Since we account for worst case scenario, this is always true if we've reached both sides
 	/// @param {RoomExit} _exit The locked exit
@@ -125,18 +125,18 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	static is_exit_unlocked = function(_exit) {
 		return (is_room_reached(_exit.room_1) && is_room_reached(_exit.room_2));
 	};
-	
+
 	/// @function get_keys_spent_on_chests()
 	/// @description Gets the count of keys spent on chests in this search area
 	/// @returns {real}
 	static get_keys_spent_on_chests = function() {
 		return irrelevant_locked_chests_reached + count_bits(relevant_locked_chests);
 	};
-	
+
 	// ========================
 	// Instance Variables
 	// ========================
-	
+
 	map = _map;											// The map this search area is searching for
 	reached_rooms = _reached_rooms;						// Bitmask of reached rooms in this search area
 	relevant_locked_chests = _relevant_locked_chests;	// Bitmask of relevant chests unlocked in this search area

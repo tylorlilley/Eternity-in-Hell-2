@@ -14,7 +14,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 	// ============================
 	// Public Functions
 	// ============================
-	
+
 	/// @function get_total_difficulty_score_for_spawn_counts(_spawn_counts)
 	/// @description The difficulty score for what spawns in a room. Each hazard's difficulty score grows for the hazards it
 	///	shares the room with and shrinks for the blocks that mitigate its danger. Then each item the player might hold takes
@@ -24,11 +24,11 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 	static get_total_difficulty_score_for_spawn_counts = function(_spawn_counts) {
 		return apply_item_chances_to_difficulty_score(_spawn_counts);
 	};
-	
+
 	// ============================
 	// Private Functions
 	// ============================
-	
+
 	/// @function apply_item_chances_to_difficulty_score(_spawn_counts)
 	/// @description The difficulty score for the given spawn counts, averaged over the chance of holding each item that
 	///	mitigates the danger of their hazards
@@ -66,7 +66,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		var _total_staff_difficulty_score = get_difficulty_score_with_blocks(_staff_spawn_counts), _total_special_sword_difficulty_score = get_difficulty_score_with_blocks(_special_sword_spawn_counts);
 		return max(0, (_chance_holding_nothing * _total_difficulty_score) + (chance_holding_staff * _total_staff_difficulty_score) + (chance_holding_sword * _total_sword_difficulty_score) + (chance_holding_special_sword * _total_special_sword_difficulty_score));
 	}
-	
+
 	/// @function get_difficulty_score_with_blocks(_spawn_counts)
 	/// @description The sum of each hazard's difficulty score in a room, minus what its blocks mitigate. A block that isn't used
 	///	up is pushed on from one copy to the next, so it mitigates them all. One that's used up only mitigates a single copy
@@ -106,7 +106,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		_total_difficulty_score -= lerp(_best_savings_for_floor, _best_savings_for_ceiling, frac(_blocks_left));
 		return _total_difficulty_score;
 	};
-	
+
 	/// @function calculate_hazard_difficulty_score_for_room(_hazard_name, _hazard_count, _spawn_counts)
 	/// @description One hazard's difficulty score in a room: its danger value for how many of it there are, turned into a
 	///	difficulty score, averaged over the chance the room is lit, and multiplied for the other hazards it shares the room with
@@ -121,7 +121,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		var _hazard_combination_multiplier = get_hazard_combination_multiplier(_spawn_counts, _hazard_name);
 		return _difficulty_score_with_light_chance * _hazard_combination_multiplier;
 	};	
-	
+
 	/// @function apply_lit_chance_to_difficulty_score(_hazard_name, _hazard_difficulty_score)
 	/// @description A hazard's difficulty score averaged over the chance the room is lit: one that's dangerous in the dark is
 	///	DARK_DIFFICULTY_SCORE_MULTIPLIER times as hard without light
@@ -134,7 +134,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		var _chance_of_dark = (1 - chance_of_light);
 		return (_hazard_difficulty_score * chance_of_light) + (_hazard_difficulty_score * DARK_DIFFICULTY_SCORE_MULTIPLIER * _chance_of_dark);
 	};
-	
+
 	/// @function get_best_block_savings(_difficulty_score_saved_arrays, _index, _blocks_left)
 	/// @description The most difficulty score the blocks left can save on the hazards that use up blocks, from _index on, trying
 	///	every split of the blocks between them
@@ -157,14 +157,13 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		}
 		return _best_savings;
 	};
-	
+
 	// ============================
 	// Instance Variables
 	// ============================
-	
+
 	chance_holding_staff = _chance_holding_staff;
 	chance_holding_sword = _chance_holding_sword;
 	chance_holding_special_sword = _chance_holding_special_sword;
 	chance_of_light = _chance_of_light;
 }
- 

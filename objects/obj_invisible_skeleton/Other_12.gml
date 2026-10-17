@@ -3,6 +3,8 @@ event_inherited();
 
 // Unlike other enemies, it shows at the lowest brightness in the dark, red and white pixels alike, and fades out to the
 // background as light reaches it. It flashes into view under normal lighting at random, and right after it kills the player
+// TODO: Check at runtime that it shows dim in the dark and fades out over two tiles of light, with its own sprite and with a
+// shuffled one in the unknown graphics mode, and that it flashes into view at random and right after it kills the player
 if (can_process_this_frame()) {
 	var _player = global.player, _just_killed_player = (_player.dead && !player_was_dead && place_meeting(x, y, _player));
 	player_was_dead = _player.dead;

@@ -18,6 +18,8 @@ fireball_kill_enemies();
 fireball_burn_bushes();
 
 // Flicker to the white shooting frame, without the torch's fire, while it's about to shoot
+// TODO: Check at runtime that it keeps its sprite, in and out of lava, flickers to its white shooting frame without its
+// torch's fire before each shot, and shows its torch's fire the rest of the time
 if (shoot_timer <= 4) {
 	image_index = 2;
 	torch_light_sprite_index = noone;

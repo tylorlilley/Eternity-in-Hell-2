@@ -699,14 +699,24 @@ function game_room_initialize() {
 					_new_inst.cross_chest = true;
 				}
 				else if (instance_number(obj_red_chest) > 0) {
-					// Red chest replaces the hidden chest item so it will spawn as a non-special, non-hidden regular chest instead
+					// Red chest replaces the hidden chest item so it will spawn as a non-special, non-hidden regular chest instead.
+					// The spot wasn't destroyed above, since a hidden chest only destroys what's under it once it's revealed, so
+					// destroy what's under the regular chest here, like any other chest does
+					// TODO: Instead of deleting the hidden chest here, give the room a regular chest where generation assigns its
+					// chest type, so it spawns and destroys what's under it like any other chest from the start
 					with (_new_inst) { instance_destroy(); }
+					with (_spawn_spot) { destroy_instances_at_position(); }
 					_new_inst = instance_create(_spawn_spot.x, _spawn_spot.y, obj_chest);
 					_new_inst.contents_is_special = false;
 				}
 				else if (instance_number(obj_gudetama) > 0) {
-					// gudetama spawns special chest immediately with gudetama blocking it
+					// gudetama spawns special chest immediately with gudetama blocking it. The spot wasn't destroyed above, since a
+					// hidden chest only destroys what's under it once it's revealed, so destroy what's under the regular chest here
+					// TODO: Instead of deleting the hidden chest here, give the room a regular chest where generation assigns its
+					// chest type, always on the chest spot where the gudetama blocks it, so it spawns and destroys what's under it
+					// like any other chest from the start
 					with (_new_inst) { instance_destroy(); }
+					with (_chest_spot) { destroy_instances_at_position(); }
 					_new_inst = instance_create(_chest_spot.x, _chest_spot.y, obj_chest);
 					_new_inst.contents_is_special = true;
 				}

@@ -70,12 +70,13 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 	/// @function get_difficulty_score_with_blocks(_spawn_counts)
 	/// @description The sum of each hazard's difficulty score in a room, minus what its blocks mitigate. A block that isn't used
 	///	up is pushed on from one copy to the next, so it mitigates them all. One that's used up only mitigates a single copy
-	///	(lava counts as one), so the blocks go to the copies they save the most difficulty score on
+	///	(lava counts as one), so the blocks go to the copies they save the most difficulty score on. An estimated block count
+	///	can be fractional, and then mitigates that share of a block.
 	/// @param {struct} _spawn_counts Object names and how many of each spawn in the room
 	/// @returns {real}
 	static get_difficulty_score_with_blocks = function(_spawn_counts) {
 		var _table = get_hazards_table(), _object_names = variable_struct_get_names(_spawn_counts);
-		var _blocks_left = get_count_from_struct(_spawn_counts, "obj_block_spot"), _total_difficulty_score = 0, _block_uses = [];
+		var _blocks_left = get_count_from_struct(_spawn_counts, "obj_block_spot"), _total_difficulty_score = 0;
 		
 		// Loop through each object type that spawns
 		var _difficulty_score_saved_per_block_spent_arrays = [];
@@ -87,8 +88,9 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 			// Get the difficulty score, and modify it based on the blocks present in the room
 			var _hazard_difficulty_score = calculate_hazard_difficulty_score_for_room(_object_name, _object_count, _spawn_counts);
 			if ((_hazard_table_entry.tags & hazard_tags.uses_up_block) != 0) {
-				// Spend a block on each copy of this hazard, one at a time, to work out the difficulty score each number of blocks saves
-				var _hazard_copies = (_hazard_table_entry.many == 0) ? 1 : ceil(_object_count), _difficulty_score_saved_per_block_spent = [];
+				// Spend a block on each copy of this hazard, one at a time, to work out the difficulty score each number of blocks
+				// saves, from none at all
+				var _hazard_copies = (_hazard_table_entry.many == 0) ? 1 : ceil(_object_count), _difficulty_score_saved_per_block_spent = [0];
 				for (var _blocks_spent = 1; _blocks_spent <= _hazard_copies; _blocks_spent += 1) {
 					var _hazard_copies_left = (_hazard_table_entry.many == 0) ? 0 : max(0, _object_count - _blocks_spent);
 					var _difficulty_score_saved = _hazard_difficulty_score - calculate_hazard_difficulty_score_for_room(_object_name, _hazard_copies_left, _spawn_counts);
@@ -96,7 +98,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 				}
 				array_push(_difficulty_score_saved_per_block_spent_arrays, _difficulty_score_saved_per_block_spent);
 			}
-			else if (_blocks_left > 0 && (_hazard_table_entry.tags & hazard_tags.destroyed_by_block) != 0) { _hazard_difficulty_score *= BLOCK_MITIGATION_MULTIPLIER; }
+			else if ((_hazard_table_entry.tags & hazard_tags.destroyed_by_block) != 0) { _hazard_difficulty_score *= lerp(1, BLOCK_MITIGATION_MULTIPLIER, min(1, _blocks_left)); }
 			_total_difficulty_score += _hazard_difficulty_score;
 		}
 	
@@ -138,7 +140,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 	/// @function get_best_block_savings(_difficulty_score_saved_arrays, _index, _blocks_left)
 	/// @description The most difficulty score the blocks left can save on the hazards that use up blocks, from _index on, trying
 	///	every split of the blocks between them
-	/// @param {array} _difficulty_score_saved_arrays	An array for each hazard that uses up blocks, of the difficulty score saved by each number of blocks spent on it
+	/// @param {array} _difficulty_score_saved_arrays	An array for each hazard that uses up blocks, of the difficulty score saved by each number of blocks spent on it, from 0
 	/// @param {real} _index							Which hazard's array to start from
 	/// @param {real} _blocks_left						The number of blocks left to spend
 	/// @returns {real}

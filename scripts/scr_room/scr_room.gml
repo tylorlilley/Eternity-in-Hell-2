@@ -41,8 +41,8 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 
 	/// @function has_floor_key()
-	/// @description Whether a key lies on one of the room's key spots: its own key, unless that's in a chest, or the extra
-	///	key the first bomb standing in for a key brings
+	/// @description Whether a key lies on one of the room's collectable spots: its own key, unless that's in a chest, or the
+	///	extra key the first bomb standing in for a key brings
 	/// @returns {bool}
 	static has_floor_key = function() {
 		return (has_key && !key_in_chest) || has_extra_key;
@@ -302,27 +302,17 @@ function GameRoom(_given_x, _given_y) constructor {
 			if (_exit.exit_type != exit_types.none) { return false; }
 		}
 		
-		// Return whether there is at least one spot for the button
-		return array_length(get_portcullis_button_spots()) > 0;
+		// Return whether there is a spot for the button: the stairs or chest spot when one is open, or else a clear collectable
+		// spot with another left for the floor key, since building places the button first
+		return has_open_stairs_or_chest_spot() || (array_length(layout.button_spots) > 0 && array_length(layout.key_spots) > (has_floor_key() ? 1 : 0));
 	};
 
-	/// @function get_portcullis_button_spots()
-	/// @description The free spots the room's portcullis button could take: the stairs spot when nothing uses it, and each
-	///	collectable spot the floor key doesn't take. A spot only counts if nothing else shares its tile, since that could
-	///	hold the button down. Collectables are decided later, and can move the button to the stairs or chest spot when it
-	///	took their last free spot.
-	/// @returns {array} Collectable spot numbers in layout file order, with -1 for the stairs spot
-	static get_portcullis_button_spots = function() {
-		// Add the stairs spot to the potential button spots
-		var _possible_spots = [];
-		if (is_stairs_spot_free() && layout.stairs_spot_is_alone) { array_push(_possible_spots, -1); }
-
-		// Add every collectable spot the floor key doesn't take to the potential button spots
-		for (var _i = 0; _i < array_length(layout.button_spots); _i++) {
-			var _spot = layout.button_spots[_i];
-			if (_spot != key_spot) { array_push(_possible_spots, _spot); }
-		}
-		return _possible_spots;
+	/// @function has_open_stairs_or_chest_spot()
+	/// @description Whether the room's stairs spot or chest spot is free with nothing else on it, so the portcullis button
+	///	can take it without anything holding it down
+	/// @returns {bool}
+	static has_open_stairs_or_chest_spot = function() {
+		return (is_stairs_spot_free() && layout.stairs_spot_is_alone) || (is_chest_spot_free() && layout.chest_spot_is_alone);
 	};
 
 	/// @function is_stairs_spot_free()
@@ -338,6 +328,15 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {bool}
 	static is_chest_spot_free = function() {
 		return stairs_spot_obj == -1 || (chest_on_stairs_spot && !has_exit(directions.stairs));
+	};
+
+	/// @function can_have_collectables()
+	/// @description Whether the room has a collectable spot left for collectables, once its floor key has one, and its
+	///	portcullis button has one when the stairs and chest spots are both taken. Building picks every spot, the button first.
+	/// @returns {bool}
+	static can_have_collectables = function() {
+		var _taken_spot_count = (has_floor_key() ? 1 : 0) + ((has_portcullis_trap && !has_open_stairs_or_chest_spot()) ? 1 : 0);
+		return array_length(layout.key_spots) > _taken_spot_count;
 	};
 
 	/// @function can_light_torch()
@@ -387,8 +386,8 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @description Resets what the last pass gave the room, so the next pass can give it again: its map roles (the start or
 	///	heart room) and its distance from the start, the required layout reserved for it, its spot objects (the stairs spot
 	///	object and which spot it's on, a chest's contents, whether it's hidden or locked and whether it holds a guaranteed
-	///	item, a key or extra key, collectables and the portcullis button), its portcullis trap, and its last difficulty
-	///	score. Every pass also gives the room a new layout, which comes with its own lighting and no random content yet.
+	///	item, a key or extra key, and collectables), its portcullis trap, and its last difficulty score. Every pass also
+	///	gives the room a new layout, which comes with its own lighting and no random content yet.
 	static reset_map_roles_and_spot_objects = function() {
 		is_start_room = false;
 		is_heart_room = false;
@@ -403,13 +402,9 @@ function GameRoom(_given_x, _given_y) constructor {
 		has_guaranteed_item = false;
 		has_key = false;
 		key_in_chest = false;
-		key_spot = -1;
 		has_extra_key = false;
 		has_collectables = false;
 		has_portcullis_trap = false;
-		button_on_stairs_spot = false;
-		button_on_chest_spot = false;
-		button_spot = -1;
 		room_reference_difficulty_score = 0;
 	};
 
@@ -558,8 +553,7 @@ function GameRoom(_given_x, _given_y) constructor {
 
 	/// @function add_portcullis_trap()
 	/// @description Traps the room: the portcullis on its side of each cardinal exit closes until the player presses its
-	///	button. Content decided later gives a trap room no phantom or floater. The button's spot is picked at random from
-	///	all free spots, and building places it exactly there, or where collectables later move it.
+	///	button. Content decided later gives a trap room no phantom or floater. Building picks the button's spot.
 	static add_portcullis_trap = function() {
 		// Set the portcullis flag, which also keeps content decided later from giving the room a phantom or floater
 		has_portcullis_trap = true;
@@ -569,30 +563,6 @@ function GameRoom(_given_x, _given_y) constructor {
 			var _exit = exits[_dir];
 			if (_exit != -1) { _exit.add_portcullis_for_room(self); }
 		}
-
-		// Pick a spot to spawn the portcullis button
-		var _spot = array_random_get(get_portcullis_button_spots());
-		button_on_stairs_spot = (_spot == -1);
-		button_spot = _spot;
-	};
-
-	/// @function make_room_for_collectables()
-	/// @description Whether the room's floor key and portcullis button leave a collectable spot free for collectables. When the
-	///	button took the last one, it moves to the stairs or chest spot if either is free with nothing else on its tile, which
-	///	frees its collectable spot. Collectables come right after the special exit types, so nothing decided in between
-	///	depends on where the button is.
-	/// @returns {bool} Whether a collectable spot is free now
-	static make_room_for_collectables = function() {
-		// Return if a collectable spot is free already. Every layout has at least two, and the floor key takes one at most
-		var _free_spot_count = array_length(layout.key_spots) - ((key_spot != -1) ? 1 : 0) - ((button_spot != -1) ? 1 : 0);
-		if (_free_spot_count > 0) { return true; }
-
-		// Otherwise, the button took the last one, so move it to the stairs or chest spot if one is free
-		if (is_stairs_spot_free() && layout.stairs_spot_is_alone) { button_on_stairs_spot = true; }
-		else if (is_chest_spot_free() && layout.chest_spot_is_alone) { button_on_chest_spot = true; }
-		else { return false; }
-		button_spot = -1;
-		return true;
 	};
 
 	/// @function determine_room_content(_same_skeleton_type)
@@ -1303,10 +1273,6 @@ function GameRoom(_given_x, _given_y) constructor {
 	layout = undefined;						// The cached RoomLayout this room is built from
 	key_in_chest = false;					// Its key, or the bomb standing in for it, is in a chest instead of on a key spot
 	chest_on_stairs_spot = false;			// stairs_spot_obj goes on the stairs spot instead of the chest spot
-	button_on_stairs_spot = false;			// The portcullis button goes on the stairs spot instead of a collectable spot
-	button_on_chest_spot = false;			// The portcullis button goes on the chest spot instead of a collectable spot
-	button_spot = -1;						// Which collectable spot, in layout file order, the portcullis button takes
-	key_spot = -1;							// Which collectable spot, in layout file order, the floor key takes
 	has_extra_key = false;					// Its floor key is the extra key the first bomb standing in for a key brings, which the lock search doesn't count
 	map_rooms_index = -1;					// Its place in its map's rooms, which the lock search's room bitmasks use (set by GameMap, during map generation)
 	special_room_type = undefined;			// The special room type its layout belongs to, if it's a special room

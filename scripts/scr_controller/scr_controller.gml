@@ -637,19 +637,7 @@ function game_room_initialize() {
 		
 	// Update objects in room to reflect new x, y position as initial positions
 	set_initial_positions();
-	
-	// Create the floor key on the collectable spot generation picked: the room's own key, unless generation put it, or a
-	// bomb standing in for it, in a chest, or the extra key the first such bomb brings
-	var _has_floor_key = current_room.has_floor_key();
-	if (_has_floor_key) {
-		var _key = noone;
-		with (current_room.collectable_spot_instances[current_room.key_spot]) {
-			_key = instance_create(x, y, obj_key);
-			instance_destroy();
-		}
-		current_room.add_to_instances_at_map_positions(_key);
-	}
-		
+
 	// Pre-light room if the room is marked as lit and spawn objects that interact with torches
 	if (current_room.lit) {
 		if (instance_number(obj_lantern) == 0) { write_debug_message("Room marked as lit has no lanterns: "  + room_get_name(current_room.room_reference), debug_message_level.warning); current_room.lit = false; }
@@ -720,10 +708,42 @@ function game_room_initialize() {
 		if (_current_exit != -1 && _current_exit.has_closed_portcullis_for_room(current_room)) { _room_has_portcullis = true; break; }
 	}
 	
-	// Create the button on the spot generation picked. SPAWN ALL SOLIDS AND ENEMIES BEFORE THIS POINT
+	// Pick the button's spot first, so the floor key never takes the only clear spot: a random clear collectable spot, or the
+	// stairs or chest spot when it's open with nothing else on it. Only those two can take it when the floor key and the
+	// collectables need every collectable spot left
+	var _has_floor_key = current_room.has_floor_key(), _collectable_spots = [], _button_spot = noone;
+	with (obj_collectable_spot) { array_push(_collectable_spots, id); }
 	if (_room_has_portcullis) {
+		var _possible_button_spots = [];
+		if (current_room.is_stairs_spot_free() && current_room.layout.stairs_spot_is_alone) { array_push(_possible_button_spots, _stairs_spot); }
+		if (current_room.is_chest_spot_free() && current_room.layout.chest_spot_is_alone) { array_push(_possible_button_spots, _chest_spot); }
+		var _needed_collectable_spot_count = (_has_floor_key ? 1 : 0) + (current_room.has_collectables ? 1 : 0);
+		if (array_length(_collectable_spots) > _needed_collectable_spot_count) {
+			var _clear_spots = current_room.layout.button_spots;
+			for (var _i = 0; _i < array_length(_clear_spots); _i++) { array_push(_possible_button_spots, current_room.collectable_spot_instances[_clear_spots[_i]]); }
+		}
+		_button_spot = array_random_get(_possible_button_spots);
+		array_remove_first(_collectable_spots, _button_spot);
+		if (_button_spot == noone) {
+			// This should never happen, since generation only traps a room with a spot for its button
+			write_debug_message("Portcullis button room with no spot for its button: " + room_get_name(current_room.room_reference), debug_message_level.warning);
+		}
+	}
+	
+	// Create the floor key on a random collectable spot left: the room's own key, unless generation put it, or a bomb
+	// standing in for it, in a chest, or the extra key the first such bomb brings
+	if (_has_floor_key) {
+		var _key = noone;
+		with (array_random_get(_collectable_spots)) {
+			_key = instance_create(x, y, obj_key);
+			instance_destroy();
+		}
+		current_room.add_to_instances_at_map_positions(_key);
+	}
+	
+	// Create the button on its spot. SPAWN ALL SOLIDS AND ENEMIES BEFORE THIS POINT
+	if (_button_spot != noone) {
 		var _button = instance_create(-16, -16, obj_button), _button_pressed = false, _possible_decoy_spots = [], _decoy_spots = [];
-		var _button_spot = (current_room.button_on_stairs_spot) ? _stairs_spot : ((current_room.button_on_chest_spot) ? _chest_spot : current_room.collectable_spot_instances[current_room.button_spot]);
 		
 		// Find the other free spots nothing presses, for decoy dirt: the stairs spot when nothing uses it, and the collectable spots the room's collectables don't need
 		if (!_stairs_spot_occupied && _button_spot != _stairs_spot) { array_push(_possible_decoy_spots, _stairs_spot); }

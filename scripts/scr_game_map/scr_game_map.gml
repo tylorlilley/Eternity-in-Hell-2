@@ -937,8 +937,9 @@ function GameMap() constructor {
 	};
 
 	/// @function add_key_to_area(_stuck_area)
-	/// @description Adds a key to a random room of the stuck search area that can hold one: on one of its key spots, or
-	///	sometimes in a new chest, where a bomb can stand in for the key if the area lets the player light bombs
+	/// @description Adds a key to a random room of the stuck search area that can hold one: on its floor, where building
+	///	picks the collectable spot, or sometimes in a new chest, where a bomb can stand in for the key if the area lets the
+	///	player light bombs
 	/// @param {LockSearchArea} _stuck_area The search area where the player got stuck
 	/// @returns {bool} False if no room there can take one
 	static add_key_to_area = function(_stuck_area) {
@@ -961,7 +962,6 @@ function GameMap() constructor {
 			_key_is_bomb = _stuck_area.can_use_bombs_as_keys() && get_random_chance_out_of(BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY);
 			_room.chest_obj = _key_is_bomb ? obj_bomb : obj_key;
 		}
-		else { _room.key_spot = array_random_get(_room.layout.key_spots); }
 		_room.has_key = true;
 
 		// The first bomb standing in for a key on the map also brings an extra key to the same area
@@ -972,18 +972,18 @@ function GameMap() constructor {
 	};
 
 	/// @function add_extra_key_to_area(_stuck_area)
-	/// @description Puts an extra key on a free key spot of a random room in a search area, for the first bomb that
-	///	stands in for a key there. The room's has_key stays as it is, so the lock search never counts the extra key: it's
-	///	a spare on top of the keys and bombs the locks need.
+	/// @description Puts an extra key on the floor of a random room in a search area, for the first bomb that stands in
+	///	for a key there. The room's has_key stays as it is, so the lock search never counts the extra key: it's a spare
+	///	on top of the keys and bombs the locks need.
 	/// @param {LockSearchArea} _stuck_area The search area the bomb went to
 	static add_extra_key_to_area = function(_stuck_area) {
-		// Rooms in the area with no key on their key spots yet, which the bomb's own room always is
+		// Rooms in the area with no key on their floor yet, which the bomb's own room always is
 		var _possible_rooms = [];
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _possible_room = rooms[_i];
 			if (!_stuck_area.is_room_reached(_possible_room)) { continue; }
 
-			if (!_possible_room.is_heart_room && _possible_room.key_spot == -1 && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
+			if (!_possible_room.is_heart_room && !_possible_room.has_floor_key() && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
 		}
 		if (array_length(_possible_rooms) == 0) {
 			// This should NEVER happen, since the bomb's own room always has a free key spot
@@ -991,10 +991,9 @@ function GameMap() constructor {
 			return;
 		}
 
-		// Put the extra key on a random key spot of a random one of them
+		// Put the extra key on the floor of a random one of them, where building picks its collectable spot
 		var _room = array_random_get(_possible_rooms);
 		_room.has_extra_key = true;
-		_room.key_spot = array_random_get(_room.layout.key_spots);
 		extra_key_placed = true;
 	};
 
@@ -1170,7 +1169,7 @@ function GameMap() constructor {
 	/// @function determine_collectables_rooms()
 	/// @description Gives collectables to the heart room and to random other rooms, never the start, then to more random
 	///	rooms until at least a quarter of the rooms, plus one, have them. A room only gets them when its floor key and
-	///	portcullis button leave a collectable spot free, or the button can move to make one free.
+	///	portcullis button leave a collectable spot free.
 	static determine_collectables_rooms = function() {
 		var _possible_rooms = array_shuffle(rooms), _collectables_rooms = 1;
 		heart_room.has_collectables = true; // The heart room never has a key or a button
@@ -1178,7 +1177,7 @@ function GameMap() constructor {
 		// Add collectables to heart room and other rooms at random
 		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
 			var _possible_room = _possible_rooms[_i];
-			if (!_possible_room.is_start_room && !_possible_room.is_heart_room && get_random_chance_out_of(COLLECTABLE_PROBABILITY) && _possible_room.make_room_for_collectables()) {
+			if (!_possible_room.is_start_room && !_possible_room.is_heart_room && get_random_chance_out_of(COLLECTABLE_PROBABILITY) && _possible_room.can_have_collectables()) {
 				_possible_room.has_collectables = true;
 				_collectables_rooms += 1;
 			}
@@ -1188,7 +1187,7 @@ function GameMap() constructor {
 		var _minimum_collectable_rooms = ceil(array_length(rooms) / 4) + 1;
 		for (var _j = 0; _j < array_length(_possible_rooms) && _collectables_rooms < _minimum_collectable_rooms; _j++) {
 			var _extra_room = _possible_rooms[_j];
-			if (!_extra_room.is_start_room && !_extra_room.has_collectables && _extra_room.make_room_for_collectables()) {
+			if (!_extra_room.is_start_room && !_extra_room.has_collectables && _extra_room.can_have_collectables()) {
 				_extra_room.has_collectables = true;
 				_collectables_rooms += 1;
 			}

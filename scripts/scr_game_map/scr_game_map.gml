@@ -685,10 +685,10 @@ function GameMap() constructor {
 
 	/// @function create_chests()
 	/// @description Creates and assigns all the chests and their contents: each special room's own chest, a locked chest for
-	///	each other special item, then the guaranteed items, and random chests, some locked and some traps. A special room's
-	///	regular item comes last.
+	///	each other special item, then the guaranteed items, and random chests, some locked and some traps
 	static create_chests = function() {
-		// Create each special room's chest, and assign its content when it holds a special item. A regular item is assigned last
+		// Create each special room's chest and assign its content, a random special item type. Greed's chest holds it as a
+		// regular item, which the room's red chest can make special
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			// Skip rooms that aren't special rooms
 			var _special_room = rooms[_i];
@@ -696,7 +696,7 @@ function GameMap() constructor {
 
 			// Assign chest content to be a random special item type
 			_special_room.add_special_room_chest();
-			if (_special_room.has_special_item) { _special_room.chest_obj = pick_item_type(true); }
+			_special_room.chest_obj = pick_item_type(true);
 		}
 
 		// Create and Assign Special Chest Content for the special items outside the special rooms
@@ -763,13 +763,6 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(guaranteed_items); _i++) {
 			// This should NEVER happen
 			write_debug_message("No room left for " + string(get_object_name(guaranteed_items[_i])) + " guaranteed item.", debug_message_level.warning);
-		}
-		
-		// Assign a special room's regular item last, once every other chest has its item. The guaranteed items ignore the item
-		// caps, so picking it before them could take a type past its cap
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			var _special_room = rooms[_i];
-			if (_special_room.is_special_room && !_special_room.has_special_item) { _special_room.chest_obj = pick_item_type(false); }
 		}
 	};
 

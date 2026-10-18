@@ -527,8 +527,8 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @function add_special_room_chest()
 	/// @description Puts the chest of the room's special room type in it, always locked, with no item yet. Pride, envy and
 	///	wrath hide one that holds a special item, which building moves onto a giant eye in envy and onto an inverted cross in
-	///	wrath. Greed shows one that holds a regular item, and sloth one that holds a special item, always on the chest spot
-	///	behind the gudetama.
+	///	wrath. Greed shows one whose item starts as a regular item, which the room's red chest can make special, and sloth
+	///	one that holds a special item, always on the chest spot behind the gudetama.
 	static add_special_room_chest = function() {
 		has_locked_chest = true;
 		switch (special_room_type.name) {

@@ -250,6 +250,13 @@ function GameMap() constructor {
 		return false;
 	};
 
+	/// @function destroy()
+	/// @description Frees every room's path grids. Only for a map that will never be played, like a failed
+	///	attempt; the controller frees a played map's rooms itself.
+	static destroy = function() {
+		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].destroy(); }
+	};
+
 	/// @function add_new_room()
 	/// @description Adds one room to the map. A required layout with no exits that no room could take last pass gets a new
 	///	room only reached by stairs. Otherwise, the new room is sometimes joined to a random room by stairs, and otherwise by a
@@ -1470,14 +1477,6 @@ function GameMap() constructor {
 				array_push(_room.has_special_item ? spawned_special_items : spawned_items, _room.chest_obj);
 			}
 		}
-	};
-
-	// TODO: Is this unused? Can we remove it?
-	/// @function destroy()
-	/// @description Frees every room's path grids. Only for a map that will never be played, like a failed
-	///	attempt; the controller frees a played map's rooms itself.
-	static destroy = function() {
-		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].destroy(); }
 	};
 
 	// =================================================================================================

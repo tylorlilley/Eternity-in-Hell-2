@@ -155,9 +155,9 @@ global.rotational_enemy_sprites = [
 	spr_fountain_farmer, 
 	spr_snake_farmer
 ];
-global.shuffled_item_sprites = array_get_duplicate(global.item_sprites);
-global.shuffled_regular_enemy_sprites = array_get_duplicate(global.regular_enemy_sprites);
-global.shuffled_rotational_enemy_sprites = array_get_duplicate(global.rotational_enemy_sprites);
+global.shuffled_item_sprites = variable_clone(global.item_sprites, 0);
+global.shuffled_regular_enemy_sprites = variable_clone(global.regular_enemy_sprites, 0);
+global.shuffled_rotational_enemy_sprites = variable_clone(global.rotational_enemy_sprites, 0);
 
 // Setup global game type options
 global.bg_color = make_color_rgb(0, 0, 0);

@@ -16,15 +16,6 @@ function array_random_pop(_list) {
 	return _return_value;
 }
 
-/// @function								array_duplicate(_list, source_id);
-/// @param		{index}	_list				Array to add the values to
-/// @param		{index}	_source_list			Array to take the values being added from
-function array_duplicate(_list, _source_list) {
-	// This replaces the first array with a copy of the second array.
-	array_resize(_list, 0)
-	array_copy(_list, 0, _source_list, 0, array_length(_source_list));
-}
-
 /// @function									array_remove_first(_list, value_to_find);
 /// @param		{index}		_list				List to remove the value from
 /// @param		{value}		_value_to_remove		Value to remove from the array

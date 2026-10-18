@@ -1,6 +1,7 @@
 #macro FRAMES_TO_WAIT_UPON_ENTERING_ROOM 2 
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0// UNUSED get_probability_for_difficulty([0, 0, 12, 8, 6])
+#macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])
 
 /// @function								restart_game();
 function restart_game() {
@@ -32,6 +33,7 @@ function initialize_game_variables() {
 	final_time_remaining = 0;
 	time_remaining = 0;
 	time_provided = 0;
+	game_map = noone;
 	current_room = noone;
 	last_hole_exit = -1;
 	start_room = noone;
@@ -513,9 +515,10 @@ function set_initial_positions() {
 }
 
 /// @function game_room_initialize()
-/// @description Builds the current room the first time the player enters it: orients its layout's instances, opens or
-///	walls up its exit spots, destroys what's under its chest spot, and spawns what generation determined and placed for
-///	it, from fountains and enemies to its key, stairs, chest, button, doors and collectables
+/// @description Builds the current room once, right after map generation: orients its layout's instances, opens or walls
+///	up its exit spots, destroys what's under its chest spot, spawns what generation determined and placed for it, from
+///	fountains and enemies to its key, stairs, chest, button, doors and collectables, and hides bones or an item under
+///	some of its blocks
 function game_room_initialize() {
 	// Flip game object positions as necessary
 	if (current_room.flip_horizontal) { current_room.flip_room_contents_horizontally(); }
@@ -591,6 +594,26 @@ function game_room_initialize() {
 			creator.spawned_block = _new_inst;
 			mark_current_room_for_grid_update();
 			instance_destroy(id, false);
+		}
+	}
+	
+	// Sometimes hide bones or an item under a block. The first item a block hides in the map is a special item, of a type
+	// no other special item has. Every one after that is a regular item of a type not at its cap yet, which can be a key
+	var _map = game_map, _hand_items = [global.player_left_hand_item, global.player_right_hand_item];
+	with (obj_block_spot) {
+		if (get_random_chance_out_of(BLOCK_ITEM_PROBABILITY)) {
+			if (get_coin_flip()) { instance_create(x, y, obj_bones); }
+			else if (_map.special_item_under_block == -1) {
+				_map.special_item_under_block = _map.pick_item_type(true);
+				with (instance_create(x, y, _map.special_item_under_block)) { make_item_special(); }
+			}
+			else {
+				// Regular meat rots into bones before the player can reach it, so a bomb takes its place
+				var _item_type = _map.pick_item_type(false, _hand_items, true);
+				if (_item_type == obj_meat) { _item_type = obj_bomb; }
+				array_push(_map.regular_items_under_blocks, _item_type);
+				instance_create(x, y, _item_type);
+			}
 		}
 	}
 			

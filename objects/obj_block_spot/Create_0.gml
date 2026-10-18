@@ -1,11 +1,4 @@
-// Sometimes spawn something under block
-if get_random_chance_out_of(BLOCK_ITEM_PROBABILITY) {
-	var _item_obj = (get_coin_flip()) ? get_random_item_obj(true, true) : obj_bones;
-	if (_item_obj == obj_meat) { _item_obj = obj_bomb; }
-	instance_create(x, y, _item_obj);
-}
-
-// Spawn a plain block. Map generation randomly determines how many of the room's blocks come alive, and building the room
-// turns that many random ones into living blocks
+// Spawn a plain block. Map generation randomly determines how many of the room's blocks come alive. Building the room
+// turns that many random ones into living blocks, and sometimes hides bones or an item under a block
 spawned_block = instance_create(x, y, obj_block);
 spawned_block.creator = id;

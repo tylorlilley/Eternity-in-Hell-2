@@ -22,8 +22,9 @@ random_set_seed(global.seed);
 write_debug_message("SEED: "+string(random_get_seed()));
 initialize_game_variables();
 
-// Plan the whole map: its rooms, layouts, contents, locks and keys, score and time (scr_map_generation)
+// Plan the whole map: its rooms, layouts, contents, locks and keys, score and time (scr_game_map)
 var _map = generate_map();
+game_map = _map;
 game_rooms = _map.rooms;
 start_room = _map.start_room;
 heart_room = _map.heart_room;
@@ -35,10 +36,11 @@ spawned_items = _map.spawned_items;
 spawned_special_items = _map.spawned_special_items;
 time_provided = _map.time_provided;
 
-// Create player object and initialize all game rooms
+// Build every room, in a random order so that any room's blocks are as likely to hide the special item
 time_remaining = time_provided;
-for (var _i = 0; _i < array_length(game_rooms); _i++) {
-	var _next_room = game_rooms[_i];
+var _rooms_to_build = array_shuffle(game_rooms);
+for (var _i = 0; _i < array_length(_rooms_to_build); _i++) {
+	var _next_room = _rooms_to_build[_i];
 	transition_to_room(_next_room, false);
 	initialize_room_transition_values();
 }

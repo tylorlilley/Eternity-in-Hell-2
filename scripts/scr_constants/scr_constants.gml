@@ -63,7 +63,6 @@
 #macro CORPSE_HEADLESS_PROBABILITY 16
 #macro TRAP_RANGE 40 
 #macro BOMB_DUD_PROBABILITY 64
-#macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64]) 
 #macro NOSE_SELF_DESTRUCT_PROBABILITY get_probability_for_difficulty([0, 0, 0, 256, 128]) 
 #macro RESPAWN_FREQUENCY 40 
 #macro ECHO_SPAWN_FREQUENCY 64 

@@ -766,14 +766,16 @@ function GameMap() constructor {
 		}
 	};
 
-	/// @function pick_item_type(_is_special_item, [_items_in_hands])
+	/// @function pick_item_type(_is_special_item, [_items_in_hands], [_can_be_key])
 	/// @description Picks an item type at random among the types still allowed. A special item can be any type the
-	///	difficulty allows, keys included, but each type is a special item once at most. A regular item is never a key,
-	///	or a type at its cap, counting the chests and the given starting hand items.
+	///	difficulty allows, keys included, but each type is a special item once at most. A regular item is only a key when
+	///	it can be one, and never a type at its cap, counting the chests, what the blocks hide, and the given starting
+	///	hand items.
 	/// @param {bool} _is_special_item Whether the item is a special item
 	/// @param {array} [_items_in_hands] The starting hand items to count ([] by default, to ignore the hands)
+	/// @param {bool} [_can_be_key] Whether a regular item can be a key (false by default)
 	/// @returns {Asset.GMObject}
-	static pick_item_type = function(_is_special_item, _items_in_hands = []) {
+	static pick_item_type = function(_is_special_item, _items_in_hands = [], _can_be_key = false) {
 		// Loop through all possible item types to see which are still possible to spawn
 		var _available_item_types = global.available_items[global.difficulty], _possible_item_types = [];
 		for (var _i = 0; _i < array_length(_available_item_types); _i++) {
@@ -782,8 +784,8 @@ function GameMap() constructor {
 				// Add any type that isn't a special item yet to the list of possibilities
 				if (!array_contains(special_item_types, _item_type)) { array_push(_possible_item_types, _item_type); }
 			}
-			else if (_item_type != obj_key && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type)) {
-				// Add any type other than the key that isn't at its cap yet to the list of possibilities
+			else if ((_can_be_key || _item_type != obj_key) && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type)) {
+				// Add any type that isn't at its cap yet to the list of possibilities, the key only when it can be one
 				array_push(_possible_item_types, _item_type);
 			}
 		}
@@ -802,9 +804,9 @@ function GameMap() constructor {
 	};
 
 	/// @function count_regular_items(_item_type, _hands)
-	/// @description Counts the regular (not special) copies of an item type in the map's chests and in the given starting
-	///	hand items. The keys and bombs placed for the locks don't count, and neither does a torch in the guaranteed chest,
-	///	which it only holds in place of a map or compass the hands already hold.
+	/// @description Counts the regular (not special) copies of an item type in the map's chests, under its blocks and in the
+	///	given starting hand items. The keys and bombs placed for the locks don't count, and neither does a torch in the
+	///	guaranteed chest, which it only holds in place of a map or compass the hands already hold.
 	/// @param {Asset.GMObject} _item_type The item type
 	/// @param {array} _hands The starting hand items to count
 	/// @returns {real}
@@ -816,6 +818,9 @@ function GameMap() constructor {
 			var _room = rooms[_i];
 			if (_room.chest_obj == _item_type && !_room.has_special_item && !_room.key_in_chest) { _count += 1; }
 		}
+		
+		// Add the regular items of this type the blocks hide
+		_count += array_count_occurrences(regular_items_under_blocks, _item_type);
 		
 		// Loop through the given hand items and add those item types to the count
 		for (var _j = 0; _j < array_length(_hands); _j++) {
@@ -1528,6 +1533,10 @@ function GameMap() constructor {
 	spawned_items = [];
 	spawned_special_items = [];
 	time_provided = 0;
+
+	// What building the rooms hides under blocks, after generation, so neither the locks and keys nor the scores count it
+	special_item_under_block = -1;			// The special item type a block hides, once one does. A map has one at most
+	regular_items_under_blocks = [];		// Each regular item type a block hides, which the item caps count
 
 	// Initialize list of layouts by exit type
 	for (var _type = 0; _type < layout_exit_types.count; _type++) { array_push(layouts_by_exit_type, []); }

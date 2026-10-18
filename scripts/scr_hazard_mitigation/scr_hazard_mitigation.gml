@@ -1,4 +1,5 @@
 #macro BLOCK_MITIGATION_MULTIPLIER 0.6					// The share of its difficulty score a hazard keeps when a block mitigates its danger
+#macro BLOCK_STUCK_CHANCE 0.25							// How likely a block that destroyed a hazard ends against the border wall, where it can't be pushed back out: 52 of a room's 196 floor tiles touch it
 #macro STAFF_PROJECTILE_MITIGATION_MULTIPLIER 0.3		// The share of a hazard that still counts with a staff, when the staff only mitigates the danger of its projectiles
 #macro PROJECTILE_STOPPED_BY_STAFF_TAGS (hazard_tags.fires_at_player | hazard_tags.fires_in_place)	// What shoots projectiles the staff can block
 #macro DARK_DIFFICULTY_SCORE_MULTIPLIER 5				// The amount worse a hazard that is dangerous in the dark gets, when the player has no light
@@ -69,7 +70,8 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 
 	/// @function get_difficulty_score_with_blocks(_spawn_counts)
 	/// @description The sum of each hazard's difficulty score in a room, minus what its blocks mitigate. A block that isn't used
-	///	up is pushed on from one copy to the next, so it mitigates them all. One that's used up only mitigates a single copy
+	///	up is pushed on from one copy to the next, but can get stuck against a wall after each, so each round of copies the
+	///	blocks are pushed on to is mitigated a step closer to not at all. One that's used up only mitigates a single copy
 	///	(lava counts as one), so the blocks go to the copies they save the most difficulty score on. An estimated block count
 	///	can be fractional, and then mitigates that share of a block.
 	/// @param {struct} _spawn_counts Object names and how many of each spawn in the room
@@ -79,7 +81,7 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		var _blocks_left = get_count_from_struct(_spawn_counts, "obj_block_spot"), _total_difficulty_score = 0;
 		
 		// Loop through each object type that spawns
-		var _difficulty_score_saved_per_block_spent_arrays = [];
+		var _difficulty_score_saved_per_block_spent_arrays = [], _destroyed_by_block_difficulty_score = 0, _destroyed_by_block_copy_count = 0;
 		for (var _i = 0; _i < array_length(_object_names); _i++) {
 			// Skip object types that aren't hazards, or don't spawn
 			var _object_name = _object_names[_i], _object_count = get_count_from_struct(_spawn_counts, _object_name), _hazard_table_entry = _table[$ _object_name];
@@ -98,10 +100,21 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 				}
 				array_push(_difficulty_score_saved_per_block_spent_arrays, _difficulty_score_saved_per_block_spent);
 			}
-			else if ((_hazard_table_entry.tags & hazard_tags.destroyed_by_block) != 0) { _hazard_difficulty_score *= lerp(1, BLOCK_MITIGATION_MULTIPLIER, min(1, _blocks_left)); }
+			else if ((_hazard_table_entry.tags & hazard_tags.destroyed_by_block) != 0) {
+				// Set the hazards blocks destroy aside, so the blocks can mitigate all their copies together
+				_destroyed_by_block_difficulty_score += _hazard_difficulty_score;
+				_destroyed_by_block_copy_count += (_hazard_table_entry.many == 0) ? min(1, _object_count) : _object_count;
+				continue;
+			}
 			_total_difficulty_score += _hazard_difficulty_score;
 		}
 	
+		// Mitigate the copies of the hazards blocks destroy, in rounds of one copy for each block. Estimated block counts can be
+		// fractional, so lerp between the whole counts around it
+		var _multiplier_for_floor = get_destroyed_by_block_multiplier(_destroyed_by_block_copy_count, floor(_blocks_left));
+		var _multiplier_for_ceiling = get_destroyed_by_block_multiplier(_destroyed_by_block_copy_count, ceil(_blocks_left));
+		_total_difficulty_score += _destroyed_by_block_difficulty_score * lerp(_multiplier_for_floor, _multiplier_for_ceiling, frac(_blocks_left));
+		
 		// Spend the limited block uses on the copies they save the most on. Estimated block counts can be fractional, so lerp between the whole counts around it
 		var _best_savings_for_floor = get_best_block_savings(_difficulty_score_saved_per_block_spent_arrays, 0, floor(_blocks_left));
 		var _best_savings_for_ceiling = get_best_block_savings(_difficulty_score_saved_per_block_spent_arrays, 0, ceil(_blocks_left));
@@ -135,6 +148,30 @@ function HazardMitigation(_chance_holding_staff = 0, _chance_holding_sword = 0, 
 		
 		var _chance_of_dark = (1 - chance_of_light);
 		return (_hazard_difficulty_score * chance_of_light) + (_hazard_difficulty_score * DARK_DIFFICULTY_SCORE_MULTIPLIER * _chance_of_dark);
+	};
+
+	/// @function get_destroyed_by_block_multiplier(_copy_count, _block_count)
+	/// @description The share of their difficulty score the hazards blocks destroy keep, averaged over all their copies. Each
+	///	block reaches one copy, so the first round of copies, one for each block, keeps BLOCK_MITIGATION_MULTIPLIER. A block
+	///	can get stuck against a wall after each copy, so each round after that is a BLOCK_STUCK_CHANCE share closer to keeping
+	///	all of it, which the copies past the last round do
+	/// @param {real} _copy_count		How many copies of the hazards blocks destroy there are, which can be fractional
+	/// @param {real} _block_count		How many blocks there are, as a whole number
+	/// @returns {real}
+	static get_destroyed_by_block_multiplier = function(_copy_count, _block_count) {
+		// Nothing is mitigated without blocks, and there's nothing to mitigate without copies
+		if (_block_count <= 0 || _copy_count <= 0) { return 1; }
+		
+		// Add up the share each round of copies keeps, until the share is back up to all of it
+		var _kept_share_total = 0, _copies_left = _copy_count;
+		for (var _round = 0; _copies_left > 0 && _round * BLOCK_STUCK_CHANCE < 1; _round++) {
+			var _round_copy_count = min(_copies_left, _block_count);
+			_kept_share_total += _round_copy_count * lerp(BLOCK_MITIGATION_MULTIPLIER, 1, _round * BLOCK_STUCK_CHANCE);
+			_copies_left -= _round_copy_count;
+		}
+		
+		// The copies left after the last round keep all of it
+		return (_kept_share_total + _copies_left) / _copy_count;
 	};
 
 	/// @function get_best_block_savings(_difficulty_score_saved_arrays, _index, _blocks_left)

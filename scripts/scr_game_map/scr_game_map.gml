@@ -685,7 +685,8 @@ function GameMap() constructor {
 
 	/// @function create_chests()
 	/// @description Creates and assigns all the chests and their contents: each special room's own chest, a locked chest for
-	///	each other special item, then the guaranteed items, and random chests, some locked and some traps
+	///	each other special item, then the guaranteed items, in chests that are never hidden, and random chests, some hidden,
+	///	some locked and some traps
 	static create_chests = function() {
 		// Create each special room's chest and assign its content, a random special item type. Greed's chest holds it as a
 		// regular item, which the room's red chest can make special
@@ -718,7 +719,7 @@ function GameMap() constructor {
 			write_debug_message("No room left for " + string(_special_items_left) + " special item(s).", debug_message_level.warning);
 		}
 		
-		// Determine number of Guaranteed Item Chests; This depends on results from the special chests for the gudetama item
+		// Determine the guaranteed items: a torch, a map or compass, and an item that gets the player past the gudetama when the map needs one
 		var _map_item = (global.difficulty == difficulties.easy || get_coin_flip()) ? obj_map : obj_compass;
 		var _gudetama_item = get_coin_flip() ? obj_sword : obj_bomb;
 		guaranteed_items = [];
@@ -726,7 +727,7 @@ function GameMap() constructor {
 		array_push(guaranteed_items, _map_item); // Guarantee at least one map item; replaced later if it is in hand
 		if (map_needs_gudetama_item()) { array_push(guaranteed_items, _gudetama_item); } // Guarantee at least one item that can defeat the gudetama
 		
-		// Create and Assign Regular Chests, including GUaranteed Items
+		// Create and Assign Regular Chests, including Guaranteed Items
 		_possible_rooms = array_shuffle(rooms);
 		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
 			// Skip rooms that can't have a chest
@@ -736,14 +737,16 @@ function GameMap() constructor {
 			// Create Guaranteed Item Chests first, then random chests after that
 			var _guaranteed_chest = (array_length(guaranteed_items) > 0), _create_chest = (_guaranteed_chest || get_random_chance_out_of(CHEST_PROBABILITY));
 			if (_create_chest) {
-				_regular_chest_room.add_chest();
-				
 				if (_guaranteed_chest) {
+					// A guaranteed chest is never hidden, since a hidden chest only shows once its room is lit, which takes a torch,
+					// and the lock search never counts one
+					_regular_chest_room.set_stairs_spot_object(obj_chest);
 					_regular_chest_room.chest_obj = array_random_pop(guaranteed_items);
 					_regular_chest_room.has_guaranteed_item = true;
 				}
 				else {
-					// Lock random chests
+					// Create a random chest, which can be hidden, and lock some of them
+					_regular_chest_room.add_chest();
 					_regular_chest_room.has_locked_chest = get_random_chance_out_of(LOCKED_CHEST_PROBABILITY);
 					
 					// Trap random unlocked chests. A fountain shoots at the player, so a room whose layout has eyes only gets the statue trap
@@ -754,7 +757,6 @@ function GameMap() constructor {
 					
 					// Assign random item to chest
 					_regular_chest_room.chest_obj = _chest_content ?? pick_item_type(false);
-
 				}
 			}
 		}
@@ -805,8 +807,7 @@ function GameMap() constructor {
 
 	/// @function count_regular_items(_item_type, _hands)
 	/// @description Counts the regular (not special) copies of an item type in the map's chests, under its blocks and in the
-	///	given starting hand items. The keys and bombs placed for the locks don't count, and neither does a torch in the
-	///	guaranteed chest, which it only holds in place of a map or compass the hands already hold.
+	///	given starting hand items. The keys and bombs placed for the locks don't count.
 	/// @param {Asset.GMObject} _item_type The item type
 	/// @param {array} _hands The starting hand items to count
 	/// @returns {real}
@@ -1207,41 +1208,50 @@ function GameMap() constructor {
 	};
 
 	/// @function adjust_items_for_hands()
-	/// @description Swaps chest contents for the items the player starts with in their hands, once the map is final: the
-	///	guaranteed chest's map or compass, and any regular item the hands take past its cap
+	/// @description Replaces the guaranteed items the player's starting hand items make redundant, once the map is final. A
+	///	map or compass the hands hold becomes the other one, or a random regular item when the hands hold both or the
+	///	difficulty has no other one. The torch becomes a random regular item when the hands hold a torch, and the gudetama
+	///	item does when they hold a sword or bomb
 	static adjust_items_for_hands = function() {
 		// Setup variables based on the items the player chose to start with
 		var _hand_items = [global.player_left_hand_item, global.player_right_hand_item];
-		var _map_in_hand = array_contains(_hand_items, obj_map), _compass_in_hand = array_contains(_hand_items, obj_compass), _torch_in_hand = array_contains(_hand_items, obj_torch)
-		var _sword_in_hand = array_contains(_hand_items, obj_sword), _bomb_in_hand = array_contains(_hand_items, obj_bomb);
+		var _torch_in_hand = array_contains(_hand_items, obj_torch), _gudetama_item_in_hand = array_contains(_hand_items, obj_sword) || array_contains(_hand_items, obj_bomb);
 		
-		// Loop through each room to determine if it has a guaranteed item  that needs replaced
+		// Loop through each room to determine if it has a guaranteed item that needs replaced
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			// Skip rooms without guaranteed items
-			_guaranteed_item_room = rooms[_i];
+			var _guaranteed_item_room = rooms[_i];
 			if (!_guaranteed_item_room.has_guaranteed_item) { continue; }
-				
-			// Swap out the guaranted item if it matches an item in the player's hands
-			var _map_replacement_item = _guaranteed_item_room.chest_obj;
-			switch (_guaranteed_item_room.chest_obj) {
+			
+			// Work out whether the hands make the guaranteed item redundant, and what replaces it
+			var _guaranteed_item = _guaranteed_item_room.chest_obj, _replacement_item = _guaranteed_item, _pick_random_item = false;
+			switch (_guaranteed_item) {
 				case obj_map:
 				case obj_compass: {
-					if (_map_in_hand && _compass_in_hand) { _map_replacement_item = pick_item_type(false, _hand_items); }
-					else if (_map_in_hand && _guaranteed_item_room.chest_obj == obj_map) { _map_replacement_item = obj_compass; }
-					else if (_map_in_hand && _guaranteed_item_room.chest_obj == obj_compass) { _map_replacement_item = obj_map; }
+					// The other one replaces it, unless the hands hold both or the difficulty doesn't have the other one
+					if (!array_contains(_hand_items, _guaranteed_item)) { break; }
+					var _other_map_item = (_guaranteed_item == obj_map) ? obj_compass : obj_map;
+					if (array_contains(_hand_items, _other_map_item) || !array_contains(global.available_items[global.difficulty], _other_map_item)) { _pick_random_item = true; }
+					else { _replacement_item = _other_map_item; }
 					break;
 				}
 				case obj_torch: {
-					if (_torch_in_hand) { _map_replacement_item = pick_item_type(false, _hand_items); }
+					_pick_random_item = _torch_in_hand;
 					break;
 				}
 				case obj_bomb:
 				case obj_sword: {
-					if (_sword_in_hand || _bomb_in_hand) { _map_replacement_item = pick_item_type(false, _hand_items); }
+					_pick_random_item = _gudetama_item_in_hand;
 					break;
 				}
 			}
-			_guaranteed_item_room.chest_obj = _map_replacement_item;
+			
+			// Empty the chest before picking a random regular item, so the pick doesn't count the item it's replacing
+			if (_pick_random_item) {
+				_guaranteed_item_room.chest_obj = -1;
+				_replacement_item = pick_item_type(false, _hand_items);
+			}
+			_guaranteed_item_room.chest_obj = _replacement_item;
 		}
 	};
 

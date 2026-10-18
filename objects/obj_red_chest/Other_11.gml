@@ -13,7 +13,7 @@ if (!closed && _push_direction != directions.none) {
 		var _occupied_hands = [];
 		if (is_existing_instance(_player.right_hand_item) && !_player.lost_right_hand) { array_push(_occupied_hands, directions.right); } 
 		if (is_existing_instance(_player.left_hand_item) && !_player.lost_left_hand) { array_push(_occupied_hands, directions.left); }
-		array_shuffle(_occupied_hands);
+		array_shuffle_ext(_occupied_hands);
 		
 		if (array_length(_occupied_hands) == 0) { play_sound(snd_locked, false); }
 		else {

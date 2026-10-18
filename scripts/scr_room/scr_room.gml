@@ -191,11 +191,11 @@ function GameRoom(_given_x, _given_y) constructor {
 
 	/// @function holds_gudetama_item()
 	/// @description Whether the room's chest holds an item that can defeat a gudetama or get the player past it: a sword, a
-	///	bomb or a special staff. It must be unlocked, so the player can always open it, and the keys and bombs placed for
-	///	the locks don't count, since the locks need them.
+	///	bomb or a special staff. A locked or hidden chest counts too, but the keys and bombs placed for the locks don't,
+	///	since the locks need them.
 	/// @returns {bool}
 	static holds_gudetama_item = function() {
-		if (!has_chest() || has_locked_chest || key_in_chest) { return false; }
+		if (!has_chest() || key_in_chest) { return false; }
 
 		return chest_obj == obj_sword || chest_obj == obj_bomb || (chest_obj == obj_staff && has_special_item);
 	};

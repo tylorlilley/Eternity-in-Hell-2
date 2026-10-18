@@ -9,56 +9,36 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	// ========================
 
 	/// @function initialize_search_area()
-	/// @description Sets up variables based on what a player finds within the search area
+	/// @description Sets up variables based on what a player finds within the search area. A hidden chest outside a special
+	///	room only counts once the area lets the player light its room, and the gudetama chest only once a gudetama item is
+	///	reached, so those are counted last
 	static initialize_search_area = function() {
-		// Check every room to see what can be found within the area, in a copy of the map's rooms, since the gudetama room moves to the end
-		var _rooms = array_get_duplicate(map.rooms);
-		for (var _i = 0; _i < array_length(_rooms); _i++) {
+		// Check every room to see what can be found within the area, setting aside the chests that wait on what the others hold
+		var _hidden_chest_rooms = [], _gudetama_room = undefined;
+		for (var _i = 0; _i < array_length(map.rooms); _i++) {
 			// Skip room if it is not in the reached area
-			var _room = _rooms[_i];
-			if (!is_room_reached(_room)) {continue; }
+			var _room = map.rooms[_i];
+			if (!is_room_reached(_room)) { continue; }
 			
-			// The gudetama chest can only be opened if a gudetama item has been reached, and must be checked last
-			var _gudetama_room = (_room.is_special_room && _room.special_room_type.name == "sloth");
-			if (_gudetama_room && _i != array_length(_rooms) -1) { array_push(_rooms, _room); continue; }
-
-			// Count the room's non-chest content: An available key or bomb, its light, its torch, and any locked chest
+			// Count the room's non-chest content: An available key, its light, and any locked chest
 			if (_room.has_key && !_room.key_in_chest) { keys_reached += 1; }
 			if (_room.is_lit()) { reached_lit_room = true; }
 			if (_room.has_locked_chest && _room.relevant_locked_chests_index == -1) { irrelevant_locked_chests_reached += 1; }
 
-			// Determine if you can use the gudetama room item
-			var _can_use_item = (_gudetama_room) ? reached_gudetama_item : true;
-
-			// Count the room's chest content if the chest is not locked or is unlocked
-			if (_can_use_item && (_room.stairs_spot_obj == obj_chest) && (!_room.has_locked_chest || is_room_chest_unlocked(_room))) {
-				switch (_room.chest_obj) {
-					case obj_torch: {
-						reached_torch = true;
-						break;
-					}
-					case obj_bomb: {
-						if (_room.has_special_item) { reached_special_bomb = true; }
-						if (_room.key_in_chest) { bombs_reached += 1; }
-						else { reached_gudetama_item = true; }
-						break;
-					}
-					case obj_key: {
-						if (_room.has_special_item) { reached_special_key = true; }
-						if (_room.key_in_chest) { keys_reached += 1; }
-						break;
-					}
-					case obj_sword: {
-						reached_gudetama_item = true;
-						break;
-					}
-					case obj_staff: {
-						if (_room.has_special_item) { reached_gudetama_item = true; }
-						break;
-					}
-				}
-			}
+			// Count the room's chest content, unless the chest waits on a gudetama item or on light
+			if (_room.is_special_room && _room.special_room_type.name == "sloth") { _gudetama_room = _room; }
+			else if (_room.stairs_spot_obj == obj_hidden_chest && !_room.is_special_room) { array_push(_hidden_chest_rooms, _room); }
+			else if (_room.stairs_spot_obj == obj_chest) { count_chest_content(_room); }
 		}
+		
+		// A hidden chest shows once its room is lit, which takes a torch and a lit room to light it in, as lighting bombs does.
+		// A special room's hidden chest shows once the room is solved instead, so it never counts
+		if (can_use_bombs_as_keys()) {
+			for (var _j = 0; _j < array_length(_hidden_chest_rooms); _j++) { count_chest_content(_hidden_chest_rooms[_j]); }
+		}
+		
+		// The gudetama chest can only be opened once a gudetama item has been reached
+		if (!is_undefined(_gudetama_room) && reached_gudetama_item) { count_chest_content(_gudetama_room); }
 	};
 
 	/// @function is_room_reached(_room)
@@ -67,6 +47,40 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	/// @returns {bool}
 	static is_room_reached = function(_room) {
 		return ((reached_rooms & (1 << _room.map_rooms_index)) != 0);
+	};
+
+	/// @function count_chest_content(_room)
+	/// @description Counts what a reached room's chest gives the player, if the chest isn't locked or the area unlocked it
+	/// @param {GameRoom} _room The room whose chest to count
+	static count_chest_content = function(_room) {
+		// Skip the chest if it is still locked
+		if (_room.has_locked_chest && !is_room_chest_unlocked(_room)) { return; }
+		
+		switch (_room.chest_obj) {
+			case obj_torch: {
+				reached_torch = true;
+				break;
+			}
+			case obj_bomb: {
+				if (_room.has_special_item) { reached_special_bomb = true; }
+				if (_room.key_in_chest) { bombs_reached += 1; }
+				else { reached_gudetama_item = true; }
+				break;
+			}
+			case obj_key: {
+				if (_room.has_special_item) { reached_special_key = true; }
+				if (_room.key_in_chest) { keys_reached += 1; }
+				break;
+			}
+			case obj_sword: {
+				reached_gudetama_item = true;
+				break;
+			}
+			case obj_staff: {
+				if (_room.has_special_item) { reached_gudetama_item = true; }
+				break;
+			}
+		}
 	};
 
 	/// @function is_room_chest_unlocked(_room)

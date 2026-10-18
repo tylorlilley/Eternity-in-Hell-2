@@ -1480,6 +1480,27 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].destroy(); }
 	};
 
+	// =================================================================================================
+	// ROOM BUILDING
+	// Every room is built once the map is final, before the player can move
+	// =================================================================================================
+
+
+	/// @function build_rooms()
+	/// @description Builds every room, in a random order so that any room's blocks are as likely to hide the special item.
+	///	Each room's instances are put away before the next room is built, as when the player leaves a room, and the
+	///	controller points at the room being built, since instances read its room when they're created
+	static build_rooms = function() {
+		var _controller = global.controller, _rooms_to_build = array_shuffle(rooms), _last_built_room = undefined;
+		for (var _i = 0; _i < array_length(_rooms_to_build); _i++) {
+			var _room = _rooms_to_build[_i];
+			if (!is_undefined(_last_built_room)) { _last_built_room.deactivate_room_instances(); }
+			_controller.current_room = _room;
+			_room.build(self);
+			_last_built_room = _room;
+		}
+	};
+
 	// ============================
 	// Instance Variables
 	// ============================

@@ -60,7 +60,7 @@ if (_game_manager.number_of_frames_since_game_began % FRAMES_TO_WAIT_BEFORE_PROC
 		else if (transition != directions.none && blackout) { 
 			var _next_room = start_room; 
 			if (transition <= directions.stairs) { _next_room = transitioning_exit.get_connected_room(current_room); }
-			transition_to_room(_next_room, true); 
+			transition_to_room(_next_room); 
 		}
 	}
 	if (room != rm_finish && (is_game_lost() || is_game_won())) {

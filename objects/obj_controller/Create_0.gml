@@ -24,26 +24,20 @@ initialize_game_variables();
 
 // Plan the whole map: its rooms, layouts, contents, locks and keys, score and time (scr_game_map)
 var _map = generate_map();
-game_map = _map;
 game_rooms = _map.rooms;
 start_room = _map.start_room;
 heart_room = _map.heart_room;
-current_room = start_room;
 same_skeleton_type = _map.same_skeleton_type;
-rooms_with_collectables = _map.rooms_with_collectables;
-total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 spawned_items = _map.spawned_items;
 spawned_special_items = _map.spawned_special_items;
 time_provided = _map.time_provided;
-
-// Build every room, in a random order so that any room's blocks are as likely to hide the special item
 time_remaining = time_provided;
-var _rooms_to_build = array_shuffle(game_rooms);
-for (var _i = 0; _i < array_length(_rooms_to_build); _i++) {
-	var _next_room = _rooms_to_build[_i];
-	transition_to_room(_next_room, false);
-	initialize_room_transition_values();
-}
+
+// Build every room, which leaves the controller in the last room built. Building takes the collectables from a room with
+// no space for them, so the rooms with collectables are taken after
+_map.build_rooms();
+rooms_with_collectables = _map.rooms_with_collectables;
+total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 
 // Transition to start room to begin game
 with (global.game_manager) { 
@@ -54,7 +48,7 @@ with (global.game_manager) {
 }
 play_sound(snd_torchlight, false);
 global.player = instance_create(-16, -16, obj_player);
-transition_to_room(start_room, true);
+transition_to_room(start_room);
 player_appear_timer = 0;
 global.player.visible = true;
 with (global.game_manager) { array_remove_first(sounds_to_play, snd_win); }

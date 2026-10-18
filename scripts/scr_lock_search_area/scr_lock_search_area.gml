@@ -11,7 +11,8 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	/// @function initialize_search_area()
 	/// @description Sets up variables based on what a player finds within the search area. A hidden chest outside a special
 	///	room only counts once the area lets the player light its room, and the gudetama chest only once a gudetama item is
-	///	reached, so those are counted last
+	///	reached, so those are counted last. A special room's hidden chest counts like any other, since the player can always
+	///	solve the room to show it
 	static initialize_search_area = function() {
 		// Check every room to see what can be found within the area, setting aside the chests that wait on what the others hold
 		var _hidden_chest_rooms = [], _gudetama_room = undefined;
@@ -26,13 +27,12 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 			if (_room.has_locked_chest && _room.relevant_locked_chests_index == -1) { irrelevant_locked_chests_reached += 1; }
 
 			// Count the room's chest content, unless the chest waits on a gudetama item or on light
-			if (_room.is_special_room && _room.special_room_type.name == "sloth") { _gudetama_room = _room; }
+			if (_room.is_gudetama_room()) { _gudetama_room = _room; }
 			else if (_room.stairs_spot_obj == obj_hidden_chest && !_room.is_special_room) { array_push(_hidden_chest_rooms, _room); }
-			else if (_room.stairs_spot_obj == obj_chest) { count_chest_content(_room); }
+			else if (_room.has_chest()) { count_chest_content(_room); }
 		}
 		
-		// A hidden chest shows once its room is lit, which takes a torch and a lit room to light it in, as lighting bombs does.
-		// A special room's hidden chest shows once the room is solved instead, so it never counts
+		// A hidden chest shows once its room is lit, which takes a torch and a lit room to light it in, as lighting bombs does
 		if (can_use_bombs_as_keys()) {
 			for (var _j = 0; _j < array_length(_hidden_chest_rooms); _j++) { count_chest_content(_hidden_chest_rooms[_j]); }
 		}

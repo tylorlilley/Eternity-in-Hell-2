@@ -860,21 +860,28 @@ function GameMap() constructor {
 	/// @returns {bool} True if an item is needed, false otherwise
 	static map_needs_gudetama_item = function() {
 		// Find the room with the gudetama, if the map has one. Return false if it doesn't
-		var _gudetama_room = undefined;
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			if (rooms[_i].layout.get_object_count("obj_gudetama") > 0) { _gudetama_room = rooms[_i]; break; }
-		}
+		var _gudetama_room = get_gudetama_room();
 		if (is_undefined(_gudetama_room)) { return false; }
 
 		// Find a chest in another room that already holds a gudetama item, and return false if one is found
-		for (var _j = 0; _j < array_length(rooms); _j++) {
-			var _room = rooms[_j];
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			var _room = rooms[_i];
 			if (_room == _gudetama_room) { continue; }
 			if (_room.holds_gudetama_item()) { return false; }
 		}
 
 		// Otherwise, return true to ensure an item is spawned
 		return true;
+	};
+
+	/// @function get_gudetama_room()
+	/// @description The map's gudetama room, sloth's special room, if the map has one
+	/// @returns {GameRoom|undefined}
+	static get_gudetama_room = function() {
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			if (rooms[_i].is_gudetama_room()) { return rooms[_i]; }
+		}
+		return undefined;
 	};
 
 	/// @function create_locked_exits_and_keys()
@@ -1037,11 +1044,12 @@ function GameMap() constructor {
 	};
 
 	/// @function get_relevant_locked_chest_rooms()
-	/// @description Gets a list of all rooms with a relevant locked chest in the map
+	/// @description Gets a list of all rooms with a relevant locked chest in the map: one that holds a special key or bomb,
+	///	a torch, or a special sword or staff that can get the player past the map's gudetama to the chest behind it
 	/// @returns {array} The list of relevant locked chest rooms
 	static get_relevant_locked_chest_rooms = function() {
-		// Loop through every map room exit to find relevant locked chests
-		var _relevant_locked_chest_rooms = [];
+		// Loop through every map room to find relevant locked chests
+		var _relevant_locked_chest_rooms = [], _gudetama_room = get_gudetama_room();
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			// Skip rooms with unlocked chests
 			var _room = rooms[_i];
@@ -1051,10 +1059,11 @@ function GameMap() constructor {
 			var _holds_special_key = (_room.chest_obj == obj_key && _room.has_special_item);
 			var _holds_special_bomb = (_room.chest_obj == obj_bomb && _room.has_special_item);
 			var _holds_needed_torch = (_room.chest_obj == obj_torch);
+			var _holds_gudetama_item = (!is_undefined(_gudetama_room) && _room != _gudetama_room && _room.has_special_item && (_room.chest_obj == obj_sword || _room.chest_obj == obj_staff));
 			
 			// Reset the chest index, then add the chest if it is relevant and assign its new index
 			_room.relevant_locked_chests_index = -1;
-			if (_holds_special_key || _holds_needed_torch || _holds_special_bomb) {
+			if (_holds_special_key || _holds_needed_torch || _holds_special_bomb || _holds_gudetama_item) {
 				_room.relevant_locked_chests_index = array_length(_relevant_locked_chest_rooms);
 				array_push(_relevant_locked_chest_rooms, _room);
 			}

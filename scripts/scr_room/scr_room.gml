@@ -189,6 +189,13 @@ function GameRoom(_given_x, _given_y) constructor {
 		return lit;
 	};
 
+	/// @function is_gudetama_room()
+	/// @description Whether the room is sloth's special room, whose chest sits behind its gudetama
+	/// @returns {bool}
+	static is_gudetama_room = function() {
+		return is_special_room && special_room_type.name == "sloth";
+	};
+
 	/// @function holds_gudetama_item()
 	/// @description Whether the room's chest holds an item that can defeat a gudetama or get the player past it: a sword, a
 	///	bomb or a special staff. A locked or hidden chest counts too, but the keys and bombs placed for the locks don't,

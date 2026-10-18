@@ -11,16 +11,16 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	/// @function initialize_search_area()
 	/// @description Sets up variables based on what a player finds within the search area
 	static initialize_search_area = function() {
-		// Check every room to see what can be found within the area
-		var _rooms = map.rooms;
+		// Check every room to see what can be found within the area, in a copy of the map's rooms, since the gudetama room moves to the end
+		var _rooms = array_get_duplicate(map.rooms);
 		for (var _i = 0; _i < array_length(_rooms); _i++) {
 			// Skip room if it is not in the reached area
 			var _room = _rooms[_i];
 			if (!is_room_reached(_room)) {continue; }
 			
 			// The gudetama chest can only be opened if a gudetama item has been reached, and must be checked last
-			var _gudetama_room = (_room.is_special_room && _room.special_room_type == "sloth");
-			if (_gudetama_room && _i != array_length(_rooms) -1) { array_push(_rooms, _gudetama_room); continue; }
+			var _gudetama_room = (_room.is_special_room && _room.special_room_type.name == "sloth");
+			if (_gudetama_room && _i != array_length(_rooms) -1) { array_push(_rooms, _room); continue; }
 
 			// Count the room's non-chest content: An available key or bomb, its light, its torch, and any locked chest
 			if (_room.has_key && !_room.key_in_chest) { keys_reached += 1; }

@@ -160,11 +160,12 @@ function RoomLayout(_room_reference) constructor {
 			add_to_count_struct(_skeleton_type_counts, "obj_skeleton", _basic_skeleton_count);
 		}
 		
-		// Estimate Phantoms and Floaters
+		// Estimate Phantoms and Floaters. A phantom only joins an unlit room without a hidden chest
 		var _phantom_count = 0;
 		if (!is_special_room) {
 			if (has_lanterns && can_have_hazard_with_estimated_eyes("obj_phantom")) {
-				_phantom_count = (1 - get_chance_out_of(PRE_LIT_PROBABILITY)) * get_chance_out_of(PHANTOM_PROBABILITY);
+				var _hidden_chest_chance = get_chance_out_of(CHEST_PROBABILITY) * get_chance_out_of(HIDDEN_CHEST_PROBABILITY);
+				_phantom_count = (1 - get_chance_out_of(PRE_LIT_PROBABILITY)) * (1 - _hidden_chest_chance) * get_chance_out_of(PHANTOM_PROBABILITY);
 				add_to_count_struct(_mapgen_counts, "obj_phantom", _phantom_count);
 			}
 			if (can_have_hazard_with_estimated_eyes("obj_floater")) {
@@ -173,15 +174,10 @@ function RoomLayout(_room_reference) constructor {
 			}
 		}
 		
-		// Eyes on a skeleton spot, only in a room where nothing chases or shoots at the player
+		// Eyes on a skeleton spot, which are determined before any other random content, so only what the layout places can keep
+		// them out of the room: anything that chases or shoots at the player
 		if (_skeleton_spot_count > 0 && get_object_count("obj_eyes") == 0 && count_hazards_with_tags(instance_object_counts, TARGETS_PLAYER_TAGS) == 0) {
-			// Add up how many hazards that chase or shoot at the player are expected, since any of them keeps the eyes from spawning
-			var _expected_targeting_counts = 0, _object_names = variable_struct_get_names(_mapgen_counts);
-			for (var _i = 0; _i < array_length(_object_names); _i++) { if (hazard_has_tag(_object_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += max(0, _mapgen_counts[$ _object_names[_i]]); } }
-			// Add skeleton types to the expected targeting counts
-			_object_names = variable_struct_get_names(_skeleton_type_counts);
-			for (var _i = 0; _i < array_length(_object_names); _i++) { if (hazard_has_tag(_object_names[_i], TARGETS_PLAYER_TAGS)) { _expected_targeting_counts += _skeleton_type_counts[$ _object_names[_i]] * _skeleton_spot_count; } }
-			var _eyes_count = exp(-_expected_targeting_counts) * get_chance_out_of(EYES_PROBABILITY); // exp(−n) is the chance that none of them spawn when n are expected on average
+			var _eyes_count = get_chance_out_of(EYES_PROBABILITY);
 			add_to_count_struct(_mapgen_counts, "obj_eyes", _eyes_count);
 			_skeleton_spot_count -= _eyes_count; // Eyes take up a skeleton spot
 		}
@@ -547,7 +543,8 @@ function RoomLayout(_room_reference) constructor {
 	};
 
 	/// @function setup_destroying_spots()
-	/// @description Finds the exit and chest spots, which can destroy everything under them when the room is built, and which of these spots cover each other instance
+	/// @description Finds the exit and chest spots, which can destroy everything under them when the room is built, which of these spots cover each other
+	///	instance, and whether anything overlaps the chest spot
 	static setup_destroying_spots = function() {
 		var _exit_destroying_spot_names = ["obj_exit_spot_up", "obj_exit_spot_right", "obj_exit_spot_down", "obj_exit_spot_left"];
 		
@@ -578,6 +575,7 @@ function RoomLayout(_room_reference) constructor {
 
 				array_push(_destroying_spots, _j);
 				if (_is_blocker) { _destroying_spot.blocked = true; }
+				if (_destroying_spot.exit_direction == -1) { chest_spot_is_alone = false; }
 			}
 			if (array_length(_destroying_spots) > 0) { array_push(covered_instances, { instance: _instance, object_name: _instance.object_name, destroying_spots: _destroying_spots }); }
 		}
@@ -806,6 +804,7 @@ function RoomLayout(_room_reference) constructor {
 	key_spots = [];										// list of collectable spot numbers a floor key can take
 	button_spots = [];									// list of collectable spot numbers a button can take
 	stairs_spot_is_alone = false;						// Whether nothing else shares the stairs spot's tile, so a button can take it
+	chest_spot_is_alone = true;							// Whether nothing else overlaps the chest spot, so a button can take it when no chest does
 
 	// Read the room reference into the above variables
 	get_instances_from_room_asset();

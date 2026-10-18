@@ -23,11 +23,11 @@
 #macro NOSE_PROBABILITY get_probability_for_difficulty([0, 0, 4, 3, 2]) // multiplied by 4 for check at every room enter
 #macro MIDGAME_NOSE_PROBABILITY NOSE_PROBABILITY * 4 // multiplied by 4 for check at every room enter
 #macro FIRE_SKELETON_IN_LAVA_PROBABILITY get_probability_for_difficulty([0, 0, 0, 48, 32])
-#macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 4, 3, 3, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
+#macro PHANTOM_PROBABILITY get_probability_for_difficulty([0, 3, 3, 2, 2])  // Only occurs if room has lanterns AND not pre-lit AND no hidden chest
 #macro FLOATER_PROBABILITY get_probability_for_difficulty([0, 0, 32, 24, 16])
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 4])
 #macro SAME_SKELETON_TYPE_PROBABILITY get_probability_for_difficulty([0, 0, 0, 32, 24])
-#macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 40]) 
+#macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 100]) 
 #macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 28, 24, 18]) //get_probability_for_difficulty([0, 32, 24, 22, 18]) 
 
 // Initialize map drawing constants

@@ -514,8 +514,8 @@ function set_initial_positions() {
 
 /// @function game_room_initialize()
 /// @description Builds the current room the first time the player enters it: orients its layout's instances, opens or
-///	walls up its exit spots, and spawns what generation rolled and placed for it, from fountains and enemies to its
-///	key, stairs, chest, button, doors and collectables
+///	walls up its exit spots, destroys what's under its chest spot, and spawns what generation determined and placed for
+///	it, from fountains and enemies to its key, stairs, chest, button, doors and collectables
 function game_room_initialize() {
 	// Flip game object positions as necessary
 	if (current_room.flip_horizontal) { current_room.flip_room_contents_horizontally(); }
@@ -559,9 +559,12 @@ function game_room_initialize() {
 		write_debug_message("Room with no chest spot: " + room_get_name(current_room.room_reference), debug_message_level.warning);
 	}
 	
+	// Destroy what's under the chest spot when the stairs spot object spawns there, before anything spawns on what's left,
+	// since generation determined the room's content for what survives. A hidden chest destroys what's under it once revealed
+	if (current_room.destroys_chest_spot()) { with (_chest_spot) { destroy_instances_at_position(); } }
+
 	// Spawn Fountains
 	for (var _i = 0; _i < current_room.replaced_column_fountain_count; _i++) {
-		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_column)) {
 			var _new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
@@ -571,7 +574,6 @@ function game_room_initialize() {
 		}
 	}
 	for (var _i = 0; _i < current_room.replaced_statue_fountain_count; _i++) {
-		if (current_room == start_room) { continue; }
 		with (get_random_instance(obj_statue, true)) { // Exact statues only, since fountains are children of obj_statue
 			var _new_inst = instance_create(x, y, obj_fountain);
 			other.current_room.remove_from_instances_at_map_positions(id);
@@ -583,8 +585,6 @@ function game_room_initialize() {
 	
 	// Spawn living blocks instead of regular blocks on some block spots
 	for (var _i = 0; _i < current_room.living_block_count; _i++) {
-		if (current_room == start_room) { continue; }
-		
 		with (get_random_instance(obj_block, true)) { // Exact blocks only, since living blocks are children of obj_block
 			var _new_inst = instance_create(x, y, obj_living_block);
 			_new_inst.creator = creator;
@@ -594,9 +594,13 @@ function game_room_initialize() {
 		}
 	}
 			
-	// Spawn skeletons
+	// Spawn skeletons. Generation gave a skeleton type to each skeleton spot left, so the counts should always match
 	array_shuffle_ext(current_room.skeleton_types);
 	var _total_skeletons = instance_number(obj_skeleton_spot);
+	if (_total_skeletons != array_length(current_room.skeleton_types)) {
+		write_debug_message("Room has " + string(_total_skeletons) + " skeleton spots for " + string(array_length(current_room.skeleton_types)) + " skeleton types: " + room_get_name(current_room.room_reference), debug_message_level.warning);
+		_total_skeletons = min(_total_skeletons, array_length(current_room.skeleton_types));
+	}
 	for (var _i = 0; _i < _total_skeletons; _i++;) {
 		var _skeleton_type = current_room.skeleton_types[_i];
 		
@@ -673,19 +677,15 @@ function game_room_initialize() {
 	// The stairs spot object can't spawn if the spot it takes is missing. This should never happen if every room has both spots
 	if (_spawn_spot == noone) { current_room.stairs_spot_obj = -1; }
 
-	// Spawn stairs spot obj
+	// Spawn stairs spot obj. What's under it on the chest spot was already destroyed above
 	if (current_room.stairs_spot_obj != -1) {
-		if (_spawn_spot == _chest_spot) {
-			if (current_room.stairs_spot_obj != obj_hidden_chest) {
-				with (_chest_spot) { destroy_instances_at_position(); } 
-			}
-		}
-		else { _stairs_spot_occupied = true; }
+		if (_spawn_spot != _chest_spot) { _stairs_spot_occupied = true; }
 		
 		var _new_inst = instance_create(_spawn_spot.x, _spawn_spot.y, current_room.stairs_spot_obj);
 		if (is_existing_instance(_new_inst)) {
 			if (current_room.is_special_room && _new_inst.object_index == obj_hidden_chest) {
-				// Spawn special hidden chests for special rooms
+				// Move a special room's hidden chest onto a random giant eye or inverted cross, or tie it to the hall of mirrors.
+				// Greed and sloth get a visible chest from generation instead
 				if (instance_number(obj_giant_eye) > 0) {
 					var _chosen_eye = get_random_instance(obj_giant_eye);
 					_new_inst.x = _chosen_eye.x;
@@ -697,28 +697,6 @@ function game_room_initialize() {
 					_new_inst.x = _chosen_cross.x;
 					_new_inst.y = _chosen_cross.y;
 					_new_inst.cross_chest = true;
-				}
-				else if (instance_number(obj_red_chest) > 0) {
-					// Red chest replaces the hidden chest item so it will spawn as a non-special, non-hidden regular chest instead.
-					// The spot wasn't destroyed above, since a hidden chest only destroys what's under it once it's revealed, so
-					// destroy what's under the regular chest here, like any other chest does
-					// TODO: Instead of deleting the hidden chest here, give the room a regular chest where generation assigns its
-					// chest type, so it spawns and destroys what's under it like any other chest from the start
-					with (_new_inst) { instance_destroy(); }
-					with (_spawn_spot) { destroy_instances_at_position(); }
-					_new_inst = instance_create(_spawn_spot.x, _spawn_spot.y, obj_chest);
-					_new_inst.contents_is_special = false;
-				}
-				else if (instance_number(obj_gudetama) > 0) {
-					// gudetama spawns special chest immediately with gudetama blocking it. The spot wasn't destroyed above, since a
-					// hidden chest only destroys what's under it once it's revealed, so destroy what's under the regular chest here
-					// TODO: Instead of deleting the hidden chest here, give the room a regular chest where generation assigns its
-					// chest type, always on the chest spot where the gudetama blocks it, so it spawns and destroys what's under it
-					// like any other chest from the start
-					with (_new_inst) { instance_destroy(); }
-					with (_chest_spot) { destroy_instances_at_position(); }
-					_new_inst = instance_create(_chest_spot.x, _chest_spot.y, obj_chest);
-					_new_inst.contents_is_special = true;
 				}
 				else if (current_room.has_hall_of_mirrors) { _new_inst.mirror_chest = true; }
 			}
@@ -745,7 +723,7 @@ function game_room_initialize() {
 	// Create the button on the spot generation picked. SPAWN ALL SOLIDS AND ENEMIES BEFORE THIS POINT
 	if (_room_has_portcullis) {
 		var _button = instance_create(-16, -16, obj_button), _button_pressed = false, _possible_decoy_spots = [], _decoy_spots = [];
-		var _button_spot = (current_room.button_on_stairs_spot) ? _stairs_spot : current_room.collectable_spot_instances[current_room.button_spot];
+		var _button_spot = (current_room.button_on_stairs_spot) ? _stairs_spot : ((current_room.button_on_chest_spot) ? _chest_spot : current_room.collectable_spot_instances[current_room.button_spot]);
 		
 		// Find the other free spots nothing presses, for decoy dirt: the stairs spot when nothing uses it, and the collectable spots the room's collectables don't need
 		if (!_stairs_spot_occupied && _button_spot != _stairs_spot) { array_push(_possible_decoy_spots, _stairs_spot); }
@@ -764,7 +742,7 @@ function game_room_initialize() {
 		_button.x = _button_spot.x;
 		_button.y = _button_spot.y;
 		if (_button_spot == _stairs_spot) { current_room.stairs_spot_obj = obj_button; }
-		else { with (_button_spot) { instance_destroy(); } }
+		else if (_button_spot != _chest_spot) { with (_button_spot) { instance_destroy(); } }
 		with (_button) {
 			dirt = instance_create(x, y, obj_dirt);
 			dirt.has_bug = true;

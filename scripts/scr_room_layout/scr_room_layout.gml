@@ -243,7 +243,7 @@ function RoomLayout(_room_reference) constructor {
 	/// @param {string} _hazard_name The hazard's name in the hazards table
 	/// @returns {bool}
 	static can_have_hazard_with_estimated_eyes = function(_hazard_name) {
-		// TODO: Remove this function and figure out eyes based on the real or estimated hazard count
+		// This is good enough for an estimate; calculating the real chance of spawning eyes would change this less than 1% of the time
 		return get_estimated_object_count("obj_eyes") == 0 || !hazard_has_tag(_hazard_name, TARGETS_PLAYER_TAGS);
 	};
 

@@ -76,13 +76,18 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @param {RoomLayout} _layout The special room layout
 	/// @returns {bool}
 	static can_become_special_room = function(_layout) {
-		if (is_start_room || is_heart_room) { return false; }
-		if (!_layout.has_hall_of_mirrors) { return true; }
-		if (has_exit(directions.stairs)) { return false; }
+		// Start and Heart room can't be special
+		if (is_start_room || is_heart_room) { return ; }
+		// The Hall of Mirrors can't have stairs
+		if (_layout.has_hall_of_mirrors && has_exit(directions.stairs)) { return false; }
+		
+		// Special rooms can't be connected to start or heart rooms
 		for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 			var _connected_room = get_connected_room(_dir);
-			if (_connected_room != -1 && _connected_room.is_heart_room) { return false; }
+			if (_connected_room != -1 && (_connected_room.is_heart_room || _connected_room.is_start_room)) { return false; }
 		}
+		
+		// Otherwise, this room can become a special room
 		return true;
 	};
 
@@ -1143,6 +1148,12 @@ function GameRoom(_given_x, _given_y) constructor {
 				// This should NEVER happen, since generation only traps a room with a spot for its button
 				write_debug_message("Portcullis button room with no spot for its button: " + room_get_name(room_reference), debug_message_level.warning);
 				has_portcullis_trap = false;
+				for (_dir = directions.up; _dir < directions.stairs; _dir++) {
+					var _current_exit = exits[_dir];
+					if (_current_exit == -1) { continue; }
+					
+					if (_current_exit.exit_type == exit_types.closed_portcullis) { _current_exit.exit_type.reset_exit_type(); }
+				}
 			}
 		}
 		

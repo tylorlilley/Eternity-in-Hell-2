@@ -32,7 +32,7 @@ time_remaining = time_provided;
 
 // Build every room, which leaves the controller in the last room built. Building takes the collectables from a room with
 // no space for them, so the rooms with collectables are taken after
-_map.build_rooms();
+build_rooms(_map);
 rooms_with_collectables = _map.rooms_with_collectables;
 total_number_of_rooms_with_collectables = array_length(rooms_with_collectables);
 

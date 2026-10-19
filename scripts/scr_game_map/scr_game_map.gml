@@ -1,16 +1,13 @@
 // ===== MAP SIZE =====
-#macro MINIMUM_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
+#macro MIN_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
 #macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 18, 22, 24]) //[12, 16, 24, 28, 32])
-#macro MAP_DIFFICULTY_SCORE_TARGET get_probability_for_difficulty([0, 2, 10, 22, 36]) // Rooms are added until the map's difficulty score reaches this, up to MAX_NUMBER_OF_ROOMS. It's about what a map of MINIMUM_NUMBER_OF_ROOMS scores on average, so about half of maps stop at the minimum and a map of easier rooms grows toward the maximum
-#macro AVERAGE_NUMBER_OF_ROOM_EXITS (20/9)
+#macro MAP_DIFFICULTY_SCORE_TARGET get_probability_for_difficulty([0, 2, 10, 22, 36]) // Rooms are added until the map's difficulty score reaches this, up to MAX_NUMBER_OF_ROOMS.
 
 // ===== MAP CONTENT =====
 #macro SPECIAL_MAP_SHAPE_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 0])
 #macro SPECIAL_ROOM_LIMIT get_probability_for_difficulty([0, 0, 0, 1, 2])
-//#macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 64, 32])
 #macro SPECIAL_ROOM_PROBABILITY get_probability_for_difficulty([0, 0, 0, 8, 6])
 #macro SPECIAL_ITEM_LIMIT get_probability_for_difficulty([0, 1, 1, 2, 3])
-//#macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 9, 8, 7, 6]) // This is only called after a room has a chest, so this is combined with that probability. It's also affected by the special item limit
 #macro SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 7, 3, 3, 2])
 #macro NO_CARDINAL_EXIT_ROOM_PROBABILITY get_probability_for_difficulty([0, 12, 8, 6, 4]) // This happens only after the stairs probability succeeds, so its combined with 1/5
 #macro COLLECTABLE_PROBABILITY get_probability_for_difficulty([4, 3, 3, 3, 2]) 
@@ -20,21 +17,21 @@
 #macro BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY get_probability_for_difficulty([0, 0, 8, 2, 1])
 #macro PORTCULLIS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 6]) 
 #macro OPEN_DOOR_PROBABILITY get_probability_for_difficulty([0, 32, 24, 12, 8])
-#macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3	// How likely the player is to have something, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
+#macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3	// How likely the player is to have an item, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
 
 /// @function GameMap()
 /// @description The plan for one map, and the methods that generate it: the layouts its difficulty allows, its rooms
-///	and the exits between them, its map-wide events, what each pass places, and what the controller keeps once generation
+///	and the exits between them, its map-wide events, what each pass spawns, and what the controller keeps once generation
 ///	ends. Rooms and exits are only added through its methods, so its lookups always match its rooms. The first map of
 ///	a session also reads every room asset into the layout cache that every map shares.
 function GameMap() constructor {
-	// =========
-	// FUNCTIONS
-	// =========
+// ============================
+// Public Functions
+// ============================
 
 	/// @function try_generate()
 	/// @description Makes one attempt at generating the map. It randomly determines the map-wide events and the layouts the
-	///	map must include, and grows the map to one room short of MINIMUM_NUMBER_OF_ROOMS. Then each pass adds a room and
+	///	map must include, and grows the map to one room short of MIN_NUMBER_OF_ROOMS. Then each pass adds a room and
 	///	links, places the start and heart, reserves a room for each required layout and gives every room a new layout, then
 	///	places the chests, locks, special exit types and collectables, determines every room's content, and scores the whole
 	///	map, until the score reaches MAP_DIFFICULTY_SCORE_TARGET or the map has MAX_NUMBER_OF_ROOMS rooms. A pass where a
@@ -42,14 +39,13 @@ function GameMap() constructor {
 	///	destroys the map.
 	/// @returns {bool} False if the attempt failed, so a new map has to be tried
 	static try_generate = function() {
-		// Randomly determine the map-wide events, including the special room types and special items, and the layouts the
-		// map must include
+		// Randomly determine the map-wide events, like special rooms and items items, and the required layouts
 		determine_random_map_events();
 		determine_required_layouts();
 
 		// Grow the map to one room short of the minimum, since each pass adds a room first
 		create_room_at_cell(0, 0);
-		while (array_length(rooms) < MINIMUM_NUMBER_OF_ROOMS - 1) {
+		while (array_length(rooms) < MIN_NUMBER_OF_ROOMS - 1) {
 			if (is_undefined(add_new_room())) { return fail_generation("no room could grow"); }
 		}
 
@@ -104,9 +100,9 @@ function GameMap() constructor {
 		long_and_straight_map = get_random_chance_out_of(SPECIAL_MAP_SHAPE_PROBABILITY); // TODO: Implement this and other shapes. Add eval messages
 		same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY) ? get_skeleton_type(false) : noone; // TODO: Add eval messages
 
-		// Randomly determine how many special rooms to include, at most one for each special room type the difficulty allows
-		var _special_room_types_left = array_get_duplicate(available_special_room_types), _special_room_limit = SPECIAL_ROOM_LIMIT, _special_room_count = 0;
-		for (var _i = 0; _i < _special_room_limit; _i++) {
+		// Randomly determine how many special rooms to include - at most one for each special room type the difficulty allows
+		var _special_room_types_left = array_get_duplicate(available_special_room_types), _special_room_count = 0;
+		for (var _i = 0; _i < SPECIAL_ROOM_LIMIT; _i++) {
 			if (get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY)) { _special_room_count += 1; }
 		}
 		_special_room_count = min(_special_room_count, array_length(_special_room_types_left));
@@ -117,11 +113,11 @@ function GameMap() constructor {
 		}
 
 		// Randomly determine how many special items spawn outside special rooms. Each special room holds one, which counts toward the limit
-		var _special_item_limit = SPECIAL_ITEM_LIMIT, _special_item_count = 0;
-		for (var _i = _special_room_count; _i < _special_item_limit; _i++) {
-			if (get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { _special_item_count += 1; }
+		var _other_special_item_count = 0;
+		for (var _i = _special_room_count; _i < SPECIAL_ITEM_LIMIT; _i++) {
+			if (get_random_chance_out_of(SPECIAL_ITEM_PROBABILITY)) { _other_special_item_count += 1; }
 		}
-		special_item_count = _special_item_count;
+		other_special_item_count = _other_special_item_count;
 	};
 
 	/// @function determine_required_layouts()
@@ -708,7 +704,7 @@ function GameMap() constructor {
 		}
 
 		// Create and Assign Special Chest Content for the special items outside the special rooms
-		var _possible_rooms = array_shuffle(rooms), _special_items_left = special_item_count;
+		var _possible_rooms = array_shuffle(rooms), _special_items_left = other_special_item_count;
 		for (var _i = 0; _i < array_length(_possible_rooms) && _special_items_left > 0; _i++) {
 			// Skip rooms that can't have a chest with a special item
 			var _special_item_room = _possible_rooms[_i];
@@ -1564,7 +1560,7 @@ function GameMap() constructor {
 	// Map-wide events, randomly determined once per map
 	long_and_straight_map = false;
 	same_skeleton_type = noone;
-	special_item_count = 0;
+	other_special_item_count = 0;
 	included_special_room_types = [];
 	required_layouts = [];					// The layouts the map must include, as { layout, special_room_type }, in the order rooms are reserved for them
 	missing_required_layout = undefined;	// The first required layout the last pass left with no room of its own, which the next new room grows toward
@@ -1677,6 +1673,27 @@ function generate_map() {
 	_map.calculate_collectables_and_items_lists();
 
 	return _map;
+}
+
+/// @function get_skeleton_type([_include_basic_skeleton])
+/// @description Determines what a skeleton spot holds at the current difficulty
+/// @param {bool} [_include_basic_skeleton] Whether the function should be able to return a basic skeleton
+/// @returns {Asset.GMObject}
+function get_skeleton_type(_include_basic_skeleton = true) {
+	// Add up the chances of all available skeleton types, to use if not including basic skeleton
+	var _skeleton_type_chances = get_skeleton_type_chances(), _total_type_chance = 0;
+	for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) { _total_type_chance += _skeleton_type_chances[_i].chance; }
+	
+	// Pick a random number out of 100, or out of the types' total chance without basic skeletons, then go through the
+	// skeleton types in order, stopping to return the type it lands on
+	var _random_number = irandom_range(1, _include_basic_skeleton ? SKELETON_TYPE_CHANCE_MAX : _total_type_chance), _current_type_chance_max = 0;
+	for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) {
+		var _skeleton_type_chance = _skeleton_type_chances[_i];
+		_current_type_chance_max += _skeleton_type_chance.chance;
+		if (_random_number <= _current_type_chance_max) { return _skeleton_type_chance.type; }
+	}
+	
+	return obj_skeleton;
 }
 
 /// @function get_skeleton_type_chances()

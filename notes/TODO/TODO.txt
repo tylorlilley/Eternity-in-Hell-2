@@ -11,13 +11,15 @@ add a special room type - a specific key (crown?) spawns in one room, and you mu
 check out escape board game for other special room ideas
 
 add two more special rooms
+- fake heart room, that is always shattered on entering but if you bring it to the start you lose? Invert the beating sprites?
+- Room with lit torches where you must unlight them all via blocks, including any you carry, or you can't leave?
+
 do a pass of all eval messages/achievements and their requirements. Prefer percentages to hard counts. Prefer looking at the map that was actually created. Add new ones
 final boss that spawns in very hard if you've solved all seven special rooms before
 
 eval for first time you complete the death log of types?
 eval for first time on a difficulty/visual combination you get a score of 92% or above?
 eval for first time on a difficulty/visual combination you get a score of 100% or above (TODO: Is this possible?)
-
 
 cockroach sometims steps towards light - I think this got fixed?
 room with mirror + fireball spitter

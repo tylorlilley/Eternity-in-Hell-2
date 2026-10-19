@@ -6,7 +6,8 @@
 // ===== ROOM BUILDING =====
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
 #macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0// UNUSED get_probability_for_difficulty([0, 0, 12, 8, 6])
-#macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 0, 256, 128, 64])
+#macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 256, 256, 128, 64]) // Even if this passes, 50% of the time we spawn bones instead
+#macro BLOCK_SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 0, 8, 6, 4]) // This is rolled after the block item and the bones checks pass
 
 // ===== DIFFICULTY SCORES =====
 #macro ROOM_DIFFICULTY_SCORE_MAX 8 // Generation won't randomly add a hazard to a room when it would take the difficulty score of the room's hazards past this
@@ -988,8 +989,8 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (flip_horizontal) { flip_room_contents_horizontally(); }
 		if (flip_vertical) { flip_room_contents_vertically(); }
 		if (rotate != noone) { rotate_room_contents_around_room_center(rotate); }
-		with obj_game_object { image_angle = 0; }
-		with obj_placeholder { image_angle = 0; }
+		with (obj_game_object) { image_angle = 0; }
+		with (obj_placeholder) { image_angle = 0; }
 		
 		// Wall up each spot of a closed exit that nothing blocks, and put an illusion wall on each spot of an illusion exit. What
 		// the spots destroy was never created, so the only blockers left on exit spots are on closed exits
@@ -1005,18 +1006,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		
 		// Break tiles into parts
 		with (obj_tile) { initialize_tile(); }
-		
-		// Find room's stairs and chest spots. Every layout should have one of each, as validated by the RoomLayout initializer
-		var _stairs_spot = instance_find(obj_stairs_spot, 0);
-		if (_stairs_spot == noone) {
-			// This should never happen if every room has a stairs spot
-			write_debug_message("Room with no stairs spot: " + room_get_name(room_reference), debug_message_level.error);
-		}
-		var _chest_spot = instance_find(obj_chest_spot, 0);
-		if (_chest_spot == noone) {
-			// This should never happen if every room has a chest spot
-			write_debug_message("Room with no chest spot: " + room_get_name(room_reference), debug_message_level.warning);
-		}
 		
 		// Spawn Fountains
 		for (var _i = 0; _i < replaced_column_fountain_count; _i++) {
@@ -1049,13 +1038,12 @@ function GameRoom(_given_x, _given_y) constructor {
 			}
 		}
 		
-		// Sometimes hide bones or an item under a block. The first item a block hides in the map is a special item, of a type
-		// no other special item has. Every one after that is a regular item of a type not at its cap yet, which can be a key
+		// Spawn bones and items under blocks
 		var _hand_items = [global.player_left_hand_item, global.player_right_hand_item];
 		with (obj_block_spot) {
 			if (get_random_chance_out_of(BLOCK_ITEM_PROBABILITY)) {
 				if (get_coin_flip()) { instance_create(x, y, obj_bones); }
-				else if (_map.special_item_under_block == -1) {
+				else if (_map.special_item_under_block == -1 && array_length(_map.special_item_types) < SPECIAL_ITEM_LIMIT && get_random_chance_out_of(BLOCK_SPECIAL_ITEM_PROBABILITY)) {
 					_map.special_item_under_block = _map.pick_item_type(true);
 					with (instance_create(x, y, _map.special_item_under_block)) { make_item_special(); }
 				}
@@ -1073,6 +1061,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		array_shuffle_ext(skeleton_types);
 		var _total_skeletons = instance_number(obj_skeleton_spot);
 		if (_total_skeletons != array_length(skeleton_types)) {
+			// This should NEVRER happen
 			write_debug_message("Room has " + string(_total_skeletons) + " skeleton spots for " + string(array_length(skeleton_types)) + " skeleton types: " + room_get_name(room_reference), debug_message_level.warning);
 			_total_skeletons = min(_total_skeletons, array_length(skeleton_types));
 		}
@@ -1102,7 +1091,6 @@ function GameRoom(_given_x, _given_y) constructor {
 			var _fire_skeleton = instance_create(-16, -16, obj_fire_skeleton);
 			with (_fire_skeleton) {  
 				if (teleport_to_lava() == noone) { instance_destroy(self, false); }
-				else { xstart = x; ystart = y; }
 			}
 		}
 			
@@ -1113,34 +1101,46 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Update objects in room to reflect new x, y position as initial positions
 		set_initial_positions();
 
-		// Pre-light room if the room is marked as lit and spawn objects that interact with torches
+		// Pre-light room if the room is marked as lit
 		if (lit) {
+			// This should NEVER happen
 			if (instance_number(obj_lantern) == 0) { write_debug_message("Room marked as lit has no lanterns: "  + room_get_name(room_reference), debug_message_level.warning); lit = false; }
 			with obj_lantern { light_torch(noone, false); }
 		}
+		
+		// Spawn phantoms and floaters
 		if (has_phantom) {
 			instance_create(-16, -16, obj_phantom);
 		}
 		if (has_floater) {
 			instance_create(-16, -16, obj_floater);
 		}
-
+		
+		// Find room's stairs and chest spots. Every layout should have one of each, as validated by the RoomLayout initializer
+		var _stairs_spot = instance_find(obj_stairs_spot, 0);
+		if (_stairs_spot == noone) {
+			// This should never happen if every room has a stairs spot
+			write_debug_message("Room with no stairs spot: " + room_get_name(room_reference), debug_message_level.error);
+			stairs_spot_obj = -1;
+		}
+		var _chest_spot = instance_find(obj_chest_spot, 0);
+		if (_chest_spot == noone) {
+			// This should never happen if every room has a chest spot
+			write_debug_message("Room with no chest spot: " + room_get_name(room_reference), debug_message_level.warning);
+		}
 
 		// Create the room's stairs and its stairs spot object. Generation already chose which spot the stairs spot object takes
-		var _stairs_spot_occupied = (has_exit(directions.stairs)), _spawn_spot = (chest_on_stairs_spot) ? _stairs_spot : _chest_spot;
+		var _has_stairs = (has_exit(directions.stairs)), _stairs_spot_occupied = _has_stairs, _spawn_spot = (chest_on_stairs_spot) ? _stairs_spot : _chest_spot;
 		
 		// Spawn stairs
-		if (_stairs_spot_occupied) { 
+		if (_has_stairs) { 
 			var _new_stairs = instance_create(_stairs_spot.x, _stairs_spot.y, obj_stairs);
 			add_to_instances_at_map_positions(_new_stairs);
 			_spawn_spot = _chest_spot; 
 		}
 		else if (stairs_spot_obj == obj_cross) { _spawn_spot = _stairs_spot; }
 
-		// The stairs spot object can't spawn if the spot it takes is missing. This should never happen if every room has both spots
-		if (_spawn_spot == noone) { stairs_spot_obj = -1; }
-
-		// Spawn stairs spot obj. What's under it on the chest spot was never created
+		// Spawn stairs spot object
 		if (stairs_spot_obj != -1) {
 			if (_spawn_spot != _chest_spot) { _stairs_spot_occupied = true; }
 			
@@ -1183,76 +1183,86 @@ function GameRoom(_given_x, _given_y) constructor {
 			if (_current_exit != -1 && _current_exit.has_closed_portcullis_for_room(self)) { _room_has_portcullis = true; break; }
 		}
 		
-		// Pick the button's spot first, so the floor key never takes the only clear spot: a random clear collectable spot, or the
-		// stairs or chest spot when it's open with nothing else on it. Only those two can take it when the floor key and the
-		// collectables need every collectable spot left
-		var _has_floor_key = has_floor_key(), _collectable_spots = [], _button_spot = noone;
+		// Setup Collectable Spots
+		var _has_floor_key = has_floor_key(), _collectable_spots = [], _button_spot = noone, _key_spot = noone;
 		with (obj_collectable_spot) { array_push(_collectable_spots, id); }
-		if (_room_has_portcullis) {
-			var _possible_button_spots = [];
-			if (is_stairs_spot_free() && layout.stairs_spot_is_alone) { array_push(_possible_button_spots, _stairs_spot); }
-			if (is_chest_spot_free() && layout.chest_spot_is_alone) { array_push(_possible_button_spots, _chest_spot); }
-			var _needed_collectable_spot_count = (_has_floor_key ? 1 : 0) + (has_collectables ? 1 : 0);
-			if (array_length(_collectable_spots) > _needed_collectable_spot_count) {
-				var _clear_spots = layout.button_spots;
-				for (var _i = 0; _i < array_length(_clear_spots); _i++) { array_push(_possible_button_spots, collectable_spot_instances[_clear_spots[_i]]); }
-			}
-			_button_spot = array_random_get(_possible_button_spots);
-			array_remove_first(_collectable_spots, _button_spot);
-			if (_button_spot == noone) {
-				// This should never happen, since generation only traps a room with a spot for its button
-				write_debug_message("Portcullis button room with no spot for its button: " + room_get_name(room_reference), debug_message_level.warning);
-			}
-		}
 		
-		// Create the floor key on a random collectable spot left: the room's own key, unless generation put it, or a bomb
-		// standing in for it, in a chest, or the extra key the first such bomb brings
-		if (_has_floor_key) {
-			var _key = noone;
-			with (array_random_get(_collectable_spots)) {
+		// Create floor key on collectable spot
+		if (has_floor_key) {
+			_key_spot = array_random_get(_collectable_spots);
+			with (_key_spot) {
 				_key = instance_create(x, y, obj_key);
 				instance_destroy();
 			}
 			add_to_instances_at_map_positions(_key);
 		}
 		
-		// Create the button on its spot. SPAWN ALL SOLIDS AND ENEMIES BEFORE THIS POINT
-		if (_button_spot != noone) {
-			var _button = instance_create(-16, -16, obj_button), _button_pressed = false, _possible_decoy_spots = [], _decoy_spots = [];
+		// Create Button on stairs, chest, or collectable spots
+		if (_room_has_portcullis) {
+			var _possible_button_spots = [];
+			if (is_stairs_spot_free() && layout.stairs_spot_is_alone) { array_push(_possible_button_spots, _stairs_spot); }
+			if (is_chest_spot_free() && layout.chest_spot_is_alone) { array_push(_possible_button_spots, _chest_spot); }
+			var _needed_collectable_spot_count = (_has_floor_key ? 1 : 0) + (has_collectables ? 1 : 0);
 			
-			// Find the other free spots nothing presses, for decoy dirt: the stairs spot when nothing uses it, and the collectable spots the room's collectables don't need
-			if (!_stairs_spot_occupied && _button_spot != _stairs_spot) { array_push(_possible_decoy_spots, _stairs_spot); }
-			if (!has_collectables || !_has_floor_key) {
-				with (obj_collectable_spot) { if (id != _button_spot) { array_push(_possible_decoy_spots, id); } }
-			}
-			for (var _i = 0; _i < array_length(_possible_decoy_spots); _i++) {
-				var _possible_decoy_spot = _possible_decoy_spots[_i];
-				_button.x = _possible_decoy_spot.x;
-				_button.y = _possible_decoy_spot.y;
-				with (_button) { _button_pressed = can_press_button(); }
-				if (!_button_pressed) { array_push(_decoy_spots, _possible_decoy_spot); }
-			}
-			
-			// Move button to its spot
-			_button.x = _button_spot.x;
-			_button.y = _button_spot.y;
-			if (_button_spot == _stairs_spot) { stairs_spot_obj = obj_button; }
-			else if (_button_spot != _chest_spot) { with (_button_spot) { instance_destroy(); } }
-			with (_button) {
-				dirt = instance_create(x, y, obj_dirt);
-				dirt.has_bug = true;
-				dirt.no_special_bug = true;
-				var _dirt_to_spawn = irandom(DIRT_PROBABILITY/2);
-				for (var _i = 0; _i < _dirt_to_spawn; _i++) { spawn_dirt(); }
+			// Use Collectable spots for buttons only if the needed count allows it and the spot is clear
+			if (array_length(_collectable_spots) > _needed_collectable_spot_count) {
+				var _clear_spots = layout.button_spots;
+				for (var _i = 0; _i < array_length(_clear_spots); _i++) {
+					var _clear_spot = collectable_spot_instances[_clear_spots[_i]]);
+					if (_clear_spot != _key_spot) { array_push(_possible_button_spots, _clear_spot); }
+				}
 			}
 			
-			// Add decoy dirt to the other free spots
-			while (array_length(_decoy_spots) > 0) {
-				var _decoy_spot = array_pop(_decoy_spots);
-				instance_create(_decoy_spot.x, _decoy_spot.y, obj_dirt);
+			// Assign button spot and add decoy dirt to possible button spots
+			_button_spot = array_random_get(_possible_button_spots);
+			for (var _i = 0; _i < array_length(_possible_button_spots); _i++) {
+				var _possible_button_spot = _possible_button_spots[_i], _dirt = undefined;
+				// Create decoy dirt anwyhere that isn't where the a key or collectable will spawn
+				if (!has_collectables || !array_contains(_possible_button_spot, _collectables_spots)) {
+					_dirt = instance_create(_decoy_spot.x, _decoy_spot.y, obj_dirt);
+					_button_spot
+				}
+				// Create button and button dirt
+				if (_possible_button_spot == _button_spot) {
+					_dirt ??= instance_create(_decoy_spot.x, _decoy_spot.y, obj_dirt);
+					_dirt.has_bug = true;
+					_dirt.no_special_bug = true;
+					var _dirt_to_spawn = irandom(DIRT_PROBABILITY/2);
+					for (var _i = 0; _i < _dirt_to_spawn; _i++) { spawn_dirt(); }
+					// Remove the spot the button spawned at
+					if (_button_spot == _stairs_spot) { stairs_spot_obj = obj_button; }
+					else if (_button_spot != _chest_spot) { with (_button_spot) { instance_destroy(); } }
+				}
+			}
+			
+			if (_button_spot == noone) {
+				// This should NEVER happen, since generation only traps a room with a spot for its button
+				write_debug_message("Portcullis button room with no spot for its button: " + room_get_name(room_reference), debug_message_level.warning);
+				has_portcullis_trap = false;
 			}
 		}
 		
+		// Create collectables in room on remaining collectables spots
+		if (has_collectables) {
+			var _spawned_collectables = 0, _moving_collectable_spot = (has_moving_collectable) ? get_random_instance(obj_collectable_spot) : noone;
+			with (obj_collectable_spot) {
+				if (_spawned_collectables == 0 || !get_random_chance_out_of(SKIP_COLLECTABLE_SPAWN_PROBABILITY)) {
+					var _new_collectable = instance_create(x, y, obj_collectable);
+					if (id == _moving_collectable_spot) { _new_collectable.moving = true; }
+					
+					_spawned_collectables += 1;
+				}
+				instance_destroy(); 
+			}
+			
+			if (instance_number(obj_collectable) == 0) { 
+				// This should NEVER happen if every room has 2+ collectable spots
+				write_debug_message("Room with NO room to spawn collectables: " + room_get_name(room_reference), debug_message_level.warning);
+				has_collectables = false;
+				array_remove_first(_map.rooms_with_collectables, self);
+			}
+		}
+
 		// Check each exit for a door or portcullis to create
 		var _portcullis_exit_count = 0, _exit_count = 0;
 		for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
@@ -1277,31 +1287,12 @@ function GameRoom(_given_x, _given_y) constructor {
 			if (_dir == directions.stairs) { _portcullis_exit_count += 1; }
 		}
 		if (has_portcullis_trap && _portcullis_exit_count != _exit_count) {
+			// This should NEVER happen
 			write_debug_message("Portcullis button room has exits without a portcullis: " + room_get_name(room_reference), debug_message_level.warning);
 		}
 		with (obj_door) { 
 			initialize_door(); 
 			close_door();
-		}
-		
-		// Create collectables in room if they should exist
-		if (has_collectables) {
-			var _spawned_collectables = 0, _moving_collectable_spot = (has_moving_collectable) ? get_random_instance(obj_collectable_spot) : noone;
-			with obj_collectable_spot {
-				if (_spawned_collectables == 0 || !get_random_chance_out_of(SKIP_COLLECTABLE_SPAWN_PROBABILITY)) {
-					var _new_collectable = instance_create(x, y, obj_collectable);
-					if (id == _moving_collectable_spot) { _new_collectable.moving = true; }
-					
-					_spawned_collectables += 1;
-				}
-				instance_destroy(); 
-			}
-			if (instance_number(obj_collectable) == 0) { 
-				// This should never happen if every room has 2+ collectable spots
-				write_debug_message("Room with NO room to spawn collectables: " + room_get_name(room_reference), debug_message_level.warning);
-				has_collectables = false;
-				array_remove_first(_map.rooms_with_collectables, self);
-			}
 		}
 			
 		// Spawn some dirt
@@ -1683,27 +1674,6 @@ function GameRoom(_given_x, _given_y) constructor {
 // ============================
 // Global Room Functions
 // ============================
-
-/// @function get_skeleton_type([_include_basic_skeleton])
-/// @description Determines what a skeleton spot holds at the current difficulty
-/// @param {bool} [_include_basic_skeleton] Whether the function should be able to return a basic skeleton
-/// @returns {Asset.GMObject}
-function get_skeleton_type(_include_basic_skeleton = true) {
-	// Add up the chances of all available skeleton types, to use if not including basic skeleton
-	var _skeleton_type_chances = get_skeleton_type_chances(), _total_type_chance = 0;
-	for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) { _total_type_chance += _skeleton_type_chances[_i].chance; }
-	
-	// Pick a random number out of 100, or out of the types' total chance without basic skeletons, then go through the
-	// skeleton types in order, stopping to return the type it lands on
-	var _random_number = irandom_range(1, _include_basic_skeleton ? SKELETON_TYPE_CHANCE_MAX : _total_type_chance), _current_type_chance_max = 0;
-	for (var _i = 0; _i < array_length(_skeleton_type_chances); _i++) {
-		var _skeleton_type_chance = _skeleton_type_chances[_i];
-		_current_type_chance_max += _skeleton_type_chance.chance;
-		if (_random_number <= _current_type_chance_max) { return _skeleton_type_chance.type; }
-	}
-	
-	return obj_skeleton;
-}
 
 /// @function mark_current_room_for_grid_update()
 /// @description Has the controller rebuild the current room's path grids on its next update

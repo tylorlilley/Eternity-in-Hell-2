@@ -420,27 +420,14 @@ function get_evaluation_message_count(_title, _difficulty, _graphics_mode = grap
 /// @description Every difficulty (see global.difficulties_array)
 /// @returns {array} A copy the caller may change
 function get_difficulties() {
-	var _difficulties_array = global.difficulties_array;
-	var _new_array = array_create(array_length(_difficulties_array));
-	array_duplicate(_new_array, _difficulties_array);
-	return _new_array;
+	return variable_clone(global.difficulties_array, 0);
 }
 
 /// @function get_death_types()
 /// @description Everything that can kill the player, in the death log's order (see global.death_types_array)
 /// @returns {array} A copy the caller may change
 function get_death_types() {
-	return array_get_duplicate(global.death_types_array);
-}
-
-/// @function array_get_duplicate(_old_array)
-/// @description A copy of an array
-/// @param {array} _old_array The array to copy
-/// @returns {array}
-function array_get_duplicate(_old_array) {
-	var _new_array = array_create(array_length(_old_array));
-	array_duplicate(_new_array, _old_array);
-	return _new_array;
+	return variable_clone(global.death_types_array, 0);
 }
 
 

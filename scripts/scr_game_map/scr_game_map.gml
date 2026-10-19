@@ -100,8 +100,8 @@ function GameMap() constructor {
 		long_and_straight_map = get_random_chance_out_of(SPECIAL_MAP_SHAPE_PROBABILITY); // TODO: Implement this and other shapes. Add eval messages
 		same_skeleton_type = get_random_chance_out_of(SAME_SKELETON_TYPE_PROBABILITY) ? get_skeleton_type(false) : noone; // TODO: Add eval messages
 
-		// Randomly determine how many special rooms to include - at most one for each special room type the difficulty allows
-		var _special_room_types_left = array_get_duplicate(available_special_room_types), _special_room_count = 0;
+		// Randomly determine how many special rooms to include, at most one for each special room type the difficulty allows
+		var _special_room_types_left = variable_clone(available_special_room_types, 0), _special_room_count = 0;
 		for (var _i = 0; _i < SPECIAL_ROOM_LIMIT; _i++) {
 			if (get_random_chance_out_of(SPECIAL_ROOM_PROBABILITY)) { _special_room_count += 1; }
 		}
@@ -388,7 +388,7 @@ function GameMap() constructor {
 	/// @param {GameRoom|undefined} _other_room The adjacent room it links to, or undefined for a new room
 	/// @returns {array} Room counts, by layout_exit_types kind, in a new array
 	static get_exit_type_counts_after_link = function(_exit_type_counts, _room, _dir, _other_room) {
-		var _new_exit_type_counts = array_get_duplicate(_exit_type_counts);
+		var _new_exit_type_counts = variable_clone(_exit_type_counts, 0);
 		_new_exit_type_counts[_room.get_exit_type()] -= 1;
 		_new_exit_type_counts[_room.get_exit_type_with_new_exit(_dir)] += 1;
 		if (is_undefined(_other_room)) { _new_exit_type_counts[layout_exit_types.one] += 1; }

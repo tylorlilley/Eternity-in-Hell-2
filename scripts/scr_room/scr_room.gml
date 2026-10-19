@@ -1469,7 +1469,17 @@ function GameRoom(_given_x, _given_y) constructor {
 	// ============================
 	// Variables Reset Functions
 	// ============================
-	
+
+	/// @function reset_map_generation_pass()
+	/// @description Resets all variables that are set during a map generation pass
+	static reset_map_generation_pass = function() {
+		reset_map_role_variables();
+		reset_layout_variables();
+		reset_chest_and_collectable_spot_variables();
+		reset_random_mapgen_variables();
+		reset_difficulty_scoring_variables();
+	};
+
 	/// @function reset_map_role_variables()
 	/// @description Resets room variables that are set when a room role is assigned
 	static reset_map_role_variables = function() {
@@ -1478,7 +1488,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		stairs_spot_obj = -1;
 		distance_to_start = 9999;
 	};
-	
+
 	/// @function reset_layout_variables()
 	/// @description Resets room variables that are set when a RoomLayout is assigned
 	static reset_layout_variables = function() {
@@ -1499,7 +1509,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		flip_vertical = false;
 		rotate = noone;
 	};
-	
+
 	/// @function reset_chest_and_collectable_spot_variables()
 	/// @description Resets room variables that are set when chest and collectable spot are assigned during a map scoring pass
 	static reset_chest_and_collectable_spot_variables = function() {
@@ -1531,24 +1541,14 @@ function GameRoom(_given_x, _given_y) constructor {
 		initial_mouth_count = 0;
 		skeleton_types = [];
 	};
-	
+
 	/// @function reset_difficulty_scoring_variables()
 	/// @description Resets room variables that are set when performing room scoring at the end of a pass
 	static reset_difficulty_scoring_variables = function() {
 		hazard_mitigation = new HazardMitigation();
 		room_difficulty_score = 0;
 	};
-	
-	/// @function reset_map_generation_pass()
-	/// @description Resets all variables that are set during a map generation pass
-	static reset_map_generation_pass = function() {
-		reset_map_role_variables();
-		reset_layout_variables();
-		reset_chest_and_collectable_spot_variables();
-		reset_random_mapgen_variables();
-		reset_difficulty_scoring_variables();
-	};
-	
+
 	// ============================
 	// Instance Variables
 	// ============================
@@ -1570,6 +1570,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	// Room Build Variables - Assigned when building the room after a valid map is generated
 	instances = [];
 	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
+	collectable_spot_instances = [];		// Its collectable spot instances while it's being built, by spot number
 	
 	// Gameplay Values - Changed after map generation during gameplay
 	visited = false;

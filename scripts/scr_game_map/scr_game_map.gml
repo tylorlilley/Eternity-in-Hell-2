@@ -55,18 +55,11 @@ function GameMap() constructor {
 		calculate_time_provided();
 		return true;
 	};
-	
-	/// @function destroy()
-	/// @description Frees every room's path grids. Only for a map that will never be played, like a failed
-	///	attempt; the controller frees a played map's rooms itself.
-	static destroy = function() {
-		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].destroy(); }
-	};
 
 	// ============================
 	// Map Generation Steps
 	// ============================
-	
+
 	/// @function determine_random_map_events()
 	/// @description Randomly determines what is decided once per map, before any room exists: the map-wide events, the
 	///	special room types the map includes, and how many special items spawn outside special rooms
@@ -109,8 +102,8 @@ function GameMap() constructor {
 			else { array_push(required_layouts, _required_layout); }
 		}
 	};
-	
-		/// @function grow_map_to_minimum_size()
+
+	/// @function grow_map_to_minimum_size()
 	/// @description Creates a new room and grows the map from there to the minimum size
 	/// @returns {bool} False if the attempt failed, so a new map has to be tried
 	static grow_map_to_minimum_size = function() {
@@ -171,8 +164,7 @@ function GameMap() constructor {
 		// If no required layout is missing, return undefined
 		return undefined;
 	};
-	
-	
+
 	/// @function get_possible_rooms_for_required_layout(_required_layout, _used_rooms)
 	/// @description The rooms that can take a required layout: rooms that can become its special room, whose real cardinal
 	///	exits match its exit kind, since a special room's exits are never misleading
@@ -191,7 +183,6 @@ function GameMap() constructor {
 		return _possible_rooms;
 	};
 
-	
 	/// @function reset_last_pass()
 	/// @description Resets what the last pass placed, so the next pass can place it again: every room's map roles and spot
 	///	objects, every exit's lock or special exit type, and the map's start, heart and guaranteed lit rooms, guaranteed items,
@@ -201,8 +192,19 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_map_generation_pass(); }
 		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_exit_type(); }
 	};
-	
-		/// @function link_adjacent_rooms()
+
+	/// @function reset_map_variables()
+	/// @description Resets the map-wide variables that are set during each pass
+	static reset_map_variables = function() {
+		start_room = undefined;
+		heart_room = undefined;
+		guaranteed_lit_room = undefined;		// The room that always starts lit, so the map has a lit room, with a lantern layout of the exit kind it shows
+		guaranteed_items = [];					// The item types we must spawn somewhere in the map
+		spawned_special_items = [];				// Each item type placed as a special item so far
+		extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet
+	};
+
+	/// @function link_adjacent_rooms()
 	/// @description Links adjacent rooms with new cardinal exits until the rooms average AVERAGE_NUMBER_OF_ROOM_EXITS
 	///	cardinal exits each, stopping early if no more links fit, since the average is only a target
 	static link_adjacent_rooms = function() {
@@ -267,7 +269,7 @@ function GameMap() constructor {
 		// Return success
 		return true;
 	};
-	
+
 	/// @function link_adjacent_rooms_for_required_layouts()
 	/// @description Adds exits between adjacent rooms to try to fit the required layout into the map
 	/// @returns {struct|undefined} The required layout that failed to fit, as { layout, special_room_type }, or undefined
@@ -284,7 +286,7 @@ function GameMap() constructor {
 		// Return whatever the last next missing required layout is, or undefined if there is none
 		return _missing_required_layout;
 	};
-	
+
 	/// @function set_room_distances_from_start()
 	/// @description Sets every room's distance from the start, once the pass's links are final
 	static set_room_distances_from_start = function() {
@@ -294,8 +296,7 @@ function GameMap() constructor {
 			_room.distance_to_start = _distances_from_start[_room.map_rooms_index];
 		}
 	};
-		
-	
+
 	/// @function assign_layouts_and_determine_room_content()
 	/// @description Finishes the map by assigning layouts and room contents
 	/// @returns {bool} False if the lock and key generation fails, so a new map has to be tried
@@ -311,11 +312,11 @@ function GameMap() constructor {
 		calculate_hazard_mitigations();
 		return true;
 	};
-	
+
 	// ============================
-	// Assign Layouts and Room Content Functions
+	// Assign Layout Functions
 	// ============================
-	
+
 	/// @function reserve_rooms_for_required_layouts()
 	/// @description Reserves a random room for each required layout, among the rooms it can take that no earlier one took.
 	///	Only called once no required layout is missing, so each one always gets a room.
@@ -327,7 +328,7 @@ function GameMap() constructor {
 			array_push(_reserved_rooms, _room);
 		}
 	};
-	
+
 	/// @function reserve_room_guaranteed_lit_room()
 	/// @description Picks a random room no required layout reserved as the guaranteed lit room
 	static reserve_room_guaranteed_lit_room = function() {
@@ -419,75 +420,11 @@ function GameMap() constructor {
 		
 		return array_random_get(_target_layouts);
 	};
-	
-		/// @function determine_special_exit_types()
-	/// @description Turns random rooms into portcullis traps, and adds illusion walls and plain doors to random cardinal
-	///	exits of the other rooms
-	static determine_special_exit_types = function() {
-		// Loop through all the existing rooms, in random order
-		var _possible_rooms = array_shuffle(rooms);
-		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
-			// Skip any ineligible rooms
-			var _possible_room = _possible_rooms[_i];
-			if (!_possible_room.can_have_special_exit_types()) { continue; }
-			
-			// Chance to add portcullis trap
-			if (_possible_room.can_have_portcullis_trap() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _possible_room.add_portcullis_trap();  continue; }
-
-			// Otherwise, give each of its cardinal exits its own chance at a special exit type
-			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-				// Skip exits that don't exist, or already have a special type assigned
-				var _exit = _possible_room.exits[_dir];
-				if (_exit == -1 ||_exit.exit_type != exit_types.none) { continue; }
-
-				// Sometimes give the exit illusion walls, unless it leads to the start room
-				if (!_exit.get_connected_room(_possible_room).is_start_room && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.exit_type = exit_types.illusion_walls; continue; }
-				
-				// Otherwise, sometimes give the exit plain doors
-				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY * 2)) { _exit.exit_type = exit_types.unlocked_doors; continue; }
-			}
-		}
-	};
-
-	/// @function determine_collectables_rooms()
-	/// @description Gives collectables to the heart room and to random other rooms, never the start, then to more random
-	///	rooms until at least a quarter of the rooms, plus one, have them. A room only gets them when its floor key and
-	///	portcullis button leave a collectable spot free.
-	static determine_collectables_rooms = function() {
-		var _possible_rooms = array_shuffle(rooms), _collectables_rooms = 1;
-		heart_room.has_collectables = true; // The heart room never has a key or a button
-
-		// Add collectables to heart room and other rooms at random
-		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
-			var _possible_room = _possible_rooms[_i];
-			if (!_possible_room.is_start_room && !_possible_room.is_heart_room && get_random_chance_out_of(COLLECTABLE_PROBABILITY) && _possible_room.can_have_collectables()) {
-				_possible_room.has_collectables = true;
-				_collectables_rooms += 1;
-			}
-		}
-
-		// Add to more random rooms to meet the minimum if needed
-		var _minimum_collectable_rooms = ceil(array_length(rooms) / 4) + 1;
-		for (var _j = 0; _j < array_length(_possible_rooms) && _collectables_rooms < _minimum_collectable_rooms; _j++) {
-			var _extra_room = _possible_rooms[_j];
-			if (!_extra_room.is_start_room && !_extra_room.has_collectables && _extra_room.can_have_collectables()) {
-				_extra_room.has_collectables = true;
-				_collectables_rooms += 1;
-			}
-		}
-	};
-
-	/// @function determine_room_contents()
-	/// @description Randomly determines every room's content, now that each room's layout, map roles, spot objects and
-	///	special exit types decide which of its layout's instances survive
-	static determine_room_contents = function() {
-		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].determine_room_content(same_skeleton_type); }
-	};
 
 	// ============================
 	// Create Chest Functions
 	// ============================
-	
+
 	/// @function create_chests()
 	/// @description Creates and assigns all the chests and their contents: each special room's own chest, a locked chest for
 	///	each other special item, then the guaranteed items, in chests that can be hidden except the torch's, and random
@@ -688,11 +625,11 @@ function GameMap() constructor {
 		}
 		return undefined;
 	};
-	
+
 	// ============================
 	// Lock and Key Search Functions
 	// ============================
-	
+
 	/// @function create_locked_exits_and_keys()
 	/// @description Locks every cardinal exit of the heart room, then randomly locks other cardinal exits that can be
 	///	locked, and backs each lock with keys before the next one is added
@@ -759,6 +696,135 @@ function GameMap() constructor {
 		}
 		
 		return true;
+	};
+
+	/// @function get_failing_lock_and_key_search_area()
+	/// @description Checks every order the player could spend keys in, on locked doors and chests, for one that leaves
+	///	them stuck with rooms unreached.
+	///	The search moves through areas: the rooms the player can reach, plus which locked chests that matter
+	///	they have opened. In the worst order, they spend a key on every lock in the area that leads nowhere new
+	///	(each locked door inside it, the ones they opened to get there among them, and each locked chest that
+	///	doesn't matter), as well as on each chest that matters they opened. If that leaves them no key while
+	///	rooms remain unreached, they are stuck. Otherwise they still hold a key in every order, so they can open
+	///	a locked door at the area's edge or a chest that matters, and each choice leads to a new area to check.
+	///	Areas are checked in the order found, so the first stuck area is one near the start.
+	/// @returns {LockSearchArea|undefined} The first area where the player gets stuck, or undefined if they never do
+	static get_failing_lock_and_key_search_area = function() {
+		// Setup the relevant lists for this map that LockSearchAreas will interact with. We do this here once since it doesn't change with
+		// each LockSearchArea, and we create thousands of those and only one GameMap per map generation cycle, speeding up map generation
+		relevant_locked_chest_rooms = get_relevant_locked_chest_rooms();
+		locked_exits = get_locked_exits();
+		
+		// Set up the initial queue of areas to check, map of area check queue keys, and initial area
+		var _all_rooms_reached_bitmask = (1 << array_length(rooms)) - 1, _reached_rooms_bitmask = start_room.get_reachable_rooms_bitmask(), _relevant_locked_chests_bitmask = 0;
+		var _initial_search_area = new LockSearchArea(self, _reached_rooms_bitmask, _relevant_locked_chests_bitmask), _search_area_check_queue = [_initial_search_area];
+		var _search_areas_in_queue_map = {};
+		_search_areas_in_queue_map[$ get_search_area_key(_reached_rooms_bitmask, _relevant_locked_chests_bitmask)] = true;
+		
+		// Iterate through the searched area queue, checking that each one is possible
+		while (array_length(_search_area_check_queue) > 0) {
+			// Get the next area to search, along with what the player finds in it
+			var _search_area = array_shift(_search_area_check_queue);
+			
+			// Skip checking area if it reached all rooms or can use a special item to unlock all future exits
+			if (_search_area.reached_rooms == _all_rooms_reached_bitmask || _search_area.can_use_special_item()) { continue; }
+			
+			// Otherwise, the player is stuck here if the worst order leaves them no key
+			if (_search_area.get_keys_remaining() <= 0) { return _search_area; }
+
+			// Otherwise, spend a key to open a locked door at the edge of the area, reaching the rooms behind it...
+			for (var _i = 0; _i < array_length(locked_exits); _i++) {
+				// Skip unlocking the exit if already unlocked (both sides reached) OR exit is unreachable (neither side reached yet)
+				var _locked_exit = locked_exits[_i];
+				var _room_1_reached =_search_area.is_room_reached(_locked_exit.room_1);
+				var _room_2_reached =_search_area.is_room_reached(_locked_exit.room_2);
+				if (_room_1_reached == _room_2_reached) { continue; }
+				
+				// Add a new area to the queue of areas to check, which is the same as the old area, plus this new room
+				var _new_room = (_room_1_reached) ? _locked_exit.room_2 :  _locked_exit.room_1;
+				
+				var _new_reached_rooms = _search_area.reached_rooms | _new_room.get_reachable_rooms_bitmask();
+				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _new_reached_rooms, _search_area.relevant_locked_chests);
+			}
+			
+			// ...or a locked chest that matters, in the area
+			for (var _chest = 0; _chest < array_length(relevant_locked_chest_rooms); _chest++) {
+				// Skip unlocking chests that are already unlocked in this area
+				var _new_relevant_locked_chests = _search_area.relevant_locked_chests | (1 << _chest);
+				if (_new_relevant_locked_chests == _search_area.relevant_locked_chests) { continue; }
+				
+				// Skip unlocking chests in rooms that haven't been reached yet
+				var _room_with_chest = relevant_locked_chest_rooms[_chest];
+				if (!_search_area.is_room_reached(_room_with_chest)) { continue; }
+				
+				// Otherwise, add a new area to the queue of areas to check, which is this same area with the new chest unlocked
+				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _search_area.reached_rooms, _new_relevant_locked_chests);
+			}
+		}
+		
+		return undefined;
+	};
+
+	/// @function get_relevant_locked_chest_rooms()
+	/// @description Gets a list of all rooms with a relevant locked chest in the map: one that holds a special key or bomb,
+	///	a torch, or a special sword or staff that can get the player past the map's gudetama to the chest behind it
+	/// @returns {array} The list of relevant locked chest rooms
+	static get_relevant_locked_chest_rooms = function() {
+		// Loop through every map room to find relevant locked chests
+		var _relevant_locked_chest_rooms = [], _gudetama_room = get_gudetama_room();
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			// Skip rooms with unlocked chests
+			var _room = rooms[_i];
+			if (!_room.has_locked_chest) { continue; }
+			
+			// Check if room is relevant
+			var _holds_special_key = (_room.chest_obj == obj_key && _room.has_special_item);
+			var _holds_special_bomb = (_room.chest_obj == obj_bomb && _room.has_special_item);
+			var _holds_needed_torch = (_room.chest_obj == obj_torch);
+			var _holds_gudetama_item = (!is_undefined(_gudetama_room) && _room != _gudetama_room && _room.has_special_item && (_room.chest_obj == obj_sword || _room.chest_obj == obj_staff));
+			
+			// Reset the chest index, then add the chest if it is relevant and assign its new index
+			_room.relevant_locked_chests_index = -1;
+			if (_holds_special_key || _holds_needed_torch || _holds_special_bomb || _holds_gudetama_item) {
+				_room.relevant_locked_chests_index = array_length(_relevant_locked_chest_rooms);
+				array_push(_relevant_locked_chest_rooms, _room);
+			}
+		}
+		return _relevant_locked_chest_rooms;
+	};
+
+	/// @function get_locked_exits()
+	/// @description Gets a list of all locked exits in the map
+	/// @returns {array} The list of locked exits
+	static get_locked_exits = function() {
+		// Loop through every map cardinal exit to find locked exits
+		var _locked_exits = [];
+		for (var _i = 0; _i < array_length(cardinal_exits); _i++) {
+			// Skip exits that aren't locked
+			var _possible_exit = cardinal_exits[_i];
+			if (_possible_exit.exit_type != exit_types.locked_doors) { continue; }
+			
+			// Add the exit to the list of locked exits
+			array_push(_locked_exits, _possible_exit);
+		}
+		return _locked_exits;
+	};
+
+	/// @function add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _reached_rooms, _relevant_locked_chests)
+	/// @description Adds an area to the lock search's queue, unless the same area was already queued
+	/// @param {array} _search_area_check_queue		The queue of areas to check, in order
+	/// @param {struct} _search_areas_in_queue_map	Every area queued so far, by its search area key
+	/// @param {real} _reached_rooms				Bitmask of the rooms the new area reaches
+	/// @param {real} _relevant_locked_chests		Bitmask of the chests that matter the new area has unlocked
+	static add_search_area_to_queue_if_unique = function(_search_area_check_queue, _search_areas_in_queue_map, _reached_rooms, _relevant_locked_chests) {
+		// Skip adding to the queue if this area was already queued
+		var _area_key = get_search_area_key(_reached_rooms, _relevant_locked_chests);
+		if (!is_undefined(_search_areas_in_queue_map[$ _area_key])) { return; }
+		
+		// Mark the area as queued, and add it to the queue
+		var _search_area = new LockSearchArea(self, _reached_rooms, _relevant_locked_chests);
+		_search_areas_in_queue_map[$ _area_key] = true;
+		array_push(_search_area_check_queue, _search_area);
 	};
 
 	/// @function add_key_to_area(_stuck_area)
@@ -835,133 +901,72 @@ function GameMap() constructor {
 		return (array_length(_possible_exits) > 0) ? array_random_get(_possible_exits) : undefined;
 	};
 
-	/// @function get_locked_exits()
-	/// @description Gets a list of all locked exits in the map
-	/// @returns {array} The list of locked exits
-	static get_locked_exits = function() {
-		// Loop through every map cardinal exit to find locked exits
-		var _locked_exits = [];
-		for (var _i = 0; _i < array_length(cardinal_exits); _i++) {
-			// Skip exits that aren't locked
-			var _possible_exit = cardinal_exits[_i];
-			if (_possible_exit.exit_type != exit_types.locked_doors) { continue; }
-			
-			// Add the exit to the list of locked exits
-			array_push(_locked_exits, _possible_exit);
-		}
-		return _locked_exits;
-	};
+	// ============================
+	// Room Content Functions
+	// ============================
 
-	/// @function get_relevant_locked_chest_rooms()
-	/// @description Gets a list of all rooms with a relevant locked chest in the map: one that holds a special key or bomb,
-	///	a torch, or a special sword or staff that can get the player past the map's gudetama to the chest behind it
-	/// @returns {array} The list of relevant locked chest rooms
-	static get_relevant_locked_chest_rooms = function() {
-		// Loop through every map room to find relevant locked chests
-		var _relevant_locked_chest_rooms = [], _gudetama_room = get_gudetama_room();
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			// Skip rooms with unlocked chests
-			var _room = rooms[_i];
-			if (!_room.has_locked_chest) { continue; }
+	/// @function determine_special_exit_types()
+	/// @description Turns random rooms into portcullis traps, and adds illusion walls and plain doors to random cardinal
+	///	exits of the other rooms
+	static determine_special_exit_types = function() {
+		// Loop through all the existing rooms, in random order
+		var _possible_rooms = array_shuffle(rooms);
+		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
+			// Skip any ineligible rooms
+			var _possible_room = _possible_rooms[_i];
+			if (!_possible_room.can_have_special_exit_types()) { continue; }
 			
-			// Check if room is relevant
-			var _holds_special_key = (_room.chest_obj == obj_key && _room.has_special_item);
-			var _holds_special_bomb = (_room.chest_obj == obj_bomb && _room.has_special_item);
-			var _holds_needed_torch = (_room.chest_obj == obj_torch);
-			var _holds_gudetama_item = (!is_undefined(_gudetama_room) && _room != _gudetama_room && _room.has_special_item && (_room.chest_obj == obj_sword || _room.chest_obj == obj_staff));
-			
-			// Reset the chest index, then add the chest if it is relevant and assign its new index
-			_room.relevant_locked_chests_index = -1;
-			if (_holds_special_key || _holds_needed_torch || _holds_special_bomb || _holds_gudetama_item) {
-				_room.relevant_locked_chests_index = array_length(_relevant_locked_chest_rooms);
-				array_push(_relevant_locked_chest_rooms, _room);
+			// Chance to add portcullis trap
+			if (_possible_room.can_have_portcullis_trap() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _possible_room.add_portcullis_trap();  continue; }
+
+			// Otherwise, give each of its cardinal exits its own chance at a special exit type
+			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
+				// Skip exits that don't exist, or already have a special type assigned
+				var _exit = _possible_room.exits[_dir];
+				if (_exit == -1 ||_exit.exit_type != exit_types.none) { continue; }
+
+				// Sometimes give the exit illusion walls, unless it leads to the start room
+				if (!_exit.get_connected_room(_possible_room).is_start_room && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.exit_type = exit_types.illusion_walls; continue; }
+				
+				// Otherwise, sometimes give the exit plain doors
+				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY * 2)) { _exit.exit_type = exit_types.unlocked_doors; continue; }
 			}
 		}
-		return _relevant_locked_chest_rooms;
 	};
 
-	/// @function get_failing_lock_and_key_search_area()
-	/// @description Checks every order the player could spend keys in, on locked doors and chests, for one that leaves
-	///	them stuck with rooms unreached.
-	///	The search moves through areas: the rooms the player can reach, plus which locked chests that matter
-	///	they have opened. In the worst order, they spend a key on every lock in the area that leads nowhere new
-	///	(each locked door inside it, the ones they opened to get there among them, and each locked chest that
-	///	doesn't matter), as well as on each chest that matters they opened. If that leaves them no key while
-	///	rooms remain unreached, they are stuck. Otherwise they still hold a key in every order, so they can open
-	///	a locked door at the area's edge or a chest that matters, and each choice leads to a new area to check.
-	///	Areas are checked in the order found, so the first stuck area is one near the start.
-	/// @returns {LockSearchArea|undefined} The first area where the player gets stuck, or undefined if they never do
-	static get_failing_lock_and_key_search_area = function() {
-		// Setup the relevant lists for this map that LockSearchAreas will interact with. We do this here once since it doesn't change with
-		// each LockSearchArea, and we create thousands of those and only one GameMap per map generation cycle, speeding up map generation
-		relevant_locked_chest_rooms = get_relevant_locked_chest_rooms();
-		locked_exits = get_locked_exits();
-		
-		// Set up the initial queue of areas to check, map of area check queue keys, and initial area
-		var _all_rooms_reached_bitmask = (1 << array_length(rooms)) - 1, _reached_rooms_bitmask = start_room.get_reachable_rooms_bitmask(), _relevant_locked_chests_bitmask = 0;
-		var _initial_search_area = new LockSearchArea(self, _reached_rooms_bitmask, _relevant_locked_chests_bitmask), _search_area_check_queue = [_initial_search_area];
-		var _search_areas_in_queue_map = {};
-		_search_areas_in_queue_map[$ get_search_area_key(_reached_rooms_bitmask, _relevant_locked_chests_bitmask)] = true;
-		
-		// Iterate through the searched area queue, checking that each one is possible
-		while (array_length(_search_area_check_queue) > 0) {
-			// Get the next area to search, along with what the player finds in it
-			var _search_area = array_shift(_search_area_check_queue);
-			
-			// Skip checking area if it reached all rooms or can use a special item to unlock all future exits
-			if (_search_area.reached_rooms == _all_rooms_reached_bitmask || _search_area.can_use_special_item()) { continue; }
-			
-			// Otherwise, the player is stuck here if the worst order leaves them no key
-			if (_search_area.get_keys_remaining() <= 0) { return _search_area; }
+	/// @function determine_collectables_rooms()
+	/// @description Gives collectables to the heart room and to random other rooms, never the start, then to more random
+	///	rooms until at least a quarter of the rooms, plus one, have them. A room only gets them when its floor key and
+	///	portcullis button leave a collectable spot free.
+	static determine_collectables_rooms = function() {
+		var _possible_rooms = array_shuffle(rooms), _collectables_rooms = 1;
+		heart_room.has_collectables = true; // The heart room never has a key or a button
 
-			// Otherwise, spend a key to open a locked door at the edge of the area, reaching the rooms behind it...
-			for (var _i = 0; _i < array_length(locked_exits); _i++) {
-				// Skip unlocking the exit if already unlocked (both sides reached) OR exit is unreachable (neither side reached yet)
-				var _locked_exit = locked_exits[_i];
-				var _room_1_reached =_search_area.is_room_reached(_locked_exit.room_1);
-				var _room_2_reached =_search_area.is_room_reached(_locked_exit.room_2);
-				if (_room_1_reached == _room_2_reached) { continue; }
-				
-				// Add a new area to the queue of areas to check, which is the same as the old area, plus this new room
-				var _new_room = (_room_1_reached) ? _locked_exit.room_2 :  _locked_exit.room_1;
-				
-				var _new_reached_rooms = _search_area.reached_rooms | _new_room.get_reachable_rooms_bitmask();
-				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _new_reached_rooms, _search_area.relevant_locked_chests);
-			}
-			
-			// ...or a locked chest that matters, in the area
-			for (var _chest = 0; _chest < array_length(relevant_locked_chest_rooms); _chest++) {
-				// Skip unlocking chests that are already unlocked in this area
-				var _new_relevant_locked_chests = _search_area.relevant_locked_chests | (1 << _chest);
-				if (_new_relevant_locked_chests == _search_area.relevant_locked_chests) { continue; }
-				
-				// Skip unlocking chests in rooms that haven't been reached yet
-				var _room_with_chest = relevant_locked_chest_rooms[_chest];
-				if (!_search_area.is_room_reached(_room_with_chest)) { continue; }
-				
-				// Otherwise, add a new area to the queue of areas to check, which is this same area with the new chest unlocked
-				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _search_area.reached_rooms, _new_relevant_locked_chests);
+		// Add collectables to heart room and other rooms at random
+		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
+			var _possible_room = _possible_rooms[_i];
+			if (!_possible_room.is_start_room && !_possible_room.is_heart_room && get_random_chance_out_of(COLLECTABLE_PROBABILITY) && _possible_room.can_have_collectables()) {
+				_possible_room.has_collectables = true;
+				_collectables_rooms += 1;
 			}
 		}
-		
-		return undefined;
+
+		// Add to more random rooms to meet the minimum if needed
+		var _minimum_collectable_rooms = ceil(array_length(rooms) / 4) + 1;
+		for (var _j = 0; _j < array_length(_possible_rooms) && _collectables_rooms < _minimum_collectable_rooms; _j++) {
+			var _extra_room = _possible_rooms[_j];
+			if (!_extra_room.is_start_room && !_extra_room.has_collectables && _extra_room.can_have_collectables()) {
+				_extra_room.has_collectables = true;
+				_collectables_rooms += 1;
+			}
+		}
 	};
 
-	/// @function add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _reached_rooms, _relevant_locked_chests)
-	/// @description Adds an area to the lock search's queue, unless the same area was already queued
-	/// @param {array} _search_area_check_queue		The queue of areas to check, in order
-	/// @param {struct} _search_areas_in_queue_map	Every area queued so far, by its search area key
-	/// @param {real} _reached_rooms				Bitmask of the rooms the new area reaches
-	/// @param {real} _relevant_locked_chests		Bitmask of the chests that matter the new area has unlocked
-	static add_search_area_to_queue_if_unique = function(_search_area_check_queue, _search_areas_in_queue_map, _reached_rooms, _relevant_locked_chests) {
-		// Skip adding to the queue if this area was already queued
-		var _area_key = get_search_area_key(_reached_rooms, _relevant_locked_chests);
-		if (!is_undefined(_search_areas_in_queue_map[$ _area_key])) { return; }
-		
-		// Mark the area as queued, and add it to the queue
-		var _search_area = new LockSearchArea(self, _reached_rooms, _relevant_locked_chests);
-		_search_areas_in_queue_map[$ _area_key] = true;
-		array_push(_search_area_check_queue, _search_area);
+	/// @function determine_room_contents()
+	/// @description Randomly determines every room's content, now that each room's layout, map roles, spot objects and
+	///	special exit types decide which of its layout's instances survive
+	static determine_room_contents = function() {
+		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].determine_room_content(same_skeleton_type); }
 	};
 
 	// ============================
@@ -1054,6 +1059,35 @@ function GameMap() constructor {
 		return _distances;
 	};
 
+	/// @function get_exit_type_counts()
+	/// @description How many rooms have each exit kind, by their real cardinal exits
+	/// @returns {array} Room counts, by layout_exit_types kind
+	static get_exit_type_counts = function() {
+		var _exit_type_counts = array_create(layout_exit_types.count, 0);
+		for (var _i = 0; _i < array_length(rooms); _i++) { _exit_type_counts[rooms[_i].get_exit_type()] += 1; }
+		return _exit_type_counts;
+	};
+
+	/// @function get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, _other_room)
+	/// @description How many rooms would have each exit kind once a room gains a cardinal exit to an adjacent room, or to a
+	///	new room, which has just that exit
+	/// @param {array} _exit_type_counts Room counts by exit kind now
+	/// @param {GameRoom} _room The room that gains the exit
+	/// @param {real} _dir The exit's direction from the room
+	/// @param {GameRoom|undefined} _other_room The adjacent room it links to, or undefined for a new room
+	/// @returns {array} Room counts, by layout_exit_types kind, in a new array
+	static get_exit_type_counts_after_link = function(_exit_type_counts, _room, _dir, _other_room) {
+		var _new_exit_type_counts = variable_clone(_exit_type_counts, 0);
+		_new_exit_type_counts[_room.get_exit_type()] -= 1;
+		_new_exit_type_counts[_room.get_exit_type_with_new_exit(_dir)] += 1;
+		if (is_undefined(_other_room)) { _new_exit_type_counts[layout_exit_types.one] += 1; }
+		else {
+			_new_exit_type_counts[_other_room.get_exit_type()] -= 1;
+			_new_exit_type_counts[_other_room.get_exit_type_with_new_exit(get_opposite_dir(_dir))] += 1;
+		}
+		return _new_exit_type_counts;
+	};
+
 	/// @function would_link_fit_required_layout(_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, _other_room)
 	/// @description Whether a new cardinal exit would let one of its rooms take a required layout, by giving it the layout's
 	///	exit kind, so that more rooms have that kind than before
@@ -1072,8 +1106,8 @@ function GameMap() constructor {
 		var _adds_room_of_exit_type = (_new_exit_type_counts[_layout.exit_type] > _exit_type_counts[_layout.exit_type]);
 		return (_room.would_fit_layout_with_new_exit(_dir, _layout, _other_room) || _other_room_fits) && _adds_room_of_exit_type;
 	};
-	
-		/// @function keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts)
+
+	/// @function keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts)
 	/// @description Whether new room counts by exit kind leave each required layout's exit kind as many rooms as it has now,
 	///	up to how many required layouts have that exit kind
 	/// @param {array} _exit_type_counts Room counts by exit kind now
@@ -1108,7 +1142,7 @@ function GameMap() constructor {
 		}
 		return _deficit;
 	};
-	
+
 	/// @function fail_generation(_reason)
 	/// @description Logs a failed attempt and destroys this map
 	/// @param {string} _reason What failed
@@ -1118,11 +1152,18 @@ function GameMap() constructor {
 		destroy();
 		return false;
 	};
-	
+
+	/// @function destroy()
+	/// @description Frees every room's path grids. Only for a map that will never be played, like a failed
+	///	attempt; the controller frees a played map's rooms itself.
+	static destroy = function() {
+		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].destroy(); }
+	};
+
 	// ============================
 	// Adjacent Exit Creation Functions - Used to add new links between existing adjacent rooms during map generation
 	// ============================
-	
+
 	/// @function add_adjacent_exit([_required_layout])
 	/// @description Links a room to an adjacent room it isn't linked to yet, where that brings the rooms' exit kinds closest to
 	///	exit_type_targets, but never where it takes a room a required layout needs. For a required layout no room can take, only
@@ -1169,35 +1210,6 @@ function GameMap() constructor {
 		link_rooms_with_new_exit(_link.room, _link.adjacent_room, _link.dir);
 		return true;
 	};
-	
-	/// @function get_exit_type_counts()
-	/// @description How many rooms have each exit kind, by their real cardinal exits
-	/// @returns {array} Room counts, by layout_exit_types kind
-	static get_exit_type_counts = function() {
-		var _exit_type_counts = array_create(layout_exit_types.count, 0);
-		for (var _i = 0; _i < array_length(rooms); _i++) { _exit_type_counts[rooms[_i].get_exit_type()] += 1; }
-		return _exit_type_counts;
-	};
-	
-	/// @function get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, _other_room)
-	/// @description How many rooms would have each exit kind once a room gains a cardinal exit to an adjacent room, or to a
-	///	new room, which has just that exit
-	/// @param {array} _exit_type_counts Room counts by exit kind now
-	/// @param {GameRoom} _room The room that gains the exit
-	/// @param {real} _dir The exit's direction from the room
-	/// @param {GameRoom|undefined} _other_room The adjacent room it links to, or undefined for a new room
-	/// @returns {array} Room counts, by layout_exit_types kind, in a new array
-	static get_exit_type_counts_after_link = function(_exit_type_counts, _room, _dir, _other_room) {
-		var _new_exit_type_counts = variable_clone(_exit_type_counts, 0);
-		_new_exit_type_counts[_room.get_exit_type()] -= 1;
-		_new_exit_type_counts[_room.get_exit_type_with_new_exit(_dir)] += 1;
-		if (is_undefined(_other_room)) { _new_exit_type_counts[layout_exit_types.one] += 1; }
-		else {
-			_new_exit_type_counts[_other_room.get_exit_type()] -= 1;
-			_new_exit_type_counts[_other_room.get_exit_type_with_new_exit(get_opposite_dir(_dir))] += 1;
-		}
-		return _new_exit_type_counts;
-	};
 
 	/// @function would_link_shorten_way_to_heart(_distances_from_start, _distances_from_heart, _room, _other_room)
 	/// @description Whether a new cardinal exit between two rooms would make the way from the start to the heart shorter
@@ -1211,7 +1223,7 @@ function GameMap() constructor {
 		var _way_through_link = 1 + min(_distances_from_start[_room_index] + _distances_from_heart[_other_room_index], _distances_from_start[_other_room_index] + _distances_from_heart[_room_index]);
 		return _way_through_link < _distances_from_start[heart_room.map_rooms_index];
 	};
-	
+
 	// ============================
 	// Room Creation Functions - Used to add new rooms to the map during generation
 	// ============================
@@ -1287,7 +1299,7 @@ function GameMap() constructor {
 		}
 		return _count;
 	};
-	
+
 	/// @function add_stairs_room(_is_stairs_only)
 	/// @description Adds a room joined by stairs to a random room without stairs, on a free cell beside another room but not
 	///	beside that one
@@ -1345,9 +1357,9 @@ function GameMap() constructor {
 		return undefined;
 	};
 
-	// =================================================================================================
+	// ============================
 	// Difficulty Score Calculation Functions
-	// =================================================================================================
+	// ============================
 
 	/// @function calculate_hazard_mitigations()
 	/// @description Determines how likely a player is to have an item (or encounter a lit room) for the difficulty scoring.
@@ -1423,10 +1435,10 @@ function GameMap() constructor {
 		}
 		return _difficulty_score;
 	};
-	
-	// =================================================================================================
+
+	// ============================
 	// Time Provided Calculation Functions
-	// =================================================================================================
+	// ============================
 
 	/// @function calculate_time_provided()
 	/// @description Sets time_provided, the run's calculated needed time, multiplied by a difficulty multiplier
@@ -1481,10 +1493,10 @@ function GameMap() constructor {
 		}
 		return _trip_time;
 	};
-	
-		// =================================================================================================
+
+	// ============================
 	// Completed Map Functions
-	// =================================================================================================
+	// ============================
 
 	/// @function adjust_items_for_hands()
 	/// @description Fits the chests to the player's starting hand items, once the map is final. A guaranteed map or compass
@@ -1547,7 +1559,7 @@ function GameMap() constructor {
 			}
 		}
 	};
-	
+
 	/// @function calculate_collectables_and_items_lists()
 	/// @description Lists what the controller tracks during play: the rooms with collectables, and the regular items in chests.
 	///	The special items are already listed, since each one is listed as it's picked.
@@ -1561,17 +1573,6 @@ function GameMap() constructor {
 			// Calculate the regular items list
 			if (_room.has_chest() && !_room.has_trap_chest() && !_room.has_special_item) { array_push(spawned_items, _room.chest_obj); }
 		}
-	};
-	
-	/// @function reset_map_variables()
-	/// @description Resets the map-wide variables that are set during each pass
-	static reset_map_variables = function() {
-		start_room = undefined;
-		heart_room = undefined;
-		guaranteed_lit_room = undefined;		// The room that always starts lit, so the map has a lit room, with a lantern layout of the exit kind it shows
-		guaranteed_items = [];					// The item types we must spawn somewhere in the map
-		spawned_special_items = [];				// Each item type placed as a special item so far
-		extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet
 	};
 
 	// ============================

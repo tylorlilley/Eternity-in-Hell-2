@@ -20,6 +20,12 @@
 #macro OPEN_DOOR_PROBABILITY get_probability_for_difficulty([0, 32, 24, 12, 8])
 #macro MAP_ENCOUNTER_CHANCE_MULTIPLIER 3	// How likely the player is to have an item, per share of the map's rooms holding it: one sword chest in fifteen rooms gives a 0.2 chance of holding a sword
 
+// ===== TIME =====
+// Seconds a careful novice needs on top of every room's first visit
+#macro LOCKED_DOOR_TIME 20					// Getting a key for each locked door: usually one is held by then, otherwise it's a few rooms back
+#macro ILLUSION_WALL_TIME 20				// Finding each illusion wall, which looks like any other wall
+#macro TIME_ALLOWANCE get_probability_for_difficulty([0, 1.3, 1.1, 1, 0.95])	// The run's time, as a multiple of the time a careful novice needs for the map
+
 /// @function GameMap()
 /// @description The plan for one map, and the methods that generate it: the layouts its difficulty allows, its rooms
 ///	and the exits between them, its map-wide events, what each pass spawns, and what the controller keeps once generation
@@ -1397,98 +1403,48 @@ function GameMap() constructor {
 	};
 
 	/// @function calculate_time_provided()
-	/// @description Sets time_provided, the run's total time: every room's share, plus the difficulty's allowance for
-	///	the trips between rooms the map adds (see get_backtracking_time)
+	/// @description Sets time_provided, the run's total time: the time a careful novice needs for the map, times the
+	///	difficulty's TIME_ALLOWANCE
 	static calculate_time_provided = function() {
-		time_provided = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) { time_provided += rooms[_i].get_time_provided(); }
-		time_provided += TIME_ALLOWANCE; // * get_backtracking_time();
+		time_provided = TIME_ALLOWANCE * get_time_needed();
 	};
 
-	/// @function measure_travel_times(_from_room, _skip_exit, _crossing)
-	/// @description Seconds from one room to every other by the quickest way, through cardinal exits and stairs
-	///	with locks ignored, counting the crossing time of each room entered.
-	/// @param {GameRoom} _from_room Where to start
-	/// @param {RoomExit|undefined} _skip_exit An exit not to use, or undefined
-	/// @param {array} _crossing Each room's crossing time, by map_rooms_index
-	/// @returns {array} Seconds to each room by map_rooms_index, or -1 where it can't be reached
-	static measure_travel_times = function(_from_room, _skip_exit, _crossing) {
-		var _count = array_length(rooms), _times = array_create(_count, -1), _settled = array_create(_count, false);
-		_times[_from_room.map_rooms_index] = 0;
-		repeat (_count) {
-			var _room = undefined, _best = infinity;
-			for (var _i = 0; _i < _count; _i++) {
-				var _index = rooms[_i].map_rooms_index;
-				if (!_settled[_index] && _times[_index] >= 0 && _times[_index] < _best) { _best = _times[_index]; _room = rooms[_i]; }
-			}
-			if (is_undefined(_room)) { break; }
-			_settled[_room.map_rooms_index] = true;
-			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
-				var _exit = _room.exits[_dir];
-				if (_exit == -1 || _exit == _skip_exit) { continue; }
-				var _other = _exit.get_connected_room(_room);
-				var _time = _best + _crossing[_other.map_rooms_index];
-				if (!_settled[_other.map_rooms_index] && (_times[_other.map_rooms_index] < 0 || _time < _times[_other.map_rooms_index])) { _times[_other.map_rooms_index] = _time; }
-			}
-		}
-		return _times;
-	};
-
-	/// @function get_backtracking_time()
-	/// @description Seconds of walking between rooms on top of each room's own visit: carrying the heart
-	///	back to the start cross, going back for a key when a lock comes first, coming back to an illusion wall
-	///	taken for a dead end, and the wrath quest's trip to the start cross and back. Trips take the quickest way
-	///	through the rooms, stairs included, so shortcuts shorten them.
+	/// @function get_time_needed()
+	/// @description Seconds a careful novice needs for the map: every room's first visit, getting through its locked doors and
+	///	illusion walls, the wrath quest's trip to the start cross and back, and carrying the heart back to the start cross
 	/// @returns {real}
-	static get_backtracking_time = function() {
-		var _crossing = array_create(array_length(rooms), 0), _from_start = measure_distances(start_room), _extra = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) { _crossing[rooms[_i].map_rooms_index] = rooms[_i].get_crossing_time(); }
- 
-		// The finish: the heart has to be carried back to the start cross, from the far end of the map
-		var _heart_times = measure_travel_times(heart_room, undefined, _crossing);
-		var _to_finish = _heart_times[start_room.map_rooms_index];
-		if (_to_finish > 0) { _extra += _to_finish; }
- 
-		for (var _j = 0; _j < array_length(cardinal_exits); _j++) {
-			var _exit = cardinal_exits[_j];
-			if (_exit.exit_type != exit_types.locked_doors && _exit.exit_type != exit_types.illusion_walls) { continue; }
- 
-			// The player reaches the side nearer the start first
-			var _near = (_from_start[_exit.room_2.map_rooms_index] < _from_start[_exit.room_1.map_rooms_index]) ? _exit.room_2 : _exit.room_1;
-			var _times = measure_travel_times(_near, _exit, _crossing);
- 
-			// A lock met before its key: the trip from it to the nearest key on its near side, and back
-			if (_exit.exit_type == exit_types.locked_doors) {
-				var _nearest = infinity;
-				for (var _k = 0; _k < array_length(rooms); _k++) {
-					var _to_key = _times[rooms[_k].map_rooms_index];
-					if ((rooms[_k].has_key || rooms[_k].has_extra_key) && _to_key >= 0) { _nearest = min(_nearest, _to_key); }
-				}
-				if (_nearest != infinity) { _extra += LOCK_BACKTRACK_SHARE * 2 * _nearest; }
-			}
- 
-			// An illusion wall taken for a dead end: the trip back to it once everything else on its side is done
-			// (on average the mean trip from those rooms), and the search
-			if (_exit.exit_type == exit_types.illusion_walls) {
-				var _sum = 0, _rooms_on_side = 0;
-				for (var _m = 0; _m < array_length(rooms); _m++) {
-					var _back = _times[rooms[_m].map_rooms_index];
-					if (_back > 0) { _sum += _back; _rooms_on_side += 1; }
-				}
-				if (_rooms_on_side > 0) { _extra += ILLUSION_WALL_MISS_CHANCE * _sum / _rooms_on_side; }
-				_extra += ILLUSION_WALL_SEARCH_TIME;
-			}
+	static get_time_needed = function() {
+		var _time_needed = 0;
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			var _room = rooms[_i];
+			_time_needed += _room.get_time_needed();
+			if (_room.is_wrath_room()) { _time_needed += 2 * get_trip_to_start_time(_room); }
 		}
- 
-		// The wrath special room: the trip to the start cross to lift its curse, and back for its chest
-		for (var _n = 0; _n < array_length(rooms); _n++) {
-			var _room = rooms[_n];
-			if (_room.layout.get_object_count("obj_inverted_cross") == 0) { continue; }
-			var _wrath_times = measure_travel_times(_room, undefined, _crossing);
-			var _to_start = _wrath_times[start_room.map_rooms_index];
-			if (_to_start > 0) { _extra += 2 * _to_start; }
+		for (var _i = 0; _i < array_length(cardinal_exits); _i++) {
+			var _exit_type = cardinal_exits[_i].exit_type;
+			if (_exit_type == exit_types.locked_doors) { _time_needed += LOCKED_DOOR_TIME; }
+			else if (_exit_type == exit_types.illusion_walls) { _time_needed += ILLUSION_WALL_TIME; }
 		}
-		return _extra;
+		return _time_needed + get_trip_to_start_time(heart_room);
+	};
+
+	/// @function get_trip_to_start_time(_from_room)
+	/// @description Seconds to walk from a room to the start cross by the quickest way, crossing each room on the way again
+	/// @param {GameRoom} _from_room The room the trip starts from
+	/// @returns {real}
+	static get_trip_to_start_time = function(_from_room) {
+		var _room = _from_room, _trip_time = 0;
+		while (_room.distance_to_start > 0) {
+			// Step to a linked room one closer to the start, which every room on the quickest way has
+			var _closer_room = undefined;
+			for (var _dir = directions.up; _dir <= directions.stairs && is_undefined(_closer_room); _dir++) {
+				var _linked_room = _room.get_connected_room(_dir);
+				if (_linked_room != -1 && _linked_room.distance_to_start == _room.distance_to_start - 1) { _closer_room = _linked_room; }
+			}
+			_room = _closer_room;
+			_trip_time += _room.get_trip_time();
+		}
+		return _trip_time;
 	};
 
 	/// @function calculate_collectables_and_items_lists()

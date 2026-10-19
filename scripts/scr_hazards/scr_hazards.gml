@@ -1,6 +1,7 @@
 // ===== HAZARD CONVERSION RATES ====
 #macro HAZARD_DANGER_SCALE 8				// Difficulty score per unit of danger
-#macro HAZARD_TIME_SCALE 30					// Seconds a time score of 1 is worth: hold-ups on top of walking
+#macro HAZARD_TIME_SCALE 30					// Seconds a time score of 1 is worth: hold-ups on top of the room's visit time
+#macro PHANTOM_TIME_PER_LANTERN 2.5			// Seconds to light each lantern in a phantom's room, since lighting them all banishes it. It counts per lantern, so it isn't in the table
 #macro KEEPS_PLAYER_MOVING_CHANCE_PER_DANGER 5		// Chance per unit of its danger that a hazard targeting the player keeps them moving
 
 // ===== TAG GROUPS =====
@@ -43,8 +44,8 @@ enum hazard_tags {
 ///	danger: the chance a novice dies to one in a typical room visit, from 0 to 1. It assumes the player knows
 ///		what the hazard does (like luring the ears, for example). HazardMitigation applies its mitigations
 ///
-///	time: the hold-ups it causes on top of walking, from 0 (none) to 1 (HAZARD_TIME_SCALE seconds, like a special room's
-///		quest). The walking itself is measured on the layout and slowed by the room's difficulty score.
+///	time: the hold-ups it causes on top of the room's visit time (ROOM_VISIT_TIME), in units of HAZARD_TIME_SCALE seconds:
+///		0 for none, up to 1.7 for the hall of mirrors' quest.
 ///
 ///	many, time_many: how more copies in one room add up, as a power of the count: 1 additive, under 1
 ///		diminishing, over 1 compounding, and 0 flat (only the first one counts).
@@ -61,50 +62,50 @@ function get_hazards_table() {
 	static _table = {
 		// ===== Placed from Room Layouts =====
 		obj_statue:				{ danger: 0.04,		many: 1,	time: 0.03,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.fires_in_place | hazard_tags.lights_torches | hazard_tags.uses_up_block | hazard_tags.destroyed_by_block },
-		obj_fountain:			{ danger: 0.06,		many: 1.1,	time: 0.05,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.fires_at_player},
+		obj_fountain:			{ danger: 0.06,		many: 1.1,	time: 0.07,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.fires_at_player},
 		// Per mouth the layout places; the extra ones higher difficulties add aren't counted
-		obj_mouth:				{ danger: 0.08,		many: 0.8,	time: 0.30,		time_many: 0.3,		min_difficulty: difficulties.easy,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.uses_up_block | hazard_tags.destroyed_by_block },
-		obj_spider:				{ danger: 0.15,		many: 0.7,	time: 0.08,		time_many: 0.7,	min_difficulty: difficulties.medium,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block },
+		obj_mouth:				{ danger: 0.08,		many: 0.8,	time: 0.30,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.uses_up_block | hazard_tags.destroyed_by_block },
+		obj_spider:				{ danger: 0.15,		many: 0.7,	time: 0.07,		time_many: 0.7,	min_difficulty: difficulties.medium,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block },
 		// One hidden spider, whatever the spot count: building always puts a spider on one of the spots, so it's tagged like one
 		obj_spider_spot:		{ danger: 0.20,		many: 0,	time: 0.10,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block },
-		obj_snake:				{ danger: 0.07,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.destroyed_by_block },
+		obj_snake:				{ danger: 0.07,		many: 1,	time: 0.07,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.destroyed_by_block },
 		obj_giant_worm_head:	{ danger: 0.04,		many: 0.75,	time: 0.05,		time_many: 0.75,	min_difficulty: difficulties.medium,	tags: hazard_tags.stationary | hazard_tags.destroyed_by_block },
 		// Per segment: long worms block corridors longer
 		obj_giant_worm_body:	{ danger: 0,		many: 1,	time: 0.003,	time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.stationary },
-		obj_eyes:				{ danger: 0.12,		many: 0,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stops_player_movement | hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block },
-		obj_ears:				{ danger: 0.30,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.listens_to_loud_noise | hazard_tags.destroyed_by_block },
+		obj_eyes:				{ danger: 0.12,		many: 0,	time: 0.43,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stops_player_movement | hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block },
+		obj_ears:				{ danger: 0.30,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.slows_player_movement | hazard_tags.killed_by_sword | hazard_tags.listens_to_loud_noise | hazard_tags.destroyed_by_block },
 		// Per room, not per tile:
-		obj_lava:				{ danger: 0.04,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.immune_with_staff | hazard_tags.uses_up_block | hazard_tags.destroyed_by_block },
+		obj_lava:				{ danger: 0.04,		many: 0,	time: 0.07,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary | hazard_tags.immune_with_staff | hazard_tags.uses_up_block | hazard_tags.destroyed_by_block },
 		// Includes regular and living blocks
-		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary},
+		obj_block_spot:			{ danger: 0,		many: 1,	time: 0.017,	time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.stationary},
  
 		// ===== Special Room Object Types =====
-		obj_giant_eye:			{ danger: 0.17,		many: 1,	time: 0.50,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary | hazard_tags.fires_at_player },
+		obj_giant_eye:			{ danger: 0.17,		many: 1,	time: 0.75,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary | hazard_tags.fires_at_player },
 		obj_inverted_cross:		{ danger: 0.25,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.moves_towards_player },
-		obj_hall_of_mirrors:	{ danger: 0,		many: 0,	time: 1.00,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary },
-		obj_red_chest:			{ danger: 0.01,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary },
-		obj_gudetama:			{ danger: 0.01,		many: 1,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary | hazard_tags.killed_by_sword | hazard_tags.destroyed_by_block },
+		obj_hall_of_mirrors:	{ danger: 0,		many: 0,	time: 1.70,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary },
+		obj_red_chest:			{ danger: 0.01,		many: 0,	time: 0.07,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary },
+		obj_gudetama:			{ danger: 0.01,		many: 1,	time: 0.43,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary | hazard_tags.killed_by_sword | hazard_tags.destroyed_by_block },
  
 		// ===== Skeleton Spot Object Types =====
-		obj_skeleton:			{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.destroyed_by_block },
-		obj_cockroach:			{ danger: 0.02,		many: 1,	time: 0.01,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.dangerous_in_dark | hazard_tags.destroyed_by_block },
-		obj_invisible_skeleton:	{ danger: 0.1,		many: 1,	time: 0.04,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.destroyed_by_block },
-		obj_fast_skeleton:		{ danger: 0.13,		many: 1,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.slows_player_movement | hazard_tags.destroyed_by_block },
-		obj_fat_skeleton:		{ danger: 0.04,		many: 1,	time: 0.02,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block },
-		obj_cultist:			{ danger: 0.16,		many: 1.2,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.fires_at_player | hazard_tags.destroyed_by_block },
-		obj_fire_skeleton:		{ danger: 0.18,		many: 1.15,	time: 0.06,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.killed_by_sword | hazard_tags.fires_at_player | hazard_tags.immune_with_staff | hazard_tags.lights_torches | hazard_tags.uses_up_block | hazard_tags.destroyed_by_block },
+		obj_skeleton:			{ danger: 0.04,		many: 1,	time: 0.03,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.destroyed_by_block },
+		obj_cockroach:			{ danger: 0.02,		many: 1,	time: 0.05,		time_many: 1,		min_difficulty: difficulties.easy,		tags: hazard_tags.killed_by_sword | hazard_tags.dangerous_in_dark | hazard_tags.destroyed_by_block },
+		obj_invisible_skeleton:	{ danger: 0.1,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.destroyed_by_block },
+		obj_fast_skeleton:		{ danger: 0.13,		many: 1,	time: 0.07,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.slows_player_movement | hazard_tags.destroyed_by_block },
+		obj_fat_skeleton:		{ danger: 0.04,		many: 1,	time: 0.03,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block },
+		obj_cultist:			{ danger: 0.16,		many: 1.2,	time: 0.10,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.fires_at_player | hazard_tags.destroyed_by_block },
+		obj_fire_skeleton:		{ danger: 0.18,		many: 1.15,	time: 0.12,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.killed_by_sword | hazard_tags.fires_at_player | hazard_tags.immune_with_staff | hazard_tags.lights_torches | hazard_tags.uses_up_block | hazard_tags.destroyed_by_block },
  
 		// ===== Map Generation Spawns =====
-		obj_phantom:				{ danger: 0.20,		many: 0,	time: 0.20,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.moves_towards_player },
-		obj_floater:				{ danger: 0.08,		many: 0,	time: 0.15,		time_many: 0,		min_difficulty: difficulties.medium,	tags: hazard_tags.moves_towards_player },
-		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.08,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.stationary | hazard_tags.fires_at_player | hazard_tags.lights_torches },	// Aimed where the player is, so walking along a bridge dodges it too
-		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.slows_player_movement },
-		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.05,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary }, // For trapped chests only
-		obj_collectable:			{ danger: 0,		many: 0,	time: 0.30,		time_many: 0,		min_difficulty: difficulties.medium,	tags: hazard_tags.none }, // For moving collectables only
+		obj_phantom:				{ danger: 0.20,		many: 0,	time: 0.13,		time_many: 0,		min_difficulty: difficulties.easy,		tags: hazard_tags.moves_towards_player },
+		obj_floater:				{ danger: 0.08,		many: 0,	time: 0.07,		time_many: 0,		min_difficulty: difficulties.medium,	tags: hazard_tags.moves_towards_player },
+		obj_nose:					{ danger: 0.10,		many: 1,	time: 0.05,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.stationary | hazard_tags.fires_at_player | hazard_tags.lights_torches },	// Aimed where the player is, so walking along a bridge dodges it too
+		obj_living_block:			{ danger: 0.10,		many: 1,	time: 0.015,	time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.slows_player_movement },
+		obj_chest:					{ danger: 0.12,		many: 0,	time: 0.07,		time_many: 0,		min_difficulty: difficulties.hard,		tags: hazard_tags.stationary }, // For trapped chests only
+		obj_collectable:			{ danger: 0,		many: 0,	time: 0.13,		time_many: 0,		min_difficulty: difficulties.medium,	tags: hazard_tags.none }, // For moving collectables only
  
 		// ===== Midgame Spawns =====
-		obj_bug:					{ danger: 0.05,		many: 1,	time: 0.20,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.moves_towards_player | hazard_tags.destroyed_by_block }, // For red bugs only
-		obj_hands:					{ danger: 0.06,		many: 1,	time: 0.30,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block }
+		obj_bug:					{ danger: 0.05,		many: 1,	time: 0.10,		time_many: 1,		min_difficulty: difficulties.hard,		tags: hazard_tags.moves_towards_player | hazard_tags.destroyed_by_block }, // For red bugs only
+		obj_hands:					{ danger: 0.06,		many: 1,	time: 0.20,		time_many: 1,		min_difficulty: difficulties.medium,	tags: hazard_tags.killed_by_sword | hazard_tags.makes_loud_noise | hazard_tags.destroyed_by_block }
 	};
 	return _table;
 }
@@ -241,60 +242,28 @@ function get_chance_to_make_player_move(_spawn_counts, _hazard_name) {
 // Time Score Functions
 // ============================
 
-/// @function get_time_for_hazard(_name, _count)
-/// @description The time score for _count of a hazard in one room, following its time_many rule, at most 1.
-/// @param {string} _name The hazard's name in the table
-/// @param {real} _count How many; can be fractional when it's an expected count
+/// @function get_time_score_for_spawn_counts(_spawn_counts)
+/// @description How much time the hazards that spawn in a room cost: each one's time score, added up
+/// @param {struct} _spawn_counts		Object names and how many of each spawn in the room
 /// @returns {real}
-function get_time_for_hazard(_name, _count) {
+function get_time_score_for_spawn_counts(_spawn_counts) {
+	var _object_names = variable_struct_get_names(_spawn_counts), _time_score = 0;
+	for (var _i = 0; _i < array_length(_object_names); _i++) { _time_score += get_time_for_hazard(_object_names[_i], _spawn_counts[$ _object_names[_i]]); }
+	return _time_score;
+}
+
+/// @function get_time_for_hazard(_hazard_name, _hazard_count)
+/// @description A hazard's time score for how many of it are in the room, from its time and time_many entries in the hazards table
+/// @param {string} _hazard_name		The hazard's name in the hazards table
+/// @param {real} _hazard_count			The number of this hazard in the room, which is fractional when it's an expected count
+/// @returns {real}
+function get_time_for_hazard(_hazard_name, _hazard_count) {
 	// Return 0 for object types that aren't hazards, or don't spawn
-	var _table = get_hazards_table(), _entry = _table[$ _name];
-	if (is_undefined(_entry) || _count <= 0) { return 0; }
+	var _table = get_hazards_table(), _table_entry = _table[$ _hazard_name];
+	if (is_undefined(_table_entry) || _hazard_count <= 0) { return 0; }
 	
-	// Modify the time score based on the number of copies of this hazard, as per the table
-	var _copies = (_entry.time_many == 0) ? min(1, _count) : power(_count, _entry.time_many);
-	return min(1, _entry.time * _copies);
+	// Scale the time value by the number of copies of this hazard, as per the table
+	var _hazard_copies = (_table_entry.time_many == 0) ? min(1, _hazard_count) : power(_hazard_count, _table_entry.time_many);
+	return _hazard_copies * _table_entry.time;
 }
-
-/*
-/// @function get_time_score_for_hazard_counts(_counts)
-/// @description The time score for a set of hazards in one room: each one's time score, added up.
-/// @param {struct} _counts Hazard names and how many of each
-/// @returns {real}
-function get_time_score_for_hazard_counts(_counts) {
-	var _names = variable_struct_get_names(_counts), _time = 0;
-	for (var _i = 0; _i < array_length(_names); _i++) { _time += get_time_for_hazard(_names[_i], _counts[$ _names[_i]]); }
-	return _time;
-}
-
-/// @function get_hazard_counts_with_spawn(_counts, _spawn)
-/// @description A copy of a room's hazard counts with one more of something that might spawn, in place of what it replaces
-/// @param {struct} _counts Hazard names and how many of each
-/// @param {struct} _spawn What spawns (see ExpectedSpawn)
-/// @returns {struct}
-function get_hazard_counts_with_spawn(_counts, _spawn) {
-	var _spawned_counts = hazard_counts_copy(_counts);
-	hazard_count_add(_spawned_counts, _spawn.hazard_name, 1);
-	if (!is_undefined(_spawn.replaced_hazard_name)) { hazard_count_add(_spawned_counts, _spawn.replaced_hazard_name, -1); }
-	return _spawned_counts;
-}
-
-/// @function get_time_score_with_spawns(_counts, _spawns)
-/// @description The time score for a room's hazards (see get_time_score_for_hazard_counts), with what might spawn into it
-///	added on average, the same way PlayerChance adds their difficulty points
-/// @param {struct} _counts Hazard names and how many of each, for the room
-/// @param {array} _spawns What might spawn (see ExpectedSpawn)
-/// @returns {real}
-function get_time_score_with_spawns(_counts, _spawns) {
-	var _time_score = get_time_score_for_hazard_counts(_counts), _expected_time_score = 0;
-	for (var _i = 0; _i < array_length(_spawns); _i++) {
-		var _spawn = _spawns[_i];
-		if (_spawn.expected_count <= 0) { continue; }
-		
-		_expected_time_score += _spawn.expected_count * (get_time_score_for_hazard_counts(get_hazard_counts_with_spawn(_counts, _spawn)) - _time_score);
-	}
-	
-	return _time_score + _expected_time_score;
-}
-*/
 

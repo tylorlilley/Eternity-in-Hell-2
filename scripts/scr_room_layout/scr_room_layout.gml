@@ -1,6 +1,7 @@
 #macro LAYOUT_SIZE 256						// Every layout room is this many pixels square
 #macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.5, 2.5, 3.5, infinity]) // A layout appears from the lowest difficulty whose limits its difficulty and time scores fit in. These keep about as many layouts on each difficulty as the ruby script's difficulties did
-#macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.1, 0.5, infinity, infinity])
+#macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.35, 0.85, infinity, infinity])
+#macro LAYOUT_TIME_SCORE_PER_COLUMN 0.025		// 0.75 seconds for each column, only in a layout's time score. Columns barely slow the player, but the ruby script counted them, and this keeps layouts full of them on about the difficulties it gave them
 
 // The six kinds of layout file, named after the cardinal exits they open
 enum layout_exit_types {
@@ -16,8 +17,8 @@ enum layout_exit_types {
 /// @function RoomLayout(_room_reference)
 /// @description One room layout, read from its GameMaker room when GameMap builds the layout cache: its exit
 ///	kind and the lowest difficulty it appears on, the instances building creates, which spots a floor key or a
-///	portcullis button can take, how many of each object it places, and its walking distances. A room that isn't a
-///	usable layout gets is_usable = false, and GameMap leaves it out of the cache.
+///	portcullis button can take, and how many of each object it places. A room that isn't a usable layout gets
+///	is_usable = false, and GameMap leaves it out of the cache.
 /// @param {Asset.GMRoom} _room_reference The Game Maker room this layout corresponds to
 function RoomLayout(_room_reference) constructor {
 	// ============================
@@ -316,7 +317,7 @@ function RoomLayout(_room_reference) constructor {
 		minimum_difficulty = difficulties.very_hard;
 		for (var _difficulty = _hazard_minimum_difficulty; _difficulty < difficulties.very_hard; _difficulty++) {
 			global.difficulty = _difficulty;
-			if (get_layout_difficulty_score() <= LAYOUT_DIFFICULTY_SCORE_LIMIT) { // TODO:  && get_layout_time_score() <= LAYOUT_TIME_SCORE_LIMIT) {
+			if (get_layout_difficulty_score() <= LAYOUT_DIFFICULTY_SCORE_LIMIT && get_layout_time_score() <= LAYOUT_TIME_SCORE_LIMIT) {
 				minimum_difficulty = _difficulty;
 				break;
 			}
@@ -352,146 +353,15 @@ function RoomLayout(_room_reference) constructor {
 		return _hazard_mitigation.get_total_difficulty_score_for_spawn_counts(get_spawned_object_counts());
 	};
 
-	// TODO: Everything relating to time score
-	/*
 	/// @function get_layout_time_score()
-	/// @description How much time a room with this layout costs at the current difficulty, on top of walking
+	/// @description How much time a room with this layout costs at the current difficulty: the time score for what the layout
+	///	definitely contains, plus an estimate of what it could spawn, with lighting its lanterns to banish a phantom, and its columns
 	/// @returns {real}
 	static get_layout_time_score = function() {
-		var _counts = duplicate_count_struct(instance_object_counts), _spawns = get_spawned_object_counts(_counts);
-		var _time_score = get_time_score_with_spawns(_counts, _spawns);
-		
-		// Banishing a phantom means lighting every lantern
-		for (var _i = 0; _i < array_length(_spawns); _i++) {
-			var _spawn = _spawns[_i];
-			if (_spawn.hazard_name == "obj_phantom") { _time_score += _spawn.expected_count * PHANTOM_TIME_PER_LANTERN * get_object_count("obj_lantern"); }
-		}
-		
-		return _time_score;
+		var _spawn_counts = get_spawned_object_counts();
+		var _phantom_lantern_time = get_count_from_struct(_spawn_counts, "obj_phantom") * get_object_count("obj_lantern") * PHANTOM_TIME_PER_LANTERN;
+		return get_time_score_for_spawn_counts(_spawn_counts) + (_phantom_lantern_time / HAZARD_TIME_SCALE) + (get_estimated_object_count("obj_column") * LAYOUT_TIME_SCORE_PER_COLUMN);
 	};
-
-	// ============================
-	// Time Score Functions
-	// ============================
-	
-	/// @function ensure_walking()
-	/// @description Measures the layout's walking distances the first time a room asks, so loading stays
-	///	quick and each layout is only measured once.
-	static ensure_walking = function() {
-		if (walk_measured) { return; }
-		walk_measured = true;
-		var _sides = ["obj_exit_spot_up", "obj_exit_spot_right", "obj_exit_spot_down", "obj_exit_spot_left"];
-		var _open = get_open_cardinal_exits();
- 
-		// The walk points: each open cardinal exit's entrance (the middle of its exit spots on the room's edge), then the
-		// stairs spot, the chest spot and every collectable spot in file order
-		walk_points = [];
-		for (var _s = 0; _s < array_length(_open); _s++) {
-			var _side = _open[_s], _sum_x = 0, _sum_y = 0, _count = 0;
-			for (var _i = 0; _i < array_length(instances_to_create); _i++) {
-				var _inst = instances_to_create[_i];
-				if (_inst.object_name != _sides[_side]) { continue; }
-				var _across = (_side == directions.left || _side == directions.right) ? _inst.x : _inst.y;
-				if (_across > 16 && _across < LAYOUT_SIZE - 16) { continue; }
-				_sum_x += _inst.x;
-				_sum_y += _inst.y;
-				_count += 1;
-			}
-			if (_count > 0) { array_push(walk_points, { x: _sum_x / _count, y: _sum_y / _count }); }
-		}
-		walk_entrance_count = array_length(walk_points);
-		walk_collectable_points = [];
-		for (var _j = 0; _j < array_length(instances_to_create); _j++) {
-			var _spot = instances_to_create[_j];
-			if (_spot.object_name == "obj_stairs_spot") { walk_stairs_point = array_length(walk_points); }
-			else if (_spot.object_name == "obj_chest_spot") { walk_chest_point = array_length(walk_points); }
-			else if (_spot.object_name == "obj_collectable_spot") { array_push(walk_collectable_points, array_length(walk_points)); }
-			else { continue; }
-			array_push(walk_points, { x: _spot.x, y: _spot.y });
-		}
- 
-		// The floor as building leaves it: the open cardinal exits' exit spots and the chest and stairs spots cleared,
-		// and the closed ones' exit spots walled. Walls, columns, mirrors, statues, fountains, the red chest and the
-		// giant eye's 3x3 body are in the way; push blocks aren't, since pushing one moves you along with it.
-		// Lava is in the way too, unless nothing else reaches a point (then a block bridge or a staff is assumed)
-		var _cells = LAYOUT_SIZE / 8 + 1;
-		var _with_lava = mp_grid_create(-4, -4, _cells, _cells, 8, 8), _without_lava = mp_grid_create(-4, -4, _cells, _cells, 8, 8);
-		for (var _edge = 0; _edge < _cells; _edge++) {
-			mp_grid_add_cell(_with_lava, _edge, 0);				mp_grid_add_cell(_without_lava, _edge, 0);
-			mp_grid_add_cell(_with_lava, _edge, _cells - 1);	mp_grid_add_cell(_without_lava, _edge, _cells - 1);
-			mp_grid_add_cell(_with_lava, 0, _edge);				mp_grid_add_cell(_without_lava, 0, _edge);
-			mp_grid_add_cell(_with_lava, _cells - 1, _edge);	mp_grid_add_cell(_without_lava, _cells - 1, _edge);
-		}
-		var _cleared = {};
-		for (var _k = 0; _k < array_length(instances_to_create); _k++) {
-			var _marker = instances_to_create[_k], _marker_side = -1;
-			for (var _q = 0; _q < 4; _q++) { if (_marker.object_name == _sides[_q]) { _marker_side = _q; } }
-			var _is_open = (_marker_side != -1) && array_contains(_open, _marker_side);
-			if (_is_open || _marker.object_name == "obj_chest_spot" || _marker.object_name == "obj_stairs_spot") { _cleared[$ get_tile_key(_marker.x, _marker.y)] = true; }
-			else if (_marker_side != -1) {
-				block_walking_area(_with_lava, _marker.x, _marker.y, 8);
-				block_walking_area(_without_lava, _marker.x, _marker.y, 8);
-			}
-		}
-		for (var _m = 0; _m < array_length(instances_to_create); _m++) {
-			var _obstacle = instances_to_create[_m];
-			if (!is_undefined(_cleared[$ get_tile_key(_obstacle.x, _obstacle.y)])) { continue; }
-			var _half = 0;
-			switch (_obstacle.object_name) {
-				case "obj_wall": case "obj_column": case "obj_mirror": case "obj_statue": case "obj_fountain": case "obj_red_chest": _half = 8; break;
-				case "obj_giant_eye": _half = 24; break;
-			}
-			if (_half > 0) {
-				block_walking_area(_with_lava, _obstacle.x, _obstacle.y, _half);
-				block_walking_area(_without_lava, _obstacle.x, _obstacle.y, _half);
-			}
-			else if (_obstacle.object_name == "obj_lava") { block_walking_area(_with_lava, _obstacle.x, _obstacle.y, 8); }
-		}
- 
-		// Steps between every pair of walk points
-		var _count_points = array_length(walk_points), _path = path_add();
-		walk_steps = array_create(_count_points);
-		for (var _a = 0; _a < _count_points; _a++) {
-			walk_steps[_a] = array_create(_count_points, -1);
-			walk_steps[_a][_a] = 0;
-		}
-		for (var _from = 0; _from < _count_points; _from++) {
-			for (var _to = _from + 1; _to < _count_points; _to++) {
-				var _steps = measure_walk(_with_lava, _path, walk_points[_from], walk_points[_to]);
-				if (_steps < 0) { _steps = measure_walk(_without_lava, _path, walk_points[_from], walk_points[_to]); }
-				walk_steps[_from][_to] = _steps;
-				walk_steps[_to][_from] = _steps;
-			}
-		}
-		path_delete(_path);
-		mp_grid_destroy(_with_lava);
-		mp_grid_destroy(_without_lava);
-	};
-
-	/// @function block_walking_area(_grid, _x, _y, _half)
-	/// @description Marks every player position whose 16-pixel body would overlap a square obstacle. The grids'
-	///	cells are player positions 8 pixels apart, so a cell's centre is a position.
-	/// @param {Id.MpGrid} _grid The grid
-	/// @param {real} _x The obstacle's centre
-	/// @param {real} _y The obstacle's centre
-	/// @param {real} _half Half the obstacle's width, 8 for a tile
-	static block_walking_area = function(_grid, _x, _y, _half) {
-		mp_grid_add_rectangle(_grid, _x - _half - 3, _y - _half - 3, _x + _half + 3, _y + _half + 3);
-	};
-
-	/// @function measure_walk(_grid, _path, _from, _to)
-	/// @description Steps on the shortest 4-way walk between two walk points.
-	/// @param {Id.MpGrid} _grid The grid
-	/// @param {Asset.GMPath} _path A spare path
-	/// @param {struct} _from A walk point
-	/// @param {struct} _to A walk point
-	/// @returns {real} Steps, or -1 if there's no way
-	static measure_walk = function(_grid, _path, _from, _to) {
-		var _x1 = round(_from.x / 8) * 8, _y1 = round(_from.y / 8) * 8, _x2 = round(_to.x / 8) * 8, _y2 = round(_to.y / 8) * 8;
-		if (!mp_grid_path(_grid, _path, _x1, _y1, _x2, _y2, false)) { return -1; }
-		return round(path_get_length(_path) / 8);
-	};
-	*/
 
 	// ============================
 	// Initializer Setup Functions
@@ -817,15 +687,6 @@ function RoomLayout(_room_reference) constructor {
 	var _guaranteed_counts = get_guaranteed_mapgen_spawns();
 	has_lanterns = get_count_from_struct(_guaranteed_counts, "obj_lantern") > 0;
 	has_hall_of_mirrors = get_count_from_struct(_guaranteed_counts, "obj_hall_of_mirrors") > 0;
-
-	// Variables for determining walking distances used to calculate room layout time
-	walk_measured = false;
-	walk_points = [];									// { x, y }: the open cardinal exits' entrances, then the stairs, chest and collectable spots
-	walk_entrance_count = 0;							// The first this many walk points are entrances
-	walk_stairs_point = -1;
-	walk_chest_point = -1;
-	walk_collectable_points = [];						// The walk point of each collectable spot, by spot number
-	walk_steps = [];									// walk_steps[a][b]: steps from walk point a to b, or -1 if there's no way
 
 	// Verify this layout passes all the layout_rules, and mark it unusable if it does not
 	if (is_usable) { is_usable = validate_layout(); }

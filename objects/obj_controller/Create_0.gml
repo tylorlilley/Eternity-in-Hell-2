@@ -56,4 +56,5 @@ update_log("DIFFICULTY", get_difficulty_string(global.difficulty));
 update_log("VERSION", GM_version);
 
 write_debug_message("Total rooms generated: " + string(array_length(game_rooms)));
+write_debug_message("Time provided: " + string(round(time_provided)) + " seconds");
 if (current_room.is_special_room) { write_debug_message("START ROOM IS SPECIAL ROOM"); }

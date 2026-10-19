@@ -15,17 +15,12 @@
 #macro PORTCULLIS_TRAP_DANGER 0.03			// Shut in until the button is pressed, once per trap room
 #macro SPECIAL_ITEM_DIFFICULTY_SCORE -2		// A special item makes the rest of the run easier, so the map can take more
 
-// ===== TIME MACROS =====
-/*
-// The time a careful novice needs, and how many times that the run gives
-#macro PLAYER_STEPS_PER_SECOND 10			// One 8-pixel step a tick, 10 ticks a second
-#macro ROOM_ENTRY_TIME 2					// Seconds each visit costs before any walking: the transition and a look around
-#macro CAUTION_PER_DIFFICULTY_POINT 0.2		// Walking slows by this share for each point of the room's hazard difficulty scores
-#macro LOCK_BACKTRACK_SHARE 0.5				// How often a lock comes before its key, sending the player back for one
-#macro ILLUSION_WALL_MISS_CHANCE 0.5		// How often an illusion wall passes for a dead end until everything else is explored
-#macro ILLUSION_WALL_SEARCH_TIME 10			// Seconds to find the wall once back at it
-*/
-#macro TIME_ALLOWANCE get_probability_for_difficulty([0, 2.5, 2, 1.75, 1.5])	// Time given as a multiple of time needed; these keep the average run as long as now
+// ===== TIME =====
+// Seconds a careful novice needs for a room's first visit, before the map's TIME_ALLOWANCE
+#macro ROOM_VISIT_TIME get_probability_for_difficulty([0, 12, 14, 14, 15])	// Exploring a dark room for its exits and what's in it. A lit room shows everything, so it takes half as long
+#macro COLLECTABLE_TIME 1.5					// Picking up each collectable, lit or dark
+#macro MISLEADING_OPENING_TIME 7			// Checking each opening more or fewer than its exits that a dark room with misleading exits shows
+#macro PORTCULLIS_TRAP_TIME 10				// Finding the button that lifts a trap room's portcullis
 
 /// @function GameRoom(_given_x, _given_y)
 /// @description One room of the map: its cell on the map's grid and its exits, the layout it's built from and the
@@ -346,12 +341,19 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 
 	/// @function can_have_collectables()
-	/// @description Whether the room has a collectable spot left for collectables, once its floor key has one, and its
-	///	portcullis button has one when the stairs and chest spots are both taken. Building picks every spot, the button first.
+	/// @description Whether the room has a collectable spot left for collectables
 	/// @returns {bool}
 	static can_have_collectables = function() {
+		return get_free_collectable_spot_count() > 0;
+	};
+
+	/// @function get_free_collectable_spot_count()
+	/// @description How many of the room's collectable spots are left for collectables, once its floor key has one, and its
+	///	portcullis button has one when the stairs and chest spots are both taken. Building picks every spot, the button first.
+	/// @returns {real}
+	static get_free_collectable_spot_count = function() {
 		var _taken_spot_count = (has_floor_key() ? 1 : 0) + ((has_portcullis_trap && !has_open_stairs_or_chest_spot()) ? 1 : 0);
-		return array_length(layout.key_spots) > _taken_spot_count;
+		return array_length(layout.key_spots) - _taken_spot_count;
 	};
 
 	/// @function can_light_torch()
@@ -391,6 +393,13 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {bool}
 	static has_regular_item_chest = function() {
 		return (has_chest() && !has_special_item && !key_in_chest && !has_trap_chest());
+	};
+
+	/// @function is_wrath_room()
+	/// @description Whether the room is wrath's special room, whose chest takes a trip to the start cross and back
+	/// @returns {bool}
+	static is_wrath_room = function() {
+		return is_special_room && special_room_type.name == "wrath";
 	};
 
 	// ============================
@@ -726,143 +735,36 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 
 	// ============================
-	// Time Score Functions
+	// Time Functions
 	// ============================
 
-	// TODO: Time Functions
-	/*
-	/// @function get_time_score()
-	/// @description How much time the room's hazards cost, with what spawns into it during play on average: 0 for none,
-	///	and about 1 for each very significant hold-up, like solving a special room's quest.
-	/// @returns {real}
-	static get_time_score = function() {
-		var _counts = get_actual_mapgen_spawns();
-		var _time = get_time_score_with_spawns(_counts, layout.get_mid_game_spawns(_counts, get_floor_item_count()));
-		if (has_phantom) { _time += PHANTOM_TIME_PER_LANTERN * get_object_count_from_layout("obj_lantern"); } // Lanterns aren't in the difficulty score table
-		return _time;
-	};
-
-	/// @function get_walk_entrances()
-	/// @description The walk points a visit can start and end at: the layout's open sides, which the layout's
-	///	orientation turned to face the room's real exits, and the stairs spot when the room has stairs or no open side.
-	/// @returns {array} Walk point numbers
-	static get_walk_entrances = function() {
-		layout.ensure_walking();
-		var _entrances = [];
-		for (var _i = 0; _i < layout.walk_entrance_count; _i++) { array_push(_entrances, _i); }
-		if ((has_exit(directions.stairs) || array_length(_entrances) == 0) && layout.walk_stairs_point >= 0) { array_push(_entrances, layout.walk_stairs_point); }
-		return _entrances;
-	};
-
-	/// @function add_walk_target(_targets, _point)
-	/// @description Adds a walk point to a list of targets, once
-	/// @param {array} _targets The targets so far
-	/// @param {real} _point A walk point number, or -1 for none
-	static add_walk_target = function(_targets, _point) {
-		if (_point >= 0 && !array_contains(_targets, _point)) { array_push(_targets, _point); }
-	};
-
-	/// @function get_walk_targets()
-	/// @description The walk points a player must visit in the room: its visible chest or the heart, its key on the
-	///	floor, its collectables, and its portcullis button, or every spot the button could be on while the room is dark
-	/// @returns {array} Walk point numbers
-	static get_walk_targets = function() {
-		layout.ensure_walking();
-		var _targets = [];
-		if (stairs_spot_obj == obj_chest || stairs_spot_obj == obj_encased_heart) {
-			add_walk_target(_targets, chest_on_stairs_spot ? layout.walk_stairs_point : layout.walk_chest_point);
-		}
-		if (has_floor_key() && key_spot != -1) { add_walk_target(_targets, layout.walk_collectable_points[key_spot]); }
-		if (has_collectables) {
-			for (var _i = 0; _i < array_length(layout.key_spots); _i++) {
-				var _spot = layout.key_spots[_i];
-				if (_spot != key_spot && _spot != button_spot) { add_walk_target(_targets, layout.walk_collectable_points[_spot]); }
-			}
-		}
-		if (has_portcullis_trap) {
-			var _spots = is_lit() ? [button_on_stairs_spot ? -1 : button_spot] : get_portcullis_button_spots();
-			for (var _j = 0; _j < array_length(_spots); _j++) {
-				add_walk_target(_targets, (_spots[_j] == -1) ? layout.walk_stairs_point : layout.walk_collectable_points[_spots[_j]]);
-			}
-		}
-		return _targets;
-	};
-
-	/// @function get_walk_route_steps(_from, _to, _targets)
-	/// @description Steps from one walk point to another past every target, taking the nearest one next
-	/// @param {real} _from A walk point number
-	/// @param {real} _to A walk point number
-	/// @param {array} _targets Walk point numbers
-	/// @returns {real}
-	static get_walk_route_steps = function(_from, _to, _targets) {
-		var _steps = layout.walk_steps, _left = array_create(array_length(_targets)), _here = _from, _total = 0;
-		array_copy(_left, 0, _targets, 0, array_length(_targets));
-		while (array_length(_left) > 0) {
-			var _next = 0, _next_steps = infinity;
-			for (var _i = 0; _i < array_length(_left); _i++) {
-				var _try = _steps[_here][_left[_i]];
-				if (_try >= 0 && _try < _next_steps) { _next = _i; _next_steps = _try; }
-			}
-			if (_next_steps != infinity) { _total += _next_steps; }
-			_here = _left[_next];
-			array_delete(_left, _next, 1);
-		}
-		return _total + max(0, _steps[_here][_to]);
-	};
-
-	/// @function get_walk_steps(_targets)
-	/// @description Steps a careful player walks in one visit: in by one entrance, past every target, and
-	///	out by another (or back out, in a dead end), averaged over the ways through. A dead end with nothing to
-	///	do still gets a look around, as far as its chest spot.
-	/// @param {array} _targets Walk point numbers to reach; [] to just pass through
-	/// @returns {real}
-	static get_walk_steps = function(_targets) {
-		var _entrances = get_walk_entrances(), _count = array_length(_entrances), _total = 0, _routes = 0;
-		if (array_length(_targets) == 0 && _count == 1 && layout.walk_chest_point >= 0) { _targets = [layout.walk_chest_point]; }
-		for (var _a = 0; _a < _count; _a++) {
-			for (var _b = 0; _b < _count; _b++) {
-				if (_a == _b && _count > 1) { continue; }
-				_total += get_walk_route_steps(_entrances[_a], _entrances[_b], _targets);
-				_routes += 1;
-			}
-		}
-		return (_routes > 0) ? _total / _routes : 0;
-	};
-
-	/// @function get_caution_factor()
-	/// @description How much the room's hazards slow walking: 1, plus CAUTION_PER_DIFFICULTY_POINT for each
-	///	point of their danger, what spawns during play included. Only the hazards count: the room's other scoring, like the
-	///	reward for its chest's item, doesn't change how carefully it's walked.
-	/// @returns {real}
-	static get_caution_factor = function() {
-		var _counts = get_actual_mapgen_spawns();
-		return 1 + CAUTION_PER_DIFFICULTY_POINT * max(0, hazard_mitigation.get_total_difficulty_score_for_spawn_counts(_counts));
-	};
-
-	/// @function get_crossing_time()
-	/// @description Seconds to pass through the room with nothing to do in it, for trips through the map
-	/// @returns {real}
-	static get_crossing_time = function() {
-		return ROOM_ENTRY_TIME + get_walk_steps([]) / PLAYER_STEPS_PER_SECOND * get_caution_factor();
-	};
-
 	/// @function get_time_needed()
-	/// @description Seconds a careful novice needs for one visit: a moment on entering, the walk through
-	///	the room slowed by its danger, and the hold-ups its hazards cause, like freezing for eyes or luring ears.
+	/// @description Seconds a careful novice needs for the room's first visit: exploring it, which takes half as long when it's
+	///	lit, picking up its collectables, lighting its lanterns to banish its phantom, checking its misleading openings while it's
+	///	dark, finding its portcullis trap's button, and the hold-ups its hazards cause
 	/// @returns {real}
 	static get_time_needed = function() {
-		var _walk = get_walk_steps(get_walk_targets()) / PLAYER_STEPS_PER_SECOND;
-		return ROOM_ENTRY_TIME + _walk * get_caution_factor() + HAZARD_TIME_SCALE * get_time_score();
+		var _time_needed = is_lit() ? (ROOM_VISIT_TIME / 2) : ROOM_VISIT_TIME;
+		if (has_collectables) { _time_needed += get_free_collectable_spot_count() * COLLECTABLE_TIME; }
+		if (has_phantom) { _time_needed += get_object_count_from_layout("obj_lantern") * PHANTOM_TIME_PER_LANTERN; }
+		if (!is_lit()) { _time_needed += abs(array_length(layout.get_open_cardinal_exits()) - get_cardinal_exits_count()) * MISLEADING_OPENING_TIME; }
+		if (has_portcullis_trap) { _time_needed += PORTCULLIS_TRAP_TIME; }
+		return _time_needed + get_hazards_time();
 	};
-	
-	*/
 
-	/// @function get_time_provided()
-	/// @description The room's share of the run's time: the time it needs, times the difficulty's
-	///	allowance. Trips between rooms are added once for the whole map (GameMap.get_backtracking_time).
-	/// @returns {real} Seconds
-	static get_time_provided = function() {
-		return TIME_ALLOWANCE; // * get_time_needed();
+	/// @function get_hazards_time()
+	/// @description Seconds the room's hazards hold the player up for on each visit, with what spawns into it during play on average
+	/// @returns {real}
+	static get_hazards_time = function() {
+		return HAZARD_TIME_SCALE * get_time_score_for_spawn_counts(layout.get_spawned_object_counts(get_actual_mapgen_spawns()));
+	};
+
+	/// @function get_trip_time()
+	/// @description Seconds to cross the room again on a trip through the map: as quickly as a lit room, since the player knows
+	///	it by then, and held up by its hazards again
+	/// @returns {real}
+	static get_trip_time = function() {
+		return (ROOM_VISIT_TIME / 2) + get_hazards_time();
 	};
 
 	// ============================

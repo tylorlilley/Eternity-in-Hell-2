@@ -48,59 +48,13 @@ function GameMap() constructor {
 	///	still has no room of its own ends early, and the next pass's new room grows toward it. A failed attempt destroys the map.
 	/// @returns {bool} False if the attempt failed, so a new map has to be tried
 	static try_generate = function() {
-		// Randomly determine the map-wide events, like special rooms and items, and the required layouts
 		determine_random_map_events();
 		determine_required_layouts();
-
-		// Grow the map to one room short of the minimum, since each pass adds a room first
-		create_room_at_cell(0, 0);
-		while (array_length(rooms) < MIN_NUMBER_OF_ROOMS - 1) {
-			if (is_undefined(add_new_room())) { return fail_generation("no room could grow during minimum map size setup"); }
-		}
-
-		// Each pass adds a room, places everything again and scores the map, until it scores enough or has as many rooms as allowed
-		var _map_fits_all_required_layouts = false;
-		do {
-			// Add another room. If none can be added, the map ends as the last pass left it, unless that pass ended early
-			if (is_undefined(add_new_room())) {
-				if (_pass_scored) { break; }
-				return fail_generation("no room could grow during scoring pass");
-			}
-			
-			// Reset what the last pass placed, then link more adjacent rooms, up to the average number of exits a room should have
-			reset_last_pass();
-			link_adjacent_rooms();
-			
-			// Place the start and heart, then link more adjacent rooms to give one of the other rooms the exit kind of any required
-			// layout none can take. If one still has no room, the pass ends here, and the next pass's new room grows toward it,
-			// unless the map already has as many rooms as allowed. The links are final once they're done, so the distances from
-			// the start are measured then
-			if (!determine_start_and_heart_rooms()) { return fail_generation("the start and heart could not be placed"); }
-			missing_required_layout = shape_rooms_to_fit_required_layouts();
-			_map_fits_all_required_layouts = is_undefined(missing_required_layout);
-			if (_map_fits_all_required_layouts) {
-				// Reserve a room for each required layout, pick the guaranteed lit room, give every room a new layout, and its spawns
-				reserve_rooms_for_required_layouts();
-				reserve_room_guaranteed_lit_room();
-				assign_room_layouts();
-				create_chests();
-				if (!create_locked_exits_and_keys()) { return fail_generation("the locks and keys could not be placed"); }
-				determine_special_exit_types();
-				determine_collectables_rooms();
-				determine_room_contents();
-			
-				// Score the map, from how likely the player is to arrive at each room holding the items that mitigate its hazards
-				calculate_item_chances();
-				calculate_map_difficulty_score();
-			}
-			else if (array_length(rooms) >= MAX_NUMBER_OF_ROOMS) { return fail_generation("a required layout got no room of its own"); }
-		}
-		until (_map_fits_all_required_layouts && (difficulty_score >= MAP_DIFFICULTY_SCORE_TARGET || array_length(rooms) >= MAX_NUMBER_OF_ROOMS));
-	
-		// Calculate the time provided for the final map
+		if (!grow_map_to_minimum_size()) { return false; }
+		if (!grow_map_to_finished_size()) { return false; ]
 		calculate_time_provided();
 		return true;
-	};
+	}
 	
 	/// @function destroy()
 	/// @description Frees every room's path grids. Only for a map that will never be played, like a failed
@@ -110,7 +64,7 @@ function GameMap() constructor {
 	};
 
 	// ============================
-	// Map Generation Functions
+	// Map Generation Steps
 	// ============================
 	
 	/// @function determine_random_map_events()
@@ -155,396 +109,110 @@ function GameMap() constructor {
 			else { array_push(required_layouts, _required_layout); }
 		}
 	};
-
-	/// @function create_room_at_cell(_x, _y)
-	/// @description Adds a room on a free grid cell, with no exits or layout yet
-	/// @param {real} _x The grid column
-	/// @param {real} _y The grid row
-	/// @returns {GameRoom} The new room
-	static create_room_at_cell = function(_x, _y) {
-		var _room = new GameRoom(_x, _y);
-		
-		// Add room to map's rooms array, and room_at_cell lookup table
-		_room.map_rooms_index = array_length(rooms);
-		array_push(rooms, _room);
-		room_at_cell[$ get_cell_key(_x, _y)] = _room;
-		
-		return _room;
-	};
-
-	/// @function link_rooms_with_new_exit(_room, _other_room, _dir)
-	/// @description Joins two rooms with a new exit, a cardinal exit or stairs
-	/// @param {GameRoom} _room One room
-	/// @param {GameRoom} _other_room The other room
-	/// @param {real} _dir The direction from _room to _other_room, or directions.stairs
-	/// @returns {RoomExit} The new exit
-	static link_rooms_with_new_exit = function(_room, _other_room, _dir) {
-		// Create the exit, and add it to each room's exits, in the direction of the other room
-		var _exit = new RoomExit(_room, _other_room);
-		_room.exits[_dir] = _exit;
-		_other_room.exits[get_opposite_dir(_dir)] = _exit;
-		
-		// A cardinal exit joins the map's cardinal exits
-		if (_dir != directions.stairs) { array_push(cardinal_exits, _exit); }
-		
-		return _exit;
-	};
-
-	/// @function get_cell_key(_x, _y)
-	/// @description The key a grid cell has in room_at_cell
-	/// @param {real} _x The grid column
-	/// @param {real} _y The grid row
-	/// @returns {string}
-	static get_cell_key = function(_x, _y) {
-		return string(_x) + "," + string(_y);
-	};
-
-	/// @function get_room_at(_x, _y)
-	/// @description The room on a grid cell
-	/// @param {real} _x The grid column
-	/// @param {real} _y The grid row
-	/// @returns {GameRoom|undefined} The room, or undefined if the cell is free
-	static get_room_at = function(_x, _y) {
-		return room_at_cell[$ get_cell_key(_x, _y)];
-	};
-
-	/// @function get_adjacent_room(_room, _dir)
-	/// @description The room on the grid cell beside a room, linked to it or not
-	/// @param {GameRoom} _room The room
-	/// @param {real} _dir A cardinal direction
-	/// @returns {GameRoom|undefined} The adjacent room, or undefined if the cell is free
-	static get_adjacent_room = function(_room, _dir) {
-		return get_room_at(_room.virtual_x + get_dir_x_offset(_dir), _room.virtual_y + get_dir_y_offset(_dir));
-	};
-
-	/// @function count_possible_starts()
-	/// @description Counts the rooms that could be the start
-	/// @returns {real}
-	static count_possible_starts = function() {
-		var _count = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			if (rooms[_i].can_be_start()) { _count += 1; }
-		}
-		return _count;
-	};
-
-	/// @function get_distances_from_room(_from_room)
-	/// @description Counts how many exits the player goes through from one room to every other, by the quickest route
-	///	through cardinal exits and stairs, ignoring locks
-	/// @param {GameRoom} _from_room The room to measure from
-	/// @returns {array} An array where the index is the room's map rooms index and the value is it's distance from this room
-	static get_distances_from_room = function(_from_room) {
-		var _distances = array_create(array_length(rooms), -1);
-		var _rooms_to_visit = [_from_room];
-		_distances[_from_room.map_rooms_index] = 0;
-		for (var _i = 0; _i < array_length(_rooms_to_visit); _i++) {
-			var _room = _rooms_to_visit[_i];
-			
-			// Check each exit direction, including stairs, for rooms to measure
-			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
-				// Skip rooms that were already measured earlier or don't have an exit
-				var _other_room = _room.get_connected_room(_dir);
-				if (_other_room == -1 || _distances[_other_room.map_rooms_index] != -1) { continue; }
-				// Set the distance value equal to the current distance plus 1 and mark it measured
-				_distances[_other_room.map_rooms_index] = _distances[_room.map_rooms_index] + 1;
-				array_push(_rooms_to_visit, _other_room);
-			}
-		}
-		return _distances;
-	};
-
-	/// @function fail_generation(_reason)
-	/// @description Logs a failed attempt and destroys this map
-	/// @param {string} _reason What failed
-	/// @returns {bool} Always false, so the failed attempt can return it
-	static fail_generation = function(_reason) {
-		write_debug_message("Map generation attempt failed, retrying on the same random stream: " + _reason, debug_message_level.warning);
-		destroy();
-		return false;
-	};
-
-	/// @function add_new_room()
-	/// @description Adds one room to the map. A required layout with no exits that no room could take last pass gets a new
-	///	room only reached by stairs. Otherwise, the new room is sometimes joined to a random room by stairs, and otherwise by a
-	///	cardinal exit, where it brings the rooms' exit kinds closest to exit_type_mix. When a required layout had no room of its
-	///	own last pass, the new room is never joined by stairs at random, and a place that gives a room its exit kind comes first.
-	/// @returns {GameRoom|undefined} The new room, or undefined if no room can grow
-	static add_new_room = function() {
-		// Stairs never take one of the last three rooms that could be the start or heart, since neither has stairs. No three
-		// cells of the grid are all beside each other, so two of those rooms are never linked, and can always be the start and heart
-		var _stairs_allowed = (count_possible_starts() > 3);
-
-		// A required layout with no exits needs a new room only reached by stairs
-		if (_stairs_allowed && !is_undefined(missing_required_layout) && missing_required_layout.layout.exit_type == layout_exit_types.none) {
-			var _stairs_only_room = add_stairs_room(true);
-			if (!is_undefined(_stairs_only_room)) { return _stairs_only_room; }
-		}
-
-		// Otherwise, unless the new room has to grow toward a missing required layout, sometimes join it by stairs, and sometimes
-		// it can only ever be reached by stairs
-		if (_stairs_allowed && is_undefined(missing_required_layout) && get_random_chance_out_of(STAIRS_PROBABILITY)) {
-			var _stairs_room = add_stairs_room(get_random_chance_out_of(NO_CARDINAL_EXIT_ROOM_PROBABILITY));
-			if (!is_undefined(_stairs_room)) { return _stairs_room; }
-		}
-
-		// Otherwise, find the free cells beside rooms that can gain exits where a new room gives a room the missing required
-		// layout's exit kind, if any do, and brings the rooms' exit kinds closest to exit_type_mix
-		var _exit_type_counts = get_exit_type_counts(), _best_places = [], _best_fits_missing_layout = false, _best_deficit = infinity;
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			var _room = rooms[_i];
-			if (!_room.can_gain_exits()) { continue; }
-
-			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-				// Skip sides whose cell is taken
-				if (!is_undefined(get_adjacent_room(_room, _dir))) { continue; }
-
-				// Keep the places that fit the missing required layout without taking a room another one needs, if any do, then the
-				// ones closest to exit_type_mix
-				var _new_exit_type_counts = get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, undefined);
-				var _fits_missing_layout = !is_undefined(missing_required_layout) && would_link_fit_required_layout(missing_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, undefined)
-					&& keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts);
-				var _deficit = get_exit_mix_deficit(_new_exit_type_counts);
-				if (_fits_missing_layout > _best_fits_missing_layout || (_fits_missing_layout == _best_fits_missing_layout && _deficit < _best_deficit)) {
-					_best_fits_missing_layout = _fits_missing_layout;
-					_best_deficit = _deficit;
-					_best_places = [];
-				}
-				if (_fits_missing_layout == _best_fits_missing_layout && _deficit == _best_deficit) { array_push(_best_places, { room: _room, dir: _dir }); }
-			}
-		}
-
-		// Return undefined if no room can grow
-		if (array_length(_best_places) == 0) { return undefined; }
-
-		// Otherwise, add the new room at one of the best places, picked at random
-		var _place = array_random_get(_best_places);
-		var _new_room = create_room_at_cell(_place.room.virtual_x + get_dir_x_offset(_place.dir), _place.room.virtual_y + get_dir_y_offset(_place.dir));
-		link_rooms_with_new_exit(_place.room, _new_room, _place.dir);
-		return _new_room;
-	};
-
-	/// @function add_stairs_room(_is_stairs_only)
-	/// @description Adds a room joined by stairs to a random room without stairs, on a free cell beside another room but not
-	///	beside that one
-	/// @param {bool} _is_stairs_only Whether the new room can only ever be reached by stairs
-	/// @returns {GameRoom|undefined} The new room, or undefined if no room can take stairs
-	static add_stairs_room = function(_is_stairs_only) {
-		var _existing_rooms = array_shuffle(rooms);
-		for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
-			// Skip rooms that already have stairs, or have no free cell for the new room
-			var _room = _existing_rooms[_i];
-			if (_room.has_exit(directions.stairs)) { continue; }
-			var _cell = find_unoccupied_non_adjacent_cell(_room);
-			if (is_undefined(_cell)) { continue; }
-
-			// Create the new room in that cell, and link it to this room with stairs
-			var _new_room = create_room_at_cell(_cell[0], _cell[1]);
-			link_rooms_with_new_exit(_room, _new_room, directions.stairs);
-			_new_room.has_no_cardinal_exits = _is_stairs_only;
-			return _new_room;
-		}
-
-		// Return undefined if no room can take stairs
-		return undefined;
-	};
-
-	/// @function find_unoccupied_non_adjacent_cell(_linked_room)
-	/// @description Finds a free grid cell for a new room that stairs will link to a given room: a cell beside a random
-	///	room of the map, but not beside the given room
-	/// @param {GameRoom} _linked_room The room the stairs leave from
-	/// @returns {array|undefined} The cell as [x, y], or undefined if there is none
-	static find_unoccupied_non_adjacent_cell = function(_linked_room) {
-		var _existing_rooms = array_shuffle(rooms);
-		
-		// Check each existing room for a free adjacent cell
-		for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
-			var _potential_room = _existing_rooms[_i];
-			
-			// Check each position adjacent to this room
-			var _dirs = array_shuffle(cardinal_exit_directions);
-			for (var _dir = 0; _dir < array_length(_dirs); _dir++) {
-				var _x = _potential_room.virtual_x + get_dir_x_offset(_dirs[_dir]);
-				var _y = _potential_room.virtual_y + get_dir_y_offset(_dirs[_dir]);
-				var _is_adjacent_to_linked_room = (abs(_x - _linked_room.virtual_x) + abs(_y - _linked_room.virtual_y) == 1);
-				var _cell_is_already_occupied = !is_undefined(get_room_at(_x, _y));
-				
-				// Continue to the next direction if this cell is taken, or beside the linked room
-				if (_is_adjacent_to_linked_room || _cell_is_already_occupied) { continue; }
-				
-				// Return the current x and y position for making a new room in
-				return [_x, _y];
-			}
-		}
-		
-		// Return undefined if no free cell is found
-		return undefined;
-	};
-
-	/// @function get_exit_type_counts()
-	/// @description How many rooms have each exit kind, by their real cardinal exits
-	/// @returns {array} Room counts, by layout_exit_types kind
-	static get_exit_type_counts = function() {
-		var _exit_type_counts = array_create(layout_exit_types.count, 0);
-		for (var _i = 0; _i < array_length(rooms); _i++) { _exit_type_counts[rooms[_i].get_exit_type()] += 1; }
-		return _exit_type_counts;
-	};
-
-	/// @function get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, _other_room)
-	/// @description How many rooms would have each exit kind once a room gains a cardinal exit to an adjacent room, or to a
-	///	new room, which has just that exit
-	/// @param {array} _exit_type_counts Room counts by exit kind now
-	/// @param {GameRoom} _room The room that gains the exit
-	/// @param {real} _dir The exit's direction from the room
-	/// @param {GameRoom|undefined} _other_room The adjacent room it links to, or undefined for a new room
-	/// @returns {array} Room counts, by layout_exit_types kind, in a new array
-	static get_exit_type_counts_after_link = function(_exit_type_counts, _room, _dir, _other_room) {
-		var _new_exit_type_counts = variable_clone(_exit_type_counts, 0);
-		_new_exit_type_counts[_room.get_exit_type()] -= 1;
-		_new_exit_type_counts[_room.get_exit_type_with_new_exit(_dir)] += 1;
-		if (is_undefined(_other_room)) { _new_exit_type_counts[layout_exit_types.one] += 1; }
-		else {
-			_new_exit_type_counts[_other_room.get_exit_type()] -= 1;
-			_new_exit_type_counts[_other_room.get_exit_type_with_new_exit(get_opposite_dir(_dir))] += 1;
-		}
-		return _new_exit_type_counts;
-	};
-
-	/// @function would_link_fit_required_layout(_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, _other_room)
-	/// @description Whether a new cardinal exit would let one of its rooms take a required layout, by giving it the layout's
-	///	exit kind, so that more rooms have that kind than before
-	/// @param {struct} _required_layout The required layout, as { layout, special_room_type }
-	/// @param {array} _exit_type_counts Room counts by exit kind now
-	/// @param {array} _new_exit_type_counts Room counts by exit kind with the new exit
-	/// @param {GameRoom} _room The room that gains the exit
-	/// @param {real} _dir The exit's direction from the room
-	/// @param {GameRoom|undefined} _other_room The adjacent room it links to, or undefined for a new room, which has one exit
-	/// @returns {bool}
-	static would_link_fit_required_layout = function(_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, _other_room) {
-		// The exit kind has to gain a room overall: a dead end that a new dead end grows from stops being one itself
-		var _layout = _required_layout.layout;
-		var _other_room_fits = is_undefined(_other_room) ? (_layout.exit_type == layout_exit_types.one) : _other_room.would_fit_layout_with_new_exit(get_opposite_dir(_dir), _layout, _room);
-		var _adds_room_of_exit_type = (_new_exit_type_counts[_layout.exit_type] > _exit_type_counts[_layout.exit_type]);
-		return (_room.would_fit_layout_with_new_exit(_dir, _layout, _other_room) || _other_room_fits) && _adds_room_of_exit_type;
-	};
-
-	/// @function keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts)
-	/// @description Whether new room counts by exit kind leave each required layout's exit kind as many rooms as it has now,
-	///	up to how many required layouts have that exit kind
-	/// @param {array} _exit_type_counts Room counts by exit kind now
-	/// @param {array} _new_exit_type_counts Room counts by exit kind after a change
-	/// @returns {bool}
-	static keeps_rooms_for_required_layouts = function(_exit_type_counts, _new_exit_type_counts) {
-		var _needed_counts = array_create(layout_exit_types.count, 0);
-		for (var _i = 0; _i < array_length(required_layouts); _i++) { _needed_counts[required_layouts[_i].layout.exit_type] += 1; }
-		for (var _type = 0; _type < layout_exit_types.count; _type++) {
-			if (min(_new_exit_type_counts[_type], _needed_counts[_type]) < min(_exit_type_counts[_type], _needed_counts[_type])) { return false; }
+	
+		/// @function grow_map_to_minimum_size()
+	/// @description Creates a new room and grows the map from there to the minimum size
+	/// @returns {bool} False if the attempt failed, so a new map has to be tried
+	static grow_map_to_minimum_size = function() {
+		create_room_at_cell(0, 0);
+		while (array_length(rooms) < MIN_NUMBER_OF_ROOMS - 1) {
+			if (is_undefined(add_new_room())) { return fail_generation("no room could grow during minimum map size setup"); }
 		}
 		return true;
+	}
+
+	/// @function grow_map_to_finished_size()
+	/// @description Creates more rooms until the difficulty score threshold or max room size has been reached
+	/// @returns {bool} False if the attempt failed, so a new map has to be tried
+	static grow_map_to_finished_size = function() {
+		var _missing_required_layout = get_next_missing_required_layout(), var _map_difficulty_score = 0;
+		while (_map_difficulty_score < MAP_DIFFICULTY_SCORE_TARGET) {
+			// Add another room
+			if (is_undefined(add_new_room(_missing_required_layout))) { return fail_generation("no room could grow during map shaping for required layouts"); }
+			if (array_length(rooms) > MAX_NUMBER_OF_ROOMS)) { return fail_generation("added rooms are beyond max number of rooms"); }
+			
+			// Set up the map to deal with the added room
+			reset_last_pass();
+			link_adjacent_rooms();
+			if (!determine_start_and_heart_rooms()) { return false; }
+
+			// Shape map to include missing required layouts, if possible, and continue to adding another room if not
+			_missing_required_layout = link_adjacent_rooms_for_required_layouts();
+			if (!is_undefined(_missing_required_layout)} { continue; }
+			
+			// Complete the map and score it's difficulty
+			set_room_distances_from_start();
+			if (!assign_layouts_and_determine_room_content) { return false; }
+			_map_difficulty_score = calculate_map_difficulty_score();
+		}
+		return true;
+	}
+
+	/// @function get_next_missing_required_layout()
+	/// @description The first required layout left with no room of its own to take it.
+	/// @returns {struct|undefined} The required layout, as { layout, special_room_type }, or undefined if each one has a room
+	static get_next_missing_required_layout = function() {
+		// Loop through each required layout
+		var _used_rooms = [];
+		for (var _i = 0; _i < array_length(required_layouts); _i++) {
+			// Get list of rooms that can take this layout. If none can, return this as the missing layout
+			var _required_layout = required_layouts[_i];
+			var _possible_rooms = get_possible_rooms_for_required_layout(_required_layout, _used_rooms);
+			if (array_length(_possible_rooms) == 0) { return _required_layout; }
+			// Otherwise, add the first of the return possible rooms to those taken by this layout
+			// Note we re-randomized among all possible rooms later at assign time, so just taking the first here works
+			array_push(_used_rooms, _possible_rooms[0]);
+		}
+		// If no required layout is missing, return undefined
+		return undefined;
+	}
+	
+	
+	/// @function get_possible_rooms_for_required_layout(_required_layout, _used_rooms)
+	/// @description The rooms that can take a required layout: rooms that can become its special room, whose real cardinal
+	///	exits match its exit kind, since a special room's exits are never misleading
+	/// @param {struct} _required_layout The required layout, as { layout, special_room_type }
+	/// @param {array} _used_rooms Rooms other required layouts took, which it can't take
+	/// @returns {array} The rooms
+	static get_possible_rooms_for_required_layout = function(_required_layout, _used_rooms) {
+		// Loop through all rooms to find one that can fit this required layout
+		var _layout = _required_layout.layout, _possible_rooms = [];
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			// Skip any rooms that this required layout can't use
+			var _room = rooms[_i];
+			if (array_contains(_used_rooms, _room) || _room.get_exit_type() != _layout.exit_type || !_room.can_become_special_room(_layout)) { continue; }
+			array_push(_possible_rooms, _room);
+		}
+		return _possible_rooms;
 	};
 
-	/// @function get_exit_mix_deficit(_exit_type_counts)
-	/// @description How far room counts by exit kind are from exit_type_mix: for each kind, its count minus its share of the
-	///	rooms with cardinal exits, squared, all added up. Rooms with no cardinal exits are left out, since stairs decide those.
-	/// @param {array} _exit_type_counts Room counts by exit kind
-	/// @returns {real}
-	static get_exit_mix_deficit = function(_exit_type_counts) {
-		// Add up the mix's weights and the rooms with cardinal exits
-		var _mix_total = 0, _room_count = 0;
-		for (var _type = layout_exit_types.one; _type < layout_exit_types.count; _type++) {
-			_mix_total += exit_type_mix[_type];
-			_room_count += _exit_type_counts[_type];
-		}
-		
-		// Add up how far each exit kind's count is from its share
-		var _deficit = 0;
-		for (var _type = layout_exit_types.one; _type < layout_exit_types.count; _type++) {
-			_deficit += sqr(_exit_type_counts[_type] - _room_count * exit_type_mix[_type] / _mix_total);
-		}
-		return _deficit;
-	};
-
+	
 	/// @function reset_last_pass()
 	/// @description Resets what the last pass placed, so the next pass can place it again: every room's map roles and spot
 	///	objects, every exit's lock or special exit type, and the map's start, heart and guaranteed lit rooms, guaranteed items,
 	///	special item types and extra key. The rooms and their exits stay as they are, and the pass gives every room a new layout.
 	static reset_last_pass = function() {
+		// Reset map specific values
 		start_room = undefined;
 		heart_room = undefined;
 		guaranteed_lit_room = undefined;
 		guaranteed_items = [];
 		special_item_types = [];
 		extra_key_placed = false;
-		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_map_roles_and_spot_objects(); }
+		difficulty_score = 0;
+		
+		// Reset the rooms and exits as well
+		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_map_generation_pass(); }
 		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_exit_type(); }
 	};
-
-	/// @function link_adjacent_rooms()
+	
+		/// @function link_adjacent_rooms()
 	/// @description Links adjacent rooms with new cardinal exits until the rooms average AVERAGE_NUMBER_OF_ROOM_EXITS
 	///	cardinal exits each, stopping early if no more links fit, since the average is only a target
 	static link_adjacent_rooms = function() {
 		while (2 * array_length(cardinal_exits) / array_length(rooms) < AVERAGE_NUMBER_OF_ROOM_EXITS) {
 			if (!add_adjacent_exit()) { return; }
 		}
-	};
-
-	/// @function add_adjacent_exit([_required_layout])
-	/// @description Links a room to an adjacent room it isn't linked to yet, where that brings the rooms' exit kinds closest to
-	///	exit_type_mix, but never where it takes a room a required layout needs. For a required layout no room can take, only
-	///	a link that lets one of its rooms take that layout counts, and since the start and heart are placed by then, never one
-	///	that shortens the way between them, which also keeps the heart from being linked to the start.
-	/// @param {struct} [_required_layout] The required layout, as { layout, special_room_type } (undefined by default, for any link)
-	/// @returns {bool} False if no link fits
-	static add_adjacent_exit = function(_required_layout = undefined) {
-		// Find the links that fit the required layout, if one is given, and bring the rooms' exit kinds closest to exit_type_mix
-		var _exit_type_counts = get_exit_type_counts(), _best_links = [], _best_deficit = infinity;
-		var _distances_from_start = is_undefined(_required_layout) ? [] : get_distances_from_room(start_room);
-		var _distances_from_heart = is_undefined(_required_layout) ? [] : get_distances_from_room(heart_room);
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			var _room = rooms[_i];
-			if (!_room.can_gain_exits()) { continue; }
-		
-			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-				// Skip sides that already have an exit, or have no adjacent room that can gain exits
-				if (_room.has_exit(_dir)) { continue; }
-				var _adjacent_room = get_adjacent_room(_room, _dir);
-				if (is_undefined(_adjacent_room) || !_adjacent_room.can_gain_exits()) { continue; }
-
-				// Skip links that take a room a required layout needs, or don't fit the required layout, or shorten the way from
-				// the start to the heart
-				var _new_exit_type_counts = get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, _adjacent_room);
-				if (!keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts)) { continue; }
-				if (!is_undefined(_required_layout)) {
-					if (!would_link_fit_required_layout(_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, _adjacent_room)) { continue; }
-					if (would_link_shorten_way_to_heart(_distances_from_start, _distances_from_heart, _room, _adjacent_room)) { continue; }
-				}
-
-				// Keep the links closest to exit_type_mix
-				var _deficit = get_exit_mix_deficit(_new_exit_type_counts);
-				if (_deficit < _best_deficit) { _best_deficit = _deficit; _best_links = []; }
-				if (_deficit == _best_deficit) { array_push(_best_links, { room: _room, dir: _dir, adjacent_room: _adjacent_room }); }
-			}
-		}
-		
-		// Return false if no new exit can be added
-		if (array_length(_best_links) == 0) { return false; }
-
-		// Otherwise, add one of the best links, picked at random
-		var _link = array_random_get(_best_links);
-		link_rooms_with_new_exit(_link.room, _link.adjacent_room, _link.dir);
-		return true;
-	};
-
-	/// @function would_link_shorten_way_to_heart(_distances_from_start, _distances_from_heart, _room, _other_room)
-	/// @description Whether a new cardinal exit between two rooms would make the way from the start to the heart shorter
-	/// @param {array} _distances_from_start Each room's distance from the start, by map_rooms_index
-	/// @param {array} _distances_from_heart Each room's distance from the heart, by map_rooms_index
-	/// @param {GameRoom} _room One room the exit joins
-	/// @param {GameRoom} _other_room The other room it joins
-	/// @returns {bool}
-	static would_link_shorten_way_to_heart = function(_distances_from_start, _distances_from_heart, _room, _other_room) {
-		var _room_index = _room.map_rooms_index, _other_room_index = _other_room.map_rooms_index;
-		var _way_through_link = 1 + min(_distances_from_start[_room_index] + _distances_from_heart[_other_room_index], _distances_from_start[_other_room_index] + _distances_from_heart[_room_index]);
-		return _way_through_link < _distances_from_start[heart_room.map_rooms_index];
 	};
 
 	/// @function determine_start_and_heart_rooms()
@@ -584,7 +252,10 @@ function GameMap() constructor {
 		}
 		
 		// Return false if no possible paths were found
-		if (array_length(_longest_pairs) == 0) { return false; }
+		if (array_length(_longest_pairs) == 0) {
+			// This should NEVER happen
+			return false;
+		}
 
 		// Otherwise, select a random possible path to use
 		var _pair = array_random_get(_longest_pairs);
@@ -600,59 +271,24 @@ function GameMap() constructor {
 		// Return success
 		return true;
 	};
-
-	/// @function shape_rooms_to_fit_required_layouts()
-	/// @description Attempts to add adjacent exits to fit any missing required layouts, until all are fit or no more exits can be added
-	/// @returns {struct|undefined} The first required layout still left with no room of its own, as { layout, special_room_type }, or undefined if we fit each one
-	static shape_rooms_to_fit_required_layouts = function() {
-		// Get the next missing required layout
+	
+	/// @function link_adjacent_rooms_for_required_layouts()
+	/// @description Adds exits between adjacent rooms to try to fit the required layout into the map
+	/// @returns {struct|undefined} The required layout that failed to fit, as { layout, special_room_type }, or undefined
+	static link_adjacent_rooms_for_required_layouts = function() {
+		// Try to fit in the next missing required layout, if one exists
 		var _missing_required_layout = get_next_missing_required_layout();
 		// If a missing required layout still exists and we can still add exits for it, add exits and check for a missing layout again
-		var _added_adjacent_exit = true;
-		while (!is_undefined(_missing_required_layout) && _added_adjacent_exit) {
-			_added_adjacent_exit = add_adjacent_exit(_missing_required_layout)
-			if (_can_add_adjacent_exits) { _missing_required_layout = get_next_missing_required_layout(); }
+		var _can_add_adjacent_exits = true;
+		while (!is_undefined(_missing_required_layout) && _can_add_adjacent_exits) {
+			_can_add_adjacent_exits = add_adjacent_exit(_missing_required_layout);
+			_missing_required_layout = get_next_missing_required_layout();
 		}
+		
+		// Return whatever the last next missing required layout is, or undefined if there is none
 		return _missing_required_layout;
 	};
-
-	/// @function get_next_missing_required_layout()
-	/// @description The first required layout left with no room of its own to take it.
-	/// @returns {struct|undefined} The required layout, as { layout, special_room_type }, or undefined if each one has a room
-	static get_next_missing_required_layout = function() {
-		// Loop through each required layout
-		var _used_rooms = [];
-		for (var _i = 0; _i < array_length(required_layouts); _i++) {
-			// Get list of rooms that can take this layout. If none can, return this as the missing layout
-			var _required_layout = required_layouts[_i];
-			var _possible_rooms = get_possible_rooms_for_required_layout(_required_layout, _used_rooms);
-			if (array_length(_possible_rooms) == 0) { return _required_layout; }
-			// Otherwise, add the first of the return possible rooms to those taken by this layout
-			// Note we re-randomized among all possible rooms later at assign time, so just taking the first here works
-			array_push(_used_rooms, _possible_rooms[0]);
-		}
-		// If no required layout is missing, return undefined
-		return undefined;
-	};
-
-	/// @function get_possible_rooms_for_required_layout(_required_layout, _used_rooms)
-	/// @description The rooms that can take a required layout: rooms that can become its special room, whose real cardinal
-	///	exits match its exit kind, since a special room's exits are never misleading
-	/// @param {struct} _required_layout The required layout, as { layout, special_room_type }
-	/// @param {array} _used_rooms Rooms other required layouts took, which it can't take
-	/// @returns {array} The rooms
-	static get_possible_rooms_for_required_layout = function(_required_layout, _used_rooms) {
-		// Loop through all rooms to find one that can fit this required layout
-		var _layout = _required_layout.layout, _possible_rooms = [];
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			// Skip any rooms that this required layout can't use
-			var _room = rooms[_i];
-			if (array_contains(_used_rooms, _room) || _room.get_exit_type() != _layout.exit_type || !_room.can_become_special_room(_layout)) { continue; }
-			array_push(_possible_rooms, _room);
-		}
-		return _possible_rooms;
-	};
-
+	
 	/// @function set_room_distances_from_start()
 	/// @description Sets every room's distance from the start, once the pass's links are final
 	static set_room_distances_from_start = function() {
@@ -662,7 +298,28 @@ function GameMap() constructor {
 			_room.distance_to_start = _distances_from_start[_room.map_rooms_index];
 		}
 	};
-
+		
+	
+	/// @function assign_layouts_and_determine_room_content()
+	/// @description Finishes the map by assigning layouts and room contents
+	/// @returns {bool} False if the lock and key generation fails, so a new map has to be tried
+	static assign_layouts_and_determine_room_content = function() {
+		reserve_rooms_for_required_layouts();
+		reserve_room_guaranteed_lit_room();
+		assign_room_layouts();
+		create_chests();
+		if (!create_locked_exits_and_keys()) { return fail_generation("lock and key generation failed"); }
+		determine_special_exit_types();
+		determine_collectables_rooms();
+		determine_room_contents();
+		calculate_hazard_mitigations();
+		return true;
+	}
+	
+	// ============================
+	// Assign Layouts and Room Content Functions
+	// ============================
+	
 	/// @function reserve_rooms_for_required_layouts()
 	/// @description Reserves a random room for each required layout, among the rooms it can take that no earlier one took,
 	///	then picks a random other room as the guaranteed lit room. Only called once no required layout is missing, so each
@@ -730,8 +387,9 @@ function GameMap() constructor {
 	/// @param {RoomLayout} _layout The layout
 	/// @param {SpecialRoomType|undefined} _special_room_type The special room type the layout belongs to, or undefined for a regular layout
 	static assign_layout_to_room = function(_room, _layout, _special_room_type = undefined) {
-		_room.assign_layout(_layout, _special_room_type, _room == guaranteed_lit_room);
+		// Count the layout as used, assign it to the room, and determine it's oritentation and lighting
 		layout_use_counts[_layout.layout_cache_index] += 1;
+		_room.assign_layout(_layout, _special_room_type, _room == guaranteed_lit_room);
 		_room.determine_layout_orientation();
 		_room.determine_lighting();
 	};
@@ -765,7 +423,75 @@ function GameMap() constructor {
 		
 		return array_random_get(_target_layouts);
 	};
+	
+		/// @function determine_special_exit_types()
+	/// @description Turns random rooms into portcullis traps, and adds illusion walls and plain doors to random cardinal
+	///	exits of the other rooms
+	static determine_special_exit_types = function() {
+		// Loop through all the existing rooms, in random order
+		var _possible_rooms = array_shuffle(rooms);
+		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
+			// Skip any ineligible rooms
+			var _possible_room = _possible_rooms[_i];
+			if (!_possible_room.can_have_special_exit_types()) { continue; }
+			
+			// Chance to add portcullis trap
+			if (_possible_room.can_have_portcullis_trap() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _possible_room.add_portcullis_trap();  continue; }
 
+			// Otherwise, give each of its cardinal exits its own chance at a special exit type
+			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
+				// Skip exits that don't exist, or already have a special type assigned
+				var _exit = _possible_room.exits[_dir];
+				if (_exit == -1 ||_exit.exit_type != exit_types.none) { continue; }
+
+				// Sometimes give the exit illusion walls, unless it leads to the start room
+				if (!_exit.get_connected_room(_possible_room).is_start_room && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.exit_type = exit_types.illusion_walls; continue; }
+				
+				// Otherwise, sometimes give the exit plain doors
+				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY * 2)) { _exit.exit_type = exit_types.unlocked_doors; continue; }
+			}
+		}
+	};
+
+	/// @function determine_collectables_rooms()
+	/// @description Gives collectables to the heart room and to random other rooms, never the start, then to more random
+	///	rooms until at least a quarter of the rooms, plus one, have them. A room only gets them when its floor key and
+	///	portcullis button leave a collectable spot free.
+	static determine_collectables_rooms = function() {
+		var _possible_rooms = array_shuffle(rooms), _collectables_rooms = 1;
+		heart_room.has_collectables = true; // The heart room never has a key or a button
+
+		// Add collectables to heart room and other rooms at random
+		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
+			var _possible_room = _possible_rooms[_i];
+			if (!_possible_room.is_start_room && !_possible_room.is_heart_room && get_random_chance_out_of(COLLECTABLE_PROBABILITY) && _possible_room.can_have_collectables()) {
+				_possible_room.has_collectables = true;
+				_collectables_rooms += 1;
+			}
+		}
+
+		// Add to more random rooms to meet the minimum if needed
+		var _minimum_collectable_rooms = ceil(array_length(rooms) / 4) + 1;
+		for (var _j = 0; _j < array_length(_possible_rooms) && _collectables_rooms < _minimum_collectable_rooms; _j++) {
+			var _extra_room = _possible_rooms[_j];
+			if (!_extra_room.is_start_room && !_extra_room.has_collectables && _extra_room.can_have_collectables()) {
+				_extra_room.has_collectables = true;
+				_collectables_rooms += 1;
+			}
+		}
+	};
+
+	/// @function determine_room_contents()
+	/// @description Randomly determines every room's content, now that each room's layout, map roles, spot objects and
+	///	special exit types decide which of its layout's instances survive
+	static determine_room_contents = function() {
+		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].determine_room_content(same_skeleton_type); }
+	};
+
+	// ============================
+	// Create Chest Functions
+	// ============================
+	
 	/// @function create_chests()
 	/// @description Creates and assigns all the chests and their contents: each special room's own chest, a locked chest for
 	///	each other special item, then the guaranteed items, in chests that can be hidden except the torch's, and random
@@ -902,7 +628,7 @@ function GameMap() constructor {
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			// Count it if the chest holds the type, and it's neither a special item nor a key or bomb placed for the locks
 			var _room = rooms[_i];
-			if (_room.chest_obj == _item_type && !_room.has_special_item && !_room.key_in_chest) { _count += 1; }
+			if (_room.chest_obj == _item_type && !_room.has_special_item && !_room.has_chest_key) { _count += 1; }
 		}
 		
 		// Add the regular items of this type the blocks hide
@@ -966,7 +692,11 @@ function GameMap() constructor {
 		}
 		return undefined;
 	};
-
+	
+	// ============================
+	// Lock and Key Search Functions
+	// ============================
+	
 	/// @function create_locked_exits_and_keys()
 	/// @description Locks every cardinal exit of the heart room, then randomly locks other cardinal exits that can be
 	///	locked, and backs each lock with keys before the next one is added
@@ -1056,7 +786,7 @@ function GameMap() constructor {
 		var _room = array_random_get(_possible_rooms), _key_is_bomb = false;
 		if (_room.can_have_chest() && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY)) {
 			// The chest is never locked or hidden, and never holds a special item
-			_room.key_in_chest = true;
+			_room.has_chest_key = true;
 			_room.set_stairs_spot_object(obj_chest);
 			_key_is_bomb = _stuck_area.can_use_bombs_as_keys() && get_random_chance_out_of(BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY);
 			_room.chest_obj = _key_is_bomb ? obj_bomb : obj_key;
@@ -1238,69 +968,544 @@ function GameMap() constructor {
 		array_push(_search_area_check_queue, _search_area);
 	};
 
-	/// @function determine_special_exit_types()
-	/// @description Turns random rooms into portcullis traps, and adds illusion walls and plain doors to random cardinal
-	///	exits of the other rooms
-	static determine_special_exit_types = function() {
-		// Loop through all the existing rooms, in random order
-		var _possible_rooms = array_shuffle(rooms);
-		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
-			// Skip any ineligible rooms
-			var _possible_room = _possible_rooms[_i];
-			if (!_possible_room.can_have_special_exit_types()) { continue; }
+	// ============================
+	// Helper Functions - Used at Multiple Map Generation Steps
+	// ============================
+
+	/// @function create_room_at_cell(_x, _y)
+	/// @description Adds a room on a free grid cell, with no exits or layout yet
+	/// @param {real} _x The grid column
+	/// @param {real} _y The grid row
+	/// @returns {GameRoom} The new room
+	static create_room_at_cell = function(_x, _y) {
+		var _room = new GameRoom(_x, _y);
+		
+		// Add room to map's rooms array, and room_at_cell lookup table
+		_room.map_rooms_index = array_length(rooms);
+		array_push(rooms, _room);
+		room_at_cell[$ get_cell_key(_x, _y)] = _room;
+		
+		return _room;
+	};
+
+	/// @function link_rooms_with_new_exit(_room, _other_room, _dir)
+	/// @description Joins two rooms with a new exit, a cardinal exit or stairs
+	/// @param {GameRoom} _room One room
+	/// @param {GameRoom} _other_room The other room
+	/// @param {real} _dir The direction from _room to _other_room, or directions.stairs
+	/// @returns {RoomExit} The new exit
+	static link_rooms_with_new_exit = function(_room, _other_room, _dir) {
+		// Create the exit, and add it to each room's exits, in the direction of the other room
+		var _exit = new RoomExit(_room, _other_room);
+		_room.exits[_dir] = _exit;
+		_other_room.exits[get_opposite_dir(_dir)] = _exit;
+		
+		// A cardinal exit joins the map's cardinal exits
+		if (_dir != directions.stairs) { array_push(cardinal_exits, _exit); }
+		
+		return _exit;
+	};
+
+	/// @function get_cell_key(_x, _y)
+	/// @description The key a grid cell has in room_at_cell
+	/// @param {real} _x The grid column
+	/// @param {real} _y The grid row
+	/// @returns {string}
+	static get_cell_key = function(_x, _y) {
+		return string(_x) + "," + string(_y);
+	};
+
+	/// @function get_room_at(_x, _y)
+	/// @description The room on a grid cell
+	/// @param {real} _x The grid column
+	/// @param {real} _y The grid row
+	/// @returns {GameRoom|undefined} The room, or undefined if the cell is free
+	static get_room_at = function(_x, _y) {
+		return room_at_cell[$ get_cell_key(_x, _y)];
+	};
+
+	/// @function get_adjacent_room(_room, _dir)
+	/// @description The room on the grid cell beside a room, linked to it or not
+	/// @param {GameRoom} _room The room
+	/// @param {real} _dir A cardinal direction
+	/// @returns {GameRoom|undefined} The adjacent room, or undefined if the cell is free
+	static get_adjacent_room = function(_room, _dir) {
+		return get_room_at(_room.virtual_x + get_dir_x_offset(_dir), _room.virtual_y + get_dir_y_offset(_dir));
+	};
+
+	/// @function get_distances_from_room(_from_room)
+	/// @description Counts how many exits the player goes through from one room to every other, by the quickest route
+	///	through cardinal exits and stairs, ignoring locks
+	/// @param {GameRoom} _from_room The room to measure from
+	/// @returns {array} An array where the index is the room's map rooms index and the value is it's distance from this room
+	static get_distances_from_room = function(_from_room) {
+		var _distances = array_create(array_length(rooms), -1);
+		var _rooms_to_visit = [_from_room];
+		_distances[_from_room.map_rooms_index] = 0;
+		for (var _i = 0; _i < array_length(_rooms_to_visit); _i++) {
+			var _room = _rooms_to_visit[_i];
 			
-			// Chance to add portcullis trap
-			if (_possible_room.can_have_portcullis_trap() && get_random_chance_out_of(PORTCULLIS_PROBABILITY)) { _possible_room.add_portcullis_trap();  continue; }
+			// Check each exit direction, including stairs, for rooms to measure
+			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
+				// Skip rooms that were already measured earlier or don't have an exit
+				var _other_room = _room.get_connected_room(_dir);
+				if (_other_room == -1 || _distances[_other_room.map_rooms_index] != -1) { continue; }
+				// Set the distance value equal to the current distance plus 1 and mark it measured
+				_distances[_other_room.map_rooms_index] = _distances[_room.map_rooms_index] + 1;
+				array_push(_rooms_to_visit, _other_room);
+			}
+		}
+		return _distances;
+	};
 
-			// Otherwise, give each of its cardinal exits its own chance at a special exit type
+	/// @function would_link_fit_required_layout(_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, _other_room)
+	/// @description Whether a new cardinal exit would let one of its rooms take a required layout, by giving it the layout's
+	///	exit kind, so that more rooms have that kind than before
+	/// @param {struct} _required_layout The required layout, as { layout, special_room_type }
+	/// @param {array} _exit_type_counts Room counts by exit kind now
+	/// @param {array} _new_exit_type_counts Room counts by exit kind with the new exit
+	/// @param {GameRoom} _room The room that gains the exit
+	/// @param {real} _dir The exit's direction from the room
+	/// @param {GameRoom|undefined} _other_room The adjacent room it links to, or undefined for a new room, which has one exit
+	/// @returns {bool}
+	static would_link_fit_required_layout = function(_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, _other_room) {
+		// The exit kind has to gain a room overall: a dead end that a new dead end grows from stops being one itself
+		var _layout = _required_layout.layout;
+		var _other_room_fits = is_undefined(_other_room) ? (_layout.exit_type == layout_exit_types.one) : _other_room.would_fit_layout_with_new_exit(get_opposite_dir(_dir), _layout, _room);
+		var _adds_room_of_exit_type = (_new_exit_type_counts[_layout.exit_type] > _exit_type_counts[_layout.exit_type]);
+		return (_room.would_fit_layout_with_new_exit(_dir, _layout, _other_room) || _other_room_fits) && _adds_room_of_exit_type;
+	};
+	
+		/// @function keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts)
+	/// @description Whether new room counts by exit kind leave each required layout's exit kind as many rooms as it has now,
+	///	up to how many required layouts have that exit kind
+	/// @param {array} _exit_type_counts Room counts by exit kind now
+	/// @param {array} _new_exit_type_counts Room counts by exit kind after a change
+	/// @returns {bool}
+	static keeps_rooms_for_required_layouts = function(_exit_type_counts, _new_exit_type_counts) {
+		var _needed_counts = array_create(layout_exit_types.count, 0);
+		for (var _i = 0; _i < array_length(required_layouts); _i++) { _needed_counts[required_layouts[_i].layout.exit_type] += 1; }
+		for (var _type = 0; _type < layout_exit_types.count; _type++) {
+			if (min(_new_exit_type_counts[_type], _needed_counts[_type]) < min(_exit_type_counts[_type], _needed_counts[_type])) { return false; }
+		}
+		return true;
+	};
+
+	/// @function get_exit_mix_deficit(_exit_type_counts)
+	/// @description How far room counts by exit kind are from exit_type_mix: for each kind, its count minus its share of the
+	///	rooms with cardinal exits, squared, all added up. Rooms with no cardinal exits are left out, since stairs decide those.
+	/// @param {array} _exit_type_counts Room counts by exit kind
+	/// @returns {real}
+	static get_exit_mix_deficit = function(_exit_type_counts) {
+		// Add up the mix's weights and the rooms with cardinal exits
+		var _mix_total = 0, _room_count = 0;
+		for (var _type = layout_exit_types.one; _type < layout_exit_types.count; _type++) {
+			_mix_total += exit_type_mix[_type];
+			_room_count += _exit_type_counts[_type];
+		}
+		
+		// Add up how far each exit kind's count is from its share
+		var _deficit = 0;
+		for (var _type = layout_exit_types.one; _type < layout_exit_types.count; _type++) {
+			_deficit += sqr(_exit_type_counts[_type] - _room_count * exit_type_mix[_type] / _mix_total);
+		}
+		return _deficit;
+	};
+	
+	/// @function fail_generation(_reason)
+	/// @description Logs a failed attempt and destroys this map
+	/// @param {string} _reason What failed
+	/// @returns {bool} Always false, so the failed attempt can return it
+	static fail_generation = function(_reason) {
+		write_debug_message("Map generation attempt failed, retrying on the same random stream: " + _reason, debug_message_level.warning);
+		destroy();
+		return false;
+	};
+	
+	// ============================
+	// Adjacent Exit Creation Functions - Used to add new links between existing adjacent rooms during map generation
+	// ============================
+	
+	/// @function add_adjacent_exit([_required_layout])
+	/// @description Links a room to an adjacent room it isn't linked to yet, where that brings the rooms' exit kinds closest to
+	///	exit_type_mix, but never where it takes a room a required layout needs. For a required layout no room can take, only
+	///	a link that lets one of its rooms take that layout counts, and since the start and heart are placed by then, never one
+	///	that shortens the way between them, which also keeps the heart from being linked to the start.
+	/// @param {struct} [_required_layout] The required layout, as { layout, special_room_type } (undefined by default, for any link)
+	/// @returns {bool} False if no link fits
+	static add_adjacent_exit = function(_required_layout = undefined) {
+		// Find the links that fit the required layout, if one is given, and bring the rooms' exit kinds closest to exit_type_mix
+		var _exit_type_counts = get_exit_type_counts(), _best_links = [], _best_deficit = infinity;
+		var _distances_from_start = is_undefined(_required_layout) ? [] : get_distances_from_room(start_room);
+		var _distances_from_heart = is_undefined(_required_layout) ? [] : get_distances_from_room(heart_room);
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			var _room = rooms[_i];
+			if (!_room.can_gain_exits()) { continue; }
+		
 			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
-				// Skip exits that don't exist, or already have a special type assigned
-				var _exit = _possible_room.exits[_dir];
-				if (_exit == -1 ||_exit.exit_type != exit_types.none) { continue; }
+				// Skip sides that already have an exit, or have no adjacent room that can gain exits
+				if (_room.has_exit(_dir)) { continue; }
+				var _adjacent_room = get_adjacent_room(_room, _dir);
+				if (is_undefined(_adjacent_room) || !_adjacent_room.can_gain_exits()) { continue; }
 
-				// Sometimes give the exit illusion walls, unless it leads to the start room
-				if (!_exit.get_connected_room(_possible_room).is_start_room && get_random_chance_out_of(ILLUSION_WALL_PROBABILITY)) { _exit.exit_type = exit_types.illusion_walls; continue; }
+				// Skip links that take a room a required layout needs, or don't fit the required layout, or shorten the way from
+				// the start to the heart
+				var _new_exit_type_counts = get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, _adjacent_room);
+				if (!keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts)) { continue; }
+				if (!is_undefined(_required_layout)) {
+					if (!would_link_fit_required_layout(_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, _adjacent_room)) { continue; }
+					if (would_link_shorten_way_to_heart(_distances_from_start, _distances_from_heart, _room, _adjacent_room)) { continue; }
+				}
+
+				// Keep the links closest to exit_type_mix
+				var _deficit = get_exit_mix_deficit(_new_exit_type_counts);
+				if (_deficit < _best_deficit) { _best_deficit = _deficit; _best_links = []; }
+				if (_deficit == _best_deficit) { array_push(_best_links, { room: _room, dir: _dir, adjacent_room: _adjacent_room }); }
+			}
+		}
+		
+		// Return false if no new exit can be added
+		if (array_length(_best_links) == 0) { return false; }
+
+		// Otherwise, add one of the best links, picked at random
+		var _link = array_random_get(_best_links);
+		link_rooms_with_new_exit(_link.room, _link.adjacent_room, _link.dir);
+		return true;
+	};
+	
+	/// @function get_exit_type_counts()
+	/// @description How many rooms have each exit kind, by their real cardinal exits
+	/// @returns {array} Room counts, by layout_exit_types kind
+	static get_exit_type_counts = function() {
+		var _exit_type_counts = array_create(layout_exit_types.count, 0);
+		for (var _i = 0; _i < array_length(rooms); _i++) { _exit_type_counts[rooms[_i].get_exit_type()] += 1; }
+		return _exit_type_counts;
+	};
+	
+	/// @function get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, _other_room)
+	/// @description How many rooms would have each exit kind once a room gains a cardinal exit to an adjacent room, or to a
+	///	new room, which has just that exit
+	/// @param {array} _exit_type_counts Room counts by exit kind now
+	/// @param {GameRoom} _room The room that gains the exit
+	/// @param {real} _dir The exit's direction from the room
+	/// @param {GameRoom|undefined} _other_room The adjacent room it links to, or undefined for a new room
+	/// @returns {array} Room counts, by layout_exit_types kind, in a new array
+	static get_exit_type_counts_after_link = function(_exit_type_counts, _room, _dir, _other_room) {
+		var _new_exit_type_counts = variable_clone(_exit_type_counts, 0);
+		_new_exit_type_counts[_room.get_exit_type()] -= 1;
+		_new_exit_type_counts[_room.get_exit_type_with_new_exit(_dir)] += 1;
+		if (is_undefined(_other_room)) { _new_exit_type_counts[layout_exit_types.one] += 1; }
+		else {
+			_new_exit_type_counts[_other_room.get_exit_type()] -= 1;
+			_new_exit_type_counts[_other_room.get_exit_type_with_new_exit(get_opposite_dir(_dir))] += 1;
+		}
+		return _new_exit_type_counts;
+	};
+
+	/// @function would_link_shorten_way_to_heart(_distances_from_start, _distances_from_heart, _room, _other_room)
+	/// @description Whether a new cardinal exit between two rooms would make the way from the start to the heart shorter
+	/// @param {array} _distances_from_start Each room's distance from the start, by map_rooms_index
+	/// @param {array} _distances_from_heart Each room's distance from the heart, by map_rooms_index
+	/// @param {GameRoom} _room One room the exit joins
+	/// @param {GameRoom} _other_room The other room it joins
+	/// @returns {bool}
+	static would_link_shorten_way_to_heart = function(_distances_from_start, _distances_from_heart, _room, _other_room) {
+		var _room_index = _room.map_rooms_index, _other_room_index = _other_room.map_rooms_index;
+		var _way_through_link = 1 + min(_distances_from_start[_room_index] + _distances_from_heart[_other_room_index], _distances_from_start[_other_room_index] + _distances_from_heart[_room_index]);
+		return _way_through_link < _distances_from_start[heart_room.map_rooms_index];
+	};
+	
+	// ============================
+	// Room Creation Functions - Used to add new rooms to the map during generation
+	// ============================
+
+	/// @function add_new_room([_missing_required_layout])
+	/// @description Adds one room to the map. A required layout with no exits that no room could take last pass gets a new
+	///	room only reached by stairs. Otherwise, the new room is sometimes joined to a random room by stairs, and otherwise by a
+	///	cardinal exit, where it brings the rooms' exit kinds closest to exit_type_mix. When a required layout had no room of its
+	///	own last pass, the new room is never joined by stairs at random, and a place that gives a room its exit kind comes first.
+	/// @param {string} _missing_required_layout The missing layout to try to shape the map towards
+	/// @returns {GameRoom|undefined} The new room, or undefined if no room can grow
+	static add_new_room = function(_missing_required_layout = undefined) {
+		// Stairs never take one of the last three rooms that could be the start or heart, since neither has stairs. No three
+		// cells of the grid are all beside each other, so two of those rooms are never linked, and can always be the start and heart
+		var _stairs_allowed = (count_possible_starts() > 3);
+
+		// A required layout with no exits needs a new room only reached by stairs
+		if (_stairs_allowed && !is_undefined(_missing_required_layout) && _missing_required_layout.layout.exit_type == layout_exit_types.none) {
+			var _stairs_only_room = add_stairs_room(true);
+			if (!is_undefined(_stairs_only_room)) { return _stairs_only_room; }
+		}
+
+		// Otherwise, unless the new room has to grow toward a missing required layout, sometimes join it by stairs, and sometimes
+		// it can only ever be reached by stairs
+		if (_stairs_allowed && is_undefined(_missing_required_layout) && get_random_chance_out_of(STAIRS_PROBABILITY)) {
+			var _stairs_room = add_stairs_room(get_random_chance_out_of(NO_CARDINAL_EXIT_ROOM_PROBABILITY));
+			if (!is_undefined(_stairs_room)) { return _stairs_room; }
+		}
+
+		// Otherwise, find the free cells beside rooms that can gain exits where a new room gives a room the missing required
+		// layout's exit kind, if any do, and brings the rooms' exit kinds closest to exit_type_mix
+		var _exit_type_counts = get_exit_type_counts(), _best_places = [], _best_fits_missing_layout = false, _best_deficit = infinity;
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			var _room = rooms[_i];
+			if (!_room.can_gain_exits()) { continue; }
+
+			for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
+				// Skip sides whose cell is taken
+				if (!is_undefined(get_adjacent_room(_room, _dir))) { continue; }
+
+				// Keep the places that fit the missing required layout without taking a room another one needs, if any do, then the
+				// ones closest to exit_type_mix
+				var _new_exit_type_counts = get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, undefined);
+				var _fits_missing_layout = !is_undefined(_missing_required_layout) && would_link_fit_required_layout(_missing_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, undefined)
+					&& keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts);
+				var _deficit = get_exit_mix_deficit(_new_exit_type_counts);
+				if (_fits_missing_layout > _best_fits_missing_layout || (_fits_missing_layout == _best_fits_missing_layout && _deficit < _best_deficit)) {
+					_best_fits_missing_layout = _fits_missing_layout;
+					_best_deficit = _deficit;
+					_best_places = [];
+				}
+				if (_fits_missing_layout == _best_fits_missing_layout && _deficit == _best_deficit) { array_push(_best_places, { room: _room, dir: _dir }); }
+			}
+		}
+
+		// Return undefined if no room can grow
+		if (array_length(_best_places) == 0) { return undefined; }
+
+		// Otherwise, add the new room at one of the best places, picked at random
+		var _place = array_random_get(_best_places);
+		var _new_room = create_room_at_cell(_place.room.virtual_x + get_dir_x_offset(_place.dir), _place.room.virtual_y + get_dir_y_offset(_place.dir));
+		link_rooms_with_new_exit(_place.room, _new_room, _place.dir);
+		return _new_room;
+	};
+
+	/// @function count_possible_starts()
+	/// @description Counts the rooms that could be the start
+	/// @returns {real}
+	static count_possible_starts = function() {
+		var _count = 0;
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			if (rooms[_i].can_be_start()) { _count += 1; }
+		}
+		return _count;
+	};
+	
+	/// @function add_stairs_room(_is_stairs_only)
+	/// @description Adds a room joined by stairs to a random room without stairs, on a free cell beside another room but not
+	///	beside that one
+	/// @param {bool} _is_stairs_only Whether the new room can only ever be reached by stairs
+	/// @returns {GameRoom|undefined} The new room, or undefined if no room can take stairs
+	static add_stairs_room = function(_is_stairs_only) {
+		var _existing_rooms = array_shuffle(rooms);
+		for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
+			// Skip rooms that already have stairs, or have no free cell for the new room
+			var _room = _existing_rooms[_i];
+			if (_room.has_exit(directions.stairs)) { continue; }
+			var _cell = find_unoccupied_non_adjacent_cell(_room);
+			if (is_undefined(_cell)) { continue; }
+
+			// Create the new room in that cell, and link it to this room with stairs
+			var _new_room = create_room_at_cell(_cell[0], _cell[1]);
+			link_rooms_with_new_exit(_room, _new_room, directions.stairs);
+			_new_room.has_no_cardinal_exits = _is_stairs_only;
+			return _new_room;
+		}
+
+		// Return undefined if no room can take stairs
+		return undefined;
+	};
+
+	/// @function find_unoccupied_non_adjacent_cell(_linked_room)
+	/// @description Finds a free grid cell for a new room that stairs will link to a given room: a cell beside a random
+	///	room of the map, but not beside the given room
+	/// @param {GameRoom} _linked_room The room the stairs leave from
+	/// @returns {array|undefined} The cell as [x, y], or undefined if there is none
+	static find_unoccupied_non_adjacent_cell = function(_linked_room) {
+		var _existing_rooms = array_shuffle(rooms);
+		
+		// Check each existing room for a free adjacent cell
+		for (var _i = 0; _i < array_length(_existing_rooms); _i++) {
+			var _potential_room = _existing_rooms[_i];
+			
+			// Check each position adjacent to this room
+			var _dirs = array_shuffle(cardinal_exit_directions);
+			for (var _dir = 0; _dir < array_length(_dirs); _dir++) {
+				var _x = _potential_room.virtual_x + get_dir_x_offset(_dirs[_dir]);
+				var _y = _potential_room.virtual_y + get_dir_y_offset(_dirs[_dir]);
+				var _is_adjacent_to_linked_room = (abs(_x - _linked_room.virtual_x) + abs(_y - _linked_room.virtual_y) == 1);
+				var _cell_is_already_occupied = !is_undefined(get_room_at(_x, _y));
 				
-				// Otherwise, sometimes give the exit plain doors
-				if (get_random_chance_out_of(OPEN_DOOR_PROBABILITY * 2)) { _exit.exit_type = exit_types.unlocked_doors; continue; }
+				// Continue to the next direction if this cell is taken, or beside the linked room
+				if (_is_adjacent_to_linked_room || _cell_is_already_occupied) { continue; }
+				
+				// Return the current x and y position for making a new room in
+				return [_x, _y];
 			}
+		}
+		
+		// Return undefined if no free cell is found
+		return undefined;
+	};
+
+	/// @function reset_last_pass()
+	/// @description Resets what the last pass placed, so the next pass can place it again: every room's map roles and spot
+	///	objects, every exit's lock or special exit type, and the map's start, heart and guaranteed lit rooms, guaranteed items,
+	///	special item types and extra key. The rooms and their exits stay as they are, and the pass gives every room a new layout.
+	static reset_last_pass = function() {
+		// Reset map specific values
+		start_room = undefined;
+		heart_room = undefined;
+		guaranteed_lit_room = undefined;
+		guaranteed_items = [];
+		special_item_types = [];
+		extra_key_placed = false;
+		difficulty_score = 0;
+		
+		// Reset the rooms and exits as well
+		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_map_generation_pass(); }
+		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_exit_type(); }
+	};
+
+	// =================================================================================================
+	// Difficulty Score Calculation Functions
+	// =================================================================================================
+
+	/// @function calculate_hazard_mitigations()
+	/// @description Determines how likely a player is to have an item (or encounter a lit room) for the difficulty scoring.
+	///	The starting hand items are left out, so the map never depends on them.
+	static calculate_hazard_mitigations = function() {
+		// Count the rooms a torch can be lit in
+		var _torch_lighting_room_count = 0;
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			if (rooms[_i].can_light_torch()) { _torch_lighting_room_count += 1; }
+		}
+		var _torch_chance = get_carry_chance(obj_torch);
+		var _lit_torch_chance = _torch_chance * get_map_encounter_chance(_torch_lighting_room_count);
+
+		// Loop through each room and set its holding chances
+		var _staff_chance = get_carry_chance(obj_staff), _sword_chance = get_carry_chance(obj_sword, false), _special_sword_chance = get_carry_chance(obj_sword, true);
+		for (var _j = 0; _j < array_length(rooms); _j++) {
+			var _room = rooms[_j];
+			
+			// Set item holding chances
+			var _hazard_mitigation = _room.hazard_mitigation;
+			_hazard_mitigation.chance_holding_staff = _staff_chance;
+			_hazard_mitigation.chance_holding_sword = _sword_chance;
+			_hazard_mitigation.chance_holding_special_sword = _special_sword_chance;
+			
+			// Set its lit room chances
+			if (_room.is_lit()) { _hazard_mitigation.chance_of_light = 1; }
+			else if (_room.can_light_torch()) { _hazard_mitigation.chance_of_light = _torch_chance; }
+			else { _hazard_mitigation.chance_of_light = _lit_torch_chance; }
 		}
 	};
 
-	/// @function determine_collectables_rooms()
-	/// @description Gives collectables to the heart room and to random other rooms, never the start, then to more random
-	///	rooms until at least a quarter of the rooms, plus one, have them. A room only gets them when its floor key and
-	///	portcullis button leave a collectable spot free.
-	static determine_collectables_rooms = function() {
-		var _possible_rooms = array_shuffle(rooms), _collectables_rooms = 1;
-		heart_room.has_collectables = true; // The heart room never has a key or a button
-
-		// Add collectables to heart room and other rooms at random
-		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
-			var _possible_room = _possible_rooms[_i];
-			if (!_possible_room.is_start_room && !_possible_room.is_heart_room && get_random_chance_out_of(COLLECTABLE_PROBABILITY) && _possible_room.can_have_collectables()) {
-				_possible_room.has_collectables = true;
-				_collectables_rooms += 1;
-			}
+	/// @function get_carry_chance(_item, [_is_special])
+	/// @description How likely the player is to be holding an item, from how many of the map's chests hold it
+	/// @param {Asset.GMObject} _item The item
+	/// @param {bool|undefined} [_is_special] True to count only special items, false only regular ones, undefined for both
+	/// @returns {real}
+	static get_carry_chance = function(_item, _is_special = undefined) {
+		// Count the chests that hold the item, leaving out the keys and bombs placed for the locks
+		var _chests_with_item = 0;
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			// Skip rooms whose chest doesn't hold the item, or holds a key or bomb placed for the locks
+			var _room = rooms[_i];
+			if (!_room.has_chest() || _room.chest_obj != _item || _room.has_chest_key) { continue; }
+			
+			// Skip special items when counting only regular ones, and regular items when counting only special ones
+			if (!is_undefined(_is_special) && _room.has_special_item != _is_special) { continue; }
+			
+			_chests_with_item += 1;
 		}
 
-		// Add to more random rooms to meet the minimum if needed
-		var _minimum_collectable_rooms = ceil(array_length(rooms) / 4) + 1;
-		for (var _j = 0; _j < array_length(_possible_rooms) && _collectables_rooms < _minimum_collectable_rooms; _j++) {
-			var _extra_room = _possible_rooms[_j];
-			if (!_extra_room.is_start_room && !_extra_room.has_collectables && _extra_room.can_have_collectables()) {
-				_extra_room.has_collectables = true;
-				_collectables_rooms += 1;
-			}
-		}
+		return get_map_encounter_chance(_chests_with_item);
 	};
 
-	/// @function determine_room_contents()
-	/// @description Randomly determines every room's content, now that each room's layout, map roles, spot objects and
-	///	special exit types decide which of its layout's instances survive
-	static determine_room_contents = function() {
-		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].determine_room_content(same_skeleton_type); }
+	/// @function get_map_encounter_chance(_room_count)
+	/// @description How likely the player is to have come across something some of the map's rooms hold: the share of the map's
+	///	rooms that hold it, times MAP_ENCOUNTER_CHANCE_MULTIPLIER, at most 1
+	/// @param {real} _room_count How many rooms hold it
+	/// @returns {real}
+	static get_map_encounter_chance = function(_room_count) {
+		return min(1, (_room_count / array_length(rooms)) * MAP_ENCOUNTER_CHANCE_MULTIPLIER);
 	};
+
+	/// @function calculate_map_difficulty_score()
+	/// @description Scores every room and sets difficulty_score to their total
+	static calculate_map_difficulty_score = function() {
+		var _difficulty_score = 0;
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			var _room = rooms[_i];
+
+			_room.room_difficulty_score = _room.get_current_difficulty_score();
+			_difficulty_score += _room.room_difficulty_score;
+		}
+		return _difficulty_score;
+	};
+	
+	// =================================================================================================
+	// Time Provided Calculation Functions
+	// =================================================================================================
+
+	/// @function calculate_time_provided()
+	/// @description Sets time_provided, the run's calculated needed time, multiplied by a difficulty multiplier
+	static calculate_time_provided = function() {
+		time_provided = TIME_DIFFICULTY_MULTIPLIER * get_time_needed();
+	};
+
+	/// @function get_time_needed()
+	/// @description Seconds a careful novice needs for the map: every room's first visit, getting through its locked doors and
+	///	illusion walls, the wrath quest's trip to the start cross and back, and carrying the heart back to the start cross
+	/// @returns {real}
+	static get_time_needed = function() {
+		// Sum the time needed for each individual room, plus the trip to the start and back for the wrath case
+		var _time_needed = 0;
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			var _room = rooms[_i];
+			_time_needed += _room.get_time_needed();
+			if (_room.is_wrath_room()) { _time_needed += 2 * get_trip_to_start_time(_room); }
+		}
+		
+		// Sum the time needed for each individual exit
+		for (var _i = 0; _i < array_length(cardinal_exits); _i++) {
+			var _exit_type = cardinal_exits[_i].exit_type;
+			if (_exit_type == exit_types.locked_doors) { _time_needed += LOCKED_DOOR_TIME; }
+			else if (_exit_type == exit_types.illusion_walls) { _time_needed += ILLUSION_WALL_TIME; }
+		}
+		
+		// Return the sum plues the trip time back to the start from the heart room
+		return _time_needed + get_trip_to_start_time(heart_room);
+	};
+
+	/// @function get_trip_to_start_time(_from_room)
+	/// @description Seconds to walk from the given room to the start cross by the quickest way, crossing each room on the way again
+	/// @param {GameRoom} _from_room The room the trip starts from
+	/// @returns {real} The total time of each room passed through along this path
+	static get_trip_to_start_time = function(_from_room) {
+		// Start at the given room
+		var _room = _from_room, _trip_time = 0;
+		while (_room.distance_to_start > 0) {
+			// Find which exit leads us closer to the start room by the shortest path, including stairs
+			var _closer_rooms = [], _distance_saved = 0;
+			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
+				var _linked_room = _room.get_connected_room(_dir);
+				if (_linked_room == -1) { continue; }
+				
+				var _distance_saved_by_linked_room = _room.distance_to_start - _linked_room.distance_to_start;
+				if (_distance_saved_by_linked_room > _distance_saved_by_linked_room) { _distance_saved = _distance_saved_by_linked_room; _closer_rooms = []; }
+				if (_distance_saved_by_linked_room == _distance_saved_by_linked_room) { array_push(_closer_rooms, _linked_room); }
+			}
+			_room = array_random_get(_closer_rooms);
+			_trip_time += _room.get_trip_time();
+		}
+		return _trip_time;
+	};
+	
+		// =================================================================================================
+	// Completed Map Functions
+	// =================================================================================================
 
 	/// @function adjust_items_for_hands()
 	/// @description Fits the chests to the player's starting hand items, once the map is final. A guaranteed map or compass
@@ -1363,140 +1568,7 @@ function GameMap() constructor {
 			}
 		}
 	};
-
-	// =================================================================================================
-	// CALCULATIONS TO PASS OFF TO CONTROLLER
-	// Each room works out its own difficulty score and time, which the calculations below add up
-	// =================================================================================================
-
-
-	/// @function calculate_item_chances()
-	/// @description Determines how likely a player is to have an item (or encounter a lit room) for the difficulty scoring.
-	///	The starting hand items are left out, so the map never depends on them.
-	static calculate_item_chances = function() {
-		// Count the rooms a torch can be lit in
-		var _torch_lighting_room_count = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			if (rooms[_i].can_light_torch()) { _torch_lighting_room_count += 1; }
-		}
-		var _torch_chance = get_carry_chance(obj_torch);
-		var _lit_torch_chance = _torch_chance * get_map_encounter_chance(_torch_lighting_room_count);
-
-		// Loop through each room and set its holding chances
-		var _staff_chance = get_carry_chance(obj_staff), _sword_chance = get_carry_chance(obj_sword, false), _special_sword_chance = get_carry_chance(obj_sword, true);
-		for (var _j = 0; _j < array_length(rooms); _j++) {
-			var _room = rooms[_j];
-			
-			// Set item holding chances
-			var _hazard_mitigation = _room.hazard_mitigation;
-			_hazard_mitigation.chance_holding_staff = _staff_chance;
-			_hazard_mitigation.chance_holding_sword = _sword_chance;
-			_hazard_mitigation.chance_holding_special_sword = _special_sword_chance;
-			
-			// Set its lit room chances
-			if (_room.is_lit()) { _hazard_mitigation.chance_of_light = 1; }
-			else if (_room.can_light_torch()) { _hazard_mitigation.chance_of_light = _torch_chance; }
-			else { _hazard_mitigation.chance_of_light = _lit_torch_chance; }
-		}
-	};
-
-	/// @function get_carry_chance(_item, [_is_special])
-	/// @description How likely the player is to be holding an item, from how many of the map's chests hold it
-	/// @param {Asset.GMObject} _item The item
-	/// @param {bool|undefined} [_is_special] True to count only special items, false only regular ones, undefined for both
-	/// @returns {real}
-	static get_carry_chance = function(_item, _is_special = undefined) {
-		// Count the chests that hold the item, leaving out the keys and bombs placed for the locks
-		var _chests_with_item = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			// Skip rooms whose chest doesn't hold the item, or holds a key or bomb placed for the locks
-			var _room = rooms[_i];
-			if (!_room.has_chest() || _room.chest_obj != _item || _room.key_in_chest) { continue; }
-			
-			// Skip special items when counting only regular ones, and regular items when counting only special ones
-			if (!is_undefined(_is_special) && _room.has_special_item != _is_special) { continue; }
-			
-			_chests_with_item += 1;
-		}
-
-		return get_map_encounter_chance(_chests_with_item);
-	};
-
-	/// @function get_map_encounter_chance(_room_count)
-	/// @description How likely the player is to have come across something some of the map's rooms hold: the share of the map's
-	///	rooms that hold it, times MAP_ENCOUNTER_CHANCE_MULTIPLIER, at most 1
-	/// @param {real} _room_count How many rooms hold it
-	/// @returns {real}
-	static get_map_encounter_chance = function(_room_count) {
-		return min(1, (_room_count / array_length(rooms)) * MAP_ENCOUNTER_CHANCE_MULTIPLIER);
-	};
-
-	/// @function calculate_map_difficulty_score()
-	/// @description Scores every room and sets difficulty_score to their total
-	static calculate_map_difficulty_score = function() {
-		difficulty_score = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			var _room = rooms[_i];
-
-			_room.room_reference_difficulty_score = _room.get_current_difficulty_score();
-			difficulty_score += _room.room_reference_difficulty_score;
-		}
-	};
-
-	/// @function calculate_time_provided()
-	/// @description Sets time_provided, the run's calculated needed time, multiplied by a difficulty multiplier
-	static calculate_time_provided = function() {
-		time_provided = TIME_DIFFICULTY_MULTIPLIER * get_time_needed();
-	};
-
-	/// @function get_time_needed()
-	/// @description Seconds a careful novice needs for the map: every room's first visit, getting through its locked doors and
-	///	illusion walls, the wrath quest's trip to the start cross and back, and carrying the heart back to the start cross
-	/// @returns {real}
-	static get_time_needed = function() {
-		// Sum the time needed for each individual room, plus the trip to the start and back for the wrath case
-		var _time_needed = 0;
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			var _room = rooms[_i];
-			_time_needed += _room.get_time_needed();
-			if (_room.is_wrath_room()) { _time_needed += 2 * get_trip_to_start_time(_room); }
-		}
-		
-		// Sum the time needed for each individual exit
-		for (var _i = 0; _i < array_length(cardinal_exits); _i++) {
-			var _exit_type = cardinal_exits[_i].exit_type;
-			if (_exit_type == exit_types.locked_doors) { _time_needed += LOCKED_DOOR_TIME; }
-			else if (_exit_type == exit_types.illusion_walls) { _time_needed += ILLUSION_WALL_TIME; }
-		}
-		
-		// Return the sum plues the trip time back to the start from the heart room
-		return _time_needed + get_trip_to_start_time(heart_room);
-	};
-
-	/// @function get_trip_to_start_time(_from_room)
-	/// @description Seconds to walk from the given room to the start cross by the quickest way, crossing each room on the way again
-	/// @param {GameRoom} _from_room The room the trip starts from
-	/// @returns {real} The total time of each room passed through along this path
-	static get_trip_to_start_time = function(_from_room) {
-		// Start at the given room
-		var _room = _from_room, _trip_time = 0;
-		while (_room.distance_to_start > 0) {
-			// Find which exit leads us closer to the start room by the shortest path, including stairs
-			var _closer_rooms = [], _distance_saved = 0;
-			for (var _dir = directions.up; _dir <= directions.stairs; _dir++) {
-				var _linked_room = _room.get_connected_room(_dir);
-				if (_linked_room == -1) { continue; }
-				
-				var _distance_saved_by_linked_room = _room.distance_to_start - _linked_room.distance_to_start;
-				if (_distance_saved_by_linked_room > _distance_saved_by_linked_room) { _distance_saved = _distance_saved_by_linked_room; _closer_rooms = []; }
-				if (_distance_saved_by_linked_room == _distance_saved_by_linked_room) { array_push(_closer_rooms, _linked_room); }
-			}
-			_room = array_random_get(_closer_rooms);
-			_trip_time += _room.get_trip_time();
-		}
-		return _trip_time;
-	};
-
+	
 	/// @function calculate_collectables_and_items_lists()
 	/// @description Lists what the controller tracks during play: the rooms with collectables, and the
 	///	regular and special items in chests.
@@ -1581,7 +1653,7 @@ function GameMap() constructor {
 	other_special_item_count = 0;
 	included_special_room_types = [];
 	required_layouts = [];					// The special room layouts the map must include, as { layout, special_room_type }, in the order rooms are reserved for them
-	missing_required_layout = undefined;	// The first required layout the last pass left with no room of its own, which the next new room grows toward
+
 
 	// The rooms, and the exits between them
 	rooms = [];

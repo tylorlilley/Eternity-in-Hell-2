@@ -46,7 +46,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	extra key the first bomb standing in for a key brings
 	/// @returns {bool}
 	static has_floor_key = function() {
-		return (has_key && !key_in_chest) || has_extra_key;
+		return (has_key && !has_chest_key) || has_extra_key;
 	};
 
 	// ============================
@@ -210,7 +210,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	since the locks need them.
 	/// @returns {bool}
 	static holds_gudetama_item = function() {
-		if (!has_chest() || key_in_chest) { return false; }
+		if (!has_chest() || has_chest_key) { return false; }
 
 		return chest_obj == obj_sword || chest_obj == obj_bomb || (chest_obj == obj_staff && has_special_item);
 	};
@@ -397,7 +397,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	bomb placed for the locks
 	/// @returns {bool}
 	static has_regular_item_chest = function() {
-		return (has_chest() && !has_special_item && !key_in_chest && !has_trap_chest());
+		return (has_chest() && !has_special_item && !has_chest_key && !has_trap_chest());
 	};
 
 	/// @function is_wrath_room()
@@ -410,32 +410,6 @@ function GameRoom(_given_x, _given_y) constructor {
 	// ============================
 	// Map Generation Functions
 	// ============================
-
-	/// @function reset_map_roles_and_spot_objects()
-	/// @description Resets what the last pass gave the room, so the next pass can give it again: its map roles (the start or
-	///	heart room) and its distance from the start, the required layout reserved for it, its spot objects (the stairs spot
-	///	object and which spot it's on, a chest's contents, whether it's hidden or locked and whether it holds a guaranteed
-	///	item, a key or extra key, and collectables), its portcullis trap, and its last difficulty score. Every pass also
-	///	gives the room a new layout, which comes with its own lighting and no random content yet.
-	static reset_map_roles_and_spot_objects = function() {
-		is_start_room = false;
-		is_heart_room = false;
-		required_layout = undefined;
-		distance_to_start = 9999;
-		stairs_spot_obj = -1;
-		chest_on_stairs_spot = false;
-		chest_obj = -1;
-		has_hidden_chest = false;
-		has_locked_chest = false;
-		has_special_item = false;
-		has_guaranteed_item = false;
-		has_key = false;
-		key_in_chest = false;
-		has_extra_key = false;
-		has_collectables = false;
-		has_portcullis_trap = false;
-		room_reference_difficulty_score = 0;
-	};
 
 	/// @function set_stairs_spot_object(_object)
 	/// @description Places the room's stairs spot object (the cross, the encased heart, or a chest), and picks whether
@@ -484,6 +458,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @param {SpecialRoomType|undefined} _special_room_type The special room type the layout belongs to, or undefined for a regular layout
 	/// @param {bool} _is_guaranteed_lit_room Whether the room is the map's guaranteed lit room, which always starts lit
 	static assign_layout = function(_layout, _special_room_type, _is_guaranteed_lit_room) {
+		// Assign content based on the room layout
 		layout = _layout;
 		room_reference = layout.room_reference;
 		has_lanterns = layout.has_lanterns;
@@ -497,19 +472,6 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (has_hall_of_mirrors) {
 			for (var _mirror = 0; _mirror < 4; _mirror++) { array_push(mirror_directions, get_random_cardinal_dir()); }
 		}
-
-		// Its random content went with its old layout
-		has_eyes = false;
-		has_phantom = false;
-		has_floater = false;
-		has_moving_collectable = false;
-		replaced_column_fountain_count = 0;
-		replaced_statue_fountain_count = 0;
-		living_block_count = 0;
-		initial_nose_count = 0;
-		initial_fire_skeleton_count = 0;
-		initial_mouth_count = 0;
-		skeleton_types = [];
 	};
 
 	/// @function determine_layout_orientation()
@@ -1506,84 +1468,117 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 
 	// ============================
+	// Variables Reset Functions
+	// ============================
+	
+	/// @function reset_map_role_variables()
+	/// @description Resets room variables that are set when a room role is assigned
+	static reset_map_role_variables() {
+		is_start_room = false;
+		is_heart_room = false;
+		stairs_spot_obj = -1;
+		distance_to_start = 9999;
+	}
+	
+	/// @function reset_layout_variables()
+	/// @description Resets room variables that are set when a RoomLayout is assigned
+	static reset_layout_variables() {
+		layout = undefined;
+		room_reference = -1;
+		
+		has_lanterns = false;
+		is_guaranteed_lit_room = false;
+		lit = false;
+		
+		is_special_room = false;
+		special_room_type = undefined;
+		required_layout = undefined;
+		has_hall_of_mirrors = false;
+		mirror_directions = [];
+		
+		flip_horizontal = false;
+		flip_vertical = false;
+		rotate = noone;
+	}
+	
+	/// @function reset_chest_and_collectable_spot_variables()
+	/// @description Resets room variables that are set when chest and collectable spot are assigned during a map scoring pass
+	static reset_chest_and_collectable_spot_variables() {
+		chest_on_stairs_spot = false;
+		chest_obj = -1;
+		has_hidden_chest = false;
+		has_locked_chest = false;
+		has_special_item = false;
+		has_guaranteed_item = false;
+		has_key = false;
+		has_chest_key = false;
+		has_extra_key = false;
+		has_collectables = false;
+		has_portcullis_trap = false;
+	}
+
+	/// @function reset_random_mapgen_variables()
+	/// @description  Resets room variables that are set when random mapgen content is determined just before the scoring pass
+	static reset_random_mapgen_variables() {
+		has_eyes = false;
+		has_phantom = false;
+		has_floater = false;
+		has_moving_collectable = false;
+		replaced_column_fountain_count = 0;
+		replaced_statue_fountain_count = 0;
+		living_block_count = 0;
+		initial_nose_count = 0;
+		initial_fire_skeleton_count = 0;
+		initial_mouth_count = 0;
+		skeleton_types = [];
+	}
+	
+	/// @function reset_random_mapgen_variables()
+	/// @description  Resets room variables that are set when performing room scoring at the end of a pass
+	static reset_difficutly_scoring_variables() {
+		hazard_mitigation = new HazardMitigation();
+		room_difficulty_score = 0;
+	}
+	
+	/// @function reset_random_mapgen_variables()
+	/// @description  Resets all variables that are set during a map generation pass
+	static reset_map_generation_pass() {
+		reset_map_role_variables();
+		reset_layout_variables();
+		reset_chest_and_collectable_spot_variables();
+		reset_random_mapgen_variables();
+		reset_difficutly_scoring_variables();
+	}
+	
+	// ============================
 	// Instance Variables
 	// ============================
 
-	// Map Generation Values: its grid cell, its exit in each direction or -1 for none, and how many
-	// rooms it is from the start
+	// Map Position Values
 	virtual_x = _given_x;
 	virtual_y = _given_y;
+	map_rooms_index = -1; // Unique identifier; this room's index in the map's rooms array
 	exits = [-1, -1, -1, -1, -1];
-	distance_to_start = 9999;
-
-	// Instance Positioning Values
-	room_reference = -1;
-	room_reference_difficulty_score = 0;
-
-	// Room Initialization Values
-	visited = false;
-	lit = false;
-	lit_by_player = false;			// Whether the player's torch lit the last of its lanterns, which banishes its phantom
 	stairs_spot_obj = -1;
-	chest_obj = -1;
+	
+	// Map Generation Pass Values, These get reset multiple times as the map is being built
+	reset_map_role_variables();
+	reset_layout_variables();
+	reset_chest_and_collectable_spot_variables();
+	reset_random_mapgen_variables();
+	reset_difficutly_scoring_variables();
 
-	// Room Start Values
-	has_key = false;
-	has_lanterns = false;
-	has_hidden_chest = false;
-	has_locked_chest = false;
-	has_special_item = false;
-	has_collectables = false;
-	has_no_cardinal_exits = false;
-	has_portcullis_trap = false;
-	has_hall_of_mirrors = false;
-	is_special_room = false;
-	is_start_room = false;
-	is_heart_room = false;
-	is_guaranteed_lit_room = false;			// It's the map's guaranteed lit room, with a lantern layout, so it always starts lit and the map has a lit room
-
-	// What map generation decided for it
-	layout = undefined;						// The cached RoomLayout this room is built from
-	key_in_chest = false;					// Its key, or the bomb standing in for it, is in a chest instead of on a key spot
-	chest_on_stairs_spot = false;			// stairs_spot_obj goes on the stairs spot instead of the chest spot
-	has_extra_key = false;					// Its floor key is the extra key the first bomb standing in for a key brings, which the lock search doesn't count
-	map_rooms_index = -1;					// Its place in its map's rooms, which the lock search's room bitmasks use (set by GameMap, during map generation)
-	special_room_type = undefined;			// The special room type its layout belongs to, if it's a special room
-	required_layout = undefined;			// The required layout reserved for it this pass, as { layout, special_room_type }, if any
-	relevant_locked_chests_index = -1;		// Its locked chest's bit in the lock search's chest bitmasks, or -1 if the chest doesn't matter to it
-	has_guaranteed_item = false;			// Whether this room holds one of the guaranteed items or not
-
-	// How likely the player is to arrive holding each item that mitigates its hazards, and to have light here, which its
-	// difficulty score is averaged over
-	hazard_mitigation = new HazardMitigation();
-
-	// Its layout's orientation, so the layout's openings face its cardinal exits
-	flip_horizontal = false;
-	flip_vertical = false;
-	rotate = noone;
-
-	// The random content determined for its layout each pass, once its map roles, spot objects and special exit types are
-	// known, which building spawns exactly as determined
-	has_eyes = false;
-	has_phantom = false;
-	has_floater = false;
-	has_moving_collectable = false;
-	replaced_column_fountain_count = 0;
-	replaced_statue_fountain_count = 0;
-	living_block_count = 0;
-	initial_nose_count = 0;
-	initial_fire_skeleton_count = 0;
-	initial_mouth_count = 0;
-	skeleton_types = [];
-	mirror_directions = [];
-	mirror_count = 0;
-
-	// Room Content Values
+	// Room Build Variables - Assigned when building the room after a valid map is generated
 	instances = [];
+	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
+	
+	// Gameplay Values - Changed after map generation during gameplay
+	visited = false;
+	lit_by_player = false;
+	mirror_count = 0;
 	solid_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	lava_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
 	empty_path_grid = mp_grid_create(0, 0, room_width/GRID_SIZE, room_height/GRID_SIZE, GRID_SIZE, GRID_SIZE);
-	instances_at_map_positions = [[[], [], []], [[], [], []], [[], [], []]];
 }
 
 // ============================

@@ -22,7 +22,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 			if (!is_room_reached(_room)) { continue; }
 			
 			// Count the room's non-chest content: An available key, its light, and any locked chest
-			if (_room.has_key && !_room.key_in_chest) { keys_reached += 1; }
+			if (_room.has_key && !_room.has_chest_key) { keys_reached += 1; }
 			if (_room.is_lit()) { reached_lit_room = true; }
 			if (_room.has_locked_chest && _room.relevant_locked_chests_index == -1) { irrelevant_locked_chests_reached += 1; }
 
@@ -63,13 +63,13 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 			}
 			case obj_bomb: {
 				if (_room.has_special_item) { reached_special_bomb = true; }
-				if (_room.key_in_chest) { bombs_reached += 1; }
+				if (_room.has_chest_key) { bombs_reached += 1; }
 				else { reached_gudetama_item = true; }
 				break;
 			}
 			case obj_key: {
 				if (_room.has_special_item) { reached_special_key = true; }
-				if (_room.key_in_chest) { keys_reached += 1; }
+				if (_room.has_chest_key) { keys_reached += 1; }
 				break;
 			}
 			case obj_sword: {

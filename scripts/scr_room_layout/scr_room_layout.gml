@@ -1,7 +1,6 @@
 #macro LAYOUT_SIZE 256						// Every layout room is this many pixels square
-#macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.5, 2.5, 3.5, infinity]) // A layout appears from the lowest difficulty whose limits its difficulty and time scores fit in. These keep about as many layouts on each difficulty as the ruby script's difficulties did
-#macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.35, 0.85, infinity, infinity])
-#macro LAYOUT_TIME_SCORE_PER_COLUMN 0.025		// 0.75 seconds for each column, only in a layout's time score. Columns barely slow the player, but the ruby script counted them, and this keeps layouts full of them on about the difficulties it gave them
+#macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.0, 2.5, 4.25, infinity]) // A layout appears from the lowest difficulty, from its hazards' minimum on, whose limits its difficulty and time scores both fit in
+#macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.15, 0.6, 2.0, infinity]) // Both limits on hard stay above every special room layout's scores, the hall of mirrors' 1.7 time included, so they all appear from hard
 
 // The six kinds of layout file, named after the cardinal exits they open
 enum layout_exit_types {
@@ -355,12 +354,12 @@ function RoomLayout(_room_reference) constructor {
 
 	/// @function get_layout_time_score()
 	/// @description How much time a room with this layout costs at the current difficulty: the time score for what the layout
-	///	definitely contains, plus an estimate of what it could spawn, with lighting its lanterns to banish a phantom, and its columns
+	///	definitely contains, plus an estimate of what it could spawn, with lighting its lanterns to banish a phantom
 	/// @returns {real}
 	static get_layout_time_score = function() {
 		var _spawn_counts = get_spawned_object_counts();
 		var _phantom_lantern_time = get_count_from_struct(_spawn_counts, "obj_phantom") * get_object_count("obj_lantern") * PHANTOM_TIME_PER_LANTERN;
-		return get_time_score_for_spawn_counts(_spawn_counts) + (_phantom_lantern_time / HAZARD_TIME_SCALE) + (get_estimated_object_count("obj_column") * LAYOUT_TIME_SCORE_PER_COLUMN);
+		return get_time_score_for_spawn_counts(_spawn_counts) + (_phantom_lantern_time / HAZARD_TIME_SCALE);
 	};
 
 	// ============================

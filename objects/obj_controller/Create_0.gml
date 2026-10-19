@@ -10,13 +10,14 @@ dropped_meat = [];
 global.datetime = string(current_day) + "-" + string(current_month) + "-" + string(current_year) + ":" + string(current_hour) + ":" + string(current_minute);
 depth = -9999;
 
-global.shuffled_item_sprites = array_shuffle(global.item_sprites);
-global.shuffled_regular_enemy_sprites = array_shuffle(global.regular_enemy_sprites);
-global.shuffled_rotational_enemy_sprites = array_shuffle(global.rotational_enemy_sprites);
-
 // Initialize global values
 random_set_seed(global.seed);
 write_debug_message("SEED: "+string(random_get_seed()));
+
+// Shuffle the sprites the unknown graphics mode swaps once the seed is set, so a seed always gets the same graphics
+global.shuffled_item_sprites = array_shuffle(global.item_sprites);
+global.shuffled_regular_enemy_sprites = array_shuffle(global.regular_enemy_sprites);
+global.shuffled_rotational_enemy_sprites = array_shuffle(global.rotational_enemy_sprites);
 initialize_game_variables();
 
 // Plan the whole map: its rooms, layouts, contents, locks and keys, score and time (scr_game_map)

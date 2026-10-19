@@ -428,8 +428,8 @@ if (!_game_manager.paused) {
 			death_log_screen = (pos == 5);
 			evaluation_log_screen = (pos == 6);
 			play_sound(snd_pickup, false);
-			if (death_log_screen) { death_log_sort = 1; } // TODO: Remember last sort?  
-			if (evaluation_log_screen) { evaluation_log_sort = 1; } // TODO: Remember last sort?  
+			if (death_log_screen) { death_log_sort = 1; }
+			if (evaluation_log_screen) { evaluation_log_sort = 1; }
 			else if (options_screen) {
 				option_selected = false;
 				instance_create(216, 176+6, obj_lava); 

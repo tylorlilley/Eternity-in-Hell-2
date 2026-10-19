@@ -2,6 +2,7 @@
 #macro MIN_NUMBER_OF_ROOMS get_probability_for_difficulty([4, 8, 12, 15, 18])
 #macro MAX_NUMBER_OF_ROOMS get_probability_for_difficulty([8, 12, 18, 22, 24]) //[12, 16, 24, 28, 32])
 #macro MAP_DIFFICULTY_SCORE_TARGET get_probability_for_difficulty([0, 2, 10, 22, 36]) // Rooms are added until the map's difficulty score reaches this, up to MAX_NUMBER_OF_ROOMS.
+#macro AVERAGE_NUMBER_OF_ROOM_EXITS (20/9)
 
 // ===== MAP CONTENT =====
 #macro SPECIAL_MAP_SHAPE_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 0])
@@ -39,7 +40,7 @@ function GameMap() constructor {
 	///	destroys the map.
 	/// @returns {bool} False if the attempt failed, so a new map has to be tried
 	static try_generate = function() {
-		// Randomly determine the map-wide events, like special rooms and items items, and the required layouts
+		// Randomly determine the map-wide events, like special rooms and items, and the required layouts
 		determine_random_map_events();
 		determine_required_layouts();
 

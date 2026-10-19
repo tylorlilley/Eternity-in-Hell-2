@@ -1,5 +1,5 @@
 #macro LAYOUT_SIZE 256						// Every layout room is this many pixels square
-#macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.0, 2.5, 4.0, infinity]) // A layout appears from the lowest difficulty, from its hazards' minimum on, whose limits its difficulty and time scores both fit in
+#macro LAYOUT_DIFFICULTY_SCORE_LIMIT get_probability_for_difficulty([0, 1.0, 2.5, 4.25, infinity]) // A layout appears from the lowest difficulty, from its hazards' minimum on, whose limits its difficulty and time scores both fit in
 #macro LAYOUT_TIME_SCORE_LIMIT get_probability_for_difficulty([0, 0.15, 0.6, 2.0, infinity]) // Both limits on hard stay above every special room layout's scores, the hall of mirrors' 1.7 time included, so they all appear from hard
 
 // The six kinds of layout file, named after the cardinal exits they open

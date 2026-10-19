@@ -192,16 +192,7 @@ function GameMap() constructor {
 	///	objects, every exit's lock or special exit type, and the map's start, heart and guaranteed lit rooms, guaranteed items,
 	///	special item types and extra key. The rooms and their exits stay as they are, and the pass gives every room a new layout.
 	static reset_last_pass = function() {
-		// Reset map specific values
-		start_room = undefined;
-		heart_room = undefined;
-		guaranteed_lit_room = undefined;
-		guaranteed_items = [];
-		special_item_types = [];
-		extra_key_placed = false;
-		difficulty_score = 0;
-		
-		// Reset the rooms and exits as well
+		reset_map_variables();
 		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_map_generation_pass(); }
 		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_exit_type(); }
 	};
@@ -595,7 +586,7 @@ function GameMap() constructor {
 			var _item_type = _available_item_types[_i];
 			if (_is_special_item) {
 				// Add any type that isn't a special item yet to the list of possibilities
-				if (!array_contains(special_item_types, _item_type)) { array_push(_possible_item_types, _item_type); }
+				if (!array_contains(spawned_special_items, _item_type)) { array_push(_possible_item_types, _item_type); }
 			}
 			else if ((_can_be_key || _item_type != obj_key) && count_regular_items(_item_type, _items_in_hands) < get_item_cap(_item_type)) {
 				// Add any type that isn't at its cap yet to the list of possibilities, the key only when it can be one
@@ -612,7 +603,7 @@ function GameMap() constructor {
 
 		// Select a random type from among the possible ones, and remember it if it's a special item
 		var _item = array_random_get(_possible_item_types);
-		if (_is_special_item) { array_push(special_item_types, _item); }
+		if (_is_special_item) { array_push(spawned_special_items, _item); }
 		return _item;
 	};
 
@@ -1092,7 +1083,7 @@ function GameMap() constructor {
 	};
 
 	/// @function get_exit_mix_deficit(_exit_type_counts)
-	/// @description How far room counts by exit kind are from exit_type_mix: for each kind, its count minus its share of the
+	/// @description How far room counts by exit kind are from exit_type_targets: for each kind, its count minus its share of the
 	///	rooms with cardinal exits, squared, all added up. Rooms with no cardinal exits are left out, since stairs decide those.
 	/// @param {array} _exit_type_counts Room counts by exit kind
 	/// @returns {real}
@@ -1100,14 +1091,14 @@ function GameMap() constructor {
 		// Add up the mix's weights and the rooms with cardinal exits
 		var _mix_total = 0, _room_count = 0;
 		for (var _type = layout_exit_types.one; _type < layout_exit_types.count; _type++) {
-			_mix_total += exit_type_mix[_type];
+			_mix_total += exit_type_targets[_type];
 			_room_count += _exit_type_counts[_type];
 		}
 		
 		// Add up how far each exit kind's count is from its share
 		var _deficit = 0;
 		for (var _type = layout_exit_types.one; _type < layout_exit_types.count; _type++) {
-			_deficit += sqr(_exit_type_counts[_type] - _room_count * exit_type_mix[_type] / _mix_total);
+			_deficit += sqr(_exit_type_counts[_type] - _room_count * exit_type_targets[_type] / _mix_total);
 		}
 		return _deficit;
 	};
@@ -1128,13 +1119,13 @@ function GameMap() constructor {
 	
 	/// @function add_adjacent_exit([_required_layout])
 	/// @description Links a room to an adjacent room it isn't linked to yet, where that brings the rooms' exit kinds closest to
-	///	exit_type_mix, but never where it takes a room a required layout needs. For a required layout no room can take, only
+	///	exit_type_targets, but never where it takes a room a required layout needs. For a required layout no room can take, only
 	///	a link that lets one of its rooms take that layout counts, and since the start and heart are placed by then, never one
 	///	that shortens the way between them, which also keeps the heart from being linked to the start.
 	/// @param {struct} [_required_layout] The required layout, as { layout, special_room_type } (undefined by default, for any link)
 	/// @returns {bool} False if no link fits
 	static add_adjacent_exit = function(_required_layout = undefined) {
-		// Find the links that fit the required layout, if one is given, and bring the rooms' exit kinds closest to exit_type_mix
+		// Find the links that fit the required layout, if one is given, and bring the rooms' exit kinds closest to exit_type_targets
 		var _exit_type_counts = get_exit_type_counts(), _best_links = [], _best_deficit = infinity;
 		var _distances_from_start = is_undefined(_required_layout) ? [] : get_distances_from_room(start_room);
 		var _distances_from_heart = is_undefined(_required_layout) ? [] : get_distances_from_room(heart_room);
@@ -1157,7 +1148,7 @@ function GameMap() constructor {
 					if (would_link_shorten_way_to_heart(_distances_from_start, _distances_from_heart, _room, _adjacent_room)) { continue; }
 				}
 
-				// Keep the links closest to exit_type_mix
+				// Keep the links closest to exit_type_targets
 				var _deficit = get_exit_mix_deficit(_new_exit_type_counts);
 				if (_deficit < _best_deficit) { _best_deficit = _deficit; _best_links = []; }
 				if (_deficit == _best_deficit) { array_push(_best_links, { room: _room, dir: _dir, adjacent_room: _adjacent_room }); }
@@ -1222,7 +1213,7 @@ function GameMap() constructor {
 	/// @function add_new_room([_missing_required_layout])
 	/// @description Adds one room to the map. A required layout with no exits that no room could take last pass gets a new
 	///	room only reached by stairs. Otherwise, the new room is sometimes joined to a random room by stairs, and otherwise by a
-	///	cardinal exit, where it brings the rooms' exit kinds closest to exit_type_mix. When a required layout had no room of its
+	///	cardinal exit, where it brings the rooms' exit kinds closest to exit_type_targets. When a required layout had no room of its
 	///	own last pass, the new room is never joined by stairs at random, and a place that gives a room its exit kind comes first.
 	/// @param {string} _missing_required_layout The missing layout to try to shape the map towards
 	/// @returns {GameRoom|undefined} The new room, or undefined if no room can grow
@@ -1245,7 +1236,7 @@ function GameMap() constructor {
 		}
 
 		// Otherwise, find the free cells beside rooms that can gain exits where a new room gives a room the missing required
-		// layout's exit kind, if any do, and brings the rooms' exit kinds closest to exit_type_mix
+		// layout's exit kind, if any do, and brings the rooms' exit kinds closest to exit_type_targets
 		var _exit_type_counts = get_exit_type_counts(), _best_places = [], _best_fits_missing_layout = false, _best_deficit = infinity;
 		for (var _i = 0; _i < array_length(rooms); _i++) {
 			var _room = rooms[_i];
@@ -1256,7 +1247,7 @@ function GameMap() constructor {
 				if (!is_undefined(get_adjacent_room(_room, _dir))) { continue; }
 
 				// Keep the places that fit the missing required layout without taking a room another one needs, if any do, then the
-				// ones closest to exit_type_mix
+				// ones closest to exit_type_targets
 				var _new_exit_type_counts = get_exit_type_counts_after_link(_exit_type_counts, _room, _dir, undefined);
 				var _fits_missing_layout = !is_undefined(_missing_required_layout) && would_link_fit_required_layout(_missing_required_layout, _exit_type_counts, _new_exit_type_counts, _room, _dir, undefined)
 					&& keeps_rooms_for_required_layouts(_exit_type_counts, _new_exit_type_counts);
@@ -1346,25 +1337,6 @@ function GameMap() constructor {
 		
 		// Return undefined if no free cell is found
 		return undefined;
-	};
-
-	/// @function reset_last_pass()
-	/// @description Resets what the last pass placed, so the next pass can place it again: every room's map roles and spot
-	///	objects, every exit's lock or special exit type, and the map's start, heart and guaranteed lit rooms, guaranteed items,
-	///	special item types and extra key. The rooms and their exits stay as they are, and the pass gives every room a new layout.
-	static reset_last_pass = function() {
-		// Reset map specific values
-		start_room = undefined;
-		heart_room = undefined;
-		guaranteed_lit_room = undefined;
-		guaranteed_items = [];
-		special_item_types = [];
-		extra_key_placed = false;
-		difficulty_score = 0;
-		
-		// Reset the rooms and exits as well
-		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].reset_map_generation_pass(); }
-		for (var _j = 0; _j < array_length(cardinal_exits); _j++) { cardinal_exits[_j].reset_exit_type(); }
 	};
 
 	// =================================================================================================
@@ -1585,6 +1557,18 @@ function GameMap() constructor {
 			}
 		}
 	};
+	
+	/// @function calculate_collectables_and_items_lists()
+	/// @description Resets the map-wide variables that are set during each pass
+	static reset_map_variables = function() {
+		start_room = undefined;
+		heart_room = undefined;
+		guaranteed_lit_room = undefined;		// The room that always starts lit, so the map has a lit room, with a lantern layout of the exit kind it shows
+		guaranteed_items = [];					// The item types we must spawn somewhere in the map
+		spawned_special_items = [];		// Each item type placed as a special item so far
+		extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet
+		difficulty_score = 0;
+	}
 
 	// ============================
 	// Instance Variables
@@ -1593,9 +1577,8 @@ function GameMap() constructor {
 	// The four directions a cardinal exit can face
 	static cardinal_exit_directions = [directions.up, directions.right, directions.down, directions.left];
 
-	// How often each exit kind came up in the old Ruby layout script, by layout_exit_types kind, which growth steers the rooms
-	// with cardinal exits toward. Rooms with no exits are left out, since stairs decide those
-	static exit_type_mix = [0, 6, 4, 8, 6, 3];
+	// How often each exit type should come up, on average, for a completed map. Used to steer map generation towards this mix of room exit types.
+	static exit_type_targets = [0, 6, 4, 8, 6, 3];
 
 	// Set up the layout cache every map shares, the first time a map is made
 	static layout_cache = undefined;
@@ -1640,12 +1623,10 @@ function GameMap() constructor {
 		layout_cache = { layouts: _cached_layouts, special_room_types: _special_room_types };
 	}
 
-	// Layouts this difficulty allows for regular (not special) rooms by exit kind, and how many rooms use each
+	// Set up map-wide layout and room type counts
+	available_special_room_types = [];
 	layouts_by_exit_type = [];
 	layout_use_counts = array_create(array_length(layout_cache.layouts), 0);
-
-	// Special room types with a layout this difficulty allows, each with only those layouts
-	available_special_room_types = [];
 
 	// Map-wide events, randomly determined once per map
 	long_and_straight_map = false;
@@ -1654,7 +1635,6 @@ function GameMap() constructor {
 	included_special_room_types = [];
 	required_layouts = [];					// The special room layouts the map must include, as { layout, special_room_type }, in the order rooms are reserved for them
 
-
 	// The rooms, and the exits between them
 	rooms = [];
 	room_at_cell = {};						// Each room by its grid cell ("x,y"), so finding an adjacent room needs no search
@@ -1662,24 +1642,17 @@ function GameMap() constructor {
 	locked_exits = [];						// Each locked cardinal exit, reset during lock and key search
 	relevant_locked_chest_rooms = [];		// Each room with a locked chest that affects the lock and key search, reset during the search
 
-	// What each pass places and scores, placed again each time map generation adds a room
-	start_room = undefined;
-	heart_room = undefined;
-	guaranteed_lit_room = undefined;		// The room that always starts lit, so the map has a lit room, with a lantern layout of the exit kind it shows
-	guaranteed_items = [];
-	special_item_types = [];				// Each item type placed as a special item so far
-	extra_key_placed = false;				// Whether the first bomb standing in for a key has brought its extra key yet
-	difficulty_score = 0;
-
-	// What is passed to the controller on a successful map generation
+	// Variables calculated at the end, and passed off to the controller object
+	// TODO: Why does the map need variables for this - can't we just directly set the global.controller variables for these?
 	rooms_with_collectables = [];
 	spawned_items = [];
-	spawned_special_items = [];
 	time_provided = 0;
 
-	// What building the rooms hides under blocks, after generation, so neither the locks and keys nor the scores count it
+	// Map-wide variables during room building events
 	special_item_under_block = -1;			// The special item type a block hides, once one does. A map has one at most
 	regular_items_under_blocks = [];		// Each regular item type a block hides, which the item caps count
+	
+	reset_room_roles_and_content_variables();
 
 	// Initialize list of layouts by exit type
 	for (var _type = 0; _type < layout_exit_types.count; _type++) { array_push(layouts_by_exit_type, []); }

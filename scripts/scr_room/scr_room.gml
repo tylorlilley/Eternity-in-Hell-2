@@ -70,14 +70,13 @@ function GameRoom(_given_x, _given_y) constructor {
 	};
 
 	/// @function can_become_special_room(_layout)
-	/// @description Whether the room can take a special room layout: never the start or heart room, and a hall of mirrors
-	///	never has stairs, which would let the player leave it unsolved, or a cardinal exit to the heart room, whose locks
-	///	would break its sequence of exits
+	/// @description Whether the room can take a special room layout: never the start or heart room, or a room with a cardinal
+	///	exit to either, and a hall of mirrors never has stairs, which would let the player leave it unsolved
 	/// @param {RoomLayout} _layout The special room layout
 	/// @returns {bool}
 	static can_become_special_room = function(_layout) {
 		// Start and Heart room can't be special
-		if (is_start_room || is_heart_room) { return ; }
+		if (is_start_room || is_heart_room) { return false; }
 		// The Hall of Mirrors can't have stairs
 		if (_layout.has_hall_of_mirrors && has_exit(directions.stairs)) { return false; }
 		
@@ -141,14 +140,14 @@ function GameRoom(_given_x, _given_y) constructor {
 
 	/// @function would_fit_layout_with_new_exit(_dir, _layout, _linked_room)
 	/// @description Whether one more exit in a direction would let the room take a special room layout: the exit gives it the
-	///	layout's exit kind, the room can become that special room, and a hall of mirrors' new exit doesn't lead to the heart room
+	///	layout's exit kind, the room can become that special room, and the new exit doesn't lead to the start or heart room
 	/// @param {real} _dir A cardinal direction the room has no exit in yet
 	/// @param {RoomLayout} _layout The special room layout
 	/// @param {GameRoom|undefined} _linked_room The room the new exit leads to, or undefined for a new room
 	/// @returns {bool}
 	static would_fit_layout_with_new_exit = function(_dir, _layout, _linked_room) {
 		if (get_exit_type_with_new_exit(_dir) != _layout.exit_type || !can_become_special_room(_layout)) { return false; }
-		return !_layout.has_hall_of_mirrors || is_undefined(_linked_room) || !_linked_room.is_heart_room;
+		return is_undefined(_linked_room) || !(_linked_room.is_start_room || _linked_room.is_heart_room);
 	};
 
 	/// @function can_have_hazard_with_eyes(_hazard_name)
@@ -914,7 +913,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		with (obj_block_spot) {
 			if (get_random_chance_out_of(BLOCK_ITEM_PROBABILITY)) {
 				if (get_coin_flip()) { instance_create(x, y, obj_bones); }
-				else if (_map.special_item_under_block == -1 && array_length(_map.special_item_types) < SPECIAL_ITEM_LIMIT && get_random_chance_out_of(BLOCK_SPECIAL_ITEM_PROBABILITY)) {
+				else if (_map.special_item_under_block == -1 && array_length(_map.spawned_special_items) < SPECIAL_ITEM_LIMIT && get_random_chance_out_of(BLOCK_SPECIAL_ITEM_PROBABILITY)) {
 					_map.special_item_under_block = _map.pick_item_type(true);
 					with (instance_create(x, y, _map.special_item_under_block)) { make_item_special(); }
 				}
@@ -1114,7 +1113,7 @@ function GameRoom(_given_x, _given_y) constructor {
 					var _current_exit = exits[_dir];
 					if (_current_exit == -1) { continue; }
 					
-					if (_current_exit.exit_type == exit_types.closed_portcullis) { _current_exit.exit_type.reset_exit_type(); }
+					if (_current_exit.exit_type == exit_types.closed_portcullis) { _current_exit.reset_exit_type(); }
 				}
 			}
 		}
@@ -1451,7 +1450,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		       draw_set_color(c_lime);
 		        draw_set_halign(fa_center);
 		        draw_set_valign(fa_middle);
-		        draw_text(_x_pos, _y_pos, string_hash_to_newline(string(room_reference_difficulty_score)));
+		        draw_text(_x_pos, _y_pos, string_hash_to_newline(string(room_difficulty_score)));
 		    }
 			
 		}
@@ -1473,16 +1472,16 @@ function GameRoom(_given_x, _given_y) constructor {
 	
 	/// @function reset_map_role_variables()
 	/// @description Resets room variables that are set when a room role is assigned
-	static reset_map_role_variables() {
+	static reset_map_role_variables = function() {
 		is_start_room = false;
 		is_heart_room = false;
 		stairs_spot_obj = -1;
 		distance_to_start = 9999;
-	}
+	};
 	
 	/// @function reset_layout_variables()
 	/// @description Resets room variables that are set when a RoomLayout is assigned
-	static reset_layout_variables() {
+	static reset_layout_variables = function() {
 		layout = undefined;
 		room_reference = -1;
 		
@@ -1499,11 +1498,11 @@ function GameRoom(_given_x, _given_y) constructor {
 		flip_horizontal = false;
 		flip_vertical = false;
 		rotate = noone;
-	}
+	};
 	
 	/// @function reset_chest_and_collectable_spot_variables()
 	/// @description Resets room variables that are set when chest and collectable spot are assigned during a map scoring pass
-	static reset_chest_and_collectable_spot_variables() {
+	static reset_chest_and_collectable_spot_variables = function() {
 		chest_on_stairs_spot = false;
 		chest_obj = -1;
 		has_hidden_chest = false;
@@ -1515,11 +1514,11 @@ function GameRoom(_given_x, _given_y) constructor {
 		has_extra_key = false;
 		has_collectables = false;
 		has_portcullis_trap = false;
-	}
+	};
 
 	/// @function reset_random_mapgen_variables()
-	/// @description  Resets room variables that are set when random mapgen content is determined just before the scoring pass
-	static reset_random_mapgen_variables() {
+	/// @description Resets room variables that are set when random mapgen content is determined just before the scoring pass
+	static reset_random_mapgen_variables = function() {
 		has_eyes = false;
 		has_phantom = false;
 		has_floater = false;
@@ -1531,24 +1530,24 @@ function GameRoom(_given_x, _given_y) constructor {
 		initial_fire_skeleton_count = 0;
 		initial_mouth_count = 0;
 		skeleton_types = [];
-	}
+	};
 	
-	/// @function reset_random_mapgen_variables()
-	/// @description  Resets room variables that are set when performing room scoring at the end of a pass
-	static reset_difficutly_scoring_variables() {
+	/// @function reset_difficulty_scoring_variables()
+	/// @description Resets room variables that are set when performing room scoring at the end of a pass
+	static reset_difficulty_scoring_variables = function() {
 		hazard_mitigation = new HazardMitigation();
 		room_difficulty_score = 0;
-	}
+	};
 	
-	/// @function reset_random_mapgen_variables()
-	/// @description  Resets all variables that are set during a map generation pass
-	static reset_map_generation_pass() {
+	/// @function reset_map_generation_pass()
+	/// @description Resets all variables that are set during a map generation pass
+	static reset_map_generation_pass = function() {
 		reset_map_role_variables();
 		reset_layout_variables();
 		reset_chest_and_collectable_spot_variables();
 		reset_random_mapgen_variables();
-		reset_difficutly_scoring_variables();
-	}
+		reset_difficulty_scoring_variables();
+	};
 	
 	// ============================
 	// Instance Variables
@@ -1559,14 +1558,14 @@ function GameRoom(_given_x, _given_y) constructor {
 	virtual_y = _given_y;
 	map_rooms_index = -1; // Unique identifier; this room's index in the map's rooms array
 	exits = [-1, -1, -1, -1, -1];
-	stairs_spot_obj = -1;
+	has_no_cardinal_exits = false; // Only ever reached by stairs, so it never gains a cardinal exit
 	
 	// Map Generation Pass Values, These get reset multiple times as the map is being built
 	reset_map_role_variables();
 	reset_layout_variables();
 	reset_chest_and_collectable_spot_variables();
 	reset_random_mapgen_variables();
-	reset_difficutly_scoring_variables();
+	reset_difficulty_scoring_variables();
 
 	// Room Build Variables - Assigned when building the room after a valid map is generated
 	instances = [];

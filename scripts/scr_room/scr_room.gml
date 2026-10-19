@@ -139,14 +139,16 @@ function GameRoom(_given_x, _given_y) constructor {
 		return get_exit_type_for_count(_exit_count);
 	};
 
-	/// @function would_fit_layout_with_new_exit(_dir, _layout)
-	/// @description Whether one more exit in a direction would give the room a layout's exit kind, and no stairs for a hall of
-	///	mirrors
+	/// @function would_fit_layout_with_new_exit(_dir, _layout, _linked_room)
+	/// @description Whether one more exit in a direction would let the room take a special room layout: the exit gives it the
+	///	layout's exit kind, the room can become that special room, and a hall of mirrors' new exit doesn't lead to the heart room
 	/// @param {real} _dir A cardinal direction the room has no exit in yet
-	/// @param {RoomLayout} _layout The layout
+	/// @param {RoomLayout} _layout The special room layout
+	/// @param {GameRoom|undefined} _linked_room The room the new exit leads to, or undefined for a new room
 	/// @returns {bool}
-	static would_fit_layout_with_new_exit = function(_dir, _layout) {
-		return get_exit_type_with_new_exit(_dir) == _layout.exit_type && (!_layout.has_hall_of_mirrors || !has_exit(directions.stairs));
+	static would_fit_layout_with_new_exit = function(_dir, _layout, _linked_room) {
+		if (get_exit_type_with_new_exit(_dir) != _layout.exit_type || !can_become_special_room(_layout)) { return false; }
+		return !_layout.has_hall_of_mirrors || is_undefined(_linked_room) || !_linked_room.is_heart_room;
 	};
 
 	/// @function can_have_hazard_with_eyes(_hazard_name)
@@ -466,7 +468,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	its old layout, so it has none until content is determined for this one.
 	/// @param {RoomLayout} _layout The layout
 	/// @param {SpecialRoomType|undefined} _special_room_type The special room type the layout belongs to, or undefined for a regular layout
-	/// @param {bool} _is_guaranteed_lit_room Whether the layout is the required lantern layout, whose room always starts lit
+	/// @param {bool} _is_guaranteed_lit_room Whether the room is the map's guaranteed lit room, which always starts lit
 	static assign_layout = function(_layout, _special_room_type, _is_guaranteed_lit_room) {
 		layout = _layout;
 		room_reference = layout.room_reference;
@@ -1625,7 +1627,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	is_special_room = false;
 	is_start_room = false;
 	is_heart_room = false;
-	is_guaranteed_lit_room = false;			// It has the required lantern layout, so it always starts lit and the map has a lit room
+	is_guaranteed_lit_room = false;			// It's the map's guaranteed lit room, with a lantern layout, so it always starts lit and the map has a lit room
 
 	// What map generation decided for it
 	layout = undefined;						// The cached RoomLayout this room is built from

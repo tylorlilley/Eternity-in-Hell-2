@@ -518,7 +518,7 @@ function GameMap() constructor {
 		}
 	};
 
-	/// @function pick_item_type(_is_special_item, [_items_in_hands], [_can_be_key])
+	/// @function pick_item_type(_is_special_item, [_can_be_key], [_items_in_hands])
 	/// @description Picks an item type at random among the types still allowed. A special item can be any type the
 	///	difficulty allows, keys included, that hasn't been used as a special item yet. A regular item is only a key when
 	///	the flag is passed in, and never a type at its cap, counting the chests, what the blocks hide, and the starting hand items.
@@ -1544,7 +1544,7 @@ function GameMap() constructor {
 			// Empty the chest before picking a random regular item, so the pick doesn't count the item it's replacing
 			if (_pick_random_item) {
 				_guaranteed_item_room.chest_content_object_type = -1;
-				_replacement_item = pick_item_type(false, _hand_items);
+				_replacement_item = pick_item_type(false, false, _hand_items);
 			}
 			_guaranteed_item_room.chest_content_object_type = _replacement_item;
 		}
@@ -1559,7 +1559,7 @@ function GameMap() constructor {
 			// Empty the chest before picking, so the pick doesn't count the item it's replacing
 			if (count_spawned_regular_items(_room.chest_content_object_type, _hand_items) > get_item_cap(_room.chest_content_object_type)) {
 				_room.chest_content_object_type = -1;
-				_room.chest_content_object_type = pick_item_type(false, _hand_items);
+				_room.chest_content_object_type = pick_item_type(false, false, _hand_items);
 			}
 		}
 	};

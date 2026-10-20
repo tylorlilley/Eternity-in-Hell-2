@@ -181,7 +181,7 @@ function game_room_start() {
 	// Mark room as one that has been visited at some point in this game
 	if (!current_room.visited) {
 		// Do things only on the first player visit
-		if (current_room.stairs_spot_obj == obj_encased_heart) { 
+		if (current_room.stairs_spot_object_type == obj_encased_heart || current_room.chest_spot_object_type == obj_encased_heart) { 
 			global.controller.completion_amount += 1;
 		}
 		

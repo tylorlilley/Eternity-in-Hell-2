@@ -163,9 +163,7 @@ Create new title screen with better sub menus
 -- preset colors to choose from in options menu with left and right for game color
 -- option for auto picking up items?
 
-- Update red staff to go through doors (nd update key spawning TODO)
-
-Refctor stairs_spot_obj to include chest_spot_obj as well instead of figuring out where to spawn things at room initilization
+- Update red staff to go through doors (and update key spawning TODO)
 
 Refactor hands and collectables that use the run_away_from_player to instead use pathfinidng to find the spot furthest away from the player and run towards that
 - create a seperate red_staff_grid to use for hands that hold red staff since just the lava grid and solid grid don't cut it for that

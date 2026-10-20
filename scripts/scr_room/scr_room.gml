@@ -248,7 +248,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	which isn't the start room, a special room or a portcullis trap room
 	/// @returns {bool}
 	static can_have_phantom = function() {
-		return has_lanterns && !is_lit() && !has_hidden_chest && !is_start_room && !is_special_room && !has_portcullis_trap;
+		return has_lanterns && !is_lit() && !has_hidden_chest() && !is_start_room && !is_special_room && !has_portcullis_trap;
 	};
 
 	/// @function get_reachable_rooms_bitmask()
@@ -523,8 +523,8 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	an unlit lantern room, which then never gets a phantom.
 	/// @param {bool} [_must_be_hidden] Whether the chest must be hidden (false by default)
 	static add_hidden_or_regular_chest = function(_must_be_hidden = false) {
-		has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
-		set_chest_or_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
+		var _has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
+		set_chest_or_stairs_spot_object(_has_hidden_chest ? obj_hidden_chest : obj_chest);
 	};
 
 	/// @function add_portcullis_trap()
@@ -905,7 +905,7 @@ function GameRoom(_given_x, _given_y) constructor {
 				}
 				else {
 					// Regular meat rots into bones before the player can reach it, so a bomb takes its place
-					var _item_type = _map.pick_item_type(false, _hand_items, true);
+					var _item_type = _map.pick_item_type(false, true, _hand_items);
 					if (_item_type == obj_meat) { _item_type = obj_bomb; }
 					array_push(_map.regular_items_under_blocks, _item_type);
 					instance_create(x, y, _item_type);
@@ -1391,7 +1391,7 @@ function GameRoom(_given_x, _given_y) constructor {
 								else if (_room_map_obj == obj_hole) { _pos_color = _white_color; continue; }
 								else if (_is_test_mode_on && has_locked_chest && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) { _pos_color = c_aqua; continue; }
 								else if (_is_test_mode_on && (has_key || has_extra_key) && ((chest_content_object_type == obj_key && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) || _room_map_obj == obj_key)) { _pos_color = c_lime; continue; }
-								else if (_is_test_mode_on && has_hidden_chest && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) { _pos_color = c_yellow; continue; }
+								else if (_is_test_mode_on && has_hidden_chest() && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) { _pos_color = c_yellow; continue; }
 								else if (_pos_color == -1 && _show_detailed_map && (_show_collectables || _room_map_obj != obj_hidden_chest)) { _pos_color = _inverse_color; }
 							}
 						}
@@ -1493,7 +1493,6 @@ function GameRoom(_given_x, _given_y) constructor {
 	static reset_chest_and_collectable_spot_variables = function() {
 		// Chest Variables
 		chest_content_object_type = -1;
-		has_hidden_chest = false;
 		has_locked_chest = false;
 		has_special_item = false;
 		has_guaranteed_item = false;

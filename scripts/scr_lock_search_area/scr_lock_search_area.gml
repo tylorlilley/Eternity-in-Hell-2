@@ -27,8 +27,8 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 			if (_room.has_locked_chest && _room.relevant_locked_chests_index == -1) { irrelevant_locked_chests_reached += 1; }
 
 			// Count the room's chest content, unless the chest waits on a gudetama item or on light
-			if (_room.is_gudetama_room()) { _gudetama_room = _room; }
-			else if (_room.stairs_spot_obj == obj_hidden_chest && !_room.is_special_room) { array_push(_hidden_chest_rooms, _room); }
+			if (_room == _map.gudetama_room) { _gudetama_room = _room; }
+			else if (_room.has_hidden_chest() && !_room.is_special_room) { array_push(_hidden_chest_rooms, _room); }
 			else if (_room.has_chest()) { count_chest_content(_room); }
 		}
 		

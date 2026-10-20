@@ -111,7 +111,7 @@ function get_hazards_table() {
 }
 
 // ============================
-// Public Functions
+// Public Tag Functions
 // ============================
 
 /// @function count_hazards_with_tags(_spawn_counts, _tags_to_count, [_ignored_hazard_name])
@@ -145,6 +145,10 @@ function hazard_has_tag(_hazard_name, _tags) {
 	var _table = get_hazards_table(), _entry = _table[$ _hazard_name];
 	return !is_undefined(_entry) && ((_entry.tags & _tags) != 0);
 }
+
+// ============================
+// Public Difficulty Score Functions
+// ============================
 
 /// @function get_danger_for_hazard(_hazard_name, _hazard_count)
 /// @description A hazard's danger value for how many of it are in the room, from its danger and many entries in the hazards table

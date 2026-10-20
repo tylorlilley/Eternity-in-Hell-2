@@ -195,38 +195,52 @@ function GameRoom(_given_x, _given_y) constructor {
 	static is_lit = function() {
 		return lit;
 	};
-
-	/// @function is_gudetama_room()
-	/// @description Whether the room is sloth's special room, whose chest sits behind its gudetama
-	/// @returns {bool}
-	static is_gudetama_room = function() {
-		return is_special_room && special_room_type.name == "sloth";
-	};
-
-	/// @function holds_gudetama_item()
+	
+	/// @function has_gudetama_item()
 	/// @description Whether the room's chest holds an item that can defeat a gudetama or get the player past it: a sword, a
 	///	bomb or a special staff. A locked or hidden chest counts too, but the keys and bombs placed for the locks don't,
 	///	since the locks need them.
 	/// @returns {bool}
-	static holds_gudetama_item = function() {
+	static has_gudetama_item = function() {
 		if (!has_chest() || has_chest_key) { return false; }
 
-		return chest_obj == obj_sword || chest_obj == obj_bomb || (chest_obj == obj_staff && has_special_item);
+		return chest_content_object_type == obj_sword || chest_content_object_type == obj_bomb || (chest_content_object_type == obj_staff && has_special_item);
+	};
+	
+	/// @function has_basic_chest()
+	/// @description Whether the room holds a chest that is not locked, hidden, trapped, or containing a special item
+	/// @returns {bool}
+	static has_basic_chest = function() {
+		return has_chest() && !has_hidden_chest() && !has_trap_chest() && !has_locked_chest && !has_special_item;
 	};
 
 	/// @function has_chest()
 	/// @description Whether the room holds a chest, hidden or not
 	/// @returns {bool}
 	static has_chest = function() {
-		return stairs_spot_obj == obj_chest || stairs_spot_obj == obj_hidden_chest;
+		return chest_spot_object_type == obj_chest || chest_spot_object_type == obj_hidden_chest || stairs_spot_object_type == obj_chest || stairs_spot_object_type == obj_hidden_chest;
 	};
-
+	
+	/// @function has_hidden_chest()
+	/// @description Whether the room's chest is a hidden chest
+	/// @returns {bool}
+	static has_hidden_chest = function() {
+		return chest_spot_object_type == obj_hidden_chest || chest_spot_object_type == obj_hidden_chest;
+	};
+	
+	/// @function has_trap_chest()
+	/// @description Whether the room's chest holds a statue or fountain trap instead of an item
+	/// @returns {bool}
+	static has_trap_chest = function() {
+		return chest_content_object_type == obj_statue || chest_content_object_type == obj_fountain;
+	};
+	
 	/// @function can_have_chest()
 	/// @description Whether the room is allowed to have a chest added to it: not the start or heart room, with nothing on
 	///	its stairs spot yet
 	/// @returns {bool}
 	static can_have_chest = function() {
-		return (!is_start_room && !is_heart_room && stairs_spot_obj == -1);
+		return (chest_spot_object_type == -1 || stairs_spot_object_type == -1);
 	};
 
 	/// @function can_have_phantom()
@@ -235,13 +249,6 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @returns {bool}
 	static can_have_phantom = function() {
 		return has_lanterns && !is_lit() && !has_hidden_chest && !is_start_room && !is_special_room && !has_portcullis_trap;
-	};
-
-	/// @function has_basic_chest()
-	/// @description Whether the room holds a visible chest that is neither locked nor holding a special item
-	/// @returns {bool}
-	static has_basic_chest = function() {
-		return stairs_spot_obj == obj_chest && !has_locked_chest && !has_special_item;
 	};
 
 	/// @function get_reachable_rooms_bitmask()
@@ -326,22 +333,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	can take it without anything holding it down
 	/// @returns {bool}
 	static has_open_stairs_or_chest_spot = function() {
-		return (is_stairs_spot_free() && layout.stairs_spot_is_alone) || (is_chest_spot_free() && layout.chest_spot_is_alone);
-	};
-
-	/// @function is_stairs_spot_free()
-	/// @description Whether nothing takes the room's stairs spot: no stairs, and no cross, heart or chest placed
-	/// @returns {bool}
-	static is_stairs_spot_free = function() {
-		if (has_exit(directions.stairs)) { return false; }
-		return stairs_spot_obj == -1 || !chest_on_stairs_spot;
-	};
-
-	/// @function is_chest_spot_free()
-	/// @description Whether nothing takes the room's chest spot: no stairs spot object, or one that goes on the stairs spot
-	/// @returns {bool}
-	static is_chest_spot_free = function() {
-		return stairs_spot_obj == -1 || (chest_on_stairs_spot && !has_exit(directions.stairs));
+		return (stairs_spot_object_type == -1 && layout.stairs_spot_is_alone) || (chest_spot_object_type == -1 && layout.chest_spot_is_alone);
 	};
 
 	/// @function can_have_collectables()
@@ -376,19 +368,14 @@ function GameRoom(_given_x, _given_y) constructor {
 		return !has_phantom && !is_start_room && !is_special_room && !has_portcullis_trap;
 	};
 
-	/// @function has_trap_chest()
-	/// @description Whether the room's chest holds a statue or fountain trap instead of an item
-	/// @returns {bool}
-	static has_trap_chest = function() {
-		return chest_obj == obj_statue || chest_obj == obj_fountain;
-	};
+
 
 	/// @function can_have_special_item()
 	/// @description Whether the room is allowed to have a special item added to it: it has none yet, and it is at least
 	///	two rooms from the start
 	/// @returns {bool}
 	static can_have_special_item = function() {
-		return (!has_special_item && distance_to_start >= 2);
+		return (can_have_chest() && !has_special_item && distance_to_start >= 2);
 	};
 
 	/// @function has_regular_item_chest()
@@ -410,14 +397,14 @@ function GameRoom(_given_x, _given_y) constructor {
 	// Map Generation Functions
 	// ============================
 
-	/// @function set_stairs_spot_object(_object)
+	/// @function set_chest_or_stairs_spot_object(_object)
 	/// @description Places the room's stairs spot object (the cross, the encased heart, or a chest), and picks whether
 	///	it goes on the stairs spot or the chest spot. The cross always goes on the stairs spot, and nothing else does in a
 	///	room with stairs.
 	/// @param {Asset.GMObject} _object What to place
-	static set_stairs_spot_object = function(_object) {
-		stairs_spot_obj = _object;
-		chest_on_stairs_spot = (_object == obj_cross) || (!has_exit(directions.stairs) && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY));
+	static set_chest_or_stairs_spot_object = function(_object) {
+		if (stairs_spot_object_type == -1 && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY)) { chest_spot_object_type = _object }
+		else { stairs_spot_object_type = _object }
 	};
 
 	/// @function determine_layout_exit_type()
@@ -517,28 +504,27 @@ function GameRoom(_given_x, _given_y) constructor {
 	static add_special_room_chest = function() {
 		has_locked_chest = true;
 		switch (special_room_type.name) {
-			case "greed": { set_stairs_spot_object(obj_chest); break; }
+			case "greed": { set_chest_or_stairs_spot_object(obj_chest); break; }
 			case "sloth": {
-				stairs_spot_obj = obj_chest;
-				chest_on_stairs_spot = false;
+				chest_spot_object_type = obj_chest;
 				has_special_item = true;
 				break;
 			}
 			default: {
-				add_chest(true);
+				add_hidden_or_regular_chest(true);
 				has_special_item = true;
 				break;
 			}
 		}
 	};
 
-	/// @function add_chest([_must_be_hidden])
+	/// @function add_hidden_or_regular_chest([_must_be_hidden])
 	/// @description Puts a chest with no item yet in the room. Unless it must be hidden, a hidden chest can only appear in
 	///	an unlit lantern room, which then never gets a phantom.
 	/// @param {bool} [_must_be_hidden] Whether the chest must be hidden (false by default)
-	static add_chest = function(_must_be_hidden = false) {
+	static add_hidden_or_regular_chest = function(_must_be_hidden = false) {
 		has_hidden_chest = _must_be_hidden || (has_lanterns && !is_lit() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
-		set_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
+		set_chest_or_stairs_spot_object(has_hidden_chest ? obj_hidden_chest : obj_chest);
 	};
 
 	/// @function add_portcullis_trap()
@@ -633,7 +619,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (has_eyes || is_start_room || get_object_count_from_layout("obj_skeleton_spot") == 0) { return; }
 
 		// Otherwise, sometimes put eyes on a skeleton spot, when nothing in the room chases or shoots at the player
-		if (chest_obj == obj_fountain || count_hazards_with_tags(get_actual_mapgen_spawns(), TARGETS_PLAYER_TAGS) > 0) { return; }
+		if (chest_content_object_type == obj_fountain || count_hazards_with_tags(get_actual_mapgen_spawns(), TARGETS_PLAYER_TAGS) > 0) { return; }
 		if (get_random_chance_out_of(EYES_PROBABILITY) && !would_exceed_max_difficulty("obj_eyes", "obj_skeleton")) {
 			// Building shuffles the skeleton types onto the skeleton spots, so the eyes land on a random one
 			has_eyes = true;
@@ -688,7 +674,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Items make the rest of the run easier
 		if (has_special_item) { _difficulty_score += SPECIAL_ITEM_DIFFICULTY_SCORE; }
 		else {
-			switch (chest_obj) {
+			switch (chest_content_object_type) {
 				case obj_rosary: { _difficulty_score += -1.5; break; }			// One extra life
 				case obj_sword: { _difficulty_score += -1; break; }				// Kills most enemy types
 				case obj_staff: { _difficulty_score += -1; break; }				// Lava, fireballs and beams can't kill you while you hold it
@@ -840,7 +826,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	with stairs, or when it wasn't placed on the stairs spot, and anything but a hidden chest destroys it
 	/// @returns {bool}
 	static destroys_chest_spot = function() {
-		return stairs_spot_obj != -1 && stairs_spot_obj != obj_hidden_chest && (has_exit(directions.stairs) || !chest_on_stairs_spot);
+		return chest_spot_object_type != -1 && chest_spot_object_type != obj_hidden_chest;
 	};
 
 	// ============================
@@ -998,23 +984,12 @@ function GameRoom(_given_x, _given_y) constructor {
 			write_debug_message("Room with no chest spot: " + room_get_name(room_reference), debug_message_level.warning);
 		}
 
-		// Create the room's stairs and its stairs spot object. Generation already chose which spot the stairs spot object takes
-		var _has_stairs = (has_exit(directions.stairs)), _spawn_spot = (chest_on_stairs_spot) ? _stairs_spot : _chest_spot;
-		
-		// Spawn stairs
-		if (_has_stairs) { 
-			var _new_stairs = instance_create(_stairs_spot.x, _stairs_spot.y, obj_stairs);
-			add_to_instances_at_map_positions(_new_stairs);
-			_spawn_spot = _chest_spot; 
-		}
-		else if (stairs_spot_obj == obj_cross) { _spawn_spot = _stairs_spot; }
-
-		// The stairs spot object can't spawn if the spot it takes is missing. This should never happen if every room has both spots
-		if (_spawn_spot == noone) { stairs_spot_obj = -1; }
+		// Create the room's stairs and its stairs spot object. Generation already chose which spot they take
+		var _spawn_spot = (stairs_spot_object_type == -1) ? _stairs_spot : _chest_spot;
 
 		// Spawn stairs spot object
-		if (stairs_spot_obj != -1) {
-			var _new_inst = instance_create(_spawn_spot.x, _spawn_spot.y, stairs_spot_obj);
+		if (stairs_spot_object_type != -1) {
+			var _new_inst = instance_create(_spawn_spot.x, _spawn_spot.y, stairs_spot_object_type);
 			if (is_existing_instance(_new_inst)) {
 				if (is_special_room && _new_inst.object_index == obj_hidden_chest) {
 					// Move a special room's hidden chest onto a random giant eye or inverted cross, or tie it to the hall of mirrors.
@@ -1038,6 +1013,7 @@ function GameRoom(_given_x, _given_y) constructor {
 					case obj_chest:
 					case obj_hidden_chest:
 					case obj_cross:
+					case obj_stairs:
 					case obj_encased_heart:{ 
 						add_to_instances_at_map_positions(_new_inst);
 						break;
@@ -1060,8 +1036,8 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Pick the button's spot before the floor key takes one, since generation only checks that the room has a spot left for the
 		// button: the stairs or chest spot when it's open with nothing else on it, or a clear collectable spot the key and collectables can spare
 		if (_room_has_portcullis) {
-			if (is_stairs_spot_free() && layout.stairs_spot_is_alone) { array_push(_possible_button_spots, _stairs_spot); }
-			if (is_chest_spot_free() && layout.chest_spot_is_alone) { array_push(_possible_button_spots, _chest_spot); }
+			if (stairs_spot_object_type == -1 && layout.stairs_spot_is_alone) { array_push(_possible_button_spots, _stairs_spot); }
+			if (chest_spot_object_type == -1 && layout.chest_spot_is_alone) { array_push(_possible_button_spots, _chest_spot); }
 			var _needed_collectable_spot_count = (_has_floor_key ? 1 : 0) + (has_collectables ? 1 : 0);
 			if (array_length(_collectable_spots) > _needed_collectable_spot_count) {
 				var _clear_spots = layout.button_spots;
@@ -1100,8 +1076,9 @@ function GameRoom(_given_x, _given_y) constructor {
 					for (var _j = 0; _j < _dirt_to_spawn; _j++) { spawn_dirt(); }
 					
 					// Remove the spot the button spawned at
-					if (_button_spot == _stairs_spot) { stairs_spot_obj = obj_button; }
-					else if (_button_spot != _chest_spot) { with (_button_spot) { instance_destroy(); } }
+					if (_button_spot == _stairs_spot) { stairs_spot_object_type = obj_button; }
+					else if (_button_spot == _chest_spot) { chest_spot_object_type = obj_button; }
+					else { with (_button_spot) { instance_destroy(); } }
 				}
 			}
 			
@@ -1413,7 +1390,7 @@ function GameRoom(_given_x, _given_y) constructor {
 								}
 								else if (_room_map_obj == obj_hole) { _pos_color = _white_color; continue; }
 								else if (_is_test_mode_on && has_locked_chest && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) { _pos_color = c_aqua; continue; }
-								else if (_is_test_mode_on && (has_key || has_extra_key) && ((chest_obj == obj_key && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) || _room_map_obj == obj_key)) { _pos_color = c_lime; continue; }
+								else if (_is_test_mode_on && (has_key || has_extra_key) && ((chest_content_object_type == obj_key && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) || _room_map_obj == obj_key)) { _pos_color = c_lime; continue; }
 								else if (_is_test_mode_on && has_hidden_chest && (_room_map_obj == obj_chest || _room_map_obj == obj_hidden_chest)) { _pos_color = c_yellow; continue; }
 								else if (_pos_color == -1 && _show_detailed_map && (_show_collectables || _room_map_obj != obj_hidden_chest)) { _pos_color = _inverse_color; }
 							}
@@ -1485,7 +1462,8 @@ function GameRoom(_given_x, _given_y) constructor {
 	static reset_map_role_variables = function() {
 		is_start_room = false;
 		is_heart_room = false;
-		stairs_spot_obj = -1;
+		stairs_spot_object_type = -1;
+		chest_spot_object_type = -1;
 		distance_to_start = 9999;
 	};
 
@@ -1513,14 +1491,16 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @function reset_chest_and_collectable_spot_variables()
 	/// @description Resets room variables that are set when chest and collectable spot are assigned during a map scoring pass
 	static reset_chest_and_collectable_spot_variables = function() {
-		chest_on_stairs_spot = false;
-		chest_obj = -1;
+		// Chest Variables
+		chest_content_object_type = -1;
 		has_hidden_chest = false;
 		has_locked_chest = false;
 		has_special_item = false;
 		has_guaranteed_item = false;
-		has_key = false;
 		has_chest_key = false;
+		
+		// Collectable Spot Variables
+		has_key = false;
 		has_extra_key = false;
 		has_collectables = false;
 		has_portcullis_trap = false;

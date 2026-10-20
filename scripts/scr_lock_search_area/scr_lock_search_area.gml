@@ -56,7 +56,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 		// Skip the chest if it is still locked
 		if (_room.has_locked_chest && !is_room_chest_unlocked(_room)) { return; }
 		
-		switch (_room.chest_obj) {
+		switch (_room.chest_content_object_type) {
 			case obj_torch: {
 				reached_torch = true;
 				break;

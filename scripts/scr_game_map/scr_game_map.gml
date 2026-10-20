@@ -475,7 +475,7 @@ function GameMap() constructor {
 		array_push(guaranteed_items, _map_item); // Guarantee at least one map item; replaced later if it is in hand
 		if (map_needs_gudetama_item()) { array_push(guaranteed_items, _gudetama_item); } // Guarantee at least one item that can defeat the gudetama
 		
-		// Create and assign regular chests, including guaranteed items, to roomsin a random order
+		// Create and assign regular chests, including guaranteed items, to rooms in a random order
 		_possible_rooms = array_shuffle(rooms);
 		for (var _i = 0; _i < array_length(_possible_rooms); _i++) {
 			// Skip rooms that can't have a chest
@@ -713,7 +713,7 @@ function GameMap() constructor {
 		locked_exits = get_locked_exits();
 		
 		// Set up the initial queue of areas to check, map of area check queue keys, and initial area
-		var _all_rooms_reached_bitmask = (1 << array_length(rooms)) - 1, _reached_rooms_bitmask = start_room.get_reachable_rooms_bitmask(), _relevant_locked_chests_bitmask = 0;
+		var _all_rooms_reached_bitmask = (1 << array_length(rooms)) - 1, _reached_rooms_bitmask = start_room.calculate_reachable_rooms_bitmask(), _relevant_locked_chests_bitmask = 0;
 		var _initial_search_area = new LockSearchArea(self, _reached_rooms_bitmask, _relevant_locked_chests_bitmask), _search_area_check_queue = [_initial_search_area];
 		var _search_areas_in_queue_map = {};
 		_search_areas_in_queue_map[$ get_search_area_key(_reached_rooms_bitmask, _relevant_locked_chests_bitmask)] = true;
@@ -740,7 +740,7 @@ function GameMap() constructor {
 				// Add a new area to the queue of areas to check, which is the same as the old area, plus this new room
 				var _new_room = (_room_1_reached) ? _locked_exit.room_2 :  _locked_exit.room_1;
 				
-				var _new_reached_rooms = _search_area.reached_rooms | _new_room.get_reachable_rooms_bitmask();
+				var _new_reached_rooms = _search_area.reached_rooms | _new_room.calculate_reachable_rooms_bitmask();
 				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _new_reached_rooms, _search_area.relevant_locked_chests);
 			}
 			
@@ -1386,7 +1386,7 @@ function GameMap() constructor {
 			_hazard_mitigation.chance_holding_special_sword = _special_sword_chance;
 			
 			// Set its lit room chances
-			if (_room.is_lit()) { _hazard_mitigation.chance_of_light = 1; }
+			if (_room.is_pre_lit)) { _hazard_mitigation.chance_of_light = 1; }
 			else if (_room.can_light_torch()) { _hazard_mitigation.chance_of_light = _torch_chance; }
 			else { _hazard_mitigation.chance_of_light = _lit_torch_chance; }
 		}

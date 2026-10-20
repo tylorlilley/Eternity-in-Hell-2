@@ -23,11 +23,11 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 			
 			// Count the room's non-chest content: An available key, its light, and any locked chest
 			if (_room.has_key && !_room.has_chest_key) { keys_reached += 1; }
-			if (_room.is_lit()) { reached_lit_room = true; }
+			if (_room.is_pre_lit)) { reached_lit_room = true; }
 			if (_room.has_locked_chest && _room.relevant_locked_chests_index == -1) { irrelevant_locked_chests_reached += 1; }
 
 			// Count the room's chest content, unless the chest waits on a gudetama item or on light
-			if (_room == _map.gudetama_room) { _gudetama_room = _room; }
+			if (_room == map.gudetama_room) { _gudetama_room = _room; }
 			else if (_room.has_hidden_chest() && !_room.is_special_room) { array_push(_hidden_chest_rooms, _room); }
 			else if (_room.has_chest()) { count_chest_content(_room); }
 		}

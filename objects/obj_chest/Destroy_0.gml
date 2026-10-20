@@ -1,6 +1,6 @@
 event_inherited();
 
-// Spawn chest_obj when destroyed
+// Spawn contents when destroyed
 var _controller = global.controller;
 if (is_existing_instance(_controller)) {
 	if (closed) {

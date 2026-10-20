@@ -854,7 +854,7 @@ function GameMap() constructor {
 		else {
 			// Select a random room out of the possible rooms to add the key to
 			var _key_is_bomb = false;
-			if (_room.can_have_chest() && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY)) { _key_is_bomb = _room.add_key_chest(_stuck_area.can_use_bombs_as_keys()) }
+			if (_room.can_have_chest() && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY)) { _key_is_bomb = _room.add_key_chest(_stuck_area.can_light_torches()) }
 			_room.has_key = true;
 	
 			// The first bomb standing in for a key on the map also brings an extra key to the same area
@@ -1374,7 +1374,7 @@ function GameMap() constructor {
 			_hazard_mitigation.chance_holding_special_sword = _special_sword_chance;
 			
 			// Set its lit room chances
-			if (_room.is_pre_lit)) { _hazard_mitigation.chance_of_light = 1; }
+			if (_room.is_pre_lit()) { _hazard_mitigation.chance_of_light = 1; }
 			else if (_room.can_light_torch()) { _hazard_mitigation.chance_of_light = _torch_chance; }
 			else { _hazard_mitigation.chance_of_light = _lit_torch_chance; }
 		}

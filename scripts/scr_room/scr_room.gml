@@ -494,10 +494,10 @@ function GameRoom(_given_x, _given_y) constructor {
 	/// @param {Asset.GMObject} _object What to place
 	static set_chest_or_stairs_spot_object = function(_object) {
 		// Return if neither spot is free
-		var _stairs_spot_free = (stairs_spot_object_type != -1), _chest_spot_free = (chest_spot_object_type != -1);
+		var _stairs_spot_free = (stairs_spot_object_type == -1), _chest_spot_free = (chest_spot_object_type == -1);
 		if (!_stairs_spot_free && !_chest_spot_free) {
 			// This should NEVER happen
-			write_debug_message("Tried to add object " + object_get_name(_object) + "to room, but its stairs spot (" + object_get_name(chest_spot_object_type) + ") and chest spot (" + object_get_name(_object) + ") were already taken.", debug_message_level.warning);
+			write_debug_message("Tried to add object " + object_get_name(_object) + "to room, but its stairs spot (" + object_get_name(stairs_spot_object_type) + ") and chest spot (" + object_get_name(chest_spot_object_type) + ") were already taken.", debug_message_level.warning);
 			return false;
 		}
 		
@@ -554,7 +554,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		
 		// Sometimes a bomb stands in for a key
 		var _key_is_bomb = _can_use_bomb && get_random_chance_out_of(BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY);
-		_room.chest_content_object_type = _key_is_bomb ? obj_bomb : obj_key;
+		chest_content_object_type = _key_is_bomb ? obj_bomb : obj_key;
 		return _key_is_bomb;
 	};
 
@@ -580,47 +580,42 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	only the ones that aren't dangerous.
 	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
 	static determine_room_content = function(_same_skeleton_type) {
-		// Eyes come first, so nothing that chases or shoots at the player joins a room where eyes hold them still
+		// Determine eyes first, so nothing that chases or shoots at the player joins a room where eyes hold them still
 		determine_eyes();
 
-		// Determine how many columns and how many statues to replace with fountains: each column gets a random chance, then
-		// each statue, until the room has MAX_REPLACED_FOUNTAINS between them
+		// Determine how many columns and statues to replace with fountains, up to a total of MAX_REPLACED_FOUNTAINS between them
 		if (!is_start_room && can_have_hazard_with_eyes("obj_fountain")) {
-			var _max_replaced_fountains = MAX_REPLACED_FOUNTAINS;
-			for (var _column = 0; _column < get_object_count_from_layout("obj_column") && replaced_column_fountain_count < _max_replaced_fountains; _column++) { // Columns aren't in the hazards table
+			for (var _column = 0; _column < get_object_count("obj_column") && replaced_column_fountain_count < MAX_REPLACED_FOUNTAINS; _column++) {
 				if (get_random_chance_out_of(COLUMN_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain")) { replaced_column_fountain_count += 1; }
 			}
-			for (var _statue = 0; _statue < get_object_count_from_layout("obj_statue") && replaced_column_fountain_count + replaced_statue_fountain_count < _max_replaced_fountains; _statue++) {
+			for (var _statue = 0; _statue < get_object_count("obj_statue") && replaced_column_fountain_count + replaced_statue_fountain_count < MAX_REPLACED_FOUNTAINS; _statue++) {
 				if (get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY) && !would_exceed_max_difficulty("obj_fountain", "obj_statue")) { replaced_statue_fountain_count += 1; }
 			}
 		}
 
 		// Determine how many of the blocks on block spots come alive
 		if (!is_start_room) {
-			for (var _block_spot = 0; _block_spot < get_object_count_from_layout("obj_block_spot"); _block_spot++) {
+			for (var _block_spot = 0; _block_spot < get_object_count("obj_block_spot"); _block_spot++) {
 				if (get_random_chance_out_of(LIVING_BLOCK_PROBABILITY) && !would_exceed_max_difficulty("obj_living_block")) { living_block_count += 1; }
 			}
 		}
 
 		// Determine lava enemy spawns
-		if (!is_start_room && get_object_count_from_layout("obj_lava") > 0) {
-			if (can_have_hazard_with_eyes("obj_fire_skeleton") && get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) && !would_exceed_max_difficulty("obj_fire_skeleton")) { initial_fire_skeleton_count = 1; }
+		if (!is_start_room && get_object_count("obj_lava") > 0) {
+			if (get_random_chance_out_of(FIRE_SKELETON_IN_LAVA_PROBABILITY) && !would_exceed_max_difficulty("obj_fire_skeleton")) { initial_fire_skeleton_count = 1; }
 			
-			if (can_have_hazard_with_eyes("obj_nose")) {
-				for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
-					if (get_random_chance_out_of(NOSE_PROBABILITY) && !would_exceed_max_difficulty("obj_nose")) { initial_nose_count += 1; }
-				}
+			for (var _nose_chance = 0; _nose_chance < global.difficulty - 1; _nose_chance++) {
+				if (get_random_chance_out_of(NOSE_PROBABILITY) && !would_exceed_max_difficulty("obj_nose")) { initial_nose_count += 1; }
 			}
 		}
 		
-		// Determine skeleton spot enemies for the spots the eyes didn't take. A spot keeps its basic skeleton when its random type
-		// would chase or shoot at a player held still by eyes or take the room past ROOM_DIFFICULTY_SCORE_MAX, and when that type
-		// is dangerous in the start room or an invisible skeleton in a lit room
-		var _skeleton_spot_count = get_object_count_from_layout("obj_skeleton_spot");
+		// Determine skeleton spot enemies for the spots the eyes didn't take. A spot keeps its basic skeleton when its random type would not work for this room
+		var _skeleton_spot_count = get_object_count("obj_skeleton_spot");
 		while (array_length(skeleton_types) < _skeleton_spot_count) {
+			// Get the skeleton type, setting it to a regular skeleton in the start room or lit room for invisible skeletons
 			var _skeleton_type = (_same_skeleton_type == noone) ? get_skeleton_type() : _same_skeleton_type;
-			var _is_dangerous = (_skeleton_type != obj_skeleton && _skeleton_type != obj_fast_skeleton && _skeleton_type != obj_cockroach && _skeleton_type != obj_fat_skeleton);
-			if ((is_start_room && _is_dangerous) || (lit && _skeleton_type == obj_invisible_skeleton)) { _skeleton_type = obj_skeleton; }
+			if ((is_start_room && _skeleton_type != obj_skeleton) || (is_pre_lit() && _skeleton_type == obj_invisible_skeleton)) { _skeleton_type = obj_skeleton; }
+			// Set the skeleton type to regular skeleton if it can't coexist with eyes present in the room
 			var _skeleton_name = object_get_name(_skeleton_type);
 			if (_skeleton_type != obj_skeleton && (!can_have_hazard_with_eyes(_skeleton_name) || would_exceed_max_difficulty(_skeleton_name, "obj_skeleton"))) { _skeleton_type = obj_skeleton; }
 			array_push(skeleton_types, _skeleton_type);
@@ -630,27 +625,32 @@ function GameRoom(_given_x, _given_y) constructor {
 		has_phantom = can_have_phantom() && can_have_hazard_with_eyes("obj_phantom") && get_random_chance_out_of(PHANTOM_PROBABILITY) && !would_exceed_max_difficulty("obj_phantom");
 		has_floater = can_have_floater() && can_have_hazard_with_eyes("obj_floater") && get_random_chance_out_of(FLOATER_PROBABILITY) && !would_exceed_max_difficulty("obj_floater");
 		has_moving_collectable = has_collectables && get_random_chance_out_of(MOVING_COLLECTABLE_PROBABILITY);
-		initial_mouth_count = get_object_count_from_layout("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
+		initial_mouth_count = get_object_count("obj_mouth") * (MOUTHS_PER_MOUTH - 1);
 
-		// The rules above should never let something that stops the player share the room with something that chases or
-		// shoots at them, but flag it if they ever do
+		// A final check to make sure the eyes never coexist with anything that targets the player
 		var _spawn_counts = get_actual_mapgen_spawns();
 		if (count_hazards_with_tags(_spawn_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(_spawn_counts, TARGETS_PLAYER_TAGS) > 0) {
+			// This should NEVER happen
 			write_debug_message("Generation randomly added a hazard that stops the player to a room with one that chases or shoots at them: " + layout.room_name, debug_message_level.warning);
 		}
 	};
-
+	
 	/// @function determine_eyes()
 	/// @description Determines whether the room has eyes, before any of its other random content: the ones its layout places,
 	///	or ones randomly put on one of its skeleton spots, outside the start room, when nothing in it chases or shoots at the
 	///	player. A fountain trap chest counts, since it shoots at the player once opened, though it's scored as a hazard that doesn't.
 	static determine_eyes = function() {
-		// Eyes the layout places stop the player in place
-		has_eyes = (get_object_count_from_layout("obj_eyes") > 0);
-		if (has_eyes || is_start_room || get_object_count_from_layout("obj_skeleton_spot") == 0) { return; }
+		// Return without spawning if this room already has eyes, is the start room, or can't have random eyes placed
+		has_eyes = (get_object_count("obj_eyes") > 0);
+		if (has_eyes || is_start_room || get_object_count("obj_skeleton_spot") == 0) { return; }
 
-		// Otherwise, sometimes put eyes on a skeleton spot, when nothing in the room chases or shoots at the player
+		// Return without spawning if there is already anything in the room that would shoot directly at the player
 		if (chest_content_object_type == obj_fountain || count_hazards_with_tags(get_actual_mapgen_spawns(), TARGETS_PLAYER_TAGS) > 0) { return; }
+		
+		// Return if midgame spawns could cause there to be something in the room that would shoot directly at the player
+		if (get_object_count("obj_lava") > 0) { return; }
+		
+		// Otherwise, there is a random chance to spawn eyes on a skeleton spot
 		if (get_random_chance_out_of(EYES_PROBABILITY) && !would_exceed_max_difficulty("obj_eyes", "obj_skeleton")) {
 			// Building shuffles the skeleton types onto the skeleton spots, so the eyes land on a random one
 			has_eyes = true;
@@ -729,7 +729,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	static get_time_needed = function() {
 		var _time_needed = is_pre_lit() ? (ROOM_VISIT_TIME / 2) : ROOM_VISIT_TIME;
 		if (has_collectables) { _time_needed += get_free_collectable_spot_count() * COLLECTABLE_TIME; }
-		if (has_phantom) { _time_needed += get_object_count_from_layout("obj_lantern") * PHANTOM_TIME_PER_LANTERN; }
+		if (has_phantom) { _time_needed += get_object_count("obj_lantern") * PHANTOM_TIME_PER_LANTERN; }
 		if (!is_pre_lit()) { _time_needed += abs(array_length(layout.get_open_cardinal_exits()) - get_cardinal_exits_count()) * MISLEADING_OPENING_TIME; }
 		if (has_portcullis_trap) { _time_needed += PORTCULLIS_TRAP_TIME; }
 		return _time_needed + get_hazards_time();
@@ -754,11 +754,11 @@ function GameRoom(_given_x, _given_y) constructor {
 	// Layout Object Count Functions
 	// ============================
 
-	/// @function get_object_count_from_layout(_object_name)
+	/// @function get_object_count(_object_name)
 	/// @description How many instances of an object type the room's layout places, minus those its exit and chest spots destroy when the room is built
 	/// @param {string} _object_name The string name of the Game Maker object type
 	/// @returns {real}
-	static get_object_count_from_layout = function(_object_name) {
+	static get_object_count = function(_object_name) {
 		// Loop through all the covered instances in the layout
 		var _count = layout.get_object_count(_object_name);
 		for (var _i = 0; _i < array_length(layout.covered_instances); _i++) {
@@ -821,7 +821,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		var _layout_object_names = variable_struct_get_names(layout.instance_object_counts);
 		for (var _i = 0; _i < array_length(_layout_object_names); _i++) {
 			var _layout_object_name = _layout_object_names[_i];
-			add_to_count_struct(_actual_spawns, _layout_object_name, get_object_count_from_layout(_layout_object_name));
+			add_to_count_struct(_actual_spawns, _layout_object_name, get_object_count(_layout_object_name));
 		}
 		
 		// Add the actual exit counts
@@ -830,7 +830,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		add_to_count_struct(_actual_spawns, "obj_exit_spot", _exit_count);
 		
 		// Fill in what spawns on the skeleton spots: the type content gave each one, or a basic skeleton until it gives one
-		var _skeleton_spot_count = get_object_count_from_layout("obj_skeleton_spot");
+		var _skeleton_spot_count = get_object_count("obj_skeleton_spot");
 		for (var _i = 0; _i < _skeleton_spot_count; _i++) {
 			add_to_count_struct(_actual_spawns, object_get_name((_i < array_length(skeleton_types)) ? skeleton_types[_i] : obj_skeleton), 1);
 		}

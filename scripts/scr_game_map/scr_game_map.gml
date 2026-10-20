@@ -502,7 +502,7 @@ function GameMap() constructor {
 					// Trap random unlocked chests. A fountain shoots at the player, so a room whose layout has eyes only gets the statue trap
 					var _chest_content = undefined;
 					if (_regular_chest_room.has_basic_chest() && get_random_chance_out_of(TRAP_CHEST_PROBABILITY) && !_regular_chest_room.would_exceed_max_difficulty("obj_chest")) { 
-						_chest_content = (_regular_chest_room.get_object_count_from_layout("obj_eyes") == 0 && get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) ? obj_fountain : obj_statue;
+						_chest_content = (_regular_chest_room.get_object_count("obj_eyes") == 0 && get_random_chance_out_of(STATUE_FOUNTAIN_PROBABILITY)) ? obj_fountain : obj_statue;
 					}
 					
 					// Assign random item to chest if it is not trapped
@@ -858,7 +858,7 @@ function GameMap() constructor {
 			_room.has_key = true;
 	
 			// The first bomb standing in for a key on the map also brings an extra key to the same area
-			if (!_key_is_bomb && !extra_key_placed) {
+			if (_key_is_bomb && !extra_key_placed) {
 				if (!add_key_to_area(_stuck_area, true)) {
 					// This should NEVER happen, since the bomb's own room always has a free key spot
 					write_debug_message("No room could take the extra key a bomb brings.", debug_message_level.warning);

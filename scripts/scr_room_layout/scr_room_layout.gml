@@ -176,7 +176,7 @@ function RoomLayout(_room_reference) constructor {
 		
 		// Eyes on a skeleton spot, which are determined before any other random content, so only what the layout places can keep
 		// them out of the room: anything that chases or shoots at the player
-		if (_skeleton_spot_count > 0 && get_object_count("obj_eyes") == 0 && count_hazards_with_tags(instance_object_counts, TARGETS_PLAYER_TAGS) == 0) {
+		if (_skeleton_spot_count > 0 && get_object_count("obj_eyes") == 0 && get_object_count("obj_lava") == 0 && count_hazards_with_tags(instance_object_counts, TARGETS_PLAYER_TAGS) == 0) {
 			var _eyes_count = get_chance_out_of(EYES_PROBABILITY);
 			add_to_count_struct(_mapgen_counts, "obj_eyes", _eyes_count);
 			_skeleton_spot_count -= _eyes_count; // Eyes take up a skeleton spot

@@ -23,7 +23,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 			
 			// Count the room's non-chest content: An available key, its light, and any locked chest
 			if (_room.has_key && !_room.has_chest_key) { keys_reached += 1; }
-			if (_room.is_pre_lit)) { reached_lit_room = true; }
+			if (_room.is_pre_lit()) { reached_lit_room = true; }
 			if (_room.has_locked_chest && _room.relevant_locked_chests_index == -1) { irrelevant_locked_chests_reached += 1; }
 
 			// Count the room's chest content, unless the chest waits on a gudetama item or on light
@@ -33,7 +33,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 		}
 		
 		// A hidden chest shows once its room is lit, which takes a torch and a lit room to light it in, as lighting bombs does
-		if (can_use_bombs_as_keys()) {
+		if (can_light_torches()) {
 			for (var _j = 0; _j < array_length(_hidden_chest_rooms); _j++) { count_chest_content(_hidden_chest_rooms[_j]); }
 		}
 		
@@ -98,13 +98,14 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	/// @description Whether a special key or special bomb that is usable has been reached
 	/// @returns {bool}
 	static can_use_special_item = function() {
-		return (reached_special_key || (reached_special_bomb && can_use_bombs_as_keys()));
+		// TODO: add special staff here once it can go through room walls
+		return (reached_special_key || (reached_special_bomb && can_light_torches()));
 	};
 
-	/// @function can_use_bombs_as_keys()
+	/// @function can_light_torches()
 	/// @description Whether bombs can stand in for keys in this search area: it has a torch, and a lit room to light it in
 	/// @returns {bool}
-	static can_use_bombs_as_keys = function() {
+	static can_light_torches = function() {
 		return (reached_lit_room && reached_torch);
 	};
 
@@ -113,7 +114,7 @@ function LockSearchArea(_map, _reached_rooms, _relevant_locked_chests) construct
 	///	minus the keys spent unlocking chests and exits.
 	/// @returns {real}
 	static get_keys_remaining = function() {
-		var _bombs_as_keys = (can_use_bombs_as_keys() ? bombs_reached : 0);
+		var _bombs_as_keys = (can_light_torches() ? bombs_reached : 0);
 		return (keys_reached + _bombs_as_keys - get_keys_spent_on_exits() - get_keys_spent_on_chests());
 	};
 

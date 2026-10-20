@@ -629,7 +629,7 @@ function GameMap() constructor {
 
 	/// @function create_locked_exits_and_keys()
 	/// @description Locks every cardinal exit of the heart room, then randomly locks other cardinal exits that can be
-	///	locked, and backs each lock with keys before the next one is added
+	///	locked, and backs each lock with keys before the next lock is added
 	/// @returns {bool} False if the heart locks could not be backed (a last resort, never expected)
 	static create_locked_exits_and_keys = function() {
 		// First, lock every exit of the heart room and add its keys
@@ -639,7 +639,7 @@ function GameMap() constructor {
 		}
 		if (!create_keys_for_locks()) { return false; }
 
-		// Lock other exits at random, and add keys for each
+		// Lock other exits at random, and adding keys for each along the way
 		var _exits = array_shuffle(cardinal_exits);
 		for (var _i = 0; _i < array_length(_exits); _i++) {
 			var _exit = _exits[_i];
@@ -654,9 +654,9 @@ function GameMap() constructor {
 	};
 
 	/// @function create_keys_for_locks([_newest_lock])
-	/// @description Checks every order the player could spend keys on locks in, and adds a key to the area where an
-	///	order gets them stuck, until no order does. If no room there can take
-	///	a key, the newest lock moves to an exit it hasn't tried yet, and is only dropped as a last resort.
+	/// @description Checks every order the player could spend keys on locks, and adds a key to the area they reached in any
+	/// search that they get stuck, until no order does. If no room there can take a key, the newest lock moves to an exit it
+	/// hasn't tried yet, and is only dropped as a last resort.
 	/// @param {RoomExit|undefined} [_newest_lock] The random lock just added, or undefined for the heart locks
 	/// @returns {bool} False if a lock no key can back cannot move either
 	static create_keys_for_locks = function(_newest_lock = undefined) {
@@ -729,7 +729,7 @@ function GameMap() constructor {
 			// Otherwise, the player is stuck here if the worst order leaves them no key
 			if (_search_area.get_keys_remaining() <= 0) { return _search_area; }
 
-			// Otherwise, spend a key to open a locked door at the edge of the area, reaching the rooms behind it...
+			// Otherwise, add new potential search areas to the queue. Start with each locked exit a key could be spent on.
 			for (var _i = 0; _i < array_length(locked_exits); _i++) {
 				// Skip unlocking the exit if already unlocked (both sides reached) OR exit is unreachable (neither side reached yet)
 				var _locked_exit = locked_exits[_i];
@@ -739,12 +739,11 @@ function GameMap() constructor {
 				
 				// Add a new area to the queue of areas to check, which is the same as the old area, plus this new room
 				var _new_room = (_room_1_reached) ? _locked_exit.room_2 :  _locked_exit.room_1;
-				
 				var _new_reached_rooms = _search_area.reached_rooms | _new_room.calculate_reachable_rooms_bitmask();
 				add_search_area_to_queue_if_unique(_search_area_check_queue, _search_areas_in_queue_map, _new_reached_rooms, _search_area.relevant_locked_chests);
 			}
 			
-			// ...or a locked chest that matters, in the area
+			// Then, also add potential search areas for each locked chest that could be opened.
 			for (var _chest = 0; _chest < array_length(relevant_locked_chest_rooms); _chest++) {
 				// Skip unlocking chests that are already unlocked in this area
 				var _new_relevant_locked_chests = _search_area.relevant_locked_chests | (1 << _chest);
@@ -778,7 +777,7 @@ function GameMap() constructor {
 			var _holds_special_key = (_room.chest_content_object_type == obj_key && _room.has_special_item);
 			var _holds_special_bomb = (_room.chest_content_object_type == obj_bomb && _room.has_special_item);
 			var _holds_needed_torch = (_room.chest_content_object_type == obj_torch);
-			var _holds_gudetama_item = (!is_undefined(_gudetama_room) && _room != _gudetama_room && _room.has_special_item && (_room.chest_content_object_type == obj_sword || _room.chest_content_object_type == obj_staff));
+			var _holds_gudetama_item = (!is_undefined(_gudetama_room) && _room != _gudetama_room && _room.has_gudetama_item());
 			
 			// Reset the chest index, then add the chest if it is relevant and assign its new index
 			_room.relevant_locked_chests_index = -1;
@@ -824,65 +823,51 @@ function GameMap() constructor {
 		array_push(_search_area_check_queue, _search_area);
 	};
 
-	/// @function add_key_to_area(_stuck_area)
+	/// @function add_key_to_area(_stuck_area, [_extra_key])
 	/// @description Adds a key to a random room of the stuck search area that can hold one: on its floor, where building
 	///	picks the collectable spot, or sometimes in a new chest, where a bomb can stand in for the key if the area lets the
 	///	player light bombs
 	/// @param {LockSearchArea} _stuck_area The search area where the player got stuck
+	/// @param {bool} _extra_key Whether this key is an extra key placed by the first bomb key stand-in or not
 	/// @returns {bool} False if no room there can take one
-	static add_key_to_area = function(_stuck_area) {
+	static add_key_to_area = function(_stuck_area, _extra_key = false) {
 		// Construct a list of all possible rooms we could add a key to. If none are left, return false
 		var _possible_rooms = [];
 		for (var _i = 0; _i < array_length(rooms); _i++) {
+			// Skip rooms that haven't been reached in this area
 			var _possible_room = rooms[_i];
 			if (!_stuck_area.is_room_reached(_possible_room)) { continue; }
-
-			if (!_possible_room.is_heart_room && !_possible_room.has_key && !_possible_room.has_extra_key && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
+			
+			// Add room to list of possibilities if it doesn't have a key (or extra key), is not the heart room, and there is a spot for one
+			var _can_have_key = (_extra_key) ? !_possible_room.has_floor_key() : (!_possible_room.has_key && !_possible_room.has_extra_key)
+			if (_can_have_key && !_possible_room.is_heart_room && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
 		}
 		if (array_length(_possible_rooms) == 0) { return false; }
-
-		// Select a random room out of the possible rooms to add the key to
-		var _room = array_random_get(_possible_rooms), _key_is_bomb = false;
-		if (_room.can_have_chest() && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY)) {
-			// The chest is never locked or hidden, and never holds a special item
-			_room.has_chest_key = true;
-			_room.set_chest_or_stairs_spot_object(obj_chest);
-			_key_is_bomb = _stuck_area.can_use_bombs_as_keys() && get_random_chance_out_of(BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY);
-			_room.chest_content_object_type = _key_is_bomb ? obj_bomb : obj_key;
+		
+		// Use floor spots for extra keys, or chest and floor spots for regular key placements
+		var _room = array_random_get(_possible_rooms);
+		if (_extra_key) {
+			// Put the extra key on the floor of a random one of them, where building picks its collectable spot
+			_room.has_extra_key = true;
+			extra_key_placed = true;
 		}
-		_room.has_key = true;
-
-		// The first bomb standing in for a key on the map also brings an extra key to the same area
-		if (_key_is_bomb && !extra_key_placed) { add_extra_key_to_area(_stuck_area); }
+		else {
+			// Select a random room out of the possible rooms to add the key to
+			var _key_is_bomb = false;
+			if (_room.can_have_chest() && get_random_chance_out_of(KEY_IN_CHEST_PROBABILITY)) { _key_is_bomb = _room.add_key_chest(_stuck_area.can_use_bombs_as_keys()) }
+			_room.has_key = true;
+	
+			// The first bomb standing in for a key on the map also brings an extra key to the same area
+			if (!_key_is_bomb && !extra_key_placed) {
+				if (!add_key_to_area(_stuck_area, true)) {
+					// This should NEVER happen, since the bomb's own room always has a free key spot
+					write_debug_message("No room could take the extra key a bomb brings.", debug_message_level.warning);
+				}
+			}
+		}
 
 		// Return true for successful key placement
 		return true;
-	};
-
-	/// @function add_extra_key_to_area(_stuck_area)
-	/// @description Puts an extra key on the floor of a random room in a search area, for the first bomb that stands in
-	///	for a key there. The room's has_key stays as it is, so the lock search never counts the extra key: it's a spare
-	///	on top of the keys and bombs the locks need.
-	/// @param {LockSearchArea} _stuck_area The search area the bomb went to
-	static add_extra_key_to_area = function(_stuck_area) {
-		// Rooms in the area with no key on their floor yet, which the bomb's own room always is
-		var _possible_rooms = [];
-		for (var _i = 0; _i < array_length(rooms); _i++) {
-			var _possible_room = rooms[_i];
-			if (!_stuck_area.is_room_reached(_possible_room)) { continue; }
-
-			if (!_possible_room.is_heart_room && !_possible_room.has_floor_key() && array_length(_possible_room.layout.key_spots) > 0) { array_push(_possible_rooms, _possible_room); }
-		}
-		if (array_length(_possible_rooms) == 0) {
-			// This should NEVER happen, since the bomb's own room always has a free key spot
-			write_debug_message("No room could take the extra key a bomb brings.", debug_message_level.warning);
-			return;
-		}
-
-		// Put the extra key on the floor of a random one of them, where building picks its collectable spot
-		var _room = array_random_get(_possible_rooms);
-		_room.has_extra_key = true;
-		extra_key_placed = true;
 	};
 
 	/// @function get_untried_lockable_exit(_tried_exits)
@@ -890,12 +875,15 @@ function GameMap() constructor {
 	/// @param {array} _tried_exits Exits this lock already tried
 	/// @returns {RoomExit|undefined} The exit, or undefined if none is left
 	static get_untried_lockable_exit = function(_tried_exits) {
-		var _possible_exits = [];
-		for (var _i = 0; _i < array_length(cardinal_exits); _i++) {
-			var _exit = cardinal_exits[_i];
-			if (_exit.can_be_locked() && !array_contains(_tried_exits, _exit)) { array_push(_possible_exits, _exit); }
+		// Loop through all cardinal exits in a random order and return the first possible exit
+		var _possible_exits = array_shuffle(cardinal_exits)
+		for (var _i = 0; _i < array_length(_possible_exits); _i++) {
+			var _exit = _possible_exits[_i];
+			if (_exit.can_be_locked() && !array_contains(_tried_exits, _exit)) { return _exit; }
 		}
-		return (array_length(_possible_exits) > 0) ? array_random_get(_possible_exits) : undefined;
+		
+		// No possible exit could be found
+		return undefined;
 	};
 
 	// ============================

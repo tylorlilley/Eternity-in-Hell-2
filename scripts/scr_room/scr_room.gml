@@ -236,7 +236,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	its stairs spot yet
 	/// @returns {bool}
 	static can_have_chest = function() {
-		return (!has_chest());
+		return (!has_chest() && !is_start_room && !is_heart_room);
 	};
 	
 	/// @function can_have_hazard_with_eyes(_hazard_name)
@@ -490,11 +490,24 @@ function GameRoom(_given_x, _given_y) constructor {
 	
 	/// @function set_chest_or_stairs_spot_object(_object)
 	/// @description Places the room's stairs spot object (the cross, the encased heart, or a chest), and picks whether
-	///	it goes on the stairs spot or the chest spot. The cross always goes on the stairs spot, and nothing else does in a
-	///	room with stairs.
+	///	it goes on the stairs spot or the chest spot, based on which is already full and a random chance check if neither are.
 	/// @param {Asset.GMObject} _object What to place
 	static set_chest_or_stairs_spot_object = function(_object) {
-		if (stairs_spot_object_type == -1 && get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY)) { stairs_spot_object_type = _object }
+		// Return if neither spot is free
+		var _stairs_spot_free = (stairs_spot_object_type != -1), _chest_spot_free = (chest_spot_object_type != -1);
+		if (!_stairs_spot_free && !_chest_spot_free) {
+			// This should NEVER happen
+			write_debug_message("Tried to add object " + object_get_name(_object) + "to room, but its stairs spot (" + object_get_name(chest_spot_object_type) + ") and chest spot (" + object_get_name(_object) + ") were already taken.", debug_message_level.warning);
+			return false;
+		}
+		
+		// Otherwise, pick the free spot if only one is occupied
+		if (!_stairs_spot_free) { chest_spot_object_type = _object; }
+		else if (!_chest_spot_free) { stairs_spot_object_type = _object }
+		// Otherwise, pick based on th eobject type
+		else if (_object == obj_cross) { stairs_spot_object_type = _object; }
+		// Otherwise, pick the spot with a weighted random chance
+		else if (get_random_chance_out_of(CHEST_ON_STAIRS_SPOT_PROBABILITY)) { stairs_spot_object_type = _object; }
 		else { chest_spot_object_type = _object }
 	};
 
@@ -527,6 +540,22 @@ function GameRoom(_given_x, _given_y) constructor {
 	static add_hidden_or_regular_chest = function(_must_be_hidden = false) {
 		var _has_hidden_chest = _must_be_hidden || (has_lanterns && !is_pre_lit() && get_random_chance_out_of(HIDDEN_CHEST_PROBABILITY));
 		set_chest_or_stairs_spot_object(_has_hidden_chest ? obj_hidden_chest : obj_chest);
+	};
+	
+	/// @function add_key_chest([_can_use_bomb])
+	/// @description Puts a chest with a key type item into the room
+	/// @param {bool} [_can_use_bomb] Whether the chest must be hidden (false by default)
+	/// @returns {bool} Whether the a bomb was used to stand in for the key
+	static add_key_chest = function(_can_use_bomb) {
+		// The key chest is never locked or hidden, and never holds a special item
+		has_key = true;
+		has_chest_key = true;
+		set_chest_or_stairs_spot_object(obj_chest);
+		
+		// Sometimes a bomb stands in for a key
+		var _key_is_bomb = _can_use_bomb && get_random_chance_out_of(BOMB_REPLACES_KEY_IN_CHEST_PROBABILITY);
+		_room.chest_content_object_type = _key_is_bomb ? obj_bomb : obj_key;
+		return _key_is_bomb;
 	};
 
 	/// @function add_portcullis_trap()
@@ -1124,10 +1153,13 @@ function GameRoom(_given_x, _given_y) constructor {
 		mark_current_room_for_grid_update();
 	};
 
-
-	static spawn_spot_object_at(_object_type, _spawn_spot) {
+	/// @function spawn_spot_object_at(_map)
+	/// @description Used to spawn the chest and stairs spot objects at their appropriate spot
+	/// @param {Id.Object} _object_type The object type to spawn an instance of
+	/// @param {Id.Instance} _spawn_spot The instance of the spot object to spawn the new instance at the position of
+	static spawn_spot_object_at = function(_object_type, _spawn_spot) {
 		// Skip spawning if spot is missing or no object was generated for this spot
-		if (stairs_spot_object_type == -1 || _spawn_spot == noone) { return false; }
+		if (_object_type == -1 || _spawn_spot == noone) { return false; }
 		
 		var _new_inst = instance_create(_spawn_spot.x, _spawn_spot.y, _object_type);
 		if (is_existing_instance(_new_inst)) {

@@ -1740,17 +1740,19 @@ function generate_map() {
 /// @function build_rooms()
 /// @description Builds every room, in a random order so that any room's blocks are as likely to hide the special item.
 ///	Each room's instances are put away before the next room is built, as when the player leaves a room, and the
-///	controller points at the room being built, since instances read its room when they're created
+///	controller points at the room being built, since instances read its room when they're created. The last room built
+///	stays active, as the room the controller is in, so the transition to the start room puts it away like any room the
+///	player leaves. Putting a room away twice would empty its list of instances
 /// @param {GameMap} _map The finished map
 function build_rooms(_map) {
 	// Loop through all rooms in a random order
 	var _controller = global.controller, _rooms_to_build = array_shuffle(_map.rooms);
 	for (var _i = 0; _i < array_length(_rooms_to_build); _i++) {
-		// Build the room's instances, then deactivate them all
+		// Put away the room built before this one, then build this room's instances
 		var _room = _rooms_to_build[_i];
+		if (_i > 0) { _controller.current_room.deactivate_room_instances(); }
 		_controller.current_room = _room;
 		_room.build(_map);
-		_room.deactivate_room_instances();
 	}
 }
 

@@ -301,16 +301,16 @@ function GameMap() constructor {
 
 	/// @function assign_layouts_and_determine_room_content()
 	/// @description Finishes the map by assigning layouts and room contents
-	/// @returns {bool} False if the lock and key generation fails, so a new map has to be tried
+	/// @returns {bool} False if the chest, lock and key, or room content generation fails, so a new map has to be tried
 	static assign_layouts_and_determine_room_content = function() {
 		reserve_rooms_for_required_layouts();
 		reserve_room_guaranteed_lit_room();
 		assign_room_layouts();
-		create_chests();
+		if (!create_chests()) { return fail_generation("a guaranteed item got no chest"); }
 		if (!create_locked_exits_and_keys()) { return fail_generation("lock and key generation failed"); }
 		determine_special_exit_types();
 		determine_collectables_rooms();
-		determine_room_contents();
+		if (!determine_room_contents()) { return fail_generation("a room has a hazard that stops the player alongside one that targets them"); }
 		calculate_hazard_mitigations();
 		return true;
 	};
@@ -435,6 +435,7 @@ function GameMap() constructor {
 	/// @function create_chests()
 	/// @description Creates and assigns all the chests and their contents: each special room's own chest, a locked chest for
 	///	each other special item, then the guaranteed items, and random chests, some hidden, some locked and some traps
+	/// @returns {bool} False if a guaranteed item got no chest, so a new map has to be tried
 	static create_chests = function() {
 		// Create each special room's chest and assign its content, a random special item type.
 		for (var _i = 0; _i < array_length(rooms); _i++) {
@@ -463,7 +464,8 @@ function GameMap() constructor {
 		}
 		
 		if (_special_items_left > 0) {
-			// This should NEVER happen, due to the smallest minimum map size leaving room
+			// This should NEVER happen, due to the smallest minimum map size leaving room. Nothing counts on how many special
+			// items spawn, so the map goes on with fewer
 			write_debug_message("No room left for " + string(_special_items_left) + " special item(s).", debug_message_level.warning);
 		}
 		
@@ -511,11 +513,12 @@ function GameMap() constructor {
 			}
 		}
 		
-		// Check that all guaranteed chests were spawned
+		// Check that all guaranteed chests were spawned, and fail the attempt if not, since the map counts on each one
 		for (var _i = 0; _i < array_length(guaranteed_items); _i++) {
 			// This should NEVER happen, due to the smallest minimum map size leaving room
 			write_debug_message("No room left for " + object_get_name(guaranteed_items[_i]) + " guaranteed item.", debug_message_level.warning);
 		}
+		return (array_length(guaranteed_items) == 0);
 	};
 
 	/// @function pick_item_type(_is_special_item, [_can_be_key], [_items_in_hands])
@@ -860,8 +863,10 @@ function GameMap() constructor {
 			// The first bomb standing in for a key on the map also brings an extra key to the same area
 			if (_key_is_bomb && !extra_key_placed) {
 				if (!add_key_to_area(_stuck_area, true)) {
-					// This should NEVER happen, since the bomb's own room always has a free key spot
-					write_debug_message("No room could take the extra key a bomb brings.", debug_message_level.warning);
+					// This should NEVER happen, since the bomb's own room always has a free key spot. A key brings no extra key,
+					// so the chest holds one instead, and the next bomb that stands in for a key brings it
+					write_debug_message("No room could take the extra key a bomb brings, so its chest holds a key instead.", debug_message_level.warning);
+					_room.chest_content_object_type = obj_key;
 				}
 			}
 		}
@@ -950,8 +955,12 @@ function GameMap() constructor {
 	/// @function determine_room_contents()
 	/// @description Randomly determines every room's content, now that each room's layout, map roles, spot objects and
 	///	special exit types decide which of its layout's instances survive
+	/// @returns {bool} False if a room's content fails its final check, so a new map has to be tried
 	static determine_room_contents = function() {
-		for (var _i = 0; _i < array_length(rooms); _i++) { rooms[_i].determine_room_content(same_skeleton_type); }
+		for (var _i = 0; _i < array_length(rooms); _i++) {
+			if (!rooms[_i].determine_room_content(same_skeleton_type)) { return false; }
+		}
+		return true;
 	};
 
 	// ============================

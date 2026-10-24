@@ -496,8 +496,8 @@ function GameRoom(_given_x, _given_y) constructor {
 		// Return if neither spot is free
 		var _stairs_spot_free = (stairs_spot_object_type == -1), _chest_spot_free = (chest_spot_object_type == -1);
 		if (!_stairs_spot_free && !_chest_spot_free) {
-			// This should NEVER happen
-			write_debug_message("Tried to add object " + object_get_name(_object) + "to room, but its stairs spot (" + object_get_name(stairs_spot_object_type) + ") and chest spot (" + object_get_name(chest_spot_object_type) + ") were already taken.", debug_message_level.warning);
+			// This should NEVER happen, since generation only places these in rooms with a free spot, and counts on them being placed
+			write_debug_message("Tried to add object " + object_get_name(_object) + " to room, but its stairs spot (" + object_get_name(stairs_spot_object_type) + ") and chest spot (" + object_get_name(chest_spot_object_type) + ") were already taken.", debug_message_level.error);
 			return false;
 		}
 		
@@ -579,6 +579,7 @@ function GameRoom(_given_x, _given_y) constructor {
 	///	checked against everything the room spawns so far. The start room gets no random hazards but its skeleton types, and
 	///	only the ones that aren't dangerous.
 	/// @param {Asset.GMObject} _same_skeleton_type The map's same skeleton type, or noone if that event is off
+	/// @returns {bool} False if the room still ends up with eyes alongside something that targets the player, so a new map has to be tried
 	static determine_room_content = function(_same_skeleton_type) {
 		// Determine eyes first, so nothing that chases or shoots at the player joins a room where eyes hold them still
 		determine_eyes();
@@ -632,7 +633,9 @@ function GameRoom(_given_x, _given_y) constructor {
 		if (count_hazards_with_tags(_spawn_counts, hazard_tags.stops_player_movement) > 0 && count_hazards_with_tags(_spawn_counts, TARGETS_PLAYER_TAGS) > 0) {
 			// This should NEVER happen
 			write_debug_message("Generation randomly added a hazard that stops the player to a room with one that chases or shoots at them: " + layout.room_name, debug_message_level.warning);
+			return false;
 		}
+		return true;
 	};
 	
 	/// @function determine_eyes()
@@ -990,8 +993,8 @@ function GameRoom(_given_x, _given_y) constructor {
 
 		// Pre-light room if the room is marked as lit
 		if (lit) {
-			// This should NEVER happen
-			if (instance_number(obj_lantern) == 0) { write_debug_message("Room marked as lit has no lanterns: "  + room_get_name(room_reference), debug_message_level.warning); lit = false; }
+			// This should NEVER happen. Leaving the room unlit isn't a fix, since the lock and key search counted on its light
+			if (instance_number(obj_lantern) == 0) { write_debug_message("Room marked as lit has no lanterns: "  + room_get_name(room_reference), debug_message_level.error); }
 			with obj_lantern { light_torch(noone, false); }
 		}
 		
@@ -1012,7 +1015,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		var _chest_spot = instance_find(obj_chest_spot, 0);
 		if (_chest_spot == noone) {
 			// This should never happen if every room has a chest spot
-			write_debug_message("Room with no chest spot: " + room_get_name(room_reference), debug_message_level.warning);
+			write_debug_message("Room with no chest spot: " + room_get_name(room_reference), debug_message_level.error);
 		}
 
 		// Spawn stairs spot object
@@ -1138,7 +1141,7 @@ function GameRoom(_given_x, _given_y) constructor {
 		}
 		if (has_portcullis_trap && _portcullis_exit_count != _exit_count) {
 			// This should NEVER happen
-			write_debug_message("Portcullis button room has exits without a portcullis: " + room_get_name(room_reference), debug_message_level.warning);
+			write_debug_message("Portcullis button room has exits without a portcullis: " + room_get_name(room_reference), debug_message_level.error);
 		}
 		with (obj_door) { 
 			initialize_door(); 

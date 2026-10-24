@@ -47,7 +47,7 @@ function RunRecord() constructor {
 	/// @param {real} [_amount] How much to add (1 by default)
 	static increment_stat = function(_stat_name, _amount = 1) {
 		if (!variable_struct_exists(stats, _stat_name)) {
-			write_debug_message("No run stat is named " + _stat_name + " (see create_run_stats)", debug_message_level.warning);
+			write_debug_message("No run stat is named " + _stat_name + " (see create_run_stats)", debug_message_level.error);
 			return;
 		}
 

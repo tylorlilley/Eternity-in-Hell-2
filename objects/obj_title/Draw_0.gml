@@ -18,21 +18,14 @@ else if (prepare_screen) {
 	draw_set_halign(fa_center);
 	draw_set_font(ft_hud);
 	draw_text(room_width/2, 31, get_difficulty_string(global.difficulty));
-	draw_set_font(ft_hud);
-	//draw_text(room_width/2, room_height-32, get_input_z_key_string() + ": Begin");
 	var _best_count = array_length(hand_options);
 	var _possible_count = array_length(global.available_items[global.difficulty]);
-	//var available_text = "AVAILABLE: "+string(best_count)+"/"+string(possible_count);
-	//if (best_count == possible_count) { available_text += "; COMPLETE"; draw_set_color(game_color); }
-	//var available_text = (best_count == possible_count) ? "COMPLETE" : "";
-	//draw_text(room_width/2, 64, available_text);
 	draw_set_color(c_white);
 	
 	// Draw Player Visuals
 	if (_best_count == _possible_count) { draw_sprite_ext(spr_crown, 0, _player_x_pos, _player_y_pos - (16*3), 3, 3, 0, c_white, (get_win_count(global.difficulty, graphics_modes.unknown) > 0) ? INVERTED_COLORS_ALPHA_FLAG : 1); }
 	draw_sprite_ext(spr_player, 1, _player_x_pos, _player_y_pos, 4, 4, 0, c_white, 1);
 	if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, _player_x_pos, _player_y_pos, 4, 4, 0, c_white, 1); }
-	//player_y_pos -= 8;
 	draw_set_color(_game_color);
 	draw_rectangle(_left_hand_x_pos-24, _player_y_pos-24, _left_hand_x_pos+24, _player_y_pos+24, false);
 	draw_rectangle(_right_hand_x_pos-24, _player_y_pos-24, _right_hand_x_pos+24, _player_y_pos+24, false);
@@ -173,11 +166,9 @@ else if (options_screen) {
 		if (global.game_color_fade > 0) { draw_sprite_ext(spr_menu_arrow, 0, _x_pos-32, _y_pos+6-_y_offset/2, -1, 1, 0, c_white, 1); }
 	}
 	var _new_color_minimum_fade = make_color_rgb(global.game_color_fade/100.0 * color_get_red(_new_color), global.game_color_fade/100.0 * color_get_green(_new_color), global.game_color_fade/100.0 * color_get_blue(_new_color));
-	//draw_sprite_ext(spr_box, 0, x_pos + 56, y_pos+6, 1, 1, 0, c_white, 1);
 	draw_sprite_ext(spr_box, 0, 216, _y_pos+6-_y_offset/2, 0.875, 0.875, 0, _new_color_minimum_fade, 1);
 	
 	// Draw Lava Edge Type Option
-	//x_pos -= 16;
 	_y_pos += _y_offset;
 	if (_blink && options_pos == 7 && !option_selected) {  draw_sprite_ext(spr_menu_arrow, 0, _text_x_pos-8, _y_pos+6, 1, 1, 0, c_white, 1); }
 	draw_set_halign(fa_left);
@@ -243,8 +234,6 @@ else if (controls_screen) {
 		draw_sprite_ext(spr_large_button, 2, _x_pos + 14, _y_pos+_y_offset*2, 1, 1, 0, (_game_manager.key_x ? _game_color : c_white), 1);
 		
 		draw_sprite_ext(spr_small_button, 3, _x_pos, _y_pos+_y_offset*3-8, 1, 1, 0, (_game_manager.key_space ? _game_color : c_white), 1);
-		//draw_sprite_ext(spr_small_button, 4, x_pos, y_pos+y_offset*3-8, 1, 1, 0, (game_manager.key_space ? game_color : c_white), 1);
-		//draw_sprite_ext(spr_small_button, 3, x_pos + 10, y_pos+y_offset*3-8, 1, 1, 0, (game_manager.key_space ? game_color : c_white), 1);
 		draw_sprite_ext(spr_large_button, 5, _x_pos - 18, _y_pos+_y_offset*3+8, 1, 1, 0, (_game_manager.key_space ? _game_color : c_white), 1);
 		draw_sprite_ext(spr_small_button, 4, _x_pos, _y_pos+_y_offset*3+8, 1, 1, 0, (_game_manager.key_space ? _game_color : c_white), 1);
 		draw_sprite_ext(spr_large_button, 3, _x_pos + 18, _y_pos+_y_offset*3+8, 1, 1, 0, (_game_manager.key_space ? _game_color : c_white), 1);
@@ -257,7 +246,7 @@ else if (controls_screen) {
 		draw_sprite_ext(spr_large_button, 1, _x_pos + 18, _y_pos+_y_offset*5-8, 1, 1, 0, (_game_manager.key_enter ? _game_color : c_white), 1);
 	}
 }
-else if (death_log_screen) { // && (death_count_string != noone || win_count_string != noone)) {
+else if (death_log_screen) {
 	draw_set_valign(fa_middle);
 	draw_set_halign(fa_center);
 	draw_set_font(ft_hud);
@@ -267,10 +256,7 @@ else if (death_log_screen) { // && (death_count_string != noone || win_count_str
 	var _y_initial = 16+8, _x_initial = (room_width/4)-16, _y_pos = _y_initial, _x_pos = _x_initial-24+2;
 	var _killed_x_pos = (_x_initial*2)-22, _deaths_x_pos = (_x_initial*3)-8, _last_x_pos = (_x_initial*4)+16;
 	draw_text(room_width/2, 15, get_difficulty_string(global.difficulty));
-	//draw_text(room_width/2, y_pos-2, get_difficulty_string(global.difficulty));
 	_y_pos += 16;
-	//if (death_count_string != noone) { draw_text(room_width/2, y_pos, death_count_string); }
-	//else { draw_text(room_width/2, y_pos, "Death Count: 0"); }
 	_y_pos += 16;
 	draw_set_font(ft_hud_small);
 	draw_set_color((death_log_sort == 0) ? _game_color : c_white);
@@ -308,7 +294,7 @@ else if (death_log_screen) { // && (death_count_string != noone || win_count_str
 		}
 	}
 }
-else if (evaluation_log_screen) {// && (death_count_string != noone || win_count_string != noone)) {	
+else if (evaluation_log_screen) {
 	// Draw Traits: each achievement earned (see update_traits_to_display)
 	var _surface_width = room_width-(16*3);
 	var _x_pos = 24, _y_pos = 0-trait_surface_y_pos, _y_offset = (16*3.5)-4;
@@ -336,7 +322,7 @@ else if (evaluation_log_screen) {// && (death_count_string != noone || win_count
 		_y_pos += string_height_ext(_trait.description, 10, _surface_width);
 		_y_pos += 4;
 	}
-	trait_surface_y_max = _y_pos;//if (trait_surface_y_max == 0) { trait_surface_y_max = y_pos; }
+	trait_surface_y_max = _y_pos;
 	// Draw Background
 	draw_set_color(global.bg_color);
 	draw_rectangle(0, 0, room_width, _y_offset, false);
@@ -483,13 +469,11 @@ if (!loading) {
 			if (global.seed_option != seed_options.specified || _border_x_pos < room_width/2 - 48 || _border_x_pos > room_width/2 + 48) {  
 				draw_sprite_ext(spr_wall, 0, _border_x_pos, room_height-(16*6), 1, 1, 0, _wall_sprite_color, 1); 
 			}
-			//draw_sprite_ext(spr_wall, 0, border_x_pos, 8+16, 1, 1, 0, wall_sprite_color, 1);
 		}
 		else if (death_log_screen) {
 			draw_sprite_ext(spr_wall, 0, _border_x_pos, (16*2), 1, 1, 0, _wall_sprite_color, 1);
 			draw_sprite_ext(spr_wall, 0, _border_x_pos, (16*5), 1, 1, 0, _wall_sprite_color, 1);
 		draw_sprite_ext(spr_wall, 0, _border_x_pos, room_height-32, 1, 1, 0, _wall_sprite_color, 1);
-			//draw_sprite_ext(spr_wall, 0, border_x_pos, room_height-(16*3), 1, 1, 0, wall_sprite_color, 1);
 		}
 		else if (prepare_screen) {
 			draw_sprite_ext(spr_wall, 0, _border_x_pos, (16*3), 1, 1, 0, _wall_sprite_color, 1);
@@ -520,22 +504,3 @@ draw_set_halign(fa_center);
 draw_set_font(ft_hud_giant);
 draw_set_color(_game_color);
 draw_text(room_width/2, _title_y_pos, get_graphics_mode_string(global.graphics_mode));
-//draw_sprite_ext(spr_logo, global.graphics_mode, room_width/2, title_y_pos, title_scale, title_scale, 0, c_white, 1);
-
-/*
-	// Draw seed selection
-	if (global.is_test_mode) {
-		var seed_y_pos = difficulty_y_pos + 40;
-		draw_text(room_width/2, seed_y_pos, get_seed_option_string());
-		if (blink && pos == 1) {
-			if (global.seed_option > seed_options.rand || (global.seed_option > seed_options.same && global.seed)) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, seed_y_pos, 1, 1, 0, c_white, 1); }
-			if (global.seed_option < seed_options.specified) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, seed_y_pos, -1, 1, 0, c_white, 1); }
-		}
-		// Draw seed
-		if (global.seed_option == seed_options.specified) { draw_text(room_width/2, seed_y_pos+16, get_zero_padded_string(current_seed, 9)); }
-		if (blink && pos == 2) {
-			if (current_seed < MAX_SEED) { draw_sprite_ext(spr_title_arrow, 0, 3*room_width/4 + 16, seed_y_pos+16, -1, 1, 0, c_white, 1); }
-		    if (current_seed > 0) { draw_sprite_ext(spr_title_arrow, 0, room_width/4 - 16, seed_y_pos+16, 1, 1, 0, c_white, 1); }
-		}
-	}
-	*/

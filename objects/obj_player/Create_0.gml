@@ -30,11 +30,11 @@ outline = (global.player_outline) ? instance_create(x, y, obj_outline) : noone;
 // Create initial carried items
 if (global.player_left_hand_item != noone) {
 	with create_item_in_hand(directions.left, global.player_left_hand_item) { 
-		if (object_index == obj_torch) { light_torch(noone, true); }
+		if (object_index == obj_torch) { light_torch(noone); }
 	}
 }
 if (global.player_right_hand_item != noone) {
 	with create_item_in_hand(directions.right, global.player_right_hand_item) {
-		if (object_index == obj_torch) { light_torch(noone, true); }
+		if (object_index == obj_torch) { light_torch(noone); }
 	}
 }

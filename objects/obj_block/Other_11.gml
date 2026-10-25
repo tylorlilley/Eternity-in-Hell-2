@@ -43,8 +43,6 @@ if (just_pushed) {
 	
 	// Destroy self and parts of lava if pushed onto lava
 	if (consume_lava(true)) {
-		//var dirt = instance_create(x, y, obj_dirt);
-		//if (is_existing_instance(dirt)) { dirt.depth = DIRT_OVER_LAVA_DEPTH; }
 		var _tile = instance_create(x, y, obj_path);
 		if (is_existing_instance(_tile)) { 
 			_tile.depth = DIRT_OVER_LAVA_DEPTH; 

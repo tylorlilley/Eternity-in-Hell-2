@@ -44,11 +44,5 @@ for (var _quadrant = 0; _quadrant < 4; _quadrant++) {
 		if (_quadrant == 1 && lava_edge_visible[_quadrant][directions.up] && lava_edge_visible[_quadrant][directions.right]) { draw_sprite_ext(spr_lava_corners, lava_edge_image_indexes[_quadrant][directions.right], _x_pos+4, _y_pos-4, 1, 1, 270, _bg_color, 1); }
 		if (_quadrant == 2 && lava_edge_visible[_quadrant][directions.down] && lava_edge_visible[_quadrant][directions.left]) { draw_sprite_ext(spr_lava_corners, lava_edge_image_indexes[_quadrant][directions.down], _x_pos-4, _y_pos+4, 1, 1, 90, _bg_color, 1); }
 		if (_quadrant == 3 && lava_edge_visible[_quadrant][directions.down] && lava_edge_visible[_quadrant][directions.right]) { draw_sprite_ext(spr_lava_corners, lava_edge_image_indexes[_quadrant][directions.left], _x_pos+4, _y_pos+4, 1, 1, 180, _bg_color, 1); }
-		/*
-		if (quadrant == 0 && lava_edge_visible[quadrant][directions.up] && lava_edge_visible[quadrant][directions.left]) { draw_rectangle(x_pos-4, y_pos-2, x_pos-3, y_pos-5, false); }
-		if (quadrant == 1 && lava_edge_visible[quadrant][directions.up] && lava_edge_visible[quadrant][directions.right]) { draw_rectangle(x_pos+2, y_pos-2, x_pos+3, y_pos-5, false); }
-		if (quadrant == 2 && lava_edge_visible[quadrant][directions.down] && lava_edge_visible[quadrant][directions.left]) { draw_rectangle(x_pos-4, y_pos+2, x_pos-3, y_pos+3, false); }
-		if (quadrant == 3 && lava_edge_visible[quadrant][directions.down] && lava_edge_visible[quadrant][directions.right]) { draw_rectangle(x_pos+2, y_pos+2, x_pos+3, y_pos+3, false); }
-		*/
 	}
 }

@@ -488,7 +488,6 @@ function flicker_sprite_under_instance(_inst) {
 	
 	if (object_index == obj_lava_part) { part_visible = false; }
 	else if (object_index == obj_solid_part) { part_visible = false; }
-	//else if (object_index == obj_illusion_part) { part_visible = false; }
 	else { visible = false; }
 	
 	return true;

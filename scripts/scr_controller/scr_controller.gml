@@ -339,13 +339,6 @@ function game_room_start_other() {
 	with (obj_gudetama) { play_sound(snd_give_up, false); }
 	with (obj_giant_eye) { shoot_timer = irandom_range(24,48); }
 	
-	/*
-	// Make a random fountain and a random statue fire immediately
-	var random_statue = get_random_instance(obj_statue, true);
-	with random_statue { shoot_timer = irandom_range(1,4); }
-	var random_fountain = get_random_instance(obj_fountain, true);
-	with random_fountain { shoot_timer = irandom_range(1,4); }
-	*/
 	with (obj_statue) { 
 		trap = false;
 		if (other.transition >= directions.stairs) { shoot_timer += 4; }
@@ -463,7 +456,6 @@ function game_room_start_reposition_instances() {
 	}
 	with (obj_mouth) { activated = false; x = -16; y = -16; }
 	with (obj_nose) { activated = false; x = -16; y = -16; }
-	//with (obj_fire_skeleton) { activated = false; x = -16; y = -16; }
 	with (obj_phantom) { activated = false; x = -16; y = -16; }
 	with (obj_floater) { activated = false; x = -16; y = -16; }
 	with (obj_snake) { turn_away_from_player(); }

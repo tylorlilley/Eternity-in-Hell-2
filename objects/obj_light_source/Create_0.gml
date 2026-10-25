@@ -10,4 +10,3 @@ is_flickering_light_source = true;
 flicker = 0;
 
 intensity = 1;
-//creator = noone;

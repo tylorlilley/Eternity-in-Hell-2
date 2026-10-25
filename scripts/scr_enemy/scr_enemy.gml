@@ -150,7 +150,7 @@ function shoot_projectile(_target_x, _target_y, _make_destructive, _obj = obj_fi
 function try_to_see_player() {
 	// Check for a target being exactly aligned with your x or y
 	if (state != SCREECHING) {
-		var _new_dir = directions.none, _on_target = false, _target = noone;// offset = (state == ATTACKING) ? 8 : 0;
+		var _new_dir = directions.none, _on_target = false, _target = noone;
 		
 		// Check all dropped meat and player
 		with (obj_meat) {
@@ -274,11 +274,6 @@ function set_segment_image() {
 			image_index = 1;
 			image_angle = 90;
 		}
-		//else if (abs(tail.x - x) == 8 && abs(tail.y - y) == 8) {
-			//flip_sprite_at_random(true);
-			//image_angle = get_random_cardinal_dir()*90;
-		//	image_index = 3;
-		//}
 		else {
 			image_index = 2;
 			image_xscale = 1;
@@ -331,7 +326,6 @@ function connect_segments() {
 		}
 	}
 	with tail { connect_segments(); }
-	//set_segment_image();
 }
 
 /// @function								move_segments();
@@ -341,7 +335,6 @@ function move_segments(_new_dir) {
 	with tail { move_segments(other.dir); }
 	dir = prev_dir;
 	prev_dir = _new_dir;
-	//set_segment_image();
 }
 
 /// @function								explode(_destroy_self);
@@ -597,22 +590,6 @@ function move_towards_meat_or_player(_ignore_solid, _ignore_death) {
 	target_y = _target.y;
 	return move_towards_coordinates_on_path(_ignore_solid, _ignore_death, 1);
 }
-
-/*
-function move_towards_meat_or_player(ignore_solid, ignore_death, accuracy = 3) {
-	var dir = irandom(accuracy), target = get_dropped_meat();
-	if (dir >= directions.stairs) { return directions.none; }
-	
-	if (!is_existing_instance(target)) { target = global.player; }
-	if (!is_direction_towards(dir, target)) { dir = get_opposite_dir(dir); }
-	if (can_move_in_direction(dir, ignore_solid, ignore_death)) { 
-		move_in_direction(dir, false); 
-		return dir; 
-	}
-	
-	return directions.none;
-}
-*/
 
 /// @function								reset_nose();
 function reset_nose() {

@@ -4,10 +4,6 @@ event_inherited();
 update_fireball_torch_position(0.5);
 var _blocked = false;
 
-// Kill Enemies
-//var blocked_by_enemy = fireball_kill_enemies(true);
-//if (blocked_by_enemy) { blocked = true; }
-
 // Kill Player
 var _player = global.player;
 if (!_player.dead && place_meeting(x, y, _player) && get_distance_to_instance(_player) <= 8) { 

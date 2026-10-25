@@ -44,7 +44,7 @@ function become_carried(_new_holder) {
 				if (is_existing_instance(_new_holder)) { 
 					with (_new_holder) { _other_lit_torch = get_carried_lit_torch(); }
 				}
-				if (is_existing_instance(_other_lit_torch) && is_existing_instance(_other_lit_torch.light_source)) { light_torch(_other_lit_torch, true); }
+				if (is_existing_instance(_other_lit_torch) && is_existing_instance(_other_lit_torch.light_source)) { light_torch(_other_lit_torch); }
 			}
 			break;
 		}

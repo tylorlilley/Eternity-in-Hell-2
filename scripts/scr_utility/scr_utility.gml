@@ -44,7 +44,6 @@ function get_zero_padded_string(_value_to_pad, _target_length) {
 function get_percentage_string(_value) {
 	var _percentage_string = "", _percentage_value = floor(_value), _percentage_remainder = floor(frac(_value) * 100);
 	
-	//if (percentage_value < 10) { percentage_string = "0"; }
 	_percentage_string += string(_percentage_value);
 	_percentage_string += ".";
 	if (_percentage_remainder < 10) { _percentage_string += "0"; }
@@ -469,16 +468,6 @@ function add_to_count_struct(_count_struct, _key, _value = 1) {
 	if (_value == 0) { return; }
 	
 	_count_struct[$ _key] = get_count_from_struct(_count_struct, _key) + _value;
-};
-
-/// @function add_counts_to_count_struct(_count_struct, _added_counts, [_multiplier])
-/// @description Adds every count in one count struct to another, each times a multiplier
-/// @param {struct} _count_struct 	The struct of counts to add to
-/// @param {struct} _added_counts	The struct of counts to add
-/// @param {real} [_multiplier]		What to multiply each added count by (1 by default, -1 to take them away)
-function add_counts_to_count_struct(_count_struct, _added_counts, _multiplier = 1) {
-	var _keys = variable_struct_get_names(_added_counts);
-	for (var _i = 0; _i < array_length(_keys); _i++) { add_to_count_struct(_count_struct, _keys[_i], _added_counts[$ _keys[_i]] * _multiplier); }
 };
 
 /// @function duplicate_count_struct()

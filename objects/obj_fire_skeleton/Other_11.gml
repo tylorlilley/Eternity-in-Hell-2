@@ -12,7 +12,6 @@ if (torch_light_image_timer == 0) {
 update_lava_lighting();
 
 // Act like a fireball
-//update_fireball_torch_position();
 fireball_light_bombs();
 fireball_kill_enemies();
 fireball_burn_bushes();
@@ -33,11 +32,7 @@ if shoot_timer > 0 { shoot_timer -= 1; }
 else {
 	if (get_random_chance_out_of(NOSE_SELF_DESTRUCT_PROBABILITY)) { increment_run_stat("spontaneously_exploded_enemy"); explode(true); }
 	else {
-		// Shoot fireball in random direction
-		/*
-		var dir = irandom_range(1,360), x_pos = x + lengthdir_x(8, dir), y_pos = y + lengthdir_y(8, dir);
-		shoot_projectile(x_pos, y_pos, false);
-		*/
+		// Shoot a fireball at the dropped meat, or at the player when there is none
 		var _target = get_dropped_meat();
 		if (!is_existing_instance(_target)) { _target = global.player; }
 		shoot_projectile(_target.x, _target.y, false);

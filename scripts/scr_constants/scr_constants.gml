@@ -28,7 +28,7 @@
 #macro HANDS_PROBABILITY get_probability_for_difficulty([0, 0, 12, 8, 4])
 #macro SAME_SKELETON_TYPE_PROBABILITY get_probability_for_difficulty([0, 0, 0, 32, 24])
 #macro EYES_PROBABILITY get_probability_for_difficulty([0, 0, 0, 0, 100]) 
-#macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 28, 24, 18]) //get_probability_for_difficulty([0, 32, 24, 22, 18]) 
+#macro TRAP_BONES_PROBABILITY get_probability_for_difficulty([0, 32, 28, 24, 18])
 
 // Initialize map drawing constants
 #macro GRID_SIZE 8
@@ -70,7 +70,7 @@
 #macro LIVING_BLOCK_PROBABILITY get_probability_for_difficulty([0, 0, 128, 64, 32]) 
 
 // Initialize score constants and variables
-#macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 80, 70, 65, 65])//get_probability_for_difficulty([100, 75, 65, 60, 50])  // minutes * 60 total seconds for torch to remain lit
+#macro MAX_TORCH_TIME_TO_REMAIN_LIT get_probability_for_difficulty([100, 80, 70, 65, 65]) // minutes * 60 total seconds for torch to remain lit
 #macro TOTAL_COMPLETION_AMOUNT 4 
 
 // Depth Constants

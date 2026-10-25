@@ -8,7 +8,7 @@ if (spawn_timer > 0) { activated = false; spawn_timer -= 1; }
 else {
 	if (!activated) {
 		activated = true; 
-		shoot_timer = 16; //irandom_range(6, 16);
+		shoot_timer = 16;
 		turn_to_face_player();
 		play_sound(snd_splash, false);
 	}

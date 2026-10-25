@@ -9,8 +9,7 @@ if (is_existing_instance(_controller)) {
 			_controller.current_room.remove_from_instances_at_map_positions(id);
 				
 			// Spawn content item
-			var _new_item = noone;
-			_new_item = instance_create(x, y, contents_obj);
+			var _new_item = instance_create(x, y, contents_obj);
 			with (_new_item) { become_dropped(id); }
 			if (contents_is_special) { with _new_item { make_item_special(); } }
 		}

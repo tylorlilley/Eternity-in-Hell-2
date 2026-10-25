@@ -5,8 +5,7 @@ enum exit_types {
 	locked_doors,
 	opened_portcullis,
 	closed_portcullis,
-	illusion_walls,
-	count
+	illusion_walls
 }
 
 /// @function RoomExit(_current_room, _linked_room)

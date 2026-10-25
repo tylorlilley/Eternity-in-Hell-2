@@ -17,15 +17,6 @@ if (activated) {
 					}
 				}
 			}
-			/* REMOVE SO BLOCKS CAN KILL ENEMIES ONLY
-			else if (is_covered_at_each_quadrant_by(obj_solid) && (object_index != obj_hands || !is_carrying_special_item(obj_staff))) { 
-				with instance_place(x, y, obj_solid) {
-					with other {
-						kill_enemy(snd_crunch);
-					}
-				}
-			}
-			*/
 		}
 			
 		depth = (floating) ? FLOATING_ENEMY_DEPTH : start_depth;

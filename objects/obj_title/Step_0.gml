@@ -192,11 +192,6 @@ if (!_game_manager.paused) {
 				else if (keyboard_check_pressed(ord("D"))) { _current_hex_value = "D"; }
 				else if (keyboard_check_pressed(ord("E"))) { _current_hex_value = "E"; }
 				else if (keyboard_check_pressed(ord("F"))) { _current_hex_value = "F"; }
-				/*
-				else if ((key_down_pressed) && (current_dec_value > 0)) { current_dec_value -= 1; play_sound(snd_mana, false); }
-				else if (key_up_pressed && (current_dec_value < 15)) { current_dec_value += 1; play_sound(snd_mana, false); }
-				else if (key_down_pressed || key_up_pressed) { play_sound(snd_locked, false); } 
-				*/
 				var _new_dec_value = hex_to_dec(_current_hex_value);
 				if (_new_dec_value != _current_dec_value) { 
 					play_sound(snd_move, false);

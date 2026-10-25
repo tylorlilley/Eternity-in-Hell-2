@@ -1,7 +1,6 @@
-/// @function  								light_torch(_lighting_torch, _make_noise);
+/// @function  								light_torch(_lighting_torch);
 ///	@param		{index}	_lighting_torch		The instance that is doing the lighting
-///	@param		{boolean}	_make_noise		Whether or not lighting this torch should play a sound
-function light_torch(_lighting_torch, _make_noise) {
+function light_torch(_lighting_torch) {
 	// Set remaining torch time for the calling instance to new lit amount
 	var _controller = global.controller, _new_lit_amount = MAX_TORCH_TIME_TO_REMAIN_LIT;
 	if (is_existing_instance(_lighting_torch) && _lighting_torch.time_to_remain_lit > 0) { _new_lit_amount = _lighting_torch.time_to_remain_lit; }
@@ -35,7 +34,7 @@ function light_torch(_lighting_torch, _make_noise) {
 		}
 	}
 	// Light the lighting torch in response if necessary
-	with (_lighting_torch) { if (other.time_to_remain_lit > time_to_remain_lit) { light_torch(noone, false); } }
+	with (_lighting_torch) { if (other.time_to_remain_lit > time_to_remain_lit) { light_torch(noone); } }
 }
 
 /// @function							extinguish_torch();
@@ -58,14 +57,6 @@ function extinguish_torch() {
 function interact_with_other_torches() {
 	var _actively_lit = false, _torches = instance_place_all(x, y, obj_torch);
 	
-	// Light torches from lava
-	/*
-	if (is_covered_at_each_quadrant_by(obj_lava_part)) {
-		light_torch(noone, true);	
-		actively_lit = true;
-	}
-	*/
-	
 	// Cycle through and interact with each carried torch on this object
 	while (array_length(_torches) > 0) {
 		var _other_torch = array_random_pop(_torches);
@@ -76,7 +67,7 @@ function interact_with_other_torches() {
 				if (!global.player.dead && is_existing_instance(_other_torch) && is_existing_instance(_other_torch.holder) && _other_torch.holder.object_index == obj_fireball && !is_existing_instance(light_source)) { 
 					increment_run_stat("torches_lit_by_fireball");
 				}
-				light_torch(_other_torch, true);		
+				light_torch(_other_torch);		
 				_actively_lit = true;
 			}
 		}

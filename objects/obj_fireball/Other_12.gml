@@ -58,9 +58,6 @@ fireball_light_bombs();
 var _blocked_by_enemy = fireball_kill_enemies();
 if (_blocked_by_enemy) { _blocked = true; }
 
-// Burn Bushes
-// if (!blocked) { blocked = fireball_burn_bushes(); }
-
 // Kill Player
 var _player = global.player;
 if (!_blocked && !_player.dead && place_meeting(x, y, _player) && get_distance_to_instance(_player) <= 8) { 

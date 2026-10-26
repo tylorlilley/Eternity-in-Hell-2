@@ -11,7 +11,6 @@ function restart_game() {
 
 /// @function								initialize_game_variables();
 function initialize_game_variables() {
-	display_reset(0, false);
 	layer_force_draw_depth(true,0);
 	game_set_speed(60, gamespeed_fps);
 	

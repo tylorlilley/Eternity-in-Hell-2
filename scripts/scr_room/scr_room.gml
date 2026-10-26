@@ -1083,7 +1083,7 @@ function GameRoom(_given_x, _given_y) constructor {
 				// This should NEVER happen, since generation only traps a room with a spot for its button
 				write_debug_message("Portcullis button room with no spot for its button: " + room_get_name(room_reference), debug_message_level.warning);
 				has_portcullis_trap = false;
-				for (_dir = directions.up; _dir < directions.stairs; _dir++) {
+				for (var _dir = directions.up; _dir < directions.stairs; _dir++) {
 					var _current_exit = exits[_dir];
 					if (_current_exit == -1) { continue; }
 					

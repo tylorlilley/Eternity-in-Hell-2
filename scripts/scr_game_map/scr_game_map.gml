@@ -370,8 +370,8 @@ function GameMap() constructor {
 		
 		// Assign the reserved guaranteed lit room its layout
 		var _lantern_layouts = get_only_lantern_layouts(layouts_by_exit_type[guaranteed_lit_room.determine_layout_exit_type()]);
-		var _chosen_layout = choose_regular_room_layout(_lantern_layouts);
-		assign_layout_to_room(guaranteed_lit_room, _chosen_layout);
+		var _chosen_lantern_layout = choose_regular_room_layout(_lantern_layouts);
+		assign_layout_to_room(guaranteed_lit_room, _chosen_lantern_layout);
 
 		// Then give every other room the least used layout of the exit kind it shows
 		_unreserved_rooms = array_shuffle(_unreserved_rooms);

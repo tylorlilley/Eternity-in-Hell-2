@@ -5,6 +5,7 @@
 
 // ===== ROOM BUILDING =====
 #macro DIRT_PROBABILITY get_probability_for_difficulty([0, 16, 20, 24, 28]) 
+#macro SKIP_COLLECTABLE_SPAWN_PROBABILITY 0 // Each collectable spot after the first is left empty one time in this many (0 for never)
 #macro BLOCK_ITEM_PROBABILITY get_probability_for_difficulty([0, 256, 256, 128, 64]) // Even if this passes, 50% of the time we spawn bones instead
 #macro BLOCK_SPECIAL_ITEM_PROBABILITY get_probability_for_difficulty([0, 0, 8, 6, 4]) // Checked when a block hides an item instead of bones
 
@@ -1093,10 +1094,14 @@ function GameRoom(_given_x, _given_y) constructor {
 		
 		// Create collectables in room on remaining collectables spots
 		if (has_collectables) {
-			var _moving_collectable_spot = (has_moving_collectable) ? get_random_instance(obj_collectable_spot) : noone;
+			var _spawned_collectables = 0, _moving_collectable_spot = (has_moving_collectable) ? get_random_instance(obj_collectable_spot) : noone;
 			with (obj_collectable_spot) {
-				var _new_collectable = instance_create(x, y, obj_collectable);
-				if (id == _moving_collectable_spot) { _new_collectable.moving = true; }
+				if (_spawned_collectables == 0 || !get_random_chance_out_of(SKIP_COLLECTABLE_SPAWN_PROBABILITY)) {
+					var _new_collectable = instance_create(x, y, obj_collectable);
+					if (id == _moving_collectable_spot) { _new_collectable.moving = true; }
+					
+					_spawned_collectables += 1;
+				}
 				instance_destroy(); 
 			}
 			

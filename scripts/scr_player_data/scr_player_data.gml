@@ -28,21 +28,24 @@ function create_stats_record() {
 	};
 }
 
-/// @function get_stats_file_name(_difficulty, _graphics_mode)
+/// @function get_stats_file_name(_difficulty, _graphics_mode, [_suffix])
 /// @description The name of the save file for one difficulty and graphics mode, like stats_easy_standard.json
 /// @param {real} _difficulty The difficulty (see difficulties), not ALL
 /// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
+/// @param {string} [_suffix] Text added to the end of the name, before the extension, like "-backup" ("" by default)
 /// @returns {string}
-function get_stats_file_name(_difficulty, _graphics_mode) {
+function get_stats_file_name(_difficulty, _graphics_mode, _suffix = "") {
 	static difficulty_names = ["", "easy", "medium", "hard", "very_hard"];
 	static graphics_mode_names = ["standard", "farmer", "unknown"];
-	return "stats_" + difficulty_names[_difficulty] + "_" + graphics_mode_names[_graphics_mode] + ".json";
+	return "stats_" + difficulty_names[_difficulty] + "_" + graphics_mode_names[_graphics_mode] + _suffix + ".json";
 }
 
 /// @function get_saved_stats_record(_difficulty, _graphics_mode)
 /// @description The stats record saved for one difficulty and graphics mode. Each file is read once and then kept
 ///	in memory (global.saved_stats_records), and a missing file starts from what an older version of the game
-///	saved in player_data.ini, if anything. Change it only to add a finished run, then write it.
+///	saved in player_data.ini, if anything. A file that can't be read is copied to a backup file and then started
+///	over as a new, empty file, so the player's history isn't lost. Change it only to add a finished run, then
+///	write it.
 /// @param {real} _difficulty The difficulty (see difficulties), not ALL
 /// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
 /// @returns {struct} The stats record (see create_stats_record)
@@ -52,9 +55,16 @@ function get_saved_stats_record(_difficulty, _graphics_mode) {
 	if (!is_undefined(_stats_record)) { return _stats_record; }
 
 	_stats_record = create_stats_record();
-	if (file_exists(_file_name)) { read_stats_record_file(_file_name, _stats_record); }
+	var _start_new_file = false;
+	if (file_exists(_file_name)) {
+		// A file that can't be read starts over once a backup holds a copy of it
+		if (!read_stats_record_file(_file_name, _stats_record)) { _start_new_file = back_up_stats_file(_difficulty, _graphics_mode); }
+	}
 	else { import_stats_from_player_data_ini(_difficulty, _graphics_mode, _stats_record); }
 	global.saved_stats_records[$ _file_name] = _stats_record;
+	
+	// Replace the file that couldn't be read with a new one, holding the empty stats record
+	if (_start_new_file) { write_saved_stats_record(_difficulty, _graphics_mode); }
 	return _stats_record;
 }
 
@@ -63,16 +73,47 @@ function get_saved_stats_record(_difficulty, _graphics_mode) {
 ///	warning in the log.
 /// @param {string} _file_name The save file
 /// @param {struct} _stats_record The stats record to add to
+/// @returns {bool} Whether the file could be read
 function read_stats_record_file(_file_name, _stats_record) {
 	var _buffer = buffer_load(_file_name);
 	if (!buffer_exists(_buffer)) {
 		write_debug_message("Couldn't open " + _file_name, debug_message_level.warning);
-		return;
+		return false;
 	}
 
-	try { add_stats_record(_stats_record, json_parse(buffer_read(_buffer, buffer_string))); }
+	var _was_read = false;
+	try {
+		add_stats_record(_stats_record, json_parse(buffer_read(_buffer, buffer_string)));
+		_was_read = true;
+	}
 	catch (_error) { write_debug_message("Couldn't read " + _file_name + ": " + string(_error), debug_message_level.warning); }
 	buffer_delete(_buffer);
+	return _was_read;
+}
+
+/// @function back_up_stats_file(_difficulty, _graphics_mode)
+/// @description Copies the save file for one difficulty and graphics mode, which couldn't be read, to a backup
+///	file named with "-backup" added, like stats_easy_standard-backup.json, so the player's history can still be
+///	recovered after the save file starts over. Copying onto an existing file fails, so when an earlier backup
+///	already has that name, a number follows "-backup", starting from 2.
+/// @param {real} _difficulty The difficulty (see difficulties), not ALL
+/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
+/// @returns {bool} Whether the backup file was made
+function back_up_stats_file(_difficulty, _graphics_mode) {
+	// Find a backup name that no file has yet
+	var _backup_name = get_stats_file_name(_difficulty, _graphics_mode, "-backup");
+	for (var _i = 2; file_exists(_backup_name); _i++) { _backup_name = get_stats_file_name(_difficulty, _graphics_mode, "-backup" + string(_i)); }
+	
+	// Copy the file, and make sure the copy exists before anything replaces the file
+	var _file_name = get_stats_file_name(_difficulty, _graphics_mode);
+	file_copy(_file_name, _backup_name);
+	if (!file_exists(_backup_name)) {
+		write_debug_message("Couldn't copy " + _file_name + " to " + _backup_name + ", so the next save will replace it", debug_message_level.warning);
+		return false;
+	}
+	
+	write_debug_message("Copied " + _file_name + ", which couldn't be read, to " + _backup_name + ", and started it over", debug_message_level.warning);
+	return true;
 }
 
 /// @function write_saved_stats_record(_difficulty, _graphics_mode)

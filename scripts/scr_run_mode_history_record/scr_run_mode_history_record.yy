@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"scr_player_data",
+  "%Name":"scr_run_mode_history_record",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"scr_player_data",
+  "name":"scr_run_mode_history_record",
   "parent":{
     "name":"Save Data Scripts",
     "path":"folders/Scripts/Save Data Scripts.yy",

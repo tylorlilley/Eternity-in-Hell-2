@@ -460,7 +460,7 @@ function get_count_from_struct(_count_struct, _key) {
 };
 
 /// @function add_to_count(_count_struct, _key, _value = 1)
-/// @description Adds to one the count in a struct of object counts.
+/// @description Adds to the count in a struct of object counts.
 /// @param {struct} _count_struct 	The struct of counts to add to
 /// @param {string} _key			The key to add to
 /// @param {real} _value			Amount to increase the count by
@@ -480,7 +480,7 @@ function duplicate_count_struct(_count_struct) {
 	return _count_struct_copy;
 };
 
-/// @function Combine_count_structs(_first_count_struct, _second_count_struct)
+/// @function combine_count_structs(_first_count_struct, _second_count_struct)
 /// @description Returns a new count struct that is a combination of the given two structs
 /// @param {struct} _first_count_struct The first struct of counts to copy
 /// @param {struct} _second_count_struct The second struct of counts to copy
@@ -494,6 +494,26 @@ function combine_count_structs(_first_count_struct, _second_count_struct) {
 	for (var _i = 0; _i < array_length(_unqiue_keys); _i++) {
 		var _key = _unqiue_keys[_i];
 		_combined_count_struct[$ _key] = get_count_from_struct(_first_count_struct, _key) + get_count_from_struct(_second_count_struct, _key);
+	}
+	
+	// Return the new combined count struct
+	return _combined_count_struct;
+}
+
+/// @function combine_count_structs_keeping_maximums(_first_count_struct, _second_count_struct)
+/// @description Returns a new count struct that is a combination of the given two structs
+/// @param {struct} _first_count_struct The first struct of counts to copy
+/// @param {struct} _second_count_struct The second struct of counts to copy
+/// @returns {struct} A combined copy of the passed in count structs
+function combine_count_structs_keeping_maximums(_first_count_struct, _second_count_struct) {
+	// Get the unique keys present in either of the provided structs
+	var _combined_count_struct = {}, _first_keys = variable_struct_get_names(_first_count_struct), _second_keys = variable_struct_get_names(_second_count_struct);
+	var _unqiue_keys = array_unique(array_concat(_first_keys, _second_keys));
+	
+	// For each unique key, get it's counts from both structs, sum them, and add them to the combined struct
+	for (var _i = 0; _i < array_length(_unqiue_keys); _i++) {
+		var _key = _unqiue_keys[_i];
+		_combined_count_struct[$ _key] = max(get_count_from_struct(_first_count_struct, _key), get_count_from_struct(_second_count_struct, _key));
 	}
 	
 	// Return the new combined count struct

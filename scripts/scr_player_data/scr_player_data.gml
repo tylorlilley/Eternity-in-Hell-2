@@ -1,12 +1,12 @@
 // Save files: one per difficulty and graphics mode, each holding a stats record of every run played with that pair
 
-/// @function create_stats_record()
+/// @function RunModeHistoryRecord()
 /// @description An empty stats record. It's the shape of every save file, of the run being played
-///	(RunRecord.stats_record), and of the totals of any mix of save files, which add_stats_record adds together:
+///	(RunRecord.stats_record), and of the totals of any mix of save files, which combine_stats_records adds together:
 ///	runs: how many runs ended, won, lost or given up
 ///	wins: how many runs were won
 ///	best_score: the best final grade
-///	stats: each stat's total (see create_run_stats)
+///	stats: each stat's total
 ///	evaluation_messages: how many runs earned each achievement, by title (see get_evaluation_messages)
 ///	deaths: how many times each object killed the player, by object name
 ///	last_death_run_numbers: the number of the last run each object ended by killing the player, by object name
@@ -14,118 +14,189 @@
 ///	death log counts the killers is_player_killer says were the player's doing)
 ///	item_wins: how many runs were won holding each item type, by object name
 /// @returns {struct}
-function create_stats_record() {
-	return {
-		runs: 0,
-		wins: 0,
-		best_score: 0,
-		stats: create_run_stats(),
-		evaluation_messages: {},
-		deaths: {},
-		last_death_run_numbers: {},
-		kills_by_killer: {},
-		item_wins: {}
-	};
+function RunModeHistoryRecord(_difficulty, _graphics_mode) constructor {
+	// ============================
+	// Public Functions
+	// ============================
+	
+	/// @function get_history_file_name([_backup_number])
+	/// @description The name of the save file for one difficulty and graphics mode, like stats_easy_standard.json
+	/// @param {real} [_backup_number] The backup number to append
+	/// @returns {string}
+	function get_history_file_name(_backup_number = 0) {
+		static difficulty_names = ["", "easy", "medium", "hard", "very_hard"];
+		static graphics_mode_names = ["standard", "farmer", "unknown"];
+		var _backup_text = (_backup_number == 0) ? "" : "-backup" + string(_backup_number);
+		return "stats_" + difficulty_names[difficulty] + "_" + graphics_mode_names[graphics_mode] + _backup_text + ".json";
+	}
+	
+	/// @function back_up_history_file()
+	/// @description Copies the run history file for one run mode to a backup file.
+	/// @returns {bool} Whether the backup file was made
+	function back_up_history_file() {
+		// Find a backup file name that hasn't been used yet
+		var _backup_file_name = get_history_file_name(1);
+		for (var _i = 2; file_exists(_backup_file_name); _i++) { _backup_file_name = get_history_file_name(_i); }
+		
+		// Copy the file, and return false if that fails
+		var _file_name = get_history_file_name();
+		file_copy(_file_name, _backup_file_name);
+		if (!file_exists(_backup_file_name)) {
+			write_debug_message("Couldn't copy " + _file_name + " to " + _backup_file_name + ", so the next save will replace it", debug_message_level.warning);
+			return false;
+		}
+		
+		// Return true if the copy was successful
+		write_debug_message("Copied " + _file_name + ", which couldn't be read, to " + _backup_file_name + ", and started it over", debug_message_level.warning);
+		return true;
+	}
+	
+	/// @function add_from_file_json(_json)
+	/// @description Adds one history file to this stats record, while best_score and last_death_run_numbers keep
+	///	the highest. Anything _from lacks counts as 0, so files saved before a stat or message existed still add in.
+	/// @param {struct} _json The file json to add to this stats record
+	function add_from_file_json(_json) {
+		runs += get_count_from_struct(_json, "runs");
+		wins += get_count_from_struct(_json, "wins");
+		best_score = max(best_score, get_count_from_struct(_json, "best_score"));
+		evaluation_messages = combine_count_structs(evaluation_messages, _json[$ "evaluation_messages"]);
+		deaths = combine_count_structs(deaths, _json[$ "deaths"]);
+		stats = combine_count_structs(stats, _json[$ "stats"]);
+		item_wins = combine_count_structs(item_wins, _json[$ "item_wins"]);
+		last_death_run_numbers = combine_count_structs_keeping_maximums(last_death_run_numbers, _json[$ "last_death_run_numbers"]);
+	
+		// Kills by killer hold a struct of killers for each object killed
+		var _kills_by_killer = _json[$ "kills_by_killer"];
+		if (!is_struct(_kills_by_killer)) { return; }
+	
+		var _victim_names = variable_struct_get_names(_kills_by_killer);
+		for (var _i = 0; _i < array_length(_victim_names); _i++) {
+			var _victim_name = _victim_names[_i];
+			if (!is_struct(kills_by_killer[$ _victim_name])) { kills_by_killer[$ _victim_name] = {}; }
+			kills_by_killer[$ _victim_name] = combine_count_structs(kills_by_killer[$ _victim_name], _kills_by_killer[$ _victim_name]);
+		}
+	}
+	
+	/// @function combine_with_run_mode_history_record(_history_record)
+	/// @description Adds one stats record to another: counts add up, while best_score and last_death_run_numbers keep
+	///	the highest. Anything _from lacks counts as 0, so files saved before a stat or message existed still add in.
+	/// @param {RunModeHistoryRecord} _history_record The file json to add to this stats record
+	function combine_with_run_mode_history_record(_history_record) {
+		runs += _history_record.runs;
+		wins += _history_record.wins;
+		best_score = max(best_score, _history_record.best_score);
+		evaluation_messages = combine_count_structs(evaluation_messages, _history_record.evaluation_messages);
+		deaths = combine_count_structs(deaths, _history_record.deaths);
+		stats = combine_count_structs(stats, _history_record.stats);
+		item_wins = combine_count_structs(item_wins, _history_record.item_wins);
+		last_death_run_numbers = combine_count_structs_keeping_maximums(last_death_run_numbers, _history_record.last_death_run_numbers);
+	
+		// Kills by killer hold a struct of killers for each object killed
+		var _other_victim_names = variable_struct_get_names(_history_record.kills_by_killer);
+		for (var _i = 0; _i < array_length(_other_victim_names); _i++) {
+			var _other_victim_name = _other_victim_names[_i];
+			if (!is_struct(kills_by_killer[$ _other_victim_name])) { kills_by_killer[$ _other_victim_name] = {}; }
+			kills_by_killer[$ _other_victim_name] = combine_count_structs(kills_by_killer[$ _other_victim_name], _history_record.kills_by_killer[$ _other_victim_name]);
+		}
+	}
+	
+	// ============================
+	// Instance Variables
+	// ============================
+	
+	difficulty = _difficulty;
+	graphics_mode = _graphics_mode;
+	
+	runs = 0;
+	wins = 0;
+	best_score = 0;
+	evaluation_messages = {};
+	deaths = {};
+	kills_by_killer = {};
+	item_wins = {};
+	last_death_run_numbers = {};
+	stats = new RunRecord();
 }
 
-/// @function get_stats_file_name(_difficulty, _graphics_mode, [_suffix])
-/// @description The name of the save file for one difficulty and graphics mode, like stats_easy_standard.json
-/// @param {real} _difficulty The difficulty (see difficulties), not ALL
-/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
-/// @param {string} [_suffix] Text added to the end of the name, before the extension, like "-backup" ("" by default)
-/// @returns {string}
-function get_stats_file_name(_difficulty, _graphics_mode, _suffix = "") {
-	static difficulty_names = ["", "easy", "medium", "hard", "very_hard"];
-	static graphics_mode_names = ["standard", "farmer", "unknown"];
-	return "stats_" + difficulty_names[_difficulty] + "_" + graphics_mode_names[_graphics_mode] + _suffix + ".json";
-}
+// ============================
+// Global Run Mode History Functions
+// ============================
 
-/// @function get_saved_stats_record(_difficulty, _graphics_mode)
-/// @description The stats record saved for one difficulty and graphics mode. Each file is read once and then kept
-///	in memory (global.saved_stats_records), and a missing file starts from what an older version of the game
-///	saved in player_data.ini, if anything. A file that can't be read is copied to a backup file and then started
-///	over as a new, empty file, so the player's history isn't lost. Change it only to add a finished run, then
-///	write it.
+/// @function get_run_mode_history_record(_difficulty, _graphics_mode)
+/// @description Returns the history record for one given run mode, a difficulty and graphics mode combination.
+/// Returns it from memory if it is there, otherwise, reads it from the given run mode file.
 /// @param {real} _difficulty The difficulty (see difficulties), not ALL
 /// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
 /// @returns {struct} The stats record (see create_stats_record)
-function get_saved_stats_record(_difficulty, _graphics_mode) {
-	var _file_name = get_stats_file_name(_difficulty, _graphics_mode);
-	var _stats_record = global.saved_stats_records[$ _file_name];
-	if (!is_undefined(_stats_record)) { return _stats_record; }
+function get_run_mode_history_record(_difficulty, _graphics_mode) {
+	// Return the corresponding record from memory, if the file has already been opened
+	var _run_mode_history_record = global.saved_history_records[$ _difficulty][$ _graphics_mode];
+	if (!is_undefined(_run_mode_history_record)) { return _run_mode_history_record; }
 
-	_stats_record = create_stats_record();
-	var _start_new_file = false;
+	// Otherwise, create a new record and populate it from the appropriate history file
+	_run_mode_history_record = new RunModeHistoryRecord(_difficulty, _graphics_mode);
+	var _create_new_file = false, _file_name = _run_mode_history_record.get_history_file_name();
 	if (file_exists(_file_name)) {
-		// A file that can't be read starts over once a backup holds a copy of it
-		if (!read_stats_record_file(_file_name, _stats_record)) { _start_new_file = back_up_stats_file(_difficulty, _graphics_mode); }
+		// Attempt to read the file, and it that fails, attempt to back up the file and create a new one instead.
+		if (!read_run_mode_history_file(_file_name, _run_mode_history_record)) { _create_new_file = _run_mode_history_record.back_up_history_file(); }
 	}
-	else { import_stats_from_player_data_ini(_difficulty, _graphics_mode, _stats_record); }
-	global.saved_stats_records[$ _file_name] = _stats_record;
+	// Save this file in memory
+	global.saved_stats_records[$ _file_name] = _run_mode_history_record;
 	
 	// Replace the file that couldn't be read with a new one, holding the empty stats record
-	if (_start_new_file) { write_saved_stats_record(_difficulty, _graphics_mode); }
-	return _stats_record;
+	if (_create_new_file) { write_run_mode_history_file(_file_name, _run_mode_history_record); }
+	return _run_mode_history_record;
 }
 
-/// @function read_stats_record_file(_file_name, _stats_record)
-/// @description Adds what a save file holds to a stats record. A file that can't be read adds nothing and leaves a
-///	warning in the log.
+/// @function read_run_mode_history_file(_file_name, _stats_record)
+/// @description Fills out an empty stats record with the data from the appropriate history file
 /// @param {string} _file_name The save file
-/// @param {struct} _stats_record The stats record to add to
+/// @param {struct} _run_mode_history_record The stats record to add to
 /// @returns {bool} Whether the file could be read
-function read_stats_record_file(_file_name, _stats_record) {
+function read_run_mode_history_file(_file_name, _run_mode_history_record) {
+	// Attempt to open the file and return false if that fails
 	var _buffer = buffer_load(_file_name);
 	if (!buffer_exists(_buffer)) {
 		write_debug_message("Couldn't open " + _file_name, debug_message_level.warning);
 		return false;
 	}
 
+	// Parse the opened file, catching any errors
 	var _was_read = false;
 	try {
-		add_stats_record(_stats_record, json_parse(buffer_read(_buffer, buffer_string)));
+		_file_json = json_parse(buffer_read(_buffer, buffer_string))
+		_run_mode_history_record.add_from_file_json(_file_json);
 		_was_read = true;
 	}
 	catch (_error) { write_debug_message("Couldn't read " + _file_name + ": " + string(_error), debug_message_level.warning); }
+	
+	// Close the file buffer and return whether the read was successful
 	buffer_delete(_buffer);
 	return _was_read;
 }
 
-/// @function back_up_stats_file(_difficulty, _graphics_mode)
-/// @description Copies the save file for one difficulty and graphics mode, which couldn't be read, to a backup
-///	file named with "-backup" added, like stats_easy_standard-backup.json, so the player's history can still be
-///	recovered after the save file starts over. Copying onto an existing file fails, so when an earlier backup
-///	already has that name, a number follows "-backup", starting from 2.
-/// @param {real} _difficulty The difficulty (see difficulties), not ALL
-/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
-/// @returns {bool} Whether the backup file was made
-function back_up_stats_file(_difficulty, _graphics_mode) {
-	// Find a backup name that no file has yet
-	var _backup_name = get_stats_file_name(_difficulty, _graphics_mode, "-backup");
-	for (var _i = 2; file_exists(_backup_name); _i++) { _backup_name = get_stats_file_name(_difficulty, _graphics_mode, "-backup" + string(_i)); }
-	
-	// Copy the file, and make sure the copy exists before anything replaces the file
-	var _file_name = get_stats_file_name(_difficulty, _graphics_mode);
-	file_copy(_file_name, _backup_name);
-	if (!file_exists(_backup_name)) {
-		write_debug_message("Couldn't copy " + _file_name + " to " + _backup_name + ", so the next save will replace it", debug_message_level.warning);
-		return false;
-	}
-	
-	write_debug_message("Copied " + _file_name + ", which couldn't be read, to " + _backup_name + ", and started it over", debug_message_level.warning);
-	return true;
+
+
+
+
+/// @function add_to_struct_number(_struct, _name, _amount)
+/// @description Adds to a number kept in a struct under a name, starting it from 0 if there's none
+/// @param {struct} _struct The struct
+/// @param {string} _name The name
+/// @param {real} _amount How much to add
+function add_to_struct_number(_struct, _name, _amount) {
+	_struct[$ _name] = get_count_from_struct(_struct, _name) + _amount;
 }
 
-/// @function write_saved_stats_record(_difficulty, _graphics_mode)
-/// @description Writes the stats record for one difficulty and graphics mode to its save file, and forgets the
-///	totals worked out from the old one
-/// @param {real} _difficulty The difficulty (see difficulties), not ALL
-/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
-function write_saved_stats_record(_difficulty, _graphics_mode) {
-	var _json = json_stringify(get_saved_stats_record(_difficulty, _graphics_mode));
+/// @function write_run_mode_history_file(_difficulty, _graphics_mode)
+/// @description Writes a run mode history to its file
+/// @param {string} _file_name The save file
+/// @param {struct} _run_mode_history_record The stats record to add to
+function write_run_mode_history_file(_file_name, _run_mode_history_record) {
+	var _json = json_stringify(_run_mode_history_record);
 	var _buffer = buffer_create(string_byte_length(_json) + 1, buffer_fixed, 1);
 	buffer_write(_buffer, buffer_string, _json);
-	buffer_save(_buffer, get_stats_file_name(_difficulty, _graphics_mode));
+	buffer_save(_buffer, _file_name);
 	buffer_delete(_buffer);
 	global.stats_record_totals = {};
 }
@@ -150,82 +221,21 @@ function get_stats_record_total(_difficulty, _graphics_mode = graphics_modes.ALL
 			var _next_graphics_mode = global.graphics_modes_array[_j];
 			if (_graphics_mode != graphics_modes.ALL && _graphics_mode != _next_graphics_mode) { continue; }
 
-			add_stats_record(_total, get_saved_stats_record(_next_difficulty, _next_graphics_mode));
+			_total.combine_with_run_mode_history_record(get_run_mode_history_record(_next_difficulty, _next_graphics_mode));
 		}
 	}
 	global.stats_record_totals[$ _total_name] = _total;
 	return _total;
 }
 
-/// @function add_stats_record(_into, _from)
-/// @description Adds one stats record to another: counts add up, while best_score and last_death_run_numbers keep
-///	the highest. Anything _from lacks counts as 0, so files saved before a stat or message existed still add in.
-/// @param {struct} _into The stats record to add to (see create_stats_record)
-/// @param {struct} _from The stats record to add, which may be one read from a file
-function add_stats_record(_into, _from) {
-	_into.runs += get_struct_number(_from, "runs");
-	_into.wins += get_struct_number(_from, "wins");
-	_into.best_score = max(_into.best_score, get_struct_number(_from, "best_score"));
-	add_struct_numbers(_into.stats, _from[$ "stats"]);
-	add_struct_numbers(_into.evaluation_messages, _from[$ "evaluation_messages"]);
-	add_struct_numbers(_into.deaths, _from[$ "deaths"]);
-	keep_highest_struct_numbers(_into.last_death_run_numbers, _from[$ "last_death_run_numbers"]);
-	add_struct_numbers(_into.item_wins, _from[$ "item_wins"]);
 
-	// Kills by killer hold a struct of killers for each object killed
-	var _kills_by_killer = _from[$ "kills_by_killer"];
-	if (!is_struct(_kills_by_killer)) { return; }
 
-	var _victim_names = variable_struct_get_names(_kills_by_killer);
-	for (var _i = 0; _i < array_length(_victim_names); _i++) {
-		var _victim_name = _victim_names[_i];
-		if (!is_struct(_into.kills_by_killer[$ _victim_name])) { _into.kills_by_killer[$ _victim_name] = {}; }
-		add_struct_numbers(_into.kills_by_killer[$ _victim_name], _kills_by_killer[$ _victim_name]);
-	}
-}
 
-/// @function get_struct_number(_struct, _name)
-/// @description A number kept in a struct under a name
-/// @param {struct} _struct The struct, which may be undefined
-/// @param {string} _name The name
-/// @returns {real} The number, or 0 when there's no number under that name
-function get_struct_number(_struct, _name) {
-	if (!is_struct(_struct)) { return 0; }
 
-	var _value = _struct[$ _name];
-	return (is_numeric(_value)) ? _value : 0;
-}
 
-/// @function add_to_struct_number(_struct, _name, _amount)
-/// @description Adds to a number kept in a struct under a name, starting it from 0 if there's none
-/// @param {struct} _struct The struct
-/// @param {string} _name The name
-/// @param {real} _amount How much to add
-function add_to_struct_number(_struct, _name, _amount) {
-	_struct[$ _name] = get_struct_number(_struct, _name) + _amount;
-}
 
-/// @function add_struct_numbers(_into, _from)
-/// @description Adds each number in one struct to the number under the same name in another
-/// @param {struct} _into The struct to add to
-/// @param {struct} _from The struct of numbers to add, which may be undefined
-function add_struct_numbers(_into, _from) {
-	if (!is_struct(_from)) { return; }
 
-	var _names = variable_struct_get_names(_from);
-	for (var _i = 0; _i < array_length(_names); _i++) { add_to_struct_number(_into, _names[_i], get_struct_number(_from, _names[_i])); }
-}
-
-/// @function keep_highest_struct_numbers(_into, _from)
-/// @description Raises each number in one struct to the number under the same name in another, where that's higher
-/// @param {struct} _into The struct to raise numbers in
-/// @param {struct} _from The struct of numbers to compare, which may be undefined
-function keep_highest_struct_numbers(_into, _from) {
-	if (!is_struct(_from)) { return; }
-
-	var _names = variable_struct_get_names(_from);
-	for (var _i = 0; _i < array_length(_names); _i++) { _into[$ _names[_i]] = max(get_struct_number(_into, _names[_i]), get_struct_number(_from, _names[_i])); }
-}
+/// TODO: Review  the rest of this
 
 /// @function add_kills_by_killer(_stats_record, _victim_name, _killer_name, _kills)
 /// @description Adds kills of one type of thing by one killer to a stats record
@@ -239,76 +249,6 @@ function add_kills_by_killer(_stats_record, _victim_name, _killer_name, _kills) 
 	add_to_struct_number(_kills_by_killer[$ _victim_name], _killer_name, _kills);
 }
 
-/// @function import_stats_from_player_data_ini(_difficulty, _graphics_mode, _stats_record)
-/// @description Copies what an older version of the game saved in player_data.ini into the stats record of a save
-///	file that doesn't exist yet, so a player's history and unlocks carry over. That version kept one section per
-///	difficulty and only told graphics modes apart for wins, so the standard file takes everything but the farmer and
-///	unknown wins, which go to their own files. Only the player's kills are copied, as the death log shows only
-///	those. The ini is only read; once the file is first saved, this isn't needed again.
-/// @param {real} _difficulty The difficulty (see difficulties), not ALL
-/// @param {real} _graphics_mode The graphics mode (see graphics_modes), not ALL
-/// @param {struct} _stats_record The empty stats record to copy into (see create_stats_record)
-function import_stats_from_player_data_ini(_difficulty, _graphics_mode, _stats_record) {
-	var _section = get_difficulty_string(_difficulty);
-	ini_open("player_data.ini");
-	var _farmer_wins = ini_read_real(_section, "extra_mode_wins", 0), _unknown_wins = ini_read_real(_section, "unknown_mode_wins", 0);
-	switch (_graphics_mode) {
-		case graphics_modes.farmer: { _stats_record.wins = _farmer_wins; break; }
-		case graphics_modes.unknown: { _stats_record.wins = _unknown_wins; break; }
-		case graphics_modes.standard: {
-			_stats_record.wins = max(0, ini_read_real(_section, "wins", 0) - _farmer_wins - _unknown_wins);
-			_stats_record.runs = ini_read_real(_section, "run_number", 0);
-			_stats_record.best_score = ini_read_real(_section, "best_score", 0);
-
-			// Deaths and last deaths were saved under each object's name, and kills under the names of what was killed
-			// and its killer. Only the player's kills are copied, as only those are shown: kills credited to the player,
-			// a pushed block, special meat, or a fireball, which was how a blast from a bomb the player set off was
-			// credited. Phantoms and giant eyes credited themselves, though the player nearly always caused it.
-			var _old_player_killer_names = ["obj_player", "obj_block", "obj_meat", "obj_fireball"], _player_killer_names = ["obj_player", "obj_block", "obj_meat", "obj_bomb"];
-			for (var _i = 0; _i < array_length(global.death_types_array); _i++) {
-				var _object_name = object_get_name(global.death_types_array[_i]);
-				var _deaths = ini_read_real(_section, _object_name, 0), _last_death_run_number = ini_read_real(_section, _object_name + "_last_killed_by", 0);
-				if (_deaths > 0) { _stats_record.deaths[$ _object_name] = _deaths; }
-				if (_last_death_run_number > 0) { _stats_record.last_death_run_numbers[$ _object_name] = _last_death_run_number; }
-				for (var _j = 0; _j < array_length(_old_player_killer_names); _j++) {
-					var _kills = ini_read_real(_section, _object_name + "_kills_by_" + _old_player_killer_names[_j], 0);
-					if (_kills > 0) { add_kills_by_killer(_stats_record, _object_name, _player_killer_names[_j], _kills); }
-				}
-				if (_object_name == "obj_phantom" || _object_name == "obj_giant_eye") {
-					var _self_credited_kills = ini_read_real(_section, _object_name + "_kills_by_" + _object_name, 0);
-					if (_self_credited_kills > 0) { add_kills_by_killer(_stats_record, _object_name, "obj_player", _self_credited_kills); }
-				}
-			}
-
-			// Item wins were saved under each item's name
-			var _item_types = global.available_items[difficulties.very_hard];
-			for (var _i = 0; _i < array_length(_item_types); _i++) {
-				var _item_name = object_get_name(_item_types[_i]), _item_wins = ini_read_real(_section, _item_name + "_wins", 0);
-				if (_item_wins > 0) { _stats_record.item_wins[$ _item_name] = _item_wins; }
-			}
-
-			// Stats were saved under their names, and bomb kills were called fireball kills
-			var _stat_names = variable_struct_get_names(_stats_record.stats);
-			for (var _i = 0; _i < array_length(_stat_names); _i++) {
-				var _stat_name = _stat_names[_i];
-				_stats_record.stats[$ _stat_name] = ini_read_real(_section, (_stat_name == "bomb_kill_count") ? "fireball_kill_count" : _stat_name, 0);
-			}
-
-			// Achievements were saved under their titles, with underscores for spaces
-			var _messages = get_evaluation_messages();
-			for (var _i = 0; _i < array_length(_messages); _i++) {
-				if (!_messages[_i].is_achievement) { continue; }
-
-				var _title = _messages[_i].title, _times_earned = ini_read_real(_section, string_replace_all(_title, " ", "_"), 0);
-				if (_times_earned > 0) { _stats_record.evaluation_messages[$ _title] = _times_earned; }
-			}
-			break;
-		}
-	}
-	ini_close();
-}
-
-
 // Reading saved stats
 
 /// @function get_death_count(_obj_index, _difficulty, [_graphics_mode])
@@ -318,7 +258,7 @@ function import_stats_from_player_data_ini(_difficulty, _graphics_mode, _stats_r
 /// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
 /// @returns {real}
 function get_death_count(_obj_index, _difficulty, _graphics_mode = graphics_modes.ALL) {
-	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).deaths, object_get_name(_obj_index));
+	return get_count_from_struct(get_stats_record_total(_difficulty, _graphics_mode).deaths, object_get_name(_obj_index));
 }
 
 /// @function get_player_kill_count(_obj_index, _difficulty, [_graphics_mode])
@@ -334,7 +274,7 @@ function get_player_kill_count(_obj_index, _difficulty, _graphics_mode = graphic
 
 	var _killer_names = variable_struct_get_names(_kills_by_killer), _kill_count = 0;
 	for (var _i = 0; _i < array_length(_killer_names); _i++) {
-		if (is_player_killer(asset_get_index(_killer_names[_i]))) { _kill_count += get_struct_number(_kills_by_killer, _killer_names[_i]); }
+		if (is_player_killer(asset_get_index(_killer_names[_i]))) { _kill_count += get_count_from_struct(_kills_by_killer, _killer_names[_i]); }
 	}
 	return _kill_count;
 }
@@ -347,7 +287,7 @@ function get_player_kill_count(_obj_index, _difficulty, _graphics_mode = graphic
 /// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
 /// @returns {real} The run number, or 0 if it never has
 function get_last_killed(_obj_index, _difficulty, _graphics_mode = graphics_modes.ALL) {
-	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).last_death_run_numbers, object_get_name(_obj_index));
+	return get_count_from_struct(get_stats_record_total(_difficulty, _graphics_mode).last_death_run_numbers, object_get_name(_obj_index));
 }
 
 /// @function get_total_death_count(_difficulty, [_graphics_mode])
@@ -357,7 +297,7 @@ function get_last_killed(_obj_index, _difficulty, _graphics_mode = graphics_mode
 /// @returns {real}
 function get_total_death_count(_difficulty, _graphics_mode = graphics_modes.ALL) {
 	var _deaths = get_stats_record_total(_difficulty, _graphics_mode).deaths, _killer_names = variable_struct_get_names(_deaths), _death_count = 0;
-	for (var _i = 0; _i < array_length(_killer_names); _i++) { _death_count += get_struct_number(_deaths, _killer_names[_i]); }
+	for (var _i = 0; _i < array_length(_killer_names); _i++) { _death_count += get_count_from_struct(_deaths, _killer_names[_i]); }
 	return _death_count;
 }
 
@@ -401,7 +341,7 @@ function get_win_count(_difficulty, _graphics_mode = graphics_modes.ALL) {
 /// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
 /// @returns {real}
 function get_item_win_count(_item_type, _difficulty, _graphics_mode = graphics_modes.ALL) {
-	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).item_wins, object_get_name(_item_type));
+	return get_count_from_struct(get_stats_record_total(_difficulty, _graphics_mode).item_wins, object_get_name(_item_type));
 }
 
 /// @function get_run_number_count(_difficulty, [_graphics_mode])
@@ -451,7 +391,7 @@ function get_best_score_string(_difficulty, _graphics_mode = graphics_modes.ALL)
 /// @param {real} [_graphics_mode] The graphics mode (see graphics_modes), every graphics mode by default
 /// @returns {real}
 function get_evaluation_message_count(_title, _difficulty, _graphics_mode = graphics_modes.ALL) {
-	return get_struct_number(get_stats_record_total(_difficulty, _graphics_mode).evaluation_messages, _title);
+	return get_count_from_struct(get_stats_record_total(_difficulty, _graphics_mode).evaluation_messages, _title);
 }
 
 

@@ -1,8 +1,8 @@
 /// @function RunRecord()
 /// @description Everything the run being played does that the game keeps: its stats, kills and deaths as they
 ///	happen, then its evaluation messages and score when it ends. obj_controller holds it as run_record. It lives only
-///	in memory until the run ends, when save adds it to the save file for the run's difficulty and graphics mode, so
-///	nothing is written to disk during play.
+///	in memory until the run ends, after which it is saved and we add it to the save file for the run's difficulty and
+/// graphics mode. Nothing is written to disk during play.
 function RunRecord() constructor {
 	// Which save file the run belongs in, and its number among the runs on its difficulty
 	difficulty = global.difficulty;
@@ -13,8 +13,8 @@ function RunRecord() constructor {
 	starting_left_hand_item = global.player_left_hand_item;
 	starting_right_hand_item = global.player_right_hand_item;
 
-	// What the run has done, shaped like a save file so that saving only adds it in (see create_stats_record)
-	stats_record = create_stats_record();
+	// What the run has done, shaped like a save file so that saving only adds it in
+	stats_record = new RunModeHistoryRecord(difficulty, graphics_mode);
 	stats = stats_record.stats;						// The run's stats, which the evaluation messages read as stats.name
 	killers = [];									// What killed the player each time they died, in order
 	rooms_looked_at_with_map_item = [];				// Rooms the player opened the map in while carrying a map
@@ -33,7 +33,7 @@ function RunRecord() constructor {
 	final_right_hand_item = noone;
 	had_special_swarm = false;
 	map_room_count = 0;
-	previous_totals = create_stats_record();		// The save files' totals for this difficulty from before this run
+	previous_totals = new RunModeHistoryRecord(difficulty, graphics_mode);		// The save files' totals for this difficulty from before this run
 
 	// The evaluation, for the end screen
 	evaluation_messages = [];						// The text of each message the run earned, and whether it's negative
@@ -42,12 +42,12 @@ function RunRecord() constructor {
 	is_saved = false;
 
 	/// @function increment_stat(_stat_name, [_amount])
-	/// @description Adds to one of the run's stats. The name must be one create_run_stats defines.
+	/// @description Adds to one of the run's stats. The name must be one RunStates defines.
 	/// @param {string} _stat_name The stat to add to
 	/// @param {real} [_amount] How much to add (1 by default)
 	static increment_stat = function(_stat_name, _amount = 1) {
 		if (!variable_struct_exists(stats, _stat_name)) {
-			write_debug_message("No run stat is named " + _stat_name + " (see create_run_stats)", debug_message_level.warning);
+			write_debug_message("No run stat is named " + _stat_name, debug_message_level.warning);
 			return;
 		}
 
@@ -244,7 +244,7 @@ function get_run_record() {
 }
 
 /// @function increment_run_stat(_stat_name, [_amount])
-/// @description Adds to one of the run's stats, from anywhere in the game. The name must be one create_run_stats
+/// @description Adds to one of the run's stats, from anywhere in the game. The name must be one RunStats
 ///	defines. Does nothing when no run is being played.
 /// @param {string} _stat_name The stat to add to
 /// @param {real} [_amount] How much to add (1 by default)

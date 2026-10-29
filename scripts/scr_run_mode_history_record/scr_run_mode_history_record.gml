@@ -50,19 +50,11 @@ function RunModeHistoryRecord(_difficulty, _graphics_mode) constructor {
 	};
 
 	/// @function add_from_file_json(_json)
-	/// @description Adds one history file to this history record, while best_score and last_death_run_numbers keep
-	///	the highest. Anything the file lacks counts as 0, so files saved before a stat or message existed still add in.
+	/// @description Adds one history file to this history record, the same way as any other history record, since
+	///	that's what the file holds
 	/// @param {struct} _json The file json to add to this history record
 	static add_from_file_json = function(_json) {
-		runs += get_count_from_struct(_json, "runs");
-		wins += get_count_from_struct(_json, "wins");
-		best_score = max(best_score, get_count_from_struct(_json, "best_score"));
-		evaluation_messages = combine_count_structs(evaluation_messages, _json[$ "evaluation_messages"]);
-		deaths = combine_count_structs(deaths, _json[$ "deaths"]);
-		stats = combine_count_structs(stats, _json[$ "stats"]);
-		item_wins = combine_count_structs(item_wins, _json[$ "item_wins"]);
-		last_death_run_numbers = combine_count_structs(last_death_run_numbers, _json[$ "last_death_run_numbers"], max);
-		kills_by_killer = combine_count_structs(kills_by_killer, _json[$ "kills_by_killer"]);		// Each struct of killers is combined too
+		combine_with_run_mode_history_record(_json);
 	};
 
 	/// @function back_up_history_file()
@@ -116,18 +108,20 @@ function RunModeHistoryRecord(_difficulty, _graphics_mode) constructor {
 
 	/// @function combine_with_run_mode_history_record(_history_record)
 	/// @description Adds another history record to this one: counts add up, while best_score and
-	///	last_death_run_numbers keep the highest
-	/// @param {RunModeHistoryRecord} _history_record The history record to add to this one
+	///	last_death_run_numbers keep the highest. Anything the other record lacks counts as 0, so history files saved
+	///	before a stat or message existed still add in.
+	/// @param {RunModeHistoryRecord|struct} _history_record The history record to add to this one, or the json of a
+	///	history file
 	static combine_with_run_mode_history_record = function(_history_record) {
-		runs += _history_record.runs;
-		wins += _history_record.wins;
-		best_score = max(best_score, _history_record.best_score);
-		evaluation_messages = combine_count_structs(evaluation_messages, _history_record.evaluation_messages);
-		deaths = combine_count_structs(deaths, _history_record.deaths);
-		stats = combine_count_structs(stats, _history_record.stats);
-		item_wins = combine_count_structs(item_wins, _history_record.item_wins);
-		last_death_run_numbers = combine_count_structs(last_death_run_numbers, _history_record.last_death_run_numbers, max);
-		kills_by_killer = combine_count_structs(kills_by_killer, _history_record.kills_by_killer);		// Each struct of killers is combined too
+		runs += get_count_from_struct(_history_record, "runs");
+		wins += get_count_from_struct(_history_record, "wins");
+		best_score = max(best_score, get_count_from_struct(_history_record, "best_score"));
+		evaluation_messages = combine_count_structs(evaluation_messages, _history_record[$ "evaluation_messages"]);
+		deaths = combine_count_structs(deaths, _history_record[$ "deaths"]);
+		stats = combine_count_structs(stats, _history_record[$ "stats"]);
+		item_wins = combine_count_structs(item_wins, _history_record[$ "item_wins"]);
+		last_death_run_numbers = combine_count_structs(last_death_run_numbers, _history_record[$ "last_death_run_numbers"], max);
+		kills_by_killer = combine_count_structs(kills_by_killer, _history_record[$ "kills_by_killer"]);		// Each struct of killers is combined too
 	};
 
 	/// @function add_kills_by_killer(_victim_name, _killer_name, _kills)
@@ -310,102 +304,4 @@ function get_stats_record_total(_difficulty, _graphics_mode = graphics_modes.ALL
 	}
 	global.stats_record_totals[$ _total_name] = _total;
 	return _total;
-}
-
-/// TODO: Review  the rest of this
-
-// ============================
-// Global List Functions
-// ============================
-
-/// @function get_difficulties()
-/// @description Every difficulty (see global.difficulties_array)
-/// @returns {array} A copy the caller may change
-function get_difficulties() {
-	return variable_clone(global.difficulties_array, 0);
-}
-
-/// @function get_death_types()
-/// @description Everything that can kill the player, in the death log's order (see global.death_types_array)
-/// @returns {array} A copy the caller may change
-function get_death_types() {
-	return variable_clone(global.death_types_array, 0);
-}
-
-// ============================
-// Global Setting Functions - Settings stay in player_data.ini
-// ============================
-
-/// @function update_setting(_setting_name, _new_value)
-/// @description Saves a setting
-/// @param {string} _setting_name The setting
-/// @param {real|string} _new_value Its new value
-function update_setting(_setting_name, _new_value) {
-	ini_open("player_data.ini");
-	if (is_string(_new_value)) { ini_write_string("Settings", _setting_name, _new_value); }
-	else { ini_write_real("Settings", _setting_name, _new_value); }
-	ini_close();
-}
-
-/// @function get_setting(_setting_name, _default_value)
-/// @description A saved setting
-/// @param {string} _setting_name The setting
-/// @param {real|string} _default_value Its value if it was never saved, which also says whether it's a string
-/// @returns {real|string}
-function get_setting(_setting_name, _default_value) {
-	var _setting_value = _default_value;
-
-	ini_open("player_data.ini");
-	if (is_string(_default_value)) { _setting_value = ini_read_string("Settings", _setting_name, _default_value); }
-	else { _setting_value = ini_read_real("Settings", _setting_name, _default_value); }
-	ini_close();
-
-	return _setting_value;
-}
-
-/// @function update_setting_for_difficulty(_setting_name, _difficulty, _new_value)
-/// @description Saves a setting kept separately for each difficulty
-/// @param {string} _setting_name The setting
-/// @param {real} _difficulty The difficulty (see difficulties)
-/// @param {real|string} _new_value Its new value
-function update_setting_for_difficulty(_setting_name, _difficulty, _new_value) {
-	ini_open("player_data.ini");
-	if (is_string(_new_value)) { ini_write_string(get_difficulty_string(_difficulty), _setting_name, _new_value); }
-	else { ini_write_real(get_difficulty_string(_difficulty), _setting_name, _new_value); }
-	ini_close();
-}
-
-/// @function get_setting_for_difficulty(_setting_name, _difficulty, _default_value)
-/// @description A saved setting kept separately for each difficulty
-/// @param {string} _setting_name The setting
-/// @param {real} _difficulty The difficulty (see difficulties)
-/// @param {real|string} _default_value Its value if it was never saved, which also says whether it's a string
-/// @returns {real|string}
-function get_setting_for_difficulty(_setting_name, _difficulty, _default_value) {
-	var _setting_value = _default_value;
-
-	ini_open("player_data.ini");
-	if (is_string(_default_value)) { _setting_value = ini_read_string(get_difficulty_string(_difficulty), _setting_name, _default_value); }
-	else { _setting_value = ini_read_real(get_difficulty_string(_difficulty), _setting_name, _default_value); }
-	ini_close();
-
-	return _setting_value;
-}
-
-// ============================
-// Global Game Log Functions
-// ============================
-
-/// @function update_log(_line_name, _new_value)
-/// @description Adds a line to game_log.txt, stamped with when the game or run began
-/// @param {string} _line_name What the line records
-/// @param {real|string} _new_value The value to record
-function update_log(_line_name, _new_value) {
-	var _file_id = file_text_open_append(working_directory + "game_log.txt");
-	var _value_string = is_string(_new_value) ? _new_value : string(_new_value);
-	var _new_line = "[" + global.datetime + "] - " + _line_name + ": " + _value_string;
-
-	file_text_writeln(_file_id);
-	file_text_write_string(_file_id, _new_line);
-	file_text_close(_file_id);
 }

@@ -163,8 +163,9 @@ global.is_test_mode = false;
 global.is_seed_testing_mode = false;
 global.has_seed_test_passed = false;
 
-// Saved stats, each save file read when first needed and kept, and the totals worked out from them (see scr_player_data)
-global.saved_stats_records = {};
+// Saved run mode history records, each save file read when first needed and kept, and the totals worked out from them
+// (see RunModeHistoryRecord)
+global.saved_history_records = {};
 global.stats_record_totals = {};
 
 // Setup global variables for title screen

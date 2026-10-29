@@ -1,7 +1,8 @@
 var _game_manager = global.game_manager, _game_color = global.gms_game_color;
 // Counts shown are for the selected graphics mode; the logs unlock once a run has ended in any of them
-var _run_count_string = (global.is_test_mode) ? "Runs Attempted: 99999" : get_run_count_string(global.difficulty, global.graphics_mode);
-var _death_count_string = (global.is_test_mode) ? "Deaths: 9999" : get_death_count_string(global.difficulty, global.graphics_mode), _win_count_string = (global.is_test_mode) ? "Victories: 9999" : get_win_count_string(global.difficulty, global.graphics_mode);
+var _history_record = get_stats_record_total(global.difficulty, global.graphics_mode);
+var _run_count_string = (global.is_test_mode) ? "Runs Attempted: 99999" : _history_record.get_run_count_string();
+var _death_count_string = (global.is_test_mode) ? "Deaths: 9999" : _history_record.get_death_count_string(), _win_count_string = (global.is_test_mode) ? "Victories: 9999" : _history_record.get_win_count_string();
 var _can_view_logs = (global.is_test_mode || has_finished_a_run(global.difficulty));
 var _title_y_pos = room_height*2, _blink = is_blink_frame();
 
@@ -23,7 +24,7 @@ else if (prepare_screen) {
 	draw_set_color(c_white);
 	
 	// Draw Player Visuals
-	if (_best_count == _possible_count) { draw_sprite_ext(spr_crown, 0, _player_x_pos, _player_y_pos - (16*3), 3, 3, 0, c_white, (get_win_count(global.difficulty, graphics_modes.unknown) > 0) ? INVERTED_COLORS_ALPHA_FLAG : 1); }
+	if (_best_count == _possible_count) { draw_sprite_ext(spr_crown, 0, _player_x_pos, _player_y_pos - (16*3), 3, 3, 0, c_white, (get_stats_record_total(global.difficulty, graphics_modes.unknown).wins > 0) ? INVERTED_COLORS_ALPHA_FLAG : 1); }
 	draw_sprite_ext(spr_player, 1, _player_x_pos, _player_y_pos, 4, 4, 0, c_white, 1);
 	if (global.graphics_mode == graphics_modes.farmer) { draw_sprite_ext(spr_player_farmer, 1, _player_x_pos, _player_y_pos, 4, 4, 0, c_white, 1); }
 	draw_set_color(_game_color);
@@ -338,7 +339,7 @@ else if (evaluation_log_screen) {
 	var _y_initial = 16+8, _x_initial = (room_width/4)-16;
 	_y_pos = _y_initial;
 	_x_pos = _x_initial-20;
-	var _best_score_string = get_best_score_string(global.difficulty, global.graphics_mode);
+	var _best_score_string = _history_record.get_best_score_string();
 	draw_text(room_width/2, 15, get_difficulty_string(global.difficulty));
 	
 	// Draw Scores

@@ -2,91 +2,86 @@
 /// @description Every stat a run counts, each starting at 0. This and get_evaluation_messages below are the one
 ///	place stats and evaluation messages are defined. Code anywhere in the game adds to a stat by name with
 ///	increment_run_stat, the evaluation messages judge the run on the stats when it ends, and each save file keeps
-///	their totals over every run it holds (see scr_player_data). To add a stat, add it here and call
+///	their totals over every run it holds (see RunModeHistoryRecord). To add a stat, add it here and call
 ///	increment_run_stat where it happens.
 function RunStats() constructor {
 	// Deaths
-	death_count: 0,									// Times the player died, including deaths a rosary undid, running out of time and restarting from the pause menu
-	rosary_use_count: 0,							// Times a rosary brought the player back to life
-
+	death_count = 0;								// Times the player died, including deaths a rosary undid, running out of time and restarting from the pause menu
+	rosary_use_count = 0;							// Times a rosary brought the player back to life
+	
 	// Kills
-	kill_count: 0,									// Enemies killed by anything but another enemy's projectile
-	kill_after_death_count: 0,						// Enemies killed while the player was dead
-	sword_kill_count: 0,							// Enemies the player killed with a sword
-	block_kill_count: 0,							// Enemies crushed under a block the player pushed
-	double_block_kill_count: 0,						// Pushes that crushed two or more enemies under one block
-	nose_block_kill_count: 0,						// Noses crushed under a block the player pushed
-	worm_kill_count: 0,								// Enemies crushed under the giant worm
-	lava_kill_count: 0,								// Enemies killed by lava
-	meat_kill_count: 0,								// Enemies killed by eating special meat
-	bomb_kill_count: 0,								// Enemies killed by the blast of a bomb the player set off
-	friendly_fire_kill_count: 0,					// Enemies killed by another enemy's projectile
-	spontaneously_exploded_enemy: 0,				// Noses and fire skeletons that blew themselves up
-
+	kill_count = 0;									// Enemies killed by anything but another enemy's projectile
+	kill_after_death_count = 0;						// Enemies killed while the player was dead
+	sword_kill_count = 0;							// Enemies the player killed with a sword
+	block_kill_count = 0;							// Enemies crushed under a block the player pushed
+	double_block_kill_count = 0;					// Pushes that crushed two or more enemies under one block
+	nose_block_kill_count = 0;						// Noses crushed under a block the player pushed
+	worm_kill_count = 0;							// Enemies crushed under the giant worm
+	lava_kill_count = 0;							// Enemies killed by lava
+	meat_kill_count = 0;							// Enemies killed by eating special meat
+	bomb_kill_count = 0;							// Enemies killed by the blast of a bomb the player set off
+	friendly_fire_kill_count = 0;					// Enemies killed by another enemy's projectile
+	spontaneously_exploded_enemy = 0;				// Noses and fire skeletons that blew themselves up
+	
 	// Items
-	used_item_types: 0,								// Types of item the player picked up
-	used_special_items: 0,							// Special items the player carried into another room
-	dual_wielded_items: 0,							// Times the player came to hold two items of the same type
-	dual_wielded_lit_torches: 0,					// Times the player came to hold two lit torches
-	staff_blocked_fireballs: 0,						// Fireballs a carried staff blocked
-	staff_blocked_beams: 0,							// Magic beams a carried staff blocked
-	holes_dug: 0,									// Holes dug with a shovel
-	bombs_lit: 0,									// Bombs the player lit
-	bombs_lit_by_fireball: 0,						// Bombs a fireball lit while the player was alive
-	torches_lit: 0,									// Torches lit, counting the one the player may begin with
-	torches_lit_by_fireball: 0,						// Torches a fireball lit while the player was alive
-	special_torches_lit: 0,							// Special torches lit
-	carried_torch_lost_count: 0,					// Times the player put down their last torch, dropped it by dying, or let a carried torch go out
-	rooms_lit: 0,									// Rooms where the player lit the last unlit lantern
-	clock_time_saved: 0,							// Seconds a carried clock kept from running out
-	item_lava_count: 0,								// Items destroyed by lava
-	decapitated_corpses: 0,							// Heads the player ripped off of corpses
-	total_collectables_collected: 0,				// Collectables picked up
-
+	used_item_types = 0;							// Types of item the player picked up
+	used_special_items = 0;							// Special items the player carried into another room
+	dual_wielded_items = 0;							// Times the player came to hold two items of the same type
+	dual_wielded_lit_torches = 0;					// Times the player came to hold two lit torches
+	staff_blocked_fireballs = 0;					// Fireballs a carried staff blocked
+	staff_blocked_beams = 0;						// Magic beams a carried staff blocked
+	holes_dug = 0;									// Holes dug with a shovel
+	bombs_lit = 0;									// Bombs the player lit
+	bombs_lit_by_fireball = 0;						// Bombs a fireball lit while the player was alive
+	torches_lit = 0;								// Torches lit, counting the one the player may begin with
+	torches_lit_by_fireball = 0;					// Torches a fireball lit while the player was alive
+	special_torches_lit = 0;						// Special torches lit
+	carried_torch_lost_count = 0;					// Times the player put down their last torch, dropped it by dying, or let a carried torch go out
+	rooms_lit = 0;									// Rooms where the player lit the last unlit lantern
+	clock_time_saved = 0;							// Seconds a carried clock kept from running out
+	item_lava_count = 0;							// Items destroyed by lava
+	decapitated_corpses = 0;						// Heads the player ripped off of corpses
+	total_collectables_collected = 0;				// Collectables picked up
+	
 	// Map
-	map_looks: 0,									// Times the player opened the map
-	rooms_map_looked_at_with_map_item: 0,			// Rooms the player opened the map in while carrying a map
-	rooms_map_looked_at_without_map_item: 0,		// Rooms the player opened the map in without carrying a map
-
+	map_looks = 0;									// Times the player opened the map
+	rooms_map_looked_at_with_map_item = 0;			// Rooms the player opened the map in while carrying a map
+	rooms_map_looked_at_without_map_item = 0;		// Rooms the player opened the map in without carrying a map
+	
 	// Chests
-	chests_opened: 0,								// Chests opened, other than trapped ones
-	chests_opened_lit_bombs: 0,						// Bombs a chest dropped at the player's feet while they carried a lit torch
-	trapped_chests_opened: 0,						// Trapped chests opened
-	trapped_chests_destroyed: 0,					// Trapped chests destroyed by the blast of a bomb the player set off
-	unlocked_chests: 0,								// Locked chests unlocked
-
+	chests_opened = 0;								// Chests opened, other than trapped ones
+	chests_opened_lit_bombs = 0;					// Bombs a chest dropped at the player's feet while they carried a lit torch
+	trapped_chests_opened = 0;						// Trapped chests opened
+	trapped_chests_destroyed = 0;					// Trapped chests destroyed by the blast of a bomb the player set off
+	unlocked_chests = 0;							// Locked chests unlocked
+	
 	// Doors and exits
-	opened_doors: 0,								// Doors opened
-	unlocked_doors: 0,								// Locked doors unlocked
-	portcullises_opened: 0,							// Portcullises opened by stepping on a plate
-	illusion_walls_discovered: 0,					// Illusion walls the player walked through
-
+	opened_doors = 0;								// Doors opened
+	unlocked_doors = 0;								// Locked doors unlocked
+	portcullises_opened = 0;						// Portcullises opened by stepping on a plate
+	illusion_walls_discovered = 0;					// Illusion walls the player walked through
+	
 	// Tiles and hazards
-	crushed_bugs: 0,								// Bugs the player stepped on
-	times_infected: 0,								// Times a parasite infected the player
-	rustled_bushes: 0,								// Times the player rustled a bush
-	disturbed_bones: 0,								// Corpses and bones the player stepped on
-	blocks_pushed_into_lava: 0,						// Blocks pushed into lava
-	mirror_bounced_projectile: 0,					// Times a projectile bounced off of a mirror
-
+	crushed_bugs = 0;								// Bugs the player stepped on
+	times_infected = 0;								// Times a parasite infected the player
+	rustled_bushes = 0;								// Times the player rustled a bush
+	disturbed_bones = 0;							// Corpses and bones the player stepped on
+	blocks_pushed_into_lava = 0;					// Blocks pushed into lava
+	mirror_bounced_projectile = 0;					// Times a projectile bounced off of a mirror
+	
 	// Special rooms
-	giant_eye_room_visited: 0,						// Envy rooms found
-	giant_eye_room_solved: 0,						// Envy rooms solved, by destroying the giant eye
-	gudetama_room_visited: 0,						// Sloth rooms found
-	gudetama_room_solved: 0,						// Sloth rooms solved, by killing the gudetama
-	hall_of_mirrors_room_visited: 0,				// Pride rooms found
-	hall_of_mirrors_room_solved: 0,					// Pride rooms solved, by finding the way through the hall of mirrors
-	red_chest_room_visited: 0,						// Greed rooms found
-	red_chest_room_solved: 0,						// Arms the red chest took, with the item they held
-	inverted_cross_room_visited: 0,					// Wrath rooms found
-	inverted_cross_room_solved: 0,					// Wrath rooms solved, by going back to the cross
-	special_heart_victory: 0						// Wins carrying a purified heart
+	giant_eye_room_visited = 0;						// Envy rooms found
+	giant_eye_room_solved = 0;						// Envy rooms solved, by destroying the giant eye
+	gudetama_room_visited = 0;						// Sloth rooms found
+	gudetama_room_solved = 0;						// Sloth rooms solved, by killing the gudetama
+	hall_of_mirrors_room_visited = 0;				// Pride rooms found
+	hall_of_mirrors_room_solved = 0;				// Pride rooms solved, by finding the way through the hall of mirrors
+	red_chest_room_visited = 0;						// Greed rooms found
+	red_chest_room_solved = 0;						// Arms the red chest took, with the item they held
+	inverted_cross_room_visited = 0;				// Wrath rooms found
+	inverted_cross_room_solved = 0;					// Wrath rooms solved, by going back to the cross
+	special_heart_victory = 0;						// Wins carrying a purified heart
 }
-
-
-
-
-
 
 /// @function get_evaluation_messages()
 /// @description Every message the end-of-run evaluation can show, in the order it shows them. To add a message, add

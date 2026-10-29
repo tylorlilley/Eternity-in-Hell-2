@@ -2,65 +2,18 @@
 /// @description Everything the run being played does that the game keeps: its stats, kills and deaths as they
 ///	happen, then its evaluation messages and score when it ends. obj_controller holds it as run_record. It lives only
 ///	in memory until the run ends, after which it is saved and we add it to the save file for the run's difficulty and
-/// graphics mode. Nothing is written to disk during play.
+///	graphics mode. Nothing is written to disk during play.
 function RunRecord() constructor {
-	// Which save file the run belongs in, and its number among the runs on its difficulty
-	difficulty = global.difficulty;
-	graphics_mode = global.graphics_mode;
-	run_number = get_run_number_count(difficulty) + 1;
-
-	// The items the player began with
-	starting_left_hand_item = global.player_left_hand_item;
-	starting_right_hand_item = global.player_right_hand_item;
-
-	// What the run has done, shaped like a save file so that saving only adds it in
-	stats_record = new RunModeHistoryRecord(difficulty, graphics_mode);
-	stats = stats_record.stats;						// The run's stats, which the evaluation messages read as stats.name
-	killers = [];									// What killed the player each time they died, in order
-	rooms_looked_at_with_map_item = [];				// Rooms the player opened the map in while carrying a map
-	rooms_looked_at_without_map_item = [];			// Rooms the player opened the map in without carrying a map
-
-	// What evaluate measures when the run ends, for the evaluation messages to judge
-	has_won = false;
-	time_elapsed_percent = 0;
-	time_remaining_percent = 0;
-	collected_percent = 0;
-	visited_rooms_percent = 0;
-	escaped_percent = 0;
-	completion_amount = 0;
-	used_item_score = 0;
-	final_left_hand_item = noone;
-	final_right_hand_item = noone;
-	had_special_swarm = false;
-	map_room_count = 0;
-	previous_totals = new RunModeHistoryRecord(difficulty, graphics_mode);		// The save files' totals for this difficulty from before this run
-
-	// The evaluation, for the end screen
-	evaluation_messages = [];						// The text of each message the run earned, and whether it's negative
-	run_score = 0;
-	is_evaluated = false;
-	is_saved = false;
-
-	/// @function increment_stat(_stat_name, [_amount])
-	/// @description Adds to one of the run's stats. The name must be one RunStates defines.
-	/// @param {string} _stat_name The stat to add to
-	/// @param {real} [_amount] How much to add (1 by default)
-	static increment_stat = function(_stat_name, _amount = 1) {
-		if (!variable_struct_exists(stats, _stat_name)) {
-			write_debug_message("No run stat is named " + _stat_name, debug_message_level.warning);
-			return;
-		}
-
-		add_to_struct_number(stats, _stat_name, _amount);
-		show_debug_message(get_debug_message_level_string(debug_message_level.eval) + ": " + _stat_name + " += " + string(_amount));
-	};
+	// ============================
+	// Recording Functions - Called during the run
+	// ============================
 
 	/// @function record_kill(_victim, _killer)
 	/// @description Counts one thing killed or destroyed, and what did it. Killing an enemy also adds to kill_count.
 	/// @param {Asset.GMObject} _victim What was killed or destroyed
 	/// @param {Asset.GMObject} _killer What killed or destroyed it
 	static record_kill = function(_victim, _killer) {
-		add_kills_by_killer(stats_record, object_get_name(_victim), object_get_name(_killer), 1);
+		stats_record.add_kills_by_killer(object_get_name(_victim), object_get_name(_killer), 1);
 		if (is_enemy_object(_victim)) { increment_stat("kill_count"); }
 	};
 
@@ -69,7 +22,7 @@ function RunRecord() constructor {
 	/// @param {Asset.GMObject} _killer What killed the player
 	static record_death = function(_killer) {
 		array_push(killers, _killer);
-		add_to_struct_number(stats_record.deaths, object_get_name(_killer), 1);
+		add_to_count_struct(stats_record.deaths, object_get_name(_killer));
 		increment_stat("death_count");
 	};
 
@@ -82,10 +35,91 @@ function RunRecord() constructor {
 		increment_stat("map_looks");
 		var _rooms = (_is_carrying_map) ? rooms_looked_at_with_map_item : rooms_looked_at_without_map_item;
 		if (array_contains(_rooms, _room)) { return; }
-
+		
 		array_push(_rooms, _room);
 		increment_stat((_is_carrying_map) ? "rooms_map_looked_at_with_map_item" : "rooms_map_looked_at_without_map_item");
 	};
+
+	/// @function increment_stat(_stat_name, [_amount])
+	/// @description Adds to one of the run's stats. The name must be one RunStats defines.
+	/// @param {string} _stat_name The stat to add to
+	/// @param {real} [_amount] How much to add (1 by default)
+	static increment_stat = function(_stat_name, _amount = 1) {
+		if (!variable_struct_exists(stats, _stat_name)) {
+			write_debug_message("No run stat is named " + _stat_name, debug_message_level.warning);
+			return;
+		}
+		
+		add_to_count_struct(stats, _stat_name, _amount);
+		show_debug_message(get_debug_message_level_string(debug_message_level.eval) + ": " + _stat_name + " += " + string(_amount));
+	};
+
+	// ============================
+	// Evaluation Functions - Called when the run is won or lost
+	// ============================
+
+	/// @function evaluate()
+	/// @description Judges the run once it's won or lost: measures it, then goes through every evaluation message in
+	///	order, keeping the ones it earned (every one, in test mode) and adding up their scores, clamped to 0-100. Each
+	///	message's test runs as a method of this run, so it reads the run directly (see EvaluationMessage).
+	static evaluate = function() {
+		var _controller = global.controller, _time_provided = _controller.time_provided, _time_remaining = _controller.final_time_remaining;
+		
+		// Measure the run
+		has_won = is_game_won();
+		time_elapsed_percent = 100 * (_time_provided - _time_remaining) / _time_provided;
+		time_remaining_percent = 100 * _time_remaining / _time_provided;
+		collected_percent = get_collectables_score();
+		visited_rooms_percent = get_mapped_rooms_score();
+		escaped_percent = get_victory_amount_score();
+		completion_amount = _controller.completion_amount;
+		used_item_score = get_used_item_score();
+		final_left_hand_item = _controller.final_player_left_hand_item;
+		final_right_hand_item = _controller.final_player_right_hand_item;
+		had_special_swarm = (_controller.same_skeleton_type != noone);
+		map_room_count = array_length(_controller.game_rooms);
+		
+		// Judge it
+		var _messages = get_evaluation_messages();
+		evaluation_messages = [];
+		run_score = 0;
+		for (var _i = 0; _i < array_length(_messages); _i++) {
+			var _message = _messages[_i], _is_earned = method(self, _message.is_earned);
+			if (!global.is_test_mode && !_is_earned()) { continue; }
+			
+			run_score += get_message_score(_message);
+			array_push(evaluation_messages, [get_message_text(_message), _message.is_negative]);
+			if (_message.is_achievement) { stats_record.evaluation_messages[$ _message.title] = 1; }
+		}
+		run_score = clamp(run_score, 0, 100);
+		is_evaluated = true;
+	};
+
+	/// @function get_message_score(_message)
+	/// @description What an evaluation message adds to this run's score
+	/// @param {struct} _message The EvaluationMessage
+	/// @returns {real}
+	static get_message_score = function(_message) {
+		if (!is_method(_message.score_value)) { return _message.score_value; }
+		
+		var _get_score = method(self, _message.score_value);
+		return _get_score();
+	};
+
+	/// @function get_message_text(_message)
+	/// @description The text an evaluation message shows for this run: its title, or a score line's measure of the run
+	/// @param {struct} _message The EvaluationMessage
+	/// @returns {string}
+	static get_message_text = function(_message) {
+		if (_message.is_achievement) { return _message.title; }
+		
+		var _get_text = method(self, _message.get_text);
+		return _get_text();
+	};
+
+	// ============================
+	// Evaluation Message Helper Functions - Called by the evaluation messages, as methods of this run
+	// ============================
 
 	/// @function began_with_item(_item_type)
 	/// @description Whether the player began the run holding an item of this type
@@ -113,87 +147,29 @@ function RunRecord() constructor {
 	};
 
 	/// @function is_first_win_with_item(_item_type)
-	/// @description Whether winning while holding this item is a first on this difficulty. Only valid once evaluate
-	///	has run.
+	/// @description Whether winning while holding this item is a first on this difficulty
 	/// @param {Asset.GMObject} _item_type The type of the item held, or noone for an empty hand
 	/// @returns {bool} False for an empty hand or the heart
 	static is_first_win_with_item = function(_item_type) {
 		if (_item_type == noone || _item_type == obj_heart) { return false; }
-
-		return (get_struct_number(previous_totals.item_wins, object_get_name(_item_type)) == 0);
+		
+		return (previous_totals.get_item_win_count(_item_type) == 0);
 	};
 
 	/// @function has_novel_death()
-	/// @description Whether anything that killed the player this run had never killed them before on this
-	///	difficulty. Only valid once evaluate has run.
+	/// @description Whether anything that killed the player this run had never killed them before on this difficulty
 	/// @returns {bool}
 	static has_novel_death = function() {
 		for (var _i = 0; _i < array_length(killers); _i++) {
-			if (get_struct_number(previous_totals.deaths, object_get_name(killers[_i])) == 0) { return true; }
+			if (previous_totals.get_death_count(killers[_i]) == 0) { return true; }
 		}
-
+		
 		return false;
 	};
 
-	/// @function evaluate()
-	/// @description Judges the run once it's won or lost: measures it, then goes through every evaluation message in
-	///	order, keeping the ones it earned (every one, in test mode) and adding up their scores, clamped to 0-100. Each
-	///	message's test runs as a method of this run, so it reads the run directly (see EvaluationMessage).
-	static evaluate = function() {
-		var _controller = global.controller, _time_provided = _controller.time_provided, _time_remaining = _controller.final_time_remaining;
-
-		// Measure the run
-		has_won = is_game_won();
-		time_elapsed_percent = 100 * (_time_provided - _time_remaining) / _time_provided;
-		time_remaining_percent = 100 * _time_remaining / _time_provided;
-		collected_percent = get_collectables_score();
-		visited_rooms_percent = get_mapped_rooms_score();
-		escaped_percent = get_victory_amount_score();
-		completion_amount = _controller.completion_amount;
-		used_item_score = get_used_item_score();
-		final_left_hand_item = _controller.final_player_left_hand_item;
-		final_right_hand_item = _controller.final_player_right_hand_item;
-		had_special_swarm = (_controller.same_skeleton_type != noone);
-		map_room_count = array_length(_controller.game_rooms);
-		previous_totals = get_stats_record_total(difficulty);
-
-		// Judge it
-		var _messages = get_evaluation_messages();
-		evaluation_messages = [];
-		run_score = 0;
-		for (var _i = 0; _i < array_length(_messages); _i++) {
-			var _message = _messages[_i], _is_earned = method(self, _message.is_earned);
-			if (!global.is_test_mode && !_is_earned()) { continue; }
-
-			run_score += get_message_score(_message);
-			array_push(evaluation_messages, [get_message_text(_message), _message.is_negative]);
-			if (_message.is_achievement) { stats_record.evaluation_messages[$ _message.title] = 1; }
-		}
-		run_score = clamp(run_score, 0, 100);
-		is_evaluated = true;
-	};
-
-	/// @function get_message_score(_message)
-	/// @description What an evaluation message adds to this run's score
-	/// @param {struct} _message The EvaluationMessage
-	/// @returns {real}
-	static get_message_score = function(_message) {
-		if (!is_method(_message.score_value)) { return _message.score_value; }
-
-		var _get_score = method(self, _message.score_value);
-		return _get_score();
-	};
-
-	/// @function get_message_text(_message)
-	/// @description The text an evaluation message shows for this run: its title, or a score line's measure of the run
-	/// @param {struct} _message The EvaluationMessage
-	/// @returns {string}
-	static get_message_text = function(_message) {
-		if (_message.is_achievement) { return _message.title; }
-
-		var _get_text = method(self, _message.get_text);
-		return _get_text();
-	};
+	// ============================
+	// Save Functions - Called once the run is over
+	// ============================
 
 	/// @function save()
 	/// @description Ends the run's record: adds the outcome (a win, or a loss to the last thing that killed the
@@ -202,9 +178,9 @@ function RunRecord() constructor {
 	///	gave up; later calls do nothing.
 	static save = function() {
 		if (is_saved) { return; }
-
+		
 		is_saved = true;
-
+		
 		// Add the outcome
 		var _controller = global.controller, _has_won = is_game_won(), _death_count = array_length(killers), _outcome = "lost";
 		stats_record.runs = 1;
@@ -217,23 +193,70 @@ function RunRecord() constructor {
 			for (var _i = 0; _i < array_length(_final_items); _i++) {
 				var _item_type = _final_items[_i];
 				if (_item_type == noone) { continue; }
-
+				
 				_outcome += "; " + _hand_names[_i] + ": " + object_get_name(_item_type);
 				if (_item_type != obj_heart) { stats_record.item_wins[$ object_get_name(_item_type)] = 1; }
 			}
 		}
-
+		
 		// Log it
 		for (var _i = 0; _i < _death_count; _i++) { update_log("killed_by", object_get_name(killers[_i])); }
 		if (is_evaluated) { update_log("score", run_score); }
 		update_log("outcome", _outcome);
 		if (global.is_test_mode) { return; }
-
+		
 		// Save it
-		add_stats_record(get_saved_stats_record(difficulty, graphics_mode), stats_record);
-		write_saved_stats_record(difficulty, graphics_mode);
+		var _run_mode_history_record = get_run_mode_history_record(difficulty, graphics_mode);
+		_run_mode_history_record.combine_with_run_mode_history_record(stats_record);
+		_run_mode_history_record.write_run_mode_history_file();
 	};
+
+	// ============================
+	// Instance Variables
+	// ============================
+
+	// Which save file the run belongs in, its number among the runs on its difficulty, and the save files' totals for
+	// its difficulty from before it, which the evaluation messages compare it with
+	difficulty = global.difficulty;
+	graphics_mode = global.graphics_mode;
+	previous_totals = get_stats_record_total(difficulty);
+	run_number = previous_totals.runs + 1;
+	
+	// The items the player began with
+	starting_left_hand_item = global.player_left_hand_item;
+	starting_right_hand_item = global.player_right_hand_item;
+	
+	// What the run has done, shaped like a save file so that saving only adds it in
+	stats_record = new RunModeHistoryRecord(difficulty, graphics_mode);
+	stats = stats_record.stats;						// The run's stats, which the evaluation messages read as stats.name
+	killers = [];									// What killed the player each time they died, in order
+	rooms_looked_at_with_map_item = [];				// Rooms the player opened the map in while carrying a map
+	rooms_looked_at_without_map_item = [];			// Rooms the player opened the map in without carrying a map
+	
+	// What the run's evaluation measures when it ends, for the evaluation messages to judge
+	has_won = false;
+	time_elapsed_percent = 0;
+	time_remaining_percent = 0;
+	collected_percent = 0;
+	visited_rooms_percent = 0;
+	escaped_percent = 0;
+	completion_amount = 0;
+	used_item_score = 0;
+	final_left_hand_item = noone;
+	final_right_hand_item = noone;
+	had_special_swarm = false;
+	map_room_count = 0;
+	
+	// The evaluation, for the end screen
+	evaluation_messages = [];						// The text of each message the run earned, and whether it's negative
+	run_score = 0;
+	is_evaluated = false;
+	is_saved = false;
 }
+
+// ============================
+// Global Run Record Functions
+// ============================
 
 /// @function get_run_record()
 /// @description The record of the run being played

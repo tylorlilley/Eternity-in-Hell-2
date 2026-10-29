@@ -432,7 +432,7 @@ if (!_game_manager.paused) {
 			}
 			else if (prepare_screen) { 
 				update_hand_options();
-				if (get_win_count(global.difficulty) == 0) { prepare_screen = false; loading = true; }
+				if (get_stats_record_total(global.difficulty).wins == 0) { prepare_screen = false; loading = true; }
 			}
 		}
 		

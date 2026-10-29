@@ -45,7 +45,7 @@ function get_max_difficulty() {
 	var _all_difficulties = get_difficulties();
 	while (array_length(_all_difficulties) > 0) {
 		var _next_difficulty = array_pop(_all_difficulties);
-		var _next_wins = get_win_count(_next_difficulty);
+		var _next_wins = get_stats_record_total(_next_difficulty).wins;
 		if (_next_wins > 0 && _next_difficulty > _max_difficulty) {
 			_max_difficulty = _next_difficulty;
 		}
@@ -226,14 +226,14 @@ function update_hand_options() {
 	right_hand_pos = -1;
 	global.player_left_hand_item = get_setting_for_difficulty("last_player_left_hand_item", global.difficulty, obj_torch);
 	global.player_right_hand_item = get_setting_for_difficulty("last_player_right_hand_item", global.difficulty, noone);
-	var _possible_options = global.available_items[global.difficulty];
+	var _possible_options = global.available_items[global.difficulty], _history_record = get_stats_record_total(global.difficulty);
 	for (var _i = 0; _i < array_length(_possible_options); _i++) {
 		var _next_option = _possible_options[_i];
 		// Ensure Torch is always available
 		if (_next_option == obj_torch) { 
 			array_push(hand_options, _next_option);
 		}
-		else if (get_item_win_count(_next_option, global.difficulty) > 0) {
+		else if (_history_record.get_item_win_count(_next_option) > 0) {
 			array_push(hand_options, _next_option); 
 		}
 		// Preselect Previous Items
@@ -252,12 +252,12 @@ function update_hand_options() {
 ///	2 last run ended)
 function update_death_types() {
 	// Update Death Count Values
-	var _death_types = get_death_types();
+	var _death_types = get_death_types(), _history_record = get_stats_record_total(global.difficulty, global.graphics_mode);
 	deaths_to_display = [];
 	while (array_length(_death_types) > 0) {
 		var _death_type = array_pop(_death_types);
 		
-		var _death_count = get_death_count(_death_type, global.difficulty, global.graphics_mode), _kill_count = get_player_kill_count(_death_type, global.difficulty, global.graphics_mode), _last_killed = get_last_killed(_death_type, global.difficulty, global.graphics_mode);
+		var _death_count = _history_record.get_death_count(_death_type), _kill_count = _history_record.get_player_kill_count(_death_type), _last_killed = _history_record.get_last_killed(_death_type);
 		if (_death_count > 0 || _kill_count > 0) { array_push(deaths_to_display, [_death_type, _death_count, _kill_count, _last_killed]); }
 	}
 				
@@ -277,12 +277,12 @@ function update_death_types() {
 ///	evaluation's order, 1 the most earned first). Test mode lists every achievement.
 function update_traits_to_display() {
 	traits_to_display = [];
-	var _evaluation_messages = get_evaluation_messages();
+	var _evaluation_messages = get_evaluation_messages(), _history_record = get_stats_record_total(global.difficulty, global.graphics_mode);
 	for (var _i = 0; _i < array_length(_evaluation_messages); _i++) {
 		var _message = _evaluation_messages[_i];
 		if (!_message.is_achievement) { continue; }
 
-		var _times_earned = (global.is_test_mode) ? 9999 : get_evaluation_message_count(_message.title, global.difficulty, global.graphics_mode);
+		var _times_earned = (global.is_test_mode) ? 9999 : _history_record.get_evaluation_message_count(_message.title);
 		if (_times_earned > 0) { array_push(traits_to_display, [_message, _times_earned, _i]); }
 	}
 
@@ -300,7 +300,7 @@ function update_traits_to_display() {
 /// @param {real} _difficulty The difficulty (see difficulties)
 /// @returns {bool}
 function has_finished_a_run(_difficulty) {
-	return (get_run_number_count(_difficulty) > 0);
+	return (get_stats_record_total(_difficulty).runs > 0);
 }
 
 /// @function								can_play_unknown_mode();
